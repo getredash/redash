@@ -8,7 +8,7 @@
 #
 #####################################################################
 
-**Got an idea for a new feature?** Check if it isn't on the roadmap already: http://bit.ly/redash-roadmap and start a new discussion in the features category: https://discuss.redash.io/c/feature-requests 🌟.
+**Got an idea for a new feature?** Check if it isn't on the roadmap already: https://bit.ly/redash-roadmap and start a new discussion in the features category: https://discuss.redash.io/c/feature-requests 🌟.
 
 Found a bug? Please fill out the sections below... thank you 👍
 

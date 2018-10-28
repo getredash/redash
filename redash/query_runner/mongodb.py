@@ -209,10 +209,14 @@ class MongoDB(BaseQueryRunner):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():
+            if collection_name.startswith('system.'):
+                continue
             columns = self._get_collection_fields(db, collection_name)
-            schema[collection_name] = { "name" : collection_name, "columns" : sorted(columns) }
+            schema[collection_name] = {
+                "name": collection_name, "columns": sorted(columns)}
 
         return schema.values()
+
 
     def run_query(self, query, user):
         db = self._get_db()

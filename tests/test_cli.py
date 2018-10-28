@@ -208,6 +208,11 @@ class GroupCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_group(name='test', permissions=['list_dashboards'])
+        self.factory.create_user(name='Fred Foobar',
+                         email=u'foobar@example.com',
+                         org=self.factory.org,
+                         group_ids=[self.factory.default_group.id])
+
         runner = CliRunner()
         result = runner.invoke(manager, ['groups', 'list'])
         self.assertFalse(result.exception)
@@ -217,16 +222,19 @@ class GroupCommandTests(BaseTestCase):
         Name: admin
         Type: builtin
         Organization: default
+        Users: 
         --------------------
         Id: 2
         Name: default
         Type: builtin
         Organization: default
+        Users: Fred Foobar
         --------------------
         Id: 3
         Name: test
         Type: regular
         Organization: default
+        Users: 
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())
@@ -391,6 +399,8 @@ class UserCommandTests(BaseTestCase):
         Name: Fred Foobar
         Email: foobar@example.com
         Organization: Default
+        Active: True
+        Groups: default
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())

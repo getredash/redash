@@ -37,6 +37,10 @@ class ClickHouse(BaseSQLQueryRunner):
                     "title": "Toggle Table String",
                     "default": "_v",
                     "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                "timeout": {
+                    "type": "number",
+                    "title": "Request Timeout",
+                    "default": 30
                 }
             },
             "required": ["dbname"],
@@ -68,10 +72,17 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        r = requests.post(self.configuration['url'], data=data.encode("utf-8"), stream=stream, params={
-            'user': self.configuration['user'], 'password':  self.configuration['password'],
-            'database': self.configuration['dbname']
-        })
+        r = requests.post(
+            self.configuration['url'],
+            data=data.encode("utf-8"),
+            stream=stream,
+            timeout=self.configuration.get('timeout', 30),
+            params={
+                'user': self.configuration['user'],
+                'password':  self.configuration['password'],
+                'database': self.configuration['dbname']
+            }
+        )
         if r.status_code != 200:
             raise Exception(r.text)
         # logging.warning(r.json())
@@ -95,7 +106,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return TYPE_STRING
 
     def _clickhouse_query(self, query):
-        query += ' FORMAT JSON'
+        query += '\nFORMAT JSON'
         result = self._send_query(query)
         columns = [{'name': r['name'], 'friendly_name': r['name'],
                     'type': self._define_column_type(r['type'])} for r in result['meta']]

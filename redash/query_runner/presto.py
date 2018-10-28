@@ -40,6 +40,10 @@ class Presto(BaseQueryRunner):
                 'host': {
                     'type': 'string'
                 },
+                'protocol': {
+                    'type': 'string',
+                    'default': 'http'
+                },
                 'port': {
                     'type': 'number'
                 },
@@ -59,6 +63,7 @@ class Presto(BaseQueryRunner):
                     "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
+            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
             'required': ['host']
         }
 
@@ -99,6 +104,7 @@ class Presto(BaseQueryRunner):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
+                protocol=self.configuration.get('protocol', 'http'),
                 username=self.configuration.get('username', 'redash'),
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
@@ -117,7 +123,10 @@ class Presto(BaseQueryRunner):
         except DatabaseError as db:
             json_data = None
             default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
-            message = db.message.get('failureInfo', {'message', None}).get('message')
+            if isinstance(db.message, dict):
+                message = db.message.get('failureInfo', {'message', None}).get('message')
+            else:
+                message = None
             error = default_message if message is None else message
         except (KeyboardInterrupt, InterruptException) as e:
             cursor.cancel()
