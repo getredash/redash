@@ -38,8 +38,18 @@ function buildKeywordsFromSchema(schema) {
   schema.forEach((table) => {
     keywords[table.name] = 'Table';
     table.columns.forEach((c) => {
-      keywords[c] = 'Column';
-      keywords[`${table.name}.${c}`] = 'Column';
+      if (typeof c === 'string') {
+        keywords[c] = 'Column';
+        keywords[`${table.name}.${c}`] = 'Column';
+      } else if (typeof c === 'object') {
+        c.forEach((a, b) => {
+          if (a === 'column_name') {
+            const columnName = b;
+            keywords[columnName] = 'Column';
+            keywords[`${table.name}.${columnName}`] = 'Column';
+          }
+        });
+      }
     });
   });
 

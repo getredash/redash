@@ -20,9 +20,9 @@
           ng-click="$ctrl.itemSelected($event, [table.name])"></i>
       </div>
       <div uib-collapse="table.collapsed">
-        <div ng-repeat="column in table.columns | filter:$ctrl.schemaFilterColumn track by column" class="table-open">{{column}}
+        <div ng-repeat="column in table.columns[0] | filter:$ctrl.schemaFilterColumn track by column.column_name" class="table-open"><span ng-if="column.extra_info == 'partition key'"><i class="fa fa-key" aria-hidden="true"></i></span> {{column.column_name}} <span ng-if="column.column_type"> ({{column.column_type}})</span>
           <i class="fa fa-angle-double-right copy-to-editor" aria-hidden="true"
-            ng-click="$ctrl.itemSelected($event, [column])"></i>
+            ng-click="$ctrl.itemSelected($event, [column.column_name])"></i>
         </div>
       </div>
     </div>

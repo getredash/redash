@@ -72,7 +72,7 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['row_id'], 'name': 'test1.jdbc_table'}]
+            assert query_runner.get_schema() == [{'columns': [[{'column_name':'row_id','column_type':'int'}]], 'name': 'test1.jdbc_table'}]
 
     def test_partitioned_table(self):
         """
@@ -118,7 +118,7 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['sk', 'category'], 'name': 'test1.partitioned_table'}]
+            assert query_runner.get_schema() == [{'columns': [[{'extra_info':'partition key','column_name':'category'},{'column_type':'int','column_name':'sk'}]], 'name': 'test1.partitioned_table'}]
 
     def test_view(self):
         query_runner = Athena({'glue': True, 'region': 'mars-east-1'})
@@ -150,7 +150,7 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['sk'], 'name': 'test1.view'}]
+            assert query_runner.get_schema() == [{'columns': [[{'column_name':'sk', 'column_type':'int'}]], 'name': 'test1.view'}]
 
     def test_dodgy_table_does_not_break_schema_listing(self):
         """
@@ -187,4 +187,4 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['region'], 'name': 'test1.csv'}]
+            assert query_runner.get_schema() == [{'columns': [[{'column_name':'region','column_type':'string'}]], 'name': 'test1.csv'}]
