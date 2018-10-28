@@ -12,7 +12,11 @@
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "cypress:server": "node cypress/cypress-server.js",
+    "cypress:run": "cypress run",
+    "cypress:open": "cypress open",
+    "cypress": "npm run cypress:server start && cypress run && npm run cypress:server stop"
   },
   "repository": {
     "type": "git",
