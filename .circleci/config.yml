@@ -54,6 +54,18 @@ jobs:
       - run: npm install
       - run: npm run bundle
       - run: npm test
+  cypress-e2e-tests:
+    environment:
+      COMPOSE_FILE: .circleci/docker-compose.cypress.yml
+      COMPOSE_PROJECT_NAME: cypress
+    docker:
+      - image: circleci/node:8
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: npm install
+      - run: npm build
+      - run: npm run cypress
   build-tarball:
     docker:
       - image: circleci/node:8
@@ -135,6 +147,7 @@ workflows:
       - legacy-python-flake8-tests
       - backend-unit-tests
       - frontend-unit-tests
+      - cypress-e2e-tests
       - build-tarball:
            requires:
              - backend-unit-tests
