@@ -1,7 +1,7 @@
 [build]
   base    = "client"
   publish = "client/dist"
-  command = "npm install && npm run build"
+  command = "CYPRESS_INSTALL_BINARY=0 npm install && npm run build"
 
 [[redirects]]
   from = "/api/*"
