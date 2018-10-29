@@ -135,8 +135,9 @@ jobs:
           path: report.html
 workflows:
   version: 2
-  # integration_tests:
-  #  jobs:
+  integration_tests:
+    jobs:
+      - cypress-e2e-tests
   #    - integration-tests:
   #        filters:
   #           branches:
@@ -147,7 +148,6 @@ workflows:
       - legacy-python-flake8-tests
       - backend-unit-tests
       - frontend-unit-tests
-      - cypress-e2e-tests
       - build-tarball:
            requires:
              - backend-unit-tests
