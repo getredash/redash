@@ -1,7 +1,7 @@
 version: '2'
 services:
   server:
-    build: .
+    build: ../
     command: dev_server
     depends_on:
       - postgres
