@@ -46,7 +46,9 @@ const PlotlyChart = () => ({
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
 
       // It will auto-purge previous graph
-      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
+      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions).then(() => {
+        updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+      });
 
       plotlyElement.on('plotly_restyle', (updates) => {
         // This event is triggered if some plotly data/layout has changed.
