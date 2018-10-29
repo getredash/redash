@@ -28,6 +28,7 @@ PRESTO_TYPES_MAPPING = {
     "date": TYPE_DATE,
 }
 
+
 def format_schema(results):
     """
     This function formats the schema, table, and columns of Athena and Presto
