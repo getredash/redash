@@ -18,59 +18,64 @@
 
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
-    <div class="row p-l-15 p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
-      <div class="page-title col-sm-8 col-xs-7 p-0">
-        <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
-        <h3>
-          <edit-in-place editable="canEdit" on-done="saveName" ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
-        </h3>
-        <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
-        <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
-          popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-        <tags-control class="hidden-xs" item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
-      </div>
+    <div class="p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
+      <div class="page-title p-0">
+        <div class="d-flex flex-nowrap align-items-center">
+          <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
+          <h3>
+            <edit-in-place editable="canEdit" on-done="saveName" ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
+          </h3>
 
-      <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
+          <span class="flex-fill">&nbsp;</span>
 
-        <button class="btn btn-default btn-publish" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-          <span class="fa fa-paper-plane"></span> Publish
-        </button>
+          <div class="p-0 source-control text-right text-nowrap align-self-start m-t-5">
+            <button class="btn btn-default btn-publish" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+              <span class="fa fa-paper-plane"></span> Publish
+            </button>
 
-        <span ng-show="query.id && canViewSource">
-          <a ng-show="!sourceMode" ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide">
-            <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit Source
-          </a>
-          <a ng-show="sourceMode" ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide">
-            <i class="fa fa-table" aria-hidden="true"></i> Show Data Only
-          </a>
-        </span>
+            <span ng-show="query.id && canViewSource">
+              <a ng-show="!sourceMode" ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide">
+                <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit Source</i>
+              </a>
+              <a ng-show="sourceMode" ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide">
+                <i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
+              </a>
+            </span>
 
-        <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
-          <button class="btn btn-default dropdown-toggle hidden-xs" uib-dropdown-toggle>
-            <span class="zmdi zmdi-more"></span>
-          </button>
-          <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-            <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
-              <a ng-click="duplicateQuery()"> Fork</a>
-            </li>
-            <li class="divider"></li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-              <a ng-click="archiveQuery()">Archive</a>
-            </li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl">
-              <a ng-click="showManagePermissionsModal()">Manage Permissions</a>
-            </li>
-            <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-              <a ng-click="togglePublished()">Unpublish</a>
-            </li>
-            <li class="divider" ng-if="!query.is_archived"></li>
-            <li ng-if="query.id != undefined">
-              <a ng-click="showApiKey()">Show API Key</a>
-            </li>
-            <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
-              <a ng-click="compareQueryVersion()">Query Versions</a>
-            </li>
-          </ul>
+            <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
+              <button class="btn btn-default dropdown-toggle hidden-xs" uib-dropdown-toggle>
+                <span class="zmdi zmdi-more"></span>
+              </button>
+              <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+                <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
+                  <a ng-click="duplicateQuery()"> Fork</a>
+                </li>
+                <li class="divider"></li>
+                <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                  <a ng-click="archiveQuery()">Archive</a>
+                </li>
+                <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl">
+                  <a ng-click="showManagePermissionsModal()">Manage Permissions</a>
+                </li>
+                <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                  <a ng-click="togglePublished()">Unpublish</a>
+                </li>
+                <li class="divider" ng-if="!query.is_archived"></li>
+                <li ng-if="query.id != undefined">
+                  <a ng-click="showApiKey()">Show API Key</a>
+                </li>
+                <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
+                  <a ng-click="compareQueryVersion()">Query Versions</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div style="padding-left: 23px; margin-top: -5px;">
+          <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
+          <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
+            popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+          <tags-control item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
         </div>
       </div>
     </div>
@@ -91,7 +96,7 @@
       </div>
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
-      <div class="query-metadata query-metadata--description">
+      <div class="query-metadata query-metadata--description" ng-if="!query.isNew()">
         <edit-in-place editable="canEdit" on-done="saveDescription" editor="'textarea'" placeholder="'Add description'" ignore-blanks='false'
           value="query.description" markdown="true">
         </edit-in-place>
@@ -139,7 +144,7 @@
 
     <div class="content">
       <div class="flex-fill p-relative">
-        <div class="p-absolute d-flex flex-column p-l-15 p-r-15" style="left: 0; top: 0; right: 0; bottom: 0;">
+        <div class="p-absolute d-flex flex-column p-l-15 p-r-15" style="left: 0; top: 0; right: 0; bottom: 0; overflow: auto">
           <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle
                style="min-height: 11px; max-height: 70vh;" ng-if="sourceMode">
             <query-editor
@@ -164,29 +169,27 @@
           </div>
 
           <div class="row query-metadata__mobile">
-            <div class="col-xs-4 text-left">
-              <span class="m-r-5">Created by</span>
-              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb">
-              <strong>
-                <rd-time-ago value="query.created_at"></rd-time-ago>
-              </strong>
+            <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb">
+            <div class="flex-fill m-r-10">
+              <strong class="meta__name" ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</strong>
+              created <rd-time-ago value="query.created_at"></rd-time-ago>
             </div>
-            <div class="col-xs-4 text-center">
-              <span class="m-r-5">Updated by</span>
-              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb">
-              <strong>
-                <rd-time-ago value="query.updated_at"></rd-time-ago>
-              </strong>
+
+            <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb">
+            <div class="flex-fill m-r-10">
+              <strong class="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
+              updated <rd-time-ago value="query.updated_at"></rd-time-ago>
             </div>
-            <div class="col-xs-4 text-right">
-              <span class="query-metadata__property"></span> Refresh Schedule</span>
+
+            <div>
+              <span class="query-metadata__property">Refresh schedule:</span>
               <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
               <span ng-if="query.isNew()">Never</span>
             </div>
           </div>
 
-          <section class="flex-fill p-relative t-body">
-            <div class="d-flex flex-column p-b-15 p-absolute" style="left: 0; top: 0; right: 0; bottom: 0;">
+          <section class="row flex-fill p-relative t-body">
+            <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
                 <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
               </div>
@@ -218,7 +221,7 @@
 
               <!-- tabs and data -->
               <div ng-if="showDataset" class="flex-fill p-relative">
-                <div class="d-flex flex-column p-absolute" style="left: 0; top: 0; right: 0; bottom: 0;">
+                <div class="d-flex flex-column p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
                   <div class="p-10" ng-show="showLog">
                     <p>Log Information:</p>
                     <p ng-repeat="l in queryResult.getLog()">{{l}}</p>

@@ -1,5 +1,5 @@
 from flask import request, url_for
-from funcy import project, rpartial
+from funcy import project, partial
 
 from flask_restful import abort
 from redash import models, serializers
@@ -21,7 +21,11 @@ order_map = {
     '-created_at': '-created_at',
 }
 
-order_results = rpartial(_order_results, '-created_at', order_map)
+order_results = partial(
+    _order_results,
+    default_order='-created_at',
+    allowed_orders=order_map,
+)
 
 
 class DashboardListResource(BaseResource):
@@ -56,8 +60,10 @@ class DashboardListResource(BaseResource):
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
-        # order results according to passed order parameter
-        ordered_results = order_results(results)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

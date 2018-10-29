@@ -10,11 +10,17 @@ export default class LivePaginator {
     this.fetchPage(page);
   }
 
-  fetchPage(page) {
-    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse);
+  fetchPage(page, requested = false) {
+    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse, this, requested);
   }
 
-  setPage(page, pageSize) {
+  setPage(page, pageSize, pageOrder, pageOrderReverse) {
+    if (pageOrder) {
+      this.orderByField = pageOrder;
+    }
+    if (pageOrderReverse) {
+      this.orderByReverse = pageOrderReverse;
+    }
     if (pageSize) {
       this.itemsPerPage = pageSize;
     }
@@ -44,7 +50,7 @@ export default class LivePaginator {
     }
 
     if (this.orderByField) {
-      this.fetchPage(this.page);
+      this.fetchPage(this.page, true);
     }
   }
 }

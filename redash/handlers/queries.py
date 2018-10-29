@@ -3,9 +3,9 @@ from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
 from sqlalchemy.orm.exc import StaleDataError
-from funcy import rpartial
+from funcy import partial
 
-from redash import models
+from redash import models, settings
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
                                   org_scoped_rule, paginate, routes, order_results as _order_results)
@@ -34,7 +34,11 @@ order_map = {
     '-created_by': '-users-name',
 }
 
-order_results = rpartial(_order_results, '-created_at', order_map)
+order_results = partial(
+    _order_results,
+    default_order='-created_at',
+    allowed_orders=order_map,
+)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -49,7 +53,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify({'query': sqlparse.format(query, reindent=True, keyword_case='upper')})
+    return jsonify({'query': sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
 
 
 class QuerySearchResource(BaseResource):
@@ -189,8 +193,10 @@ class QueryListResource(BaseResource):
 
         results = filter_by_tags(results, models.Query.tags)
 
-        # order results according to passed order parameter
-        ordered_results = order_results(results)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -240,8 +246,10 @@ class MyQueriesResource(BaseResource):
 
         results = filter_by_tags(results, models.Query.tags)
 
-        # order results according to passed order parameter
-        ordered_results = order_results(results)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

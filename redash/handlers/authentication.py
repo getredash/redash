@@ -4,7 +4,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url
+from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
                                            validate_token)
@@ -106,8 +106,9 @@ def login(org_slug=None):
     elif current_org == None:
         return redirect('/')
 
-    index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    index_url = url_for('redash.index', org_slug=org_slug)
+    unsafe_next_path = request.args.get('next', index_url)
+    next_path = get_next_path(unsafe_next_path)
     if current_user.is_authenticated:
         return redirect(next_path)
 
@@ -166,7 +167,7 @@ def date_format_config():
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
-            'newVersionAvailable': get_latest_version(),
+            'newVersionAvailable': bool(get_latest_version()),
             'version': __version__
         }
     else:
@@ -181,6 +182,8 @@ def client_config():
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
+        'pageSize': settings.PAGE_SIZE,
+        'pageSizeOptions': settings.PAGE_SIZE_OPTIONS,
     }
 
     client_config.update(defaults)
