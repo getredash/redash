@@ -64,7 +64,6 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: npm install
-      - run: npm build
       - run: npm run cypress
   build-tarball:
     docker:
