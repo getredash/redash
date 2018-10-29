@@ -174,7 +174,6 @@ class UserDetail(walrus.Model):
     def sync(cls, chunksize=1000):
         """
         Syncs user details to Postges (to the JSONB field User.details).
-
         """
         to_sync = {}
         try:
