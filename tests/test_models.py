@@ -1,14 +1,14 @@
 #encoding: utf8
 import calendar
 import datetime
-import json
 from unittest import TestCase
 
-import mock
+import pytz
+import walrus
 from dateutil.parser import parse as date_parse
-from tests import BaseTestCase
+from tests import BaseTestCase, authenticated_user
 
-from redash import models
+from redash import models, walrus_db
 from redash.models import db
 from redash.utils import gen_query_hash, utcnow
 
@@ -594,3 +594,110 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
+
+
+class Timestamp(walrus.Model):
+    __database__ = walrus_db
+    __namespace__ = 'redash.tests.timestamp'
+
+    created_at = models.UTCDateTimeField(index=True, default=utcnow)
+
+
+class TestUserDetail(BaseTestCase):
+
+    def setUp(self):
+        super(TestUserDetail, self).setUp()
+        walrus_db.flushdb()
+
+    def test_walrus_utcdatetimefield(self):
+        timestamp = Timestamp()
+        timestamp.save()
+
+        timestamps = list(Timestamp.all())
+        self.assertEqual(len(timestamps), 1)
+        self.assertIsInstance(timestamps[0].created_at, datetime.datetime)
+        self.assertEqual(timestamps[0].created_at.tzinfo, pytz.utc)
+
+    def test_userdetail_db_default(self):
+        with authenticated_user(self.client) as user:
+            self.assertEqual(user.details, user.details_default)
+            self.assertIsNone(user.active_at)
+
+    def test_userdetail_db_default_save(self):
+        with authenticated_user(self.client) as user:
+            user.details['test'] = 1
+            models.db.session.commit()
+
+            user_reloaded = models.User.query.filter_by(id=user.id).first()
+            self.assertEqual(user.details['test'], 1)
+            self.assertEqual(
+                user_reloaded,
+                models.User.query.filter(
+                    models.User.details['test'].astext.cast(models.db.Integer) == 1
+                ).first()
+            )
+
+    def test_userdetail_create(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        user_detail = models.UserDetail.create(user_id=1)
+        user_detail.save()
+        self.assertEqual(
+            models.UserDetail.get(models.UserDetail.user_id == 1)._id,
+            user_detail._id,
+        )
+        self.assertTrue(user_detail.needs_sync)
+
+    def test_userdetail_update(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        # first try to create a user with a user id that we haven't used before
+        # and see if the creation was successful
+        models.UserDetail.update(user_id=1000)  # non-existent user
+        all_user_details = list(models.UserDetail.all())
+        self.assertEqual(len(all_user_details), 1)
+        created_user_detail = all_user_details[0]
+        self.assertTrue(created_user_detail.needs_sync)
+
+        # then see if we can update the same user detail again
+        updated_user_detail = models.UserDetail.update(
+            user_id=created_user_detail.user_id
+        )
+        self.assertGreater(
+            updated_user_detail.updated_at,
+            created_user_detail.updated_at
+        )
+        self.assertTrue(updated_user_detail.needs_sync)
+
+    def test_userdetail_stop_sync(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        user_detail = models.UserDetail.create(user_id=1)
+        user_detail.save()
+        self.assertTrue(user_detail.needs_sync)
+        models.UserDetail.stop_sync(user_id=1)
+        self.assertFalse(
+            models.UserDetail.get(models.UserDetail.user_id == 1).needs_sync
+        )
+
+    def test_userdetail_all_to_sync(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 0)
+        user_detail = models.UserDetail.create(user_id=1)
+        user_detail.save()
+        self.assertEqual(len(list(models.UserDetail.all())), 1)
+        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 1)
+        user_detail2 = models.UserDetail.create(user_id=2)
+        user_detail2.save()
+        self.assertEqual(len(list(models.UserDetail.all())), 2)
+        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 2)
+        models.UserDetail.stop_sync(user_id=user_detail2.user_id)
+        self.assertEqual(len(list(models.UserDetail.all())), 2)
+        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 1)
+
+    def test_sync(self):
+        with authenticated_user(self.client) as user:
+            user_detail = models.UserDetail.update(user_id=user.id)
+            self.assertEqual(user.details, models.User.details_default)
+            models.UserDetail.sync()
+
+            user_reloaded = models.User.query.filter_by(id=user.id).first()
+            self.assertIn('active_at', user_reloaded.details)
+            self.assertEqual(user_reloaded.active_at, user_detail.updated_at)

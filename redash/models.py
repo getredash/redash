@@ -6,41 +6,48 @@ import functools
 import hashlib
 import itertools
 import logging
+import pytz
 import time
 import pytz
 from functools import reduce
 
 from six import python_2_unicode_compatible, string_types, text_type
 import xlsxwriter
+import walrus
 from flask import current_app as app, url_for
-from flask_login import AnonymousUserMixin, UserMixin
+from flask_login import current_user, AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from passlib.apps import custom_app_context as pwd_context
 
-from redash import settings, redis_connection, utils
+from redash import settings, walrus_db, redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps, json_loads
+from redash.utils import generate_token, json_dumps, json_loads, utcnow
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
 
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, contains_eager, joinedload, object_session, load_only
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.pool import NullPool
 from sqlalchemy import func
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 from sqlalchemy_utils import generic_relationship, EmailType
 from sqlalchemy_utils.types import TSVectorType
+
+logger = logging.getLogger(__name__)
 
 
 class RedashSQLAlchemy(SQLAlchemy):
@@ -99,6 +106,141 @@ class ScheduledQueriesExecutions(object):
 
 
 scheduled_queries_executions = ScheduledQueriesExecutions()
+
+
+class UTCDateTimeField(walrus.DateTimeField):
+    """
+    A walrus DateTimeField that makes the value timezone aware
+    using the pytz.utc timezone on return.
+    """
+    def python_value(self, value):
+        value = super(UTCDateTimeField, self).python_value(value)
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=pytz.utc)
+        return value
+
+
+class UserDetail(walrus.Model):
+    """
+    A walrus data model to store some user data to Redis to be
+    synced to Postgres asynchronously.
+    """
+    __database__ = walrus_db
+    __namespace__ = 'redash.user.details'
+
+    user_id = walrus.IntegerField(index=True)
+    updated_at = UTCDateTimeField(index=True, default=utcnow)
+    needs_sync = walrus.BooleanField(index=True, default=True)
+
+    @classmethod
+    def update(cls, user_id):
+        """
+        Update the user details hash using the given redis
+        pipeline, user id, optional redis id and optional user
+        details.
+
+        The fields uid, rid and updated (timestamp) are
+        enforced and can't be overwritten.
+        """
+        # try getting the user detail with the given user ID
+        # or create one if it doesn't exist yet (e.g. when key was purged)
+        try:
+            user_detail = cls.get(cls.user_id == user_id)
+        except ValueError:
+            user_detail = cls.create(user_id=user_id)
+        # update the timestamp with the current time
+        user_detail.updated_at = utcnow()
+        # mark the user detail ready for syncing
+        user_detail.needs_sync = True
+        # save to Redis
+        user_detail.save()
+        return user_detail
+
+    @classmethod
+    def stop_sync(cls, user_id):
+        """
+        Mark the user detail to not need syncing with Postgres anymore,
+        e.g. when it has just been synced.
+        """
+        try:
+            user_detail = cls.get(cls.user_id == user_id)
+        except ValueError:
+            pass
+        else:
+            user_detail.needs_sync = False
+            user_detail.save()
+
+    @classmethod
+    def sync(cls, chunksize=1000):
+        """
+        Syncs user details to Postges (to the JSONB field User.details).
+
+        """
+        to_sync = {}
+        try:
+            for user_detail in cls.all_to_sync():
+                to_sync[user_detail.user_id] = user_detail
+
+            user_ids = list(to_sync.keys())
+            if not user_ids:
+                return
+            logger.info(
+                'syncing users: %s',
+                ', '.join([str(uid) for uid in user_ids])
+            )
+            # get all SQLA users that need to be updated
+            users = User.query.filter(User.id.in_(user_ids))
+            for i, user in enumerate(users):
+                update = to_sync[user.id]
+                updated_at = getattr(update, 'updated_at', None)
+                if updated_at is None:
+                    continue
+                user.active_at = updated_at
+                # flush changes to the database after a certain
+                # number of items and extend the list of keys to
+                # stop sync in case of exceptions
+                if i % chunksize == 0:
+                    db.session.flush()
+            db.session.commit()
+        except DBAPIError:
+            # reset list of keys to stop sync
+            pass
+        finally:
+            for user_id in to_sync:
+                logger.info('Stop syncing user %s', user_id)
+                cls.stop_sync(user_id)
+
+    @classmethod
+    def all_to_sync(cls):
+        """
+        Return all the user details that need to be synced to Postgres.
+        """
+        return cls.query(UserDetail.needs_sync == True)  # noqa
+
+
+class UserDetailsExtension(object):
+    """
+    A Flask extension to keep user details updates in Redis and
+    sync it periodically to the database (User.details).
+    """
+    def before_request(self):
+        """
+        Used as a Flask before_request callback that adds
+        the current user's details to Redis
+        """
+        if current_user.is_authenticated and current_user.id:
+            UserDetail.update(current_user.id)
+
+    def init_app(self, app):
+        """
+        Initializes this pseudo Flask extension with the given
+        Flask app.
+        """
+        app.before_request(self.before_request)
+
+
+user_details = UserDetailsExtension()
+
 
 # AccessPermission and Change use a 'generic foreign key' approach to refer to
 # either queries or dashboards.
@@ -321,7 +463,6 @@ class Organization(TimestampMixin, db.Model):
     groups = db.relationship("Group", lazy="dynamic")
     events = db.relationship("Event", lazy="dynamic", order_by="desc(Event.created_at)",)
 
-
     __tablename__ = 'organizations'
 
     def __repr__(self):
@@ -432,6 +573,21 @@ class Group(db.Model, BelongsToOrgMixin):
         return text_type(self.id)
 
 
+class json_cast_property(index_property):
+    """
+    A SQLAlchemy index property that is able to cast the
+    entity attribute as the specified cast type. Useful
+    for JSON and JSONB colums for easier querying/filtering.
+    """
+    def __init__(self, cast_type, *args, **kwargs):
+        super(json_cast_property, self).__init__(*args, **kwargs)
+        self.cast_type = cast_type
+
+    def expr(self, model):
+        expr = super(json_cast_property, self).expr(model)
+        return expr.astext.cast(self.cast_type)
+
+
 @python_2_unicode_compatible
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
@@ -448,9 +604,14 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                      unique=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
+    details_default = {u'active_at': None}
+    details = Column(MutableDict.as_mutable(postgresql.JSONB), nullable=True, server_default=json_dumps(details_default), default=details_default)
+    active_at = json_cast_property(db.DateTime(True), 'details', 'active_at', default=None)
 
     __tablename__ = 'users'
-    __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
+    __table_args__ = (
+        db.Index('users_org_id_email', 'org_id', 'email', unique=True),
+    )
 
     @property
     def is_disabled(self):
@@ -484,6 +645,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'created_at': self.created_at,
             'disabled_at': self.disabled_at,
             'is_disabled': self.is_disabled,
+            'active_at': self.active_at,
         }
 
         if self.password_hash is None:
@@ -493,8 +655,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
         if with_api_key:
             d['api_key'] = self.api_key
-
-        d['last_active_at'] = Event.query.filter(Event.user_id == self.id).with_entities(Event.created_at).order_by(Event.created_at.desc()).first()
 
         return d
 

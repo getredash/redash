@@ -2,8 +2,10 @@ import sys
 import logging
 import urlparse
 import urllib
+
 import redis
 from flask import Flask, current_app
+import walrus
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
@@ -36,7 +38,7 @@ def setup_logging():
         logging.getLogger('apiclient').setLevel("ERROR")
 
 
-def create_redis_connection():
+def create_redis_connection(cls=redis.StrictRedis):
     logging.debug("Creating Redis connection (%s)", settings.REDIS_URL)
     redis_url = urlparse.urlparse(settings.REDIS_URL)
 
@@ -47,7 +49,7 @@ def create_redis_connection():
         else:
             db = 0
 
-        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
+        r = cls(unix_socket_path=redis_url.path, db=db)
     else:
         if redis_url.path:
             redis_db = redis_url.path[1]
@@ -55,13 +57,15 @@ def create_redis_connection():
             redis_db = 0
         # Redis passwords might be quoted with special characters
         redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
+        r = cls(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
 
     return r
 
 
 setup_logging()
 redis_connection = create_redis_connection()
+walrus_db = create_redis_connection(cls=walrus.Database)
+
 mail = Mail()
 migrate = Migrate()
 mail.init_mail(settings.all_settings())
@@ -94,7 +98,7 @@ def create_app(load_admin=True):
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
     from redash.admin import init_admin
-    from redash.models import db
+    from redash.models import db, user_details
     from redash.authentication import setup_authentication
     from redash.metrics.request import provision_app
 
@@ -139,6 +143,7 @@ def create_app(load_admin=True):
     configure_webpack(app)
     extensions.init_extensions(app)
     chrome_logger.init_app(app)
+    user_details.init_app(app)
 
     return app
 

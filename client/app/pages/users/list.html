@@ -46,9 +46,9 @@
               Joined
               <sort-icon column="'created_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
             </th>
-            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('last_active_at')">
-              Last Active At
-              <sort-icon column="'last_active_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('active_at')">
+              Active at
+              <sort-icon column="'active_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
             </th>
             <th width="1%"></th>
           </tr>
@@ -67,7 +67,7 @@
               <span am-time-ago="user.created_at"></span>
             </td>
             <td>
-              <span am-time-ago="user.last_active_at[0]" uib-tooltop="user.last_active_at[0]"></span>
+              <span am-time-ago="user.active_at" uib-tooltop="user.active_at"></span>
             </td>
             <td>
               <div ng-if="$ctrl.currentUser.hasPermission('admin') && (user.id != $ctrl.currentUser.id)">
