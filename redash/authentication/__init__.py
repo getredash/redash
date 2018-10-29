@@ -238,7 +238,7 @@ def logout_and_redirect_to_index():
     return redirect(index_url)
 
 
-def setup_authentication(app):
+def init_app(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
     login_manager.init_app(app)

@@ -94,12 +94,10 @@ class SlugConverter(BaseConverter):
 
 
 def create_app(load_admin=True):
-    from redash import extensions, handlers
+    from redash import admin, authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
-    from redash.admin import init_admin
     from redash.models import db, user_details
-    from redash.authentication import setup_authentication
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
@@ -135,9 +133,9 @@ def create_app(load_admin=True):
     db.init_app(app)
     migrate.init_app(app, db)
     if load_admin:
-        init_admin(app)
+        admin.init_admin(app)
     mail.init_app(app)
-    setup_authentication(app)
+    authentication.init_app(app)
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
