@@ -1,9 +1,10 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
+import { ParameterMappingType } from '@/services/widget';
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
@@ -11,6 +12,63 @@ export const MappingType = {
   WidgetLevel: 'widget-level',
   StaticValue: 'static-value',
 };
+
+export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
+  return map(mappings, (mapping) => {
+    const result = extend({}, mapping);
+    const alreadyExists = includes(existingParameterNames, mapping.mapTo);
+    result.param = find(parameters, p => p.name === mapping.name);
+    switch (mapping.type) {
+      case ParameterMappingType.DashboardLevel:
+        result.type = alreadyExists ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew;
+        result.value = null;
+        break;
+      case ParameterMappingType.StaticValue:
+        result.type = MappingType.StaticValue;
+        result.param = result.param.clone();
+        result.param.setValue(result.value);
+        break;
+      case ParameterMappingType.WidgetLevel:
+        result.type = MappingType.WidgetLevel;
+        result.value = null;
+        break;
+      // no default
+    }
+    return result;
+  });
+}
+
+export function editableMappingsToParameterMappings(mappings) {
+  return fromPairs(map( // convert to map
+    mappings,
+    (mapping) => {
+      const result = extend({}, mapping);
+      switch (mapping.type) {
+        case MappingType.DashboardAddNew:
+          result.type = ParameterMappingType.DashboardLevel;
+          result.value = null;
+          break;
+        case MappingType.DashboardMapToExisting:
+          result.type = ParameterMappingType.DashboardLevel;
+          result.value = null;
+          break;
+        case MappingType.StaticValue:
+          result.type = ParameterMappingType.StaticValue;
+          result.param = mapping.param.clone();
+          result.param.setValue(result.value);
+          result.value = result.param.value;
+          break;
+        case MappingType.WidgetLevel:
+          result.type = ParameterMappingType.WidgetLevel;
+          result.value = null;
+          break;
+        // no default
+      }
+      delete result.param;
+      return [result.name, result];
+    },
+  ));
+}
 
 export class ParameterMappingInput extends React.Component {
   static propTypes = {
@@ -170,7 +228,6 @@ export class ParameterMappingListInput extends React.Component {
 
     return (
       <div>
-        <label>Parameters</label>
         {this.props.mappings.map((mapping, index) => (
           <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
             <ParameterMappingInput

@@ -1,9 +1,13 @@
-import { debounce, each, extend, values, map, fromPairs, includes } from 'lodash';
+import { debounce, each, values, map, includes } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import highlight from '@/lib/highlight';
-import { MappingType, ParameterMappingListInput } from '@/components/ParameterMappingInput';
+import {
+  MappingType,
+  ParameterMappingListInput,
+  editableMappingsToParameterMappings,
+} from '@/components/ParameterMappingInput';
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
@@ -122,35 +126,7 @@ class AddWidgetDialog extends React.Component {
       options: {
         isHidden: false,
         position: {},
-        parameterMappings: fromPairs(map( // convert to map
-          this.state.parameterMappings,
-          (mapping) => {
-            const result = extend({}, mapping);
-            switch (mapping.type) {
-              case MappingType.DashboardAddNew:
-                result.type = Widget.MappingType.DashboardLevel;
-                result.value = null;
-                break;
-              case MappingType.DashboardMapToExisting:
-                result.type = Widget.MappingType.DashboardLevel;
-                result.value = null;
-                break;
-              case MappingType.StaticValue:
-                result.type = Widget.MappingType.StaticValue;
-                result.param = mapping.param.clone();
-                result.param.setValue(result.value);
-                result.value = result.param.value;
-                break;
-              case MappingType.WidgetLevel:
-                result.type = Widget.MappingType.WidgetLevel;
-                result.value = null;
-                break;
-              // no default
-            }
-            delete result.param;
-            return [result.name, result];
-          },
-        )),
+        parameterMappings: editableMappingsToParameterMappings(this.state.parameterMappings),
       },
       visualization: this.state.selectedVis,
       text: '',
@@ -325,14 +301,17 @@ class AddWidgetDialog extends React.Component {
           {this.state.selectedQuery && this.renderVisualizationInput()}
 
           {
-            (this.state.parameterMappings.length > 0) &&
-            <ParameterMappingListInput
-              mappings={this.state.parameterMappings}
-              existingParamNames={existingParamNames}
-              onChange={mappings => this.updateParamMappings(mappings)}
-              clientConfig={clientConfig}
-              Query={Query}
-            />
+            (this.state.parameterMappings.length > 0) && [
+              <label key="parameters-title">Parameters</label>,
+              <ParameterMappingListInput
+                key="parameters-list"
+                mappings={this.state.parameterMappings}
+                existingParamNames={existingParamNames}
+                onChange={mappings => this.updateParamMappings(mappings)}
+                clientConfig={clientConfig}
+                Query={Query}
+              />,
+            ]
           }
         </div>
 

@@ -164,6 +164,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
             if (mapping.type === Widget.MappingType.DashboardLevel) {
               if (!globalParams[mapping.mapTo]) {
                 globalParams[mapping.mapTo] = param.clone();
+                globalParams[mapping.mapTo].name = mapping.mapTo;
                 globalParams[mapping.mapTo].locals = [];
               }
               globalParams[mapping.mapTo].locals.push(param);

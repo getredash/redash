@@ -51,7 +51,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser, Widget) {
+function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, currentUser, Widget) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -72,6 +72,22 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser,
         widget: this.widget,
       },
       size: 'lg',
+    });
+  };
+
+  this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
+
+  this.editParameterMappings = () => {
+    $uibModal.open({
+      component: 'editParameterMappingsDialog',
+      resolve: {
+        dashboard: this.dashboard,
+        widget: this.widget,
+      },
+      size: 'lg',
+    }).result.then(() => {
+      this.localParameters = null;
+      $rootScope.$broadcast('dashboard.update-parameters');
     });
   };
 

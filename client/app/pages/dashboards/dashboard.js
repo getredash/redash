@@ -28,6 +28,7 @@ function DashboardCtrl(
   $timeout,
   $q,
   $uibModal,
+  $scope,
   Title,
   AlertDialog,
   Dashboard,
@@ -110,6 +111,10 @@ function DashboardCtrl(
       });
     });
   };
+
+  $scope.$on('dashboard.update-parameters', () => {
+    this.extractGlobalParameters();
+  });
 
   const collectFilters = (dashboard, forceRefresh) => {
     const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));

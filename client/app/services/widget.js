@@ -61,13 +61,15 @@ function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   return visualizationOptions;
 }
 
+export const ParameterMappingType = {
+  DashboardLevel: 'dashboard-level',
+  WidgetLevel: 'widget-level',
+  StaticValue: 'static-value',
+};
+
 function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
   class Widget {
-    static MappingType = {
-      DashboardLevel: 'dashboard-level',
-      WidgetLevel: 'widget-level',
-      StaticValue: 'static-value',
-    };
+    static MappingType = ParameterMappingType;
 
     constructor(data) {
       // Copy properties
