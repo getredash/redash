@@ -234,7 +234,7 @@ class ChangeTrackingMixin(object):
             change = Change(object=self,
                             object_version=self.version,
                             user=changed_by,
-                            change=changes) 
+                            change=changes)
             db.session.add(change)
             return change
 
