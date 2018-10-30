@@ -608,7 +608,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
     details_default = {u'active_at': None}
-    details = Column(MutableDict.as_mutable(postgresql.JSONB), nullable=True, server_default=json_dumps(details_default), default=details_default)
+    details = Column(MutableDict.as_mutable(postgresql.JSONB), nullable=True,
+                     server_default=json_dumps(details_default),
+                     default=details_default)
     active_at = json_cast_property(db.DateTime(True), 'details', 'active_at', default=None)
 
     __tablename__ = 'users'
