@@ -14,7 +14,7 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   worker:
-    build: .
+    build: ../
     command: scheduler
     depends_on:
       - server

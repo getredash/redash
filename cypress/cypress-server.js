@@ -17,14 +17,14 @@ function execSetup() {
 
 function startServer() {
   console.log('Starting the server...');
-  execSync('docker-compose -p cypress up -d');
-  execSync('docker-compose -p cypress run server create_db');
+  execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
+  execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
   execSetup();
 }
 
 function stopServer() {
   console.log('Stopping the server...');
-  execSync('docker-compose -p cypress down');
+  execSync('docker-compose -p cypress down', { stdio: 'inherit' });
 }
 
 const command = process.argv[2];
