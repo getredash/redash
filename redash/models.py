@@ -14,7 +14,7 @@ from functools import reduce
 from six import python_2_unicode_compatible, string_types, text_type
 import xlsxwriter
 import walrus
-from flask import current_app as app, url_for
+from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from passlib.apps import custom_app_context as pwd_context
@@ -222,12 +222,16 @@ class UserDetailsExtension(object):
     A Flask extension to keep user details updates in Redis and
     sync it periodically to the database (User.details).
     """
-    def before_request(self):
+    def update_user_detail(self, sender, *args, **kwargs):
         """
-        Used as a Flask before_request callback that adds
+        Used as a Flask request_started signal callback that adds
         the current user's details to Redis
         """
-        if current_user.is_authenticated and current_user.id:
+        if (
+            current_user.get_id() and
+            current_user.is_authenticated and
+            not current_user.is_api_user()
+        ):
             UserDetail.update(current_user.id)
 
     def init_app(self, app):
@@ -235,7 +239,7 @@ class UserDetailsExtension(object):
         Initializes this pseudo Flask extension with the given
         Flask app.
         """
-        app.before_request(self.before_request)
+        request_started.connect(self.update_user_detail, app)
 
 
 user_details = UserDetailsExtension()
