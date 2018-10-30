@@ -25,7 +25,7 @@ build_and_run_images() {
 
 save_production_images() {
     # Collect Image names
-    images=()
+    images=('redash/base:latest')
     for img in $(cat docker-compose.production.yml | awk '{if ($1 == "image:") print $2;}'); do
         images+=($img)
     done
