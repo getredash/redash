@@ -239,15 +239,21 @@
                     </li>
                   </ul>
                   <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
-                    <filters filters="filters"></filters>
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                    <visualization-renderer
+                      visualization="{ type: 'TABLE', name: 'Table', options: {} }"
+                      update-options="visualizationUpdater(0)"
+                      data="visData"
+                      filters="queryResult.getFilters() || empty"
+                      set-filters="setFilters">
+                    </visualization-renderer>
+
                   </div>
 
                   <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
                     <visualization-renderer
                       visualization="vis"
                       update-options="visualizationUpdater($index)"
-                      data="{ rows: queryResult.getData(), columns: queryResult.getColumns() || empty }"
+                      data="visData"
                       filters="queryResult.getFilters() || empty"
                       set-filters="setFilters">
                     </visualization-renderer>

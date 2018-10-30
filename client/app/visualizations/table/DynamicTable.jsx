@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Pagination from 'antd/lib/pagination';
-import 'antd/lib/pagination/style';
-import { extend, findIndex, filter, isFunction, isString, isUndefined, trim } from 'lodash';
+import { concat, extend, findIndex, filter, isFunction, isString, isUndefined, trim } from 'lodash';
 import $ from 'jquery';
 import renderJsonView from '@/components/dynamic-table/json-cell/json-view-interactive';
 import { formatSimpleTemplate } from '@/lib/value-format';
@@ -12,6 +11,7 @@ function validateItemsPerPage(value) {
   value = parseInt(value, 10) || defaultValue;
   return value > 0 ? value : defaultValue;
 }
+
 
 const ColumnHeader = (props) => {
   const orderByIdx = findIndex(props.orderBy, ['name', props.column.name]);
@@ -23,7 +23,7 @@ const ColumnHeader = (props) => {
     >
       {props.orderBy.length > 1 && orderBy ? <span className="sort-order-indicator">{orderByIdx + 1}</span> : ''}
       <span>{props.column.title}</span>
-      {orderBy ? <i className={`fa fa-caret-${orderBy.direction ? 'up' : 'down'}`} /> : ''}
+      {orderBy ? <i className={`fa fa-caret-${orderBy.direction > 0 ? 'up' : 'down'}`} /> : ''}
     </th>
   );
 };
@@ -282,6 +282,46 @@ export default class DynamicTable extends React.Component {
       });
     }
   }
+
+  updateRowsToDisplay = (performFilterAndSort, orderBy) => {
+    const preparedRows = performFilterAndSort ? sortRows(
+      filterRows(this.state.rows, this.state.searchTerm, this.state.searchColumns),
+      orderBy,
+    ) : this.state.preparedRows;
+    const first = (this.currentPage - 1) * this.state.itemsPerPage;
+    const last = first + this.state.itemsPerPage;
+    this.setState({ rowsToDisplay: preparedRows.slice(first, last), preparedRows });
+  }
+
+  onColumnHeaderClick = ($event, column) => {
+    const orderByIdx = findIndex(this.state.orderBy, item => item.name === column.name);
+    let orderBy = orderByIdx > -1 ? this.state.orderBy[orderByIdx] : null;
+    let orderByList = this.state.orderBy;
+    if (orderBy) {
+      // ASC -> DESC -> off
+      if (orderBy.direction === 1) {
+        if (!$event.shiftKey) {
+          orderBy = { ...orderBy, direction: -1 };
+        }
+      } else {
+        orderBy = $event.shiftKey ? filter(this.state.orderBy, item => item.name !== column.name) : [];
+      }
+      orderByList = [...orderByList];
+      orderByList[orderByIdx] = orderBy;
+    } else {
+      orderByList = concat(
+        !$event.shiftKey ? [] : this.state.orderBy,
+        { name: column.name, direction: 1 },
+      );
+    }
+    this.setState({ orderBy: orderByList });
+    this.updateRowsToDisplay(true, orderByList);
+
+    // Remove text selection - may occur accidentally
+    if ($event.shiftKey) {
+      document.getSelection().removeAllRanges();
+    }
+  };
 
   render() {
     return (

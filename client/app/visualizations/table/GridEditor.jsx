@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Tabs from 'antd/lib/tabs';
-import 'antd/lib/tabs/style';
 
 import { QueryData } from '@/components/proptypes';
 import { getColumnCleanName } from '@/services/query-result';
@@ -156,7 +155,7 @@ export default class GridEditor extends React.Component {
           <Tabs.TabPane key="grid" tab="Grid">
             <div className="form-group">
               <label htmlFor="grid-editor-items-per-page">Items per page
-                <select id="grid-editor-items-per-page" className="form-control" onChange={e => this.props.updateOptions({ itemsPerPage: e.target.value })}>
+                <select id="grid-editor-items-per-page" className="form-control" onChange={e => this.props.updateOptions({ itemsPerPage: e.target.value })} value={this.props.options.itemsPerPage || 10}>
                   {ALLOWED_ITEM_PER_PAGE.map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
               </label>

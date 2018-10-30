@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
-import 'antd/lib/select/style';
 
 const chartTypes = [
   { value: 'line', label: 'Line', icon: 'line-chart' },

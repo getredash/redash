@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from 'antd/lib/tabs';
-import 'antd/lib/tabs/style';
 
 import { QueryData } from '@/components/proptypes';
 import CohortRenderer from './CohortRenderer';

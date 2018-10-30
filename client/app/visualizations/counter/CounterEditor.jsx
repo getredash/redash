@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
 import Tabs from 'antd/lib/tabs';
-import 'antd/lib/tabs/style';
 
 import { QueryData } from '@/components/proptypes';
 import CounterRenderer from './CounterRenderer';

@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { capitalize, map } from 'lodash';
 import Select from 'antd/lib/select';
-import 'antd/lib/select/style';
 import visualizationRegistry from '@/visualizations/registry';
 import VisualizationRenderer from './VisualizationRenderer';
 

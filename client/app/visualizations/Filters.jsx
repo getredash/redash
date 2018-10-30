@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { isArray } from 'lodash';
 import Select from 'antd/lib/select';
-import 'antd/lib/select/style';
 
 const Filter = PropTypes.shape({
   current: PropTypes.array.isRequired,

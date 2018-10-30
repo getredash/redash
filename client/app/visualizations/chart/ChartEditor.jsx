@@ -3,11 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
-import 'antd/lib/select/style';
 import Popover from 'antd/lib/popover';
-import 'antd/lib/popover/style';
 import Tabs from 'antd/lib/tabs';
-import 'antd/lib/tabs/style';
+
 
 import { capitalize, compact, each, filter, findKey, fromPairs, has, includes, invert, keys, map, some, sortBy, toPairs } from 'lodash';
 

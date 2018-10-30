@@ -132,13 +132,11 @@ export default class GridRenderer extends React.Component {
   }
 
   static propTypes = {
-    itemsPerPage: PropTypes.number,
     options: GridOptions,
     data: QueryData.isRequired,
   }
 
   static defaultProps = {
-    itemsPerPage: null,
     options: {},
   };
 
@@ -151,7 +149,7 @@ export default class GridRenderer extends React.Component {
       <DynamicTable
         rows={this.props.data.rows}
         columns={gridColumns}
-        items-per-page={this.props.itemsPerPage || this.props.options.itemsPerPage}
+        itemsPerPage={this.props.options.itemsPerPage}
       />
     );
   }

@@ -2,9 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { difference, map, uniq, zipObject } from 'lodash';
 import Tabs from 'antd/lib/tabs';
-import 'antd/lib/tabs/style';
 import Select from 'antd/lib/select';
-import 'antd/lib/select/style';
 
 import { QueryData } from '@/components/proptypes';
 import MapRenderer from './MapRenderer';
