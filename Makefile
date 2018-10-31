@@ -7,7 +7,7 @@ up:
 	docker-compose up -d --build
 
 test_db:
-	docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests"
+	docker-compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
 create_database:
 	docker-compose run server create_db
