@@ -5,6 +5,59 @@ import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'r
 import { SeriesOptions } from '@/components/proptypes';
 import ChartTypePicker from './ChartTypePicker';
 
+const DragHandle = SortableHandle(({ value, seriesOptions }) => <td style={{ width: '1%', cursor: 'move' }}><i className="fa fa-arrows-v" />{ seriesOptions[value].zIndex + 1 }</td>);
+
+const SortableItem = SortableElement(({
+  value,
+  pie,
+  changeYAxis,
+  changeName,
+  changeType,
+  seriesOptions,
+  clientConfig,
+}) => (
+  <tr>
+    <DragHandle value={value} seriesOptions={seriesOptions} />
+    {!pie ?
+      <td>
+        <input type="radio" checked={!seriesOptions[value].yAxis} onChange={e => changeYAxis(e, value, 0)} />
+      </td> : null}
+    {!pie ?
+      <td>
+        <input type="radio" checked={seriesOptions[value].yAxis} onChange={e => changeYAxis(e, value, 1)} />
+      </td> : null }
+    <td style={{ padding: 3, width: 140 }}>
+      <input
+        placeholder={value}
+        className="form-control input-sm super-small-input"
+        type="text"
+        defaultValue={seriesOptions[value].name}
+        onChange={e => changeName(value, e.target.value)}
+      />
+    </td>
+    {!pie ?
+      <td style={{ padding: 3, width: 105 }}>
+        <ChartTypePicker
+          value={seriesOptions[value].type}
+          onChange={selected => changeType(value, selected)}
+          clientConfig={clientConfig}
+        />
+      </td> : null }
+  </tr>
+));
+
+const SortableRow = SortableContainer(({ items, ...props }) => (
+  <tbody>
+    {items.map((param, index) => (
+      <SortableItem
+        key={`item-${param}`}
+        index={index}
+        value={param}
+        {...props}
+      />))}
+  </tbody>));
+
+
 export default class ChartSeriesEditor extends React.Component {
   static propTypes = {
     seriesList: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -36,48 +89,6 @@ export default class ChartSeriesEditor extends React.Component {
 
   render() {
     const pie = this.props.type === 'pie';
-    const DragHandle = SortableHandle(({ value }) => <td style={{ width: '1%', cursor: 'move' }}><i className="fa fa-arrows-v" />{ this.props.seriesOptions[value].zIndex + 1 }</td>);
-    const SortableItem = SortableElement(({ value }) => (
-      <tr>
-        <DragHandle value={value} />
-        {!pie ?
-          <td>
-            <input type="radio" checked={!this.props.seriesOptions[value].yAxis} onChange={e => this.changeYAxis(e, value, 0)} />
-          </td> : null}
-        {!pie ?
-          <td>
-            <input type="radio" checked={this.props.seriesOptions[value].yAxis} onChange={e => this.changeYAxis(e, value, 1)} />
-          </td> : null }
-        <td style={{ padding: 3, width: 140 }}>
-          <input
-            placeholder={value}
-            className="form-control input-sm super-small-input"
-            type="text"
-            defaultValue={this.props.seriesOptions[value].name}
-            // XXX Should this be onChange?
-            onBlur={e => this.changeName(value, e.target.value)}
-          />
-        </td>
-        {!pie ?
-          <td style={{ padding: 3, width: 105 }}>
-            <ChartTypePicker
-              value={this.props.seriesOptions[value].type}
-              onChange={selected => this.changeType(value, selected.value)}
-              clientConfig={this.props.clientConfig}
-            />
-          </td> : null }
-      </tr>
-    ));
-    const SortableRow = SortableContainer(({ items }) => (
-      <tbody>
-        {items.map((param, index) => (
-          <SortableItem
-            key={`item-${param}`}
-            index={index}
-            value={param}
-          />))}
-      </tbody>));
-
     return (
       <div className="m-t-10 m-b-10">
         <table className="table table-condensed col-table">
@@ -90,7 +101,19 @@ export default class ChartSeriesEditor extends React.Component {
               {!pie ? <th>Type</th> : null }
             </tr>
           </thead>
-          <SortableRow useDragHandle items={this.props.seriesList} axis="y" onSortEnd={this.onSortEnd} helperClass="sortable-helper" />
+          <SortableRow
+            useDragHandle
+            items={this.props.seriesList}
+            axis="y"
+            onSortEnd={this.onSortEnd}
+            helperClass="sortable-helper"
+            pie={pie}
+            changeYAxis={this.changeYAxis}
+            changeType={this.changeType}
+            changeName={this.changeName}
+            clientConfig={this.props.clientConfig}
+            seriesOptions={this.props.seriesOptions}
+          />
         </table>
       </div>
     );
