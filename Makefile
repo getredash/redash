@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean down bundle tests backend-unit-tests frontend-unit-tests test build watch start
+.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start
 
 compose_build:
 	docker-compose build
@@ -24,6 +24,9 @@ bundle:
 tests:
 	docker-compose run server tests
 
+lint:
+	./flake8_tests.sh
+
 backend-unit-tests: up test_db
 	sleep 10
 	docker-compose run --name tests server tests
@@ -33,7 +36,7 @@ frontend-unit-tests: bundle
 	npm run bundle
 	npm test
 
-test: backend-unit-tests frontend-unit-tests
+test: lint backend-unit-tests frontend-unit-tests
 
 build: bundle
 	npm run build
