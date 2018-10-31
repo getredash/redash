@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean down bundle tests backend-unit-tests test build watch start
+.PHONY: compose_build up test_db create_database clean down bundle tests backend-unit-tests frontend-unit-tests test build watch start
 
 compose_build:
 	docker-compose build
@@ -28,7 +28,12 @@ backend-unit-tests: up test_db
 	sleep 10
 	docker-compose run --name tests server tests
 
-test: backend-unit-tests
+frontend-unit-tests: bundle
+	npm install
+	npm run bundle
+	npm test
+
+test: backend-unit-tests frontend-unit-tests
 
 build: bundle
 	npm run build
