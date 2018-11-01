@@ -6,7 +6,7 @@ click==6.6
 MarkupSafe==0.23
 pyOpenSSL==16.2.0
 httplib2==0.10.3
-Flask-Admin==1.4.2
+Flask-Admin==1.5.2
 Flask-RESTful==0.3.5
 Flask-Login==0.4.0
 Flask-OAuthLib==0.9.3
