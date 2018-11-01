@@ -19,11 +19,13 @@ class SchemaData extends React.PureComponent {
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     tableName: PropTypes.string,
+    tableDescription: PropTypes.string,
     tableMetadata: PropTypes.arrayOf(DataSourceMetadata),
   };
 
   static defaultProps = {
     tableName: '',
+    tableDescription: '',
     tableMetadata: [],
   };
 
@@ -42,8 +44,21 @@ class SchemaData extends React.PureComponent {
       render: textWrapRenderer,
     }];
 
+    const hasDescription =
+      this.props.tableMetadata.some(columnMetadata => columnMetadata.description);
+
     const hasExample =
       this.props.tableMetadata.some(columnMetadata => columnMetadata.example);
+
+    if (hasDescription) {
+      columns.push({
+        title: 'Description',
+        dataIndex: 'description',
+        width: 400,
+        key: 'description',
+        render: textWrapRenderer,
+      });
+    }
 
     if (hasExample) {
       columns.push({
@@ -64,6 +79,9 @@ class SchemaData extends React.PureComponent {
         onClose={this.props.onClose}
         visible={this.props.show}
       >
+        <h5 className="table-description">
+          {this.props.tableDescription}
+        </h5>
         <Table
           dataSource={this.props.tableMetadata}
           pagination={false}

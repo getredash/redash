@@ -71,6 +71,7 @@ class TableMetadata(TimestampMixin, db.Model):
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id", ondelete="CASCADE"))
     exists = Column(db.Boolean, default=True)
+    visible = Column(db.Boolean, default=True)
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     column_metadata = Column(db.Boolean, default=False)
@@ -88,6 +89,7 @@ class TableMetadata(TimestampMixin, db.Model):
             'org_id': self.org_id,
             'data_source_id': self.data_source_id,
             'exists': self.exists,
+            'visible': self.visible,
             'name': self.name,
             'description': self.description,
             'column_metadata': self.column_metadata,
@@ -106,6 +108,7 @@ class ColumnMetadata(TimestampMixin, db.Model):
     type = Column(db.String(255), nullable=True)
     example = Column(db.String(4096), nullable=True)
     exists = Column(db.Boolean, default=True)
+    description = Column(db.String(4096), nullable=True)
 
     __tablename__ = 'column_metadata'
 
@@ -121,6 +124,7 @@ class ColumnMetadata(TimestampMixin, db.Model):
             'type': self.type,
             'example': self.example,
             'exists': self.exists,
+            'description': self.description,
         }
 
 
@@ -197,6 +201,20 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    @classmethod
+    def save_schema(self, schema_info):
+        if 'columnId' in schema_info:
+            ColumnMetadata.query.filter(
+                ColumnMetadata.id == schema_info['columnId'],
+                ColumnMetadata.table_id == schema_info['tableId'],
+            ).update(schema_info['schema'])
+        else:
+            TableMetadata.query.filter(
+                TableMetadata.id == schema_info['tableId']
+            ).update(schema_info['schema'])
+
+        db.session.commit()
+
     def delete(self):
         Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
         QueryResult.query.filter(QueryResult.data_source == self).delete()
@@ -225,14 +243,18 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 'name': column.name,
                 'type': column.type,
                 'exists': column.exists,
-                'example': column.example
+                'example': column.example,
+                'description': column.description,
             })
 
         for table in tables:
             table_info = {
+                'id': table.id,
                 'name': table.name,
                 'exists': table.exists,
+                'visible': table.visible,
                 'hasColumnMetadata': table.column_metadata,
+                'description': table.description,
                 'columns': []}
 
             table_info['columns'] = sorted(
