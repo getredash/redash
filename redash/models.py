@@ -569,6 +569,7 @@ class TableMetadata(db.Model):
     id = Column(db.Integer, primary_key=True)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
     table_exists = Column(db.Boolean, default=True)
+    table_visible = Column(db.Boolean, default=True)
     table_name = Column(db.String(255))
     table_description = Column(db.String(4096), nullable=True)
     column_metadata = Column(db.Boolean, default=False)
@@ -584,6 +585,7 @@ class TableMetadata(db.Model):
             'id': self.id,
             'data_source_id': self.data_source_id,
             'table_exists': self.table_exists,
+            'table_visible': self.table_visible,
             'table_name': self.table_name,
             'table_description': self.table_description,
             'column_metadata': self.column_metadata,
@@ -598,6 +600,7 @@ class ColumnMetadata(db.Model):
     column_type = Column(db.String(255), nullable=True)
     column_example = Column(db.String(4096), nullable=True)
     column_exists = Column(db.Boolean, default=True)
+    column_description = Column(db.String(4096), nullable=True)
 
     __tablename__ = 'column_metadata'
 
@@ -612,6 +615,7 @@ class ColumnMetadata(db.Model):
             'column_type': self.column_type,
             'column_example': self.column_example,
             'column_exists': self.column_exists,
+            'column_description': self.column_description,
         }
 
 @python_2_unicode_compatible
@@ -693,14 +697,28 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.commit()
         return res
 
+    def save_schema(self, schema_info):
+        if 'columnId' in schema_info:
+            db.session.query(ColumnMetadata).filter(
+                ColumnMetadata.table_id==schema_info['tableId']).filter(
+                ColumnMetadata.id==schema_info['columnId']).update(
+                schema_info['schema'])
+        else:
+            db.session.query(TableMetadata).filter(TableMetadata.id==schema_info['tableId']).update(schema_info['schema'])
+
+        db.session.commit()
+
     def get_schema(self, refresh=False):
         schema = []
         tables = db.session.query(TableMetadata).filter(TableMetadata.data_source_id == self.id).all()
         for table in tables:
             table_info = {
+                'id': table.id,
                 'name': table.table_name,
                 'exists': table.table_exists,
+                'visible': table.table_visible,
                 'hasColumnMetadata': table.column_metadata,
+                'table_description': table.table_description,
                 'columns': []}
             columns = db.session.query(ColumnMetadata).filter(ColumnMetadata.table_id==table.id)
             table_info['columns'] = sorted([{
@@ -708,7 +726,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 'name': column.column_name,
                 'type': column.column_type,
                 'exists': column.column_exists,
-                'example': column.column_example
+                'example': column.column_example,
+                'column_description': column.column_description,
             } for column in columns], key=lambda column: column['name'])
             schema.append(table_info)
 

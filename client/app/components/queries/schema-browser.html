@@ -17,7 +17,7 @@
           <span ng-if="table.size !== undefined"> ({{table.size}})</span>
         </strong>
         <i ng-if="table.hasColumnMetadata" class="fa fa-question-circle info" title="More Info" aria-hidden="true"
-          ng-click="openSchemaInfo($event, table.name, table.columns)"></i>
+          ng-click="openSchemaInfo($event, table)"></i>
         <i class="fa fa-angle-double-right copy-to-editor" aria-hidden="true"
           ng-click="$ctrl.itemSelected($event, [table.name])"></i>
       </div>
@@ -32,6 +32,7 @@
   <schema-data
     show="showSchemaInfo"
     table-name="tableName"
+    table-description="tableDescription"
     table-metadata="tableMetadata"
     on-close="closeSchemaInfo"
   ></schema-data>

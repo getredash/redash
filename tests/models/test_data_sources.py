@@ -14,13 +14,17 @@ class DataSourceTest(BaseTestCase):
             column_example=True)
 
         return_value = [{
+            'id': table_metadata.id,
             'name': 'table',
             'hasColumnMetadata': False,
             'exists': True,
+            'visible': True,
+            'table_description': None,
             'columns': [{
                 'key': 1,
                 'name': 'column',
                 'type': 'boolean',
+                'column_description': None,
                 'exists': True,
                 'example': True
             }]
