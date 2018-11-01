@@ -25,7 +25,7 @@ tests:
 	docker-compose run server tests
 
 lint:
-	./flake8_tests.sh
+	./bin/flake8_tests.sh
 
 backend-unit-tests: up test_db
 	sleep 10
