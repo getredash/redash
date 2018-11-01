@@ -9,9 +9,10 @@ function SchemaBrowserCtrl($rootScope, $scope) {
   };
 
   $scope.showSchemaInfo = false;
-  $scope.openSchemaInfo = ($event, tableName, tableMetadata) => {
-    $scope.tableName = tableName;
-    $scope.tableMetadata = tableMetadata;
+  $scope.openSchemaInfo = ($event, table) => {
+    $scope.tableName = table.name;
+    $scope.tableDescription = table.table_description;
+    $scope.tableMetadata = table.columns;
     $scope.showSchemaInfo = true;
     $event.stopPropagation();
   };
@@ -33,7 +34,12 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     return this.schema === undefined || this.schema.length === 0;
   };
 
-  this.itemExists = item => item.exists;
+  this.itemExists = (item) => {
+    if ('visible' in item) {
+      return item.exists && item.visible;
+    }
+    return item.exists;
+  };
 
   this.itemSelected = ($event, hierarchy) => {
     $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));

@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import { find, bind } from 'lodash';
 import debug from 'debug';
 import template from './show.html';
 
@@ -22,6 +22,12 @@ function DataSourceCtrl(
   $scope.types = $route.current.locals.types;
   $scope.type = find($scope.types, { type: $scope.dataSource.type });
   $scope.canChangeType = $scope.dataSource.id === undefined;
+  $scope.dataSource.getSchema().then((data) => {
+    if (data.schema) {
+      $scope.schema = data.schema;
+    }
+  });
+  $scope.updateSchema = bind($scope.dataSource.updateSchema, $scope.dataSource);
 
   $scope.helpLinks = {
     athena: 'https://redash.io/help/data-sources/amazon-athena-setup',

@@ -23,6 +23,7 @@ class TestRefreshSchemas(BaseTestCase):
             'column_name': self.COLUMN_NAME,
             'column_type': self.COLUMN_TYPE,
             'column_example': self.COLUMN_EXAMPLE,
+            'column_description': None,
             'column_exists': True,
         }
 
@@ -59,11 +60,14 @@ class TestRefreshSchemas(BaseTestCase):
             refresh_schemas()
             refresh_job.assert_called()
 
+
     def test_refresh_schema_creates_tables(self):
         EXPECTED_TABLE_METADATA = {
             'id': 1,
             'table_exists': True,
             'table_name': 'table',
+            'table_visible': True,
+            'column_metadata': False,
             'sample_query': None,
             'table_description': None,
             'column_metadata': True,

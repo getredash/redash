@@ -11,11 +11,13 @@ class SchemaData extends React.PureComponent {
     show: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     tableName: PropTypes.string,
+    tableDescription: PropTypes.string,
     tableMetadata: PropTypes.arrayOf(DataSourceMetadata),
   };
 
   static defaultProps = {
     tableName: '',
+    tableDescription: '',
     tableMetadata: [],
   };
 
@@ -35,6 +37,11 @@ class SchemaData extends React.PureComponent {
       dataIndex: 'example',
       width: 400,
       key: 'example',
+    }, {
+      title: 'Description',
+      dataIndex: 'column_description',
+      width: 400,
+      key: 'column_description',
     }];
 
     return (
@@ -46,6 +53,9 @@ class SchemaData extends React.PureComponent {
         onClose={this.props.onClose}
         visible={this.props.show}
       >
+        <h5 class='table-description'>
+          {this.props.tableDescription}
+        </h5>
         <Table
           dataSource={this.props.tableMetadata}
           pagination={false}

@@ -16,6 +16,7 @@ export const DataSourceMetadata = PropTypes.shape({
   name: PropTypes.string,
   type: PropTypes.string,
   example: PropTypes.string,
+  column_description: PropTypes.string,
 });
 
 export const Table = PropTypes.shape({

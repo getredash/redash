@@ -16,6 +16,7 @@ function DataSourceService($q, $resource, $http) {
 
   const actions = {
     get: { method: 'GET', cache: false, isArray: false },
+    post: { method: 'POST', cache: false, isArray: false },
     query: { method: 'GET', cache: false, isArray: true },
     test: {
       method: 'POST',
@@ -26,6 +27,11 @@ function DataSourceService($q, $resource, $http) {
   };
 
   const DataSourceResource = $resource('api/data_sources/:id', { id: '@id' }, actions);
+
+  DataSourceResource.prototype.updateSchema = function updateSchema(schema, tableId, columnId) {
+    const data = { tableId, columnId, schema };
+    return $http.post(`api/data_sources/${this.id}/schema`, data);
+  };
 
   DataSourceResource.prototype.getSchema = function getSchema(refresh = false) {
     if (this._schema === undefined || refresh) {
