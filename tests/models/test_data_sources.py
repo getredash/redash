@@ -13,33 +13,29 @@ class DataSourceTest(BaseTestCase):
             data_source_id=data_source.id,
             org_id=data_source.org_id
         )
-        column_metadata = self.factory.create_column_metadata(
-            table_id=table_metadata.id,
-            org_id=data_source.org_id,
-            type='boolean',
-            example=True,
-            exists=False
-        )
 
         # Create a non-existing table with an existing column
-        table_metadata = self.factory.create_table_metadata(
+        table_metadata2 = self.factory.create_table_metadata(
             data_source_id=data_source.id,
             org_id=data_source.org_id,
             name='table_doesnt_exist',
             exists=False
         )
         column_metadata = self.factory.create_column_metadata(
-            table_id=table_metadata.id,
+            table_id=table_metadata2.id,
             org_id=data_source.org_id,
             type='boolean',
             example=True,
         )
 
         return_value = [{
+            'id': table_metadata.id,
             'name': 'table',
             'hasColumnMetadata': False,
             'exists': True,
-            'columns': []
+            'columns': [],
+            'visible': True,
+            'description': None,
         }]
         schema = data_source.get_schema()
         self.assertEqual(return_value, schema)

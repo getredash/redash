@@ -12,9 +12,10 @@ function SchemaBrowserCtrl($rootScope, $scope) {
   };
 
   $scope.showSchemaInfo = false;
-  $scope.openSchemaInfo = ($event, tableName, tableMetadata) => {
-    $scope.tableName = tableName;
-    $scope.tableMetadata = tableMetadata;
+  $scope.openSchemaInfo = ($event, table) => {
+    $scope.tableName = table.name;
+    $scope.tableDescription = table.description;
+    $scope.tableMetadata = table.columns;
     $scope.showSchemaInfo = true;
     $event.stopPropagation();
   };
@@ -43,6 +44,13 @@ function SchemaBrowserCtrl($rootScope, $scope) {
       this.versionToggle = false;
       this.versionFilter = 'abcdefghijklmnop';
     }
+  };
+
+  this.itemExists = (item) => {
+    if ('visible' in item) {
+      return item.visible;
+    }
+    return false;
   };
 
   this.itemSelected = ($event, hierarchy) => {

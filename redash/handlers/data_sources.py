@@ -101,7 +101,7 @@ class DataSourceListResource(BaseResource):
                 continue
 
             try:
-                d = ds.to_dict()
+                d = ds.to_dict(all=True)
                 d['view_only'] = all(project(ds.groups, self.current_user.group_ids).values())
                 response[ds.id] = d
             except AttributeError:
@@ -157,6 +157,12 @@ class DataSourceListResource(BaseResource):
 
 
 class DataSourceSchemaResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        new_schema_data = request.get_json(force=True)
+        models.DataSource.save_schema(new_schema_data)
+
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         require_access(data_source, self.current_user, view_only)
