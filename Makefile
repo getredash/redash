@@ -32,7 +32,7 @@ lint:
 	./bin/flake8_tests.sh
 
 backend-unit-tests: up test_db
-	docker-compose run --name tests server tests
+	docker-compose run --rm --name tests server tests
 
 frontend-unit-tests: bundle
 	npm install
