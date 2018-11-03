@@ -4,7 +4,7 @@ x-redash-service: &redash-service
   depends_on:
     - postgres
     - redis
-  env_file: /opt/redash/env
+  env_file: env
   restart: always
 services:
   server:
@@ -33,14 +33,24 @@ services:
       QUEUES: "queries"
       WORKERS_COUNT: 2
   redis:
+    hostname: "redis"
     image: redis:3.0-alpine
     restart: always
+    ports:
+      - "6379"
+    labels:
+      kompose.service.expose: redis
   postgres:
+    hostname: "postgres"
     image: postgres:9.5.6-alpine
-    env_file: /opt/redash/env
+    env_file: env
+    ports:
+      - "5432"
     volumes:
       - /opt/redash/postgres-data:/var/lib/postgresql/data
     restart: always
+    labels:
+      kompose.service.expose: postgres
   nginx:
     image: redash/nginx:latest
     ports:
