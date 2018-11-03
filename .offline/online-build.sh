@@ -11,13 +11,13 @@ build_client() {
 }
 
 download_pip_modules() {
-    mkdir -p .cache/pip
-    pip download -d .cache/pip -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt
+    mkdir -p .tmp/pip
+    pip download -d .tmp/pip -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt
 }
 
 build_and_run_images() {
-    $DOCKER build --compress --squash . -f DockerfileBase -t redash/base
-    $DOCKER build --compress --squash . -f DockerfileOffline -t redash/redash:latest -t redash_server:latest -t redash_worker:latest # TODO: Change to offline build
+    $DOCKER build --compress --squash . -f .offline/DockerfileBase -t redash/base
+    $DOCKER build --compress --squash . -f .offline/Dockerfile -t redash/redash:latest -t redash_server:latest -t redash_worker:latest # TODO: Change to offline build
     $DOCKER_COMPOSE -f docker-compose.production.yml up -d
     $DOCKER_COMPOSE run --rm server create_db
     $DOCKER_COMPOSE run --rm postgres psql -h postgres -U postgres -c "create database tests"
@@ -32,10 +32,10 @@ save_production_images() {
 
     # Save images
     echo Images: ${images[*]}
-    mkdir -p .cache/images
+    mkdir -p .tmp/images
     for img in ${images[*]}; do
         echo Save: $img
-        docker save $img -o ".cache/images/${img//[:\/]/-}.tar.docker"
+        docker save $img -o ".tmp/images/${img//[:\/]/-}.tar.docker"
     done
 }
 
@@ -47,13 +47,17 @@ convert_docker_compose_files() {
         sudo mv ./kompose /usr/local/bin/kompose
     fi
     # Convert docker-compose yaml
-    mkdir -p .cache/kubernetes
-    kompose convert --provider openshift -f docker-compose.production.yml -o .cache/kubernetes
+    mkdir -p .tmp/kubernetes
+    kompose convert --provider openshift -f docker-compose.production.yml -o .tmp/kubernetes
+}
+
+tar_artifacts() {
+    tar -cvf .offline/artifact.tar node_modules client/dist .tmp/pip 
 }
 
 bundle_folder() {
     git bundle create .git/bundle --all
-    tar -cvf ../redash.tar ../redash
+    tar -cvfz ../redash.tar ../redash
 }
 
 
@@ -62,4 +66,5 @@ download_pip_modules
 build_and_run_images
 save_production_images
 convert_docker_compose_files
+tar_artifacts
 bundle_folder
