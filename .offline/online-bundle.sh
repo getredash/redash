@@ -15,7 +15,7 @@ download_pip_modules() {
 save_production_images() {
     # Collect Image names
     images=('redash/base:latest')
-    for img in $(cat docker-compose.production.yml | awk '{if ($1 == "image:") print $2;}'); do
+    for img in $(cat .offline/docker-kompose.production.yml | awk '{if ($1 == "image:") print $2;}'); do
         images+=($img)
     done
 
@@ -53,7 +53,9 @@ bundle_folder() {
 
 build_client
 download_pip_modules
+sleep 1
 tar_artifacts
+sleep 1
 build_and_run_images
 save_production_images
 convert_docker_compose_files

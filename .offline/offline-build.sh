@@ -15,11 +15,9 @@ tar_artifacts() {
 }
 
 build_and_run_images() {
-    #$DOCKER build --compress --squash . -f .offline/DockerfileBase -t redash/base
+    $DOCKER build --compress --squash . -f .offline/DockerfileBase -t redash/base
     $DOCKER build --compress --squash . -f .offline/Dockerfile -t redash/redash:latest -t redash_server:latest -t redash_worker:latest # TODO: Change to offline build
-    $DOCKER_COMPOSE -f docker-compose.production.yml up -d
-    $DOCKER_COMPOSE run --rm server create_db
-    $DOCKER_COMPOSE run --rm postgres psql -h postgres -U postgres -c "create database tests"
+    $DOCKER_COMPOSE -f .offline/docker-kompose.yml up -d
 } 
 
 main() {

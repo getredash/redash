@@ -14,6 +14,9 @@ services:
       - "5000:5000"
     environment:
       REDASH_WEB_WORKERS: 4
+  boot:
+    <<: *redash-service
+    command: bin/run python manage.py database create_tables
   scheduler:
     <<: *redash-service
     command: scheduler
