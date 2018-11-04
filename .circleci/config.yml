@@ -63,9 +63,17 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: npm install
-      - run: npm run cypress:install
-      - run: npm run cypress
+      - run:
+          name: Install npm dependencies
+          command: npm install
+      - run:
+          name: Setup Redash server
+          command: |
+            npm run cypress:server start-ci
+            docker-compose run cypress node ./cypress/cypress-server.js setup
+      - run:
+          name: Execute Cypress tests
+          command: docker-compose run cypress ./node_modules/.bin/cypress run
   build-tarball:
     docker:
       - image: circleci/node:8

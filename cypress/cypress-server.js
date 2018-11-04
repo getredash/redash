@@ -12,14 +12,15 @@ function execSetup() {
     org_name: 'Redash',
   };
 
-  post('http://localhost:5000/setup', { formData: setupData });
+  const baseUrl = process.env.CYPRESS_baseUrl || 'http://localhost:5000';
+
+  post(baseUrl + '/setup', { formData: setupData });
 }
 
 function startServer() {
   console.log('Starting the server...');
   execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
   execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
-  execSetup();
 }
 
 function stopServer() {
@@ -32,6 +33,13 @@ const command = process.argv[2];
 switch (command) {
   case 'start':
     startServer();
+    execSetup();
+    break;
+  case 'start-ci':
+    startServer();
+    break;
+  case 'setup':
+    execSetup();
     break;
   case 'stop':
     stopServer();
