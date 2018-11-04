@@ -151,4 +151,6 @@ workflows:
            filters:
              branches:
                only:
+                 - master
+                 - preview-build
                  - /release\/.*/
