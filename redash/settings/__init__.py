@@ -184,7 +184,8 @@ default_query_runners = [
     'redash.query_runner.query_results',
     'redash.query_runner.prometheus',
     'redash.query_runner.qubole',
-    'redash.query_runner.db2'
+    'redash.query_runner.db2',
+    'redash.query_runner.druid'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
