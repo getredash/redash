@@ -15,7 +15,7 @@ download_pip_modules() {
 save_production_images() {
     # Collect Image names
     images=('redash/base:latest')
-    for img in $(cat .offline/docker-kompose.production.yml | awk '{if ($1 == "image:") print $2;}'); do
+    for img in $(cat .offline/docker-kompose.yml | awk '{if ($1 == "image:") print $2;}'); do
         images+=($img)
     done
 
