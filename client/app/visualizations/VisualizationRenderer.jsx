@@ -10,9 +10,13 @@ export default class VisualizationRenderer extends React.Component {
   static propTypes = {
     visualization: Visualization.isRequired,
     setFilters: PropTypes.func.isRequired,
-    filters: PropTypes.arrayOf(Filters.Filter).isRequired,
+    filters: PropTypes.arrayOf(Filters.Filter),
     data: QueryData.isRequired,
     updateOptions: PropTypes.func.isRequired,
+  }
+
+  static defaultProps = {
+    filters: [],
   }
 
   constructor(props) {

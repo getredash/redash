@@ -28,6 +28,20 @@ const ColumnHeader = (props) => {
   );
 };
 
+ColumnHeader.propTypes = {
+  column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    displayAs: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+  }).isRequired,
+  orderBy: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    length: PropTypes.number.isRequired,
+    direction: PropTypes.number.isRequired,
+  })).isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
 const MAX_JSON_SIZE = 50000;
 
 function parseValue(value) {
@@ -273,26 +287,6 @@ export default class DynamicTable extends React.Component {
     return newState;
   }
 
-  selectPage = (pageNumber) => {
-    if (pageNumber !== this.state.currentPage && pageNumber > 0 && pageNumber <= this.state.totalPages) {
-      this.setState({
-        currentPage: pageNumber,
-        // pages: getPages(pageNumber, this.state.totalPages, 6),
-        rowsToDisplay: displayRows(this.state.preparedRows, pageNumber, this.state.itemsPerPage),
-      });
-    }
-  }
-
-  updateRowsToDisplay = (performFilterAndSort, orderBy) => {
-    const preparedRows = performFilterAndSort ? sortRows(
-      filterRows(this.state.rows, this.state.searchTerm, this.state.searchColumns),
-      orderBy,
-    ) : this.state.preparedRows;
-    const first = (this.currentPage - 1) * this.state.itemsPerPage;
-    const last = first + this.state.itemsPerPage;
-    this.setState({ rowsToDisplay: preparedRows.slice(first, last), preparedRows });
-  }
-
   onColumnHeaderClick = ($event, column) => {
     const orderByIdx = findIndex(this.state.orderBy, item => item.name === column.name);
     let orderBy = orderByIdx > -1 ? this.state.orderBy[orderByIdx] : null;
@@ -322,6 +316,28 @@ export default class DynamicTable extends React.Component {
       document.getSelection().removeAllRanges();
     }
   };
+
+  onSearchTermChanged = e => this.setState({ searchTerm: e.target.value })
+
+  selectPage = (pageNumber) => {
+    if (pageNumber !== this.state.currentPage && pageNumber > 0 && pageNumber <= this.state.totalPages) {
+      this.setState({
+        currentPage: pageNumber,
+        // pages: getPages(pageNumber, this.state.totalPages, 6),
+        rowsToDisplay: displayRows(this.state.preparedRows, pageNumber, this.state.itemsPerPage),
+      });
+    }
+  }
+
+  updateRowsToDisplay = (performFilterAndSort, orderBy) => {
+    const preparedRows = performFilterAndSort ? sortRows(
+      filterRows(this.state.rows, this.state.searchTerm, this.state.searchColumns),
+      orderBy,
+    ) : this.state.preparedRows;
+    const first = (this.currentPage - 1) * this.state.itemsPerPage;
+    const last = first + this.state.itemsPerPage;
+    this.setState({ rowsToDisplay: preparedRows.slice(first, last), preparedRows });
+  }
 
   render() {
     return (

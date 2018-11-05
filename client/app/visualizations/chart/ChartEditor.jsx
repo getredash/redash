@@ -96,22 +96,29 @@ export default class ChartEditor extends React.Component {
       this.props.options.groupby,
     ]);
 
-    const yAxes = props.options.yAxis;
+    const newYAxis = (i, newOpts) => {
+      const yAxis = [null, null];
+      yAxis[i] = { ...this.props.options.yAxis[i], ...newOpts };
+      // eslint-disable-next-line no-bitwise
+      yAxis[i ^ 1] = this.props.options.yAxis[i ^ 1];
+      this.updateOptions({ yAxis });
+    };
+
     this.updateYAxisText = [
-      e => this.updateOptions({ yAxis: [{ ...yAxes[0], title: { text: e.target.value } }, yAxes[1]] }),
-      e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], title: { text: e.target.value } }] }),
+      e => newYAxis(0, { title: { text: e.target.value } }),
+      e => newYAxis(1, { title: { text: e.target.value } }),
     ];
     this.updateYAxisScale = [
-      type => this.updateOptions({ yAxis: [{ ...yAxes[0], type }, yAxes[1]] }),
-      type => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], type }] }),
+      type => newYAxis(0, { type }),
+      type => newYAxis(1, { type }),
     ];
     this.updateYAxisRangeMin = [
-      e => this.updateOptions({ yAxis: [{ ...yAxes[0], rangeMin: e.target.value }, yAxes[1]] }),
-      e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], rangeMin: e.target.value }] }),
+      e => newYAxis(0, { rangeMin: parseInt(e.target.value, 10) }),
+      e => newYAxis(1, { rangeMin: parseInt(e.target.value, 10) }),
     ];
     this.updateYAxisRangeMax = [
-      e => this.updateOptions({ yAxis: [{ ...yAxes[0], rangeMax: e.target.value }, yAxes[1]] }),
-      e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], rangeMax: e.target.value }] }),
+      e => newYAxis(0, { rangeMax: parseInt(e.target.value, 10) }),
+      e => newYAxis(1, { rangeMax: parseInt(e.target.value, 10) }),
     ];
   }
 
@@ -251,7 +258,7 @@ export default class ChartEditor extends React.Component {
         </div>
         <div className="form-group">
           <label className="control-label">Name</label>
-          <input value={yAxis.title && yAxis.title.text} onChange={this.updateYAxisText[i]} type="text" className="form-control" />
+          <input value={yAxis.title ? yAxis.title.text : ''} onChange={this.updateYAxisText[i]} type="text" className="form-control" />
         </div>
         <div className="form-group">
           <label className="control-label">Min Value</label>
@@ -467,7 +474,7 @@ export default class ChartEditor extends React.Component {
                     <input
                       type="checkbox"
                       onChange={this.toggleSortX}
-                      checked={opts.sortX}
+                      checked={opts.sortX || false}
                     />
                     <i className="input-helper" /> Sort Values
                   </label>
@@ -477,7 +484,7 @@ export default class ChartEditor extends React.Component {
                     <input
                       type="checkbox"
                       onChange={this.toggleReverseX}
-                      checked={opts.reverseX}
+                      checked={opts.reverseX || false}
                     />
                     <i className="input-helper" /> Reverse Order
                   </label>
@@ -510,7 +517,7 @@ export default class ChartEditor extends React.Component {
                     <input
                       type="checkbox"
                       onChange={this.toggleSortY}
-                      checked={opts.sortY}
+                      checked={opts.sortY || false}
                     />
                     <i className="input-helper" /> Sort Values
                   </label>
@@ -520,7 +527,7 @@ export default class ChartEditor extends React.Component {
                     <input
                       type="checkbox"
                       onChange={this.toggleReverseY}
-                      checked={opts.reverseY}
+                      checked={opts.reverseY || false}
                     />
                     <i className="input-helper" /> Reverse Order
                   </label>
