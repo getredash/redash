@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+
+import { ColumnDetail } from '@/components/proptypes';
 import TableEditorColumnDetail from './TableEditorColumnDetail';
 
 const SortableItem = SortableElement(TableEditorColumnDetail);
@@ -20,7 +22,7 @@ const SortableList = SortableContainer(({ items, columnUpdaters }) => (
 
 export default class TableEditorColumns extends React.Component {
   static propTypes = {
-    columns: PropTypes.array.isRequired,
+    columns: PropTypes.arrayOf(ColumnDetail).isRequired,
     updateColumns: PropTypes.func.isRequired,
   }
 

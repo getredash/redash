@@ -5,12 +5,13 @@ import moment from 'moment';
 import { isArray } from 'lodash';
 import Select from 'antd/lib/select';
 
+import { ClientConfig } from '@/components/proptypes';
+
 const Filter = PropTypes.shape({
   current: PropTypes.array.isRequired,
   multiple: PropTypes.bool.isRequired,
   friendlyName: PropTypes.string.isRequired,
   values: PropTypes.arrayOf(PropTypes.string),
-  clientConfig: PropTypes.object.isRequired,
 });
 
 const multiPreamble = [{ value: '*', label: 'Select All' }, { value: '-', label: 'Clear' }];
@@ -20,6 +21,7 @@ export default class Filters extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     filters: PropTypes.arrayOf(Filter).isRequired,
+    clientConfig: ClientConfig.isRequired,
   }
 
   filterValue = (value, filter) => {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import Tabs from 'antd/lib/tabs';
 
-import { QueryData } from '@/components/proptypes';
+import { ClientConfig, QueryData } from '@/components/proptypes';
 import { getColumnCleanName } from '@/services/query-result';
 import './table-editor.less';
 import TableEditorColumns from './TableEditorColumns';
@@ -119,7 +119,7 @@ export default class GridEditor extends React.Component {
     options: GridRenderer.Options.isRequired,
     updateOptions: PropTypes.func.isRequired,
     data: QueryData.isRequired,
-    clientConfig: PropTypes.object.isRequired,
+    clientConfig: ClientConfig.isRequired,
   }
 
   constructor(props) {

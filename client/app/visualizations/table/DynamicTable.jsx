@@ -5,6 +5,7 @@ import { concat, extend, findIndex, filter, isFunction, isString, isUndefined, t
 import $ from 'jquery';
 import renderJsonView from '@/components/dynamic-table/json-cell/json-view-interactive';
 import { formatSimpleTemplate } from '@/lib/value-format';
+import { ColumnDetail, Row } from '@/components/proptypes';
 
 function validateItemsPerPage(value) {
   const defaultValue = 25;
@@ -29,11 +30,7 @@ const ColumnHeader = (props) => {
 };
 
 ColumnHeader.propTypes = {
-  column: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    displayAs: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }).isRequired,
+  column: ColumnDetail.isRequired,
   orderBy: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
     length: PropTypes.number.isRequired,
@@ -118,10 +115,16 @@ const TableCell = (props) => {
   const allowHTML = props.column.displayAs === 'string' && props.column.allowHTML;
   return (
     <td className={`content-align-${props.column.alignContent} display-as-${props.column.displayAs}`}>
+      {/* eslint-disable-next-line react/no-danger */}
       {allowHTML ? <div dangerouslySetInnerHTML={{ __html: renderValue(props.column, props.row) }} />
         : <div>{renderValue(props.column, props.row)}</div>}
     </td>
   );
+};
+
+TableCell.propTypes = {
+  row: Row.isRequired,
+  column: ColumnDetail.isRequired,
 };
 
 function filterRows(rows, searchTerm, columns) {
@@ -226,8 +229,8 @@ function displayRows(preparedRows, currentPage, itemsPerPage) {
 export default class DynamicTable extends React.Component {
   static propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
-    rows: PropTypes.array.isRequired,
-    columns: PropTypes.array.isRequired,
+    rows: PropTypes.arrayOf(Row).isRequired,
+    columns: PropTypes.arrayOf(ColumnDetail).isRequired,
     // eslint-disable-next-line react/no-unused-prop-types
     itemsPerPage: PropTypes.number,
   }

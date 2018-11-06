@@ -32,6 +32,17 @@ const CheckboxFormGroup = props => (
   </div>
 );
 
+const fgPropTypes = {
+  name: PropTypes.string.isRequired,
+  controlName: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+CheckboxFormGroup.propTypes = { ...fgPropTypes, label: PropTypes.string.isRequired };
+FormGroup.propTypes = { ...fgPropTypes, children: PropTypes.node.isRequired };
+
 const AlignButton = props => (
   <button
     type="button"
@@ -41,6 +52,13 @@ const AlignButton = props => (
     <i className={'fa fa-align-' + props.direction} />
   </button>
 );
+
+AlignButton.propTypes = {
+  column: ColumnDetail.isRequired,
+  direction: PropTypes.string.isRequired,
+  updateColumn: PropTypes.func.isRequired,
+};
+
 
 export default function TableEditorColumnDetail({ updateColumn, column }) {
   const stringColumn = (

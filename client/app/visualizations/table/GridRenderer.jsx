@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { extend, filter, fromPairs, includes, map, omit, sortBy } from 'lodash';
 
-import { ColumnDetail, QueryData } from '@/components/proptypes';
+import { ClientConfig, ColumnDetail, QueryData } from '@/components/proptypes';
 import { createFormatter } from '@/lib/value-format';
 import { getColumnCleanName } from '@/services/query-result';
 import DynamicTable from './DynamicTable';
@@ -134,6 +134,7 @@ export default class GridRenderer extends React.Component {
   static propTypes = {
     options: GridOptions,
     data: QueryData.isRequired,
+    clientConfig: ClientConfig.isRequired,
   }
 
   static defaultProps = {

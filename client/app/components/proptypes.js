@@ -1,5 +1,15 @@
 import PropTypes from 'prop-types';
 
+export const ClientConfig = PropTypes.shape({
+  dateFormat: PropTypes.string,
+  dateTimeFormat: PropTypes.string,
+  integerFormat: PropTypes.string,
+  floatFormat: PropTypes.string,
+  booleanValues: PropTypes.arrayOf(PropTypes.string),
+  version: PropTypes.string,
+  newVersionAvailable: PropTypes.bool,
+});
+
 export const DataSource = PropTypes.shape({
   syntax: PropTypes.string,
   options: PropTypes.shape({
@@ -64,3 +74,5 @@ export const ColumnDetail = PropTypes.exact({
   type: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
 });
+
+export const Row = PropTypes.object;

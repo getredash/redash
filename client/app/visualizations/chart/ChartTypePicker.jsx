@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 
+import { ClientConfig } from '@/components/proptypes';
+
 const chartTypes = [
   { value: 'line', label: 'Line', icon: 'line-chart' },
   { value: 'column', label: 'Bar', icon: 'bar-chart' },
@@ -17,7 +19,7 @@ export default class ChartTypePicker extends React.Component {
   static propTypes = {
     value: PropTypes.oneOf([...chartTypes.map(t => t.value), 'custom']).isRequired,
     onChange: PropTypes.func.isRequired,
-    clientConfig: PropTypes.object.isRequired,
+    clientConfig: ClientConfig.isRequired,
   }
 
   constructor(props) {

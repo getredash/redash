@@ -42,7 +42,10 @@ export default class VisualizationRenderer extends React.Component {
           options={this.props.visualization.options}
           name={this.props.visualization.name}
           data={this.props.data}
-          clientConfig={this.props.clientConfig}
+          clientConfig={
+            /* Can't include this in propTypes now since that will prevent react2angular from injecting it */
+            /* eslint-disable-next-line react/prop-types */
+            this.props.clientConfig}
           updateOptions={this.props.updateOptions}
         />
       </React.Fragment>

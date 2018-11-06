@@ -2,18 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { capitalize, map } from 'lodash';
 import Select from 'antd/lib/select';
+
+import { QueryData, Visualization } from '@/components/proptypes';
 import visualizationRegistry from '@/visualizations/registry';
 import VisualizationRenderer from './VisualizationRenderer';
+import Filters from './Filters';
 
 export default class VisualizationOptionsEditor extends React.Component {
   static propTypes = {
     // eslint-disable-next-line react/no-unused-prop-types
-    visualization: PropTypes.object.isRequired,
+    visualization: Visualization.isRequired,
     updateVisualization: PropTypes.func.isRequired,
-    data: PropTypes.object.isRequired,
+    data: QueryData.isRequired,
     setFilters: PropTypes.func.isRequired,
-    filters: PropTypes.array.isRequired,
-
+    filters: PropTypes.arrayOf(Filters.Filter).isRequired,
   }
 
   updateType = type => this.props.updateVisualization({
@@ -67,7 +69,10 @@ export default class VisualizationOptionsEditor extends React.Component {
             options={this.props.visualization.options}
             updateOptions={this.updateOptions}
             data={this.props.data}
-            clientConfig={this.props.clientConfig}
+            clientConfig={
+            /* Can't include this in propTypes now since that will prevent react2angular from injecting it */
+            /* eslint-disable-next-line react/prop-types */
+            this.props.clientConfig}
           />
         </div>
         <div className="col-md-7 p-0 visualization-editor__right">
@@ -77,7 +82,9 @@ export default class VisualizationOptionsEditor extends React.Component {
             data={this.props.data}
             visualization={this.props.visualization}
             updateOptions={this.updateOptions}
-            clientConfig={this.props.clientConfig}
+            clientConfig={
+              /* eslint-disable-next-line react/prop-types */
+              this.props.clientConfig}
           />
         </div>
       </React.Fragment>
