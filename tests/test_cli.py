@@ -300,11 +300,11 @@ class OrganizationCommandTests(BaseTestCase):
         output = """
         Id: 4
         Name: Aorg
-        Slug: a_org
+        Slug: A_org
         --------------------
         Id: 3
         Name: Borg
-        Slug: b_org
+        Slug: B_org
         --------------------
         Id: 1
         Name: Default
