@@ -43,37 +43,36 @@ def parse_ga_response(response):
         })
 
     rows = []
-    if response and 'rows' in response:
-        for r in response['rows']:
-            d = {}
-            for c, value in enumerate(r):
-                column_name = response['columnHeaders'][c]['name']
-                column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+    for r in response.get('rows',[]):
+        d = {}
+        for c, value in enumerate(r):
+            column_name = response['columnHeaders'][c]['name']
+            column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
 
-                # mcf results come a bit different than ga results:
-                if isinstance(value, dict):
-                    if 'primitiveValue' in value:
-                        value = value['primitiveValue']
-                    elif 'conversionPathValue' in value:
-                        steps = []
-                        for step in value['conversionPathValue']:
-                            steps.append('{}:{}'.format(step['interactionType'], step['nodeValue']))
-                        value = ', '.join(steps)
-                    else:
-                        raise Exception("Results format not supported")
+            # mcf results come a bit different than ga results:
+            if isinstance(value, dict):
+                if 'primitiveValue' in value:
+                    value = value['primitiveValue']
+                elif 'conversionPathValue' in value:
+                    steps = []
+                    for step in value['conversionPathValue']:
+                        steps.append('{}:{}'.format(step['interactionType'], step['nodeValue']))
+                    value = ', '.join(steps)
+                else:
+                    raise Exception("Results format not supported")
 
-                if column_type == TYPE_DATE:
-                    value = datetime.strptime(value, '%Y%m%d')
-                elif column_type == TYPE_DATETIME:
-                    if len(value) == 10:
-                        value = datetime.strptime(value, '%Y%m%d%H')
-                    elif len(value) == 12:
-                        value = datetime.strptime(value, '%Y%m%d%H%M')
-                    else:
-                        raise Exception("Unknown date/time format in results: '{}'".format(value))
+            if column_type == TYPE_DATE:
+                value = datetime.strptime(value, '%Y%m%d')
+            elif column_type == TYPE_DATETIME:
+                if len(value) == 10:
+                    value = datetime.strptime(value, '%Y%m%d%H')
+                elif len(value) == 12:
+                    value = datetime.strptime(value, '%Y%m%d%H%M')
+                else:
+                    raise Exception("Unknown date/time format in results: '{}'".format(value))
 
-                d[column_name] = value
-            rows.append(d)
+            d[column_name] = value
+        rows.append(d)
 
     return {'columns': columns, 'rows': rows}
 
