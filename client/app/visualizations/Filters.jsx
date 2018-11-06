@@ -40,14 +40,14 @@ export default class Filters extends React.Component {
       }
     }
 
-    return <Select.Option key={firstValue} value={{ value: firstValue, filter }}>{firstValue}</Select.Option>;
+    return <Select.Option key={firstValue} value={firstValue}>{firstValue}</Select.Option>;
   }
   changeFilters = (change, i) => {
-    const f = { ...change.filter };
+    const f = { ...this.props.filters[i] };
     if (f.multiple) {
-      f.current = [...f.current, change.value];
+      f.current = [...f.current, change];
     } else {
-      f.current = [change.value];
+      f.current = [change];
     }
     const filters = Array.from(this.props.filters);
     filters[i] = f;
@@ -65,7 +65,9 @@ export default class Filters extends React.Component {
           {this.props.filters.map((fi, i) => (
             <div key={fi.name} className="col-sm-6 p-l-0 filter-container">
               <label>{fi.friendlyName}</label>
+              <br />
               <Select
+                className="dropdown"
                 id={'filter-' + fi.name}
                 value={fi.current && (fi.multiple ? fi.current : fi.current[0])}
                 mode={fi.multiple ? 'multiple' : 'default'}

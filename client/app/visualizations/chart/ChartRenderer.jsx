@@ -143,7 +143,7 @@ export default class ChartRenderer extends React.Component {
   static getDerivedStateFromProps(newProps, oldState) {
     if (newProps.data !== oldState.data) {
       // data changed, update options to match
-      const opts = newProps.visualization.options;
+      const opts = newProps.options;
       const seriesNames = getSeriesNames(opts.columnMapping, newProps.data.columns);
       // build new seriesOptions to cover new columns in data
       const seriesOptions = fromPairs(map(seriesNames, n => [n, opts.seriesOptions[n] ||
