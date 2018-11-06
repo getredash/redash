@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { react2angular } from 'react2angular';
 
-function Footer({ clientConfig, currentUser }) {
+export function Footer({ clientConfig, currentUser }) {
   const version = clientConfig.version;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
 
@@ -18,12 +18,12 @@ function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="http://redash.io">Redash</a> {version}
+      <a href="https://redash.io">Redash</a> {version}
       {newVersionString}
       &#8226;
       <a href="https://redash.io/help/">Documentation</a>
       &#8226;
-      <a href="http://github.com/getredash/redash">Contribute</a>
+      <a href="https://github.com/getredash/redash">Contribute</a>
     </div>
   );
 }

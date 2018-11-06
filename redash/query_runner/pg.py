@@ -165,7 +165,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json_dumps(data)
+                json_data = json_dumps(data, ignore_nan=True)
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None
@@ -239,9 +239,9 @@ class Redshift(PostgreSQL):
 
     def _get_tables(self, schema):
         # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
-        # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
         # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
-        # http://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
         query = """
         WITH tables AS (
             SELECT DISTINCT table_name,
