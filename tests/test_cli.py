@@ -438,7 +438,7 @@ class UserCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         output = """
-        Id: 2
+        Id: 3
         Name: Andrew Foobar
         Email: andrew@example.com
         Organization: Default
@@ -452,7 +452,7 @@ class UserCommandTests(BaseTestCase):
         Active: True
         Groups: default
         --------------------
-        Id: 3
+        Id: 2
         Name: William Foobar
         Email: william@example.com
         Organization: Default
