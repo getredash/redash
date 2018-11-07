@@ -42,10 +42,6 @@ class Druid(BaseQueryRunner):
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def type(cls):
-        return "druid"
-
     def run_query(self, query, user):
         pass
 
