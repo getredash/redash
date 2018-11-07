@@ -1,3 +1,9 @@
+try:
+    from pydruid.db import connect
+    enabled = True
+except ImportError:
+    enabled = False
+
 from redash.query_runner import BaseQueryRunner, register
 
 class Druid(BaseQueryRunner):
@@ -34,7 +40,7 @@ class Druid(BaseQueryRunner):
 
     @classmethod
     def enabled(cls):
-        return True
+        return enabled
 
     @classmethod
     def type(cls):
