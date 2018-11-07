@@ -64,4 +64,31 @@ class Druid(BaseQueryRunner):
 
         return json_data, error
 
+    def get_schema(self, get_stats=False):
+        query = """
+        SELECT TABLE_SCHEMA,
+               TABLE_NAME,
+               COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA <> 'INFORMATION_SCHEMA'
+        """
+
+        results, error = self.run_query(query, None)
+
+        if error is not None:
+            raise Exception("Failed getting schema.")
+
+        schema = {}
+        results = json_loads(results)
+
+        for row in results['rows']:
+            table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+
+            if table_name not in schema:
+                schema[table_name] = {'name': table_name, 'columns': []}
+
+            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+
+        return schema.values()
+
 register(Druid)
