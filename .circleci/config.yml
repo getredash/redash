@@ -14,6 +14,42 @@ jobs:
       - image: circleci/python:2.7.15
     steps: *steps
   backend-unit-tests:
+    docker:
+      - image: circleci/node:8
+      - image: redis
+      - image: circleci/postgres:10-alpine-postgis
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/test-reports/pytest
+      - run:
+          name: Setup Environment
+          command: |
+            set -x
+            sudo apt-get update
+            sudo apt-get install -y python-pip python-dev
+            sudo apt-get install -y redis-tools redis-server
+      - run:
+          name: Install Python Dependencies
+          command: |
+            set -x
+            sudo pip install --upgrade setuptools
+            sudo pip install -r requirements_dev.txt
+            sudo pip install -r requirements.txt
+      - run:
+          name: Frontend Build
+          command: |
+            set -x
+            sudo npm install
+            sudo npm run bundle
+            sudo npm run build
+      - run:
+          command: pytest --junitxml=/tmp/test-reports/pytest/junit.xml tests/
+          environment:
+            REDASH_REDIS_URL: redis://localhost:6379/0
+            REDASH_DATABASE_URL: "postgresql://postgres@localhost/postgres"
+      - store_test_results:
+          path: /tmp/test-reports/
+  backend-unit-tests-old:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
