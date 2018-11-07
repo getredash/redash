@@ -91,7 +91,7 @@ def list(organization=None):
     else:
         groups = models.Group.query
 
-    for i, group in enumerate(groups):
+    for i, group in enumerate(groups.order_by(models.Group.name)):
         if i > 0:
             print("-" * 20)
 

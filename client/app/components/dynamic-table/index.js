@@ -34,11 +34,11 @@ function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
-      if (va < vb) {
+      if (va == undefined || (va < vb)) {
         // if a < b - we should return -1, but take in account direction
         return orderBy[i].direction * -1;
       }
-      if (va > vb) {
+      if ((va > vb) || vb == undefined) {
         // if a > b - we should return 1, but take in account direction
         return orderBy[i].direction * 1;
       }
