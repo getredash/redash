@@ -42,9 +42,9 @@ class Druid(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = connect(host=self.configuration['host'],
-            port=self.configuration['port'],
-            path='/druid/v2/sql/',
-            scheme=self.configuration['scheme'])
+                             port=self.configuration['port'],
+                             path='/druid/v2/sql/',
+                             scheme=self.configuration['scheme'])
 
         cursor = connection.cursor()
 
