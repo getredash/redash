@@ -18,12 +18,6 @@ class Druid(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "username": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
                 "host": {
                     "type": "string",
                     "default": "localhost"
@@ -37,9 +31,8 @@ class Druid(BaseQueryRunner):
                     "default": "http"
                 }
             },
-            "order": ['scheme', 'host', 'port', 'username', 'password'],
-            "required": ['host'],
-            "secret": ["password"]
+            "order": ['scheme', 'host', 'port'],
+            "required": ['host']
         }
 
     @classmethod
