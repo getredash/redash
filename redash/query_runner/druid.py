@@ -10,6 +10,7 @@ from redash.utils import json_dumps, json_loads
 TYPES_MAP = {
 }
 
+
 class Druid(BaseQueryRunner):
     noop_query = "SELECT 1"
 
@@ -40,7 +41,11 @@ class Druid(BaseQueryRunner):
         return enabled
 
     def run_query(self, query, user):
-        connection = connect(host=self.configuration['host'], port=self.configuration['port'], path='/druid/v2/sql/', scheme=self.configuration['scheme'])
+        connection = connect(host=self.configuration['host'],
+            port=self.configuration['port'],
+            path='/druid/v2/sql/',
+            scheme=self.configuration['scheme'])
+
         cursor = connection.cursor()
 
         try:
@@ -83,5 +88,6 @@ class Druid(BaseQueryRunner):
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
         return schema.values()
+
 
 register(Druid)
