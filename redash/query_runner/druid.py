@@ -14,7 +14,7 @@ class Druid(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
+                "username": {
                     "type": "string"
                 },
                 "password": {
@@ -22,19 +22,19 @@ class Druid(BaseQueryRunner):
                 },
                 "host": {
                     "type": "string",
-                    "default": "127.0.0.1"
+                    "default": "localhost"
                 },
                 "port": {
                     "type": "number",
-                    "default": 50000
+                    "default": 8082
                 },
-                "dbname": {
+                "scheme": {
                     "type": "string",
-                    "title": "Database Name"
+                    "default": "http"
                 }
             },
-            "order": ['host', 'port', 'user', 'password', 'dbname'],
-            "required": ["dbname"],
+            "order": ['scheme', 'host', 'port', 'username', 'password'],
+            "required": ['host'],
             "secret": ["password"]
         }
 
