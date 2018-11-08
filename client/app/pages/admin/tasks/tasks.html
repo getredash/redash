@@ -12,7 +12,6 @@
     <ul class="tab-nav">
       <rd-tab tab-id="in_progress" name="In Progress ({{tasks.in_progress.length}})" ng-click="setTab('in_progress')"></rd-tab>
       <rd-tab tab-id="waiting" name="Waiting ({{tasks.waiting.length}})" ng-click="setTab('waiting')"></rd-tab>
-      <rd-tab tab-id="done" name="Done" ng-click="setTab('done')"></rd-tab>
     </ul>
 
     <table class="table table-condensed table-hover">
@@ -24,9 +23,8 @@
         <th>Query ID</th>
         <th>Query Hash</th>
         <th>Runtime</th>
-        <th>Created At</th>
+        <th>Queued At</th>
         <th>Started At</th>
-        <th>Updated At</th>
         <th ng-if="selectedTab === 'in_progress'"></th>
       </tr>
       </thead>

@@ -12,7 +12,6 @@ function TasksCtrl($scope, $location, $http, $timeout, Events) {
   $scope.tasks = {
     waiting: [],
     in_progress: [],
-    done: [],
   };
 
   this.tasksPaginator = new Paginator([], { itemsPerPage: 50 });

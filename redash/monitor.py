@@ -3,6 +3,7 @@ import itertools
 import json
 import base64
 from redash import redis_connection, models, __version__, settings
+from redash.worker import celery
 
 
 def get_redis_status():
@@ -103,13 +104,13 @@ def parse_control_tasks_list(tasks, tasks_state):
                 'task_id': task['id'],
                 'data_source_id': data_source_id,
                 'query_id': query_id,
-                'user': user
+                'username': user
             })
 
     return query_tasks
 
 
-def get_waiting_tasks():
+def waiting_tasks():
     query_tasks = []
     for queue_name in get_queues():
         for raw in redis_connection.lrange(queue_name, 0, -1):
@@ -125,15 +126,15 @@ def get_waiting_tasks():
                 'task_id': job['headers']['id'],
                 'data_source_id': data_source_id,
                 'query_id': metadata.get('Query ID'),
-                'user': metadata.get('Username'),
+                'username': metadata.get('Username'),
             })
     
     return query_tasks
 
 
-def tasks():
-    reserved = parse_control_tasks_list(celery.control.inspect().reserved(), 'reserved')
-    # TODO: add started_at timestampt to active tasks
-    active = parse_control_tasks_list(celery.control.inspect().active(), 'active')
+def active_tasks():
+    return parse_control_tasks_list(celery.control.inspect().active(), 'active')
 
-    return active+reserved+get_waiting_tasks()
+
+def reserved_tasks():
+    return parse_control_tasks_list(celery.control.inspect().reserved(), 'reserved')
