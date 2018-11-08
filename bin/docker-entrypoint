@@ -12,10 +12,11 @@ worker() {
 scheduler() {
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
 }
 
 server() {
