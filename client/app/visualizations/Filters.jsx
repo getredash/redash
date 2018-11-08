@@ -14,7 +14,7 @@ const Filter = PropTypes.shape({
   values: PropTypes.arrayOf(PropTypes.string),
 });
 
-const multiPreamble = [{ value: '*', label: 'Select All' }, { value: '-', label: 'Clear' }];
+const multiPreamble = [<Select.Option key="*">Select All</Select.Option>, <Select.Option key="-">Clear</Select.Option>];
 
 export default class Filters extends React.Component {
   static Filter = Filter
@@ -45,7 +45,7 @@ export default class Filters extends React.Component {
   changeFilters = (change, i) => {
     const f = { ...this.props.filters[i] };
     if (f.multiple) {
-      f.current = [...f.current, change];
+      f.current = change;
     } else {
       f.current = [change];
     }
