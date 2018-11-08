@@ -185,6 +185,7 @@ default_query_runners = [
     'redash.query_runner.prometheus',
     'redash.query_runner.qubole',
     'redash.query_runner.db2',
+    'redash.query_runner.druid',
     'redash.query_runner.kylin'
 ]
 
