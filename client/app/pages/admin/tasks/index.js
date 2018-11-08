@@ -32,7 +32,7 @@ function TasksCtrl($scope, $location, $http, $timeout, Events) {
       });
     }
 
-    const timer = $timeout(refresh, 5 * 1000);
+    const timer = $timeout(refresh, 60 * 1000);
 
     $scope.$on('$destroy', () => {
       if (timer) {
