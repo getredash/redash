@@ -69,8 +69,8 @@ export default function init(ngModule) {
   ngModule.component('queryTagsControl', {
     template: `
       <div>
-        <span class="label label-default-unpublished" ng-if="$ctrl.query.is_draft && !$ctrl.query.is_archived">Unpublished</span
-        ><span class="label label-warning" ng-if="$ctrl.query.is_archived" 
+        <span class="label label-tag-unpublished" ng-if="$ctrl.query.is_draft && !$ctrl.query.is_archived">Unpublished</span
+        ><span class="label label-tag-archived" ng-if="$ctrl.query.is_archived" 
           uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span
         ><tags-control item="$ctrl.query" can-edit="$ctrl.canEdit" 
