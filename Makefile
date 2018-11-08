@@ -1,4 +1,4 @@
-.PHONY: build bundle compose_build create_database tests test_db clean
+.PHONY: compose_build test_db create_database clean bundle tests build watch start
 
 compose_build:
 	docker-compose build

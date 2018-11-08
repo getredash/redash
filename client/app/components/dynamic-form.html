@@ -8,11 +8,13 @@
     <div class="form-group" ng-class='{"has-error": (inner.input | showError), "required": field.property.required}' ng-form="inner" ng-repeat="field in fields">
         <label ng-if="field.property.type !== 'checkbox'" class="control-label">{{field.property.title || field.name | toHuman}}</label>
         <input name="input" type="{{field.property.type}}" class="form-control" ng-model="target.options[field.name]" ng-required="field.property.required"
-               ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox'" accesskey="tab" placeholder="{{field.property.default}}">
+               ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox'" accesskey="tab" placeholder="{{field.property.default}}"
+               data-cy="{{field.property.title || field.name | toHuman}}">
 
         <label ng-if="field.property.type=='checkbox'">
             <input name="input" type="{{field.property.type}}" ng-model="target.options[field.name]" ng-required="field.property.required"
-                   ng-if="field.property.type !== 'file'" accesskey="tab" placeholder="{{field.property.default}}">
+                   ng-if="field.property.type !== 'file'" accesskey="tab" placeholder="{{field.property.default}}"
+                   data-cy="{{field.property.title || field.name | toHuman}}">
             {{field.property.title || field.name | toHuman}}
         </label>
 

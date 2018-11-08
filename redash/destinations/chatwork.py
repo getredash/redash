@@ -51,7 +51,7 @@ class ChatWork(BaseDestination):
             headers = {'X-ChatWorkToken': options.get('api_token')}
             payload = {'body': message}
 
-            resp = requests.post(url, headers=headers, data=payload)
+            resp = requests.post(url, headers=headers, data=payload, timeout=5.0)
             logging.warning(resp.text)
             if resp.status_code != 200:
                 logging.error('ChatWork send ERROR. status_code => {status}'.format(status=resp.status_code))
