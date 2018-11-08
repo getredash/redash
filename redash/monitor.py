@@ -104,7 +104,8 @@ def parse_control_tasks_list(tasks, tasks_state):
                 'task_id': task['id'],
                 'data_source_id': data_source_id,
                 'query_id': query_id,
-                'username': user
+                'username': user,
+                'started_at': task.get('time_start')
             })
 
     return query_tasks
