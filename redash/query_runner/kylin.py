@@ -48,7 +48,7 @@ types_map = {
 }
 
 
-class KylinAPI(BaseQueryRunner):
+class Kylin(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -143,4 +143,4 @@ class KylinAPI(BaseQueryRunner):
         return {"name": name, "columns": columns}
 
 
-register(KylinAPI)
+register(Kylin)
