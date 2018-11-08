@@ -7,7 +7,6 @@ from redash.handlers import routes
 from redash.handlers.base import json_response, record_event
 from redash.permissions import require_super_admin
 from redash.serializers import QuerySerializer
-from redash.tasks.queries import QueryTaskTracker
 from redash.utils import json_loads
 
 
