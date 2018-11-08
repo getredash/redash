@@ -17,6 +17,8 @@
     <table class="table table-condensed table-hover">
       <thead>
       <tr>
+        <th>Queue</th>
+        <th>Worker</th>
         <th>Data Source ID</th>
         <th>Username</th>
         <th>State</th>
@@ -30,6 +32,8 @@
       </thead>
       <tbody>
       <tr ng-repeat="row in $ctrl.tasksPaginator.getPageRows()">
+        <td>{{row.queue}}</td>
+        <td>{{row.worker}}</td>
         <td>{{row.data_source_id}}</td>
         <td>{{row.username}}</td>
         <td>{{row.state}} <span ng-if="row.state === 'failed'" uib-popover="{{row.error}}" popover-trigger="mouseenter" class="zmdi zmdi-help"></span></td>
