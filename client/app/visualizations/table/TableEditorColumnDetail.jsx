@@ -10,7 +10,6 @@ const FormGroup = props => (
     <label htmlFor={`table-editor-${props.name}-${props.controlName}`}>{props.children}</label>
     <input
       className="form-control"
-      type={props.type}
       value={props.value}
       onChange={props.onChange}
       id={`table-editor-${props.name}-${props.controlName}`}
@@ -35,14 +34,13 @@ const CheckboxFormGroup = props => (
 const fgPropTypes = {
   name: PropTypes.string.isRequired,
   controlName: PropTypes.string.isRequired,
-  type: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-CheckboxFormGroup.propTypes = { ...fgPropTypes, label: PropTypes.string.isRequired };
-FormGroup.propTypes = { ...fgPropTypes, children: PropTypes.node.isRequired };
-
+CheckboxFormGroup.propTypes = { ...fgPropTypes, label: PropTypes.string.isRequired, value: PropTypes.bool };
+CheckboxFormGroup.defaultProps = { value: false };
+FormGroup.propTypes = { ...fgPropTypes, children: PropTypes.node.isRequired, value: PropTypes.string };
+FormGroup.defaultProps = { value: null };
 const AlignButton = props => (
   <button
     type="button"

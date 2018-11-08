@@ -36,7 +36,7 @@ export default class VisualizationRenderer extends React.Component {
     }
     return (
       <React.Fragment>
-        <Filters filters={this.props.filters} onChange={this.props.setFilters} />
+        <Filters filters={this.props.filters} onChange={this.props.setFilters} clientConfig={this.props.clientConfig} />
         <Vis
           filters={this.props.filters}
           options={this.props.visualization.options}

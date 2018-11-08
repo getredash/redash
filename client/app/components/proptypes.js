@@ -58,6 +58,8 @@ export const ColumnDetail = PropTypes.exact({
   booleanValues: PropTypes.arrayOf(PropTypes.string).isRequired,
   dateTimeFormat: PropTypes.string,
   displayAs: PropTypes.string.isRequired,
+  formatFunction: PropTypes.func,
+  friendly_name: PropTypes.string,
   highlightLinks: PropTypes.bool.isRequired,
   imageHeight: PropTypes.string.isRequired,
   imageTitleTemplate: PropTypes.string.isRequired,

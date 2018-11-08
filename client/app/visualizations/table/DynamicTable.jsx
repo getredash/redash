@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Pagination from 'antd/lib/pagination';
-import { concat, extend, findIndex, filter, isFunction, isString, isUndefined, trim } from 'lodash';
+import { concat, extend, findIndex, filter, isFunction, isNil, isString, isUndefined, trim } from 'lodash';
 import $ from 'jquery';
 import renderJsonView from '@/components/dynamic-table/json-cell/json-view-interactive';
 import { formatSimpleTemplate } from '@/lib/value-format';
@@ -159,11 +159,11 @@ function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
-      if (va === undefined || (va < vb)) {
+      if (isNil(va) || (va < vb)) {
         // if a < b - we should return -1, but take in account direction
         return orderBy[i].direction * -1;
       }
-      if (va > vb || vb === undefined) {
+      if (va > vb || isNil(vb)) {
         // if a > b - we should return 1, but take in account direction
         return orderBy[i].direction * 1;
       }
