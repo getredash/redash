@@ -242,6 +242,11 @@ class Redshift(PostgreSQL):
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
         # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
         # https://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
+        # Use HAS_SCHEMA_PRIVILEGE(), SVV_EXTERNAL_SCHEMAS and HAS_TABLE_PRIVILEGE() to filter
+        # out tables the current user cannot access.
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_SCHEMA_PRIVILEGE.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_SCHEMAS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_TABLE_PRIVILEGE.html
         query = """
         WITH tables AS (
             SELECT DISTINCT table_name,
@@ -260,6 +265,12 @@ class Redshift(PostgreSQL):
         )
         SELECT table_name, table_schema, column_name
         FROM tables
+        WHERE
+            HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
+            (
+                table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
+                HAS_TABLE_PRIVILEGE(table_schema || '.' || table_name, 'SELECT')
+            )
         ORDER BY table_name, pos
         """
 
