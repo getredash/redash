@@ -645,7 +645,6 @@ class TestUserDetail(BaseTestCase):
             models.UserDetail.get(models.UserDetail.user_id == 1)._id,
             user_detail._id,
         )
-        self.assertTrue(user_detail.needs_sync)
 
     def test_userdetail_update(self):
         self.assertEqual(len(list(models.UserDetail.all())), 0)
@@ -655,7 +654,6 @@ class TestUserDetail(BaseTestCase):
         all_user_details = list(models.UserDetail.all())
         self.assertEqual(len(all_user_details), 1)
         created_user_detail = all_user_details[0]
-        self.assertTrue(created_user_detail.needs_sync)
 
         # then see if we can update the same user detail again
         updated_user_detail = models.UserDetail.update(
@@ -665,38 +663,15 @@ class TestUserDetail(BaseTestCase):
             updated_user_detail.updated_at,
             created_user_detail.updated_at
         )
-        self.assertTrue(updated_user_detail.needs_sync)
-
-    def test_userdetail_stop_sync(self):
-        self.assertEqual(len(list(models.UserDetail.all())), 0)
-        user_detail = models.UserDetail.create(user_id=1)
-        user_detail.save()
-        self.assertTrue(user_detail.needs_sync)
-        models.UserDetail.stop_sync(user_id=1)
-        self.assertFalse(
-            models.UserDetail.get(models.UserDetail.user_id == 1).needs_sync
-        )
-
-    def test_userdetail_all_to_sync(self):
-        self.assertEqual(len(list(models.UserDetail.all())), 0)
-        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 0)
-        user_detail = models.UserDetail.create(user_id=1)
-        user_detail.save()
-        self.assertEqual(len(list(models.UserDetail.all())), 1)
-        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 1)
-        user_detail2 = models.UserDetail.create(user_id=2)
-        user_detail2.save()
-        self.assertEqual(len(list(models.UserDetail.all())), 2)
-        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 2)
-        models.UserDetail.stop_sync(user_id=user_detail2.user_id)
-        self.assertEqual(len(list(models.UserDetail.all())), 2)
-        self.assertEqual(len(list(models.UserDetail.all_to_sync())), 1)
 
     def test_sync(self):
         with authenticated_user(self.client) as user:
             user_detail = models.UserDetail.update(user_id=user.id)
             self.assertEqual(user.details, models.User.details_default)
+
+            self.assertEqual(len(list(models.UserDetail.all())), 1)
             models.UserDetail.sync()
+            self.assertEqual(len(list(models.UserDetail.all())), 0)
 
             user_reloaded = models.User.query.filter_by(id=user.id).first()
             self.assertIn('active_at', user_reloaded.details)
