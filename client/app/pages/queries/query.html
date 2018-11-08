@@ -23,7 +23,7 @@
         <div class="d-flex flex-nowrap align-items-center">
           <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
           <h3>
-            <edit-in-place editable="canEdit" on-done="saveName" ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
+            <edit-in-place is-editable="canEdit" on-done="saveName" ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
           </h3>
 
           <span class="flex-fill">&nbsp;</span>
@@ -94,7 +94,7 @@
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
       <div class="query-metadata query-metadata--description" ng-if="!query.isNew()">
-        <edit-in-place editable="canEdit" on-done="saveDescription" editor="'textarea'" placeholder="'Add description'" ignore-blanks='false'
+        <edit-in-place is-editable="canEdit" on-done="saveDescription" editor="'textarea'" placeholder="'Add description'" ignore-blanks='false'
           value="query.description" markdown="true">
         </edit-in-place>
       </div>
