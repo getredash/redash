@@ -1,3 +1,7 @@
+import ast
+import itertools
+import json
+import base64
 from redash import redis_connection, models, __version__, settings
 
 
@@ -70,3 +74,66 @@ def get_status():
     status['database_metrics']['metrics'] = get_db_sizes()
 
     return status
+
+
+def parse_control_tasks_list(tasks, tasks_state):
+    query_tasks = []
+
+    if tasks is None:
+        return query_tasks 
+
+    for task in itertools.chain(*tasks.values()):
+        data_source_id = None
+        query_id = None
+        user = None
+
+        # TODO: we should support parsing all the tasks, not only query ones.
+        if task['name'] == 'redash.tasks.execute_query':
+            args = ast.literal_eval(task['args'])
+            data_source_id = args[1]
+            query_id = args[2].get('Query ID')
+            user = args[2].get('Username')
+            if query_id == 'adhoc':
+                query_id = None
+
+            query_tasks.append({
+                'state': tasks_state,
+                'worker': task['hostname'],
+                'queue': task['delivery_info']['routing_key'],
+                'task_id': task['id'],
+                'data_source_id': data_source_id,
+                'query_id': query_id,
+                'user': user
+            })
+
+    return query_tasks
+
+
+def get_waiting_tasks():
+    query_tasks = []
+    for queue_name in get_queues():
+        for raw in redis_connection.lrange(queue_name, 0, -1):
+            job = json.loads(raw)
+            job['body'] = json.loads(base64.b64decode(job['body']))
+
+            query, data_source_id, metadata, user_id, scheduled_query_id = job['body'][0]
+
+            query_tasks.append({
+                'state': 'waiting',
+                'worker': None,
+                'queue': queue_name,
+                'task_id': job['headers']['id'],
+                'data_source_id': data_source_id,
+                'query_id': metadata.get('Query ID'),
+                'user': metadata.get('Username'),
+            })
+    
+    return query_tasks
+
+
+def tasks():
+    reserved = parse_control_tasks_list(celery.control.inspect().reserved(), 'reserved')
+    # TODO: add started_at timestampt to active tasks
+    active = parse_control_tasks_list(celery.control.inspect().active(), 'active')
+
+    return active+reserved+get_waiting_tasks()
