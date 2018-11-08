@@ -132,7 +132,6 @@ export default class PlotlyChart extends React.Component {
   restyle = (updates) => {
     if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
       updateData(this.state.data, this.props.options);
-      this.setState({ revision: this.state.revision + 1 });
     }
   }
 
@@ -146,7 +145,7 @@ export default class PlotlyChart extends React.Component {
         useResizeHandler
         config={{
           showLink: false,
-          displayLogo: false,
+          displaylogo: false,
           modeBarButtonsToRemove: ['sendDataToCloud'],
         }}
         data={this.state.data}

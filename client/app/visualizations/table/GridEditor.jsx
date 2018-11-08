@@ -155,7 +155,7 @@ export default class GridEditor extends React.Component {
           <Tabs.TabPane key="grid" tab="Grid">
             <div className="form-group">
               <label htmlFor="grid-editor-items-per-page">Items per page
-                <select id="grid-editor-items-per-page" className="form-control" onChange={e => this.props.updateOptions({ itemsPerPage: parseInt(e.target.value, 10) })} value={this.props.options.itemsPerPage || 10}>
+                <select id="grid-editor-items-per-page" className="form-control" onChange={e => this.props.updateOptions({ itemsPerPage: parseInt(e.target.value, 10) })} value={this.props.options.itemsPerPage}>
                   {ALLOWED_ITEM_PER_PAGE.map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
               </label>

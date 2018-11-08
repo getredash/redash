@@ -237,7 +237,7 @@ export default class DynamicTable extends React.Component {
   static defaultProps = { itemsPerPage: 10 };
 
   state = {
-    itemsPerPage: 10,
+    itemsPerPage: 25,
     searchColumns: [],
     preparedRows: [],
     rowsToDisplay: [],
@@ -320,14 +320,19 @@ export default class DynamicTable extends React.Component {
     }
   };
 
-  onSearchTermChanged = e => {
+  onSearchTermChanged = (e) => {
     const searchTerm = e.target.value;
     const preparedRows = sortRows(
       filterRows(this.state.rows, searchTerm, this.state.searchColumns),
       this.state.orderBy,
     );
     const rowsToDisplay = displayRows(preparedRows, this.state.currentPage, this.state.itemsPerPage);
-    this.setState({ searchTerm, preparedRows, rowsToDisplay, currentPage: 1 });
+    this.setState({
+      searchTerm,
+      preparedRows,
+      rowsToDisplay,
+      currentPage: 1,
+    });
   }
 
   selectPage = (pageNumber) => {
