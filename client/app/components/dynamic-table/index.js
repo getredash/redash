@@ -2,6 +2,10 @@ import { find, filter, map, each } from 'lodash';
 import template from './dynamic-table.html';
 import './dynamic-table.less';
 
+function isNullOrUndefined(v) {
+  return (v === null) || (v === undefined);
+}
+
 function filterRows(rows, searchTerm, columns) {
   if ((searchTerm === '') || (columns.length === 0) || (rows.length === 0)) {
     return rows;
@@ -34,11 +38,11 @@ function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
-      if (va == undefined || (va < vb)) {
+      if (isNullOrUndefined(va) || (va < vb)) {
         // if a < b - we should return -1, but take in account direction
         return orderBy[i].direction * -1;
       }
-      if ((va > vb) || vb == undefined) {
+      if ((va > vb) || isNullOrUndefined(vb)) {
         // if a > b - we should return 1, but take in account direction
         return orderBy[i].direction * 1;
       }
