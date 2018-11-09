@@ -229,6 +229,14 @@ if (process.env.DEV_SERVER_HOST) {
   config.devServer.host = process.env.DEV_SERVER_HOST;
 }
 
+if (isProduction) {
+  config.plugins.push(
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('production')
+    })
+  );
+}
+
 if (process.env.BUNDLE_ANALYZER) {
   config.plugins.push(new BundleAnalyzerPlugin());
 }
