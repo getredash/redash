@@ -17,10 +17,13 @@ function execSetup() {
   post(baseUrl + '/setup', { formData: setupData });
 }
 
-function startServer() {
+function startServer(skipDependencies) {
   console.log('Starting the server...');
-            
-  execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', { stdio: 'inherit' });
+
+  if (skipDependencies) {
+    execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', { stdio: 'inherit' });
+  }
+
   execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
   execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
 }
@@ -34,11 +37,11 @@ const command = process.argv[2];
 
 switch (command) {
   case 'start':
-    startServer();
+    startServer(false);
     execSetup();
     break;
   case 'start-ci':
-    startServer();
+    startServer(true);
     break;
   case 'setup':
     execSetup();
