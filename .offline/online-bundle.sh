@@ -28,19 +28,6 @@ save_production_images() {
     done
 }
 
-convert_docker_compose_files() {
-    # Install kompose if its not installed
-    if ! hash kompose ; then
-        curl -L https://github.com/kubernetes/kompose/releases/download/v1.16.0/kompose-linux-amd64 -o kompose
-        chmod +x kompose
-        sudo mv ./kompose /usr/local/bin/kompose
-    fi
-    # Convert docker-compose yaml
-    mkdir -p .tmp/kubernetes
-    kompose convert --provider openshift -f .offline/docker-kompose.yml -o .tmp/kubernetes/unified.yml --insecure-repository
-    kompose convert --provider openshift -f .offline/docker-kompose.yml -o .tmp/kubernetes --insecure-repository
-}
-
 bundle_folder() {
     git bundle create .git/bundle --all
     tar cvfz ../redash.tar.gz --exclude node_modules --exclude client/dist --exclude .tmp/pip  ../redash
@@ -58,5 +45,4 @@ tar_artifacts
 sleep 1
 build_and_run_images
 save_production_images
-convert_docker_compose_files
 bundle_folder
