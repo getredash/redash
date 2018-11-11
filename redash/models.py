@@ -729,6 +729,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    error = Column(db.Text, nullable=True )
 
     __tablename__ = 'query_results'
 
@@ -740,7 +741,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'data': json_loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
-            'retrieved_at': self.retrieved_at
+            'retrieved_at': self.retrieved_at,
+            'error': self.error
         }
 
     @classmethod
@@ -760,12 +762,14 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         if max_age == -1:
             q = db.session.query(QueryResult).filter(
                 cls.query_hash == query_hash,
-                cls.data_source == data_source).order_by(
+                cls.data_source == data_source,
+                cls.error == None).order_by(
                     QueryResult.retrieved_at.desc())
         else:
             q = db.session.query(QueryResult).filter(
                 QueryResult.query_hash == query_hash,
                 QueryResult.data_source == data_source,
+                QueryResult.error == None,
                 db.func.timezone('utc', QueryResult.retrieved_at) +
                 datetime.timedelta(seconds=max_age) >=
                 db.func.timezone('utc', db.func.now())
@@ -774,14 +778,15 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return q.first()
 
     @classmethod
-    def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+    def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at, error):
         query_result = cls(org_id=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
-                           data=data)
+                           data=data,
+                           error=error)
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.

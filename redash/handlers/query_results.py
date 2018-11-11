@@ -51,18 +51,19 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         started_at = time.time()
         data, error = data_source.query_runner.run_query(query_text, current_user)
 
-        if error:
-            logging.info('got bak error')
-            logging.info(error)
-            return None
-
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
                                                                               query_hash, query_text, data,
-                                                                              run_time, utcnow())
+                                                                              run_time, utcnow(), error)
 
         models.db.session.commit()
-        return query_result
+        
+        if error:
+            logging.info('got back error when using run_query')
+            logging.info(error)
+            return None
+        else:
+            return query_result
     except Exception as e:
         if max_age > 0:
             abort(404, message="Unable to get result from the database, and no cached query result found.")
