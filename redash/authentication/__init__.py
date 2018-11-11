@@ -6,8 +6,12 @@ import time
 import logging
 
 from flask import redirect, request, jsonify, url_for
+from urlparse import urlsplit, urlunsplit
+from werkzeug.exceptions import Unauthorized
 
 from redash import models, settings
+from redash.settings.organization import settings as org_settings
+from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.tasks import record_event
 
@@ -46,6 +50,21 @@ def load_user(user_id):
         return user
     except models.NoResultFound:
         return None
+
+
+def request_loader(request):
+    user = None
+    if settings.AUTH_TYPE == 'hmac':
+        user = hmac_load_user_from_request(request)
+    elif settings.AUTH_TYPE == 'api_key':
+        user = api_key_load_user_from_request(request)
+    else:
+        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
+        user = hmac_load_user_from_request(request)
+
+    if org_settings['auth_jwt_login_enabled'] and user is None:
+        user = jwt_token_load_user_from_request(request)
+    return user
 
 
 def hmac_load_user_from_request(request):
@@ -116,6 +135,40 @@ def api_key_load_user_from_request(request):
     return user
 
 
+def jwt_token_load_user_from_request(request):
+    org = current_org._get_current_object()
+
+    payload = None
+
+    if org_settings['auth_jwt_auth_cookie_name']:
+        jwt_token = request.cookies.get(org_settings['auth_jwt_auth_cookie_name'], None)
+    elif org_settings['auth_jwt_auth_header_name']:
+        jwt_token = request.headers.get(org_settings['auth_jwt_auth_header_name'], None)
+    else:
+        return None
+
+    if jwt_token:
+        payload, token_is_valid = jwt_auth.verify_jwt_token(
+            jwt_token,
+            expected_issuer=org_settings['auth_jwt_auth_issuer'],
+            expected_audience=org_settings['auth_jwt_auth_audience'],
+            algorithms=org_settings['auth_jwt_auth_algorithms'],
+            public_certs_url=org_settings['auth_jwt_auth_public_certs_url'],
+        )
+        if not token_is_valid:
+            raise Unauthorized('Invalid JWT token')
+
+    if not payload:
+        return
+
+    try:
+        user = models.User.get_by_email_and_org(payload['email'], org)
+    except models.NoResultFound:
+        user = create_and_login_user(current_org, payload['email'], payload['email'])
+
+    return user
+
+
 def log_user_logged_in(app, user):
     event = {
         'org_id': current_org.id,
@@ -168,14 +221,7 @@ def setup_authentication(app):
     app.register_blueprint(ldap_auth.blueprint)
 
     user_logged_in.connect(log_user_logged_in)
-
-    if settings.AUTH_TYPE == 'hmac':
-        login_manager.request_loader(hmac_load_user_from_request)
-    elif settings.AUTH_TYPE == 'api_key':
-        login_manager.request_loader(api_key_load_user_from_request)
-    else:
-        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
-        login_manager.request_loader(hmac_load_user_from_request)
+    login_manager.request_loader(request_loader)
 
 
 def create_and_login_user(org, name, email, picture=None):
@@ -197,3 +243,16 @@ def create_and_login_user(org, name, email, picture=None):
     login_user(user_object, remember=True)
 
     return user_object
+
+
+def get_next_path(unsafe_next_path):
+    if not unsafe_next_path:
+        return ''
+
+    # Preventing open redirection attacks
+    parts = list(urlsplit(unsafe_next_path))
+    parts[0] = ''  # clear scheme
+    parts[1] = ''  # clear netloc
+    safe_next_path = urlunsplit(parts)
+
+    return safe_next_path

@@ -3,12 +3,11 @@
 
   <div class="row">
     <div class="col-md-3 list-control-t">
-      <div class="m-b-5">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
+      <div class="m-b-10">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }" ng-change="$ctrl.update()">
       </div>
 
-      <div class='list-group m-b-10 tags-list tiled'>
+      <div class="list-group m-b-10 tags-list tiled">
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
         </a>
@@ -44,7 +43,7 @@
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <div ng-switch="$ctrl.emptyType">
         <div ng-switch-when="default">
-          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
+          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="https://help.redash.io/category/21-querying"></empty-state>
         </div>
 
         <div ng-switch-when="my" class="tiled bg-white p-15">
@@ -97,8 +96,10 @@
               <td class="table-main-title">
                 <a href="queries/{{query.id}}">{{query.name}}</a>
                 <br>
-                <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-                <tags-control item="query"></tags-control>
+
+                <span>
+                  <span class="label label-default-unpublished" ng-if="query.is_draft">Unpublished</span> <tags-control item="query"></tags-control>
+                </span>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />
@@ -115,19 +116,15 @@
     </div>
 
     <div class="col-md-3 list-control-r-b">
-      <div class="m-b-5 input-group search">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
-        <span class="input-group-btn">
-          <button class="btn btn-secondary" type="button" title="Clear search" ng-click="$ctrl.clearSearch()">
-            <span class="zmdi zmdi-close"></span>
-          </button>
-        </span>
+      <div class="m-b-10">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }" ng-change="$ctrl.update()" />
       </div>
-      <div class='list-group m-b-10 tags-list tiled'>
+
+      <div class="list-group m-b-10 tags-list tiled">
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
         </a>
+
         <a href="queries/favorites" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'favorites'}">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
@@ -139,9 +136,11 @@
           /> My Queries
         </a>
       </div>
+
       <div ng-if="$ctrl.currentPage != 'my'" class="m-b-10">
         <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
+
       <div class="m-b-5">
         <select ng-change="$ctrl.update()" ng-model="$ctrl.pageSize" class="form-control"
           ng-options="value as $ctrl.pageSizeLabel(value) for value in $ctrl.pageSizeOptions"></select>

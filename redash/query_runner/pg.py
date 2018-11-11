@@ -1,12 +1,11 @@
 import os
-import json
 import logging
 import select
 
 import psycopg2
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +91,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             if row['table_schema'] != 'public':
@@ -146,7 +145,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
                                       sslmode=self.configuration.get('sslmode'),
-                                      async=True)
+                                      async_=True)
 
         return connection
 
@@ -166,7 +165,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data, ignore_nan=True)
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None
@@ -201,7 +200,7 @@ class Redshift(PostgreSQL):
                                       dbname=self.configuration.get('dbname'),
                                       sslmode=self.configuration.get('sslmode', 'prefer'),
                                       sslrootcert=sslrootcert_path,
-                                      async=True)
+                                      async_=True)
 
         return connection
 
@@ -240,9 +239,14 @@ class Redshift(PostgreSQL):
 
     def _get_tables(self, schema):
         # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
-        # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
         # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
-        # http://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
+        # Use HAS_SCHEMA_PRIVILEGE(), SVV_EXTERNAL_SCHEMAS and HAS_TABLE_PRIVILEGE() to filter
+        # out tables the current user cannot access.
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_SCHEMA_PRIVILEGE.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_EXTERNAL_SCHEMAS.html
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_TABLE_PRIVILEGE.html
         query = """
         WITH tables AS (
             SELECT DISTINCT table_name,
@@ -261,6 +265,12 @@ class Redshift(PostgreSQL):
         )
         SELECT table_name, table_schema, column_name
         FROM tables
+        WHERE
+            HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
+            (
+                table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
+                HAS_TABLE_PRIVILEGE(table_schema || '.' || table_name, 'SELECT')
+            )
         ORDER BY table_name, pos
         """
 

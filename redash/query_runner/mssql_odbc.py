@@ -1,11 +1,10 @@
-import json
 import logging
 import sys
 import uuid
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
-from redash.query_runner.mssql import MSSQLJSONEncoder, types_map
+from redash.query_runner.mssql import types_map
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +87,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
@@ -133,7 +132,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(data, cls=MSSQLJSONEncoder)
+                json_data = json_dumps(data)
                 error = None
             else:
                 error = "No data was returned."
@@ -152,8 +151,6 @@ class SQLServerODBC(BaseSQLQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()

@@ -3,9 +3,9 @@
 const fs = require("fs");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
@@ -17,7 +17,12 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const basePath = fs.realpathSync(path.join(__dirname, "client"));
 const appPath = fs.realpathSync(path.join(__dirname, "client", "app"));
 
+const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
+  path.join("client", "app", "extensions");
+const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
+
 const config = {
+  mode: "development",
   entry: {
     app: ["./client/app/index.js", "./client/app/assets/less/main.less"],
     server: ["./client/app/assets/less/server.less"]
@@ -28,8 +33,10 @@ const config = {
     publicPath: "/static/"
   },
   resolve: {
+    extensions: ['.js', '.jsx'],
     alias: {
-      "@": appPath
+      "@": appPath,
+      "extensions": extensionPath
     }
   },
   plugins: [
@@ -41,23 +48,6 @@ const config = {
     new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      minChunks: function(module, count) {
-        // any required modules inside node_modules are extracted to vendor
-        return (
-          module.resource &&
-          /\.js$/.test(module.resource) &&
-          module.resource.indexOf(path.join(__dirname, "./node_modules")) === 0
-        );
-      }
-    }),
-    // extract webpack runtime and module manifest to its own file in order to
-    // prevent vendor hash from being updated whenever app bundle is updated
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "manifest",
-      chunks: ["vendor"]
-    }),
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
@@ -68,11 +58,12 @@ const config = {
       filename: "multi_org.html",
       excludeChunks: ["server"]
     }),
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
       filename: "[name].[chunkhash].css"
     }),
     new ManifestPlugin({
-      fileName: "asset-manifest.json"
+      fileName: "asset-manifest.json",
+      publicPath: "",
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
@@ -80,7 +71,13 @@ const config = {
       { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" }
     ])
   ],
-
+  optimization: {
+    splitChunks: {
+      chunks: (chunk) => {
+        return chunk.name != "server";
+      }
+    }
+  },
   module: {
     rules: [
       {
@@ -99,18 +96,24 @@ const config = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract([
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
           {
             loader: "css-loader",
             options: {
               minimize: process.env.NODE_ENV === "production"
             }
           }
-        ])
+        ]
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract([
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
           {
             loader: "css-loader",
             options: {
@@ -125,7 +128,7 @@ const config = {
               ]
             }
           }
-        ])
+        ]
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
@@ -142,6 +145,7 @@ const config = {
       },
       {
         test: /\.geo\.json$/,
+        type: 'javascript/auto',
         use: [
           {
             loader: "file-loader",
@@ -220,15 +224,8 @@ if (process.env.DEV_SERVER_HOST) {
 }
 
 if (process.env.NODE_ENV === "production") {
+  config.mode = "production";
   config.output.filename = "[name].[chunkhash].js";
-  config.plugins.push(
-    new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
-      compress: {
-        warnings: true
-      }
-    })
-  );
   config.devtool = "source-map";
 }
 

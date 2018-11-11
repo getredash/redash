@@ -1,9 +1,7 @@
-import { map, sortBy } from 'lodash';
 import { $http } from '@/services/http';
 
-function processTags(tags) {
-  tags = tags || {};
-  return map(sortBy(map(tags, (count, tag) => ({ tag, count })), 'count'), item => item.tag);
+function processTags(data) {
+  return data.tags || [];
 }
 
 export function getTags(url) {

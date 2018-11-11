@@ -3,10 +3,10 @@ import sys
 import urllib
 
 import requests
-import simplejson as json
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
 
 try:
     import http.client as http_client
@@ -315,7 +315,7 @@ class Kibana(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_params = json.loads(query)
+            query_params = json_loads(query)
 
             index_name = query_params["index"]
             query_data = query_params["query"]
@@ -334,7 +334,6 @@ class Kibana(BaseElasticSearch):
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
                 return None, error
-            #logger.debug(json.dumps(mappings, indent=4))
 
             if sort:
                 url += "&sort={0}".format(urllib.quote_plus(sort))
@@ -358,7 +357,7 @@ class Kibana(BaseElasticSearch):
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
-            json_data = json.dumps({
+            json_data = json_dumps({
                 "columns": result_columns,
                 "rows": result_rows
             })
@@ -373,9 +372,6 @@ class Kibana(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
@@ -399,7 +395,7 @@ class ElasticSearch(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_dict = json.loads(query)
+            query_dict = json_loads(query)
 
             index_name = query_dict.pop("index", "")
             result_fields = query_dict.pop("result_fields", None)
@@ -425,7 +421,7 @@ class ElasticSearch(BaseElasticSearch):
             result_rows = []
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
-            json_data = json.dumps({
+            json_data = json_dumps({
                 "columns": result_columns,
                 "rows": result_rows
             })
@@ -441,9 +437,6 @@ class ElasticSearch(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

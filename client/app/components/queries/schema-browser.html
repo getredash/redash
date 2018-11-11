@@ -1,6 +1,6 @@
 <div class="schema-container" ng-if="$ctrl.schema">
   <div class="schema-control">
-    <input type="text" placeholder="Search schema..." class="form-control" ng-model="$ctrl.schemaFilter" ng-model-options="{ debounce: 500 }" ng-disabled="$ctrl.isEmpty()">
+    <input type="text" placeholder="Search schema..." class="form-control" ng-model="$ctrl.schemaFilter" ng-model-options="{ debounce: 500 }" ng-disabled="$ctrl.isEmpty()" ng-change="$ctrl.splitFilter($ctrl.schemaFilter);">
     <button class="btn btn-default"
             title="Refresh Schema"
             ng-click="$ctrl.onRefresh()">
@@ -9,7 +9,7 @@
   </div>
 
   <div class="schema-browser" vs-repeat vs-size="$ctrl.getSize(table)">
-    <div ng-repeat="table in $ctrl.schema | filter:$ctrl.schemaFilter track by table.name">
+    <div ng-repeat="table in $ctrl.schema | filter:$ctrl.schemaFilterObject track by table.name">
       <div class="table-name" ng-click="$ctrl.showTable(table)">
         <i class="fa fa-table"></i>
         <strong>
@@ -20,7 +20,7 @@
           ng-click="$ctrl.itemSelected($event, [table.name])"></i>
       </div>
       <div uib-collapse="table.collapsed">
-        <div ng-repeat="column in table.columns track by column" class="table-open">{{column}}
+        <div ng-repeat="column in table.columns | filter:$ctrl.schemaFilterColumn track by column" class="table-open">{{column}}
           <i class="fa fa-angle-double-right copy-to-editor" aria-hidden="true"
             ng-click="$ctrl.itemSelected($event, [column])"></i>
         </div>

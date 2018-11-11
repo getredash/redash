@@ -1,8 +1,7 @@
 import { includes } from 'lodash';
 import template from './data-sources.html';
 
-function GroupDataSourcesCtrl($scope, $routeParams, $http, Events, Group, DataSource) {
-  Events.record('view', 'group_data_sources', $scope.groupId);
+function GroupDataSourcesCtrl($scope, $routeParams, $http, Group, DataSource) {
   $scope.group = Group.get({ id: $routeParams.groupId });
   $scope.dataSources = Group.dataSources({ id: $routeParams.groupId });
   $scope.newDataSource = {};

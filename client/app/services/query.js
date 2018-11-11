@@ -3,8 +3,10 @@ import debug from 'debug';
 import Mustache from 'mustache';
 import {
   each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject,
+  isNull, isUndefined, isArray, isObject, identity,
 } from 'lodash';
+
+Mustache.escape = identity; // do not html-escape values
 
 const logger = debug('redash:services:query');
 
@@ -57,10 +59,10 @@ class Parameter {
 
     // validate value and init internal state
     this.setValue(parameter.value);
+  }
 
-    // explicitly bind it to `this` to allow passing it as callback to Ant's
-    // DatePicker component
-    this.setValue = this.setValue.bind(this);
+  clone() {
+    return new Parameter(this);
   }
 
   get isEmpty() {

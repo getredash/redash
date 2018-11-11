@@ -3,9 +3,9 @@ from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
 from sqlalchemy.orm.exc import StaleDataError
-from funcy import rpartial
+from funcy import partial
 
-from redash import models
+from redash import models, settings
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
                                   org_scoped_rule, paginate, routes, order_results as _order_results)
@@ -34,7 +34,11 @@ order_map = {
     '-created_by': '-users-name',
 }
 
-order_results = rpartial(_order_results, '-created_at', order_map)
+order_results = partial(
+    _order_results,
+    default_order='-created_at',
+    allowed_orders=order_map,
+)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -49,7 +53,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify({'query': sqlparse.format(query, reindent=True, keyword_case='upper')})
+    return jsonify({'query': sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
 
 
 class QuerySearchResource(BaseResource):
@@ -68,6 +72,12 @@ class QuerySearchResource(BaseResource):
             return []
 
         include_drafts = request.args.get('include_drafts') is not None
+
+        self.record_event({
+            'action': 'search',
+            'object_type': 'query',
+            'term': term,
+        })
 
         # this redirects to the new query list API that is aware of search
         new_location = url_for(
@@ -182,8 +192,10 @@ class QueryListResource(BaseResource):
 
         results = filter_by_tags(results, models.Query.tags)
 
-        # order results according to passed order parameter
-        ordered_results = order_results(results)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -196,6 +208,18 @@ class QueryListResource(BaseResource):
             with_stats=True,
             with_last_modified_by=False
         )
+
+        if search_term:
+            self.record_event({
+                'action': 'search',
+                'object_type': 'query',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'query',
+            })
 
         return response
 
@@ -221,8 +245,10 @@ class MyQueriesResource(BaseResource):
 
         results = filter_by_tags(results, models.Query.tags)
 
-        # order results according to passed order parameter
-        ordered_results = order_results(results)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -293,6 +319,13 @@ class QueryResource(BaseResource):
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -322,6 +355,13 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'fork',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 
@@ -350,4 +390,16 @@ class QueryRefreshResource(BaseResource):
 
 class QueryTagsResource(BaseResource):
     def get(self):
-        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
+        """
+        Returns all query tags including those for drafts.
+        """
+        tags = models.Query.all_tags(self.current_user, include_drafts=True)
+        return {
+            'tags': [
+                {
+                    'name': name,
+                    'count': count,
+                }
+                for name, count in tags
+            ]
+        }

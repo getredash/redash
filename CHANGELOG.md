@@ -1,5 +1,75 @@
 # Change Log
 
+## v5.0.2 - 2018-10-18
+
+### Security
+
+* Fix: prevent Open Redirect vulnerability.
+
+
+## v5.0.1 - 2018-09-27
+
+### Added
+
+* Added support for JWT authentication (for services like Cloudflare Access or Google IAP).
+
+### Changed
+
+* Upgraded Celery version to 3.1.26 to make upgrade to Celery 4 easier.
+
+
+## v5.0.0 - 2018-09-21
+
+Final release for V5. Most of the changes were already in the beta release of V5, but this includes several fixes along
+with UI improvements.
+
+
+🙏 Thanks to @arikfr, @jezdez, @kravets-levko, @alison985, @kocsmy, @yossi-a, @tdsmith, @nasmithan, @jrbenny35, @sjakthol, @ariarijp and @combineads who contributed to this release.
+
+
+### Security
+
+* Fix: don't expose Google OAuth client secret. @arikfr
+
+### Changed
+
+* Improve mobile rendering of dashboards and queries. @kocsmy
+* UI improvements for favorites and empty state. @arikfr
+* Remove unnecessary X at the end of the query search. @kocsmy
+* Add server-side sorting to dashboard list. @jezdez
+* Sort queries in descending order. @jezdez
+* Throw error when non-owner tries to add a user to dashboard permissions. @alison985
+* Propagate query execution errors from Celery tasks properly. @alison985
+* Reload the route when using the app header search input. @jezdez
+
+### Fixed
+
+* Fix: BigQuery default location is null and not US. @arikfr
+* Fix: query embeds are broken. @arikfr
+* Fix: typo in Celery log foramt. @ariarijp
+* Use QuerySerializer in outdated queries list. @jezdez
+* Fix: sometimes widgets are getting zero height. @kravets-levko
+* Athena: Switch to simple_json to serialize NaN/Infinity values as nulls. @kravets-levko, @jezdez
+* Fix: queries with parameters with no value breaking the scheduler. @arikfr
+* Fix: MongoDB query results parser didn't support unicode keys. @arikfr
+* Fix: Google Analytics schema wasn't loading in some cases. @arikfr
+* Fix: date/time parameters not working as global param @kravets-levko.
+* Fix: Widgets crumble when trying to move / resize a widget. @kravets-levko
+* Fix: handling rows with "length" field with forOwn method. @yossi-a
+* Fix: query selection not working on alert page. @sjakthol
+* Fix: query_results for Embedded Parameters (removed deprecated to_dict function). @nasmithan
+* Fix: unicode not supported in dashboard search. @combineads
+* Fix: unicode not supported in users search. @arikfr
+
+### Other
+
+* Add test for using saved parameters in scheduled queries. @alison985
+* Minor code smell cleanup. @jezdez
+* Update QueryResultListResource docstring. @tdsmith
+* Switch to CirlceCI 2.0 @jrbenny35, @arikfr
+* Remove unnecessary init methods. @jezdez
+
+
 ## v5.0.0-Beta - 2018-08-06
 
 This is the first beta of the V5 release (and hopefully the last one). This version includes a lot of exciting new additions along with bug fixes and other changes.

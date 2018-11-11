@@ -78,22 +78,27 @@ function requireImages() {
 function registerComponents() {
   // We repeat this code in other register functions, because if we don't use a literal for the path
   // Webpack won't be able to statcily analyze our imports.
-  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.jsx?$/);
+  const context = require.context('@/components', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
+  registerAll(context);
+}
+
+function registerExtensions() {
+  const context = require.context('extensions', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
 }
 
 function registerServices() {
-  const context = require.context('@/services', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/services', true, /^((?![\\/.]test[\\./]).)*\.js$/);
   registerAll(context);
 }
 
 function registerVisualizations() {
-  const context = require.context('@/visualizations', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/visualizations', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
 }
 
 function registerPages() {
-  const context = require.context('@/pages', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.js$/);
   const routesCollection = registerAll(context);
   routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
@@ -142,6 +147,7 @@ markdownFilter(ngModule);
 dateTimeFilter(ngModule);
 registerComponents();
 registerPages();
+registerExtensions();
 registerVisualizations(ngModule);
 
 export default ngModule;

@@ -1,13 +1,12 @@
-import os
 import sys
 import logging
 import urlparse
 import urllib
 import redis
-from flask import Flask, safe_join
+from flask import Flask
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
-from werkzeug.routing import BaseConverter, ValidationError
+from werkzeug.routing import BaseConverter
 from statsd import StatsClient
 from flask_mail import Mail
 from flask_limiter import Limiter
@@ -19,7 +18,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '5.0.0-beta'
+__version__ = '6.0.0-beta'
 
 
 def setup_logging():

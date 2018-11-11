@@ -1,9 +1,10 @@
 import {
   isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
-  each, values, sortBy, identity, filter, map, extend, reduce,
+  each, values, sortBy, identity, filter, map, extend, reduce, pick, flatten, uniq,
 } from 'lodash';
 import moment from 'moment';
 import d3 from 'd3';
+import plotlyCleanNumber from 'plotly.js/src/lib/clean_number';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
@@ -35,6 +36,10 @@ export const ColorPalette = Object.assign({}, BaseColors, {
 });
 
 const ColorPaletteArray = values(BaseColors);
+
+function cleanNumber(value) {
+  return isUndefined(value) ? value : (plotlyCleanNumber(value) || 0.0);
+}
 
 function defaultFormatSeriesText(item) {
   let result = item['@@y'];
@@ -106,6 +111,15 @@ export function normalizeValue(value, dateTimeFormat = 'YYYY-MM-DD HH:mm:ss') {
     return value.format(dateTimeFormat);
   }
   return value;
+}
+
+function naturalSort($a, $b) {
+  if ($a === $b) {
+    return 0;
+  } else if ($a < $b) {
+    return -1;
+  }
+  return 1;
 }
 
 function calculateAxisRange(seriesList, minValue, maxValue) {
@@ -243,12 +257,12 @@ function preparePieData(seriesList, options) {
 
     const sourceData = new Map();
     const seriesTotal = reduce(serie.data, (result, row) => {
-      const y = normalizeValue(row.y);
+      const y = cleanNumber(row.y);
       return result + Math.abs(y);
     }, 0);
     each(serie.data, (row) => {
       const x = normalizeValue(row.x);
-      const y = normalizeValue(row.y);
+      const y = cleanNumber(row.y);
       sourceData.set(x, {
         x,
         y,
@@ -286,6 +300,109 @@ function preparePieData(seriesList, options) {
   });
 }
 
+function prepareHeatmapData(seriesList, options) {
+  const defaultColorScheme = [
+    [0, '#356aff'],
+    [0.14, '#4a7aff'],
+    [0.28, '#5d87ff'],
+    [0.42, '#7398ff'],
+    [0.56, '#fb8c8c'],
+    [0.71, '#ec6463'],
+    [0.86, '#ec4949'],
+    [1, '#e92827'],
+  ];
+
+  const formatNumber = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.numberFormat,
+  });
+
+  let colorScheme = [];
+
+  if (!options.colorScheme) {
+    colorScheme = defaultColorScheme;
+  } else if (options.colorScheme === 'Custom...') {
+    colorScheme = [[0, options.heatMinColor], [1, options.heatMaxColor]];
+  } else {
+    colorScheme = options.colorScheme;
+  }
+
+  return map(seriesList, (series) => {
+    const plotlySeries = {
+      x: [],
+      y: [],
+      z: [],
+      type: 'heatmap',
+      name: '',
+      colorscale: colorScheme,
+    };
+
+    plotlySeries.x = uniq(map(series.data, 'x'));
+    plotlySeries.y = uniq(map(series.data, 'y'));
+
+    if (options.sortX) {
+      plotlySeries.x.sort(naturalSort);
+    }
+
+    if (options.sortY) {
+      plotlySeries.y.sort(naturalSort);
+    }
+
+    if (options.reverseX) {
+      plotlySeries.x.reverse();
+    }
+
+    if (options.reverseY) {
+      plotlySeries.y.reverse();
+    }
+
+    const zMax = max(map(series.data, 'zVal'));
+
+    // Use text trace instead of default annotation for better performance
+    const dataLabels = {
+      x: [],
+      y: [],
+      mode: 'text',
+      hoverinfo: 'skip',
+      showlegend: false,
+      text: [],
+      textfont: {
+        color: [],
+      },
+    };
+
+    for (let i = 0; i < plotlySeries.y.length; i += 1) {
+      const item = [];
+      for (let j = 0; j < plotlySeries.x.length; j += 1) {
+        const datum = find(
+          series.data,
+          { x: plotlySeries.x[j], y: plotlySeries.y[i] },
+        );
+
+        const zValue = datum ? datum.zVal : 0;
+        item.push(zValue);
+
+        if (isFinite(zMax) && options.showDataLabels) {
+          dataLabels.x.push(plotlySeries.x[j]);
+          dataLabels.y.push(plotlySeries.y[i]);
+          dataLabels.text.push(formatNumber(zValue));
+          if (options.colorScheme && options.colorScheme === 'Custom...') {
+            dataLabels.textfont.color.push('white');
+          } else {
+            dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+          }
+        }
+      }
+      plotlySeries.z.push(item);
+    }
+
+    if (isFinite(zMax) && options.showDataLabels) {
+      return [plotlySeries, dataLabels];
+    }
+    return [plotlySeries];
+  });
+}
+
 function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
 
@@ -312,15 +429,19 @@ function prepareChartData(seriesList, options) {
     // Sort by x - `Map` preserves order of items
     const data = sortX ? sortBy(series.data, d => normalizeValue(d.x)) : series.data;
 
+    // For bubble charts `y` may be any (similar to `x`) - numeric is only bubble size;
+    // for other types `y` is always number
+    const cleanYValue = seriesOptions.type === 'bubble' ? normalizeValue : cleanNumber;
+
     const sourceData = new Map();
     const xValues = [];
     const yValues = [];
     const yErrorValues = [];
     each(data, (row) => {
-      const x = normalizeValue(row.x);
-      const y = normalizeValue(row.y);
-      const yError = normalizeValue(row.yError);
-      const size = normalizeValue(row.size);
+      const x = normalizeValue(row.x); // number/datetime/category
+      const y = cleanYValue(row.y); // depends on series type!
+      const yError = cleanNumber(row.yError); // always number
+      const size = cleanNumber(row.size); // always number
       sourceData.set(x, {
         x,
         y,
@@ -372,6 +493,7 @@ function prepareChartData(seriesList, options) {
       };
     } else if (seriesOptions.type === 'box') {
       plotlySeries.boxpoints = 'outliers';
+      plotlySeries.hoverinfo = false;
       plotlySeries.marker = {
         color: seriesColor,
         size: 3,
@@ -391,6 +513,9 @@ export function prepareData(seriesList, options) {
   if (options.globalSeriesType === 'pie') {
     return preparePieData(seriesList, options);
   }
+  if (options.globalSeriesType === 'heatmap') {
+    return flatten(prepareHeatmapData(seriesList, options));
+  }
   return prepareChartData(seriesList, options);
 }
 
@@ -401,10 +526,10 @@ export function prepareLayout(element, seriesList, options, data) {
 
   const result = {
     margin: {
-      l: 50,
-      r: 50,
-      b: 50,
-      t: 20,
+      l: 10,
+      r: 10,
+      b: 10,
+      t: 25,
       pad: 4,
     },
     width: Math.floor(element.offsetWidth),
@@ -441,10 +566,15 @@ export function prepareLayout(element, seriesList, options, data) {
     result.xaxis = {
       title: getTitle(options.xAxis),
       type: getScaleType(options.xAxis.type),
+      automargin: true,
     };
 
     if (options.sortX && result.xaxis.type === 'category') {
-      result.xaxis.categoryorder = 'category ascending';
+      if (options.reverseX) {
+        result.xaxis.categoryorder = 'category descending';
+      } else {
+        result.xaxis.categoryorder = 'category ascending';
+      }
     }
 
     if (!isUndefined(options.xAxis.labels)) {
@@ -455,6 +585,7 @@ export function prepareLayout(element, seriesList, options, data) {
       result.yaxis = {
         title: getTitle(options.yAxis[0]),
         type: getScaleType(options.yAxis[0].type),
+        automargin: true,
       };
 
       if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
@@ -472,6 +603,7 @@ export function prepareLayout(element, seriesList, options, data) {
         type: getScaleType(options.yAxis[1].type),
         overlaying: 'y',
         side: 'right',
+        automargin: true,
       };
 
       if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
@@ -493,6 +625,9 @@ export function prepareLayout(element, seriesList, options, data) {
 
 function updateSeriesText(seriesList, options) {
   each(seriesList, (series) => {
+    const seriesOptions = options.seriesOptions[series.name] ||
+      { type: options.globalSeriesType };
+
     series.text = [];
     series.hover = [];
     const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
@@ -503,7 +638,7 @@ function updateSeriesText(seriesList, options) {
       };
       const item = series.sourceData.get(x);
       if (item) {
-        text['@@y'] = series.formatNumber(item.y);
+        text['@@y'] = seriesOptions.type === 'bubble' ? item.y : series.formatNumber(item.y);
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
         }
@@ -581,6 +716,9 @@ export function updateData(seriesList, options) {
     updateSeriesText(seriesList, options);
     return seriesList;
   }
+  if (options.globalSeriesType === 'heatmap') {
+    return seriesList;
+  }
 
   // Use only visible series
   seriesList = filter(seriesList, s => s.visible === true);
@@ -614,44 +752,101 @@ export function updateData(seriesList, options) {
   updateSeriesText(seriesList, options);
 }
 
-export function calculateMargins(element) {
-  const axisSpacing = 20;
-
-  const result = {};
-
-  const edges = { l: '.ytick', r: '.y2tick', b: '.xtick' };
-  const dimensions = { l: 'width', r: 'width', b: 'height' };
-
-  each(edges, (selector, key) => {
-    const ticks = element.querySelectorAll(selector);
-    if (ticks.length > 0) {
-      result[key] = max(map(ticks, (tick) => {
-        const bounds = tick.getBoundingClientRect();
-        return Math.ceil(bounds[dimensions[key]]);
-      })) + axisSpacing;
+function fixLegendContainer(plotlyElement) {
+  const legend = plotlyElement.querySelector('.legend');
+  if (legend) {
+    let node = legend.parentNode;
+    while (node) {
+      if (node.tagName.toLowerCase() === 'svg') {
+        node.style.overflow = 'visible';
+        break;
+      }
+      node = node.parentNode;
     }
-  });
-
-  return result;
+  }
 }
 
-export function updateDimensions(layout, element, margins) {
-  let changed = false;
-  each(layout.margin, (value, key) => {
-    if (isNumber(margins[key]) && (value !== margins[key])) {
-      layout.margin[key] = margins[key];
-      changed = true;
+export function updateLayout(plotlyElement, layout, updatePlot) {
+  // update layout size to plot container
+  layout.width = Math.floor(plotlyElement.offsetWidth);
+  layout.height = Math.floor(plotlyElement.offsetHeight);
+
+  const transformName = find([
+    'transform',
+    'webkitTransform',
+    'mozTransform',
+    'msTransform',
+    'oTransform',
+  ], prop => has(plotlyElement.style, prop));
+
+  if (layout.width <= 600) {
+    // change legend orientation to horizontal; plotly has a bug with this
+    // legend alignment - it does not preserve enough space under the plot;
+    // so we'll hack this: update plot (it will re-render legend), compute
+    // legend height, reduce plot size by legend height (but not less than
+    // half of plot container's height - legend will have max height equal to
+    // plot height), re-render plot again and offset legend to the space under
+    // the plot.
+    layout.legend = {
+      orientation: 'h',
+      // locate legend inside of plot area - otherwise plotly will preserve
+      // some amount of space under the plot; also this will limit legend height
+      // to plot's height
+      y: 0,
+      x: 0,
+      xanchor: 'left',
+      yanchor: 'bottom',
+    };
+
+    // set `overflow: visible` to svg containing legend because later we will
+    // position legend outside of it
+    fixLegendContainer(plotlyElement);
+
+    updatePlot(plotlyElement, pick(layout, ['width', 'height', 'legend'])).then(() => {
+      const legend = plotlyElement.querySelector('.legend'); // eslint-disable-line no-shadow
+      if (legend) {
+        // compute real height of legend - items may be split into few columnns,
+        // also scrollbar may be shown
+        const bounds = reduce(legend.querySelectorAll('.traces'), (result, node) => {
+          const b = node.getBoundingClientRect();
+          result = result || b;
+          return {
+            top: Math.min(result.top, b.top),
+            bottom: Math.max(result.bottom, b.bottom),
+          };
+        }, null);
+        // here we have two values:
+        // 1. height of plot container excluding height of legend items;
+        //    it may be any value between 0 and plot container's height;
+        // 2. half of plot containers height. Legend cannot be larger than
+        //    plot; if legend is too large, plotly will reduce it's height and
+        //    show a scrollbar; in this case, height of plot === height of legend,
+        //    so we can split container's height half by half between them.
+        layout.height = Math.floor(Math.max(
+          layout.height / 2,
+          layout.height - (bounds.bottom - bounds.top),
+        ));
+        // offset the legend
+        legend.style[transformName] = 'translate(0, ' + layout.height + 'px)';
+        updatePlot(plotlyElement, pick(layout, ['height']));
+      }
+    });
+  } else {
+    layout.legend = {
+      orientation: 'v',
+      // vertical legend will be rendered properly, so just place it to the right
+      // side of plot
+      y: 1,
+      x: 1,
+      xanchor: 'left',
+      yanchor: 'top',
+    };
+
+    const legend = plotlyElement.querySelector('.legend');
+    if (legend) {
+      legend.style[transformName] = null;
     }
-  });
 
-  const width = Math.floor(element.offsetWidth);
-  const height = Math.floor(element.offsetHeight);
-
-  if ((width !== layout.width) || (height !== layout.height)) {
-    layout.width = element.offsetWidth;
-    layout.height = element.offsetHeight;
-    changed = true;
+    updatePlot(plotlyElement, pick(layout, ['width', 'height', 'legend']));
   }
-
-  return changed;
 }

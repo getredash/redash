@@ -26,7 +26,7 @@
                   <span class="btn-favourite">
                     <i class="fa fa-star" aria-hidden="true"></i>
                   </span>
-                  Dashboards will appear here
+                  Favorite Dashboards will appear here
                 </em>
               </a>
             </li>
@@ -49,7 +49,7 @@
                   <span class="btn-favourite">
                     <i class="fa fa-star" aria-hidden="true"></i>
                   </span>
-                  Queries will appear here
+                  Favorite Queries will appear here
                 </em>
               </a>
             </li>
@@ -86,7 +86,7 @@
           <!--<a href="users" title="Settings"><i class="fa fa-cog"></i></a>-->
         <!--</li>-->
         <li class="dropdown" uib-dropdown>
-          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
+          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle data-cy="dropdown-profile">
             <img ng-src="{{ $ctrl.currentUser.profile_image_url }}" class="profile__image--navbar" width="20"/>
             <span class="dropdown--profile__username" ng-bind="$ctrl.currentUser.name"></span> <span
             class="caret caret--nav"></span></a>
@@ -128,7 +128,7 @@
       <!-- Search -->
       <form class="navbar-form navbar-right" role="search" ng-submit="$ctrl.searchQueries()">
         <div class="input-group menu-search">
-          <input type="text" ng-model="$ctrl.term" class="form-control navbar__search__input" placeholder="Search queries...">
+          <input type="text" ng-model="$ctrl.searchTerm" class="form-control navbar__search__input" placeholder="Search queries...">
           <span class="input-group-btn">
             <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
           </span>

@@ -109,7 +109,7 @@ function DashboardCtrl(
           .filter(p => p.global)
           .forEach((param) => {
             const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name] = param.clone();
             defaults[param.name].locals = [];
             globalParams = _.defaults(globalParams, defaults);
             globalParams[param.name].locals.push(param);
@@ -275,7 +275,8 @@ function DashboardCtrl(
 
   this.loadTags = () => getTags('api/dashboards/tags');
 
-  this.saveName = () => {
+  this.saveName = (name) => {
+    this.dashboard.name = name;
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
       (dashboard) => {
