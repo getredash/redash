@@ -529,7 +529,7 @@ export function prepareLayout(element, seriesList, options, data) {
       l: 10,
       r: 10,
       b: 10,
-      t: 10,
+      t: 25,
       pad: 4,
     },
     width: Math.floor(element.offsetWidth),

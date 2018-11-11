@@ -1,10 +1,10 @@
-import pytest
 import sqlite3
 from unittest import TestCase
 
+import pytest
+
 from redash.query_runner import TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_STRING
-from redash.query_runner.query_results import (CreateTableError, PermissionError, _guess_type, _load_query, create_table,
-                                               extract_query_ids)
+from redash.query_runner.query_results import (CreateTableError, PermissionError, _guess_type, _load_query, create_table, extract_cached_query_ids, extract_query_ids, fix_column_name)
 from tests import BaseTestCase
 
 
@@ -137,3 +137,26 @@ class TestGuessType(TestCase):
 
     def test_date(self):
         self.assertEqual(TYPE_DATETIME, _guess_type('2018-06-28'))
+
+
+class TestExtractCachedQueryIds(TestCase):
+    def test_works_with_simple_query(self):
+        query = "SELECT 1"
+        self.assertEquals([], extract_cached_query_ids(query))
+
+    def test_finds_queries_to_load(self):
+        query = "SELECT * FROM cached_query_123"
+        self.assertEquals([123], extract_cached_query_ids(query))
+
+    def test_finds_queries_in_joins(self):
+        query = "SELECT * FROM cached_query_123 JOIN cached_query_4566"
+        self.assertEquals([123, 4566], extract_cached_query_ids(query))
+
+    def test_finds_queries_with_whitespace_characters(self):
+        query = "SELECT * FROM    cached_query_123 a JOIN\tcached_query_4566 b ON a.id=b.parent_id JOIN\r\ncached_query_78 c ON b.id=c.parent_id"
+        self.assertEquals([123, 4566, 78], extract_cached_query_ids(query))
+
+
+class TestFixColumnName(TestCase):
+    def test_fix_column_name(self):
+        self.assertEquals(u'"a_b_c_d"', fix_column_name("a:b.c d"))
