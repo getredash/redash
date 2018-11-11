@@ -31,6 +31,7 @@ class LoginPage extends Page {
 
   validateTitle() {
     cy.title().should('eq', 'Login to Redash');
+    return this;
   }
 }
 

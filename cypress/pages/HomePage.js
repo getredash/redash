@@ -8,6 +8,7 @@ class HomePage extends Page {
 
   validateTitle() {
     cy.title().should('eq', 'Redash');
+    return this;
   }
 }
 
