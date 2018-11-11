@@ -1,18 +1,23 @@
+import NewDataSourcePage from '../../pages/NewDataSourcePage';
+
 describe('Create Data Source', () => {
+  const newDataSourcePage = new NewDataSourcePage();
+
   beforeEach(() => {
     cy.login();
-    cy.visit('/data_sources');
+    newDataSourcePage.visit();
   });
 
   it('creates a new PostgreSQL data source', () => {
-    cy.contains('New Data Source').click();
-    cy.contains('PostgreSQL').click();
+    newDataSourcePage.selectSource('PostgreSQL');
 
-    cy.get('[name=targetName]').type('Redash');
-    cy.get('[data-cy=Host]').type('{selectall}localhost');
-    cy.get('[data-cy=User]').type('postgres');
-    cy.get('[data-cy=Password]').type('postgres');
-    cy.get('[data-cy="Database Name"]').type('postgres{enter}');
+    newDataSourcePage
+      .fill('TargetName', 'Redash')
+      .fill('Host', 'localhost')
+      .fill('User', 'postgres')
+      .fill('Password', 'postgres')
+      .fill('Database Name', 'postgres')
+      .submit();
 
     cy.contains('Saved.');
   });

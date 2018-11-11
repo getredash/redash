@@ -1,24 +1,31 @@
-describe('Login', () => {
-  beforeEach(() => {
-    cy.visit('/login');
-  });
+import LoginPage from '../../pages/LoginPage';
+import HomePage from '../../pages/HomePage';
 
-  it('greets the user', () => {
-    cy.contains('h3', 'Login to Redash');
+describe('Login', () => {
+  const loginPage = new LoginPage();
+
+  beforeEach(() => {
+    loginPage.visit();
   });
 
   it('shows message on failed login', () => {
-    cy.get('#inputEmail').type('admin@redash.io');
-    cy.get('#inputPassword').type('wrongpassword{enter}');
+    loginPage
+      .fillEmail('admin@redash.io')
+      .fillPassword('wrongpassword')
+      .submit();
 
-    cy.get('.alert').should('contain', 'Wrong email or password.');
+    cy.get(loginPage.errorMessage).contains('Wrong email or password.');
   });
 
   it('navigates to homepage with successful login', () => {
-    cy.get('#inputEmail').type('admin@redash.io');
-    cy.get('#inputPassword').type('password{enter}');
+    const homePage = new HomePage();
 
-    cy.title().should('eq', 'Redash');
+    loginPage
+      .fillEmail('admin@redash.io')
+      .fillPassword('password')
+      .submit();
+
+    homePage.validateTitle();
     cy.contains('Example Admin');
   });
 });
