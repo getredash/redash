@@ -27,7 +27,7 @@ def error_response(message):
 #             removed once we refactor the query results API endpoints and handling
 #             on the client side. Please don't reuse in other API handlers.
 #
-def run_query_sync(data_source, parameter_values, query_text, max_age=0):
+def run_query_sync(data_source, parameter_values, query_text, max_age=0, get_errors=False):
     query_parameters = set(collect_query_parameters(query_text))
     missing_params = set(query_parameters) - set(parameter_values.keys())
     if missing_params:
@@ -39,7 +39,10 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
     if max_age <= 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        if get_errors:
+            query_result = models.QueryResult.get_errors(data_source, query_text, max_age)
+        else:
+            query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
 
     query_hash = gen_query_hash(query_text)
 
@@ -49,18 +52,18 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
     try:
         started_at = time.time()
-        data, error = data_source.query_runner.run_query(query_text, current_user)
+        data, error_message = data_source.query_runner.run_query(query_text, current_user)
 
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
                                                                               query_hash, query_text, data,
-                                                                              run_time, utcnow(), error)
+                                                                              run_time, utcnow(), error_message)
 
         models.db.session.commit()
-        
+
         if error:
             logging.info('got back error when using run_query')
-            logging.info(error)
+            logging.info(error_message)
             return None
         else:
             return query_result
@@ -71,7 +74,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
             abort(503, message="Unable to get result from the database.")
         return None
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0, get_errors=False):
     query_parameters = set(collect_query_parameters(query_text))
     missing_params = set(query_parameters) - set(parameter_values.keys())
     if missing_params:
@@ -91,7 +94,10 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        if get_errors:
+            query_result = models.QueryResult.get_errors(data_source, query_text, max_age)
+        else:
+            query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
@@ -162,7 +168,7 @@ class QueryResultResource(BaseResource):
         return make_response("", 200, headers)
 
     @require_permission('view_query')
-    def get(self, query_id=None, query_result_id=None, filetype='json'):
+    def get(self, query_id=None, query_result_id=None, filetype='json', get_errors=False):
         """
         Retrieve query results.
 
@@ -197,7 +203,7 @@ class QueryResultResource(BaseResource):
 
             if query_result is None and query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
+                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age, get_errors=get_errors)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
 
@@ -276,3 +282,9 @@ class JobResource(BaseResource):
         """
         job = QueryTask(job_id=job_id)
         job.cancel()
+
+
+class QueryResultErrorListResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id=None, query_result_id=None, filetype='json', get_errors=True):
+        return QueryResultResource.get(self, query_id, query_result_id, filetype, get_errors)

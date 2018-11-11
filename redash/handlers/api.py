@@ -10,7 +10,7 @@ from redash.handlers.dashboards import DashboardListResource, DashboardResource,
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
 from redash.handlers.events import EventsResource
 from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
-from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
+from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource, QueryResultErrorListResource
 from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource, UserDisableResource
 from redash.handlers.visualizations import VisualizationListResource
 from redash.handlers.visualizations import VisualizationResource
@@ -96,6 +96,12 @@ api.add_org_resource(QueryResultResource,
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
 api.add_org_resource(JobResource, '/api/jobs/<job_id>', endpoint='job')
+api.add_org_resource(QueryResultErrorListResource, 
+                     '/api/query_results/errors/<query_result_id>',
+                     '/api/queries/<query_id>/errors',
+                     '/api/query_results/errors/<query_result_id>.<filetype>',
+                     '/api/queries/<query_id>/errors.<filetype>',
+                     endpoint='query_result_error_list')
 
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
