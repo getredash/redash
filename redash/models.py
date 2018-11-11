@@ -785,32 +785,32 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
         if max_age == -1:
             q = db.session.query(QueryResult.error_message,
-                                    func.max(QueryResult.retrieved_at).label('latest_error_time'),
-                                    func.count(QueryResult.id).label('num_errors'),
-                                    latest_successful_query.retrieved_at.label('latest_success_time')
-                ).filter(cls.query_hash == query_hash,
-                            cls.data_source == data_source,
-                            cls.error_message != None,
-                            cls.retrieved_at > latest_successful_query.retrieved_at
-                        ).group_by(QueryResult.error_message,
-                                    latest_successful_query.retrieved_at.label('latest_success_time')
-                                    ).order_by(QueryResult.retrieved_at.desc())
+                                func.max(QueryResult.retrieved_at).label('latest_error_time'),
+                                func.count(QueryResult.id).label('num_errors'),
+                                latest_successful_query.retrieved_at.label('latest_success_time'))
+                    .filter(cls.query_hash == query_hash,
+                        cls.data_source == data_source,
+                        cls.error_message != None,
+                        cls.retrieved_at > latest_successful_query.retrieved_at)
+                    .group_by(QueryResult.error_message,
+                        latest_successful_query.retrieved_at.label('latest_success_time'))
+                    .order_by(QueryResult.retrieved_at.desc())
         else:
             q = db.session.query(QueryResult.error_message,
                                     func.max(QueryResult.retrieved_at).label('latest_error_time'),
                                     func.count(QueryResult.id).label('num_errors'),
                                     latest_successful_query.retrieved_at.label('latest_success_time'))
-                    .filter(QueryResult.query_hash == query_hash,
-                            QueryResult.data_source == data_source,
-                            QueryResult.error_message != None,
-                            cls.retrieved_at > latest_successful_query.retrieved_at,
-                            db.func.timezone('utc', QueryResult.retrieved_at) +
-                                datetime.timedelta(seconds=max_age) >=
-                                db.func.timezone('utc', db.func.now()))
-                    .group_by(
-                            QueryResult.error_message,
-                            latest_successful_query.retrieved_at.label('latest_success_time'))
-                    .order_by(QueryResult.retrieved_at.desc())
+                .filter(QueryResult.query_hash == query_hash,
+                        QueryResult.data_source == data_source,
+                        QueryResult.error_message != None,
+                        cls.retrieved_at > latest_successful_query.retrieved_at,
+                        db.func.timezone('utc', QueryResult.retrieved_at) +
+                            datetime.timedelta(seconds=max_age) >=
+                            db.func.timezone('utc', db.func.now()))
+                .group_by(
+                        QueryResult.error_message,
+                        latest_successful_query.retrieved_at.label('latest_success_time'))
+                .order_by(QueryResult.retrieved_at.desc())
 
         return q
 
