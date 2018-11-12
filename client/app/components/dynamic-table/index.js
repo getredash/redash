@@ -69,12 +69,12 @@ function createRowRenderTemplate(columns, $compile) {
     switch (column.displayAs) {
       case 'json':
         return `
-          <dynamic-table-json-cell column="columns[${index}]" 
+          <dynamic-table-json-cell column="columns[${index}]"
             value="row[columns[${index}].name]"></dynamic-table-json-cell>
         `;
       default:
         return `
-          <dynamic-table-default-cell column="columns[${index}]" 
+          <dynamic-table-default-cell column="columns[${index}]"
             row="row"></dynamic-table-default-cell>
         `;
     }

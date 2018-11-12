@@ -490,6 +490,17 @@ function QueryViewCtrl(
       },
     });
   };
+
+  $scope.toggleSchemaBrowserTable = (table) => {
+    table.collapsed = !table.collapsed;
+    $scope.$broadcast('vsRepeatTrigger');
+  };
+
+  $scope.schemaBrowserItemSelected = (evt, hierarchy) => {
+    $scope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));
+    evt.preventDefault();
+    evt.stopPropagation();
+  };
 }
 
 export default function init(ngModule) {
