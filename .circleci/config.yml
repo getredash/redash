@@ -3,7 +3,7 @@ version: 2.0
 flake8-steps: &steps
   - checkout
   - run: sudo pip install flake8
-  - run: ./flake8_tests.sh
+  - run: ./bin/flake8_tests.sh
 jobs:
   python-flake8-tests:
     docker:
