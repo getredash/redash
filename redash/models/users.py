@@ -20,21 +20,9 @@ from redash.utils import generate_token, json_dumps, utcnow
 
 from .base import db, Column, GFKBase
 from .mixins import TimestampMixin, BelongsToOrgMixin
-from .types import json_cast_property, MutableDict, MutableList
+from .types import json_cast_property, MutableDict, MutableList, UTCDateTimeField
 
 logger = logging.getLogger(__name__)
-
-
-class UTCDateTimeField(walrus.DateTimeField):
-    """
-    A walrus DateTimeField that makes the value timezone aware
-    using the pytz.utc timezone on return.
-    """
-    def python_value(self, value):
-        value = super(UTCDateTimeField, self).python_value(value)
-        if value.tzinfo is None:
-            value = value.replace(tzinfo=pytz.utc)
-        return value
 
 
 class UserDetail(walrus.Model):

@@ -9,7 +9,7 @@ from dateutil.parser import parse as date_parse
 from tests import BaseTestCase, authenticated_user
 
 from redash import models, walrus_db
-from redash.models import db
+from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
 
 
@@ -600,7 +600,7 @@ class Timestamp(walrus.Model):
     __database__ = walrus_db
     __namespace__ = 'redash.tests.timestamp'
 
-    created_at = models.UTCDateTimeField(index=True, default=utcnow)
+    created_at = types.UTCDateTimeField(index=True, default=utcnow)
 
 
 class TestUserDetail(BaseTestCase):

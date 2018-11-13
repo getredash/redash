@@ -1,3 +1,5 @@
+import pytz
+import walrus
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.ext.mutable import Mutable
@@ -90,3 +92,15 @@ class json_cast_property(index_property):
     def expr(self, model):
         expr = super(json_cast_property, self).expr(model)
         return expr.astext.cast(self.cast_type)
+
+
+class UTCDateTimeField(walrus.DateTimeField):
+    """
+    A walrus DateTimeField that makes the value timezone aware
+    using the pytz.utc timezone on return.
+    """
+    def python_value(self, value):
+        value = super(UTCDateTimeField, self).python_value(value)
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=pytz.utc)
+        return value
