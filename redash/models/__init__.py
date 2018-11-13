@@ -6,82 +6,40 @@ import functools
 import hashlib
 import itertools
 import logging
-import operator
-import pytz
 import time
 import pytz
 from functools import reduce
 
-from six import python_2_unicode_compatible, string_types, text_type
 import xlsxwriter
-import walrus
-from flask import current_app as app, url_for, request_started
-from flask_login import current_user, AnonymousUserMixin, UserMixin
-from flask_sqlalchemy import SQLAlchemy, BaseQuery
-from passlib.apps import custom_app_context as pwd_context
+from six import python_2_unicode_compatible, text_type
+from sqlalchemy import distinct, or_, and_, UniqueConstraint
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import backref, contains_eager, joinedload, load_only
+from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
+from sqlalchemy import func
+from sqlalchemy_utils import generic_relationship
+from sqlalchemy_utils.types import TSVectorType
 
-from redash import settings, walrus_db, redis_connection, utils
+from redash import redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps, json_loads, utcnow
+from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
-from redash.settings.organization import settings as org_settings
 
-from sqlalchemy import distinct, or_, and_, UniqueConstraint
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
-from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.ext.indexable import index_property
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, contains_eager, joinedload, object_session, load_only
-from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
-from sqlalchemy.types import TypeDecorator
-from sqlalchemy.orm.attributes import flag_modified
-from sqlalchemy.pool import NullPool
-from sqlalchemy import func
-from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
-from sqlalchemy_utils import generic_relationship, EmailType
-from sqlalchemy_utils.types import TSVectorType
+from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
+from .changes import ChangeTrackingMixin, Change  # noqa
+from .mixins import BelongsToOrgMixin, TimestampMixin
+from .organizations import Organization
+from .types import Configuration, MutableDict, MutableList, PseudoJSON
+from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User,
+                    UserDetail)  # noqa
 
 logger = logging.getLogger(__name__)
-
-
-class RedashSQLAlchemy(SQLAlchemy):
-    def apply_driver_hacks(self, app, info, options):
-        options.update(json_serializer=json_dumps)
-        super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
-
-    def apply_pool_defaults(self, app, options):
-        super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
-        if settings.SQLALCHEMY_DISABLE_POOL:
-            options['poolclass'] = NullPool
-
-
-db = RedashSQLAlchemy(session_options={
-    'expire_on_commit': False
-})
-# Make sure the SQLAlchemy mappers are all properly configured first.
-# This is required by SQLAlchemy-Searchable as it adds DDL listeners
-# on the configuration phase of models.
-db.configure_mappers()
-
-# listen to a few database events to set up functions, trigger updates
-# and indexes for the full text search
-make_searchable(options={'regconfig': 'pg_catalog.simple'})
-
-
-class SearchBaseQuery(BaseQuery, SearchQueryMixin):
-    """
-    The SQA query class to use when full text search is wanted.
-    """
-
-
-Column = functools.partial(db.Column, nullable=False)
 
 
 class ScheduledQueriesExecutions(object):
@@ -427,7 +385,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
     def is_api_user(self):
         return True
-    
+
     @property
     def org_id(self):
         if not self.org:
@@ -924,7 +882,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
 
         unused_results = (db.session.query(QueryResult.id).filter(
-            Query.id == None, QueryResult.retrieved_at < age_threshold)
+            Query.id.is_(None), QueryResult.retrieved_at < age_threshold)
             .outerjoin(Query))
 
         return unused_results
@@ -966,6 +924,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             Query.data_source == data_source)
         for q in queries:
             q.latest_query_data = query_result
+            # don't auto-update the updated_at timestamp
             q.skip_updated_at = True
             db.session.add(q)
         query_ids = [q.id for q in queries]
@@ -1049,6 +1008,7 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
 
 
 @python_2_unicode_compatible
+@gfk_type
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
@@ -1165,7 +1125,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def favorites(cls, user, base_query=None):
         if base_query == None:
             base_query = cls.all_queries(user.group_ids, user.id, drafts=True)
-        return base_query.join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
+        return base_query.join((
+            Favorite,
+            and_(
+                Favorite.object_type == u'Query',
+                Favorite.object_id == Query.id
+            )
+        )).filter(Favorite.user_id == user.id)
 
     @classmethod
     def all_tags(cls, user, include_drafts=False):
@@ -1195,7 +1161,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (db.session.query(Query)
                    .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
+<<<<<<< HEAD:redash/models.py
                    .filter(Query.schedule != {})
+=======
+                   .filter(Query.schedule.isnot(None))
+>>>>>>> Split redash.models import several modules.:redash/models/__init__.py
                    .order_by(Query.id))
 
         now = utils.utcnow()
@@ -1310,11 +1280,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return '<Query %s: "%s">' % (self.id, self.name or 'untitled')
 
 
-@vectorizer(db.Integer)
-def integer_vectorizer(column):
-    return db.func.cast(column, db.Text)
-
-
 @listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
     target.query_hash = utils.gen_query_hash(val)
@@ -1353,113 +1318,6 @@ class Favorite(TimestampMixin, db.Model):
 
         object_type = text_type(objects[0].__class__.__name__)
         return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type == object_type, cls.user_id == user))
-
-
-class AccessPermission(GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    # 'object' defined in GFKBase
-    access_type = Column(db.String(255))
-    grantor_id = Column(db.Integer, db.ForeignKey("users.id"))
-    grantor = db.relationship(User, backref='grantor', foreign_keys=[grantor_id])
-    grantee_id = Column(db.Integer, db.ForeignKey("users.id"))
-    grantee = db.relationship(User, backref='grantee', foreign_keys=[grantee_id])
-
-    __tablename__ = 'access_permissions'
-
-    @classmethod
-    def grant(cls, obj, access_type, grantee, grantor):
-        grant = cls.query.filter(cls.object_type == obj.__tablename__,
-                                 cls.object_id == obj.id,
-                                 cls.access_type == access_type,
-                                 cls.grantee == grantee,
-                                 cls.grantor == grantor).one_or_none()
-
-        if not grant:
-            grant = cls(object_type=obj.__tablename__,
-                        object_id=obj.id,
-                        access_type=access_type,
-                        grantee=grantee,
-                        grantor=grantor)
-            db.session.add(grant)
-
-        return grant
-
-    @classmethod
-    def revoke(cls, obj, grantee, access_type=None):
-        permissions = cls._query(obj, access_type, grantee)
-        return permissions.delete()
-
-    @classmethod
-    def find(cls, obj, access_type=None, grantee=None, grantor=None):
-        return cls._query(obj, access_type, grantee, grantor)
-
-    @classmethod
-    def exists(cls, obj, access_type, grantee):
-        return cls.find(obj, access_type, grantee).count() > 0
-
-    @classmethod
-    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
-        q = cls.query.filter(cls.object_id == obj.id,
-                             cls.object_type == obj.__tablename__)
-
-        if access_type:
-            q = q.filter(AccessPermission.access_type == access_type)
-
-        if grantee:
-            q = q.filter(AccessPermission.grantee == grantee)
-
-        if grantor:
-            q = q.filter(AccessPermission.grantor == grantor)
-
-        return q
-
-    def to_dict(self):
-        d = {
-            'id': self.id,
-            'object_id': self.object_id,
-            'object_type': self.object_type,
-            'access_type': self.access_type,
-            'grantor': self.grantor_id,
-            'grantee': self.grantee_id
-        }
-        return d
-
-
-class Change(GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    # 'object' defined in GFKBase
-    object_version = Column(db.Integer, default=0)
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship(User, backref='changes')
-    change = Column(PseudoJSON)
-    created_at = Column(db.DateTime(True), default=db.func.now())
-
-    __tablename__ = 'changes'
-
-    def to_dict(self, full=True):
-        d = {
-            'id': self.id,
-            'object_id': self.object_id,
-            'object_type': self.object_type,
-            'change_type': self.change_type,
-            'object_version': self.object_version,
-            'change': self.change,
-            'created_at': self.created_at
-        }
-
-        if full:
-            d['user'] = self.user.to_dict()
-        else:
-            d['user_id'] = self.user_id
-
-        return d
-
-    @classmethod
-    def last_change(cls, obj):
-        return db.session.query(cls).filter(
-            cls.object_id == obj.id,
-            cls.object_type == obj.__class__.__tablename__).order_by(
-                cls.object_version.desc()).first()
 
 
 class Alert(TimestampMixin, db.Model):
@@ -1531,6 +1389,7 @@ def generate_slug(ctx):
 
 
 @python_2_unicode_compatible
+@gfk_type
 class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
@@ -1599,7 +1458,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def favorites(cls, user, base_query=None):
         if base_query is None:
             base_query = cls.all(user.org, user.group_ids, user.id)
-        return base_query.join((Favorite, and_(Favorite.object_type==u'Dashboard', Favorite.object_id==Dashboard.id))).filter(Favorite.user_id==user.id)
+        return base_query.join(
+            (
+                Favorite,
+                and_(
+                    Favorite.object_type == u'Dashboard',
+                    Favorite.object_id == Dashboard.id
+                )
+            )
+        ).filter(Favorite.user_id == user.id)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
@@ -1736,7 +1603,11 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
     @classmethod
     def get_by_object(cls, object):
-        return cls.query.filter(cls.object_type == object.__class__.__tablename__, cls.object_id == object.id, cls.active == True).first()
+        return cls.query.filter(
+            cls.object_type == object.__class__.__tablename__,
+            cls.object_id == object.id,
+            cls.active == True
+        ).first()
 
     @classmethod
     def create_for_object(cls, object, user):
@@ -1801,8 +1672,8 @@ class AlertSubscription(TimestampMixin, db.Model):
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
     destination_id = Column(db.Integer,
-                               db.ForeignKey("notification_destinations.id"),
-                               nullable=True)
+                            db.ForeignKey("notification_destinations.id"),
+                            nullable=True)
     destination = db.relationship(NotificationDestination)
     alert_id = Column(db.Integer, db.ForeignKey("alerts.id"))
     alert = db.relationship(Alert, back_populates="subscriptions")
@@ -1867,9 +1738,6 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
         }
 
         return d
-
-
-_gfk_types = {'queries': Query, 'dashboards': Dashboard}
 
 
 def init_db():

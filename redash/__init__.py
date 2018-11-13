@@ -97,7 +97,7 @@ def create_app(load_admin=True):
     from redash import admin, authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
-    from redash.models import db, user_details
+    from redash.models import db, users
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
@@ -141,7 +141,7 @@ def create_app(load_admin=True):
     configure_webpack(app)
     extensions.init_extensions(app)
     chrome_logger.init_app(app)
-    user_details.init_app(app)
+    users.init_app(app)
 
     return app
 
