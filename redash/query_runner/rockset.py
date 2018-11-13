@@ -8,7 +8,6 @@ import json
 logger = logging.getLogger(__name__)
 
 class Rockset(BaseSQLQueryRunner):
-#class Rockset:
     @classmethod
     def configuration_schema(cls):
         return {
@@ -87,9 +86,3 @@ class Rockset(BaseSQLQueryRunner):
         return self._request('queries', 'POST', {'sql': {'query': sql}})
 
 register(Rockset)
-
-if __name__ == '__main__':
-    rs = Rockset()
-    rs.configuration={'apiserver': 'https://api.rs2.usw2.rockset.com', 'apikey': os.environ['APIKEY']}
-    schema={}
-    print(rs._get_tables(schema))
