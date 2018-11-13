@@ -54,4 +54,4 @@ redis-cli:
 	docker-compose run redis redis-cli -h redis
 
 bash:
-	docker-compose run server bash
+	docker-compose run --rm server bash

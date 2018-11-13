@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('users', sa.Column('details', postgresql.JSON(astext_type=sa.Text()), server_default='{"active_at": null}', nullable=True))
+    op.add_column('users', sa.Column('details', postgresql.JSON(astext_type=sa.Text()), server_default='{}', nullable=True))
 
 
 def downgrade():
