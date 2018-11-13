@@ -1,5 +1,10 @@
 #!/bin/bash
-VERSION=$(jq -r .version package.json)
-FULL_VERSION=$VERSION.b$CIRCLE_BUILD_NUM
+if [ $CIRCLE_BRANCH = master ] || [ $CIRCLE_BRANCH = preview-build ]
+then
+    FULL_VERSION='preview'
+else
+    VERSION=$(jq -r .version package.json)
+    FULL_VERSION=$VERSION.b$CIRCLE_BUILD_NUM
+fi
 
 echo $FULL_VERSION

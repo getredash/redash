@@ -23,6 +23,7 @@ PyAthena>=1.0.0
 pymapd>=0.2.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
+pydruid==0.4
 # certifi is needed to support MongoDB and SSL:
 certifi
 # We don't install snowflake connector by default, as it's causing conflicts with

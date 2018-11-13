@@ -12,7 +12,12 @@
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "cypress:install": "npm install --no-save cypress",
+    "cypress:server": "node cypress/cypress-server.js",
+    "cypress:run": "cypress run",
+    "cypress:open": "cypress open",
+    "cypress": "npm run cypress:server start && cypress run && npm run cypress:server stop"
   },
   "repository": {
     "type": "git",
@@ -98,6 +103,7 @@
     "eslint-config-airbnb-base": "^12.0.1",
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-loader": "^2.1.1",
+    "eslint-plugin-cypress": "^2.0.1",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jest": "^21.25.1",
     "eslint-plugin-jsx-a11y": "^6.0.3",
@@ -112,6 +118,7 @@
     "mini-css-extract-plugin": "^0.4.4",
     "raw-loader": "^0.5.1",
     "react-test-renderer": "^16.5.2",
+    "request": "^2.88.0",
     "url-loader": "^0.5.9",
     "webpack": "^4.20.2",
     "webpack-build-notifier": "^0.1.16",
