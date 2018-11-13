@@ -10,7 +10,7 @@ create_database:
 	docker-compose run server create_db
 
 clean:
-	docker ps -a | grep `basename "$$PWD"` | awk '{print $$1}' | xargs docker kill;docker ps -a | grep `basename "$$PWD"` | awk '{print $$1}' | xargs docker rm
+	docker-compose down && docker-compose rm
 
 bundle:
 	docker-compose run server bin/bundle-extensions
