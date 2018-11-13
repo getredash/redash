@@ -102,44 +102,8 @@
         </edit-in-place>
       </div>
 
-      <div class="query-metadata query-metadata--history" ng-if="!query.isNew()">
-        <table>
-          <tr>
-            <td>
-              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb" />
-              <strong class="meta__name" ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</strong>
-            </td>
-            <td class="text-right">
-              created
-              <strong>
-                <rd-time-ago value="query.created_at"></rd-time-ago>
-              </strong>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb" />
-              <strong class="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
-            </td>
-            <td class="text-right">
-              updated
-              <strong>
-                <rd-time-ago value="query.updated_at"></rd-time-ago>
-              </strong>
-            </td>
-          </tr>
-          <tr>
-            <td class="p-t-15">
-              <span class="query-metadata__property">
-                <span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
-            </td>
-            <td class="p-t-15 text-right">
-              <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-              <span ng-if="query.isNew()">Never</span>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <query-metadata mobile="false" query="query" save-query="saveQuery" can-edit="canEdit" can-schedule-query="canScheduleQuery" schedule="query.schedule"/>
+
     </nav>
 
     <div class="content">
@@ -168,57 +132,13 @@
               data-data-sources="dataSources"></query-editor>
           </div>
 
-          <div class="row query-metadata__mobile">
-            <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb">
-            <div class="flex-fill m-r-10">
-              <strong class="meta__name" ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</strong>
-              created <rd-time-ago value="query.created_at"></rd-time-ago>
-            </div>
-
-            <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb">
-            <div class="flex-fill m-r-10">
-              <strong class="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
-              updated <rd-time-ago value="query.updated_at"></rd-time-ago>
-            </div>
-
-            <div>
-              <span class="query-metadata__property">Refresh schedule:</span>
-              <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-              <span ng-if="query.isNew()">Never</span>
-            </div>
-          </div>
-
+          <query-metadata query="query" mobile="true" save-query="saveQuery" can-edit="canEdit" can-schedule-query="canScheduleQuery" schedule="query.schedule" />
           <section class="flex-fill p-relative t-body query-visualizations-wrapper">
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
                 <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
               </div>
-              <!-- Query Execution Status -->
-
-              <div class="query-alerts">
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
-                  Executing query&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
-                  </button>
-                </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'loading-result'">
-                  Loading results&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
-                  Query in queue&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
-                  </button>
-                </div>
-                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">
-                  Error running query:
-                  <strong>{{queryResult.getError()}}</strong>
-                </div>
-              </div>
-              <!-- End of Query Execution Status -->
-
+              <query-execution-status query="query" query-result="queryResult" status="queryResult.getStatus()"></query-execution-status>
               <!-- tabs and data -->
               <div ng-if="showDataset" class="flex-fill p-relative">
                 <div class="d-flex flex-column p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
