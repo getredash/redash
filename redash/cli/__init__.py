@@ -1,11 +1,13 @@
 from __future__ import print_function
+import json
+
+
 import click
-import simplejson
 from flask.cli import FlaskGroup, run_command
 from flask import current_app
 
 from redash import create_app, settings, __version__
-from redash.cli import users, groups, database, data_sources, organization
+from redash.cli import users, groups, database, data_sources, organization, alerts
 from redash.monitor import get_status
 
 
@@ -31,6 +33,7 @@ manager.add_command(users.manager, "users")
 manager.add_command(groups.manager, "groups")
 manager.add_command(data_sources.manager, "ds")
 manager.add_command(organization.manager, "org")
+manager.add_command(alerts.manager, "alert")
 manager.add_command(run_command, "runserver")
 
 
@@ -42,7 +45,7 @@ def version():
 
 @manager.command()
 def status():
-    print(simplejson.dumps(get_status(), indent=2))
+    print(json.dumps(get_status(), indent=2))
 
 
 @manager.command()

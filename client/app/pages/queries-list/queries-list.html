@@ -43,7 +43,7 @@
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <div ng-switch="$ctrl.emptyType">
         <div ng-switch-when="default">
-          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
+          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="https://help.redash.io/category/21-querying"></empty-state>
         </div>
 
         <div ng-switch-when="my" class="tiled bg-white p-15">
@@ -96,8 +96,10 @@
               <td class="table-main-title">
                 <a href="queries/{{query.id}}">{{query.name}}</a>
                 <br>
-                <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-                <tags-control item="query"></tags-control>
+
+                <span>
+                  <span class="label label-default-unpublished" ng-if="query.is_draft">Unpublished</span> <tags-control item="query"></tags-control>
+                </span>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />

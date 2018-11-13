@@ -1,7 +1,6 @@
 import logging
 import time
 
-import pystache
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
@@ -13,7 +12,8 @@ from redash.utils import (collect_query_parameters,
                           collect_parameters_from_request,
                           gen_query_hash,
                           json_dumps,
-                          utcnow)
+                          utcnow,
+                          mustache_render)
 from redash.tasks.queries import enqueue_query
 
 
@@ -34,7 +34,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
     if query_parameters:
-        query_text = pystache.render(query_text, parameter_values)
+        query_text = mustache_render(query_text, parameter_values)
 
     if max_age <= 0:
         query_result = None
@@ -85,7 +85,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
         return error_response(message)
 
     if query_parameters:
-        query_text = pystache.render(query_text, parameter_values)
+        query_text = mustache_render(query_text, parameter_values)
 
     if max_age == 0:
         query_result = None

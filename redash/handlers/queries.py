@@ -5,7 +5,7 @@ from flask_restful import abort
 from sqlalchemy.orm.exc import StaleDataError
 from funcy import partial
 
-from redash import models
+from redash import models, settings
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
                                   org_scoped_rule, paginate, routes, order_results as _order_results)
@@ -53,7 +53,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify({'query': sqlparse.format(query, reindent=True, keyword_case='upper')})
+    return jsonify({'query': sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
 
 
 class QuerySearchResource(BaseResource):

@@ -5,8 +5,8 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 class DashboardListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, Dashboard) {
-    super($scope, $location, currentUser);
+  constructor($scope, $location, currentUser, clientConfig, Dashboard) {
+    super($scope, $location, currentUser, clientConfig);
     this.Type = Dashboard;
   }
 

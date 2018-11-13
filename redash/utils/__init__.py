@@ -98,6 +98,11 @@ def json_dumps(data, *args, **kwargs):
     return simplejson.dumps(data, *args, **kwargs)
 
 
+def mustache_render(template, context=None, **kwargs):
+    renderer = pystache.Renderer(escape=lambda u: u)
+    return renderer.render(template, context, **kwargs)
+
+
 def build_url(request, host, path):
     parts = request.host.split(':')
     if len(parts) > 1:
