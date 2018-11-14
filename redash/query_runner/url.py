@@ -2,6 +2,7 @@ from redash.query_runner import BaseHTTPQueryRunner, register
 
 
 class Url(BaseHTTPQueryRunner):
+    requires_url = False
 
     @classmethod
     def annotate_query(cls):
