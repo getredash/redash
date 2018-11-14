@@ -77,36 +77,47 @@ def get_status():
     return status
 
 
+def parse_task(task, state):
+    return {
+        'type': task['name'],
+        'state': state,
+        'worker': task['hostname'],
+        'queue': task['delivery_info']['routing_key'],
+        'task_id': task['id'],
+        'started_at': task.get('time_start')
+    }
+
+def parse_execute_query_task(task, state):
+    args = ast.literal_eval(task['args'])
+    data_source_id = args[1]
+    query_id = args[2].get('Query ID')
+    user = args[2].get('Username')
+    if query_id == 'adhoc':
+        query_id = None
+    
+    parsed = parse_task(task, state)
+
+    parsed.update({
+        'data_source_id': data_source_id,
+        'query_id': query_id,
+        'username': user,
+    })
+
+    return parsed
+
+
 def parse_control_tasks_list(tasks, tasks_state):
     query_tasks = []
 
     if tasks is None:
-        return query_tasks 
+        return query_tasks
 
     for task in itertools.chain(*tasks.values()):
-        data_source_id = None
-        query_id = None
-        user = None
-
-        # TODO: we should support parsing all the tasks, not only query ones.
         if task['name'] == 'redash.tasks.execute_query':
-            args = ast.literal_eval(task['args'])
-            data_source_id = args[1]
-            query_id = args[2].get('Query ID')
-            user = args[2].get('Username')
-            if query_id == 'adhoc':
-                query_id = None
+            query_tasks.append(parse_execute_query_task(task, tasks_state))
+        else:
+            query_tasks.append(parse_task(task, tasks_state))
 
-            query_tasks.append({
-                'state': tasks_state,
-                'worker': task['hostname'],
-                'queue': task['delivery_info']['routing_key'],
-                'task_id': task['id'],
-                'data_source_id': data_source_id,
-                'query_id': query_id,
-                'username': user,
-                'started_at': task.get('time_start')
-            })
 
     return query_tasks
 
