@@ -4,7 +4,6 @@ import logging
 from functools import reduce
 from operator import or_
 
-import pytz
 import walrus
 from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
@@ -16,7 +15,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import EmailType
 
 from redash import walrus_db
-from redash.utils import generate_token, json_dumps, utcnow
+from redash.utils import generate_token, utcnow
 
 from .base import db, Column, GFKBase
 from .mixins import TimestampMixin, BelongsToOrgMixin
@@ -156,11 +155,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                      unique=True)
 
     disabled_at = Column(db.DateTime(True), default=None, nullable=True)
-    details_default = {u'active_at': None}
     details = Column(MutableDict.as_mutable(postgresql.JSON), nullable=True,
-                     server_default=json_dumps(details_default),
-                     default=details_default)
-    active_at = json_cast_property(db.DateTime(True), 'details', 'active_at', default=None)
+                     server_default='{}', default={})
+    active_at = json_cast_property(db.DateTime(True), 'details', 'active_at',
+                                   default=None)
 
     __tablename__ = 'users'
     __table_args__ = (
