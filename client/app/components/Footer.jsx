@@ -6,6 +6,7 @@ import { react2angular } from 'react2angular';
 export function Footer({ clientConfig, currentUser }) {
   const version = clientConfig.version;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
+  const separator = ' \u2022 ';
 
   let newVersionString = '';
   if (newVersionAvailable) {
@@ -20,9 +21,9 @@ export function Footer({ clientConfig, currentUser }) {
     <div id="footer">
       <a href="https://redash.io">Redash</a> {version}
       {newVersionString}
-      &#8226;
+      {separator}
       <a href="https://redash.io/help/">Documentation</a>
-      &#8226;
+      {separator}
       <a href="https://github.com/getredash/redash">Contribute</a>
     </div>
   );
