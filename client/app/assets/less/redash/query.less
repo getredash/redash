@@ -233,6 +233,8 @@ edit-in-place p.editable:hover {
 .page-header--query {
   .page-title {
     display: block;
+    margin-left: 15px;
+    margin-right: 15px;
   }
 }
 
@@ -526,21 +528,26 @@ nav .rg-bottom {
 
 .query-tags {
   display: inline-block;
-  
-  & > div {
-    display: inline-block;
-  }
+  vertical-align: middle;
+  margin-top: -3px; // padding-top of tags
 }
 
 .query-tags__mobile {
   display: none;
-  margin: -5px 0 10px 0;
+  margin: -5px 0 0 0;
   padding: 0 0 0 23px;
 }
 
 // Smaller screens
 
 @media (max-width: 880px) {
+  .page-header--query {
+    .page-title {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
   .query-tags:not(.query-tags__empty) {
     display: none;
   }

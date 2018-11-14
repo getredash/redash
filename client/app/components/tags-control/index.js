@@ -1,5 +1,6 @@
 import { isObject, isArray, isFunction, map } from 'lodash';
 
+import './tags-control.less';
 import controlTemplate from './control-template.html';
 import modalTemplate from './modal-template.html';
 
@@ -25,6 +26,7 @@ export default function init(ngModule) {
   });
 
   ngModule.component('tagsControl', {
+    transclude: true,
     template: controlTemplate,
     bindings: {
       item: '=',
@@ -68,17 +70,40 @@ export default function init(ngModule) {
 
   ngModule.component('queryTagsControl', {
     template: `
-      <div>
+      <tags-control 
+        item="$ctrl.query" can-edit="$ctrl.canEdit" 
+        get-available-tags="$ctrl.getAvailableTags" on-edit="$ctrl.onEdit()"
+      >
         <span class="label label-tag-unpublished" ng-if="$ctrl.query.is_draft && !$ctrl.query.is_archived">Unpublished</span
         ><span class="label label-tag-archived" ng-if="$ctrl.query.is_archived" 
           uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span
-        ><tags-control item="$ctrl.query" can-edit="$ctrl.canEdit" 
-          get-available-tags="$ctrl.getAvailableTags" on-edit="$ctrl.onEdit()"></tags-control>
-      </div>
+        >  
+      </tags-control>
     `,
     bindings: {
       query: '=',
+      canEdit: '<',
+      getAvailableTags: '<',
+      onEdit: '&',
+    },
+  });
+
+  ngModule.component('dashboardTagsControl', {
+    template: `
+      <tags-control 
+        item="$ctrl.dashboard" can-edit="$ctrl.canEdit" 
+        get-available-tags="$ctrl.getAvailableTags" on-edit="$ctrl.onEdit()"
+      >
+        <span class="label label-tag-unpublished" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span
+        ><span class="label label-tag-archived" ng-if="$ctrl.dashboard.is_archived" 
+          uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results."
+          popover-placement="right" popover-trigger="'mouseenter'">Archived</span
+        >  
+      </tags-control>
+    `,
+    bindings: {
+      dashboard: '=',
       canEdit: '<',
       getAvailableTags: '<',
       onEdit: '&',
