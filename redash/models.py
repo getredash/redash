@@ -4,7 +4,6 @@ import datetime
 import functools
 import hashlib
 import itertools
-import json
 import logging
 import time
 from functools import reduce
@@ -22,7 +21,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps
+from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
 
@@ -141,7 +140,7 @@ class PseudoJSON(TypeDecorator):
     def process_result_value(self, value, dialect):
         if not value:
             return value
-        return json.loads(value)
+        return json_loads(value)
 
 
 class MutableDict(Mutable, dict):
@@ -648,9 +647,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
-            redis_connection.set(key, json.dumps(schema))
+            redis_connection.set(key, json_dumps(schema))
         else:
-            schema = json.loads(cache)
+            schema = json_loads(cache)
 
         return schema
 
@@ -738,7 +737,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'id': self.id,
             'query_hash': self.query_hash,
             'query': self.query_text,
-            'data': json.loads(self.data),
+            'data': json_loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
@@ -807,7 +806,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_csv_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json.loads(self.data)
+        query_data = json_loads(self.data)
         writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
@@ -819,7 +818,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_excel_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json.loads(self.data)
+        query_data = json_loads(self.data)
         book = xlsxwriter.Workbook(s, {'constant_memory': True})
         sheet = book.add_worksheet("result")
 
@@ -1297,7 +1296,7 @@ class Alert(TimestampMixin, db.Model):
         return db.session.query(Alert).join(Query).filter(Alert.id == id, Query.org == org).one()
 
     def evaluate(self):
-        data = json.loads(self.query_rel.latest_query_data.data)
+        data = json_loads(self.query_rel.latest_query_data.data)
         if data['rows']:
             value = data['rows'][0][self.options['column']]
             op = self.options['op']

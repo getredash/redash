@@ -18,7 +18,6 @@ install_docker(){
 
     # Allow current user to run Docker commands
     sudo usermod -aG docker $USER
-    newgrp docker
 }
 
 create_directories() {
@@ -60,9 +59,10 @@ setup_compose() {
     sed -ri "s/image: redash\/redash:([A-Za-z0-9.-]*)/image: redash\/redash:$LATEST_VERSION/" docker-compose.yml
     echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
     echo "export COMPOSE_FILE=/opt/redash/docker-compose.yml" >> ~/.profile
-    source ~/.profile
-    docker-compose run --rm server create_db
-    docker-compose up -d
+    export COMPOSE_PROJECT_NAME=redash
+    export COMPOSE_FILE=/opt/redash/docker-compose.yml
+    sudo docker-compose run --rm server create_db
+    sudo docker-compose up -d
 }
 
 install_docker

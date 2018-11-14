@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import json
 
 try:
     import snowflake.connector
@@ -10,7 +9,7 @@ except ImportError:
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -98,7 +97,7 @@ class Snowflake(BaseQueryRunner):
             raise Exception("Failed getting schema.")
 
         schema = {}
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])

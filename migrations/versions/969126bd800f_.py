@@ -6,7 +6,7 @@ Create Date: 2018-01-31 15:20:30.396533
 
 """
 from __future__ import print_function
-import json
+import simplejson
 from alembic import op
 import sqlalchemy as sa
 
@@ -26,7 +26,7 @@ def upgrade():
     print("Updating dashboards position data:")
     for dashboard in Dashboard.query:
         print("  Updating dashboard: {}".format(dashboard.id))
-        layout = json.loads(dashboard.layout)
+        layout = simplejson.loads(dashboard.layout)
 
         print("    Building widgets map:")
         widgets = {}
@@ -47,14 +47,14 @@ def upgrade():
                 if widget is None:
                     continue
 
-                options = json.loads(widget.options) or {}
+                options = simplejson.loads(widget.options) or {}
                 options['position'] = {
                     "row": row_index,
                     "col": column_index * column_size,
                     "sizeX": column_size * widget.width
                 }
 
-                widget.options = json.dumps(options)
+                widget.options = simplejson.dumps(options)
 
                 db.session.add(widget)
 

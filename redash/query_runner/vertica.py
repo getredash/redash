@@ -1,8 +1,7 @@
 import sys
-import json
 import logging
 
-from redash.utils import JSONEncoder
+from redash.utils import json_loads, json_dumps
 from redash.query_runner import *
 
 logger = logging.getLogger(__name__)
@@ -83,7 +82,7 @@ class Vertica(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
@@ -128,7 +127,7 @@ class Vertica(BaseSQLQueryRunner):
                             'type': types_map.get(col[1], None)} for col in columns_data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data)
                 error = None
             else:
                 json_data = None

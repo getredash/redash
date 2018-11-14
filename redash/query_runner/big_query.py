@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import sys
 import time
@@ -10,7 +9,7 @@ import requests
 
 from redash import settings
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +140,7 @@ class BigQuery(BaseQueryRunner):
             "https://www.googleapis.com/auth/drive"
         ]
 
-        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
+        key = json_loads(b64decode(self.configuration['jsonKeyFile']))
 
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
@@ -296,11 +295,11 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
         except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status == 400:
-                error = json.loads(e.content)['error']['message']
+                error = json_loads(e.content)['error']['message']
             else:
                 error = e.content
         except KeyboardInterrupt:

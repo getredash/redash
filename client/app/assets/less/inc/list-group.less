@@ -17,17 +17,35 @@
     }
 }
 
- .list-group-item {
-   &.active {
-     button {
-       color: white;
-     }
+tags-list {
+  a {
+    line-height: 1.1;
+  }
+}
+
+.tags-list__name {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 88%;
+  line-height: 1.3;
+}
+
+.max-character {
+  .text-overflow();
+}
+
+.list-group-item {
+ &.active {
+   button {
+     color: white;
    }
-    .cr-alt {
-        line-height: 100%;
-        margin-top: 2px;
-    }
  }
+  .cr-alt {
+      line-height: 100%;
+      margin-top: 2px;
+  }
+}
 
 .list-group-item-heading {
     margin-bottom: 2px;

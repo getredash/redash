@@ -6,6 +6,7 @@ import time
 import logging
 
 from flask import redirect, request, jsonify, url_for
+from urlparse import urlsplit, urlunsplit
 from werkzeug.exceptions import Unauthorized
 
 from redash import models, settings
@@ -242,3 +243,16 @@ def create_and_login_user(org, name, email, picture=None):
     login_user(user_object, remember=True)
 
     return user_object
+
+
+def get_next_path(unsafe_next_path):
+    if not unsafe_next_path:
+        return ''
+
+    # Preventing open redirection attacks
+    parts = list(urlsplit(unsafe_next_path))
+    parts[0] = ''  # clear scheme
+    parts[1] = ''  # clear netloc
+    safe_next_path = urlunsplit(parts)
+
+    return safe_next_path

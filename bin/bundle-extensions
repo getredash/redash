@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+
+import os
+from subprocess import call
+from distutils.dir_util import copy_tree
+
+from pkg_resources import iter_entry_points, resource_filename, resource_isdir
+
+
+
+# Make a directory for extensions and set it as an environment variable
+# to be picked up by webpack.
+EXTENSIONS_RELATIVE_PATH = os.path.join('client', 'app', 'extensions')
+EXTENSIONS_DIRECTORY = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    EXTENSIONS_RELATIVE_PATH)
+
+if not os.path.exists(EXTENSIONS_DIRECTORY):
+    os.makedirs(EXTENSIONS_DIRECTORY)
+os.environ["EXTENSIONS_DIRECTORY"] = EXTENSIONS_RELATIVE_PATH
+
+for entry_point in iter_entry_points('redash.extensions'):
+    # This is where the frontend code for an extension lives
+    # inside of its package.
+    content_folder_relative = os.path.join(
+        entry_point.name, 'bundle')
+    (root_module, _) = os.path.splitext(entry_point.module_name)
+
+    if not resource_isdir(root_module, content_folder_relative):
+        continue
+
+    content_folder = resource_filename(root_module, content_folder_relative)
+
+    # This is where we place our extensions folder.
+    destination = os.path.join(
+        EXTENSIONS_DIRECTORY,
+        entry_point.name)
+
+    copy_tree(content_folder, destination)

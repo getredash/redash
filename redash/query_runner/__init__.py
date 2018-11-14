@@ -1,10 +1,8 @@
 import logging
-import json
-import sys
-
 import requests
 
 from redash import settings
+from redash.utils import json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +113,7 @@ class BaseQueryRunner(object):
 
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
-        return json.loads(results)['rows']
+        return json_loads(results)['rows']
 
     @classmethod
     def to_dict(cls):

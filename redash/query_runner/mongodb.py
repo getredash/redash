@@ -1,12 +1,11 @@
 import datetime
-import json
 import logging
 import re
 
 from dateutil.parser import parse
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder, parse_human_time
+from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ def datetime_parser(dct):
 
 
 def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+    query_data = json_loads(query, object_hook=datetime_parser)
     return query_data
 
 
@@ -204,10 +203,14 @@ class MongoDB(BaseQueryRunner):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():
+            if collection_name.startswith('system.'):
+                continue
             columns = self._get_collection_fields(db, collection_name)
-            schema[collection_name] = { "name" : collection_name, "columns" : sorted(columns) }
+            schema[collection_name] = {
+                "name": collection_name, "columns": sorted(columns)}
 
         return schema.values()
+
 
     def run_query(self, query, user):
         db = self._get_db()
@@ -312,7 +315,7 @@ class MongoDB(BaseQueryRunner):
             "rows": rows
         }
         error = None
-        json_data = json.dumps(data, cls=MongoDBJSONEncoder)
+        json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
 
