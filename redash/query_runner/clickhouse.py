@@ -36,6 +36,12 @@ class ClickHouse(BaseSQLQueryRunner):
                     "type": "number",
                     "title": "Request Timeout",
                     "default": 30
+                },
+                # comma-separated list of databases excluded from tables view
+                "db_excluded": {
+                    "type": "string",
+                    "title": "Excluded Databases",
+                    "default": "system"
                 }
             },
             "required": ["dbname"],
@@ -47,7 +53,19 @@ class ClickHouse(BaseSQLQueryRunner):
         return "clickhouse"
 
     def _get_tables(self, schema):
-        query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"
+
+        excluded_dbs = [str(s.strip()) for s in self.configuration['db_excluded'].split(',')]
+        excluded_dbs = tuple(excluded_dbs)
+
+        condition = ''
+        if excluded_dbs:
+            condition = "WHERE database {condition}"
+            if len(excluded_dbs) == 1:
+                condition = condition.format(condition="!= '{0}'".format(excluded_dbs[0]))
+            else:
+                condition = condition.format(condition="NOT IN {0}".format(excluded_dbs))
+
+        query = "SELECT database, table, name FROM system.columns {condition}".format(condition=condition)
 
         results, error = self.run_query(query, None)
 
