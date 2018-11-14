@@ -790,7 +790,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             Query.data_source == data_source)
         for q in queries:
             q.latest_query_data = query_result
-            q.updated_at = q.updated_at + datetime.timedelta(milliseconds=1) # ugly hack to avoid Query's updated_at from changing in this specific scenario
+            # ugly hack to avoid Query's updated_at from changing in this specific scenario
+            q.updated_at = q.updated_at + datetime.timedelta(milliseconds=1)
             db.session.add(q)
         query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
