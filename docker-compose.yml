@@ -21,7 +21,7 @@ services:
     build: .
     command: scheduler
     volumes:
-      - server
+      - ".:/app"
     depends_on:
       - server
     environment:
@@ -41,5 +41,3 @@ services:
     # tests.
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
-volumes:
-  server:
