@@ -2,6 +2,7 @@ import logging
 import re
 
 import requests
+from random import shuffle
 
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
@@ -17,6 +18,7 @@ class ClickHouse(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
+                # supports comma-separated list of hosts
                 "url": {
                     "type": "string",
                     "default": "http://127.0.0.1:8123"
@@ -42,9 +44,17 @@ class ClickHouse(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "Excluded Databases",
                     "default": "system"
+                },
+                # use random host if multiple urls is passed
+                # allows to make a simple load balancing
+                # uses first element if equals False
+                "random_host": {
+                    "type": "boolean",
+                    "title": "Random Host",
+                    "default": True
                 }
             },
-            "required": ["dbname"],
+            "required": ["url", "dbname"],
             "secret": ["password"]
         }
 
@@ -54,7 +64,7 @@ class ClickHouse(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
 
-        excluded_dbs = [str(s.strip()) for s in self.configuration['db_excluded'].split(',')]
+        excluded_dbs = [str(s.strip()) for s in self.configuration['db_excluded'].split(',') if s != '']
         excluded_dbs = tuple(excluded_dbs)
 
         condition = ''
@@ -85,21 +95,33 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        r = requests.post(
-            self.configuration['url'],
-            data=data.encode("utf-8"),
-            stream=stream,
-            timeout=self.configuration.get('timeout', 30),
-            params={
-                'user': self.configuration['user'],
-                'password':  self.configuration['password'],
-                'database': self.configuration['dbname']
-            }
-        )
-        if r.status_code != 200:
-            raise Exception(r.text)
-        # logging.warning(r.json())
-        return r.json()
+        hosts = [str(s.strip()) for s in self.configuration['url'].split(',') if s != '']
+
+        if self.configuration.get('random_host'):
+            shuffle(hosts)
+
+        if not hosts:
+            error_msg = 'Empty url parameter'
+
+        for host in hosts:
+            r = requests.post(
+                host,
+                data=data.encode("utf-8"),
+                stream=stream,
+                timeout=self.configuration.get('timeout', 30),
+                params={
+                    'user': self.configuration['user'],
+                    'password':  self.configuration['password'],
+                    'database': self.configuration['dbname']
+                }
+            )
+
+            if r.ok:
+                return r.json()
+
+            error_msg = r.text
+
+        raise Exception(error_msg)
 
     @staticmethod
     def _define_column_type(column):
