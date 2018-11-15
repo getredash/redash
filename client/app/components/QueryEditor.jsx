@@ -180,6 +180,7 @@ class QueryEditor extends React.Component {
               setOptions={{
                 behavioursEnabled: true,
                 enableSnippets: true,
+                enableBasicAutocompletion: true,
                 enableLiveAutocompletion: this.state.autocompleteQuery,
                 autoScrollEditorIntoView: true,
               }}
@@ -201,7 +202,7 @@ class QueryEditor extends React.Component {
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
               </Tooltip>
-              <Tooltip placement="top" title="Autocomplete">
+              <Tooltip placement="top" title="Live Autocomplete">
                 <button type="button" className={'btn btn-default m-r-5' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
                   <span className="fa fa-magic" />
                 </button>
