@@ -64,7 +64,7 @@ class QueryResultTest(BaseTestCase):
         self.assertEqual(found_query_result.id, qr.id)
 
     def test_store_result_does_not_modify_query_update_at(self):
-        original_updated_at = utcnow() - datetime.timedelta(weeks=1)
+        original_updated_at = utcnow() - datetime.timedelta(hours=1)
         query = self.factory.create_query(updated_at=original_updated_at)
 
         models.QueryResult.store_result(query.org_id, query.data_source, query.query_hash, query.query_text, "", 0, utcnow())
