@@ -167,6 +167,14 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         db.Index('users_org_id_email', 'org_id', 'email', unique=True),
     )
 
+    def __str__(self):
+        return u'%s (%s)' % (self.name, self.email)
+
+    def __init__(self, *args, **kwargs):
+        if kwargs.get('email') is not None:
+            kwargs['email'] = kwargs['email'].lower()
+        super(User, self).__init__(*args, **kwargs)
+
     @property
     def is_disabled(self):
         return self.disabled_at is not None
@@ -176,11 +184,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     def enable(self):
         self.disabled_at = None
-
-    def __init__(self, *args, **kwargs):
-        if kwargs.get('email') is not None:
-            kwargs['email'] = kwargs['email'].lower()
-        super(User, self).__init__(*args, **kwargs)
 
     def to_dict(self, with_api_key=False):
         profile_image_url = self.profile_image_url
@@ -260,9 +263,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def find_by_email(cls, email):
         return cls.query.filter(cls.email == email)
 
-    def __str__(self):
-        return u'%s (%s)' % (self.name, self.email)
-
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 
@@ -309,6 +309,9 @@ class Group(db.Model, BelongsToOrgMixin):
 
     __tablename__ = 'groups'
 
+    def __str__(self):
+        return text_type(self.id)
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -330,9 +333,6 @@ class Group(db.Model, BelongsToOrgMixin):
     def find_by_name(cls, org, group_names):
         result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
         return list(result)
-
-    def __str__(self):
-        return text_type(self.id)
 
 
 @generic_repr('id', 'object_type', 'object_id', 'access_type', 'grantor_id', 'grantee_id')
@@ -428,6 +428,8 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         self.group_ids = groups
         self.org = org
 
+    def __str__(self):
+        return self.name
 
     def is_api_user(self):
         return True

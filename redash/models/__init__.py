@@ -1056,6 +1056,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         'version_id_generator': False
     }
 
+    def __str__(self):
+        return text_type(self.id)
+
     def archive(self, user=None):
         db.session.add(self)
         self.is_archived = True
@@ -1280,9 +1283,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
-    def __str__(self):
-        return text_type(self.id)
-
 
 @listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
@@ -1421,6 +1421,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         "version_id_col": version
     }
 
+    def __str__(self):
+        return u"%s=%s" % (self.id, self.name)
+
     @classmethod
     def all(cls, org, group_ids, user_id):
         query = (
@@ -1493,9 +1496,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
-    def __str__(self):
-        return u"%s=%s" % (self.id, self.name)
-
 
 @python_2_unicode_compatible
 @generic_repr('id', 'name', 'type', 'query_id')
@@ -1511,14 +1511,14 @@ class Visualization(TimestampMixin, db.Model):
 
     __tablename__ = 'visualizations'
 
+    def __str__(self):
+        return u"%s %s" % (self.id, self.type)
+
     @classmethod
     def get_by_id_and_org(cls, visualization_id, org):
         return db.session.query(Visualization).join(Query).filter(
             cls.id == visualization_id,
             Query.org == org).one()
-
-    def __str__(self):
-        return u"%s %s" % (self.id, self.type)
 
     def copy(self):
         return {
@@ -1654,6 +1654,8 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
         ),
     )
 
+    def __str__(self):
+        return text_type(self.name)
 
     def to_dict(self, all=False):
         d = {
@@ -1669,9 +1671,6 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
             d['options'] = self.options.to_dict(mask_secrets=True)
 
         return d
-
-    def __str__(self):
-        return text_type(self.name)
 
     @property
     def destination(self):
