@@ -620,7 +620,7 @@ class TestUserDetail(BaseTestCase):
 
     def test_userdetail_db_default(self):
         with authenticated_user(self.client) as user:
-            self.assertEqual(user.details, user.details_default)
+            self.assertEqual(user.details, {})
             self.assertIsNone(user.active_at)
 
     def test_userdetail_db_default_save(self):
@@ -667,7 +667,7 @@ class TestUserDetail(BaseTestCase):
     def test_sync(self):
         with authenticated_user(self.client) as user:
             user_detail = models.UserDetail.update(user_id=user.id)
-            self.assertEqual(user.details, models.User.details_default)
+            self.assertEqual(user.details, {})
 
             self.assertEqual(len(list(models.UserDetail.all())), 1)
             models.UserDetail.sync()
