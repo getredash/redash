@@ -1,9 +1,11 @@
 from sqlalchemy.inspection import inspect
+from sqlalchemy_utils.models import generic_repr
 
 from .base import GFKBase, db, Column
 from .types import PseudoJSON
 
 
+@generic_repr('id', 'object_type', 'object_id', 'created_at')
 class Change(GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase

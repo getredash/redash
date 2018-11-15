@@ -1,5 +1,6 @@
 from six import python_2_unicode_compatible
 from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy_utils.models import generic_repr
 
 from redash.settings.organization import settings as org_settings
 
@@ -10,6 +11,7 @@ from .users import User, Group
 
 
 @python_2_unicode_compatible
+@generic_repr('id', 'name', 'slug')
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = 'google_apps_domains'
     SETTING_IS_PUBLIC = "is_public"
@@ -22,9 +24,6 @@ class Organization(TimestampMixin, db.Model):
     events = db.relationship("Event", lazy="dynamic", order_by="desc(Event.created_at)",)
 
     __tablename__ = 'organizations'
-
-    def __repr__(self):
-        return u"<Organization: {}, {}>".format(self.id, self.name)
 
     def __str__(self):
         return u'%s (%s)' % (self.name, self.id)

@@ -13,6 +13,7 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.dialects import postgresql
 
 from sqlalchemy_utils import EmailType
+from sqlalchemy_utils.models import generic_repr
 
 from redash import walrus_db
 from redash.utils import generate_token, utcnow
@@ -140,6 +141,7 @@ class PermissionsCheckMixin(object):
 
 
 @python_2_unicode_compatible
+@generic_repr('id', 'name', 'email')
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -285,6 +287,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
 
 @python_2_unicode_compatible
+@generic_repr('id', 'name', 'type', 'org_id')
 class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query',
@@ -332,6 +335,7 @@ class Group(db.Model, BelongsToOrgMixin):
         return text_type(self.id)
 
 
+@generic_repr('id', 'object_type', 'object_id', 'access_type', 'grantor_id', 'grantee_id')
 class AccessPermission(GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     # 'object' defined in GFKBase
@@ -424,8 +428,6 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         self.group_ids = groups
         self.org = org
 
-    def __repr__(self):
-        return u"<{}>".format(self.name)
 
     def is_api_user(self):
         return True
