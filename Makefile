@@ -17,7 +17,7 @@ create_database:
 	docker-compose run server create_db
 
 clean:
-	docker ps -a -q | xargs docker kill;docker ps -a -q | xargs docker rm
+	docker-compose down && docker-compose rm
 
 down:
 	docker-compose down
