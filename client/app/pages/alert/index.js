@@ -50,6 +50,17 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     });
   };
 
+  this.saveName = (name) => {
+    if (name === undefined || name === '') {
+      this.alert.name = this.getDefaultName();
+    }
+    Events.record('edit_name', 'alert', this.alert.id);
+    this.alert.name = name;
+    if (this.alertId !== 'new') {
+      this.alert.$save();
+    }
+  };
+
   this.saveChanges = () => {
     if (this.alert.name === undefined || this.alert.name === '') {
       this.alert.name = this.getDefaultName();
