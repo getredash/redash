@@ -33,7 +33,7 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
-    global_limit = int(request.args.get('limit', 50))
+    global_limit = int(request.args.get('limit', 500))
     waiting_limit = int(request.args.get('waiting_limit', global_limit))
     progress_limit = int(request.args.get('progress_limit', global_limit))
     done_limit = int(request.args.get('done_limit', global_limit))

@@ -5,7 +5,7 @@ function UsersCtrl(currentUser, Events, User) {
   Events.record('view', 'page', 'users');
 
   this.currentUser = currentUser;
-  this.users = new Paginator([], { itemsPerPage: 20 });
+  this.users = new Paginator([], { itemsPerPage: 1000 });
   User.query((users) => {
     this.users.updateRows(users);
   });
