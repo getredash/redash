@@ -317,7 +317,7 @@ class QueryResource(BaseResource):
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(q.groups, self.current_user, view_only)
 
-        result = QuerySerializer(q, with_visualizations=True).serialize()
+        result = QuerySerializer(q, with_visualizations=True, with_alerts=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
 
         self.record_event({

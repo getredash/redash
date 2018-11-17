@@ -128,6 +128,15 @@
               </strong>
             </td>
           </tr>
+          <tr ng-if="query.alerts.length">
+            <td class="p-t-15">
+                <strong>Used in </strong>
+            </td>
+            <td class="p-t-15 text-right">
+                <span class="fa fa-bell-o"></span><a> {{query.alerts.length}} Alerts </a>  
+                <span class="zmdi zmdi-view-quilt"></span><a> {{query.alerts.length}} Dashboards </a>        
+            </td>
+          </tr>
           <tr>
             <td class="p-t-15">
               <span class="query-metadata__property">

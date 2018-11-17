@@ -82,7 +82,7 @@ class QuerySerializer(Serializer):
         return result
 
 
-def serialize_query(query, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
+def serialize_query(query, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True, with_alerts=False):
     d = {
         'id': query.id,
         'latest_query_data_id': query.latest_query_data_id,
@@ -101,7 +101,8 @@ def serialize_query(query, with_stats=False, with_visualizations=False, with_use
         'version': query.version,
         'tags': query.tags or [],
     }
-
+    if with_alerts:
+        d['alerts'] = [serialize_alert(alert, full=False) for alert in query.alerts]
     if with_user:
         d['user'] = query.user.to_dict()
     else:
