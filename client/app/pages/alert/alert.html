@@ -1,8 +1,7 @@
 <div class="container">
-
-  <page-header title='{{$ctrl.alert.name || $ctrl.getDefaultName() || "New Alert" }}'>
-  </page-header>
-
+  <h3>
+    <edit-in-place is-editable="$ctrl.canEdit" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.alert.name || $ctrl.getDefaultName() || 'New Alert'" editor="'input'"></edit-in-place>
+  </h3>
   <email-settings-warning function="'alert emails'"></email-settings-warning>
 
   <div class="container">
@@ -21,37 +20,27 @@
             </ui-select>
           </div>
 
-          <div class="form-group" ng-show="$ctrl.selectedQuery">
-            <label>Name</label>
-            <input type="string" placeholder="{{$ctrl.getDefaultName()}}" class="form-control" ng-model="$ctrl.alert.name" ng-disabled="!$ctrl.canEdit">
-          </div>
-
           <div ng-show="$ctrl.queryResult" class="form-horizontal">
             <div class="form-group">
-              <label class="control-label col-md-2">Value column</label>
-              <div class="col-md-4">
+              <div class="col-sm-4">
+                <label>Value column</label>
+                <p style="float: right">(Value is: {{$ctrl.queryResult.getData()[0][$ctrl.alert.options.column]}})</p>
                 <select ng-options="name for name in $ctrl.queryResult.getColumnNames()" ng-model="$ctrl.alert.options.column"
-                        class="form-control" ng-disabled="!$ctrl.canEdit"></select>
+                      class="form-control" ng-disabled="!$ctrl.canEdit"></select>
               </div>
-              <label class="control-label col-md-2">Value</label>
-              <div class="col-md-4">
-                <p class="form-control-static">{{$ctrl.queryResult.getData()[0][$ctrl.alert.options.column]}}</p>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="control-label col-md-2">Op</label>
-              <div class="col-md-4">
+              <div class="col-sm-4 ">
+                <label>Op</label>
                 <select ng-options="name for name in $ctrl.ops" ng-model="$ctrl.alert.options.op" class="form-control" ng-disabled="!$ctrl.canEdit"></select>
               </div>
-              <label class="control-label col-md-2">Reference</label>
-              <div class="col-md-4">
+              <div class="col-sm-4">
+                <label>Reference</label>
                 <input type="number" step="any" class="form-control" ng-model="$ctrl.alert.options.value" placeholder="reference value" ng-disabled="!$ctrl.canEdit"
-                       required/>
+                  required/>
               </div>
             </div>
             <div class="form-group">
-              <label class="control-label col-md-2">Rearm seconds</label>
-              <div class="col-md-4">
+              <div class="col-sm-4">
+                <label>Rearm seconds</label>
                 <input type="number" class="form-control" ng-model="$ctrl.alert.rearm" ng-disabled="!$ctrl.canEdit"/>
               </div>
             </div>
