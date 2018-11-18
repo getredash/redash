@@ -33,23 +33,49 @@ defineDummySnippets('python');
 defineDummySnippets('sql');
 defineDummySnippets('json');
 
+function buildTableColumnKeywords(table) {
+  const keywords = [];
+  table.columns.forEach((column) => {
+    keywords.push({
+      caption: column,
+      name: `${table.name}.${column}`,
+      value: `${table.name}.${column}`,
+      score: 100,
+      meta: 'Column',
+      className: 'completion',
+    });
+  });
+  return keywords;
+}
+
 function buildKeywordsFromSchema(schema) {
-  const keywords = {};
+  const tableKeywords = [];
+  const columnKeywords = {};
+  const tableColumnKeywords = {};
+
   schema.forEach((table) => {
-    keywords[table.name] = 'Table';
+    tableKeywords.push({
+      name: table.name,
+      value: table.name,
+      score: 100,
+      meta: 'Table',
+    });
+    tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
     table.columns.forEach((c) => {
-      keywords[c] = 'Column';
-      keywords[`${table.name}.${c}`] = 'Column';
+      columnKeywords[c] = 'Column';
     });
   });
 
-  return map(keywords, (v, k) =>
-    ({
+  return {
+    table: tableKeywords,
+    column: map(columnKeywords, (v, k) => ({
       name: k,
       value: k,
-      score: 0,
+      score: 50,
       meta: v,
-    }));
+    })),
+    tableColumn: tableColumnKeywords,
+  };
 }
 
 class QueryEditor extends React.Component {
@@ -83,24 +109,54 @@ class QueryEditor extends React.Component {
     super(props);
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
-      keywords: [], // eslint-disable-line react/no-unused-state
+      keywords: {
+        table: {},
+        column: {},
+        tableColumn: {},
+      },
       autocompleteQuery: true,
     };
-    langTools.addCompleter({
+
+    const schemaCompleter = {
+      identifierRegexps: [/[a-zA-Z_0-9.\-\u00A2-\uFFFF]/],
       getCompletions: (state, session, pos, prefix, callback) => {
-        if (prefix.length === 0) {
+        const tableKeywords = this.state.keywords.table;
+        const columnKeywords = this.state.keywords.column;
+        const tableColumnKeywords = this.state.keywords.tableColumn;
+
+        if (prefix.length === 0 || tableKeywords.length === 0) {
           callback(null, []);
           return;
         }
-        callback(null, this.state.keywords);
+        if (prefix[prefix.length - 1] === '.') {
+          const tableName = prefix.substring(0, prefix.length - 1);
+          callback(null, tableKeywords.concat(tableColumnKeywords[tableName]));
+          return;
+        }
+        callback(null, tableKeywords.concat(columnKeywords));
       },
-    });
+    };
+
+    langTools.setCompleters([
+      langTools.snippetCompleter,
+      langTools.keyWordCompleter,
+      langTools.textCompleter,
+      schemaCompleter,
+    ]);
 
     this.onLoad = (editor) => {
       // Release Cmd/Ctrl+L to the browser
       editor.commands.bindKey('Cmd+L', null);
       editor.commands.bindKey('Ctrl+P', null);
       editor.commands.bindKey('Ctrl+L', null);
+
+      editor.commands.on('afterExec', (e) => {
+        // Reset Completer in case dot is pressed
+        if (e.command.name === 'insertstring' && e.args === '.'
+            && editor.completer) {
+          editor.completer.showPopup(editor);
+        }
+      });
 
       // eslint-disable-next-line react/prop-types
       this.props.QuerySnippet.query((snippets) => {
