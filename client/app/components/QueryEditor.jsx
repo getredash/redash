@@ -15,6 +15,7 @@ import 'brace/mode/sql';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
+import { AutocompleteToggle } from '@/components/AutocompleteToggle';
 import { DataSource, Schema } from './proptypes';
 
 const langTools = ace.acequire('ace/ext/language_tools');
@@ -43,13 +44,12 @@ function buildKeywordsFromSchema(schema) {
     });
   });
 
-  return map(keywords, (v, k) =>
-    ({
-      name: k,
-      value: k,
-      score: 0,
-      meta: v,
-    }));
+  return map(keywords, (v, k) => ({
+    name: k,
+    value: k,
+    score: 0,
+    meta: v,
+  }));
 }
 
 class QueryEditor extends React.Component {
@@ -70,7 +70,6 @@ class QueryEditor extends React.Component {
     updateQuery: PropTypes.func.isRequired,
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
-
   };
 
   static defaultProps = {
@@ -85,6 +84,7 @@ class QueryEditor extends React.Component {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: [], // eslint-disable-line react/no-unused-state
       autocompleteQuery: true,
+      liveAutocompleteDisabled: false,
     };
     langTools.addCompleter({
       getCompletions: (state, session, pos, prefix, callback) => {
@@ -147,13 +147,13 @@ class QueryEditor extends React.Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
-      return { keywords: [], autocompleteQuery: false };
+      return { keywords: [], liveAutocompleteDisabled: true };
     } else if (nextProps.schema !== prevState.schema) {
+      const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
         schema: nextProps.schema,
         keywords: buildKeywordsFromSchema(nextProps.schema),
-        autocompleteQuery: (nextProps.schema.reduce((totalLength, table) =>
-          totalLength + table.columns.length, 0) <= 5000),
+        liveAutocompleteDisabled: tokensCount > 5000,
       };
     }
     return null;
@@ -181,43 +181,63 @@ class QueryEditor extends React.Component {
                 behavioursEnabled: true,
                 enableSnippets: true,
                 enableBasicAutocompletion: true,
-                enableLiveAutocompletion: this.state.autocompleteQuery,
+                enableLiveAutocompletion: !this.state.liveAutocompleteDisabled && this.state.autocompleteQuery,
                 autoScrollEditorIntoView: true,
               }}
               showPrintMargin={false}
               wrapEnabled={false}
               onLoad={this.onLoad}
               onPaste={this.onPaste}
-              onChange={(queryText) => { this.props.updateQuery(queryText); }}
+              onChange={(queryText) => {
+                this.props.updateQuery(queryText);
+              }}
             />
           </div>
 
           <div className="editor__control">
             <div className="form-inline d-flex">
-              <Tooltip placement="top" title={<span>Add New Parameter (<i>{modKey} + P</i>)</span>}>
-                <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>&#123;&#123;&nbsp;&#125;&#125;</button>
+              <Tooltip
+                placement="top"
+                title={
+                  <span>
+                    Add New Parameter (<i>{modKey} + P</i>)
+                  </span>
+                }
+              >
+                <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>
+                  &#123;&#123;&nbsp;&#125;&#125;
+                </button>
               </Tooltip>
               <Tooltip placement="top" title="Format Query">
                 <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
               </Tooltip>
-              <Tooltip placement="top" title="Live Autocomplete">
-                <button type="button" className={'btn btn-default m-r-5' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
-                  <span className="fa fa-magic" />
-                </button>
-              </Tooltip>
-              <select className="form-control datasource-small flex-fill w-100" onChange={this.props.updateDataSource} disabled={!this.props.isQueryOwner}>
-                {this.props.dataSources.map(ds => <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>{ds.name}</option>)}
+              <AutocompleteToggle
+                state={this.state.autocompleteQuery}
+                onToggle={state => this.setState({ autocompleteQuery: state })}
+                disabled={this.state.liveAutocompleteDisabled}
+              />
+              <select
+                className="form-control datasource-small flex-fill w-100"
+                onChange={this.props.updateDataSource}
+                disabled={!this.props.isQueryOwner}
+              >
+                {this.props.dataSources.map(ds => (
+                  <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>
+                    {ds.name}
+                  </option>
+                ))}
               </select>
-              {this.props.canEdit ?
+              {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
                   <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
                   </button>
-                </Tooltip> : null }
+                </Tooltip>
+              ) : null}
               <Tooltip placement="top" title={modKey + ' + Enter'}>
                 {/*
                   Tooltip wraps disabled buttons with `<span>` and moves all styles
@@ -239,8 +259,8 @@ class QueryEditor extends React.Component {
             </div>
           </div>
         </div>
-
-      </section>);
+      </section>
+    );
   }
 }
 
