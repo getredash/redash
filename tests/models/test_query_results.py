@@ -8,9 +8,6 @@ from redash.utils import utcnow
 
 
 class QueryResultTest(BaseTestCase):
-    def setUp(self):
-        super(QueryResultTest, self).setUp()
-
     def test_get_latest_returns_none_if_not_found(self):
         found_query_result = models.QueryResult.get_latest(self.factory.data_source, "SELECT 1", 60)
         self.assertIsNone(found_query_result)
