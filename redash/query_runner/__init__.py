@@ -146,6 +146,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
 class BaseHTTPQueryRunner(BaseQueryRunner):
     response_error = "Endpoint returned unexpected status code"
     requires_authentication = False
+    requires_url = True
     url_title = 'URL base path'
     username_title = 'HTTP Basic Auth Username'
     password_title = 'HTTP Basic Auth Password'
@@ -168,9 +169,15 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
                     'title': cls.password_title,
                 },
             },
-            'required': ['url'],
             'secret': ['password']
         }
+
+        if cls.requires_url or cls.requires_authentication:
+            schema['required'] = []
+
+        if cls.requires_url:
+            schema['required'] += ['url']
+
         if cls.requires_authentication:
             schema['required'] += ['username', 'password']
         return schema
