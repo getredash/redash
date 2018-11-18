@@ -66,4 +66,4 @@ class QueryResultTest(BaseTestCase):
 
         models.QueryResult.store_result(query.org_id, query.data_source, query.query_hash, query.query_text, "", 0, utcnow())
 
-        assert original_updated_at.strftime("%X") == query.updated_at.strftime("%X")
+        assert original_updated_at == query.updated_at
