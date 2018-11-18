@@ -18,13 +18,13 @@ exports[`Footer renders 1`] = `
       (New Redash version available)
     </a>
   </small>
-  •
+   • 
   <a
     href="https://redash.io/help/"
   >
     Documentation
   </a>
-  •
+   • 
   <a
     href="https://github.com/getredash/redash"
   >
