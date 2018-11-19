@@ -177,6 +177,21 @@ export class ParameterMappingInput extends React.Component {
     }
   }
 
+  renderTitleInput() {
+    const { mapping } = this.props;
+    return (
+      <div className="m-t-10">
+        <input
+          type="text"
+          className="form-control"
+          value={mapping.title}
+          onChange={event => this.updateParamMapping(mapping, { title: event.target.value })}
+          placeholder="Change parameter title (leave empty to use existing"
+        />
+      </div>
+    );
+  }
+
   render() {
     const { mapping } = this.props;
     return (
@@ -187,6 +202,7 @@ export class ParameterMappingInput extends React.Component {
         <div className="col-xs-7">
           {this.renderMappingTypeSelector()}
           {this.renderInputBlock()}
+          {this.renderTitleInput()}
         </div>
       </div>
     );

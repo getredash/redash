@@ -74,6 +74,7 @@ class AddWidgetDialog extends React.Component {
                 ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew,
               mapTo: param.name,
               value: param.normalizedValue,
+              title: '',
               param,
             })),
           });

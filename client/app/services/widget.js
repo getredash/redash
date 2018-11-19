@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { each, pick, extend, isObject, truncate, keys, difference, filter } from 'lodash';
+import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
 
 function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
@@ -67,7 +67,7 @@ export const ParameterMappingType = {
   StaticValue: 'static-value',
 };
 
-function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
+function WidgetFactory($http, $location, Query, Visualization, dashboardGridOptions) {
   class Widget {
     static MappingType = ParameterMappingType;
 
@@ -179,11 +179,23 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
         }
       });
 
+      const queryParams = $location.search();
+
       const localTypes = [
         Widget.MappingType.WidgetLevel,
         Widget.MappingType.StaticValue,
       ];
-      return filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0);
+      return map(
+        filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
+        (param) => {
+          const result = param.clone();
+          result.title = mappings[param.name].title || param.title;
+          result.locals = [param];
+          result.urlPrefix = `w${this.id}_`;
+          result.fromUrlParams(queryParams);
+          return result;
+        },
+      );
     }
 
     getParameterMappings() {
@@ -202,6 +214,7 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
             type: param.global ? Widget.MappingType.DashboardLevel : Widget.MappingType.WidgetLevel,
             mapTo: param.name, // map to param with the same name
             value: null, // for StaticValue
+            title: '', // Use parameter's title
           };
         }
       });

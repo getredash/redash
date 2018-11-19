@@ -57,8 +57,14 @@ class Parameter {
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
 
+    // Used for meta-parameters (i.e. dashboard-level params)
+    this.locals = [];
+
     // validate value and init internal state
     this.setValue(parameter.value);
+
+    // Used for URL serialization
+    this.urlPrefix = 'p_';
   }
 
   clone() {
@@ -121,6 +127,12 @@ class Parameter {
       this.value = value;
       this.$$value = value;
     }
+
+    if (isArray(this.locals)) {
+      each(this.locals, (local) => {
+        local.setValue(this.value);
+      });
+    }
   }
 
   get normalizedValue() {
@@ -139,26 +151,28 @@ class Parameter {
     if (this.isEmpty) {
       return {};
     }
+    const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
       return {
-        [`p_${this.name}.start`]: this.value.start,
-        [`p_${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}.start`]: this.value.start,
+        [`${prefix}${this.name}.end`]: this.value.end,
       };
     }
     return {
-      [`p_${this.name}`]: this.value,
+      [`${prefix}${this.name}`]: this.value,
     };
   }
 
   fromUrlParams(query) {
+    const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
-      const keyStart = `p_${this.name}.start`;
-      const keyEnd = `p_${this.name}.end`;
+      const keyStart = `${prefix}${this.name}.start`;
+      const keyEnd = `${prefix}${this.name}.end`;
       if (has(query, keyStart) && has(query, keyEnd)) {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `p_${this.name}`;
+      const key = `${prefix}${this.name}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }

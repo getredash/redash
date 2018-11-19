@@ -104,20 +104,15 @@ function DashboardCtrl(
     this.globalParameters = this.dashboard.getParametersDefs();
   };
 
-  this.onGlobalParametersChange = () => {
-    this.globalParameters.forEach((global) => {
-      global.locals.forEach((local) => {
-        local.value = global.value;
-      });
-    });
-  };
-
   $scope.$on('dashboard.update-parameters', () => {
     this.extractGlobalParameters();
   });
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map((widget) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      return widget.load(forceRefresh);
+    }));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
