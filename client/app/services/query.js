@@ -454,7 +454,7 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, parameters.getValues(), queryText, maxAge, this.id);
+      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
