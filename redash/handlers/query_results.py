@@ -130,7 +130,9 @@ class QueryResultListResource(BaseResource):
             'action': 'execute_query',
             'object_id': data_source.id,
             'object_type': 'data_source',
-            'query': query
+            'query': query,
+            'query_id': query_id,
+            'parameters': parameters
         })
         return run_query(data_source, parameters, query, query_id, max_age)
 
