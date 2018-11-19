@@ -112,13 +112,14 @@ class QueryResultListResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         :qparam number data_source_id: ID of data source to query
+        :qparam object parameters: A set of parameter values to apply to the query.
         """
         params = request.get_json(force=True)
-        parameter_values = collect_parameters_from_request(request.args)
 
         query = params['query']
         max_age = int(params.get('max_age', -1))
         query_id = params.get('query_id', 'adhoc')
+        parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
@@ -131,7 +132,7 @@ class QueryResultListResource(BaseResource):
             'object_type': 'data_source',
             'query': query
         })
-        return run_query(data_source, parameter_values, query, query_id, max_age)
+        return run_query(data_source, parameters, query, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
