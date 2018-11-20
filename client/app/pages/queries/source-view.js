@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { map, defer } from 'lodash';
 import template from './query.html';
 
 function QuerySourceCtrl(
@@ -53,9 +53,7 @@ function QuerySourceCtrl(
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = (newQueryText) => {
-    $scope.query.query = newQueryText;
-  };
+  $scope.updateQuery = newQueryText => defer(() => $scope.$apply(() => { $scope.query.query = newQueryText; }));
 
   // @override
   $scope.saveQuery = (options, data) => {

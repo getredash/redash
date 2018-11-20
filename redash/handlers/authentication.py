@@ -175,7 +175,7 @@ def client_config():
 
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
+        'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
