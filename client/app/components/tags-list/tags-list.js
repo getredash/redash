@@ -1,4 +1,4 @@
-import { getTags } from '@/services/tags';
+import getTags from '@/services/getTags';
 import template from './tags-list.html';
 
 class TagsList {
