@@ -13,3 +13,6 @@ const RdTimeAgo = {
 export default function init(ngModule) {
   ngModule.component('rdTimeAgo', RdTimeAgo);
 }
+
+init.init = true;
+

@@ -57,3 +57,6 @@ const AddToDashboardForm = {
 export default function init(ngModule) {
   ngModule.component('addToDashboardDialog', AddToDashboardForm);
 }
+
+init.init = true;
+

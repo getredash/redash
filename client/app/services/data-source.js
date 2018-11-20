@@ -45,3 +45,6 @@ function DataSource($q, $resource, $http) {
 export default function init(ngModule) {
   ngModule.factory('DataSource', DataSource);
 }
+
+init.init = true;
+
