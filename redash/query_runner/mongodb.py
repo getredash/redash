@@ -177,9 +177,9 @@ class MongoDB(BaseQueryRunner):
     def _is_collection_a_view(self, db, collection_name):
         try:
             db.command('collstats', collection_name)
-            return True
-        except Exception:
             return False
+        except Exception:
+            return True
 
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
@@ -194,13 +194,13 @@ class MongoDB(BaseQueryRunner):
         collection_is_a_view = self._is_collection_a_view(db, collection_name)
         documents_sample = []
         if(collection_is_a_view):
+            for d in db[collection_name].find().limit(2):
+                documents_sample.append(d)
+        else:
             for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
                 documents_sample.append(d)
 
             for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
-                documents_sample.append(d)
-        else:
-            for d in db[collection_name].find().limit(2):
                 documents_sample.append(d)
         columns = []
         for d in documents_sample:
