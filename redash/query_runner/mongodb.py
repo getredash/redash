@@ -193,7 +193,7 @@ class MongoDB(BaseQueryRunner):
         # document written.
         collection_is_a_view = self._is_collection_a_view(db, collection_name)
         documents_sample = []
-        if(collection_is_a_view):
+        if collection_is_a_view:
             for d in db[collection_name].find().limit(2):
                 documents_sample.append(d)
         else:
