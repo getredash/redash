@@ -19,7 +19,7 @@ export function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="https://redash.io">Redash</a> {version}
+      <a href="https://redash.io">Redash</a> {version} ({COMMIT})
       {newVersionString}
       {separator}
       <a href="https://redash.io/help/">Documentation</a>
