@@ -35,3 +35,5 @@ const ApiKeyDialog = {
 export default function init(ngModule) {
   ngModule.component('apiKeyDialog', ApiKeyDialog);
 }
+
+init.init = true;

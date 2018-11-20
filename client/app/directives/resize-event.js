@@ -48,3 +48,6 @@ function resizeEvent() {
 export default function init(ngModule) {
   ngModule.directive('resizeEvent', resizeEvent);
 }
+
+init.init = true;
+

@@ -123,3 +123,6 @@ function resizableToggle(KeyboardShortcuts) {
 export default function init(ngModule) {
   ngModule.directive('resizableToggle', resizableToggle);
 }
+
+init.init = true;
+

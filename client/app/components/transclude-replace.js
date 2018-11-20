@@ -21,3 +21,6 @@ export default function init(ngModule) {
     },
   }));
 }
+
+init.init = true;
+

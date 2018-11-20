@@ -42,3 +42,5 @@ const EditDashboardDialog = {
 export default function init(ngModule) {
   ngModule.component('editDashboardDialog', EditDashboardDialog);
 }
+
+init.init = true;
