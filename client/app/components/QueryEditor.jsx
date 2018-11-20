@@ -15,6 +15,7 @@ import 'brace/mode/sql';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
+import * as localOptions from '@/lib/localOptions';
 import { AutocompleteToggle } from '@/components/AutocompleteToggle';
 import { DataSource, Schema } from './proptypes';
 
@@ -83,7 +84,7 @@ class QueryEditor extends React.Component {
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: [], // eslint-disable-line react/no-unused-state
-      autocompleteQuery: true,
+      autocompleteQuery: localOptions.get('liveAutocomplete', true),
       liveAutocompleteDisabled: false,
     };
     langTools.addCompleter({
@@ -159,6 +160,11 @@ class QueryEditor extends React.Component {
     return null;
   }
 
+  toggleAutocomplete = (state) => {
+    this.setState({ autocompleteQuery: state });
+    localOptions.set('liveAutocomplete', state);
+  }
+
   render() {
     // eslint-disable-next-line react/prop-types
     const modKey = this.props.KeyboardShortcuts.modKey;
@@ -215,7 +221,7 @@ class QueryEditor extends React.Component {
               </Tooltip>
               <AutocompleteToggle
                 state={this.state.autocompleteQuery}
-                onToggle={state => this.setState({ autocompleteQuery: state })}
+                onToggle={this.toggleAutocomplete}
                 disabled={this.state.liveAutocompleteDisabled}
               />
               <select
