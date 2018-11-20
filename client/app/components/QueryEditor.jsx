@@ -273,3 +273,5 @@ class QueryEditor extends React.Component {
 export default function init(ngModule) {
   ngModule.component('queryEditor', react2angular(QueryEditor, null, ['QuerySnippet', 'Query', 'KeyboardShortcuts']));
 }
+
+init.init = true;

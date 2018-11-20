@@ -70,15 +70,15 @@ export default function init(ngModule) {
 
   ngModule.component('queryTagsControl', {
     template: `
-      <tags-control 
-        item="$ctrl.query" can-edit="$ctrl.canEdit" 
+      <tags-control
+        item="$ctrl.query" can-edit="$ctrl.canEdit"
         get-available-tags="$ctrl.getAvailableTags" on-edit="$ctrl.onEdit()"
       >
         <span class="label label-tag-unpublished" ng-if="$ctrl.query.is_draft && !$ctrl.query.is_archived">Unpublished</span
-        ><span class="label label-tag-archived" ng-if="$ctrl.query.is_archived" 
+        ><span class="label label-tag-archived" ng-if="$ctrl.query.is_archived"
           uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span
-        >  
+        >
       </tags-control>
     `,
     bindings: {
@@ -91,15 +91,15 @@ export default function init(ngModule) {
 
   ngModule.component('dashboardTagsControl', {
     template: `
-      <tags-control 
-        item="$ctrl.dashboard" can-edit="$ctrl.canEdit" 
+      <tags-control
+        item="$ctrl.dashboard" can-edit="$ctrl.canEdit"
         get-available-tags="$ctrl.getAvailableTags" on-edit="$ctrl.onEdit()"
       >
         <span class="label label-tag-unpublished" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span
-        ><span class="label label-tag-archived" ng-if="$ctrl.dashboard.is_archived" 
+        ><span class="label label-tag-archived" ng-if="$ctrl.dashboard.is_archived"
           uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span
-        >  
+        >
       </tags-control>
     `,
     bindings: {
@@ -110,3 +110,6 @@ export default function init(ngModule) {
     },
   });
 }
+
+init.init = true;
+

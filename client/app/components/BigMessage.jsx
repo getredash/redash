@@ -29,3 +29,5 @@ BigMessage.defaultProps = {
 export default function init(ngModule) {
   ngModule.component('bigMessage', react2angular(BigMessage));
 }
+
+init.init = true;

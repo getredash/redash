@@ -53,3 +53,6 @@ const SchemaBrowser = {
 export default function init(ngModule) {
   ngModule.component('schemaBrowser', SchemaBrowser);
 }
+
+init.init = true;
+

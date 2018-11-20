@@ -24,3 +24,5 @@ NoTaggedObjectsFound.propTypes = {
 export default function init(ngModule) {
   ngModule.component('noTaggedObjectsFound', react2angular(NoTaggedObjectsFound));
 }
+
+init.init = true;
