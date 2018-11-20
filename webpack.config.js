@@ -10,6 +10,9 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+const GitRevisionPlugin = require("git-revision-webpack-plugin")
+const gitRevisionPlugin = new GitRevisionPlugin()
+
 const path = require("path");
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
@@ -41,8 +44,10 @@ const config = {
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
+    gitRevisionPlugin,
     new webpack.DefinePlugin({
-      ON_TEST: process.env.NODE_ENV === "test"
+      ON_TEST: process.env.NODE_ENV === "test",
+      COMMIT: JSON.stringify(gitRevisionPlugin.version())
     }),
     // Enforce angular to use jQuery instead of jqLite
     new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
