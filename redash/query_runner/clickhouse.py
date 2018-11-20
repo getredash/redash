@@ -103,14 +103,32 @@ class ClickHouse(BaseSQLQueryRunner):
     def _clickhouse_query(self, query):
         query += '\nFORMAT JSON'
         result = self._send_query(query)
-        columns = [{'name': r['name'], 'friendly_name': r['name'],
-                    'type': self._define_column_type(r['type'])} for r in result['meta']]
-        # db converts value to string if its type equals UInt64
-        columns_uint64 = [r['name'] for r in result['meta'] if r['type'] == 'UInt64']
+        columns = []
+        columns_int64 = []  # db converts value to string if its type equals UInt64
+        columns_totals = {}
+
+        for r in result['meta']:
+            column_name = r['name']
+            column_type = self._define_column_type(r['type'])
+
+            if 'Int64' in r['type']:
+                columns_int64.append(column_name)
+            else:
+                columns_totals[column_name] = 'Total' if column_type == TYPE_STRING else None
+
+            columns.append({'name': column_name, 'friendly_name': column_name, 'type': column_type})
+
         rows = result['data']
         for row in rows:
-            for column in columns_uint64:
+            for column in columns_int64:
                 row[column] = int(row[column])
+
+        if 'totals' in result:
+            totals = result['totals']
+            for column, value in columns_totals.iteritems():
+                totals[column] = value
+            rows.append(totals)
+
         return {'columns': columns, 'rows': rows}
 
     def run_query(self, query, user):

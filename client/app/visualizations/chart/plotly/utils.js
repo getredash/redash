@@ -489,6 +489,7 @@ function prepareChartData(seriesList, options) {
 
     if (seriesOptions.type === 'bubble') {
       plotlySeries.marker = {
+        color: seriesColor,
         size: map(data, i => i.size),
       };
     } else if (seriesOptions.type === 'box') {
