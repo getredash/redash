@@ -15,7 +15,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
-from redash import walrus_db
+from redash import redis_connection
 from redash.utils import generate_token, utcnow
 
 from .base import db, Column, GFKBase
@@ -30,7 +30,7 @@ class UserDetail(walrus.Model):
     A walrus data model to store some user data to Redis to be
     synced to Postgres asynchronously.
     """
-    __database__ = walrus_db
+    __database__ = redis_connection
     __namespace__ = 'redash.user.details'
 
     user_id = walrus.IntegerField(index=True)

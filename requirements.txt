@@ -22,9 +22,10 @@ psycopg2==2.7.3.2
 python-dateutil==2.7.3
 pytz==2016.7
 PyYAML==3.12
-redis==2.10.5
+redis==3.0.1
+walrus==0.7.0
+requests==2.11.1
 requests==2.21.0
-walrus==0.6.4
 six==1.11.0
 SQLAlchemy==1.2.12
 SQLAlchemy-Searchable==0.10.6

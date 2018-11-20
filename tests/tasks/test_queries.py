@@ -19,7 +19,7 @@ class TestPrune(TestCase):
         for score in range(0, 100):
             key = 'k:{}'.format(score)
             self.keys.append(key)
-            redis_connection.zadd(self.list, score, key)
+            redis_connection.zadd(self.list, {key: score})
             redis_connection.set(key, 1)
 
     def test_does_nothing_when_below_threshold(self):

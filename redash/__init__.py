@@ -3,9 +3,8 @@ import logging
 import urlparse
 import urllib
 
-import redis
-from flask import Flask, current_app
 import walrus
+from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
@@ -38,7 +37,7 @@ def setup_logging():
         logging.getLogger('apiclient').setLevel("ERROR")
 
 
-def create_redis_connection(cls=redis.StrictRedis):
+def create_redis_connection():
     logging.debug("Creating Redis connection (%s)", settings.REDIS_URL)
     redis_url = urlparse.urlparse(settings.REDIS_URL)
 
@@ -49,7 +48,7 @@ def create_redis_connection(cls=redis.StrictRedis):
         else:
             db = 0
 
-        r = cls(unix_socket_path=redis_url.path, db=db)
+        client = walrus.Database(unix_socket_path=redis_url.path, db=db)
     else:
         if redis_url.path:
             redis_db = redis_url.path[1]
@@ -57,14 +56,13 @@ def create_redis_connection(cls=redis.StrictRedis):
             redis_db = 0
         # Redis passwords might be quoted with special characters
         redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        r = cls(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
+        client = walrus.Database(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
 
-    return r
+    return client
 
 
 setup_logging()
 redis_connection = create_redis_connection()
-walrus_db = create_redis_connection(cls=walrus.Database)
 
 mail = Mail()
 migrate = Migrate()

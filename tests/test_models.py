@@ -8,7 +8,7 @@ import walrus
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase, authenticated_user
 
-from redash import models, walrus_db
+from redash import models, redis_connection
 from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
 
@@ -597,7 +597,7 @@ class TestDashboardAll(BaseTestCase):
 
 
 class Timestamp(walrus.Model):
-    __database__ = walrus_db
+    __database__ = redis_connection
     __namespace__ = 'redash.tests.timestamp'
 
     created_at = types.UTCDateTimeField(index=True, default=utcnow)
@@ -607,7 +607,7 @@ class TestUserDetail(BaseTestCase):
 
     def setUp(self):
         super(TestUserDetail, self).setUp()
-        walrus_db.flushdb()
+        redis_connection.flushdb()
 
     def test_walrus_utcdatetimefield(self):
         timestamp = Timestamp()

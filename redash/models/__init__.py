@@ -801,7 +801,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return redis_connection.get(self._pause_key())
 
     def pause(self, reason=None):
-        redis_connection.set(self._pause_key(), reason)
+        redis_connection.set(self._pause_key(), reason or '')
 
     def resume(self):
         redis_connection.delete(self._pause_key())
