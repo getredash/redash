@@ -45,3 +45,6 @@ export default function init(ngModule) {
     controller: TagsList,
   });
 }
+
+init.init = true;
+

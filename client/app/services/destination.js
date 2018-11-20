@@ -12,3 +12,6 @@ function Destination($resource) {
 export default function init(ngModule) {
   ngModule.factory('Destination', Destination);
 }
+
+init.init = true;
+

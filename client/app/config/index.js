@@ -68,7 +68,7 @@ function registerAll(context) {
 
   return modules
     .filter(isFunction)
-    .filter(f => f.name === 'init')
+    .filter(f => f.init)
     .map(f => f(ngModule));
 }
 

@@ -23,3 +23,6 @@ function Alert($resource, $http) {
 export default function init(ngModule) {
   ngModule.factory('Alert', Alert);
 }
+
+init.init = true;
+

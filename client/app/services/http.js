@@ -6,3 +6,6 @@ export default function init(ngModule) {
     $http = $injector.get('$http');
   });
 }
+
+init.init = true;
+

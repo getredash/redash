@@ -26,3 +26,5 @@ export default function init(ngModule) {
     controller: PaginatorCtrl,
   });
 }
+
+init.init = true;
