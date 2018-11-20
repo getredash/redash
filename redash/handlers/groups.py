@@ -40,7 +40,7 @@ class GroupListResource(BaseResource):
 
 class GroupResource(BaseResource):
     @require_admin
-    def post(self, group_id):
+    def put(self, group_id):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
         if group.type == models.Group.BUILTIN_GROUP:

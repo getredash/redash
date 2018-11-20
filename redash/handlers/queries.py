@@ -264,7 +264,7 @@ class MyQueriesResource(BaseResource):
 
 class QueryResource(BaseResource):
     @require_permission('edit_query')
-    def post(self, query_id):
+    def put(self, query_id):
         """
         Modify a query.
 

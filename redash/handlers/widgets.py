@@ -50,7 +50,7 @@ class WidgetListResource(BaseResource):
 
 class WidgetResource(BaseResource):
     @require_permission('edit_dashboard')
-    def post(self, widget_id):
+    def put(self, widget_id):
         """
         Updates a widget in a dashboard.
         This method currently handles Text Box widgets only.
