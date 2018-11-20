@@ -3,13 +3,11 @@ import template from './query.html';
 
 function QuerySourceCtrl(
   Events,
-  toastr,
   $controller,
   $scope,
   $location,
   $uibModal,
   currentUser,
-  Query,
   KeyboardShortcuts,
   $rootScope,
 ) {
@@ -72,17 +70,6 @@ function QuerySourceCtrl(
     });
 
     return savePromise;
-  };
-
-  $scope.formatQuery = () => {
-    Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then($scope.updateQuery)
-      .catch(error => toastr.error(error));
-  };
-
-  $scope.autoCompleteQuery = true;
-  $scope.toggleAutoComplete = () => {
-    $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
   };
 
   $scope.addNewParameter = () => {
