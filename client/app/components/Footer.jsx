@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 export function Footer({ clientConfig, currentUser }) {
-  const version = clientConfig.version;
+  const backendVersion = clientConfig.version;
+  const frontendVersion = COMMIT;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
   const separator = ' \u2022 ';
 
@@ -19,7 +20,7 @@ export function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="https://redash.io">Redash</a> {version} ({COMMIT})
+      <a href="https://redash.io">Redash</a> {backendVersion} ({frontendVersion})
       {newVersionString}
       {separator}
       <a href="https://redash.io/help/">Documentation</a>
