@@ -1,10 +1,9 @@
 import React from 'react';
 import Tooltip from 'antd/lib/tooltip';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import '@/redash-font/style.less';
 
-export function AutocompleteToggle({ state, disabled, onToggle }) {
+export default function AutocompleteToggle({ state, disabled, onToggle }) {
   let tooltipMessage = 'Live Autocomplete Enabled';
   let icon = 'icon-flash';
   if (!state) {
@@ -36,7 +35,3 @@ AutocompleteToggle.propTypes = {
   disabled: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
 };
-
-export default function init(ngModule) {
-  ngModule.component('autoCompleteToggle', react2angular(AutocompleteToggle));
-}

@@ -15,8 +15,8 @@ import 'brace/mode/sql';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
-import * as localOptions from '@/lib/localOptions';
-import { AutocompleteToggle } from '@/components/AutocompleteToggle';
+import localOptions from '@/lib/localOptions';
+import AutocompleteToggle from '@/components/AutocompleteToggle';
 import { DataSource, Schema } from './proptypes';
 
 const langTools = ace.acequire('ace/ext/language_tools');

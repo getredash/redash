@@ -1,6 +1,6 @@
 const PREFIX = 'localOptions:';
 
-export function get(key, defaultValue = undefined) {
+function get(key, defaultValue = undefined) {
   const fullKey = PREFIX + key;
   if (fullKey in window.localStorage) {
     return JSON.parse(window.localStorage.getItem(fullKey));
@@ -8,7 +8,12 @@ export function get(key, defaultValue = undefined) {
   return defaultValue;
 }
 
-export function set(key, value) {
+function set(key, value) {
   const fullKey = PREFIX + key;
   window.localStorage.setItem(fullKey, JSON.stringify(value));
 }
+
+export default {
+  get,
+  set,
+};
