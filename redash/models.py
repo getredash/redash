@@ -190,10 +190,17 @@ class MutableList(Mutable, list):
 
 
 class TimestampMixin(object):
-    updated_at = Column(db.DateTime(True), default=db.func.now(),
-                           onupdate=db.func.now(), nullable=False)
-    created_at = Column(db.DateTime(True), default=db.func.now(),
-                           nullable=False)
+    updated_at = Column(db.DateTime(True), default=db.func.now(), nullable=False)
+    created_at = Column(db.DateTime(True), default=db.func.now(), nullable=False)
+
+
+@listens_for(TimestampMixin, 'before_update', propagate=True)
+def timestamp_before_update(mapper, connection, target):
+    # Check if we really want to update the updated_at value
+    if hasattr(target, 'skip_updated_at'):
+        return
+
+    target.updated_at = db.func.now()
 
 
 class ChangeTrackingMixin(object):
@@ -790,6 +797,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             Query.data_source == data_source)
         for q in queries:
             q.latest_query_data = query_result
+            q.skip_updated_at = True
             db.session.add(q)
         query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
