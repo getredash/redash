@@ -10,6 +10,7 @@ test('Footer renders', () => {
   const currentUser = {
     isAdmin: true,
   };
+  global.COMMIT = 'abcd';
   const component = renderer.create(<Footer clientConfig={clientConfig} currentUser={currentUser} />);
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
