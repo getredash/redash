@@ -25,7 +25,7 @@ WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
 WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
 
 
-class SQLQuery:
+class SQLQuery(object):
     def __init__(self, template):
         self.template = template
 
