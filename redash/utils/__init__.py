@@ -41,7 +41,8 @@ class SQLQuery:
     def _same_type(self, a, b):
         if (type(a) == type(b) == list or type(a) == type(b) == tuple):
             if (len(a) == len(b)):
-                return all([self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)])
+                children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
+                return all(children_are_same)
             else:
                 return False
         elif (type(a) == type(b) and hasattr(a, 'tokens')):
