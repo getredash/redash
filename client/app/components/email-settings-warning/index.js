@@ -7,7 +7,10 @@ export default function init(ngModule) {
     bindings: {
       function: '<',
     },
-    template: '<p class="alert alert-danger" ng-if="$ctrl.showMailWarning">It looks like your mail server isn\'t configured. Make sure to configure it for the {{$ctrl.function}} to work.</p>',
+    template:
+      '<p class="alert alert-danger" ng-if="$ctrl.showMailWarning">It looks like your mail server isn\'t configured. Make sure to configure it for the {{$ctrl.function}} to work.</p>',
     controller,
   });
 }
+
+init.init = true;

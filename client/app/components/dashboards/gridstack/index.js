@@ -459,3 +459,5 @@ export default function init(ngModule) {
   ngModule.directive('gridstack', gridstack);
   ngModule.directive('gridstackItem', gridstackItem);
 }
+
+init.init = true;

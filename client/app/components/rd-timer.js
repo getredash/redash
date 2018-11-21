@@ -28,3 +28,6 @@ function rdTimer() {
 export default function init(ngModule) {
   ngModule.directive('rdTimer', rdTimer);
 }
+
+init.init = true;
+

@@ -15,3 +15,6 @@ export default function init(ngModule) {
       return html;
     });
 }
+
+init.init = true;
+
