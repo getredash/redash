@@ -1,6 +1,6 @@
 import { pick, some, find, minBy, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
-import { getTags } from '@/services/tags';
+import getTags from '@/services/getTags';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -337,15 +337,19 @@ function QueryViewCtrl(
     const confirm = { class: 'btn-danger', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(() => {
-      Visualization.delete({ id: vis.id }, () => {
-        if ($scope.selectedTab === String(vis.id)) {
-          $scope.selectedTab = DEFAULT_TAB;
-          $location.hash($scope.selectedTab);
-        }
-        $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
-      }, () => {
-        toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
-      });
+      Visualization.delete(
+        { id: vis.id },
+        () => {
+          if ($scope.selectedTab === String(vis.id)) {
+            $scope.selectedTab = DEFAULT_TAB;
+            $location.hash($scope.selectedTab);
+          }
+          $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
+        },
+        () => {
+          toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
+        },
+      );
     });
   };
 
@@ -501,3 +505,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

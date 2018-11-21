@@ -98,3 +98,6 @@ export default function init(ngModule) {
     // '/queries/search': _.extend(
   };
 }
+
+init.init = true;
+

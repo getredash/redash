@@ -557,3 +557,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 export default function init(ngModule) {
   ngModule.factory('QueryResult', QueryResultService);
 }
+
+init.init = true;
+

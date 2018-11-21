@@ -17,25 +17,33 @@ const AddToDashboardForm = {
         width: 1,
         type: 'visualization',
       });
-      widget.save().then(() => {
-        this.close();
-        toastr.success('Widget added to dashboard.');
-      }).catch(() => {
-        toastr.error('Widget not added.');
-      }).finally(() => {
-        this.saveInProgress = false;
-      });
+      widget
+        .save()
+        .then(() => {
+          this.close();
+          toastr.success('Widget added to dashboard.');
+        })
+        .catch(() => {
+          toastr.error('Widget not added.');
+        })
+        .finally(() => {
+          this.saveInProgress = false;
+        });
     };
     this.selectedDashboard = null;
-    this.searchDashboards = (searchTerm) => { // , limitToUsersDashboards
+    this.searchDashboards = (searchTerm) => {
+      // , limitToUsersDashboards
       if (!searchTerm || searchTerm.length < 3) {
         return;
       }
-      Dashboard.get({
-        search_term: searchTerm,
-      }, (results) => {
-        this.dashboards = results.results;
-      });
+      Dashboard.get(
+        {
+          search_term: searchTerm,
+        },
+        (results) => {
+          this.dashboards = results.results;
+        },
+      );
     };
   },
   bindings: {
@@ -46,6 +54,9 @@ const AddToDashboardForm = {
   },
   template,
 };
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('addToDashboardDialog', AddToDashboardForm);
 }
+
+init.init = true;
+
