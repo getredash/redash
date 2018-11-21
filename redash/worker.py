@@ -46,8 +46,8 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
 
 celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
                    CELERYBEAT_SCHEDULE=celery_schedule,
-                   CELERY_ENABLE_UTC=False,
-                   CELERY_TIMEZONE='Asia/Jakarta',
+                   CELERY_ENABLE_UTC=True,
+                   CELERY_TIMEZONE='UTC',
                    CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES,
                    CELERYD_LOG_FORMAT=settings.CELERYD_LOG_FORMAT,
                    CELERYD_TASK_LOG_FORMAT=settings.CELERYD_TASK_LOG_FORMAT)

@@ -1,13 +1,54 @@
-FROM redash/base:latest
+FROM debian:stretch
 
-# We first copy only the requirements file, to avoid rebuilding on every file
-# change.
-COPY requirements.txt requirements_dev.txt requirements_all_ds.txt ./
-RUN pip install -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt
+RUN apt-get update && apt-get install -y \
+    apt-utils \
+    procps \
+    wget \
+    python-pip \
+    python-dev \
+    curl \
+    build-essential \
+    pwgen \
+    libffi-dev \
+    libssl-dev \
+    default-libmysqlclient-dev \
+    libpq-dev \
+    freetds-dev \
+    libsasl2-dev \
+    xmlsec1
 
-COPY . ./
-RUN npm install && npm run build && rm -rf node_modules
-RUN chown -R redash /app
+RUN adduser --gecos "" --disabled-login redash 
+
+RUN mkdir -p /opt/redash && \
+    chown redash /opt/redash
+#RUN wget "https://s3.amazonaws.com/redash-releases/redash.3.0.0.b3134.tar.gz" -O "/tmp/redash.tar.gz" && \
+#    tar -C "/opt/redash/" -xvf "/tmp/redash.tar.gz"
+
+RUN pip install --upgrade pip==9.0.3
+
 USER redash
 
-ENTRYPOINT ["/app/bin/docker-entrypoint"]
+WORKDIR /opt/redash/
+
+RUN echo "export PATH=$PATH:/home/redash/.local/bin" >> ~/.bashrc 
+
+ADD ./requirements*txt /opt/redash/
+
+RUN pip install --user setproctitle
+RUN pip install --user -r requirements.txt
+RUN pip install --user -r requirements_all_ds.txt
+RUN pip install --user --upgrade pyasn1-modules
+RUN pip install --user pandas
+
+USER root
+
+ADD . /opt/redash/
+
+ADD https://releases.hashicorp.com/envconsul/0.6.2/envconsul_0.6.2_linux_amd64.tgz /tmp/
+RUN tar -xf /tmp/envconsul* -C /bin && rm /tmp/envconsul*
+
+RUN ln -s /home/redash/.local/bin/celery /usr/bin/celery
+
+RUN ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+
+USER redash
