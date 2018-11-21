@@ -36,16 +36,16 @@ class SQLQuery:
     def is_safe(self):
         template_tree = sqlparse.parse(self.template)
         query_tree = sqlparse.parse(self.query)
-        return self.__same_type__(template_tree, query_tree)
+        return self._same_type(template_tree, query_tree)
 
-    def __same_type__(self, a, b):
+    def _same_type(self, a, b):
         if (type(a) == type(b) == list or type(a) == type(b) == tuple):
             if (len(a) == len(b)):
-                return all([self.__same_type__(child_a, child_b) for (child_a, child_b) in zip(a, b)])
+                return all([self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)])
             else:
                 return False
         elif (type(a) == type(b) and hasattr(a, 'tokens')):
-            return self.__same_type__(a.tokens, b.tokens)
+            return self._same_type(a.tokens, b.tokens)
         else:
             return type(a) == type(b)
 
