@@ -27,10 +27,7 @@ function CounterRenderer($timeout) {
       const root = $element[0].querySelector('counter');
       const container = $element[0].querySelector('counter > div');
       $scope.handleResize = () => {
-        const scale = Math.min(
-          root.offsetWidth / container.offsetWidth,
-          root.offsetHeight / container.offsetHeight,
-        );
+        const scale = Math.min(root.offsetWidth / container.offsetWidth, root.offsetHeight / container.offsetHeight);
         $scope.scale = Math.floor(scale * 100) / 100; // keep only two decimal places
       };
 
@@ -150,3 +147,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

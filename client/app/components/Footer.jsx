@@ -45,3 +45,5 @@ Footer.propTypes = {
 export default function init(ngModule) {
   ngModule.component('footer', react2angular(Footer, [], ['clientConfig', 'currentUser']));
 }
+
+init.init = true;
