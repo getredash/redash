@@ -5,6 +5,8 @@ import { react2angular } from 'react2angular';
 
 export function Footer({ clientConfig, currentUser }) {
   const backendVersion = clientConfig.version;
+  /* global COMMIT */
+  /* eslint no-undef: "error" */
   const frontendVersion = COMMIT;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
   const separator = ' \u2022 ';
