@@ -77,5 +77,9 @@ class TestSQLQuery(TestCase):
     def test_marks_tautologies_as_not_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}").apply({"userid": "22 OR 1==1"})
 
+        self.assertFalse(query.is_safe())
+
+    def test_marks_union_queries_as_not_safe(self):
+        query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}").apply({"userid": "22 UNION SELECT body, results, 1 FROM reports"})
 
         self.assertFalse(query.is_safe())
