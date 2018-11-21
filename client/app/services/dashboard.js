@@ -157,3 +157,6 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
 export default function init(ngModule) {
   ngModule.factory('Dashboard', Dashboard);
 }
+
+init.init = true;
+

@@ -79,3 +79,6 @@ export default function init(ngModule) {
     this.$get = () => (isFunction(PolicyClass) ? new PolicyClass(appInjector) : null);
   });
 }
+
+init.init = true;
+
