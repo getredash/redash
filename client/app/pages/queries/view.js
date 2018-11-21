@@ -177,15 +177,12 @@ function QueryViewCtrl(
     });
   };
 
-  $scope.duplicateQuery = (openNew) => {
-    if (openNew) $window.open('', 'duplicatedQueryTab');
+  $scope.duplicateQuery = () => {
+    const tabName = 'duplicatedQueryTab';
+    $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
       const url = newQuery.getSourceLink();
-      if (openNew) {
-        $window.open(url, 'duplicatedQueryTab');
-      } else {
-        $location.url(url).replace();
-      }
+      $window.open(url, tabName);
     });
   };
 
