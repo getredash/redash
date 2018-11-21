@@ -86,6 +86,8 @@ class QueryEditor extends React.Component {
       keywords: [], // eslint-disable-line react/no-unused-state
       autocompleteQuery: localOptions.get('liveAutocomplete', true),
       liveAutocompleteDisabled: false,
+      // XXX temporary while interfacing with angular
+      queryText: props.queryText,
     };
     langTools.addCompleter({
       getCompletions: (state, session, pos, prefix, callback) => {
@@ -146,6 +148,11 @@ class QueryEditor extends React.Component {
     };
   }
 
+  updateQuery = (queryText) => {
+    this.props.updateQuery(queryText);
+    this.setState({ queryText });
+  };
+
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
       return { keywords: [], liveAutocompleteDisabled: false };
@@ -179,7 +186,7 @@ class QueryEditor extends React.Component {
               ref={this.refEditor}
               theme="textmate"
               mode={this.props.dataSource.syntax || 'sql'}
-              value={this.props.queryText}
+              value={this.state.queryText}
               editorProps={{ $blockScrolling: Infinity }}
               width="100%"
               height="100%"
@@ -194,9 +201,7 @@ class QueryEditor extends React.Component {
               wrapEnabled={false}
               onLoad={this.onLoad}
               onPaste={this.onPaste}
-              onChange={(queryText) => {
-                this.props.updateQuery(queryText);
-              }}
+              onChange={this.updateQuery}
             />
           </div>
 
