@@ -88,4 +88,8 @@ class TestSQLQuery(TestCase):
 
         self.assertFalse(query.is_safe())
 
+    def test_marks_comment_attacks_as_not_safe(self):
+        query = SQLQuery("SELECT * FROM users WHERE username='{{username}}' AND password='{{password}}'")
+        query.apply({"username": "admin' --"})
+
         self.assertFalse(query.is_safe())
