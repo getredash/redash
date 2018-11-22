@@ -45,7 +45,9 @@ class SQLQuery(object):
             children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
             return len(a) == len(b) and all(children_are_same)
         elif (hasattr(a, 'tokens')):
-            return self._same_type(a.tokens, b.tokens)
+            template_tokens = filter(lambda t: t.ttype is not sqlparse.tokens.Error, a.tokens)
+            query_tokens = b.tokens
+            return self._same_type(template_tokens, query_tokens)
         else:
             return True
 

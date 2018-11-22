@@ -64,9 +64,15 @@ class TestSkipNones(TestCase):
 
 
 class TestSQLQuery(TestCase):
-    def test_marks_simple_queries_as_safe(self):
+    def test_marks_simple_queries_with_where_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'")
         query.apply({"userid": 22})
+
+        self.assertTrue(query.is_safe())
+
+    def test_marks_simple_queries_with_column_params_as_safe(self):
+        query = SQLQuery("SELECT {{this_column}} FROM users")
+        query.apply({"this_column": "username"})
 
         self.assertTrue(query.is_safe())
 
@@ -91,5 +97,11 @@ class TestSQLQuery(TestCase):
     def test_marks_comment_attacks_as_not_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE username='{{username}}' AND password='{{password}}'")
         query.apply({"username": "admin' --"})
+
+        self.assertFalse(query.is_safe())
+
+    def test_marks_additional_columns_as_not_safe(self):
+        query = SQLQuery("SELECT {{this_column}} FROM users")
+        query.apply({"this_column": "username, password"})
 
         self.assertFalse(query.is_safe())
