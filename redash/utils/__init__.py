@@ -18,38 +18,10 @@ from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 from redash import settings
-import sqlparse
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
 WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
-
-
-class SQLQuery(object):
-    def __init__(self, template):
-        self.template = template
-
-    def apply(self, parameters):
-        self.query = mustache_render(self.template, parameters)
-        return self
-
-    def is_safe(self):
-        template_tree = sqlparse.parse(self.template)
-        query_tree = sqlparse.parse(self.query)
-        return self._same_type(template_tree, query_tree)
-
-    def _same_type(self, a, b):
-        if (type(a) != type(b)):
-            return False
-        elif (type(a) in (list, tuple)):
-            children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
-            return len(a) == len(b) and all(children_are_same)
-        elif (hasattr(a, 'tokens')):
-            template_tokens = filter(lambda t: t.ttype is not sqlparse.tokens.Error, a.tokens)
-            query_tokens = b.tokens
-            return self._same_type(template_tokens, query_tokens)
-        else:
-            return True
 
 
 def utcnow():

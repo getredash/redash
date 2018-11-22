@@ -2,7 +2,8 @@ from collections import namedtuple
 from unittest import TestCase
 
 from redash.utils import (build_url, collect_parameters_from_request,
-                          collect_query_parameters, filter_none, SQLQuery)
+                          collect_query_parameters, filter_none)
+from redash.utils.sql_query import SQLQuery
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
