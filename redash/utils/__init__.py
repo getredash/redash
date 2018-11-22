@@ -39,16 +39,15 @@ class SQLQuery:
         return self._same_type(template_tree, query_tree)
 
     def _same_type(self, a, b):
-        if (type(a) == type(b) == list or type(a) == type(b) == tuple):
-            if (len(a) == len(b)):
-                children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
-                return all(children_are_same)
-            else:
-                return False
-        elif (type(a) == type(b) and hasattr(a, 'tokens')):
+        if (type(a) != type(b)):
+            return False
+        elif (type(a) in (list, tuple)):
+            children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
+            return len(a) == len(b) and all(children_are_same)
+        elif (hasattr(a, 'tokens')):
             return self._same_type(a.tokens, b.tokens)
         else:
-            return type(a) == type(b)
+            return True
 
 
 def utcnow():
