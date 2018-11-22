@@ -1,4 +1,4 @@
-from redash.utils.sql_query import SQLQuery
+from redash.utils.sql_query import SQLQuery, SQLInjectionException
 from unittest import TestCase
 
 
@@ -9,6 +9,13 @@ class TestSQLQuery(TestCase):
             })
 
         self.assertEqual(query.text(), "SELECT * FROM users WHERE userid='22'")
+
+    def test_raises_when_serializing_unsafe_queries(self):
+        query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}").apply({
+            "userid": "22 OR 1==1"
+            })
+
+        self.assertRaises(SQLInjectionException, query.text)
 
     def test_marks_simple_queries_with_where_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'").apply({

@@ -29,4 +29,11 @@ class SQLQuery(object):
             return True
 
     def text(self):
-        return self.query
+        if not self.is_safe():
+            raise SQLInjectionException()
+        else:
+            return self.query
+
+
+class SQLInjectionException(Exception):
+    pass
