@@ -27,3 +27,6 @@ class SQLQuery(object):
             return self._same_type(template_tokens, query_tokens)
         else:
             return True
+
+    def text(self):
+        return self.query

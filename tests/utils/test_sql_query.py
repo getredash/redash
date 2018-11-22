@@ -3,6 +3,13 @@ from unittest import TestCase
 
 
 class TestSQLQuery(TestCase):
+    def test_serializes(self):
+        query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'").apply({
+            "userid": 22
+            })
+
+        self.assertEqual(query.text(), "SELECT * FROM users WHERE userid='22'")
+
     def test_marks_simple_queries_with_where_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'").apply({
             "userid": 22
