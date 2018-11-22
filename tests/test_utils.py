@@ -105,3 +105,9 @@ class TestSQLQuery(TestCase):
         query.apply({"this_column": "username, password"})
 
         self.assertFalse(query.is_safe())
+
+    def test_marks_query_additions_as_not_safe(self):
+        query = SQLQuery("SELECT * FROM users ORDER BY {{this_column}}")
+        query.apply({"this_column": "id ; DROP TABLE midgets"})
+
+        self.assertFalse(query.is_safe())
