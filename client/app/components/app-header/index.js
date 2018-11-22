@@ -55,3 +55,5 @@ export default function init(ngModule) {
     controller,
   });
 }
+
+init.init = true;

@@ -22,7 +22,6 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
-
 function wordCloudRenderer() {
   return {
     restrict: 'E',
@@ -70,8 +69,7 @@ function wordCloudRenderer() {
             .style('font-family', 'Impact')
             .style('fill', (d, i) => fill(i))
             .attr('text-anchor', 'middle')
-            .attr('transform', d =>
-              `translate(${[d.x, d.y]})rotate(${d.rotate})`)
+            .attr('transform', d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
             .text(d => d.text);
         }
 
@@ -105,9 +103,12 @@ export default function init(ngModule) {
     VisualizationProvider.registerVisualization({
       type: 'WORD_CLOUD',
       name: 'Word Cloud',
-      renderTemplate: '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
+      renderTemplate:
+        '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
       editorTemplate: '<word-cloud-editor></word-cloud-editor>',
       defaultOptions,
     });
   });
 }
+
+init.init = true;

@@ -138,3 +138,6 @@ export default function init(ngModule) {
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
+
+init.init = true;
+

@@ -3,7 +3,7 @@
   <h4 class="modal-title">Add/Edit Tags</h4>
 </div>
 <div class="modal-body">
-  <ui-select multiple append-to-body tagging tagging-label=" "
+  <ui-select multiple append-to-body tagging tagging-label="(create new tag)"
     ng-model="$ctrl.resolve.items" sortable="true" autofocus>
     <ui-select-match placeholder="Add some tags...">{{ $item }}</ui-select-match>
     <ui-select-choices repeat="value in $ctrl.resolve.availableTags | filter:$select.search">
