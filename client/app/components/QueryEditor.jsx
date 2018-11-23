@@ -143,7 +143,7 @@ class QueryEditor extends React.Component {
       // eslint-disable-next-line react/prop-types
       const format = this.props.Query.format;
       format(this.props.dataSource.syntax || 'sql', this.props.queryText)
-        .then(this.props.updateQuery)
+        .then(this.updateQuery)
         .catch(error => toastr.error(error));
     };
   }
