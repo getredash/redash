@@ -46,6 +46,7 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    data_sample_query = "SELECT * FROM {table} LIMIT 1"
 
     @classmethod
     def configuration_schema(cls):
@@ -92,17 +93,24 @@ class PostgreSQL(BaseSQLQueryRunner):
             raise Exception("Failed getting schema.")
 
         results = json_loads(results)
+        table_samples = {}
 
-        for row in results['rows']:
+        for i, row in enumerate(results['rows']):
             if row['table_schema'] != 'public':
                 table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}
+                table_samples[table_name] = self._get_table_sample(table_name)
 
             schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['metadata'].append({
+                "name": row['column_name'],
+                "type": row['column_type'],
+                "sample": table_samples[table_name].get(row['column_name'], None)
+            })
 
     def _get_tables(self, schema):
         '''
@@ -122,7 +130,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
-               a.attname as column_name
+               a.attname as column_name,
+               a.atttypid::regtype as column_type
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -252,6 +261,7 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
+                            data_type AS column_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
@@ -259,11 +269,12 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT view_name::varchar AS table_name,
                             view_schema::varchar AS table_schema,
                             col_name::varchar AS column_name,
+                            data_type::varchar AS column_type,
                             col_num AS pos
             FROM pg_get_late_binding_view_cols()
-                 cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int)
+                 cols(view_schema name, view_name name, data_type name, col_name name, col_type varchar, col_num int)
         )
-        SELECT table_name, table_schema, column_name
+        SELECT table_name, table_schema, column_name, column_type
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
