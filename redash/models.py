@@ -565,6 +565,56 @@ class Configuration(TypeDecorator):
 
 
 @python_2_unicode_compatible
+class TableMetadata(db.Model):
+    id = Column(db.Integer, primary_key=True)
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    table_exists = Column(db.Boolean, default=True)
+    table_name = Column(db.String(255))
+    table_description = Column(db.String(4096), nullable=True)
+    column_metadata = Column(db.Boolean, default=False)
+    sample_query = Column("sample_query", db.Text, nullable=True)
+
+    __tablename__ = 'table_metadata'
+
+    def __str__(self):
+        return text_type(self.table_name)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'data_source_id': self.data_source_id,
+            'table_exists': self.table_exists,
+            'table_name': self.table_name,
+            'table_description': self.table_description,
+            'column_metadata': self.column_metadata,
+            'sample_query': self.sample_query,
+        }
+
+@python_2_unicode_compatible
+class ColumnMetadata(db.Model):
+    id = Column(db.Integer, primary_key=True)
+    table_id = Column(db.Integer, db.ForeignKey("table_metadata.id"))
+    column_name = Column(db.String(255))
+    column_type = Column(db.String(255), nullable=True)
+    column_example = Column(db.String(4096), nullable=True)
+    column_exists = Column(db.Boolean, default=True)
+
+    __tablename__ = 'column_metadata'
+
+    def __str__(self):
+        return text_type(self.name)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'table_id': self.table_id,
+            'column_name': self.column_name,
+            'column_type': self.column_type,
+            'column_example': self.column_example,
+            'column_exists': self.column_exists,
+        }
+
+@python_2_unicode_compatible
 class DataSource(BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
