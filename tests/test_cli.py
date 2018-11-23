@@ -189,6 +189,7 @@ class DataSourceCommandTests(BaseTestCase):
 
 
 class GroupCommandTests(BaseTestCase):
+    maxDiff = None
     def test_create(self):
         gcount = Group.query.count()
         perms = ['create_query', 'edit_query', 'view_query']
@@ -234,30 +235,35 @@ class GroupCommandTests(BaseTestCase):
         Name: Agroup
         Type: regular
         Organization: default
+        Permissions: [list_dashboards]
         Users: 
         --------------------
         Id: 5
         Name: Bgroup
         Type: regular
         Organization: default
+        Permissions: [list_dashboards]
         Users: 
         --------------------
         Id: 1
         Name: admin
         Type: builtin
         Organization: default
+        Permissions: [admin,super_admin]
         Users: 
         --------------------
         Id: 2
         Name: default
         Type: builtin
         Organization: default
+        Permissions: [create_dashboard,create_query,edit_dashboard,edit_query,view_query,view_source,execute_query,list_users,schedule_query,list_dashboards,list_alerts,list_data_sources]
         Users: Fred Foobar
         --------------------
         Id: 3
         Name: test
         Type: regular
         Organization: default
+        Permissions: [list_dashboards]
         Users: 
         """
         self.assertMultiLineEqual(result.output,
