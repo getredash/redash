@@ -694,21 +694,25 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return res
 
     def get_schema(self, refresh=False):
-        key = "data_source:schema:{}".format(self.id)
+        schema = []
+        tables = db.session.query(TableMetadata).filter(TableMetadata.data_source_id == self.id).all()
+        for table in tables:
+            table_info = {
+                'name': table.table_name,
+                'exists': table.table_exists,
+                'hasColumnMetadata': table.column_metadata,
+                'columns': []}
+            columns = db.session.query(ColumnMetadata).filter(ColumnMetadata.table_id==table.id)
+            table_info['columns'] = sorted([{
+                'key': column.id,
+                'name': column.column_name,
+                'type': column.column_type,
+                'exists': column.column_exists,
+                'example': column.column_example
+            } for column in columns], key=lambda column: column['name'])
+            schema.append(table_info)
 
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(key)
-
-        if cache is None:
-            query_runner = self.query_runner
-            schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
-
-            redis_connection.set(key, json_dumps(schema))
-        else:
-            schema = json_loads(cache)
-
-        return schema
+        return sorted(schema, key=lambda table: table['name'])
 
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
