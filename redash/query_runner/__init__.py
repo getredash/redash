@@ -54,6 +54,7 @@ class NotSupported(Exception):
 
 class BaseQueryRunner(object):
     noop_query = None
+    data_sample_query = None
 
     def __init__(self, configuration):
         self.syntax = 'sql'
@@ -117,6 +118,23 @@ class BaseQueryRunner(object):
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
         return json_loads(results)['rows']
+
+    def _get_table_sample(self, table_name):
+        if self.data_sample_query is None:
+            raise NotImplementedError()
+
+        query = self.data_sample_query.format(table=table_name)
+
+        results, error = self.run_query(query, None)
+        if error is not None:
+            raise Exception("Failed getting table sample.")
+
+        sample = {}
+        rows = json_loads(results).get('rows', [])
+        if len(rows) > 0:
+            sample = rows[0]
+
+        return sample
 
     @classmethod
     def to_dict(cls):
