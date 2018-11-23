@@ -189,7 +189,6 @@ class DataSourceCommandTests(BaseTestCase):
 
 
 class GroupCommandTests(BaseTestCase):
-    maxDiff = None
     def test_create(self):
         gcount = Group.query.count()
         perms = ['create_query', 'edit_query', 'view_query']
