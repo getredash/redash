@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { map } from 'lodash';
 import Tooltip from 'antd/lib/tooltip';
 import { react2angular } from 'react2angular';
 
@@ -17,6 +16,7 @@ import 'brace/ext/searchbox';
 
 import localOptions from '@/lib/localOptions';
 import AutocompleteToggle from '@/components/AutocompleteToggle';
+import keywordBuilder from './keywordBuilder';
 import { DataSource, Schema } from './proptypes';
 
 const langTools = ace.acequire('ace/ext/language_tools');
@@ -34,51 +34,6 @@ function defineDummySnippets(mode) {
 defineDummySnippets('python');
 defineDummySnippets('sql');
 defineDummySnippets('json');
-
-function buildTableColumnKeywords(table) {
-  const keywords = [];
-  table.columns.forEach((column) => {
-    keywords.push({
-      caption: column,
-      name: `${table.name}.${column}`,
-      value: `${table.name}.${column}`,
-      score: 100,
-      meta: 'Column',
-      className: 'completion',
-    });
-  });
-  return keywords;
-}
-
-function buildKeywordsFromSchema(schema) {
-  const tableKeywords = [];
-  const columnKeywords = {};
-  const tableColumnKeywords = {};
-
-  schema.forEach((table) => {
-    tableKeywords.push({
-      name: table.name,
-      value: table.name,
-      score: 100,
-      meta: 'Table',
-    });
-    tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
-    table.columns.forEach((c) => {
-      columnKeywords[c] = 'Column';
-    });
-  });
-
-  return {
-    table: tableKeywords,
-    column: map(columnKeywords, (v, k) => ({
-      name: k,
-      value: k,
-      score: 50,
-      meta: v,
-    })),
-    tableColumn: tableColumnKeywords,
-  };
-}
 
 class QueryEditor extends React.Component {
   static propTypes = {
@@ -108,6 +63,7 @@ class QueryEditor extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: {
@@ -130,6 +86,7 @@ class QueryEditor extends React.Component {
           callback(null, []);
           return;
         }
+
         if (prefix[prefix.length - 1] === '.') {
           const tableName = prefix.substring(0, prefix.length - 1);
           callback(null, tableKeywords.concat(tableColumnKeywords[tableName]));
@@ -152,8 +109,8 @@ class QueryEditor extends React.Component {
       editor.commands.bindKey('Ctrl+P', null);
       editor.commands.bindKey('Ctrl+L', null);
 
+      // Reset Completer in case dot is pressed
       editor.commands.on('afterExec', (e) => {
-        // Reset Completer in case dot is pressed
         if (e.command.name === 'insertstring' && e.args === '.'
             && editor.completer) {
           editor.completer.showPopup(editor);
@@ -172,6 +129,7 @@ class QueryEditor extends React.Component {
         });
         snippetManager.register(m.snippets || [], m.scope);
       });
+
       editor.focus();
       this.props.listenForResize(() => editor.resize());
       this.props.listenForEditorCommand((e, command, ...args) => {
@@ -210,7 +168,7 @@ class QueryEditor extends React.Component {
       const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
         schema: nextProps.schema,
-        keywords: buildKeywordsFromSchema(nextProps.schema),
+        keywords: keywordBuilder.buildKeywordsFromSchema(nextProps.schema),
         liveAutocompleteDisabled: tokensCount > 5000,
       };
     }
