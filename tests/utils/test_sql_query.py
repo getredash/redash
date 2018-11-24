@@ -17,6 +17,11 @@ class TestSQLQuery(TestCase):
 
         self.assertRaises(SQLInjectionException, query.text)
 
+    def test_marks_queries_without_params_as_safe(self):
+        query = SQLQuery("SELECT * FROM users")
+
+        self.assertTrue(query.is_safe())
+
     def test_marks_simple_queries_with_where_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'").apply({
             "userid": 22

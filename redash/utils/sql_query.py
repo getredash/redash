@@ -5,6 +5,7 @@ from redash.utils import mustache_render
 class SQLQuery(object):
     def __init__(self, template):
         self.template = template
+        self.query = template
 
     def apply(self, parameters):
         self.query = mustache_render(self.template, parameters)
