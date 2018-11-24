@@ -175,11 +175,10 @@ class MongoDB(BaseQueryRunner):
                   columns.append(property)
 
     def _is_collection_a_view(self, db, collection_name):
-        try:
-            db.command('collstats', collection_name)
-            return False
-        except Exception:
+        if 'viewOn' in db[collection_name].options():
             return True
+        else:
+            return False
 
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
