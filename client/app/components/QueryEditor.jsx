@@ -67,9 +67,9 @@ class QueryEditor extends React.Component {
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: {
-        table: {},
-        column: {},
-        tableColumn: {},
+        table: [],
+        column: [],
+        tableColumn: [],
       },
       autocompleteQuery: localOptions.get('liveAutocomplete', true),
       liveAutocompleteDisabled: false,
@@ -104,69 +104,7 @@ class QueryEditor extends React.Component {
       langTools.textCompleter,
       schemaCompleter,
     ]);
-
-    this.onLoad = (editor) => {
-      // Release Cmd/Ctrl+L to the browser
-      editor.commands.bindKey('Cmd+L', null);
-      editor.commands.bindKey('Ctrl+P', null);
-      editor.commands.bindKey('Ctrl+L', null);
-
-      // Reset Completer in case dot is pressed
-      editor.commands.on('afterExec', (e) => {
-        if (e.command.name === 'insertstring' && e.args === '.'
-            && editor.completer) {
-          editor.completer.showPopup(editor);
-        }
-      });
-
-      // eslint-disable-next-line react/prop-types
-      this.props.QuerySnippet.query((snippets) => {
-        const snippetManager = snippetsModule.snippetManager;
-        const m = {
-          snippetText: '',
-        };
-        m.snippets = snippetManager.parseSnippetFile(m.snippetText);
-        snippets.forEach((snippet) => {
-          m.snippets.push(snippet.getSnippet());
-        });
-        snippetManager.register(m.snippets || [], m.scope);
-      });
-
-      editor.focus();
-      this.props.listenForResize(() => editor.resize());
-      this.props.listenForEditorCommand((e, command, ...args) => {
-        switch (command) {
-          case 'focus': {
-            editor.focus();
-            break;
-          }
-          case 'paste': {
-            const [text] = args;
-            editor.session.doc.replace(editor.selection.getRange(), text);
-            const range = editor.selection.getRange();
-            this.props.updateQuery(editor.session.getValue());
-            editor.selection.setRange(range);
-            break;
-          }
-          default:
-            break;
-        }
-      });
-    };
-
-    this.formatQuery = () => {
-      // eslint-disable-next-line react/prop-types
-      const format = this.props.Query.format;
-      format(this.props.dataSource.syntax || 'sql', this.props.queryText)
-        .then(this.updateQuery)
-        .catch(error => toastr.error(error));
-    };
   }
-
-  updateQuery = (queryText) => {
-    this.props.updateQuery(queryText);
-    this.setState({ queryText });
-  };
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
@@ -181,6 +119,68 @@ class QueryEditor extends React.Component {
     }
     return null;
   }
+
+  onLoad = (editor) => {
+    // Release Cmd/Ctrl+L to the browser
+    editor.commands.bindKey('Cmd+L', null);
+    editor.commands.bindKey('Ctrl+P', null);
+    editor.commands.bindKey('Ctrl+L', null);
+
+    // Reset Completer in case dot is pressed
+    editor.commands.on('afterExec', (e) => {
+      if (e.command.name === 'insertstring' && e.args === '.'
+          && editor.completer) {
+        editor.completer.showPopup(editor);
+      }
+    });
+
+    // eslint-disable-next-line react/prop-types
+    this.props.QuerySnippet.query((snippets) => {
+      const snippetManager = snippetsModule.snippetManager;
+      const m = {
+        snippetText: '',
+      };
+      m.snippets = snippetManager.parseSnippetFile(m.snippetText);
+      snippets.forEach((snippet) => {
+        m.snippets.push(snippet.getSnippet());
+      });
+      snippetManager.register(m.snippets || [], m.scope);
+    });
+
+    editor.focus();
+    this.props.listenForResize(() => editor.resize());
+    this.props.listenForEditorCommand((e, command, ...args) => {
+      switch (command) {
+        case 'focus': {
+          editor.focus();
+          break;
+        }
+        case 'paste': {
+          const [text] = args;
+          editor.session.doc.replace(editor.selection.getRange(), text);
+          const range = editor.selection.getRange();
+          this.props.updateQuery(editor.session.getValue());
+          editor.selection.setRange(range);
+          break;
+        }
+        default:
+          break;
+      }
+    });
+  };
+
+  updateQuery = (queryText) => {
+    this.props.updateQuery(queryText);
+    this.setState({ queryText });
+  };
+
+  formatQuery = () => {
+    // eslint-disable-next-line react/prop-types
+    const format = this.props.Query.format;
+    format(this.props.dataSource.syntax || 'sql', this.props.queryText)
+      .then(this.updateQuery)
+      .catch(error => toastr.error(error));
+  };
 
   toggleAutocomplete = (state) => {
     this.setState({ autocompleteQuery: state });
