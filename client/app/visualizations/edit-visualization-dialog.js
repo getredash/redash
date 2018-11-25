@@ -28,13 +28,12 @@ const EditVisualizationDialog = {
     // Don't allow to change type after creating visualization
     this.canChangeType = !(this.visualization && this.visualization.id);
 
-    this.newVisualization = () =>
-      ({
-        type: Visualization.defaultVisualization.type,
-        name: Visualization.defaultVisualization.name,
-        description: '',
-        options: Visualization.defaultVisualization.defaultOptions,
-      });
+    this.newVisualization = () => ({
+      type: Visualization.defaultVisualization.type,
+      name: Visualization.defaultVisualization.name,
+      description: '',
+      options: Visualization.defaultVisualization.defaultOptions,
+    });
     if (!this.visualization) {
       this.visualization = this.newVisualization();
     }
@@ -67,8 +66,7 @@ const EditVisualizationDialog = {
 
       // Bring default options
       if (type && oldType !== type && this.visualization) {
-        this.visualization.options =
-          Visualization.visualizations[this.visualization.type].defaultOptions;
+        this.visualization.options = Visualization.visualizations[this.visualization.type].defaultOptions;
       }
     };
 
@@ -81,24 +79,28 @@ const EditVisualizationDialog = {
 
       this.visualization.query_id = this.query.id;
 
-      Visualization.save(this.visualization, (result) => {
-        toastr.success('Visualization saved');
+      Visualization.save(
+        this.visualization,
+        (result) => {
+          toastr.success('Visualization saved');
 
-        const visIds = map(this.query.visualizations, i => i.id);
-        const index = visIds.indexOf(result.id);
-        if (index > -1) {
-          this.query.visualizations[index] = result;
-        } else {
-          // new visualization
-          this.query.visualizations.push(result);
-          if (this.onNewSuccess) {
-            this.onNewSuccess(result);
+          const visIds = map(this.query.visualizations, i => i.id);
+          const index = visIds.indexOf(result.id);
+          if (index > -1) {
+            this.query.visualizations[index] = result;
+          } else {
+            // new visualization
+            this.query.visualizations.push(result);
+            if (this.onNewSuccess) {
+              this.onNewSuccess(result);
+            }
           }
-        }
-        this.close();
-      }, () => {
-        toastr.error('Visualization could not be saved');
-      });
+          this.close();
+        },
+        () => {
+          toastr.error('Visualization could not be saved');
+        },
+      );
     };
 
     this.closeDialog = () => {
@@ -116,3 +118,5 @@ const EditVisualizationDialog = {
 export default function init(ngModule) {
   ngModule.component('editVisualizationDialog', EditVisualizationDialog);
 }
+
+init.init = true;

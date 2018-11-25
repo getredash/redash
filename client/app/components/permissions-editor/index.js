@@ -90,3 +90,6 @@ const PermissionsEditorComponent = {
 export default function init(ngModule) {
   ngModule.component('permissionsEditor', PermissionsEditorComponent);
 }
+
+init.init = true;
+

@@ -1,8 +1,6 @@
 import template from './page-header.html';
 
-function controller() {
-
-}
+function controller() {}
 
 export default function init(ngModule) {
   ngModule.component('pageHeader', {
@@ -14,3 +12,5 @@ export default function init(ngModule) {
     },
   });
 }
+
+init.init = true;

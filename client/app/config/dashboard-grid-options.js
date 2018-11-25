@@ -15,3 +15,6 @@ const dashboardGridOptions = {
 export default function init(ngModule) {
   ngModule.constant('dashboardGridOptions', dashboardGridOptions);
 }
+
+init.init = true;
+
