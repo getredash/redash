@@ -73,6 +73,8 @@ class QueryEditor extends React.Component {
       },
       autocompleteQuery: localOptions.get('liveAutocomplete', true),
       liveAutocompleteDisabled: false,
+      // XXX temporary while interfacing with angular
+      queryText: props.queryText,
     };
 
     const schemaCompleter = {
@@ -156,10 +158,15 @@ class QueryEditor extends React.Component {
       // eslint-disable-next-line react/prop-types
       const format = this.props.Query.format;
       format(this.props.dataSource.syntax || 'sql', this.props.queryText)
-        .then(this.props.updateQuery)
+        .then(this.updateQuery)
         .catch(error => toastr.error(error));
     };
   }
+
+  updateQuery = (queryText) => {
+    this.props.updateQuery(queryText);
+    this.setState({ queryText });
+  };
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
@@ -194,7 +201,7 @@ class QueryEditor extends React.Component {
               ref={this.refEditor}
               theme="textmate"
               mode={this.props.dataSource.syntax || 'sql'}
-              value={this.props.queryText}
+              value={this.state.queryText}
               editorProps={{ $blockScrolling: Infinity }}
               width="100%"
               height="100%"
@@ -209,9 +216,7 @@ class QueryEditor extends React.Component {
               wrapEnabled={false}
               onLoad={this.onLoad}
               onPaste={this.onPaste}
-              onChange={(queryText) => {
-                this.props.updateQuery(queryText);
-              }}
+              onChange={this.updateQuery}
             />
           </div>
 
