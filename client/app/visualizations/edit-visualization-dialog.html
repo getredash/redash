@@ -34,10 +34,18 @@
       <div class="col-md-7 p-0 visualization-editor__right">
         <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult"></visualization-renderer>
       </div>
+      <div class="col-md-7">  
+        <div class="slight-padding" ng-if="$ctrl.has3plusColumnsFunction()" ng-bind-html="$ctrl.warning_three_column_stacking"> 
+        </div>
+        <div ng-repeat="(key,value) in $ctrl.visualization.options.columnMapping">
+          <div ng-if="value == 'unused' && key != 'null' && $ctrl.has3plusColumnsFunction()" ng-bind-html="$ctrl.warning_three_column_groupby" class="bg-danger slight-padding"></div> 
+        </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="$ctrl.closeDialog()">Cancel</button>
-    <button type="button" class="btn btn-primary" ng-click="$ctrl.submit()">Save</button>
+    <button type="button" class="btn btn-primary" ng-click="$ctrl.submit()" ng-disabled="$ctrl.disableSubmit()">Save</button>
   </div>
 </div>

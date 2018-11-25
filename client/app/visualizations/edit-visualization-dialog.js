@@ -1,6 +1,7 @@
 import { map } from 'lodash';
 import { copy } from 'angular';
 import template from './edit-visualization-dialog.html';
+import './edit-visualization-dialog.css';
 
 const EditVisualizationDialog = {
   template,
@@ -19,6 +20,11 @@ const EditVisualizationDialog = {
     this.visualization = copy(this.originalVisualization);
     this.visTypes = Visualization.visualizationTypes;
 
+    this.warning_three_column_groupby = '<b>You have more than 2 columns in your result ' +
+      'set.</b> To ensure the chart is accurate, please do one of the following: ' +
+      '<ul> <li>Change the SQL query to give 2 result columns. You can CONCAT() columns ' +
+      'together if you wish.</li> <LI>Select column(s) to group by.</LI> </ul>';
+
     // Don't allow to change type after creating visualization
     this.canChangeType = !(this.visualization && this.visualization.id);
 
@@ -32,6 +38,24 @@ const EditVisualizationDialog = {
     if (!this.visualization) {
       this.visualization = this.newVisualization();
     }
+
+    this.has3plusColumnsFunction = () => {
+      let has3plusColumns = false;
+      if ((JSON.stringify(this.visualization.options.columnMapping).match(/,/g) || []).length > 1) {
+        has3plusColumns = true;
+      }
+      return has3plusColumns;
+    };
+
+    this.disableSubmit = () => {
+      if (this.has3plusColumnsFunction() &&
+        JSON.stringify(this.visualization.options.columnMapping).includes('unused') &&
+        !JSON.stringify(this.visualization.options.columnMapping).includes('"null":"unused"')
+      ) {
+        return true;
+      }
+      return false;
+    };
 
     this.typeChanged = (oldType) => {
       const type = this.visualization.type;
