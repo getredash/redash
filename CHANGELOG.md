@@ -1,8 +1,6 @@
 # Change Log
 
-## v6.0.0-beta 2019-11-XX
-
-This is the first beta release of v6.0.0.
+## UNRELEASED
 
 ### Added
 
