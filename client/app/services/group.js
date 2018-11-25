@@ -16,3 +16,6 @@ function Group($resource) {
 export default function init(ngModule) {
   ngModule.factory('Group', Group);
 }
+
+init.init = true;
+

@@ -65,3 +65,6 @@ function User($resource, $sanitize, toastr) {
 export default function init(ngModule) {
   ngModule.factory('User', User);
 }
+
+init.init = true;
+

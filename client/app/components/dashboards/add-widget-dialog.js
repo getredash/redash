@@ -119,3 +119,5 @@ const AddWidgetDialog = {
 export default function init(ngModule) {
   ngModule.component('addWidgetDialog', AddWidgetDialog);
 }
+
+init.init = true;

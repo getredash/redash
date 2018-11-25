@@ -81,3 +81,6 @@ function Notifications(currentUser, Events) {
 export default function init(ngModule) {
   ngModule.factory('Notifications', Notifications);
 }
+
+init.init = true;
+
