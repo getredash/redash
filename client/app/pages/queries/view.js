@@ -11,6 +11,7 @@ function QueryViewCtrl(
   $route,
   $routeParams,
   $location,
+  $window,
   $q,
   KeyboardShortcuts,
   Title,
@@ -177,8 +178,11 @@ function QueryViewCtrl(
   };
 
   $scope.duplicateQuery = () => {
+    const tabName = 'duplicatedQueryTab';
+    $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
-      $location.url(newQuery.getSourceLink()).replace();
+      const url = newQuery.getSourceLink();
+      $window.open(url, tabName);
     });
   };
 
