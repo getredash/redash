@@ -148,11 +148,6 @@ class QueryEditor extends React.Component {
     };
   }
 
-  updateQuery = (queryText) => {
-    this.props.updateQuery(queryText);
-    this.setState({ queryText });
-  };
-
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
       return { keywords: [], liveAutocompleteDisabled: false };
@@ -166,6 +161,11 @@ class QueryEditor extends React.Component {
     }
     return null;
   }
+
+  updateQuery = (queryText) => {
+    this.props.updateQuery(queryText);
+    this.setState({ queryText });
+  };
 
   toggleAutocomplete = (state) => {
     this.setState({ autocompleteQuery: state });
