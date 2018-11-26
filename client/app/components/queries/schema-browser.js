@@ -8,6 +8,17 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     $scope.$broadcast('vsRepeatTrigger');
   };
 
+  $scope.showSchemaInfo = false;
+  $scope.openSchemaInfo = ($event, tableName, tableMetadata) => {
+    $scope.tableName = tableName;
+    $scope.tableMetadata = tableMetadata;
+    $scope.showSchemaInfo = true;
+    $event.stopPropagation();
+  };
+  $scope.closeSchemaInfo = () => {
+    $scope.$apply(() => { $scope.showSchemaInfo = false; });
+  };
+
   this.getSize = (table) => {
     let size = 22;
 
@@ -21,6 +32,8 @@ function SchemaBrowserCtrl($rootScope, $scope) {
   this.isEmpty = function isEmpty() {
     return this.schema === undefined || this.schema.length === 0;
   };
+
+  this.itemExists = item => item.exists;
 
   this.itemSelected = ($event, hierarchy) => {
     $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));
