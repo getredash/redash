@@ -55,7 +55,7 @@
                 <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
                   <a ng-click="duplicateQuery()"> Fork <i class="fa fa-external-link"></i></a>
                 </li>
-                <li class="divider"></li>
+                <li class="divider" ng-if="query.is_archived"></li>
                 <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <a ng-click="archiveQuery()">Archive</a>
                 </li>
