@@ -11,3 +11,6 @@ function OrganizationStatus($http) {
 export default function init(ngModule) {
   ngModule.service('OrganizationStatus', OrganizationStatus);
 }
+
+init.init = true;
+

@@ -1,3 +1,5 @@
+@import (reference, less) '~bootstrap/less/labels.less';
+
 // Variables
 @redash-gray: rgba(102, 136, 153, 1);
 @redash-orange: rgba(255, 120, 100, 1);
@@ -449,15 +451,22 @@ page-header, .page-header--new {
   background: fade(@redash-gray, 85%);
 }
 
-.label-default-unpublished {
+.label-tag-unpublished {
   background: fade(@redash-gray, 85%);
-  display: inline-block;
-  overflow: hidden;
+}
+
+.label-tag-archived {
+  .label-warning();
 }
 
 .label-tag {
   background: fade(@redash-gray, 10%);
   color: fade(@redash-gray, 75%);
+}
+
+.label-tag-unpublished,
+.label-tag-archived,
+.label-tag {
   margin-right: 3px;
   display: inline-block;
   margin-top: 2px;

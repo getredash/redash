@@ -88,3 +88,5 @@ export class EditInPlace extends React.Component {
 export default function init(ngModule) {
   ngModule.component('editInPlace', react2angular(EditInPlace));
 }
+
+init.init = true;

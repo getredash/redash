@@ -1,15 +1,13 @@
-import { map } from 'lodash';
+import { map, defer } from 'lodash';
 import template from './query.html';
 
 function QuerySourceCtrl(
   Events,
-  toastr,
   $controller,
   $scope,
   $location,
   $uibModal,
   currentUser,
-  Query,
   KeyboardShortcuts,
   $rootScope,
 ) {
@@ -53,9 +51,7 @@ function QuerySourceCtrl(
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = (newQueryText) => {
-    $scope.query.query = newQueryText;
-  };
+  $scope.updateQuery = newQueryText => defer(() => $scope.$apply(() => { $scope.query.query = newQueryText; }));
 
   // @override
   $scope.saveQuery = (options, data) => {
@@ -74,17 +70,6 @@ function QuerySourceCtrl(
     });
 
     return savePromise;
-  };
-
-  $scope.formatQuery = () => {
-    Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then($scope.updateQuery)
-      .catch(error => toastr.error(error));
-  };
-
-  $scope.autoCompleteQuery = true;
-  $scope.toggleAutoComplete = () => {
-    $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
   };
 
   $scope.addNewParameter = () => {
@@ -154,3 +139,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

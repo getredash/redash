@@ -167,3 +167,6 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
 export default function init(ngModule) {
   ngModule.factory('Widget', WidgetFactory);
 }
+
+init.init = true;
+
