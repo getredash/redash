@@ -79,6 +79,15 @@ query_factory = ModelFactory(redash.models.Query,
                              data_source=data_source_factory.create,
                              org_id=1)
 
+table_metadata_factory = ModelFactory(redash.models.TableMetadata,
+                                      data_source_id=1,
+                                      table_exists=True,
+                                      table_name='table')
+
+column_metadata_factory = ModelFactory(redash.models.ColumnMetadata,
+                                       table_id=1,
+                                       column_name='column')
+
 query_with_params_factory = ModelFactory(redash.models.Query,
                              name='New Query with Params',
                              description='',
@@ -175,6 +184,12 @@ class Factory(object):
                           permissions=["admin"])
 
         return org
+
+    def create_table_metadata(self, **kwargs):
+        return table_metadata_factory.create(**kwargs)
+
+    def create_column_metadata(self, **kwargs):
+        return column_metadata_factory.create(**kwargs)
 
     def create_user(self, **kwargs):
         args = {
