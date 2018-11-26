@@ -318,6 +318,10 @@ class MongoDB(BaseQueryRunner):
 
             columns = ordered_columns
 
+        if query_data.get('sortColumns'):
+            reverse = query_data['sortColumns'] == 'desc'
+            columns = sorted(columns, key=lambda col: col['name'], reverse=reverse)
+
         data = {
             "columns": columns,
             "rows": rows
