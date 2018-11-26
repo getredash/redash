@@ -75,6 +75,9 @@ const AddWidgetDialog = {
             if (q.is_draft === true) {
               q.name += ' (Unpublished)';
             }
+            q.tags.forEach((t) => {
+              q.name += ' <span class="label label-default">' + t + '</span>';
+            });
           });
         }
       });

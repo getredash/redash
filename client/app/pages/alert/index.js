@@ -51,6 +51,9 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
         if (q.is_draft === true) {
           q.name += ' <span class="label label-default">(Unpublished)</span>';
         }
+        q.tags.forEach((t) => {
+          q.name += ' <span class="label label-default">' + t + '</span>';
+        });
       });
     });
   };
