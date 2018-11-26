@@ -5,7 +5,6 @@ from redash.utils import JSONEncoder
 import json
 
 
-
 def _get_type(value):
     if isinstance(value, int):
         return TYPE_INTEGER
@@ -30,10 +29,10 @@ class RocksetAPI(object):
         url = '{}/v1/orgs/self/{}'.format(self.api_server, endpoint)
 
         if method == 'GET':
-            r =  requests.get(url, headers=headers)
+            r = requests.get(url, headers=headers)
             return r.json()
         elif method == 'POST':
-            r =  requests.post(url, headers=headers, json=body)
+            r = requests.post(url, headers=headers, json=body)
             return r.json()
         else:
             raise 'Unknown method: {}'.format(method)
@@ -44,6 +43,7 @@ class RocksetAPI(object):
 
     def query(self, sql):
         return self._request('queries', 'POST', {'sql': {'query': sql}})
+
 
 class Rockset(BaseSQLQueryRunner):
     noop_query = 'SELECT 1'
@@ -71,10 +71,11 @@ class Rockset(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "rockset"
-    
+
     def __init__(self, configuration):
         super(Rockset, self).__init__(configuration)
-        self.api = RocksetAPI(self.configuration.get('api_key'), self.configuration.get('api_server', "https://api.rs2.usw2.rockset.com"))
+        self.api = RocksetAPI(self.configuration.get('api_key'), self.configuration.get(
+            'api_server', "https://api.rs2.usw2.rockset.com"))
 
     def _get_tables(self, schema):
         for col in self.api.list():
@@ -83,7 +84,6 @@ class Rockset(BaseSQLQueryRunner):
             columns = list(set(map(lambda x: x['field'][0], describe['results'])))
             schema[table_name] = {'name': table_name, 'columns': columns}
         return schema.values()
-
 
     def run_query(self, query, user):
         results = self.api.query(query)
