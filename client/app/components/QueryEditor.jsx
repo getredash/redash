@@ -39,7 +39,8 @@ function buildKeywordsFromSchema(schema) {
   const keywords = {};
   schema.forEach((table) => {
     keywords[table.name] = 'Table';
-    table.columns.forEach((c) => {
+    const columnData = table.columns.map(data => data.name);
+    columnData.forEach((c) => {
       keywords[c] = 'Column';
       keywords[`${table.name}.${c}`] = 'Column';
     });
