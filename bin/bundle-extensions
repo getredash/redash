@@ -22,9 +22,12 @@ os.environ["EXTENSIONS_DIRECTORY"] = EXTENSIONS_RELATIVE_PATH
 for entry_point in iter_entry_points('redash.extensions'):
     # This is where the frontend code for an extension lives
     # inside of its package.
-    content_folder_relative = os.path.join(
-        entry_point.name, 'bundle')
-    (root_module, _) = os.path.splitext(entry_point.module_name)
+
+    split_module_path = entry_point.module_name.split(os.extsep)
+    root_module = split_module_path.pop(0)
+
+    content_folder_relative = os.path.join(os.path.join(
+        *split_module_path), 'bundle')
 
     if not resource_isdir(root_module, content_folder_relative):
         continue
