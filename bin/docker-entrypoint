@@ -19,7 +19,8 @@ scheduler() {
 }
 
 server() {
-  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
+  exec uwsgi --ini redash.ini
+  #exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
 }
 
 create_db() {
