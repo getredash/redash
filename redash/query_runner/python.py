@@ -20,6 +20,7 @@ def get_query(query_id):
         raise Exception("Query id %s does not exist." % query_id)
     return query
 
+
 class CustomPrint(object):
     """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
     def __init__(self):
