@@ -64,7 +64,7 @@ function createTreemap(element, data, scope, $sanitize) {
       if (!item.parent) {
         name = '';
       } else {
-        name = item.children ? item.name : item.parent.name;
+        name = item.children ? item[scope.options.childColumn] : item.parent[scope.options.childColumn];
       }
       return defaultColor(name);
     }
