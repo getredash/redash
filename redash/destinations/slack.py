@@ -55,6 +55,12 @@ class Slack(BaseDestination):
         if new_state == "triggered":
             text = alert.name + " just triggered"
             color = "#c0392b"
+            if alert.template:
+                description, _ = alert.render_template(True)
+                fields.append({
+                    "title": "Description",
+                    "value": description
+                })
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"

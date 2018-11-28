@@ -170,7 +170,8 @@ def serialize_alert(alert, full=True):
         'last_triggered_at': alert.last_triggered_at,
         'updated_at': alert.updated_at,
         'created_at': alert.created_at,
-        'rearm': alert.rearm
+        'rearm': alert.rearm,
+        'template': alert.template
     }
 
     if full:

@@ -1,8 +1,49 @@
 import { template as templateBuilder } from 'lodash';
 import template from './alert.html';
 
-function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($routeParams, $location, $sce, $http, toastr, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
+  this.hidePreview = false;
+  this.templateHelpMsg = `using template engine "Jinja2".
+  you can build message with latest query result.
+  variable name "rows" is assigned as result rows. "cols" as result columns.`;
+  this.editorOptions = {
+    advanced: {
+      behavioursEnabled: true,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: true,
+      autoScrollEditorIntoView: true,
+    },
+    onLoad(editor) {
+      editor.$blockScrolling = Infinity;
+      editor.getSession().setUseWrapMode(true);
+      editor.setShowPrintMargin(false);
+    },
+  };
+
+  this.preview = () => {
+    const result = this.queryResult.query_result.data;
+    const url = 'api/alerts/template';
+    $http
+      .post(url, { template: this.alert.template, data: result })
+      .success((res) => {
+        const data = JSON.parse(res);
+        const preview = data.preview;
+        this.alert.preview = $sce.trustAsHtml(preview);
+        const replaced = preview
+          .replace(/"/g, '&quot;')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+        this.alert.previewHTML = $sce.trustAsHtml(replaced.replace(/\n|\r/g, '<br>'));
+        if (data.error) {
+          toastr.error('Unable to build description. please confirm your template.', { timeOut: 10000 });
+        }
+      })
+      .error(() => {
+        toastr.error('Failed. unexpected error.');
+      });
+  };
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
@@ -56,6 +97,9 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     }
     if (this.alert.rearm === '' || this.alert.rearm === 0) {
       this.alert.rearm = null;
+    }
+    if (this.alert.template === undefined || this.alert.template === '') {
+      this.alert.template = null;
     }
     this.alert.$save(
       (alert) => {

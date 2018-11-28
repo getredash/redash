@@ -9,7 +9,7 @@ from redash.handlers.base import (BaseResource, get_object_or_404,
                                   require_fields)
 from redash.permissions import (require_access, require_admin_or_owner,
                                 require_permission, view_only)
-
+from redash.utils import json_dumps, render_custom_template
 
 class AlertResource(BaseResource):
     def get(self, alert_id):
@@ -24,7 +24,7 @@ class AlertResource(BaseResource):
 
     def post(self, alert_id):
         req = request.get_json(True)
-        params = project(req, ('options', 'name', 'query_id', 'rearm'))
+        params = project(req, ('options', 'name', 'query_id', 'rearm', 'template'))
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
@@ -60,7 +60,8 @@ class AlertListResource(BaseResource):
             query_rel=query,
             user=self.current_user,
             rearm=req.get('rearm'),
-            options=req['options']
+            options=req['options'],
+            template=req['template']
         )
 
         models.db.session.add(alert)
@@ -131,3 +132,11 @@ class AlertSubscriptionResource(BaseResource):
             'object_id': alert_id,
             'object_type': 'alert'
         })
+
+class AlertTemplateResource(BaseResource):
+    def post(self):
+        req = request.get_json(True)
+        template = req.get("template", "")
+        data = req.get("data", "")
+        preview, err = render_custom_template(template, data['rows'], data['columns'], True)
+        return json_dumps({'preview': preview, "error": err })
