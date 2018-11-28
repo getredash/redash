@@ -17,12 +17,12 @@ class SQLQuery(object):
         return self._same_type(template_tree, query_tree)
 
     def _same_type(self, a, b):
-        if (type(a) != type(b)):
+        if type(a) != type(b):
             return False
-        elif (type(a) in (list, tuple)):
+        elif type(a) in (list, tuple):
             children_are_same = [self._same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
             return len(a) == len(b) and all(children_are_same)
-        elif (hasattr(a, 'tokens')):
+        elif hasattr(a, 'tokens'):
             template_tokens = filter(lambda t: t.ttype is not sqlparse.tokens.Error, a.tokens)
             query_tokens = b.tokens
             return self._same_type(template_tokens, query_tokens)
