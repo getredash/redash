@@ -990,20 +990,23 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_tags(cls, user, include_drafts=False):
-        where = cls.is_archived == False
-
-        if not include_drafts:
-            where &= cls.is_draft == False
-
-        where &= DataSourceGroup.group_id.in_(user.group_ids)
+        queries = cls.all_queries(
+            group_ids=user.group_ids,
+            user_id=user.id,
+            drafts=include_drafts,
+        )
 
         tag_column = func.unnest(cls.tags).label('tag')
         usage_count = func.count(1).label('usage_count')
 
-        return db.session.query(tag_column, usage_count).join(
-            DataSourceGroup,
-            cls.data_source_id == DataSourceGroup.data_source_id
-        ).filter(where).distinct().group_by(tag_column).order_by(usage_count.desc())  # .limit(limit)
+        query = (
+            db.session
+            .query(tag_column, usage_count)
+            .group_by(tag_column)
+            .filter(Query.id.in_(queries.options(load_only('id'))))
+            .order_by(usage_count.desc())
+        )
+        return query
 
     @classmethod
     def by_user(cls, user):
