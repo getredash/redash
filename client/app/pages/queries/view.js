@@ -178,7 +178,9 @@ function QueryViewCtrl(
   };
 
   $scope.duplicateQuery = () => {
-    const tabName = 'duplicatedQueryTab';
+    // To prevent opening the same tab, name must be unique for each browser
+    const tabName = 'duplicatedQueryTab' + Math.random().toString();
+
     $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
       const url = newQuery.getSourceLink();
