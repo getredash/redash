@@ -273,7 +273,7 @@ function DashboardCtrl(
     }
   };
 
-  this.loadTags = () => getTags('api/dashboards/tags');
+  this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
 
   this.saveName = (name) => {
     this.dashboard.name = name;
@@ -296,7 +296,8 @@ function DashboardCtrl(
     );
   };
 
-  this.saveTags = () => {
+  this.saveTags = (tags) => {
+    this.dashboard.tags = tags;
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, tags: this.dashboard.tags },
       (dashboard) => {
