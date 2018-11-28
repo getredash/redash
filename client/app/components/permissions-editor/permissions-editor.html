@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
   <div style="overflow: auto; height: 300px">
-    <ui-select ng-model="$ctrl.newGrantee.selected" on-select="$ctrl.addGrantee($item)">
+    <ui-select ng-model="$ctrl.newGrantees.selected" on-select="$ctrl.addGrantee($item)">
        <ui-select-match placeholder="Add New User"></ui-select-match>
        <ui-select-choices repeat="user in $ctrl.foundUsers | filter:$select.search"
                          refresh="$ctrl.findUser($select.search)"
@@ -30,12 +30,12 @@
         </thead>
         <tbody>
         <tr>
-          <td width="32px"><img ng-src="{{ $ctrl.query.user.profile_image_url }}" class="profile__image" height="32px"/></td>
-          <td class="text-muted"> {{ $ctrl.query.user.name}}</td>
+          <td width="32px"><img ng-src="{{ $ctrl.owner.profile_image_url }}" class="profile__image" height="32px"/></td>
+          <td class="text-muted"> {{ $ctrl.owner.name}}</td>
           <td class="mp__permission-type">Owner</td>
           <td></td>
         </tr>
-        <tr ng-repeat="grantee in $ctrl.grantees" ng-if="grantee.id != $ctrl.query.user.id">
+        <tr ng-repeat="grantee in $ctrl.grantees" ng-if="grantee.id != $ctrl.owner.id">
           <td width="32px"><img ng-src="{{ grantee.profile_image_url }}" class="profile__image" height="32px"/></td>
           <td ng-class="{'text-muted': grantee.is_disabled}">{{grantee.name}}</td>
           <td class="mp__permission-type">{{grantee.access_type}}</td>

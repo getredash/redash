@@ -245,6 +245,7 @@ function DashboardCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
+        owner: this.dashboard.user,
       },
     });
   };
