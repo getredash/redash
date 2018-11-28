@@ -487,6 +487,7 @@ function QueryViewCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
+        query: $scope.query,
       },
     });
   };

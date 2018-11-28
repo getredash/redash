@@ -29,7 +29,13 @@
           </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="grantee in $ctrl.grantees">
+        <tr>
+          <td width="32px"><img ng-src="{{ $ctrl.query.user.profile_image_url }}" class="profile__image" height="32px"/></td>
+          <td class="text-muted"> {{ $ctrl.query.user.name}}</td>
+          <td class="mp__permission-type">Owner</td>
+          <td></td>
+        </tr>
+        <tr ng-repeat="grantee in $ctrl.grantees" ng-if="grantee.id != $ctrl.query.user.id">
           <td width="32px"><img ng-src="{{ grantee.profile_image_url }}" class="profile__image" height="32px"/></td>
           <td ng-class="{'text-muted': grantee.is_disabled}">{{grantee.name}}</td>
           <td class="mp__permission-type">{{grantee.access_type}}</td>
