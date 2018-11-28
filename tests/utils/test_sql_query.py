@@ -8,14 +8,14 @@ class TestSQLQuery(TestCase):
             "userid": 22
             })
 
-        self.assertEqual(query.text(), "SELECT * FROM users WHERE userid='22'")
+        self.assertEqual(query.text, "SELECT * FROM users WHERE userid='22'")
 
     def test_raises_when_serializing_unsafe_queries(self):
         query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}").apply({
             "userid": "22 OR 1==1"
             })
 
-        self.assertRaises(SQLInjectionException, query.text)
+        self.assertRaises(SQLInjectionException, getattr, query, 'text')
 
     def test_marks_queries_without_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users")

@@ -1,5 +1,6 @@
 import sqlparse
 from redash.utils import mustache_render
+from cached_property import cached_property
 
 
 class SQLQuery(object):
@@ -8,6 +9,9 @@ class SQLQuery(object):
         self.query = template
 
     def apply(self, parameters):
+        if self.__dict__.has_key('text'):
+            del self.__dict__['text']
+
         self.query = mustache_render(self.template, parameters)
         return self
 
@@ -29,6 +33,7 @@ class SQLQuery(object):
         else:
             return True
 
+    @cached_property
     def text(self):
         if not self.is_safe():
             raise SQLInjectionException()
