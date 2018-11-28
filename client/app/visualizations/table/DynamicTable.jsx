@@ -236,18 +236,21 @@ export default class DynamicTable extends React.Component {
   }
   static defaultProps = { itemsPerPage: 10 };
 
-  state = {
-    itemsPerPage: 25,
-    searchColumns: [],
-    preparedRows: [],
-    rowsToDisplay: [],
-    totalPages: 1,
-    currentPage: 1,
-    searchTerm: '',
-    orderBy: [],
-    // eslint-disable-next-line react/no-unused-state
-    rows: [],
-    columns: [],
+  constructor(props) {
+    super(props);
+    this.state = {
+      itemsPerPage: 25,
+      searchColumns: [],
+      preparedRows: [],
+      rowsToDisplay: [],
+      totalPages: 1,
+      currentPage: 1,
+      searchTerm: '',
+      orderBy: [],
+      // eslint-disable-next-line react/no-unused-state
+      rows: [],
+      columns: [],
+    };
   }
 
   static getDerivedStateFromProps(newProps, oldState) {
@@ -274,6 +277,8 @@ export default class DynamicTable extends React.Component {
 
     if (newProps.itemsPerPage !== oldState.itemsPerPage) {
       newState.itemsPerPage = validateItemsPerPage(newProps.itemsPerPage);
+      newState.totalPages = calculateTotalPages(newProps.rows.length, newProps.itemsPerPage);
+      newState.pages = getPages(1, newState.totalPages, 6);
       newState.currentPage = 1;
     }
     if (shouldSortRows) {
