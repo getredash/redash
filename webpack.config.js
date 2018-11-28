@@ -22,7 +22,7 @@ const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
 const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
 
 const config = {
-  mode: "development",
+  mode: process.env.NODE_ENV === "production" ? "production" : "development",
   entry: {
     app: ["./client/app/index.js", "./client/app/assets/less/main.less"],
     server: ["./client/app/assets/less/server.less"]
