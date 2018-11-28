@@ -326,7 +326,7 @@ export default class ChartEditor extends React.Component {
                   >
                     {this.groupbyOptions()}
                   </Select>
-                </div> : ''}
+                </div> : null}
 
               {some(opts.seriesOptions, { type: 'bubble' }) ?
                 <div className="form-group">
@@ -375,7 +375,7 @@ export default class ChartEditor extends React.Component {
                     />
                     <i className="input-helper" /> Show Legend
                   </label>
-                </div> : ''}
+                </div> : null}
 
               {opts.globalSeriesType === 'box' ?
                 <div className="checkbox">
@@ -387,7 +387,7 @@ export default class ChartEditor extends React.Component {
                     />
                     <i className="input-helper" /> Show All Points
                   </label>
-                </div> : ''}
+                </div> : null}
 
               {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
                 <div className="form-group">
@@ -401,7 +401,7 @@ export default class ChartEditor extends React.Component {
                     <Select.Option value={null}>Disabled</Select.Option>
                     <Select.Option value="stack">Stack</Select.Option>
                   </Select>
-                </div> : '' }
+                </div> : null}
 
               {includes(['line', 'area', 'column'], opts.globalSeriesType) ?
                 <div className="checkbox">
@@ -413,7 +413,7 @@ export default class ChartEditor extends React.Component {
                     />
                     Normalize values to percentage
                   </label>
-                </div> : ''}
+                </div> : null}
 
               {opts.globalSeriesType === 'custom' ?
                 <React.Fragment>

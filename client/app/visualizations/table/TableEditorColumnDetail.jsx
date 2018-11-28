@@ -76,7 +76,7 @@ export default function TableEditorColumnDetail({ updateColumn, column }) {
           onChange={e => updateColumn({ highlightLinks: e.target.checked })}
           controlName="hilightLinks"
           label="Highlight links"
-        />) : ''}
+        />) : null}
     </div>
   );
   const numberPopover = (

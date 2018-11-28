@@ -22,9 +22,9 @@ const ColumnHeader = (props) => {
       onClick={e => props.onClick(e, props.column)}
       className={`sortable-column content-align-${props.column.alignContent} display-as-${props.column.displayAs}`}
     >
-      {props.orderBy.length > 1 && orderBy ? <span className="sort-order-indicator">{orderByIdx + 1}</span> : ''}
+      {props.orderBy.length > 1 && orderBy ? <span className="sort-order-indicator">{orderByIdx + 1}</span> : null}
       <span>{props.column.title}</span>
-      {orderBy ? <i className={`fa fa-caret-${orderBy.direction > 0 ? 'up' : 'down'}`} /> : ''}
+      {orderBy ? <i className={`fa fa-caret-${orderBy.direction > 0 ? 'up' : 'down'}`} /> : null}
     </th>
   );
 };
@@ -409,7 +409,7 @@ export default class DynamicTable extends React.Component {
               onChange={this.selectPage}
             />
           </div>
-          : ''}
+          : null}
       </React.Fragment>
     );
   }
