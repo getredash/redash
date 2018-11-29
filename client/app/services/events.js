@@ -1,27 +1,8 @@
-import { debounce } from 'lodash';
+import recordEvent from '@/lib/recordEvent';
 
-function Events($http) {
-  this.events = [];
-
-  this.post = debounce(() => {
-    const events = this.events;
-    this.events = [];
-
-    $http.post('api/events', events);
-  }, 1000);
-
-  this.record = function record(action, objectType, objectId, additionalProperties) {
-    const event = {
-      action,
-      object_type: objectType,
-      object_id: objectId,
-      timestamp: Date.now() / 1000.0,
-      screen_resolution: `${window.screen.width}x${window.screen.height}`,
-    };
-    Object.assign(event, additionalProperties);
-    this.events.push(event);
-
-    this.post();
+function Events() {
+  this.record = (action, objectType, objectId, additionalProperties) => {
+    recordEvent(action, objectType, objectId, additionalProperties);
   };
 }
 
@@ -30,4 +11,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

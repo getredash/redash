@@ -149,6 +149,17 @@ class TestUserResourcePost(BaseTestCase):
 
         user = models.User.query.get(self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
+    
+    def test_returns_400_when_using_temporary_email(self):
+        admin = self.factory.create_admin()
+
+        test_user = {'email': 'user@mailinator.com'}
+        rv = self.make_request('post', '/api/users/{}'.format(self.factory.user.id), data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
+        test_user['email'] = 'arik@qq.com'
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
 
 
 class TestUserDisable(BaseTestCase):
