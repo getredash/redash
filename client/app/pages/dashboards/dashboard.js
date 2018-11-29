@@ -288,7 +288,7 @@ function DashboardCtrl(
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          toastr.error('Dashboard update failed: Permission Denied.');
         } else if (error.status === 409) {
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
