@@ -1,7 +1,9 @@
 @import '~antd/lib/style/core/iconfont.less';
+@import '~antd/lib/style/core/motion.less';
 @import '~antd/lib/input/style/index.less';
 @import '~antd/lib/date-picker/style/index.less';
 @import '~antd/lib/tooltip/style/index.less';
+@import '~antd/lib/select/style/index.less';
 
 // Overwritting Ant Design defaults to fit into Redash current style
 @font-family-no-number  : @redash-font;
@@ -28,4 +30,9 @@
     margin: 0 !important;
     padding: 0 !important;
   }
+}
+
+// Fix for Ant dropdowns when they are used in Boootstrap modals
+.ant-dropdown-in-bootstrap-modal {
+  z-index: 1050;
 }
