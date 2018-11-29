@@ -26,6 +26,22 @@ class TagsEditorModal extends React.Component {
     this.state = {
       result: uniq(map(this.props.tags, trim)),
     };
+    this.selectRef = React.createRef();
+  }
+
+  componentDidMount() {
+    // `autoFocus` does not work on Select because its `componentDidMount` is fired before the component
+    // is actually visible, so it cannot get focus. This hack should be replaced with `autoFocus` prop
+    // when Angular will finally gone
+    setTimeout(() => {
+      if (
+        this.selectRef.current &&
+        this.selectRef.current.rcSelect &&
+        this.selectRef.current.rcSelect.inputRef
+      ) {
+        this.selectRef.current.rcSelect.inputRef.focus();
+      }
+    });
   }
 
   render() {
@@ -45,6 +61,7 @@ class TagsEditorModal extends React.Component {
         </div>
         <div className="modal-body">
           <Select
+            ref={this.selectRef}
             mode="tags"
             className="w-100"
             placeholder="Add some tags..."
