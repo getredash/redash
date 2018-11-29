@@ -27,8 +27,8 @@
               ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
             <query-tags-control
               class="query-tags" ng-class="{'query-tags__empty': query.tags.length == 0}"
-              query="query" can-edit="isQueryOwner"
-              get-available-tags="loadTags" on-edit="saveTags()"></query-tags-control>
+              tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+              can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
           </h3>
 
           <span class="flex-fill">&nbsp;</span>
@@ -75,8 +75,8 @@
         </div>
         <query-tags-control
           class="query-tags__mobile" ng-class="{'query-tags__empty': query.tags.length == 0}"
-          query="query" can-edit="isQueryOwner"
-          get-available-tags="loadTags" on-edit="saveTags()"></query-tags-control>
+          tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+          can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
       </div>
     </div>
   </div>
