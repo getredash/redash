@@ -31,7 +31,7 @@ from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, contains_eager, joinedload, object_session
+from sqlalchemy.orm import backref, contains_eager, joinedload, object_session, load_only
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
@@ -990,20 +990,23 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_tags(cls, user, include_drafts=False):
-        where = cls.is_archived == False
-
-        if not include_drafts:
-            where &= cls.is_draft == False
-
-        where &= DataSourceGroup.group_id.in_(user.group_ids)
+        queries = cls.all_queries(
+            group_ids=user.group_ids,
+            user_id=user.id,
+            drafts=include_drafts,
+        )
 
         tag_column = func.unnest(cls.tags).label('tag')
         usage_count = func.count(1).label('usage_count')
 
-        return db.session.query(tag_column, usage_count).join(
-            DataSourceGroup,
-            cls.data_source_id == DataSourceGroup.data_source_id
-        ).filter(where).distinct().group_by(tag_column).order_by(usage_count.desc())  # .limit(limit)
+        query = (
+            db.session
+            .query(tag_column, usage_count)
+            .group_by(tag_column)
+            .filter(Query.id.in_(queries.options(load_only('id'))))
+            .order_by(usage_count.desc())
+        )
+        return query
 
     @classmethod
     def by_user(cls, user):
@@ -1360,7 +1363,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     __tablename__ = 'dashboards'
     __mapper_args__ = {
         "version_id_col": version
-        }
+    }
 
     @classmethod
     def all(cls, org, group_ids, user_id):
@@ -1390,26 +1393,19 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all_tags(cls, org, user):
+        dashboards = cls.all(org, user.group_ids, user.id)
+
         tag_column = func.unnest(cls.tags).label('tag')
         usage_count = func.count(1).label('usage_count')
 
         query = (
-            db.session.query(tag_column, usage_count)
-            .outerjoin(Widget)
-            .outerjoin(Visualization)
-            .outerjoin(Query)
-            .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-            .filter(
-                Dashboard.is_archived == False,
-                (DataSourceGroup.group_id.in_(user.group_ids) |
-                 (Dashboard.user_id == user.id) |
-                 ((Widget.dashboard != None) & (Widget.visualization == None))),
-                Dashboard.org == org)
-            .group_by(tag_column))
-
-        query = query.filter(or_(Dashboard.user_id == user.id, Dashboard.is_draft == False))
-
-        return query.order_by(usage_count.desc())
+            db.session
+            .query(tag_column, usage_count)
+            .group_by(tag_column)
+            .filter(Dashboard.id.in_(dashboards.options(load_only('id'))))
+            .order_by(usage_count.desc())
+        )
+        return query
 
     @classmethod
     def favorites(cls, user, base_query=None):
