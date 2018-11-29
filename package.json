@@ -119,7 +119,6 @@
     "raw-loader": "^0.5.1",
     "react-test-renderer": "^16.5.2",
     "request": "^2.88.0",
-    "shelljs": "^0.8.3",
     "url-loader": "^0.5.9",
     "webpack": "^4.20.2",
     "webpack-build-notifier": "^0.1.16",
