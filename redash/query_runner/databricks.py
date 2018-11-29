@@ -30,21 +30,18 @@ class Databricks(Hive):
                 "database": {
                     "type": "string"
                 },
-                "username": {
-                    "type": "string"
-                },
                 "http_path": {
                     "type": "string",
                     "title": "HTTP Path"
                 },
                 "http_password": {
                     "type": "string",
-                    "title": "Password"
+                    "title": "Access Token"
                 },
             },
-            "order": ["host", "http_path", "username", "http_password", "database"],
+            "order": ["host", "http_path", "http_password", "database"],
             "secret": ["http_password"],
-            "required": ["host", "database", "username", "http_path", "http_password"]
+            "required": ["host", "database", "http_path", "http_password"]
         }
 
     def _get_connection(self):
@@ -59,9 +56,8 @@ class Databricks(Hive):
 
         transport = THttpClient.THttpClient(http_uri)
 
-        username = self.configuration.get('username', '')
         password = self.configuration.get('http_password', '')
-        auth = base64.b64encode(username + ':' + password)
+        auth = base64.b64encode('token:' + password)
         transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
 
         connection = hive.connect(thrift_transport=transport)
