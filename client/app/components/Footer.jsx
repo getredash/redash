@@ -6,7 +6,7 @@ import { react2angular } from 'react2angular';
 import frontendVersion from '../version.json';
 
 export function Footer({ clientConfig, currentUser }) {
-  const backendVersion = clientConfig.version.substring(0, 8);
+  const backendVersion = clientConfig.version;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
   const separator = ' \u2022 ';
 
@@ -21,7 +21,7 @@ export function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="https://redash.io">Redash</a> {backendVersion} ({frontendVersion})
+      <a href="https://redash.io">Redash</a> {backendVersion} ({frontendVersion.substring(0, 8)})
       {newVersionString}
       {separator}
       <a href="https://redash.io/help/">Documentation</a>
