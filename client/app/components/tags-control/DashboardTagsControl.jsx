@@ -1,5 +1,5 @@
 import { react2angular } from 'react2angular';
-import { ModelTagsControl } from '@/components/tags-control/ModelTagsControl';
+import ModelTagsControl from '@/components/tags-control/ModelTagsControl';
 
 export class DashboardTagsControl extends ModelTagsControl {
   static archivedTooltip = 'This dashboard is archived and and won\'t appear in the dashboards list or search results.';

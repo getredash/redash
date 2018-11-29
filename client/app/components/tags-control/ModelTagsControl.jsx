@@ -2,10 +2,9 @@ import { extend } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
-import { TagsControl } from '@/components/tags-control/TagsControl';
+import TagsControl from '@/components/tags-control/TagsControl';
 
-// eslint-disable-next-line import/prefer-default-export
-export class ModelTagsControl extends TagsControl {
+export default class ModelTagsControl extends TagsControl {
   static propTypes = extend({}, TagsControl.propTypes, {
     isDraft: PropTypes.bool,
     isArchived: PropTypes.bool,

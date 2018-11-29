@@ -1,9 +1,8 @@
-import { map, trim, isObject, isFunction } from 'lodash';
+import { map, trim } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 
-// eslint-disable-next-line import/prefer-default-export
-export class TagsControl extends React.Component {
+export default class TagsControl extends React.Component {
   static propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     canEdit: PropTypes.bool,
@@ -18,44 +17,22 @@ export class TagsControl extends React.Component {
     onEdit: () => {},
   };
 
-  openEditTagsModal(tags, availableTags = []) {
-    const { $uibModal } = this.props; // eslint-disable-line react/prop-types
-
-    $uibModal
-      .open({
-        component: 'tagsEditorModal',
-        resolve: {
-          tags: () => tags,
-          availableTags: () => availableTags,
-        },
-      }).result.then((newTags) => {
-        const { onEdit } = this.props;
-        if (isFunction(onEdit)) {
-          onEdit(newTags);
-        }
-      });
-  }
-
   editTags() {
-    const { getAvailableTags } = this.props;
+    const { getAvailableTags, onEdit, $uibModal } = this.props; // eslint-disable-line react/prop-types
     const tags = map(this.props.tags, trim);
 
-    if (isFunction(getAvailableTags)) {
-      const availableTags = getAvailableTags();
-      if (isObject(availableTags) && isFunction(availableTags.then) && isFunction(availableTags.catch)) {
-        availableTags
-          .then((loadedTags) => {
-            this.openEditTagsModal(tags, loadedTags);
-          })
-          .catch(() => {
-            this.openEditTagsModal(tags);
-          });
-      } else {
-        this.openEditTagsModal(tags, availableTags);
-      }
-    } else {
-      this.openEditTagsModal(tags);
-    }
+    getAvailableTags().then((availableTags) => {
+      $uibModal
+        .open({
+          component: 'tagsEditorModal',
+          resolve: {
+            tags: () => tags,
+            availableTags: () => availableTags,
+          },
+        }).result.then((newTags) => {
+          onEdit(newTags);
+        });
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this
