@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { react2angular } from 'react2angular';
 
-import frontendVersion from '@/version.json';
+import frontendVersion from '../version.json';
 
 export function Footer({ clientConfig, currentUser }) {
   const backendVersion = clientConfig.version;
