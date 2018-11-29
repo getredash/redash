@@ -12,6 +12,8 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 const path = require("path");
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 
 const basePath = fs.realpathSync(path.join(__dirname, "client"));
@@ -22,7 +24,7 @@ const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
 const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
 
 const config = {
-  mode: process.env.NODE_ENV === "production" ? "production" : "development",
+  mode: isProduction ? "production" : "development",
   entry: {
     app: ["./client/app/index.js", "./client/app/assets/less/main.less"],
     server: ["./client/app/assets/less/server.less"]
@@ -170,6 +172,7 @@ const config = {
       }
     ]
   },
+  cache: isProduction ? false : {},
   devtool: "cheap-eval-module-source-map",
   stats: {
     modules: false,
