@@ -31,7 +31,7 @@ const config = {
   },
   output: {
     path: path.join(basePath, "./dist"),
-    filename: "[name].js",
+    filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: "/static/"
   },
   resolve: {
@@ -172,8 +172,7 @@ const config = {
       }
     ]
   },
-  cache: isProduction ? false : {},
-  devtool: "cheap-eval-module-source-map",
+  devtool: isProduction ? false /* "source-map" */ : "cheap-eval-module-source-map",
   stats: {
     modules: false,
     chunkModules: false
@@ -224,12 +223,6 @@ const config = {
 
 if (process.env.DEV_SERVER_HOST) {
   config.devServer.host = process.env.DEV_SERVER_HOST;
-}
-
-if (process.env.NODE_ENV === "production") {
-  config.mode = "production";
-  config.output.filename = "[name].[chunkhash].js";
-  config.devtool = "source-map";
 }
 
 if (process.env.BUNDLE_ANALYZER) {
