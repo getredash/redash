@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyhive import hive
+    from thrift.transport import THttpClient
     enabled = True
 except ImportError:
     enabled = False
