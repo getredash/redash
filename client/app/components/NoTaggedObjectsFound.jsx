@@ -6,9 +6,9 @@ import { BigMessage } from './BigMessage';
 function NoTaggedObjectsFound({ objectType, tags }) {
   return (
     <BigMessage icon="fa-tags">
-      No {objectType} found tagged with
+      No {objectType} found tagged with&nbsp;
       {Array.from(tags).map(tag => (
-        <span className="label label-tag" key={tag}>
+        <span className="label label-tag label--inline" key={tag}>
           {tag}
         </span>
       ))}.
