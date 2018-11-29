@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 
 import { react2angular } from 'react2angular';
 
+import frontendVersion from '@/version.json';
+
 export function Footer({ clientConfig, currentUser }) {
   const backendVersion = clientConfig.version;
-  /* global FRONTEND_VERSION */
-  /* eslint no-undef: "error" */
-  const frontendVersion = FRONTEND_VERSION;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
   const separator = ' \u2022 ';
 
