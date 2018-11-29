@@ -95,7 +95,7 @@
               </td>
               <td class="table-main-title">
                 <a href="queries/{{query.id}}">{{query.name}}</a>
-                <query-tags-control class="d-block" query="query"></query-tags-control>
+                <query-tags-control class="d-block" tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"></query-tags-control>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />

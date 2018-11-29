@@ -7,7 +7,7 @@
     "start": "webpack-dev-server",
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
-    "build": "npm run clean && NODE_ENV=production webpack",
+    "build": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
