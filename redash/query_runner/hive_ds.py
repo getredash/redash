@@ -122,7 +122,7 @@ class Hive(BaseSQLQueryRunner):
                 # if port is set prepend colon
                 port = self.configuration.get('port', '')
                 if port:
-                    port = ':' + port
+                    port = ':' + str(port)
 
                 http_uri = "{}://{}{}{}".format(scheme, host, port, path)
 
@@ -132,7 +132,7 @@ class Hive(BaseSQLQueryRunner):
                 # if username or password is set, add Authorization header
                 username = self.configuration.get('username', '')
                 password = self.configuration.get('http_password', '')
-                if username | password:
+                if username or password:
                     auth = base64.b64encode(username + ':' + password)
                     transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
 
