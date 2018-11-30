@@ -8,6 +8,7 @@ export default class TagsControl extends React.Component {
     canEdit: PropTypes.bool,
     getAvailableTags: PropTypes.func,
     onEdit: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -15,6 +16,7 @@ export default class TagsControl extends React.Component {
     canEdit: false,
     getAvailableTags: () => {},
     onEdit: () => {},
+    className: '',
   };
 
   editTags() {
@@ -69,7 +71,7 @@ export default class TagsControl extends React.Component {
 
   render() {
     return (
-      <div className="tags-control">
+      <div className={'tags-control ' + this.props.className}>
         {this.renderPrependTags()}
         {this.renderTags()}
         {this.renderAppendTags()}
