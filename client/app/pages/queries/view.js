@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, isObject } from 'lodash';
+import { pick, some, find, minBy, isObject, map } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import template from './query.html';
@@ -178,7 +178,9 @@ function QueryViewCtrl(
   };
 
   $scope.duplicateQuery = () => {
-    const tabName = 'duplicatedQueryTab';
+    // To prevent opening the same tab, name must be unique for each browser
+    const tabName = 'duplicatedQueryTab' + Math.random().toString();
+
     $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
       const url = newQuery.getSourceLink();
@@ -186,15 +188,12 @@ function QueryViewCtrl(
     });
   };
 
-  $scope.saveTags = () =>
-    $scope.saveQuery(
-      {},
-      {
-        tags: $scope.query.tags,
-      },
-    );
+  $scope.saveTags = (tags) => {
+    $scope.query.tags = tags;
+    $scope.saveQuery({}, { tags: $scope.query.tags });
+  };
 
-  $scope.loadTags = () => getTags('api/queries/tags');
+  $scope.loadTags = () => getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
@@ -249,9 +248,6 @@ function QueryViewCtrl(
       },
     ).$promise;
   };
-
-  // toastr.success('It seems like the query has been modified by another user. ' +
-  //   'Please copy/backup your changes and reload this page.', { timeOut: 0 });
 
   $scope.togglePublished = () => {
     Events.record('toggle_published', 'query', $scope.query.id);
@@ -499,6 +495,7 @@ function QueryViewCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
+        owner: $scope.query.user,
       },
     });
   };
