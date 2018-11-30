@@ -15,6 +15,21 @@ class QueryTest(BaseTestCase):
         db.session.flush()
         self.assertNotEquals(old_hash, q.query_hash)
 
+    def create_tagged_query(self, tags):
+        ds = self.factory.create_data_source(group=self.factory.default_group)
+        query = self.factory.create_query(data_source=ds, tags=tags)
+        return query
+
+    def test_all_tags(self):
+        self.create_tagged_query(tags=['tag1'])
+        self.create_tagged_query(tags=['tag1', 'tag2'])
+        self.create_tagged_query(tags=['tag1', 'tag2', 'tag3'])
+
+        self.assertEqual(
+            list(Query.all_tags(self.factory.user)),
+            [('tag1', 3), ('tag2', 2), ('tag3', 1)]
+        )
+
     def test_search_finds_in_name(self):
         q1 = self.factory.create_query(name=u"Testing seåřċħ")
         q2 = self.factory.create_query(name=u"Testing seåřċħing")

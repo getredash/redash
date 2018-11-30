@@ -184,6 +184,12 @@ class UserResource(BaseResource):
 
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
+        
+        if 'email' in params:
+            _, domain = params['email'].split('@', 1)
+
+            if domain.lower() in blacklist or domain.lower() == 'qq.com':
+                abort(400, message='Bad email address.')
 
         try:
             self.update_model(user, params)

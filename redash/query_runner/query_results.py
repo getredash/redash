@@ -141,7 +141,7 @@ class Results(BaseQueryRunner):
 
     @classmethod
     def name(cls):
-        return "Query Results (Beta)"
+        return "Query Results"
 
     def run_query(self, query, user):
         connection = sqlite3.connect(':memory:')

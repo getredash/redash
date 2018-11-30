@@ -4,9 +4,9 @@ impyla==0.10.0
 influxdb==2.7.1
 MySQL-python==1.2.5
 oauth2client==3.0.0
-pyhive==0.3.0
+pyhive==0.5.1
 pymongo[tls,srv]==3.6.1
-vertica-python==0.5.1
+vertica-python==0.8.0
 td-client==0.8.0
 pymssql==2.1.3
 dql==0.5.24
