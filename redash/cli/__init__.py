@@ -1,8 +1,6 @@
 from __future__ import print_function
-import json
-
-
 import click
+import simplejson
 from flask.cli import FlaskGroup, run_command
 from flask import current_app
 
@@ -44,7 +42,7 @@ def version():
 
 @manager.command()
 def status():
-    print(json.dumps(get_status(), indent=2))
+    print(simplejson.dumps(get_status(), indent=2))
 
 
 @manager.command()

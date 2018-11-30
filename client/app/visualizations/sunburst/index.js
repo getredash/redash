@@ -1,4 +1,4 @@
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 import Sunburst from '@/lib/visualizations/sunburst';
 import editorTemplate from './sunburst-sequence-editor.html';
 
@@ -55,3 +55,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

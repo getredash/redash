@@ -1,6 +1,9 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import 'core-js/fn/typed/array-buffer';
 
+// Ensure that this image will be available in assets folder
+import '@/assets/images/avatar.svg';
+
 import * as Pace from 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';
@@ -17,7 +20,7 @@ import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
-import { each, isFunction } from 'underscore';
+import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 
@@ -63,7 +66,10 @@ function registerAll(context) {
     .map(context)
     .map(module => module.default);
 
-  return modules.filter(isFunction).map(f => f(ngModule));
+  return modules
+    .filter(isFunction)
+    .filter(f => f.init)
+    .map(f => f(ngModule));
 }
 
 function requireImages() {
@@ -75,28 +81,43 @@ function requireImages() {
 function registerComponents() {
   // We repeat this code in other register functions, because if we don't use a literal for the path
   // Webpack won't be able to statcily analyze our imports.
-  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/components', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
+  registerAll(context);
+}
+
+function registerExtensions() {
+  const context = require.context('extensions', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
 }
 
 function registerServices() {
-  const context = require.context('@/services', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/services', true, /^((?![\\/.]test[\\./]).)*\.js$/);
   registerAll(context);
 }
 
 function registerVisualizations() {
-  const context = require.context('@/visualizations', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/visualizations', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
 }
 
 function registerPages() {
-  const context = require.context('@/pages', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.js$/);
   const routesCollection = registerAll(context);
   routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Registering route: %s', path);
         route.authenticated = true;
+        route.resolve = extend(
+          {
+            __organizationStatus: (OrganizationStatus) => {
+              'ngInject';
+
+              return OrganizationStatus.refresh();
+            },
+          },
+          route.resolve,
+        );
         $routeProvider.when(path, route);
       });
     });
@@ -129,6 +150,7 @@ markdownFilter(ngModule);
 dateTimeFilter(ngModule);
 registerComponents();
 registerPages();
+registerExtensions();
 registerVisualizations(ngModule);
 
 export default ngModule;

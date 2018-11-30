@@ -54,7 +54,7 @@ class WidgetAPITest(BaseTestCase):
         rv = self.make_request('post', '/api/widgets', data=data)
 
         self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['widget']['text'], 'Sample text.')
+        self.assertEquals(rv.json['text'], 'Sample text.')
 
     def test_delete_widget(self):
         widget = self.factory.create_widget()

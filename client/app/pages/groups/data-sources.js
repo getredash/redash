@@ -1,8 +1,7 @@
-import { contains } from 'underscore';
+import { includes } from 'lodash';
 import template from './data-sources.html';
 
-function GroupDataSourcesCtrl($scope, $routeParams, $http, Events, Group, DataSource) {
-  Events.record('view', 'group_data_sources', $scope.groupId);
+function GroupDataSourcesCtrl($scope, $routeParams, $http, Group, DataSource) {
   $scope.group = Group.get({ id: $routeParams.groupId });
   $scope.dataSources = Group.dataSources({ id: $routeParams.groupId });
   $scope.newDataSource = {};
@@ -11,7 +10,7 @@ function GroupDataSourcesCtrl($scope, $routeParams, $http, Events, Group, DataSo
     if ($scope.foundDataSources === undefined) {
       DataSource.query((dataSources) => {
         const existingIds = $scope.dataSources.map(m => m.id);
-        $scope.foundDataSources = dataSources.filter(ds => !contains(existingIds, ds.id));
+        $scope.foundDataSources = dataSources.filter(ds => !includes(existingIds, ds.id));
       });
     }
   };
@@ -53,3 +52,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

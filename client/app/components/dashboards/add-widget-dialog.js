@@ -1,5 +1,6 @@
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 import template from './add-widget-dialog.html';
+import './add-widget-dialog.less';
 
 const AddWidgetDialog = {
   template,
@@ -63,13 +64,13 @@ const AddWidgetDialog = {
         return;
       }
 
-      Query.search({ q: term }, (results) => {
+      Query.query({ q: term }, (results) => {
         // If user will type too quick - it's possible that there will be
         // several requests running simultaneously. So we need to check
         // which results are matching current search term and ignore
         // outdated results.
         if (this.searchTerm === term) {
-          this.searchedQueries = results;
+          this.searchedQueries = results.results;
         }
       });
     }, 200);
@@ -94,11 +95,10 @@ const AddWidgetDialog = {
       widget.options.position.col = position.col;
       widget.options.position.row = position.row;
 
-      widget.$save()
-        .then((response) => {
-          // update dashboard layout
-          this.dashboard.version = response.version;
-          this.dashboard.widgets.push(new Widget(response.widget));
+      widget
+        .save()
+        .then(() => {
+          this.dashboard.widgets.push(widget);
           this.close();
         })
         .catch(() => {
@@ -114,3 +114,5 @@ const AddWidgetDialog = {
 export default function init(ngModule) {
   ngModule.component('addWidgetDialog', AddWidgetDialog);
 }
+
+init.init = true;

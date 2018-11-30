@@ -1,10 +1,12 @@
-<div class="empty-state bg-white tiled" ng-if="!$ctrl.loading && $ctrl.shouldShowOnboarding()">
+<div class="empty-state bg-white tiled" ng-if="$ctrl.shouldShowOnboarding()">
     <div class="empty-state__summary">
         <h4 ng-if="$ctrl.title">{{$ctrl.title}}</h4>
         <h2 ng-if="$ctrl.icon">
             <i ng-class="$ctrl.icon" aria-hidden="true"></i>
         </h2>
         <p>{{$ctrl.description}}</p>
+
+        <img ng-src="/static/images/illustrations/{{$ctrl.illustration}}.svg" alt="{{$ctrl.illustration}} Illustration" width="75%">
     </div>
     <div class="empty-state__steps">
         <h4>Let's get started</h4>

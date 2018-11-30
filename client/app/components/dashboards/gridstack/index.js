@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import _ from 'underscore';
+import _ from 'lodash';
 import './gridstack';
 import './gridstack.less';
 
@@ -39,7 +39,10 @@ function computeAutoHeight($element, grid, node, minHeight, maxHeight) {
       const elementStyle = window.getComputedStyle(element);
       const controlsHeight = _.chain(bodyWrapper.children)
         .filter(n => n !== element)
-        .reduce((result, n) => result + n.offsetHeight, 0)
+        .reduce((result, n) => {
+          const b = n.getBoundingClientRect();
+          return result + (b.bottom - b.top);
+        }, 0)
         .value();
 
       const additionalHeight = grid.opts.verticalMargin +
@@ -51,7 +54,7 @@ function computeAutoHeight($element, grid, node, minHeight, maxHeight) {
       const contentsHeight = childrenBounds.bottom - childrenBounds.top;
 
       const cellHeight = grid.cellHeight() + grid.opts.verticalMargin;
-      resultHeight = Math.ceil((controlsHeight + contentsHeight + additionalHeight) / cellHeight);
+      resultHeight = Math.ceil(Math.round(controlsHeight + contentsHeight + additionalHeight) / cellHeight);
     }
   }
 
@@ -76,6 +79,24 @@ function gridstack($parse, dashboardGridOptions) {
 
       this.grid = () => (this.$el ? this.$el.data('gridstack') : null);
 
+      this._updateStyles = () => {
+        const grid = this.grid();
+        if (grid) {
+          // compute real grid height; `gridstack` sometimes uses only "dirty"
+          // items and computes wrong height
+          const gridHeight = _.chain(grid.grid.nodes)
+            .map(node => node.y + node.height)
+            .max()
+            .value();
+          // `_updateStyles` is internal, but grid sometimes "forgets"
+          // to rebuild stylesheet, so we need to force it
+          if (_.isObject(grid._styles)) {
+            grid._styles._max = 0; // reset size cache
+          }
+          grid._updateStyles(gridHeight + 10);
+        }
+      };
+
       this.addWidget = ($element, item, itemId) => {
         const grid = this.grid();
         if (grid) {
@@ -86,7 +107,7 @@ function gridstack($parse, dashboardGridOptions) {
             item.minSizeX, item.maxSizeX, item.minSizeY, item.maxSizeY,
             itemId,
           );
-          grid._updateStyles(grid.grid.getGridHeight());
+          this._updateStyles();
         }
       };
 
@@ -165,6 +186,7 @@ function gridstack($parse, dashboardGridOptions) {
         const grid = this.grid();
         if (grid) {
           grid.removeWidget($element, false);
+          this._updateStyles();
         }
       };
 
@@ -205,11 +227,9 @@ function gridstack($parse, dashboardGridOptions) {
             if (_.isFunction(callback)) {
               callback(grid);
             }
-            // `_updateStyles` is internal, but grid sometimes "forgets"
-            // to rebuild stylesheet, so we need to force it
-            grid._updateStyles(grid.grid.getGridHeight());
           } finally {
             grid.commit();
+            this._updateStyles();
           }
         }
       };
@@ -439,3 +459,5 @@ export default function init(ngModule) {
   ngModule.directive('gridstack', gridstack);
   ngModule.directive('gridstackItem', gridstackItem);
 }
+
+init.init = true;

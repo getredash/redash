@@ -1,7 +1,9 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatSimpleTemplate } from '@/lib/value-format';
+import 'leaflet-fullscreen';
+import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
 import {
   AdditionalColors,
@@ -152,6 +154,7 @@ function choroplethRenderer($sanitize, $http) {
           maxBounds: choroplethBounds,
           maxBoundsViscosity: 1,
           attributionControl: false,
+          fullscreenControl: true,
         });
 
         map.on('focus', () => { map.on('moveend', getBounds); });
@@ -299,10 +302,13 @@ export default function init(ngModule) {
 
     VisualizationProvider.registerVisualization({
       type: 'CHOROPLETH',
-      name: 'Choropleth',
+      name: 'Map (Choropleth)',
       renderTemplate,
       editorTemplate: editTemplate,
       defaultOptions,
     });
   });
 }
+
+init.init = true;
+

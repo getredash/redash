@@ -44,3 +44,6 @@ export default function init(ngModule) {
   ngModule.component('alertDialog', AlertDialogComponent);
   ngModule.factory('AlertDialog', AlertDialog);
 }
+
+init.init = true;
+

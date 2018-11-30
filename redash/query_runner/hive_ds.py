@@ -1,9 +1,9 @@
-import json
 import logging
 import sys
+import base64
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -17,20 +17,20 @@ COLUMN_NAME = 0
 COLUMN_TYPE = 1
 
 types_map = {
-    'BIGINT': TYPE_INTEGER,
-    'TINYINT': TYPE_INTEGER,
-    'SMALLINT': TYPE_INTEGER,
-    'INT': TYPE_INTEGER,
-    'DOUBLE': TYPE_FLOAT,
-    'DECIMAL': TYPE_FLOAT,
-    'FLOAT': TYPE_FLOAT,
-    'REAL': TYPE_FLOAT,
-    'BOOLEAN': TYPE_BOOLEAN,
-    'TIMESTAMP': TYPE_DATETIME,
-    'DATE': TYPE_DATETIME,
-    'CHAR': TYPE_STRING,
-    'STRING': TYPE_STRING,
-    'VARCHAR': TYPE_STRING
+    'BIGINT_TYPE': TYPE_INTEGER,
+    'TINYINT_TYPE': TYPE_INTEGER,
+    'SMALLINT_TYPE': TYPE_INTEGER,
+    'INT_TYPE': TYPE_INTEGER,
+    'DOUBLE_TYPE': TYPE_FLOAT,
+    'DECIMAL_TYPE': TYPE_FLOAT,
+    'FLOAT_TYPE': TYPE_FLOAT,
+    'REAL_TYPE': TYPE_FLOAT,
+    'BOOLEAN_TYPE': TYPE_BOOLEAN,
+    'TIMESTAMP_TYPE': TYPE_DATETIME,
+    'DATE_TYPE': TYPE_DATETIME,
+    'CHAR_TYPE': TYPE_STRING,
+    'STRING_TYPE': TYPE_STRING,
+    'VARCHAR_TYPE': TYPE_STRING
 }
 
 
@@ -53,7 +53,24 @@ class Hive(BaseSQLQueryRunner):
                 },
                 "username": {
                     "type": "string"
-                }
+                },
+                "use_http": {
+                    "type": "boolean",
+                    "title": "Use HTTP transport"
+                },
+                "http_scheme": {
+                    "type": "string",
+                    "title": "Scheme when using HTTP transport",
+                    "default": "https"
+                },
+                "http_path": {
+                    "type": "string",
+                    "title": "Path when using HTTP transport"
+                },
+                "http_password": {
+                    "type": "string",
+                    "title": "Password when using HTTP transport"
+                },
             },
             "required": ["host"]
         }
@@ -70,34 +87,64 @@ class Hive(BaseSQLQueryRunner):
     def enabled(cls):
         return enabled
 
-    def __init__(self, configuration):
-        super(Hive, self).__init__(configuration)
-
     def _get_tables(self, schema):
-        try:
-            schemas_query = "show schemas"
+        schemas_query = "show schemas"
 
-            tables_query = "show tables in %s"
+        tables_query = "show tables in %s"
 
-            columns_query = "show columns in %s.%s"
+        columns_query = "show columns in %s.%s"
 
-            for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
-                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
-                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
+        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
+            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
+                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
 
-                    if schema_name != 'default':
-                        table_name = '{}.{}'.format(schema_name, table_name)
+                if schema_name != 'default':
+                    table_name = '{}.{}'.format(schema_name, table_name)
 
-                    schema[table_name] = {'name': table_name, 'columns': columns}
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+                schema[table_name] = {'name': table_name, 'columns': columns}
         return schema.values()
 
     def run_query(self, query, user):
 
         connection = None
         try:
-            connection = hive.connect(**self.configuration.to_dict())
+            host = self.configuration['host']
+
+            if self.configuration.get('use_http', False):
+                # default to https
+                scheme = self.configuration.get('http_scheme', 'https')
+
+                # if path is set but is missing initial slash, append it
+                path = self.configuration.get('http_path', '')
+                if path and path[0] != '/':
+                    path = '/' + path
+
+                # if port is set prepend colon
+                port = self.configuration.get('port', '')
+                if port:
+                    port = ':' + port
+
+                http_uri = "{}://{}{}{}".format(scheme, host, port, path)
+
+                # create transport
+                transport = THttpClient.THttpClient(http_uri)
+
+                # if username or password is set, add Authorization header
+                username = self.configuration.get('username', '')
+                password = self.configuration.get('http_password', '')
+                if username | password:
+                    auth = base64.b64encode(username + ':' + password)
+                    transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
+
+                # create connection
+                connection = hive.connect(thrift_transport=transport)
+            else:
+                connection = hive.connect(
+                    host=host,
+                    port=self.configuration.get('port', None),
+                    database=self.configuration.get('database', 'default'),
+                    username=self.configuration.get('username', None),
+                )
 
             cursor = connection.cursor()
 
@@ -119,7 +166,7 @@ class Hive(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except KeyboardInterrupt:
             connection.cancel()

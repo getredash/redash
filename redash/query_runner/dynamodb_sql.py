@@ -1,9 +1,8 @@
-import json
 import logging
 import sys
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +68,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def name(cls):
         return "DynamoDB (with DQL)"
 
-    def __init__(self, configuration):
-        super(DynamoDBSQL, self).__init__(configuration)
-
     def _connect(self):
         engine = FragmentEngine()
         config = self.configuration.to_dict()
@@ -122,7 +118,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 rows.append(item)
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except ParseException as e:
             error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
@@ -135,8 +131,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 engine.connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

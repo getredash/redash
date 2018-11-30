@@ -1,5 +1,6 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import getTags from '@/services/getTags';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
@@ -22,7 +23,6 @@ function getWidgetsWithChangedPositions(widgets) {
 }
 
 function DashboardCtrl(
-  $rootScope,
   $routeParams,
   $location,
   $timeout,
@@ -35,6 +35,7 @@ function DashboardCtrl(
   clientConfig,
   Events,
   toastr,
+  Policy,
 ) {
   this.saveInProgress = false;
 
@@ -46,7 +47,7 @@ function DashboardCtrl(
     this.saveInProgress = true;
     const showMessages = true;
     return $q
-      .all(_.map(widgets, widget => widget.$save()))
+      .all(_.map(widgets, widget => widget.save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Changes saved.');
@@ -73,17 +74,26 @@ function DashboardCtrl(
   this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
+  this.isDashboardOwner = false;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
     rate: interval,
+    enabled: true,
   }));
+
+  const allowedIntervals = Policy.getDashboardRefreshIntervals();
+  if (_.isArray(allowedIntervals)) {
+    _.each(this.refreshRates, (rate) => {
+      rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
+    });
+  }
 
   this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
     if (rate !== null) {
       if (load) {
-        this.loadDashboard(true);
+        this.refreshDashboard();
       }
       this.autoRefresh();
     }
@@ -99,7 +109,7 @@ function DashboardCtrl(
           .filter(p => p.global)
           .forEach((param) => {
             const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name] = param.clone();
             defaults[param.name].locals = [];
             globalParams = _.defaults(globalParams, defaults);
             globalParams[param.name].locals.push(param);
@@ -118,8 +128,7 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.getQueryResult(forceRefresh)))
-      .map(queryResult => queryResult.toPromise());
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -169,6 +178,7 @@ function DashboardCtrl(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
         this.dashboard = dashboard;
+        this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
 
@@ -181,10 +191,13 @@ function DashboardCtrl(
           if (this.refreshRate === null) {
             const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
-            this.setRefreshRate({
-              name: durationHumanize(refreshRate),
-              rate: refreshRate,
-            }, false);
+            this.setRefreshRate(
+              {
+                name: durationHumanize(refreshRate),
+                rate: refreshRate,
+              },
+              false,
+            );
           }
         }
       },
@@ -204,18 +217,20 @@ function DashboardCtrl(
 
   this.loadDashboard();
 
+  this.refreshDashboard = () => {
+    renderDashboard(this.dashboard, true);
+  };
+
   this.autoRefresh = () => {
     $timeout(() => {
-      this.loadDashboard(true);
+      this.refreshDashboard();
     }, this.refreshRate.rate * 1000).then(() => this.autoRefresh());
   };
 
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete(() => {
-        $rootScope.$broadcast('reloadDashboards');
-      });
+      this.dashboard.$delete();
     };
 
     const title = 'Archive Dashboard';
@@ -247,6 +262,7 @@ function DashboardCtrl(
             _.extend(widget.options.position, widget.$originalPosition);
             items[widget.id] = widget.options.position;
           });
+          this.dashboard.widgets = Dashboard.prepareWidgetsForDashboard(this.dashboard.widgets);
           if (this.updateGridItems) {
             this.updateGridItems(items);
           }
@@ -257,12 +273,14 @@ function DashboardCtrl(
     }
   };
 
-  this.saveName = () => {
+  this.loadTags = () => getTags('api/dashboards/tags');
+
+  this.saveName = (name) => {
+    this.dashboard.name = name;
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
       (dashboard) => {
         this.dashboard = dashboard;
-        $rootScope.$broadcast('reloadDashboards');
       },
       (error) => {
         if (error.status === 403) {
@@ -278,9 +296,50 @@ function DashboardCtrl(
     );
   };
 
+  this.saveTags = () => {
+    Dashboard.save(
+      { slug: this.dashboard.id, version: this.dashboard.version, tags: this.dashboard.tags },
+      (dashboard) => {
+        this.dashboard.tags = dashboard.tags;
+        this.dashboard.version = dashboard.version;
+      },
+      (error) => {
+        if (error.status === 403) {
+          toastr.error('Tags update failed: Permission denied.');
+        } else if (error.status === 409) {
+          toastr.error(
+            'It seems like the dashboard has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        }
+      },
+    );
+  };
+
   this.updateDashboardFiltersState = () => {
-    // / do something for humanity.
     collectFilters(this.dashboard, false);
+    Dashboard.save(
+      {
+        slug: this.dashboard.id,
+        version: this.dashboard.version,
+        dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
+      },
+      (dashboard) => {
+        this.dashboard = dashboard;
+      },
+      (error) => {
+        if (error.status === 403) {
+          toastr.error('Name update failed: Permission denied.');
+        } else if (error.status === 409) {
+          toastr.error(
+            'It seems like the dashboard has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        }
+      },
+    );
   };
 
   this.addWidget = () => {
@@ -296,12 +355,13 @@ function DashboardCtrl(
         // Save position of newly added widget (but not entire layout)
         const widget = _.last(this.dashboard.widgets);
         if (_.isObject(widget)) {
-          return widget.$save();
+          return widget.save();
         }
       });
   };
 
-  this.removeWidget = () => {
+  this.removeWidget = (widgetId) => {
+    this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
@@ -336,7 +396,6 @@ function DashboardCtrl(
       (dashboard) => {
         this.saveInProgress = false;
         this.dashboard.version = dashboard.version;
-        $rootScope.$broadcast('reloadDashboards');
       },
     );
   };
@@ -412,3 +471,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import d3 from 'd3';
 import L from 'leaflet';
 import 'leaflet.markercluster';
@@ -8,6 +8,8 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import 'leaflet-fullscreen';
+import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
 import template from './map.html';
 import editorTemplate from './map-editor.html';
@@ -29,11 +31,14 @@ function mapRenderer() {
     template,
     link($scope, elm) {
       const colorScale = d3.scale.category10();
-      const map = L.map(elm[0].children[0].children[0], { scrollWheelZoom: false });
+      const map = L.map(elm[0].children[0].children[0], {
+        scrollWheelZoom: false,
+        fullscreenControl: true,
+      });
       const mapControls = L.control.layers().addTo(map);
       const layers = {};
       const tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
       function getBounds() {
@@ -188,7 +193,7 @@ function mapRenderer() {
             return { color: colorScale(group) };
           });
 
-          $scope.visualization.options.groups = _.object(groupNames, options);
+          $scope.visualization.options.groups = _.zipObject(groupNames, options);
 
           _.each(layers, (v) => {
             removeLayer(v);
@@ -219,7 +224,7 @@ function mapEditor() {
     link($scope) {
       $scope.currentTab = 'general';
       $scope.columns = $scope.queryResult.getColumns();
-      $scope.columnNames = _.pluck($scope.columns, 'name');
+      $scope.columnNames = _.map($scope.columns, i => i.name);
       $scope.classify_columns = $scope.columnNames.concat('none');
       $scope.mapTiles = [
         {
@@ -295,10 +300,13 @@ export default function init(ngModule) {
 
     VisualizationProvider.registerVisualization({
       type: 'MAP',
-      name: 'Map',
+      name: 'Map (Markers)',
       renderTemplate,
       editorTemplate: editTemplate,
       defaultOptions,
     });
   });
 }
+
+init.init = true;
+

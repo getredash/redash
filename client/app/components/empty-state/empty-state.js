@@ -8,32 +8,23 @@ const EmptyStateComponent = {
     icon: '@',
     title: '@',
     description: '@',
+    illustration: '@',
     helpLink: '@',
     showAlertStep: '<',
     showDashboardStep: '<',
     showInviteStep: '<',
     onboardingMode: '<',
   },
-  controller($http, $uibModal, currentUser) {
-    this.loading = true;
+  controller($uibModal, OrganizationStatus, currentUser) {
     this.isAdmin = currentUser.isAdmin;
 
-    $http.get('api/organization/status').then((response) => {
-      this.loading = false;
-
-      const counters = response.data.object_counters;
-      this.dataSourceStepCompleted = counters.data_sources > 0;
-      this.queryStepCompleted = counters.queries > 0;
-      this.dashboardStepCompleted = counters.dashboards > 0;
-      this.alertStepCompleted = counters.alerts > 0;
-      this.inviteStepCompleted = counters.users > 1;
-    });
+    this.dataSourceStepCompleted = OrganizationStatus.objectCounters.data_sources > 0;
+    this.queryStepCompleted = OrganizationStatus.objectCounters.queries > 0;
+    this.dashboardStepCompleted = OrganizationStatus.objectCounters.dashboards > 0;
+    this.alertStepCompleted = OrganizationStatus.objectCounters.alerts > 0;
+    this.inviteStepCompleted = OrganizationStatus.objectCounters.users > 1;
 
     this.shouldShowOnboarding = () => {
-      if (this.loading) {
-        return false;
-      }
-
       if (!this.onboardingMode) {
         return true;
       }
@@ -60,3 +51,5 @@ const EmptyStateComponent = {
 export default function init(ngModule) {
   ngModule.component('emptyState', EmptyStateComponent);
 }
+
+init.init = true;

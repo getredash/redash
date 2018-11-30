@@ -18,3 +18,6 @@ export default function init(ngModule) {
       return parsed.format(clientConfig.dateTimeFormat);
     });
 }
+
+init.init = true;
+

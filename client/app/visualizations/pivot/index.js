@@ -6,7 +6,6 @@ import 'pivottable/dist/pivot.css';
 import editorTemplate from './pivottable-editor.html';
 import './pivot.less';
 
-
 function pivotTableRenderer() {
   return {
     restrict: 'E',
@@ -18,11 +17,9 @@ function pivotTableRenderer() {
     replace: false,
     link($scope, element) {
       function removeControls() {
-        const hideControls =
-          $scope.visualization.options.controls &&
-          $scope.visualization.options.controls.enabled;
+        const hideControls = $scope.visualization.options.controls && $scope.visualization.options.controls.enabled;
 
-        document.querySelectorAll('.pvtAxisContainer, .pvtRenderer, .pvtVals').forEach((control) => {
+        element[0].querySelectorAll('.pvtAxisContainer, .pvtRenderer, .pvtVals').forEach((control) => {
           if (hideControls) {
             control.style.display = 'none';
           } else {
@@ -97,9 +94,12 @@ export default function init(ngModule) {
     VisualizationProvider.registerVisualization({
       type: 'PIVOT',
       name: 'Pivot Table',
-      renderTemplate: '<pivot-table-renderer visualization="visualization" query-result="queryResult"></pivot-table-renderer>',
+      renderTemplate:
+        '<pivot-table-renderer visualization="visualization" query-result="queryResult"></pivot-table-renderer>',
       editorTemplate: editTemplate,
       defaultOptions,
     });
   });
 }
+
+init.init = true;

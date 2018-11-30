@@ -1,9 +1,8 @@
 import 'brace/mode/snippets';
 import template from './edit.html';
 
-function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events, QuerySnippet) {
+function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertDialog, QuerySnippet) {
   this.snippetId = $routeParams.snippetId;
-  Events.record('view', 'query_snippet', this.snippetId);
 
   this.editorOptions = {
     mode: 'snippets',
@@ -31,12 +30,20 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events
   };
 
   this.delete = () => {
-    this.snippet.$delete(() => {
-      $location.path('/query_snippets');
-      toastr.sucess('Query snippet deleted.');
-    }, () => {
-      toastr.error('Failed deleting query snippet.');
-    });
+    const doDelete = () => {
+      this.snippet.$delete(() => {
+        $location.path('/query_snippets');
+        toastr.success('Query snippet deleted.');
+      }, () => {
+        toastr.error('Failed deleting query snippet.');
+      });
+    };
+
+    const title = 'Delete Snippet';
+    const message = `Are you sure you want to delete the "${this.snippet.trigger}" snippet?`;
+    const confirm = { class: 'btn-warning', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(doDelete);
   };
 
   if (this.snippetId === 'new') {
@@ -62,3 +69,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

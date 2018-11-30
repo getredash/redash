@@ -40,3 +40,6 @@ export default function init(ngModule) {
     .factory('Title', TitleService)
     .directive('title', title);
 }
+
+init.init = true;
+
