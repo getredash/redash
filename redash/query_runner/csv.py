@@ -1,5 +1,6 @@
 import json
 import logging
+import yaml
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -9,7 +10,6 @@ logger = logging.getLogger(__name__)
 try:
     import pandas as pd
     import numpy as np
-    import ast
     enabled = True
 except ImportError:
     enabled = False
@@ -43,10 +43,12 @@ class CSV(BaseQueryRunner):
         pass
 
     def run_query(self, query, user):
-        path = query.split("|")[0]
+        path = ""
         args = {}
         try:
-            args = ast.literal_eval(query.split("|")[1])
+            args = yaml.safe_load(query)
+            path = args['url']
+            args.pop('url', None)
         except:
             pass
         try:

@@ -44,14 +44,17 @@ class Excel(BaseQueryRunner):
         pass
 
     def run_query(self, query, user):
+        path = ""
         args = {}
         try:
             args = yaml.safe_load(query)
+            path = args['url']
+            args.pop('url', None)
         except:
             pass
 
         try:
-            workbook = pd.read_excel(args['url'], **args)
+            workbook = pd.read_excel(path, **args)
             
             df = workbook.copy()
             data = {'columns': [], 'rows': []}
