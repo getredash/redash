@@ -1,5 +1,6 @@
 import json
 import logging
+import yaml
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -10,7 +11,6 @@ try:
     import pandas as pd
     import xlrd
     import numpy as np
-    import ast
     enabled = True
 except ImportError:
     enabled = False
@@ -44,15 +44,14 @@ class Excel(BaseQueryRunner):
         pass
 
     def run_query(self, query, user):
-        path = query.split("|")[0]
         args = {}
         try:
-            args = ast.literal_eval(query.split("|")[1])
+            args = yaml.safe_load(query)
         except:
             pass
 
         try:
-            workbook = pd.read_excel(path, **args)
+            workbook = pd.read_excel(args['url'], **args)
             
             df = workbook.copy()
             data = {'columns': [], 'rows': []}
