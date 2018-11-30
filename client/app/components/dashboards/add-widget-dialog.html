@@ -37,7 +37,7 @@
       <div ng-if="$ctrl.searchTerm == ''">
         <div class="list-group" ng-if="$ctrl.recentQueries.length > 0">
           <a class="list-group-item" ng-repeat="query in $ctrl.recentQueries"
-            ng-click="$ctrl.selectQuery(query.id)">{{query.name}} <span ng-repeat="tag in query.tags"><span class="label label-default">{{tag}}</span> </span></a>
+            ng-click="$ctrl.selectQuery(query.id)">{{query.name}} <span ng-repeat="tag in query.tags"><span class="label label-tag">{{tag}}</span> </span></a>
         </div>
       </div>
 

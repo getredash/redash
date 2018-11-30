@@ -49,10 +49,10 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
       this.queries = results.results;
       this.queries.forEach((q) => {
         if (q.is_draft === true) {
-          q.name += ' <span class="label label-default">(Unpublished)</span>';
+          q.name += ' <span class="label label-tag-unpublished">Unpublished</span>';
         }
         q.tags.forEach((t) => {
-          q.name += ' <span class="label label-default">' + t + '</span>';
+          q.name += ' <span class="label label-tag">' + t + '</span>';
         });
       });
     });

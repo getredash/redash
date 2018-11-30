@@ -73,10 +73,10 @@ const AddWidgetDialog = {
           this.searchedQueries = results.results;
           this.searchedQueries.forEach((q) => {
             if (q.is_draft === true) {
-              q.name += ' (Unpublished)';
+              q.name += ' <span class="label label-tag-unpublished">Unpublished</span>';
             }
             q.tags.forEach((t) => {
-              q.name += ' <span class="label label-default">' + t + '</span>';
+              q.name += ' <span class="label label-tag">' + t + '</span>';
             });
           });
         }
