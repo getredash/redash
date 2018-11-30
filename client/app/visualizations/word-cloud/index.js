@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import angular from 'angular';
 import cloud from 'd3-cloud';
-import { each } from 'underscore';
+import { each } from 'lodash';
 
 import editorTemplate from './word-cloud-editor.html';
 
@@ -21,7 +21,6 @@ function findWordFrequencies(data, columnName) {
 
   return wordsHash;
 }
-
 
 function wordCloudRenderer() {
   return {
@@ -70,8 +69,7 @@ function wordCloudRenderer() {
             .style('font-family', 'Impact')
             .style('fill', (d, i) => fill(i))
             .attr('text-anchor', 'middle')
-            .attr('transform', d =>
-              `translate(${[d.x, d.y]})rotate(${d.rotate})`)
+            .attr('transform', d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
             .text(d => d.text);
         }
 
@@ -98,16 +96,19 @@ export default function init(ngModule) {
   ngModule.directive('wordCloudRenderer', wordCloudRenderer);
 
   const defaultOptions = {
-    defaultRows: -1,
+    defaultRows: 8,
   };
 
   ngModule.config((VisualizationProvider) => {
     VisualizationProvider.registerVisualization({
       type: 'WORD_CLOUD',
       name: 'Word Cloud',
-      renderTemplate: '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
+      renderTemplate:
+        '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
       editorTemplate: '<word-cloud-editor></word-cloud-editor>',
       defaultOptions,
     });
   });
 }
+
+init.init = true;

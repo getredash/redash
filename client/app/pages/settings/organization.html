@@ -7,10 +7,17 @@
                     Date Format
                 </label>
                 <select class="form-control" ng-model="$ctrl.settings.date_format" ng-change="$ctrl.update('date_format')">
-                    <option value="DD/MM/YY">DD/MM/YY</option>
-                    <option value="MM/DD/YY">MM/DD/YY</option>
-                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    <option ng-repeat="date_format in $ctrl.dateFormatList" value="{{date_format}}">{{date_format}}</option>
                 </select>
+            </p>
+
+            <p>
+                <h4>Feature Flags</h4>
+
+                <label>
+                    <input name="input" type="checkbox" ng-model="$ctrl.settings.feature_show_permissions_control" ng-change="$ctrl.update('feature_show_permissions_control')"
+                        accesskey="tab"> Enable experimental multiple owners support
+                </label>
             </p>
             <hr>
             <h3>Authentication</h3>

@@ -2,7 +2,7 @@ import ngModule from '@/config';
 
 ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConfig) => {
   $compileProvider.debugInfoEnabled(false);
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|data|tel|sms|mailto):/);
   $locationProvider.html5Mode(true);
   uiSelectConfig.theme = 'bootstrap';
 

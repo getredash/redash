@@ -1,4 +1,4 @@
-import { sortBy } from 'underscore';
+import { sortBy } from 'lodash';
 
 const settingsMenu = {
   menus: [],

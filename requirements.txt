@@ -6,7 +6,7 @@ click==6.6
 MarkupSafe==0.23
 pyOpenSSL==16.2.0
 httplib2==0.10.3
-Flask-Admin==1.4.2
+Flask-Admin==1.5.2
 Flask-RESTful==0.3.5
 Flask-Login==0.4.0
 Flask-OAuthLib==0.9.3
@@ -21,18 +21,17 @@ blinker==1.3
 psycopg2==2.7.3.2
 python-dateutil==2.4.2
 pytz==2016.7
+PyYAML==3.12
 redis==2.10.5
 requests==2.11.1
-six==1.10.0
-SQLAlchemy==1.1.4
+six==1.11.0
+SQLAlchemy==1.2.7
 SQLAlchemy-Searchable==0.10.6
 SQLAlchemy-Utils>=0.29.0
 sqlparse==0.2.4
-wsgiref==0.1.2
-honcho==0.5.0
 statsd==2.1.2
 gunicorn==19.7.1
-celery==3.1.25
+celery==4.2.1
 jsonschema==2.4.0
 RestrictedPython==3.6.0
 pysaml2==4.5.0
@@ -43,11 +42,15 @@ semver==2.2.1
 xlsxwriter==0.9.3
 pystache==0.5.4
 parsedatetime==2.1
+PyJWT==1.6.4
 cryptography==2.0.2
 simplejson==3.10.0
-ua-parser==0.7.3 
+ua-parser==0.7.3
 user-agents==1.1.0
 python-geoip-geolite2==2015.303
+chromelogger==0.4.3
+pypd==1.1.0
+disposable-email-domains
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4

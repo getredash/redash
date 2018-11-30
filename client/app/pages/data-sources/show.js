@@ -1,30 +1,37 @@
-import { findWhere } from 'underscore';
+import { find } from 'lodash';
 import debug from 'debug';
 import template from './show.html';
 
 const logger = debug('redash:http');
+const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
+function logAndToastrError(deleteObject, httpResponse, toastr) {
+  logger('Failed to delete ' + deleteObject + ': ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+  toastr.error('Failed to delete ' + deleteObject + '.');
+}
+function toastrSuccessAndPath(deleteObject, deletePath, toastr, $location) {
+  toastr.success(deleteObject + ' deleted successfully.');
+  $location.path('/' + deletePath + '/');
+}
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, Events, DataSource,
+  currentUser, AlertDialog, DataSource,
 ) {
-  Events.record('view', 'page', 'admin/data_source');
-
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
-  $scope.type = findWhere($scope.types, { type: $scope.dataSource.type });
+  $scope.type = find($scope.types, { type: $scope.dataSource.type });
   $scope.canChangeType = $scope.dataSource.id === undefined;
 
   $scope.helpLinks = {
-    athena: 'http://help.redash.io/article/122-amazon-athena-setup',
-    bigquery: 'http://help.redash.io/article/124-bigquery-setup',
-    url: 'http://help.redash.io/article/120-using-a-url-as-a-data-source',
-    mongodb: 'http://help.redash.io/article/157-mongodb-setup',
-    google_spreadsheets: 'http://help.redash.io/article/126-google-spreadsheets-setup',
-    google_analytics: 'http://help.redash.io/article/125-google-analytics-setup',
-    axibasetsd: 'http://help.redash.io/article/123-axibase-time-series-database',
-    results: 'http://help.redash.io/article/152-query-results-data-source',
+    athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
+    bigquery: 'https://redash.io/help/data-sources/bigquery-setup',
+    url: 'https://redash.io/help/data-sources/querying-urls',
+    mongodb: 'https://redash.io/help/data-sources/mongodb-setup',
+    google_spreadsheets: 'https://redash.io/help/data-sources/querying-a-google-spreadsheet',
+    google_analytics: 'https://redash.io/help/data-sources/google-analytics-setup',
+    axibasetsd: 'https://redash.io/help/data-sources/axibase-time-series-database',
+    results: 'https://redash.io/help/user-guide/querying/query-results-data-source',
   };
 
   $scope.$watch('dataSource.id', (id) => {
@@ -43,21 +50,22 @@ function DataSourceCtrl(
     $scope.dataSource = new DataSource({ options: {} });
   };
 
-  function deleteDataSource() {
-    Events.record('delete', 'datasource', $scope.dataSource.id);
+  function deleteDataSource(callback) {
+    const doDelete = () => {
+      $scope.dataSource.$delete(() => {
+        toastrSuccessAndPath('Data source', 'data_sources', toastr, $location);
+      }, (httpResponse) => {
+        logAndToastrError('data source', httpResponse, toastr);
+      });
+    };
 
-    $scope.dataSource.$delete(() => {
-      toastr.success('Data source deleted successfully.');
-      $location.path('/data_sources/');
-    }, (httpResponse) => {
-      logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-      toastr.error('Failed to delete data source.');
-    });
+    const deleteTitle = 'Delete Data source';
+    const deleteMessage = `Are you sure you want to delete the "${$scope.dataSource.name}" data source?`;
+
+    AlertDialog.open(deleteTitle, deleteMessage, deleteConfirm).then(doDelete, callback);
   }
 
   function testConnection(callback) {
-    Events.record('test', 'datasource', $scope.dataSource.id);
-
     DataSource.test({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
         toastr.success('Success');
@@ -120,3 +128,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

@@ -1,4 +1,4 @@
-import { template as templateBuilder } from 'underscore';
+import { template as templateBuilder } from 'lodash';
 import template from './alert.html';
 
 function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
@@ -6,15 +6,13 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
-  } else {
-    Events.record('view', 'alert', this.alertId);
   }
 
   this.trustAsHtml = html => $sce.trustAsHtml(html);
 
   this.onQuerySelected = (item) => {
-    this.selectedQuery = item;
-    item.getQueryResultPromise().then((result) => {
+    this.selectedQuery = new Query(item);
+    this.selectedQuery.getQueryResultPromise().then((result) => {
       this.queryResult = result;
       this.alert.options.column = this.alert.options.column || result.getColumnNames()[0];
     });
@@ -25,7 +23,7 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     this.canEdit = true;
   } else {
     this.alert = Alert.get({ id: this.alertId }, (alert) => {
-      this.onQuerySelected(new Query(alert.query));
+      this.onQuerySelected(alert.query);
       this.canEdit = currentUser.canEdit(this.alert);
     });
   }
@@ -47,8 +45,8 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
       return;
     }
 
-    Query.search({ q: term }, (results) => {
-      this.queries = results;
+    Query.query({ q: term }, (results) => {
+      this.queries = results.results;
     });
   };
 
@@ -98,3 +96,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

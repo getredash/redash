@@ -4,11 +4,11 @@
 </div>
 <div class="modal-body">
   <div class="form-group">
-    <textarea class="form-control" ng-model="$ctrl.widget.new_text" rows="3"></textarea>
+    <textarea class="form-control" style="resize: vertical" ng-model="$ctrl.widget.new_text" rows="3"></textarea>
   </div>
   <div ng-show="$ctrl.widget.new_text">
     <strong>Preview:</strong>
-    <p ng-bind-html="$ctrl.widget.new_text | markdown"></p>
+    <p ng-bind-html="$ctrl.widget.new_text | markdown" class="word-wrap-break"></p>
   </div>
 </div>
 

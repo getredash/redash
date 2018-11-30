@@ -1,18 +1,18 @@
 from __future__ import absolute_import
 
-import json
 import logging
 import socket
 import time
 
 from celery.signals import task_postrun, task_prerun
 from redash import settings, statsd_client
+from redash.utils import json_dumps
 
 tasks_start_time = {}
 
 
 @task_prerun.connect
-def task_prerun_handler(signal, sender, task_id, task, args, kwargs):
+def task_prerun_handler(signal, sender, task_id, task, args, kwargs, **kw):
     try:
         tasks_start_time[task_id] = time.time()
     except Exception:
@@ -30,7 +30,7 @@ def metric_name(name, tags):
 
 
 @task_postrun.connect
-def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, state):
+def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, state, **kw):
     try:
         run_time = 1000 * (time.time() - tasks_start_time.pop(task_id))
 
@@ -45,7 +45,7 @@ def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, st
 
         normalized_task_name = task.name.replace('redash.tasks.', '').replace('.', '_')
         metric = "celery.task_runtime.{}".format(normalized_task_name)
-        logging.debug("metric=%s", json.dumps({'metric': metric, 'tags': tags, 'value': run_time}))
+        logging.debug("metric=%s", json_dumps({'metric': metric, 'tags': tags, 'value': run_time}))
         statsd_client.timing(metric_name(metric, tags), run_time)
         statsd_client.incr(metric_name('celery.task.{}.{}'.format(normalized_task_name, state), tags))
     except Exception:

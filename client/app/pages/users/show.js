@@ -1,4 +1,4 @@
-import { each } from 'underscore';
+import { each } from 'lodash';
 import settingsMenu from '@/lib/settings-menu';
 import { absoluteUrl } from '@/services/utils';
 import template from './show.html';
@@ -6,7 +6,7 @@ import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, Events, User,
+  clientConfig, currentUser, User,
 ) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
@@ -16,7 +16,6 @@ function UserCtrl(
     $scope.userId = currentUser.id;
   }
 
-  Events.record('view', 'user', $scope.userId);
   $scope.canEdit = currentUser.hasPermission('admin') || currentUser.id === parseInt($scope.userId, 10);
   $scope.showSettings = false;
   $scope.showPasswordSettings = false;
@@ -108,6 +107,13 @@ function UserCtrl(
       $scope.passwordResetLink = absoluteUrl(data.reset_link);
     });
   };
+
+  $scope.enableUser = (user) => {
+    User.enableUser(user);
+  };
+  $scope.disableUser = (user) => {
+    User.disableUser(user);
+  };
 }
 
 export default function init(ngModule) {
@@ -134,3 +140,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

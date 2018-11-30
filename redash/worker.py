@@ -44,12 +44,12 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         'schedule': timedelta(minutes=5)
     }
 
-celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
-                   CELERYBEAT_SCHEDULE=celery_schedule,
-                   CELERY_TIMEZONE='UTC',
-                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES,
-                   CELERYD_LOG_FORMAT=settings.CELERYD_LOG_FORMAT,
-                   CELERYD_TASK_LOG_FORMAT=settings.CELERYD_TASK_LOG_FORMAT)
+celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
+                   beat_schedule=celery_schedule,
+                   timezone='UTC',
+                   result_expires=settings.CELERY_RESULT_EXPIRES,
+                   worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
+                   worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT)
 
 if settings.SENTRY_DSN:
     from raven import Client
@@ -70,6 +70,7 @@ class ContextTask(TaskBase):
         with current_app.app_context():
             return TaskBase.__call__(self, *args, **kwargs)
 
+
 celery.Task = ContextTask
 
 
@@ -78,3 +79,12 @@ celery.Task = ContextTask
 def init_celery_flask_app(**kwargs):
     app = create_app()
     app.app_context().push()
+
+
+# Hook for extensions to add periodic tasks.
+@celery.on_after_configure.connect
+def add_periodic_tasks(sender, **kwargs):
+    app = create_app()
+    periodic_tasks = getattr(app, 'periodic_tasks', {})
+    for params in periodic_tasks.values():
+        sender.add_periodic_task(**params)

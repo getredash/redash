@@ -1,3 +1,30 @@
+.tile .t-header .th-title a.query-link {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+visualization-name:empty + span {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+visualization-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8);
+
+  &:after {
+    content: "−";
+    margin-left: 5px;
+  }
+
+  &:empty:after {
+    content: none;
+  }
+}
+
+.th-title p.hidden-print {
+  margin-bottom: 0;
+}
+
 .widget-wrapper {
   .body-container {
     display: flex;
@@ -39,12 +66,26 @@
 
   .t-header.widget {
     .dropdown {
-      margin-top: -5px;
-      margin-right: -5px;
+      margin-top: -15px;
+      margin-right: -15px;
 
       .actions {
         position: static;
       }
+    }
+  }
+
+  .scrollbox:empty {
+    padding: 0 !important;
+    font-size: 1px !important;
+  }
+
+  .widget-text {
+    :first-child {
+      margin-top: 0;
+    }
+    :last-child {
+      margin-bottom: 0;
     }
   }
 }

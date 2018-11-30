@@ -23,7 +23,8 @@ const FiltersComponent = {
   },
 };
 
-
 export default function init(ngModule) {
   ngModule.component('filters', FiltersComponent);
 }
+
+init.init = true;

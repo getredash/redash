@@ -3,6 +3,7 @@ import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
+from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
@@ -25,7 +26,13 @@ class DataSourceResource(BaseResource):
     @require_admin
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        return data_source.to_dict(all=True)
+        ds = data_source.to_dict(all=True)
+        self.record_event({
+            'action': 'view',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+        return ds
 
     @require_admin
     def post(self, data_source_id):
@@ -60,6 +67,12 @@ class DataSourceResource(BaseResource):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete()
 
+        self.record_event({
+            'action': 'delete',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+
         return make_response('', 204)
 
 
@@ -83,7 +96,13 @@ class DataSourceListResource(BaseResource):
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
-        return sorted(response.values(), key=lambda d: d['id'])
+        self.record_event({
+            'action': 'list',
+            'object_id': 'admin/data_sources',
+            'object_type': 'datasource',
+        })
+
+        return sorted(response.values(), key=lambda d: d['name'].lower())
 
     @require_admin
     def post(self):
@@ -186,9 +205,15 @@ class DataSourceTestResource(BaseResource):
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
 
+        self.record_event({
+            'action': 'test',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
-            return {"message": unicode(e), "ok": False}
+            return {"message": text_type(e), "ok": False}
         else:
             return {"message": "success", "ok": True}

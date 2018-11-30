@@ -176,11 +176,20 @@ export default function init(ngModule) {
 
     const editTemplate = '<boxplot-editor></boxplot-editor>';
 
+    const defaultOptions = {
+      defaultRows: 8,
+      minRows: 5,
+    };
+
     VisualizationProvider.registerVisualization({
       type: 'BOXPLOT',
       name: 'Boxplot (Deprecated)',
+      defaultOptions,
       renderTemplate,
       editorTemplate: editTemplate,
     });
   });
 }
+
+init.init = true;
+

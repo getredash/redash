@@ -4,6 +4,7 @@ from flask import request
 from funcy import project
 
 from redash import models
+from redash.serializers import serialize_alert
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   require_fields)
 from redash.permissions import (require_access, require_admin_or_owner,
@@ -14,7 +15,12 @@ class AlertResource(BaseResource):
     def get(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_access(alert.groups, self.current_user, view_only)
-        return alert.to_dict()
+        self.record_event({
+            'action': 'view',
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+        return serialize_alert(alert)
 
     def post(self, alert_id):
         req = request.get_json(True)
@@ -27,12 +33,11 @@ class AlertResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': alert.id,
             'object_type': 'alert'
         })
 
-        return alert.to_dict()
+        return serialize_alert(alert)
 
     def delete(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
@@ -64,16 +69,19 @@ class AlertListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': alert.id,
             'object_type': 'alert'
         })
 
-        return alert.to_dict()
+        return serialize_alert(alert)
 
     @require_permission('list_alerts')
     def get(self):
-        return [alert.to_dict() for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
+        self.record_event({
+            'action': 'list',
+            'object_type': 'alert'
+        })
+        return [serialize_alert(alert) for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
 
 
 class AlertSubscriptionListResource(BaseResource):
@@ -94,7 +102,6 @@ class AlertSubscriptionListResource(BaseResource):
 
         self.record_event({
             'action': 'subscribe',
-            'timestamp': int(time.time()),
             'object_id': alert_id,
             'object_type': 'alert',
             'destination': req.get('destination_id')
@@ -121,7 +128,6 @@ class AlertSubscriptionResource(BaseResource):
 
         self.record_event({
             'action': 'unsubscribe',
-            'timestamp': int(time.time()),
             'object_id': alert_id,
             'object_type': 'alert'
         })

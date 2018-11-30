@@ -28,6 +28,10 @@ html, body {
   background: #F6F8F9;
 }
 
+.signed-out {
+
+}
+
 hr {
   border-top-width: 2px;
   margin: 25px 0;
@@ -38,7 +42,7 @@ hr {
 }
 
 .header {
-  margin-top: -100px;
+  margin-top: 25px;
 
   img {
     height: 40px;
@@ -47,6 +51,12 @@ hr {
 
 .fixed-width-page {
   width: 500px;
+}
+
+@media (max-width: 767px) {
+  .fixed-width-page {
+    width: 80vw;
+  }
 }
 
 .login-button {

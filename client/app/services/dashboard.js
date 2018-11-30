@@ -1,12 +1,52 @@
-import * as _ from 'underscore';
+import _ from 'lodash';
+
+function prepareWidgetsForDashboard(widgets) {
+  // Default height for auto-height widgets.
+  // Compute biggest widget size and choose between it and some magic number.
+  // This value should be big enough so auto-height widgets will not overlap other ones.
+  const defaultWidgetSizeY =
+    Math.max(
+      _
+        .chain(widgets)
+        .map(w => w.options.position.sizeY)
+        .max()
+        .value(),
+      20,
+    ) + 5;
+
+  // Fix layout:
+  // 1. sort and group widgets by row
+  // 2. update position of widgets in each row - place it right below
+  //    biggest widget from previous row
+  _.chain(widgets)
+    .sortBy(widget => widget.options.position.row)
+    .groupBy(widget => widget.options.position.row)
+    .reduce((row, widgetsAtRow) => {
+      let height = 1;
+      _.each(widgetsAtRow, (widget) => {
+        height = Math.max(
+          height,
+          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY,
+        );
+        widget.options.position.row = row;
+        if (widget.options.position.sizeY < 1) {
+          widget.options.position.sizeY = defaultWidgetSizeY;
+        }
+      });
+      return row + height;
+    }, 0)
+    .value();
+
+  // Sort widgets by updated column and row value
+  widgets = _.sortBy(widgets, widget => widget.options.position.col);
+  widgets = _.sortBy(widgets, widget => widget.options.position.row);
+
+  return widgets;
+}
 
 function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
-    const widgetObjects = widgets.map(widget => new Widget(widget));
-    // This sorting is needed for converted dashboards, whose widgets don't have size yet. In such cases
-    // Gridster might position them wrong on the dashboard (unless sorted by col/row).
-    const sortedByCol = _.sortBy(widgetObjects, widget => widget.options.position && widget.options.position.col);
-    return _.sortBy(sortedByCol, widget => widget.options.position && widget.options.position.row * -1);
+    return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
 
   function transformSingle(dashboard) {
@@ -17,38 +57,57 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   }
 
   const transform = $http.defaults.transformResponse.concat((data) => {
-    if (_.isArray(data)) {
-      data.forEach(transformSingle);
+    if (data.results) {
+      data.results.forEach(transformSingle);
     } else {
       transformSingle(data);
     }
     return data;
   });
 
-  const resource = $resource('api/dashboards/:slug', { slug: '@slug' }, {
-    get: { method: 'GET', transformResponse: transform },
-    save: { method: 'POST', transformResponse: transform },
-    query: { method: 'GET', isArray: true, transformResponse: transform },
-    recent: {
-      method: 'get',
-      isArray: true,
-      url: 'api/dashboards/recent',
-      transformResponse: transform,
+  const resource = $resource(
+    'api/dashboards/:slug',
+    { slug: '@slug' },
+    {
+      get: { method: 'GET', transformResponse: transform },
+      save: { method: 'POST', transformResponse: transform },
+      query: { method: 'GET', isArray: false, transformResponse: transform },
+      recent: {
+        method: 'get',
+        isArray: true,
+        url: 'api/dashboards/recent',
+        transformResponse: transform,
+      },
+      favorites: {
+        method: 'get',
+        isArray: false,
+        url: 'api/dashboards/favorites',
+      },
+      favorite: {
+        method: 'post',
+        isArray: false,
+        url: 'api/dashboards/:slug/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      unfavorite: {
+        method: 'delete',
+        isArray: false,
+        url: 'api/dashboards/:slug/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
     },
-  });
+  );
 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;
   };
 
   resource.prototype.calculateNewWidgetPosition = function calculateNewWidgetPosition(widget) {
-    const width = (_.extend(
-      { sizeX: dashboardGridOptions.defaultSizeX },
-      _.extend({}, widget.options).position,
-    )).sizeX;
+    const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, widget.options).position).sizeX;
 
     // Find first free row for each column
-    const bottomLine = _.chain(this.widgets)
+    const bottomLine = _
+      .chain(this.widgets)
       .map((w) => {
         const options = _.extend({}, w.options);
         const position = _.extend({ row: 0, sizeY: 0 }, options.position);
@@ -74,10 +133,12 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
     // Go through columns, pick them by count necessary to hold new block,
     // and calculate bottom-most free row per group.
     // Choose group with the top-most free row (comparing to other groups)
-    return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+    return _
+      .chain(_.range(0, dashboardGridOptions.columns - width + 1))
       .map(col => ({
         col,
-        row: _.chain(bottomLine)
+        row: _
+          .chain(bottomLine)
           .slice(col, col + width)
           .max()
           .value(),
@@ -88,6 +149,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   };
 
   resource.prepareDashboardWidgets = prepareDashboardWidgets;
+  resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
 
   return resource;
 }
@@ -95,3 +157,6 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
 export default function init(ngModule) {
   ngModule.factory('Dashboard', Dashboard);
 }
+
+init.init = true;
+

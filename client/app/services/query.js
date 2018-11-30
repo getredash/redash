@@ -1,16 +1,36 @@
 import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
-import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+import {
+  each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
+  isNull, isUndefined, isArray, isObject, identity,
+} from 'lodash';
+
+Mustache.escape = identity; // do not html-escape values
 
 const logger = debug('redash:services:query');
+
+const DATETIME_FORMATS = {
+  // eslint-disable-next-line quote-props
+  'date': 'YYYY-MM-DD',
+  'date-range': 'YYYY-MM-DD',
+  'datetime-local': 'YYYY-MM-DD HH:mm',
+  'datetime-range': 'YYYY-MM-DD HH:mm',
+  'datetime-with-seconds': 'YYYY-MM-DD HH:mm:ss',
+  'datetime-range-with-seconds': 'YYYY-MM-DD HH:mm:ss',
+};
+
+function normalizeNumericValue(value, defaultValue = null) {
+  const result = parseFloat(value);
+  return isFinite(result) ? result : defaultValue;
+}
 
 function collectParams(parts) {
   let parameters = [];
 
   parts.forEach((part) => {
     if (part[0] === 'name' || part[0] === '&') {
-      parameters.push(part[1]);
+      parameters.push(part[1].split('.')[0]);
     } else if (part[0] === '#') {
       parameters = union(parameters, collectParams(part[4]));
     }
@@ -19,30 +39,12 @@ function collectParams(parts) {
   return parameters;
 }
 
-class QueryResultError {
-  constructor(errorMessage) {
-    this.errorMessage = errorMessage;
-  }
+function isDateParameter(paramType) {
+  return includes(['date', 'datetime-local', 'datetime-with-seconds'], paramType);
+}
 
-  getError() {
-    return this.errorMessage;
-  }
-
-  static getStatus() {
-    return 'failed';
-  }
-
-  static getData() {
-    return null;
-  }
-
-  static getLog() {
-    return null;
-  }
-
-  static getChartData() {
-    return null;
-  }
+function isDateRangeParameter(paramType) {
+  return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
 class Parameter {
@@ -50,41 +52,124 @@ class Parameter {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
-    this.value = parameter.value;
+    this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+
+    // validate value and init internal state
+    this.setValue(parameter.value);
   }
 
-  get ngModel() {
-    if (
-      this.type === 'date' ||
-      this.type === 'datetime-local' ||
-      this.type === 'datetime-with-seconds'
-    ) {
-      this.$$value = this.$$value || moment(this.value).toDate();
-      return this.$$value;
-    } else if (this.type === 'number') {
-      this.$$value = this.$$value || parseInt(this.value, 10);
-      return this.$$value;
-    }
+  clone() {
+    return new Parameter(this);
+  }
 
+  get isEmpty() {
+    return isNull(this.getValue());
+  }
+
+  getValue() {
+    const isEmptyValue = isNull(this.value) || isUndefined(this.value) || (this.value === '');
+    if (isEmptyValue) {
+      if (
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type) &&
+        this.useCurrentDateTime
+      ) {
+        return moment().format(DATETIME_FORMATS[this.type]);
+      }
+      return null; // normalize empty value
+    }
+    if (this.type === 'number') {
+      return normalizeNumericValue(this.value, null); // normalize empty value
+    }
     return this.value;
   }
 
-  set ngModel(value) {
-    if (value && this.type === 'date') {
-      this.value = moment(value).format('YYYY-MM-DD');
-      this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-local') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm');
-      this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-with-seconds') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm:ss');
-      this.$$value = moment(this.value).toDate();
+  setValue(value) {
+    if (isDateRangeParameter(this.type)) {
+      this.value = null;
+      this.$$value = null;
+
+      if (isObject(value) && !isArray(value)) {
+        value = [value.start, value.end];
+      }
+
+      if (isArray(value) && (value.length === 2)) {
+        value = [moment(value[0]), moment(value[1])];
+        if (value[0].isValid() && value[1].isValid()) {
+          this.value = {
+            start: value[0].format(DATETIME_FORMATS[this.type]),
+            end: value[1].format(DATETIME_FORMATS[this.type]),
+          };
+          this.$$value = value;
+        }
+      }
+    } else if (isDateParameter(this.type)) {
+      this.value = null;
+      this.$$value = null;
+
+      value = moment(value);
+      if (value.isValid()) {
+        this.value = value.format(DATETIME_FORMATS[this.type]);
+        this.$$value = value;
+      }
+    } else if (this.type === 'number') {
+      this.value = value;
+      this.$$value = normalizeNumericValue(value, null);
     } else {
-      this.value = this.$$value = value;
+      this.value = value;
+      this.$$value = value;
     }
+  }
+
+  get normalizedValue() {
+    return this.$$value;
+  }
+
+  // TODO: Remove this property when finally moved to React
+  get ngModel() {
+    return this.normalizedValue;
+  }
+  set ngModel(value) {
+    this.setValue(value);
+  }
+
+  toUrlParams() {
+    if (this.isEmpty) {
+      return {};
+    }
+    if (isDateRangeParameter(this.type)) {
+      return {
+        [`p_${this.name}.start`]: this.value.start,
+        [`p_${this.name}.end`]: this.value.end,
+      };
+    }
+    return {
+      [`p_${this.name}`]: this.value,
+    };
+  }
+
+  fromUrlParams(query) {
+    if (isDateRangeParameter(this.type)) {
+      const keyStart = `p_${this.name}.start`;
+      const keyEnd = `p_${this.name}.end`;
+      if (has(query, keyStart) && has(query, keyEnd)) {
+        this.setValue([query[keyStart], query[keyEnd]]);
+      }
+    } else {
+      const key = `p_${this.name}`;
+      if (has(query, key)) {
+        this.setValue(query[key]);
+      }
+    }
+  }
+
+  toQueryTextFragment() {
+    if (isDateRangeParameter(this.type)) {
+      return `{{ ${this.name}.start }} {{ ${this.name}.end }}`;
+    }
+    return `{{ ${this.name} }}`;
   }
 }
 
@@ -103,7 +188,7 @@ class Parameters {
     } catch (e) {
       logger('Failed parsing parameters: ', e);
       // Return current parameters so we don't reset the list
-      parameters = pluck(this.query.options.parameters, 'name');
+      parameters = map(this.query.options.parameters, i => i.name);
     }
     return parameters;
   }
@@ -135,18 +220,13 @@ class Parameters {
       }
     });
 
-    const parameterExists = p => contains(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters
-      .filter(parameterExists)
-      .map(p => new Parameter(p));
+    const parameterExists = p => includes(parameterNames, p.name);
+    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
   }
 
-  initFromQueryString(queryString) {
+  initFromQueryString(query) {
     this.get().forEach((param) => {
-      const queryStringName = `p_${param.name}`;
-      if (has(queryString, queryStringName)) {
-        param.value = queryString[queryStringName];
-      }
+      param.fromUrlParams(query);
     });
   }
 
@@ -155,8 +235,16 @@ class Parameters {
     return this.query.options.parameters;
   }
 
+  add(parameterDef) {
+    this.query.options.parameters = this.query.options.parameters
+      .filter(p => p.name !== parameterDef.name);
+    const param = new Parameter(parameterDef);
+    this.query.options.parameters.push(param);
+    return param;
+  }
+
   getMissing() {
-    return pluck(filter(this.get(), p => p.value === null || p.value === ''), 'title');
+    return map(filter(this.get(), p => p.isEmpty), i => i.title);
   }
 
   isRequired() {
@@ -165,20 +253,66 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return object(pluck(params, 'name'), pluck(params, 'value'));
+    return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
   }
 }
 
-function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+function QueryResultErrorFactory($q) {
+  class QueryResultError {
+    constructor(errorMessage) {
+      this.errorMessage = errorMessage;
+      this.updatedAt = moment.utc();
+    }
+
+    getUpdatedAt() {
+      return this.updatedAt;
+    }
+
+    getError() {
+      return this.errorMessage;
+    }
+
+    toPromise() {
+      return $q.reject(this);
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getStatus() {
+      return 'failed';
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getData() {
+      return null;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getLog() {
+      return null;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getChartData() {
+      return null;
+    }
+  }
+
+  return QueryResultError;
+}
+
+function QueryResource(
+  $resource,
+  $http,
+  $location,
+  $q,
+  currentUser,
+  QueryResultError,
+  QueryResult,
+) {
   const Query = $resource(
     'api/queries/:id',
     { id: '@id' },
     {
-      search: {
-        method: 'get',
-        isArray: true,
-        url: 'api/queries/search',
-      },
       recent: {
         method: 'get',
         isArray: true,
@@ -202,6 +336,23 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         method: 'get',
         isArray: false,
         url: 'api/queries/:id/results.json',
+      },
+      favorites: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/favorites',
+      },
+      favorite: {
+        method: 'post',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      unfavorite: {
+        method: 'delete',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
       },
     },
   );
@@ -366,5 +517,9 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 }
 
 export default function init(ngModule) {
+  ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
 }
+
+init.init = true;
+

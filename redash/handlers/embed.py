@@ -2,7 +2,6 @@ from __future__ import absolute_import
 import logging
 import time
 
-import pystache
 from flask import request
 
 from .authentication import current_org
@@ -14,7 +13,7 @@ from redash.handlers.base import (get_object_or_404, org_scoped_rule,
                                   record_event)
 from redash.handlers.query_results import collect_query_parameters
 from redash.handlers.static import render_index
-from redash.utils import gen_query_hash
+from redash.utils import gen_query_hash, mustache_render
 
 
 #
@@ -30,7 +29,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
     if query_parameters:
-        query_text = pystache.render(query_text, parameter_values)
+        query_text = mustache_render(query_text, parameter_values)
 
     if max_age <= 0:
         query_result = None

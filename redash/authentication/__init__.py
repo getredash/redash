@@ -1,12 +1,17 @@
-from flask_login import LoginManager, user_logged_in
+from flask_login import LoginManager, user_logged_in, login_user, logout_user
+from sqlalchemy.orm.exc import NoResultFound
 import hashlib
 import hmac
 import time
 import logging
 
 from flask import redirect, request, jsonify, url_for
+from urlparse import urlsplit, urlunsplit
+from werkzeug.exceptions import Unauthorized
 
 from redash import models, settings
+from redash.settings.organization import settings as org_settings
+from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.tasks import record_event
 
@@ -39,9 +44,27 @@ def sign(key, path, expires):
 def load_user(user_id):
     org = current_org._get_current_object()
     try:
-        return models.User.get_by_id_and_org(user_id, org)
+        user = models.User.get_by_id_and_org(user_id, org)
+        if user.is_disabled:
+            return None
+        return user
     except models.NoResultFound:
         return None
+
+
+def request_loader(request):
+    user = None
+    if settings.AUTH_TYPE == 'hmac':
+        user = hmac_load_user_from_request(request)
+    elif settings.AUTH_TYPE == 'api_key':
+        user = api_key_load_user_from_request(request)
+    else:
+        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
+        user = hmac_load_user_from_request(request)
+
+    if org_settings['auth_jwt_login_enabled'] and user is None:
+        user = jwt_token_load_user_from_request(request)
+    return user
 
 
 def hmac_load_user_from_request(request):
@@ -112,6 +135,40 @@ def api_key_load_user_from_request(request):
     return user
 
 
+def jwt_token_load_user_from_request(request):
+    org = current_org._get_current_object()
+
+    payload = None
+
+    if org_settings['auth_jwt_auth_cookie_name']:
+        jwt_token = request.cookies.get(org_settings['auth_jwt_auth_cookie_name'], None)
+    elif org_settings['auth_jwt_auth_header_name']:
+        jwt_token = request.headers.get(org_settings['auth_jwt_auth_header_name'], None)
+    else:
+        return None
+
+    if jwt_token:
+        payload, token_is_valid = jwt_auth.verify_jwt_token(
+            jwt_token,
+            expected_issuer=org_settings['auth_jwt_auth_issuer'],
+            expected_audience=org_settings['auth_jwt_auth_audience'],
+            algorithms=org_settings['auth_jwt_auth_algorithms'],
+            public_certs_url=org_settings['auth_jwt_auth_public_certs_url'],
+        )
+        if not token_is_valid:
+            raise Unauthorized('Invalid JWT token')
+
+    if not payload:
+        return
+
+    try:
+        user = models.User.get_by_email_and_org(payload['email'], org)
+    except models.NoResultFound:
+        user = create_and_login_user(current_org, payload['email'], payload['email'])
+
+    return user
+
+
 def log_user_logged_in(app, user):
     event = {
         'org_id': current_org.id,
@@ -138,6 +195,19 @@ def redirect_to_login():
     return redirect(login_url)
 
 
+def logout_and_redirect_to_index():
+    logout_user()
+
+    if settings.MULTI_ORG and current_org == None:
+        index_url = '/'
+    elif settings.MULTI_ORG:
+        index_url = url_for('redash.index', org_slug=current_org.slug, _external=False)
+    else:
+        index_url = url_for('redash.index', _external=False)
+
+    return redirect(index_url)
+
+
 def setup_authentication(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
@@ -151,11 +221,38 @@ def setup_authentication(app):
     app.register_blueprint(ldap_auth.blueprint)
 
     user_logged_in.connect(log_user_logged_in)
+    login_manager.request_loader(request_loader)
 
-    if settings.AUTH_TYPE == 'hmac':
-        login_manager.request_loader(hmac_load_user_from_request)
-    elif settings.AUTH_TYPE == 'api_key':
-        login_manager.request_loader(api_key_load_user_from_request)
-    else:
-        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
-        login_manager.request_loader(hmac_load_user_from_request)
+
+def create_and_login_user(org, name, email, picture=None):
+    try:
+        user_object = models.User.get_by_email_and_org(email, org)
+        if user_object.is_disabled:
+            return None
+        if user_object.name != name:
+            logger.debug("Updating user name (%r -> %r)", user_object.name, name)
+            user_object.name = name
+            models.db.session.commit()
+    except NoResultFound:
+        logger.debug("Creating user object (%r)", name)
+        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
+                                  group_ids=[org.default_group.id])
+        models.db.session.add(user_object)
+        models.db.session.commit()
+
+    login_user(user_object, remember=True)
+
+    return user_object
+
+
+def get_next_path(unsafe_next_path):
+    if not unsafe_next_path:
+        return ''
+
+    # Preventing open redirection attacks
+    parts = list(urlsplit(unsafe_next_path))
+    parts[0] = ''  # clear scheme
+    parts[1] = ''  # clear netloc
+    safe_next_path = urlunsplit(parts)
+
+    return safe_next_path

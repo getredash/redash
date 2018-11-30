@@ -1,21 +1,14 @@
-import { isUndefined, isFunction } from 'underscore';
-
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+import { isFunction, extend } from 'lodash';
+import { formatSimpleTemplate } from '@/lib/value-format';
 
 function trim(str) {
   return str.replace(/^\s+|\s+$/g, '');
 }
 
 function processTags(str, data, defaultColumn) {
-  return str.replace(/{{\s*([^\s]+)\s*}}/g, (match, column) => {
-    if (column === '@') {
-      column = defaultColumn;
-    }
-    if (hasOwnProperty.call(data, column) && !isUndefined(data[column])) {
-      return data[column];
-    }
-    return match;
-  });
+  return formatSimpleTemplate(str, extend({
+    '@': data[defaultColumn],
+  }, data));
 }
 
 export function renderDefault(column, row) {

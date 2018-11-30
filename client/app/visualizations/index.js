@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { isArray, reduce } from 'underscore';
+import { isArray, reduce } from 'lodash';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -144,3 +144,5 @@ export default function init(ngModule) {
   ngModule.directive('visualizationName', VisualizationName);
   ngModule.filter('filterValue', FilterValueFilter);
 }
+
+init.init = true;
