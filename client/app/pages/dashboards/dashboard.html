@@ -5,8 +5,9 @@
       <h3>
         <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
-      <dashboard-tags-control class="hidden-xs" dashboard="$ctrl.dashboard" can-edit="$ctrl.isDashboardOwner"
-        get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags()"></dashboard-tags-control>
+      <dashboard-tags-control class="hidden-xs"
+        tags="$ctrl.dashboard.tags" is-draft="$ctrl.dashboard.is_draft" is-archived="$ctrl.dashboard.is_archived"
+        can-edit="$ctrl.isDashboardOwner" get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags"></dashboard-tags-control>
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
