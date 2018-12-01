@@ -38,7 +38,7 @@ class Email(BaseDestination):
         Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a> </br>.
         """.format(host=host, alert_id=alert.id, query_id=query.id)
         if alert.template:
-            description, _ = alert.render_template() 
+            description, _ = alert.render_template()
             html += "<br>" + description
         logging.debug("Notifying: %s", recipients)
 
@@ -54,5 +54,6 @@ class Email(BaseDestination):
             mail.send(message)
         except Exception:
             logging.exception("Mail send error.")
+
 
 register(Email)

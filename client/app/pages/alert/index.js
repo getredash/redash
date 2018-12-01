@@ -8,6 +8,8 @@ function AlertCtrl($routeParams, $location, $sce, $http, toastr, currentUser, Qu
   you can build message with latest query result.
   variable name "rows" is assigned as result rows. "cols" as result columns.`;
   this.editorOptions = {
+    useWrapMode: true,
+    showPrintMargin: false,
     advanced: {
       behavioursEnabled: true,
       enableBasicAutocompletion: true,
@@ -16,8 +18,6 @@ function AlertCtrl($routeParams, $location, $sce, $http, toastr, currentUser, Qu
     },
     onLoad(editor) {
       editor.$blockScrolling = Infinity;
-      editor.getSession().setUseWrapMode(true);
-      editor.setShowPrintMargin(false);
     },
   };
 

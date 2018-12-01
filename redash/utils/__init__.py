@@ -113,6 +113,7 @@ def build_url(request, host, path):
 
     return "{}://{}{}".format(request.scheme, host, path)
 
+
 def render_custom_template(template, rows, columns, showError=None):
     try:
         renderer = Template(template)
@@ -126,7 +127,7 @@ def render_custom_template(template, rows, columns, showError=None):
             return message, err
         else:
             message = e.message
-            return message, err    
+            return message, err
 
 
 class UnicodeWriter:

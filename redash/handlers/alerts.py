@@ -11,6 +11,7 @@ from redash.permissions import (require_access, require_admin_or_owner,
                                 require_permission, view_only)
 from redash.utils import json_dumps, render_custom_template
 
+
 class AlertResource(BaseResource):
     def get(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
@@ -133,10 +134,11 @@ class AlertSubscriptionResource(BaseResource):
             'object_type': 'alert'
         })
 
+
 class AlertTemplateResource(BaseResource):
     def post(self):
         req = request.get_json(True)
         template = req.get("template", "")
         data = req.get("data", "")
         preview, err = render_custom_template(template, data['rows'], data['columns'], True)
-        return json_dumps({'preview': preview, "error": err })
+        return json_dumps({'preview': preview, "error": err})
