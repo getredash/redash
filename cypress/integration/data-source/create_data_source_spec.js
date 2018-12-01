@@ -8,11 +8,11 @@ describe('Create Data Source', () => {
     cy.contains('New Data Source').click();
     cy.contains('PostgreSQL').click();
 
-    cy.get('[name=targetName]').type('Redash');
-    cy.get('[data-cy=Host]').type('{selectall}localhost');
-    cy.get('[data-cy=User]').type('postgres');
-    cy.get('[data-cy=Password]').type('postgres');
-    cy.get('[data-cy="Database Name"]').type('postgres{enter}');
+    cy.get('[data-test=TargetName]').type('Redash');
+    cy.get('[data-test=Host]').type('{selectall}localhost');
+    cy.get('[data-test=User]').type('postgres');
+    cy.get('[data-test=Password]').type('postgres');
+    cy.get('[data-test="Database Name"]').type('postgres{enter}');
 
     cy.contains('Saved.');
   });
