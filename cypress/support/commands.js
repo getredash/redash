@@ -12,4 +12,8 @@ Cypress.Commands.add('login', () => {
     form: true,
     body: users.admin,
   });
+})
+
+Cypress.Commands.add('getElement', (element) => {
+  return cy.get('[data-test="' + element + '"]');
 });
