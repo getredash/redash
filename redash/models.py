@@ -1326,8 +1326,8 @@ class Alert(TimestampMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_description(self, showError=None):
-        data = json.loads(self.query_rel.latest_query_data.data)
+    def render_template(self, showError=None):
+        data = json_loads(self.query_rel.latest_query_data.data)
         return render_custom_template(self.template, data['rows'], data['columns'])
 
     @property
