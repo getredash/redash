@@ -5,25 +5,13 @@ const { seedData } = require('./seed-data');
 
 const baseUrl = process.env.CYPRESS_baseUrl || 'http://localhost:5000';
 
-function execSetup() {
-  console.log('Running setup...');
-
-  const setupData = {
-    name: 'Example Admin',
-    email: 'admin@redash.io',
-    password: 'password',
-    org_name: 'Redash',
-  };
-
-  post(baseUrl + '/setup', { formData: setupData });
-}
-
 function seedDatabase(seedValues) {
   const request = seedValues.shift();
   const data = request.type === 'form' ? { formData: request.data } : { json: request.data };
 
   post(baseUrl + request.route, data, (err, response) => {
-    console.log('POST ' + request.route + ' - ' + response.statusCode);
+    const result = response ? response.statusCode : err;
+    console.log('POST ' + request.route + ' - ' + result);
     if (seedValues.length) {
       seedDatabase(seedValues);
     }
@@ -48,13 +36,10 @@ const command = process.argv[2];
 switch (command) {
   case 'start':
     startServer();
-    execSetup();
+    seedDatabase(seedData);
     break;
   case 'start-ci':
     startServer();
-    break;
-  case 'setup':
-    execSetup();
     break;
   case 'db-seed':
     seedDatabase(seedData);

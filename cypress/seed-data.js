@@ -1,5 +1,15 @@
 exports.seedData = [
   {
+    route: '/setup',
+    type: 'form',
+    data: {
+      name: 'Example Admin',
+      email: 'admin@redash.io',
+      password: 'password',
+      org_name: 'Redash',
+    },
+  },
+  {
     route: '/login',
     type: 'form',
     data: {
