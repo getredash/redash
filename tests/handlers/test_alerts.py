@@ -94,9 +94,10 @@ class TestAlertListPost(BaseTestCase):
         db.session.commit()
         rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
                                                                 destination_id=destination.id, options={},
-                                                                rearm=100))
+                                                                rearm=100, template="alert-template"))
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json['rearm'], 100)
+        self.assertEqual(rv.json['template'], "alert-template")
 
     def test_fails_if_doesnt_have_access_to_query(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
