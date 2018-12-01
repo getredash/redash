@@ -1,6 +1,9 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
 const { execSync } = require('child_process');
-const { post } = require('request');
+const { post } = require('request').defaults({ jar: true });
+const { seedData } = require('./seed-data');
+
+const baseUrl = process.env.CYPRESS_baseUrl || 'http://localhost:5000';
 
 function execSetup() {
   console.log('Running setup...');
@@ -12,14 +15,24 @@ function execSetup() {
     org_name: 'Redash',
   };
 
-  const baseUrl = process.env.CYPRESS_baseUrl || 'http://localhost:5000';
-
   post(baseUrl + '/setup', { formData: setupData });
+}
+
+function seedDatabase(seedValues) {
+  const request = seedValues.shift();
+  const data = request.type === 'form' ? { formData: request.data } : { json: request.data };
+
+  post(baseUrl + request.route, data, (err, response) => {
+    console.log('POST ' + request.route + ' - ' + response.statusCode);
+    if (seedValues.length) {
+      seedDatabase(seedValues);
+    }
+  });
 }
 
 function startServer() {
   console.log('Starting the server...');
-            
+
   execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', { stdio: 'inherit' });
   execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
   execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
@@ -42,6 +55,9 @@ switch (command) {
     break;
   case 'setup':
     execSetup();
+    break;
+  case 'db-seed':
+    seedDatabase(seedData);
     break;
   case 'stop':
     stopServer();
