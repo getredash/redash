@@ -1,12 +1,11 @@
 describe('Create Data Source', () => {
   beforeEach(() => {
     cy.login();
-    cy.visit('/data_sources');
+    cy.visit('/data_sources/new');
   });
 
   it('creates a new PostgreSQL data source', () => {
-    cy.contains('New Data Source').click();
-    cy.contains('PostgreSQL').click();
+    cy.get('[data-test=DatabaseSource]').contains('PostgreSQL').click();
 
     cy.get('[data-test=TargetName]').type('Redash');
     cy.get('[data-test=Host]').type('{selectall}localhost');
