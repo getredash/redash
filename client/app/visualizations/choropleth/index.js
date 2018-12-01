@@ -68,8 +68,8 @@ function choroplethRenderer($sanitize, $http) {
 
       function getDataUrl(type) {
         switch (type) {
-          case 'subdiv_japan': return subdivJapanDataUrl;
           case 'countries': return countriesDataUrl;
+          case 'subdiv_japan': return subdivJapanDataUrl;
           default: return '';
         }
       }
@@ -266,7 +266,7 @@ function choroplethEditor(ChoroplethPalette) {
         ) || $scope.options.countryCodeType;
       }
 
-      function setCountryCodeType() {
+      function populateCountryCodeTypes() {
         switch ($scope.options.mapType) {
           case 'subdiv_japan':
             $scope.countryCodeTypes = {
@@ -290,7 +290,7 @@ function choroplethEditor(ChoroplethPalette) {
         }
       }
 
-      $scope.$watch('options.mapType', setCountryCodeType);
+      $scope.$watch('options.mapType', populateCountryCodeTypes);
       $scope.$watch('options.countryCodeColumn', updateCountryCodeType);
       $scope.$watch('queryResult.getData()', updateCountryCodeType);
     },
