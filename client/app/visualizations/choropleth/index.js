@@ -21,6 +21,7 @@ import template from './choropleth.html';
 import editorTemplate from './choropleth-editor.html';
 
 import countriesDataUrl from './countries.geo.json';
+import subdivJapanDataUrl from './japan.prefectures.geo.json';
 
 const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   if (!this[url]) {
@@ -28,6 +29,8 @@ const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   }
   return this[url];
 }, {});
+
+let dataUrl = '';
 
 function choroplethRenderer($sanitize, $http) {
   return {
@@ -63,6 +66,16 @@ function choroplethRenderer($sanitize, $http) {
           } : null;
           map.fitBounds(bounds, options);
         }
+      }
+
+      switch ($scope.options.mapType) {
+        case 'subdiv_japan':
+          dataUrl = subdivJapanDataUrl;
+          break;
+        case 'countries':
+          dataUrl = countriesDataUrl;
+          break;
+        default: dataUrl = '';
       }
 
       function render() {
@@ -163,7 +176,7 @@ function choroplethRenderer($sanitize, $http) {
         setBounds({ disableAnimation: true });
       }
 
-      loadCountriesData($http, countriesDataUrl).then((data) => {
+      loadCountriesData($http, dataUrl).then((data) => {
         if (_.isObject(data)) {
           countriesData = data;
           render();
@@ -178,13 +191,21 @@ function choroplethRenderer($sanitize, $http) {
       }, 50);
 
       $scope.$watch('queryResult && queryResult.getData()', render);
-      $scope.$watch(() => _.omit($scope.options, 'bounds'), render, true);
+      $scope.$watch(() => _.omit($scope.options, 'bounds', 'mapType'), render, true);
       $scope.$watch('options.bounds', () => {
         // Prevent infinite digest loop
         const savedLock = updateBoundsLock;
         updateBoundsLock = true;
         setBounds();
         updateBoundsLock = savedLock;
+      }, true);
+      $scope.$watch('options.mapType', () => {
+        loadCountriesData($http, dataUrl).then((data) => {
+          if (_.isObject(data)) {
+            countriesData = data;
+            render();
+          }
+        });
       }, true);
     },
   };
@@ -205,6 +226,11 @@ function choroplethEditor(ChoroplethPalette) {
       };
 
       $scope.colors = ChoroplethPalette;
+
+      $scope.mapTypes = {
+        countries: 'Countries',
+        subdiv_japan: 'Japan/Prefectures',
+      };
 
       $scope.clusteringModes = {
         q: 'quantile',
@@ -228,6 +254,7 @@ function choroplethEditor(ChoroplethPalette) {
         iso_n3: 'ISO code (3 digits)',
       };
 
+
       $scope.templateHint = `
         <div class="p-b-5">All query result columns can be referenced using <code>{{ column_name }}</code> syntax.</div>
         <div class="p-b-5">Use special names to access additional properties:</div>
@@ -248,6 +275,34 @@ function choroplethEditor(ChoroplethPalette) {
         ) || $scope.options.countryCodeType;
       }
 
+      function setCountryCodeType() {
+        switch ($scope.options.mapType) {
+          case 'subdiv_japan':
+            dataUrl = subdivJapanDataUrl;
+            $scope.countryCodeTypes = {
+              name: 'Name',
+              name_local: 'Name (local)',
+              iso_3166_2: 'ISO-3166-2',
+            };
+            break;
+          case 'countries':
+            dataUrl = countriesDataUrl;
+            $scope.countryCodeTypes = {
+              name: 'Short name',
+              name_long: 'Full name',
+              abbrev: 'Abbreviated name',
+              iso_a2: 'ISO code (2 letters)',
+              iso_a3: 'ISO code (3 letters)',
+              iso_n3: 'ISO code (3 digits)',
+            };
+            break;
+          default:
+            dataUrl = countriesDataUrl;
+            $scope.countryCodeTypes = {};
+        }
+      }
+
+      $scope.$watch('options.mapType', setCountryCodeType);
       $scope.$watch('options.countryCodeColumn', updateCountryCodeType);
       $scope.$watch('queryResult.getData()', updateCountryCodeType);
     },
