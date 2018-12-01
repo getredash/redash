@@ -30,8 +30,6 @@ const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   return this[url];
 }, {});
 
-let dataUrl = '';
-
 function choroplethRenderer($sanitize, $http) {
   return {
     restrict: 'E',
@@ -68,15 +66,15 @@ function choroplethRenderer($sanitize, $http) {
         }
       }
 
-      switch ($scope.options.mapType) {
-        case 'subdiv_japan':
-          dataUrl = subdivJapanDataUrl;
-          break;
-        case 'countries':
-          dataUrl = countriesDataUrl;
-          break;
-        default: dataUrl = '';
+      function getDataUrl(type) {
+        switch (type) {
+          case 'subdiv_japan': return subdivJapanDataUrl;
+          case 'countries': return countriesDataUrl;
+          default: return '';
+        }
       }
+
+      let dataUrl = getDataUrl($scope.options.mapType);
 
       function render() {
         if (map) {
@@ -176,12 +174,16 @@ function choroplethRenderer($sanitize, $http) {
         setBounds({ disableAnimation: true });
       }
 
-      loadCountriesData($http, dataUrl).then((data) => {
-        if (_.isObject(data)) {
-          countriesData = data;
-          render();
-        }
-      });
+      function load() {
+        loadCountriesData($http, dataUrl).then((data) => {
+          if (_.isObject(data)) {
+            countriesData = data;
+            render();
+          }
+        });
+      }
+
+      load();
 
       $scope.handleResize = _.debounce(() => {
         if (map) {
@@ -200,12 +202,8 @@ function choroplethRenderer($sanitize, $http) {
         updateBoundsLock = savedLock;
       }, true);
       $scope.$watch('options.mapType', () => {
-        loadCountriesData($http, dataUrl).then((data) => {
-          if (_.isObject(data)) {
-            countriesData = data;
-            render();
-          }
-        });
+        dataUrl = getDataUrl($scope.options.mapType);
+        load();
       }, true);
     },
   };
@@ -245,14 +243,7 @@ function choroplethEditor(ChoroplethPalette) {
         'bottom-right': 'bottom / right',
       };
 
-      $scope.countryCodeTypes = {
-        name: 'Short name',
-        name_long: 'Full name',
-        abbrev: 'Abbreviated name',
-        iso_a2: 'ISO code (2 letters)',
-        iso_a3: 'ISO code (3 letters)',
-        iso_n3: 'ISO code (3 digits)',
-      };
+      $scope.countryCodeTypes = {};
 
 
       $scope.templateHint = `
@@ -278,7 +269,6 @@ function choroplethEditor(ChoroplethPalette) {
       function setCountryCodeType() {
         switch ($scope.options.mapType) {
           case 'subdiv_japan':
-            dataUrl = subdivJapanDataUrl;
             $scope.countryCodeTypes = {
               name: 'Name',
               name_local: 'Name (local)',
@@ -286,7 +276,6 @@ function choroplethEditor(ChoroplethPalette) {
             };
             break;
           case 'countries':
-            dataUrl = countriesDataUrl;
             $scope.countryCodeTypes = {
               name: 'Short name',
               name_long: 'Full name',
@@ -297,7 +286,6 @@ function choroplethEditor(ChoroplethPalette) {
             };
             break;
           default:
-            dataUrl = countriesDataUrl;
             $scope.countryCodeTypes = {};
         }
       }
