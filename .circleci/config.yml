@@ -65,7 +65,9 @@ jobs:
       - checkout
       - run:
           name: Install npm dependencies
-          command: npm install
+          command: |
+            npm install
+            npm install --no-save @percy/cypress
       - run:
           name: Setup Redash server
           command: |
@@ -73,7 +75,7 @@ jobs:
             docker-compose run cypress node ./cypress/cypress-server.js db-seed
       - run:
           name: Execute Cypress tests
-          command: docker-compose run cypress ./node_modules/.bin/cypress run
+          command: ./node_modules/.bin/percy exec -- docker-compose run cypress ./node_modules/.bin/cypress run
   build-tarball:
     docker:
       - image: circleci/node:8

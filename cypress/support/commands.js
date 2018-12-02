@@ -1,3 +1,5 @@
+import '@percy/cypress';
+
 Cypress.Commands.add('login', () => {
   const users = {
     admin: {

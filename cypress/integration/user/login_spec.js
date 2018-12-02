@@ -21,4 +21,8 @@ describe('Login', () => {
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
   });
+
+  it('takes a screenshot', () => {
+    cy.percySnapshot('Login page');
+  });
 });

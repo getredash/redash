@@ -13,7 +13,7 @@
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "test": "jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress",
+    "cypress:install": "npm install --no-save cypress @percy/cypress",
     "cypress:server": "node cypress/cypress-server.js",
     "cypress:run": "cypress run",
     "cypress:open": "cypress open",
