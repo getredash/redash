@@ -261,6 +261,7 @@ function choroplethEditor(ChoroplethPalette) {
 
       function updateCountryCodeType() {
         $scope.options.countryCodeType = inferCountryCodeType(
+          $scope.options.mapType,
           $scope.queryResult.getData(),
           $scope.options.countryCodeColumn,
         ) || $scope.options.countryCodeType;
