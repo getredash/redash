@@ -14,4 +14,4 @@ Cypress.Commands.add('login', () => {
   });
 });
 
-Cypress.Commands.add('getElement', element => cy.get('[data-test="' + element + '"]'));
+Cypress.Commands.add('getByTestId', element => cy.get('[data-test="' + element + '"]'));

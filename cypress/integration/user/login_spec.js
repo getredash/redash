@@ -8,15 +8,15 @@ describe('Login', () => {
   });
 
   it('shows message on failed login', () => {
-    cy.getElement('Email').type('admin@redash.io');
-    cy.getElement('Password').type('wrongpassword{enter}');
+    cy.getByTestId('Email').type('admin@redash.io');
+    cy.getByTestId('Password').type('wrongpassword{enter}');
 
-    cy.getElement('ErrorMessage').should('contain', 'Wrong email or password.');
+    cy.getByTestId('ErrorMessage').should('contain', 'Wrong email or password.');
   });
 
   it('navigates to homepage with successful login', () => {
-    cy.getElement('Email').type('admin@redash.io');
-    cy.getElement('Password').type('password{enter}');
+    cy.getByTestId('Email').type('admin@redash.io');
+    cy.getByTestId('Password').type('password{enter}');
 
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
