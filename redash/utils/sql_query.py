@@ -35,15 +35,13 @@ def _filter_noise(tokens):
 def _same_type(a, b):
     if _populating_an_in_operator(a, b):
         return True
-    elif not _equivalent_leaves(a, b):
-        return False
     elif type(a) in (list, tuple):
         children_are_same = [_same_type(child_a, child_b) for (child_a, child_b) in zip(a, b)]
         return len(a) == len(b) and all(children_are_same)
     elif (hasattr(a, 'tokens') and hasattr(b, 'tokens')):
         return _same_type(_filter_noise(a.tokens), _filter_noise(b.tokens))
     else:
-        return True
+        return _equivalent_leaves(a, b)
 
 
 class SQLQuery(object):
