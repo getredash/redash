@@ -129,7 +129,7 @@ function choroplethRenderer($sanitize, $http) {
               layer.bindTooltip($sanitize(formatSimpleTemplate(
                 $scope.options.tooltip.template,
                 featureData,
-              )));
+              )), { sticky: true });
             }
 
             if ($scope.options.popup.enabled) {
