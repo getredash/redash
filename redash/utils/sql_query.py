@@ -1,6 +1,12 @@
+import re
+
 import sqlparse
-from redash.utils import mustache_render
 from cached_property import cached_property
+from redash.utils import mustache_render
+
+
+def _replace_params(template):
+    return re.sub('-?{{.+?}}', 'param', template)
 
 
 class SQLQuery(object):
@@ -16,7 +22,7 @@ class SQLQuery(object):
         return self
 
     def is_safe(self):
-        template_tree = sqlparse.parse(self.template)
+        template_tree = sqlparse.parse(_replace_params(self.template))
         query_tree = sqlparse.parse(self.query)
         return self._same_type(template_tree, query_tree)
 

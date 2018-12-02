@@ -78,3 +78,17 @@ class TestSQLQuery(TestCase):
             })
 
         self.assertFalse(query.is_safe())
+
+    def test_marks_multiple_word_params_as_safe(self):
+        query = SQLQuery("SELECT {{why would you do this}} FROM users").apply({
+            "why would you do this": "shrug"
+            })
+
+        self.assertTrue(query.is_safe())
+
+    def test_marks_param_negations_as_safe(self):
+        query = SQLQuery("SELECT date_add(some_column, INTERVAL -{{days}} DAY) FROM events").apply({
+            "days": 7
+            })
+
+        self.assertTrue(query.is_safe())
