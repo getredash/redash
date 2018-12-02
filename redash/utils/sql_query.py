@@ -36,10 +36,10 @@ class SQLQuery(object):
     @cached_property
     def text(self):
         if not self.is_safe():
-            raise SQLInjectionException()
+            raise SQLInjectionError()
         else:
             return self.query
 
 
-class SQLInjectionException(Exception):
+class SQLInjectionError(Exception):
     pass

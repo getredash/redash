@@ -1,5 +1,6 @@
-from redash.utils.sql_query import SQLQuery, SQLInjectionException
 from unittest import TestCase
+
+from redash.utils.sql_query import SQLInjectionError, SQLQuery
 
 
 class TestSQLQuery(TestCase):
@@ -15,7 +16,7 @@ class TestSQLQuery(TestCase):
             "userid": "22 OR 1==1"
             })
 
-        self.assertRaises(SQLInjectionException, getattr, query, 'text')
+        self.assertRaises(SQLInjectionError, getattr, query, 'text')
 
     def test_marks_queries_without_params_as_safe(self):
         query = SQLQuery("SELECT * FROM users")
