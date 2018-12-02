@@ -23,14 +23,14 @@
     <div class="row">
       <div class="col-xs-6">
         <div class="form-group">
-          <label>Country code column</label>
+          <label>Key column</label>
           <select ng-options="name for name in queryResult.getColumnNames()"
             ng-model="options.countryCodeColumn" class="form-control"></select>
         </div>
       </div>
       <div class="col-xs-6">
         <div class="form-group">
-          <label>Country code type</label>
+          <label>Key type</label>
           <select ng-options="key as value for (key, value) in countryCodeTypes"
             ng-model="options.countryCodeType" class="form-control"></select>
         </div>
