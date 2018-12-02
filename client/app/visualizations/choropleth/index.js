@@ -245,17 +245,11 @@ function choroplethEditor(ChoroplethPalette) {
 
       $scope.countryCodeTypes = {};
 
-
-      $scope.templateHint = `
+      $scope.templateHintFormatter = propDescription => `
         <div class="p-b-5">All query result columns can be referenced using <code>{{ column_name }}</code> syntax.</div>
         <div class="p-b-5">Use special names to access additional properties:</div>
         <div><code>{{ @@value }}</code> formatted value;</div>
-        <div><code>{{ @@name }}</code> short country name;</div>
-        <div><code>{{ @@name_long }}</code> full country name;</div>
-        <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
-        <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
-        <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
-        <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
+        ${propDescription}
         <div class="p-t-5">This syntax is applicable to tooltip and popup templates.</div>
       `;
 
@@ -268,8 +262,14 @@ function choroplethEditor(ChoroplethPalette) {
       }
 
       function populateCountryCodeTypes() {
+        let propDescription = '';
         switch ($scope.options.mapType) {
           case 'subdiv_japan':
+            propDescription = `
+              <div><code>{{ @@name }}</code> Prefecture name in English;</div>
+              <div><code>{{ @@name_local }}</code> Prefecture name in Kanji;</div>
+              <div><code>{{ @@iso_3166_2 }}</code> five-letter ISO subdivision code (JP-xx);</div>
+            `;
             $scope.countryCodeTypes = {
               name: 'Name',
               name_local: 'Name (local)',
@@ -277,6 +277,14 @@ function choroplethEditor(ChoroplethPalette) {
             };
             break;
           case 'countries':
+            propDescription = `
+              <div><code>{{ @@name }}</code> short country name;</div>
+              <div><code>{{ @@name_long }}</code> full country name;</div>
+              <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
+              <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
+              <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
+              <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
+            `;
             $scope.countryCodeTypes = {
               name: 'Short name',
               name_long: 'Full name',
@@ -289,6 +297,7 @@ function choroplethEditor(ChoroplethPalette) {
           default:
             $scope.countryCodeTypes = {};
         }
+        $scope.templateHint = $scope.templateHintFormatter(propDescription);
       }
 
       $scope.$watch('options.mapType', populateCountryCodeTypes);
