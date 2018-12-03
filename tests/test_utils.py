@@ -1,8 +1,10 @@
+import binascii
 from collections import namedtuple
 from unittest import TestCase
 
 from redash.utils import (build_url, collect_parameters_from_request,
-                          collect_query_parameters, filter_none)
+                          collect_query_parameters, filter_none,
+                          json_dumps)
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
@@ -61,3 +63,8 @@ class TestSkipNones(TestCase):
         }
 
         self.assertDictEqual(filter_none(d), {'a': 1})
+
+
+class TestJsonDumps(TestCase):
+    def test_handles_binary(self):
+        self.assertEqual(json_dumps(buffer("test")), '"74657374"')
