@@ -14,7 +14,7 @@ This release was 2 months in the making and it is full with good stuff!
 * We improved the layout of visualizations and content on smaller screen sizes. 📱
 * For those of you who like sharing, you can now enable the ability to share ownership of queries and dashboards and let others to edit them. Check the Settings page to enable this feature.
 
-There were also important changes to the code and infrastrucutre: 
+There were also important changes to the code and infrastructure: 
 
 * More components moved to React.
 * We switched to Webpack 4 with the help of @dmonego.
