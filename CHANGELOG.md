@@ -1,6 +1,31 @@
 # Change Log
 
-## v6.0.0-Beta - 2018-12-03
+## v6.0.0-beta - 2018-12-03
+
+This release was 2 months in the making and it is full with good stuff! 
+
+* We have 5 new data sources: Databricks, IBM DB2, Kylin, Druid and Rockset. ⌗
+* There been fixes and improvements to 11 existing data sources (MySQL, Redshift, Postgres, MongoDB, Google BigQuery, Vertica, TreasureData, Presto, ClickHouse, Google Sheets and Google Analytics).
+* The Query Results data source can now load cached results, just use the `cached_query_` prefix instead of `query_`.
+* On the visualizations front we added Heatmap visualization and did some updates and fixes to the other visualizations. Also you can now edit the counter label without renaming the visualization.
+* Alerts got some fixes and a new destination: PagerDuty.
+* If the live autocomplete in the code editor annoys you, you can disable it now (although we're working to make it better, see #3092).
+* Fast queries will now load faster. 🏃‍♂️
+* We improved the layout of visualizations and content on smaller screen sizes. 📱
+* For those of you who like sharing, you can now enable the ability to share ownership of queries and dashboards and let others to edit them. Check the Settings page to enable this feature.
+
+There were also important changes to the code and infrastrucutre: 
+
+* More components moved to React.
+* We switched to Webpack 4 with the help of @dmonego.
+* We upgraded to Celery 4 with the help of @emtwo, @jezdez, @mashrikt and @atharvai.
+* We started moving towards Python 3 for our backend. The first step was to make sure our code pass basic sanity tests with Flake 8, which was implemented by @cclauss.
+* We improved our testing on the frontend by adding setup for Jest tests and E2E testing using Cypress (@gabrieldutra).
+* Each pull request now gets a deploy preview using Netlify to easily test frontend changes.
+
+This is just a summary, you're welcome to review the full list below. ⬇
+
+This release had contributions from 38 people: @arikfr, @kravets-levko, @jezdez, @kyoshidajp, @kocsmy, @alison985, @gabrieldutra, @washort, @GitSumito, @emtwo, @rauchy, @alexanderlz, @denisov-vlad, @ariarijp, @yoavbls, @zhujunsan, @sjakthol, @koooge, @SakuradaJun, @dmonego, @Udomomo, @cclauss, @combineads, @zaimy, @Trigl, @ralphilius, @jodevsa, @deecay, @igorcanadi, @pashaxp, @hoangphuoc25, @toph, @burnash, @wankdanker, @Yossi-a, @Rovel, @kadrach, and @nicof38. Thank you, everyone 🙏
 
 ### Added
 
