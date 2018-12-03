@@ -1,6 +1,6 @@
+import codecs
 import cStringIO
 import csv
-import codecs
 import datetime
 import decimal
 import hashlib
@@ -9,45 +9,20 @@ import random
 import re
 import uuid
 
+from six import string_types
+
 import pystache
 import pytz
 import simplejson
 from funcy import distinct, select_values
-from six import string_types
+from redash import settings
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
-from redash import settings
-import sqlparse
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
 WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
-
-
-class SQLQuery:
-    def __init__(self, template):
-        self.template = template
-
-    def apply(self, parameters):
-        self.query = mustache_render(self.template, parameters)
-        return self
-
-    def is_safe(self):
-        template_tree = sqlparse.parse(self.template)
-        query_tree = sqlparse.parse(self.query)
-        return self.__same_type__(template_tree, query_tree)
-
-    def __same_type__(self, a, b):
-        if (type(a) == type(b) == list or type(a) == type(b) == tuple):
-            if (len(a) == len(b)):
-                return all([self.__same_type__(child_a, child_b) for (child_a, child_b) in zip(a, b)])
-            else:
-                return False
-        elif (type(a) == type(b) and hasattr(a, 'tokens')):
-            return self.__same_type__(a.tokens, b.tokens)
-        else:
-            return type(a) == type(b)
 
 
 def utcnow():
