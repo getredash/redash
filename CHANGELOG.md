@@ -7,7 +7,7 @@ This release was 2 months in the making and it is full with good stuff!
 * We have 5 new data sources: Databricks, IBM DB2, Kylin, Druid and Rockset. ⌗
 * There are fixes and improvements to 11 existing data sources (MySQL, Redshift, Postgres, MongoDB, Google BigQuery, Vertica, TreasureData, Presto, ClickHouse, Google Sheets and Google Analytics).
 * The Query Results data source can now load cached results, just use the `cached_query_` prefix instead of `query_`.
-* On the visualizations front we added a Heatmap visualization and did some updates and fixes to the other visualizations. Also you can now edit the counter label without renaming the visualization.
+* On the visualizations front we added a Heatmap visualization and did updated the table and counter visualizations.
 * Alerts got some fixes and a new destination: PagerDuty.
 * If the live autocomplete in the code editor annoys you, you can disable it now (although we're working to make it better, see #3092).
 * Fast queries will now load faster. 🏃‍♂️
