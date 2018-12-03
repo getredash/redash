@@ -1,6 +1,6 @@
 # Change Log
 
-## UNRELEASED
+## v6.0.0-Beta - 2018-12-03
 
 ### Added
 
