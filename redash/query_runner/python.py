@@ -211,10 +211,15 @@ class Python(BaseQueryRunner):
 
         return json_loads(query.latest_query_data.data)
 
+    def get_current_user(self):
+        return self._current_user.to_dict()
+
     def test_connection(self):
         pass
 
     def run_query(self, query, user):
+        self._current_user = user
+
         try:
             error = None
 
@@ -239,6 +244,7 @@ class Python(BaseQueryRunner):
             restricted_globals = dict(__builtins__=builtins)
             restricted_globals["get_query_result"] = self.get_query_result
             restricted_globals["get_source_schema"] = self.get_source_schema
+            restricted_globals["get_current_user"] = self.get_current_user
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row

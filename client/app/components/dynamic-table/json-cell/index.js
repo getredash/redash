@@ -5,7 +5,7 @@ import template from './template.html';
 const MAX_JSON_SIZE = 50000;
 
 function parseValue(value) {
-  if (isString(value) && (value.length <= MAX_JSON_SIZE)) {
+  if (isString(value) && value.length <= MAX_JSON_SIZE) {
     try {
       return JSON.parse(value);
     } catch (e) {
@@ -38,3 +38,5 @@ export default function init(ngModule) {
     },
   }));
 }
+
+init.init = true;

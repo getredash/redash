@@ -241,9 +241,13 @@ def list(organization=None):
         users = models.User.query.filter(models.User.org == org)
     else:
         users = models.User.query
-    for i, user in enumerate(users):
+    for i, user in enumerate(users.order_by(models.User.name)):
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name))
+        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
+            user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))
+
+        groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
+        group_names = [group.name for group in groups]
+        print("Groups: {}".format(", ".join(group_names)))

@@ -13,7 +13,7 @@ except ImportError:
         logger.error("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
         exit()
 
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index, get_next_path
 from redash.authentication.org_resolving import current_org
 
 
@@ -23,7 +23,8 @@ blueprint = Blueprint('ldap_auth', __name__)
 @blueprint.route("/ldap/login", methods=['GET', 'POST'])
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    unsafe_next_path = request.args.get('next', index_url)
+    next_path = get_next_path(unsafe_next_path)
 
     if not settings.LDAP_LOGIN_ENABLED:
         logger.error("Cannot use LDAP for login without being enabled in settings")

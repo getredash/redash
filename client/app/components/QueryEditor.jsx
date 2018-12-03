@@ -15,6 +15,8 @@ import 'brace/mode/sql';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
+import localOptions from '@/lib/localOptions';
+import AutocompleteToggle from '@/components/AutocompleteToggle';
 import { DataSource, Schema } from './proptypes';
 
 const langTools = ace.acequire('ace/ext/language_tools');
@@ -43,13 +45,12 @@ function buildKeywordsFromSchema(schema) {
     });
   });
 
-  return map(keywords, (v, k) =>
-    ({
-      name: k,
-      value: k,
-      score: 0,
-      meta: v,
-    }));
+  return map(keywords, (v, k) => ({
+    name: k,
+    value: k,
+    score: 0,
+    meta: v,
+  }));
 }
 
 class QueryEditor extends React.Component {
@@ -70,21 +71,23 @@ class QueryEditor extends React.Component {
     updateQuery: PropTypes.func.isRequired,
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
-
-  }
+  };
 
   static defaultProps = {
     schema: null,
     dataSource: {},
     dataSources: [],
-  }
+  };
 
   constructor(props) {
     super(props);
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: [], // eslint-disable-line react/no-unused-state
-      autocompleteQuery: true,
+      autocompleteQuery: localOptions.get('liveAutocomplete', true),
+      liveAutocompleteDisabled: false,
+      // XXX temporary while interfacing with angular
+      queryText: props.queryText,
     };
     langTools.addCompleter({
       getCompletions: (state, session, pos, prefix, callback) => {
@@ -140,28 +143,40 @@ class QueryEditor extends React.Component {
       // eslint-disable-next-line react/prop-types
       const format = this.props.Query.format;
       format(this.props.dataSource.syntax || 'sql', this.props.queryText)
-        .then(this.props.updateQuery)
+        .then(this.updateQuery)
         .catch(error => toastr.error(error));
     };
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
-      return { keywords: [], autocompleteQuery: false };
+      return { keywords: [], liveAutocompleteDisabled: false };
     } else if (nextProps.schema !== prevState.schema) {
+      const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
         schema: nextProps.schema,
         keywords: buildKeywordsFromSchema(nextProps.schema),
-        autocompleteQuery: (nextProps.schema.reduce((totalLength, table) =>
-          totalLength + table.columns.length, 0) <= 5000),
+        liveAutocompleteDisabled: tokensCount > 5000,
       };
     }
     return null;
   }
 
+  updateQuery = (queryText) => {
+    this.props.updateQuery(queryText);
+    this.setState({ queryText });
+  };
+
+  toggleAutocomplete = (state) => {
+    this.setState({ autocompleteQuery: state });
+    localOptions.set('liveAutocomplete', state);
+  }
+
   render() {
     // eslint-disable-next-line react/prop-types
     const modKey = this.props.KeyboardShortcuts.modKey;
+
+    const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery();
 
     return (
       <section style={{ height: '100%' }}>
@@ -171,64 +186,97 @@ class QueryEditor extends React.Component {
               ref={this.refEditor}
               theme="textmate"
               mode={this.props.dataSource.syntax || 'sql'}
-              value={this.props.queryText}
+              value={this.state.queryText}
               editorProps={{ $blockScrolling: Infinity }}
               width="100%"
               height="100%"
               setOptions={{
                 behavioursEnabled: true,
                 enableSnippets: true,
-                enableLiveAutocompletion: this.state.autocompleteQuery,
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: !this.state.liveAutocompleteDisabled && this.state.autocompleteQuery,
                 autoScrollEditorIntoView: true,
               }}
               showPrintMargin={false}
               wrapEnabled={false}
               onLoad={this.onLoad}
               onPaste={this.onPaste}
-              onChange={(queryText) => { this.props.updateQuery(queryText); }}
+              onChange={this.updateQuery}
             />
           </div>
 
           <div className="editor__control">
             <div className="form-inline d-flex">
-              <Tooltip placement="top" title={<span>Add New Parameter (<i>{modKey} + P</i>)</span>}>
-                <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>&#123;&#123;&nbsp;&#125;&#125;</button>
+              <Tooltip
+                placement="top"
+                title={
+                  <span>
+                    Add New Parameter (<i>{modKey} + P</i>)
+                  </span>
+                }
+              >
+                <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>
+                  &#123;&#123;&nbsp;&#125;&#125;
+                </button>
               </Tooltip>
               <Tooltip placement="top" title="Format Query">
                 <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
               </Tooltip>
-              <Tooltip placement="top" title="Autocomplete">
-                <button type="button" className={'btn btn-default' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
-                  <span className="fa fa-magic" />
-                </button>
-              </Tooltip>
-              <select className="form-control datasource-small flex-fill w-100" onChange={this.props.updateDataSource} disabled={!this.props.isQueryOwner}>
-                {this.props.dataSources.map(ds => <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>{ds.name}</option>)}
+              <AutocompleteToggle
+                state={this.state.autocompleteQuery}
+                onToggle={this.toggleAutocomplete}
+                disabled={this.state.liveAutocompleteDisabled}
+              />
+              <select
+                className="form-control datasource-small flex-fill w-100"
+                onChange={this.props.updateDataSource}
+                disabled={!this.props.isQueryOwner}
+              >
+                {this.props.dataSources.map(ds => (
+                  <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>
+                    {ds.name}
+                  </option>
+                ))}
               </select>
-              {this.props.canEdit ?
+              {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
                   <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
-                    <span className="fa fa-floppy-o" />&nbsp;
-                    <span className="hidden-xs">Save</span>
+                    <span className="fa fa-floppy-o" />
+                    <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
                   </button>
-                </Tooltip> : null }
+                </Tooltip>
+              ) : null}
               <Tooltip placement="top" title={modKey + ' + Enter'}>
-                <button type="button" className="btn btn-primary m-l-5" disabled={this.props.queryExecuting || !this.props.canExecuteQuery()} onClick={this.props.executeQuery}>
-                  <span className="zmdi zmdi-play" />&nbsp;
-                  <span className="hidden-xs">Execute</span>
+                {/*
+                  Tooltip wraps disabled buttons with `<span>` and moves all styles
+                  and classes to that `<span>`. There is a piece of CSS that fixes
+                  button appearance, but also wwe need to add `disabled` class to
+                  disabled buttons so it will be assigned to wrapper and make it
+                  looking properly
+                */}
+                <button
+                  type="button"
+                  className={'btn btn-primary m-l-5' + (isExecuteDisabled ? ' disabled' : '')}
+                  disabled={isExecuteDisabled}
+                  onClick={this.props.executeQuery}
+                >
+                  <span className="zmdi zmdi-play" />
+                  <span className="hidden-xs m-l-5">Execute</span>
                 </button>
               </Tooltip>
             </div>
           </div>
         </div>
-
-      </section>);
+      </section>
+    );
   }
 }
 
 export default function init(ngModule) {
   ngModule.component('queryEditor', react2angular(QueryEditor, null, ['QuerySnippet', 'Query', 'KeyboardShortcuts']));
 }
+
+init.init = true;

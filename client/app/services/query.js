@@ -3,8 +3,10 @@ import debug from 'debug';
 import Mustache from 'mustache';
 import {
   each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject,
+  isNull, isUndefined, isArray, isObject, identity,
 } from 'lodash';
+
+Mustache.escape = identity; // do not html-escape values
 
 const logger = debug('redash:services:query');
 
@@ -518,3 +520,6 @@ export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
 }
+
+init.init = true;
+

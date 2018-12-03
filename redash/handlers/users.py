@@ -5,7 +5,7 @@ from flask_login import current_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
-from funcy import rpartial
+from funcy import partial
 
 from redash import models
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
@@ -25,7 +25,11 @@ order_map = {
     '-groups': '-group_ids',
 }
 
-order_results = rpartial(_order_results, '-created_at', order_map)
+order_results = partial(
+    _order_results,
+    default_order='-created_at',
+    allowed_orders=order_map,
+)
 
 
 def invite_user(org, inviter, user):
@@ -75,9 +79,12 @@ class UserListResource(BaseResource):
                 'object_type': 'user',
             })
 
-        users = order_results(users)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_users = order_results(users, fallback=bool(search_term))
 
-        return paginate(users, page, page_size, serialize_user)
+        return paginate(ordered_users, page, page_size, serialize_user)
 
     @require_admin
     def post(self):
@@ -177,6 +184,12 @@ class UserResource(BaseResource):
 
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
+        
+        if 'email' in params:
+            _, domain = params['email'].split('@', 1)
+
+            if domain.lower() in blacklist or domain.lower() == 'qq.com':
+                abort(400, message='Bad email address.')
 
         try:
             self.update_model(user, params)

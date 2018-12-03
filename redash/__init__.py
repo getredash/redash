@@ -18,7 +18,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '5.0.0'
+__version__ = '6.0.0-beta'
 
 
 def setup_logging():

@@ -35,3 +35,6 @@ function alertUnsavedChanges($window) {
 export default function init(ngModule) {
   ngModule.directive('alertUnsavedChanges', alertUnsavedChanges);
 }
+
+init.init = true;
+

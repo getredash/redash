@@ -144,3 +144,5 @@ export default function init(ngModule) {
   ngModule.directive('visualizationName', VisualizationName);
   ngModule.filter('filterValue', FilterValueFilter);
 }
+
+init.init = true;
