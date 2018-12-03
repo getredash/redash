@@ -2,7 +2,7 @@ from collections import namedtuple
 from unittest import TestCase
 
 from redash.utils import (build_url, collect_parameters_from_request,
-                          collect_query_parameters, filter_none, SQLQuery)
+                          collect_query_parameters, filter_none)
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
@@ -61,35 +61,3 @@ class TestSkipNones(TestCase):
         }
 
         self.assertDictEqual(filter_none(d), {'a': 1})
-
-
-class TestSQLQuery(TestCase):
-    def test_marks_simple_queries_as_safe(self):
-        query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}'")
-        query.apply({"userid": 22})
-
-        self.assertTrue(query.is_safe())
-
-    def test_marks_multiple_simple_queries_as_safe(self):
-        query = SQLQuery("SELECT * FROM users WHERE userid='{{userid}}' ; SELECT * FROM profiles")
-        query.apply({"userid": 22})
-
-        self.assertTrue(query.is_safe())
-
-    def test_marks_tautologies_as_not_safe(self):
-        query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}")
-        query.apply({"userid": "22 OR 1==1"})
-
-        self.assertFalse(query.is_safe())
-
-    def test_marks_union_queries_as_not_safe(self):
-        query = SQLQuery("SELECT * FROM users WHERE userid={{userid}}")
-        query.apply({"userid": "22 UNION SELECT body, results, 1 FROM reports"})
-
-        self.assertFalse(query.is_safe())
-
-    def test_marks_comment_attacks_as_not_safe(self):
-        query = SQLQuery("SELECT * FROM users WHERE username='{{username}}' AND password='{{password}}'")
-        query.apply({"username": "admin' --"})
-
-        self.assertFalse(query.is_safe())
