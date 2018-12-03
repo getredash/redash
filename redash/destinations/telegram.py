@@ -7,6 +7,7 @@ import json
 import requests
 import urllib
 import datetime
+import os
 
 class Telegram(BaseDestination):
 
@@ -70,7 +71,7 @@ class Telegram(BaseDestination):
         
         if send:
           try:
-            TOKEN = "727244721:AAFrOQpXs5gzREKBTvcP9d5t8V8s7v0j_QU"
+            TOKEN = os.environ.get('REDASH_BOT_EXTRA_SECRET_SPELL', '')
             URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
             text = urllib.pathname2url(essence)
