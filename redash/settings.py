@@ -239,6 +239,7 @@ default_destinations = [
     'redash.destinations.slack',
     'redash.destinations.webhook',
     'redash.destinations.hipchat',
+    'redash.destinations.telegram',
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))

@@ -42,13 +42,20 @@ RUN pip install --user pandas
 
 USER root
 
-ADD . /opt/redash/
+ADD ./node_modules      /opt/redash/node_modules
+ADD ./client            /opt/redash/client
+ADD ./tmp/exclude.tar.gz   /opt/redash/
+
+#RUN tar -xzf /tmp/exclude* -C /opt/redash/ && rm /tmp/exclude*
+
+#RUN wget "https://s3.amazonaws.com/redash-releases/redash.3.0.0.b3134.tar.gz" -O "/tmp/redash.tar.gz" && \
+#    tar -C "/opt/redash/" -xvf "/tmp/redash.tar.gz"
 
 ADD https://releases.hashicorp.com/envconsul/0.6.2/envconsul_0.6.2_linux_amd64.tgz /tmp/
 RUN tar -xf /tmp/envconsul* -C /bin && rm /tmp/envconsul*
 
 RUN ln -s /home/redash/.local/bin/celery /usr/bin/celery
 
-RUN ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
+#RUN ln -fs /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 USER redash
