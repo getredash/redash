@@ -34,6 +34,7 @@ services:
       - worker
     environment:
       CYPRESS_baseUrl: "http://server:5000"
+      PERCY_TOKEN: ${PERCY_TOKEN}
   redis:
     image: redis:3.0-alpine
     restart: unless-stopped

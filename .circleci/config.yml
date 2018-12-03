@@ -73,8 +73,8 @@ jobs:
             docker-compose run cypress node ./cypress/cypress-server.js db-seed
       - run:
           name: Execute Cypress tests
-          command: ./node_modules/.bin/percy exec -- docker-compose run cypress ./node_modules/.bin/cypress run
-  build-tarball:
+          command: docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
+  build-tarball:z
     docker:
       - image: circleci/node:8
     steps:
