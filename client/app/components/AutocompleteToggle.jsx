@@ -2,6 +2,7 @@ import React from 'react';
 import Tooltip from 'antd/lib/tooltip';
 import PropTypes from 'prop-types';
 import '@/redash-font/style.less';
+import recordEvent from '@/lib/recordEvent';
 
 export default function AutocompleteToggle({ state, disabled, onToggle }) {
   let tooltipMessage = 'Live Autocomplete Enabled';
@@ -16,12 +17,17 @@ export default function AutocompleteToggle({ state, disabled, onToggle }) {
     icon = 'icon-flash-off';
   }
 
+  const toggle = (newState) => {
+    recordEvent('toggle_autocomplete', 'screen', 'query_editor', { state: newState });
+    onToggle(newState);
+  };
+
   return (
     <Tooltip placement="top" title={tooltipMessage}>
       <button
         type="button"
         className={'btn btn-default m-r-5' + (disabled ? ' disabled' : '')}
-        onClick={() => onToggle(!state)}
+        onClick={() => toggle(!state)}
         disabled={disabled}
       >
         <i className={'icon ' + icon} />
