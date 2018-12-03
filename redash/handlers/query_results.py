@@ -5,16 +5,15 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.tasks import QueryTask, record_event
-from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import (collect_query_parameters,
-                          collect_parameters_from_request,
-                          gen_query_hash,
-                          json_dumps,
+from redash.permissions import (has_access, not_view_only, require_access,
+                                require_permission, view_only)
+from redash.tasks import QueryTask, record_event
+from redash.tasks.queries import enqueue_query
+from redash.utils import (collect_parameters_from_request,
+                          collect_query_parameters, gen_query_hash, json_dumps,
                           utcnow)
 from redash.utils.sql_query import SQLQuery
-from redash.tasks.queries import enqueue_query
 
 
 def error_response(message):
@@ -40,9 +39,9 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
     if max_age <= 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query.text(), max_age)
+        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
-    query_hash = gen_query_hash(query.text())
+    query_hash = gen_query_hash(query.text)
 
     if query_result:
         logging.info("Returning cached result for query %s" % query_hash)
@@ -50,7 +49,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
     try:
         started_at = time.time()
-        data, error = data_source.query_runner.run_query(query.text(), current_user)
+        data, error = data_source.query_runner.run_query(query.text, current_user)
 
         if error:
             logging.info('got bak error')
@@ -59,7 +58,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                              query_hash, query.text(), data,
+                                                                              query_hash, query.text, data,
                                                                               run_time, utcnow())
 
         models.db.session.commit()
@@ -93,12 +92,12 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query.text(), max_age)
+        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query.text(), data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
