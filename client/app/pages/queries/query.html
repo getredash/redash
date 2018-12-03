@@ -27,8 +27,8 @@
               ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
             <query-tags-control
               class="query-tags" ng-class="{'query-tags__empty': query.tags.length == 0}"
-              query="query" can-edit="isQueryOwner"
-              get-available-tags="loadTags" on-edit="saveTags()"></query-tags-control>
+              tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+              can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
           </h3>
 
           <span class="flex-fill">&nbsp;</span>
@@ -53,9 +53,9 @@
               </button>
               <ul class="dropdown-menu pull-right" uib-dropdown-menu>
                 <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
-                  <a ng-click="duplicateQuery()"> Fork</a>
+                  <a ng-click="duplicateQuery()"> Fork <i class="fa fa-external-link"></i></a>
                 </li>
-                <li class="divider"></li>
+                <li class="divider" ng-if="query.is_archived"></li>
                 <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <a ng-click="archiveQuery()">Archive</a>
                 </li>
@@ -75,8 +75,8 @@
         </div>
         <query-tags-control
           class="query-tags__mobile" ng-class="{'query-tags__empty': query.tags.length == 0}"
-          query="query" can-edit="isQueryOwner"
-          get-available-tags="loadTags" on-edit="saveTags()"></query-tags-control>
+          tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+          can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
       </div>
     </div>
   </div>
