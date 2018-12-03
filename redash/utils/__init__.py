@@ -8,6 +8,7 @@ import os
 import random
 import re
 import uuid
+import binascii
 
 from six import string_types
 
@@ -82,6 +83,8 @@ class JSONEncoder(simplejson.JSONEncoder):
             return str(o)
         elif isinstance(o, (datetime.date, datetime.time)):
             return o.isoformat()
+        elif isinstance(o, buffer):
+            return binascii.hexlify(o)
         else:
             return super(JSONEncoder, self).default(o)
 
