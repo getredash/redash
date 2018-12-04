@@ -5,11 +5,10 @@ from unittest import TestCase
 
 import mock
 from dateutil.parser import parse as date_parse
-from tests import BaseTestCase
-
 from redash import models
 from redash.models import db
 from redash.utils import gen_query_hash, utcnow
+from tests import BaseTestCase
 
 
 class DashboardTest(BaseTestCase):
@@ -510,11 +509,11 @@ class TestDashboardAll(BaseTestCase):
         self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
 
 
-class ApiUserTest(TestCase):
+class ApiUserTest(BaseTestCase):
     def test_does_not_grant_permissions_to_disabled_users(self):
         user = self.factory.create_user(org=self.factory.create_org())
         user.disabled_at = utcnow()
 
-        api_user = models.ApiUser('key', user.org, user=user)
+        api_user = models.ApiUser('key', user.org, None, user=user)
 
         self.assertFalse('view_query' in api_user.permissions)
