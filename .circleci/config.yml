@@ -81,10 +81,10 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: npm install
-      - run: npm run bundle
-      - run: npm run build
       - run: .circleci/update_version
       - run: .circleci/pack
+      - run: npm run bundle
+      - run: npm run build
       - store_artifacts:
           path: /tmp/artifacts/
   build-docker-image:
