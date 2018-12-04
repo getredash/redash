@@ -57,7 +57,7 @@ class TestApiKeyAuthentication(BaseTestCase):
 
     def test_disabled_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
-        user.disabled_at = utcnow()
+        user.disable()
         models.db.session.flush()
         with self.app.test_client() as c:
             rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
