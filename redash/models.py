@@ -273,7 +273,7 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 
 
 class ApiUser(UserMixin, PermissionsCheckMixin):
-    def __init__(self, api_key, org, groups, name=None):
+    def __init__(self, api_key, org, groups, name=None, user=None):
         self.object = None
         if isinstance(api_key, string_types):
             self.id = api_key
@@ -284,6 +284,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.object = api_key.object
         self.group_ids = groups
         self.org = org
+        self.user = user
 
     def __repr__(self):
         return u"<{}>".format(self.name)
@@ -293,7 +294,12 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
     @property
     def permissions(self):
-        return ['view_query']
+        permissions = []
+
+        if not self.user.disabled_at:
+            permissions.append('view_query')
+
+        return permissions
 
     def has_access(self, obj, access_type):
         return False
