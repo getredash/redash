@@ -110,8 +110,7 @@ def get_user_from_api_key(api_key, query_id):
             if query_id:
                 query = models.Query.get_by_id_and_org(query_id, org)
                 if query and query.api_key == api_key:
-                    name = "ApiKey: Query {}".format(query.id)
-                    user = models.ApiUser(api_key, query.org, query.groups.keys(), name, query.user)
+                    user = models.ApiUser(api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
 
     return user
 

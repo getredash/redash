@@ -508,13 +508,3 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
-
-
-class ApiUserTest(TestCase):
-    def test_does_not_grant_permissions_to_disabled_users(self):
-        user = self.factory.create_user(org=self.factory.create_org())
-        user.disabled_at = utcnow()
-
-        api_user = models.ApiUser('key', user.org, user=user)
-
-        self.assertFalse('view_query' in api_user.permissions)
