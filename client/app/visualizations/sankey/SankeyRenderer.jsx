@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import React from 'react';
 import d3 from 'd3';
 import { extend, filter, identity, includes, keys, map, reduce, sortBy, values } from 'lodash';
@@ -95,6 +96,9 @@ function spreadNodes(height, data) {
 }
 
 function createSankey(element, data) {
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
   const margin = {
     top: 10, right: 10, bottom: 10, left: 10,
   };
@@ -227,11 +231,17 @@ export default class SankeyRenderer extends React.Component {
   }
 
   componentDidMount() {
+    const parent = $(this.containerRef.current).parents('.grid-stack-item');
+    parent.on('gridstack.resize-end', this.drawSankey);
     this.drawSankey();
   }
 
   componentDidUpdate() {
     this.drawSankey();
+  }
+
+  static getError() {
+    return 'Check that your data is formatted into the rows this visualization requires.';
   }
 
   drawSankey = () => createSankey(this.containerRef.current, this.props.data.rows);

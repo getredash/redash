@@ -82,7 +82,7 @@ const PlotlyChartOptions = PropTypes.shape({
   valuesOptions: ValuesOptions,
   numberFormat: PropTypes.string.isRequired,
   percentFormat: PropTypes.string.isRequired,
-  showDataLabels: PropTypes.bool.isRequired,
+  showDataLabels: PropTypes.bool,
 });
 
 export default class PlotlyChart extends React.Component {

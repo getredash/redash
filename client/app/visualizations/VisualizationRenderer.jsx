@@ -24,15 +24,21 @@ export default class VisualizationRenderer extends React.Component {
     this.state = { error: null };
   }
 
-  componentDidCatch(error) {
-    this.setState({ error });
+  static getDerivedStateFromError(error) {
+    return { error };
   }
 
   render() {
     if (!this.props.data.columns.length || !this.props.visualization) return null;
     const Vis = visualizationRegistry[this.props.visualization.type].renderer;
     if (this.state.error) {
-      return <div>{`${this.props.visualization.name} visualization rendering failed: ${this.state.error}`}</div>;
+      let errMsg;
+      try {
+        errMsg = Vis.getError();
+      } catch (p) {
+        errMsg = this.state.error;
+      }
+      return <div>{`${this.props.visualization.name} visualization rendering failed: `}{errMsg}</div>;
     }
     return (
       <React.Fragment>
