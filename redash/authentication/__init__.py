@@ -171,7 +171,7 @@ def jwt_token_load_user_from_request(request):
 
 def log_user_logged_in(app, user):
     event = {
-        'org_id': current_org.id,
+        'org_id': user.org_id,
         'user_id': user.id,
         'action': 'login',
         'object_type': 'redash',

@@ -5,7 +5,7 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.tasks import QueryTask, record_event
+from redash.tasks import QueryTask
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import (collect_query_parameters,
@@ -225,7 +225,7 @@ class QueryResultResource(BaseResource):
                     event['object_type'] = 'query_result'
                     event['object_id'] = query_result_id
 
-                record_event.delay(event)
+                self.record_event(event)
 
             if filetype == 'json':
                 response = self.make_json_response(query_result)
