@@ -45,7 +45,10 @@ export default class CounterEditor extends React.Component {
       if (this.props.options.countRow) {
         counterValue = queryData.length;
       } else if (counterColName) {
-        counterValue = queryData[rowNumber][counterColName];
+        const row = queryData[rowNumber];
+        if (row) {
+          counterValue = row[counterColName];
+        }
       }
     }
     return isNumber(counterValue);

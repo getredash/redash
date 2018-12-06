@@ -36,7 +36,7 @@ export default class VisualizationRenderer extends React.Component {
       try {
         errMsg = Vis.getError();
       } catch (p) {
-        errMsg = this.state.error;
+        errMsg = this.state.error.message;
       }
       return <div>{`${this.props.visualization.name} visualization rendering failed: `}{errMsg}</div>;
     }

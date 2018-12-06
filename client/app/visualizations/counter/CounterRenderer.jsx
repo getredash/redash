@@ -82,12 +82,21 @@ export default class CounterRenderer extends React.Component {
     const opts = this.props.options;
     const rowNumber = getRowNumber(opts.rowNumber, this.props.data.rows.length);
     const targetRowNumber = getRowNumber(opts.targetRowNumber, this.props.data.rows.length);
-    const targetValue = opts.targetColName && this.props.data.rows[targetRowNumber][opts.targetColName];
+    let targetValue = null;
+    if (opts.targetColName) {
+      const row = this.props.data.rows[targetRowNumber];
+      if (row) {
+        targetValue = [opts.targetColName];
+      }
+    }
     let counterValue = null;
     if (opts.countRow) {
       counterValue = this.props.data.rows.length;
     } else if (opts.counterColName) {
-      counterValue = this.props.data.rows[rowNumber][opts.counterColName];
+      const row = this.props.data.rows[rowNumber];
+      if (row) {
+        counterValue = row[opts.counterColName];
+      }
     }
     const delta = opts.targetColName && opts.targetValue && (counterValue - opts.targetValue);
     const trendPositive = delta && delta >= 0;
@@ -114,10 +123,10 @@ export default class CounterRenderer extends React.Component {
           <div
             ref={this.containerRef}
             style={{
-              '-o-transform': `scale(${scale})`,
-              '-ms-transform': `scale(${scale})`,
-              '-moz-transform': `scale(${scale})`,
-              '-webkit-transform': `scale(${scale})`,
+              oTransform: `scale(${scale})`,
+              msTransform: `scale(${scale})`,
+              mozTransform: `scale(${scale})`,
+              webkitTransform: `scale(${scale})`,
               transform: `scale(${scale})`,
             }}
           >
