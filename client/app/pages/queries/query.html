@@ -243,7 +243,7 @@
                       visualization="{ type: 'TABLE', name: 'Table', options: {} }"
                       update-options="visualizationUpdater(0)"
                       data="visData"
-                      filters="queryResult.filters || empty"
+                      filters="queryResult.getFilters()"
                       set-filters="setFilters">
                     </visualization-renderer>
 
@@ -254,7 +254,7 @@
                       visualization="vis"
                       update-options="visualizationUpdater($index)"
                       data="visData"
-                      filters="queryResult.filters || empty"
+                      filters="queryResult.getFilters()"
                       set-filters="setFilters">
                     </visualization-renderer>
                   </div>

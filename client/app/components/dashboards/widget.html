@@ -41,7 +41,7 @@
         visualization="$ctrl.widget.visualization"
         update-options="$ctrl.widget.updateOptions"
         data="{ rows: $ctrl.widget.getQueryResult().getData(), columns: $ctrl.widget.getQueryResult().getColumns() }"
-        filters="$ctrl.widget.getQueryResult().getFilters"
+        filters="$ctrl.widget.getQueryResult().getFilters()"
         set-filters="$ctrl.widget.updateFilters"
         class="t-body"></visualization-renderer>
     </div>
