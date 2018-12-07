@@ -1,4 +1,4 @@
-import { markdown } from 'markdown';
+import marked from 'marked';
 
 export default function init(ngModule) {
   ngModule.filter('markdown', ($sce, clientConfig) =>
@@ -7,7 +7,7 @@ export default function init(ngModule) {
         return '';
       }
 
-      let html = markdown.toHTML(String(text));
+      let html = marked(String(text));
       if (clientConfig.allowScriptsInUserInput) {
         html = $sce.trustAsHtml(html);
       }
