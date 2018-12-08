@@ -3,4 +3,3 @@ client/dist/
 node_modules/
 .tmp/
 .venv/
-.git/

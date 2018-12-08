@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies, no-console */
+const atob = require('atob');
 const { execSync } = require('child_process');
 const { post } = require('request').defaults({ jar: true });
 const { seedData } = require('./seed-data');
@@ -31,6 +32,13 @@ function stopServer() {
   execSync('docker-compose -p cypress down', { stdio: 'inherit' });
 }
 
+function runCypress() {
+  if (process.env.PERCY_TOKEN_ENCODED) {
+    process.env.PERCY_TOKEN = atob(`${process.env.PERCY_TOKEN_ENCODED}`);
+  }
+  execSync('docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run', { stdio: 'inherit' });
+}
+
 const command = process.argv[2];
 
 switch (command) {
@@ -40,6 +48,9 @@ switch (command) {
     break;
   case 'start-ci':
     startServer();
+    break;
+  case 'run-ci':
+    runCypress();
     break;
   case 'db-seed':
     seedDatabase(seedData);
