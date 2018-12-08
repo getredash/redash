@@ -68,7 +68,6 @@ jobs:
           name: Install npm dependencies
           command: |
             npm install
-            npm install --no-save @percy/cypress
       - run:
           name: Setup Redash server
           command: |
