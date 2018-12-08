@@ -7,6 +7,5 @@ RUN npm install --no-save cypress @percy/cypress > /dev/null
 
 COPY cypress $APP/cypress
 COPY cypress.json $APP/cypress.json
-COPY .git $APP/.git
 
 RUN ./node_modules/.bin/cypress verify
