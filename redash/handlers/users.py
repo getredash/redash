@@ -1,5 +1,6 @@
+import re
 import time
-from flask import request
+from flask import request, after_this_request, session
 from flask_restful import abort
 from flask_login import current_user
 from funcy import project
@@ -165,6 +166,13 @@ class UserResource(BaseResource):
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):
+        @after_this_request
+        def update_identity_cookie(response):
+            session['user_id'] = user.get_id()
+            remember_token = request.cookies.get('remember_token')
+            response.set_cookie('remember_token', re.sub('.*\\|', user.get_id() + '|', remember_token))
+            return response
+
         require_admin_or_owner(user_id)
         user = models.User.get_by_id_and_org(user_id, self.current_org)
 
