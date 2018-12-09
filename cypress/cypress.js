@@ -63,7 +63,7 @@ switch (command) {
   case 'all':
     startServer();
     seedDatabase(seedData);
-    execSync('cypress run', { stdio: 'inherit' });
+    execSync('cypress run --browser chrome', { stdio: 'inherit' });
     stopServer();
     break;
   default:
