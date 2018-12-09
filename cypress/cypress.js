@@ -36,7 +36,7 @@ function runCypressCI() {
   if (process.env.PERCY_TOKEN_ENCODED) {
     process.env.PERCY_TOKEN = atob(`${process.env.PERCY_TOKEN_ENCODED}`);
   }
-  execSync('docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run', { stdio: 'inherit' });
+  execSync('docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser chrome', { stdio: 'inherit' });
 }
 
 const command = process.argv[2] || 'all';
@@ -49,7 +49,7 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case 'run':
-    execSync('cypress run', { stdio: 'inherit' });
+    execSync('cypress run --browser chrome', { stdio: 'inherit' });
     break;
   case 'open':
     execSync('cypress open', { stdio: 'inherit' });
