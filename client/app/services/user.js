@@ -35,8 +35,11 @@ function disableUser(user, toastr, $sanitize) {
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
-    .catch((response) => {
-      let message = response instanceof Error ? response.message : response.statusText;
+    .catch(response => {
+      let message =
+        response.data && response.data.message
+          ? response.data.message
+          : response.statusText;
       if (!isString(message)) {
         message = 'Unknown error';
       }
