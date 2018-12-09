@@ -3,8 +3,9 @@ describe('Login', () => {
     cy.visit('/login');
   });
 
-  it('greets the user', () => {
+  it('greets the user and take a screenshot', () => {
     cy.contains('h3', 'Login to Redash');
+    cy.percySnapshot('Login page');
   });
 
   it('shows message on failed login', () => {
@@ -20,9 +21,6 @@ describe('Login', () => {
 
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
-  });
-
-  it('takes a screenshot', () => {
-    cy.percySnapshot('Login page');
+    cy.percySnapshot('Homepage');
   });
 });

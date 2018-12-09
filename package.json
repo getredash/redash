@@ -14,10 +14,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress @percy/cypress",
-    "cypress:server": "node cypress/cypress-server.js",
-    "cypress:run": "cypress run",
-    "cypress:open": "cypress open",
-    "cypress": "npm run cypress:server start && cypress run && npm run cypress:server stop"
+    "cypress": "node cypress/cypress.js"
   },
   "repository": {
     "type": "git",

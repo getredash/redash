@@ -32,33 +32,41 @@ function stopServer() {
   execSync('docker-compose -p cypress down', { stdio: 'inherit' });
 }
 
-function runCypress() {
+function runCypressCI() {
   if (process.env.PERCY_TOKEN_ENCODED) {
     process.env.PERCY_TOKEN = atob(`${process.env.PERCY_TOKEN_ENCODED}`);
   }
   execSync('docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run', { stdio: 'inherit' });
 }
 
-const command = process.argv[2];
+const command = process.argv[2] || 'all';
 
 switch (command) {
   case 'start':
     startServer();
-    seedDatabase(seedData);
-    break;
-  case 'start-ci':
-    startServer();
-    break;
-  case 'run-ci':
-    runCypress();
     break;
   case 'db-seed':
     seedDatabase(seedData);
     break;
+  case 'run':
+    execSync('cypress run', { stdio: 'inherit' });
+    break;
+  case 'open':
+    execSync('cypress open', { stdio: 'inherit' });
+    break;
+  case 'run-ci':
+    runCypressCI();
+    break;
   case 'stop':
     stopServer();
     break;
+  case 'all':
+    startServer();
+    seedDatabase(seedData);
+    execSync('cypress run', { stdio: 'inherit' });
+    stopServer();
+    break;
   default:
-    console.log('Usage: npm run cypress:server start|stop');
+    console.log('Usage: npm run cypress [start|db-seed|open|run|stop]');  
     break;
 }
