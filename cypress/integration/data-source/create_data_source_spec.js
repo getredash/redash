@@ -8,7 +8,7 @@ describe('Create Data Source', () => {
     cy.getByTestId('DatabaseSource').contains('PostgreSQL').click();
 
     cy.getByTestId('TargetName').type('Redash');
-    cy.getByTestId('Host').type('{selectall}localhost');
+    cy.getByTestId('Host').type('{selectall}postgres');
     cy.getByTestId('User').type('postgres');
     cy.getByTestId('Password').type('postgres');
     cy.getByTestId('Database Name').type('postgres{enter}');

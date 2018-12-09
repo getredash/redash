@@ -5,6 +5,8 @@ describe('Login', () => {
 
   it('greets the user and take a screenshot', () => {
     cy.contains('h3', 'Login to Redash');
+
+    cy.wait(1000);
     cy.percySnapshot('Login page');
   });
 
@@ -21,6 +23,8 @@ describe('Login', () => {
 
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
+
+    cy.wait(1000);
     cy.percySnapshot('Homepage');
   });
 });
