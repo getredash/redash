@@ -67,6 +67,6 @@ switch (command) {
     stopServer();
     break;
   default:
-    console.log('Usage: npm run cypress [start|db-seed|open|run|stop]');  
+    console.log('Usage: npm run cypress [start|db-seed|open|run|stop]');
     break;
 }
