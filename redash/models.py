@@ -1308,7 +1308,8 @@ class Alert(TimestampMixin, db.Model):
 
     def evaluate(self):
         data = json_loads(self.query_rel.latest_query_data.data)
-        if data['rows']:
+
+        if data['rows'] and self.options['column'] in data['rows'][0]:
             value = data['rows'][0][self.options['column']]
             op = self.options['op']
 
