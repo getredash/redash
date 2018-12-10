@@ -175,7 +175,7 @@ export default class ChoroplethEditor extends React.Component {
     const opts = this.props.options;
     const formatSpecsPopover = (
       <React.Fragment>
-        Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
+        Format <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" rel="noopener noreferrer" target="_blank">specs.</a>
       </React.Fragment>);
     const templateHintPopover = (
       <React.Fragment>

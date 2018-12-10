@@ -608,7 +608,7 @@ export default class ChartEditor extends React.Component {
                   <label htmlFor="chart-editor-number-format">
                     Number Values Format
                     <PopoverHelp>
-                      Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
+                      Format <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" rel="noopener noreferrer" target="_blank">specs.</a>
                     </PopoverHelp>
                   </label>
                   <input className="form-control" value={opts.numberFormat} onChange={this.updateNumberFormat} id="chart-editor-number-format" />
@@ -618,7 +618,7 @@ export default class ChartEditor extends React.Component {
                   <label htmlFor="chart-editor-percent-format">
                     Percent Values Format
                     <PopoverHelp>
-                      Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
+                      Format <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" rel="noopener noreferrer" target="_blank">specs.</a>
                     </PopoverHelp>
                   </label>
                   <input className="form-control" value={opts.percentFormat} onChange={this.updatePercentFormat} id="chart-editor-percent-format" />

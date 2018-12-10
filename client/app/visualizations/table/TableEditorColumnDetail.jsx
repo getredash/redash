@@ -81,7 +81,7 @@ export default function TableEditorColumnDetail({ updateColumn, column }) {
   );
   const numberPopover = (
     <React.Fragment>
-      Format <a href="http://numeraljs.com/#format" rel="noopener noreferrer" target="_blank">specs.</a>
+      Format <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" rel="noopener noreferrer" target="_blank">specs.</a>
     </React.Fragment>
   );
   const numberColumn = (
