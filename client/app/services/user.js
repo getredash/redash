@@ -39,11 +39,9 @@ function disableUser(user, toastr, $sanitize) {
       let message =
         response.data && response.data.message
           ? response.data.message
-          : response.statusText;
-      if (!isString(message)) {
-        message = 'Unknown error';
-      }
-      toastr.error(`Cannot disable user <b>${userName}</b><br>${message}`, { allowHtml: true });
+          : `Cannot disable user <b>${userName}</b><br>${response.statusText}`
+
+      toastr.error(message, { allowHtml: true });
     });
 }
 
