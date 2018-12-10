@@ -219,7 +219,7 @@ class UserDisableResource(BaseResource):
         # admin cannot disable self; current user is an admin (`@require_admin`)
         # so just check user id
         if user.id == current_user.id:
-            abort(400, message="You cannot disable your own account. "
+            abort(403, message="You cannot disable your own account. "
                                "Please ask another admin to do this for you.")
         user.disable()
         models.db.session.commit()
