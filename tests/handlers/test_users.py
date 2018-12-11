@@ -161,6 +161,21 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+    def test_changing_email_does_not_end_current_session(self):
+        self.make_request('get', "/api/users/{}".format(self.factory.user.id))
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                previous = sess['user_id']
+
+        self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"email": "john@doe.com"})
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                current = sess['user_id']
+
+        self.assertNotEquals(previous, current)
+
 
 class TestUserDisable(BaseTestCase):
     def test_non_admin_cannot_disable_user(self):
