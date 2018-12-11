@@ -1,3 +1,5 @@
+import '@percy/cypress';
+
 Cypress.Commands.add('login', () => {
   const users = {
     admin: {
@@ -13,3 +15,5 @@ Cypress.Commands.add('login', () => {
     body: users.admin,
   });
 });
+
+Cypress.Commands.add('getByTestId', element => cy.get('[data-test="' + element + '"]'));

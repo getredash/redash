@@ -3,22 +3,28 @@ describe('Login', () => {
     cy.visit('/login');
   });
 
-  it('greets the user', () => {
+  it('greets the user and take a screenshot', () => {
     cy.contains('h3', 'Login to Redash');
+
+    cy.wait(1000);
+    cy.percySnapshot('Login page');
   });
 
   it('shows message on failed login', () => {
-    cy.get('#inputEmail').type('admin@redash.io');
-    cy.get('#inputPassword').type('wrongpassword{enter}');
+    cy.getByTestId('Email').type('admin@redash.io');
+    cy.getByTestId('Password').type('wrongpassword{enter}');
 
-    cy.get('.alert').should('contain', 'Wrong email or password.');
+    cy.getByTestId('ErrorMessage').should('contain', 'Wrong email or password.');
   });
 
   it('navigates to homepage with successful login', () => {
-    cy.get('#inputEmail').type('admin@redash.io');
-    cy.get('#inputPassword').type('password{enter}');
+    cy.getByTestId('Email').type('admin@redash.io');
+    cy.getByTestId('Password').type('password{enter}');
 
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
+
+    cy.wait(1000);
+    cy.percySnapshot('Homepage');
   });
 });
