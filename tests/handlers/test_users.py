@@ -161,6 +161,23 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+    def test_changing_email_ends_any_other_sessions_of_current_user(self):
+        with self.client as c:
+            # visit profile page
+            self.make_request('get', "/api/users/{}".format(self.factory.user.id))
+            with c.session_transaction() as sess:
+                previous = sess['user_id']
+
+            # change e-mail address - this will result in a new `user_id` value inside the session
+            self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"email": "john@doe.com"})
+
+            # force the old `user_id`, simulating that the user is logged in from another browser
+            with c.session_transaction() as sess:
+                sess['user_id'] = previous
+            rv = self.get_request("/api/users/{}".format(self.factory.user.id))
+
+            self.assertEqual(rv.status_code, 404)
+
     def test_changing_email_does_not_end_current_session(self):
         self.make_request('get', "/api/users/{}".format(self.factory.user.id))
 
@@ -174,6 +191,7 @@ class TestUserResourcePost(BaseTestCase):
             with c.session_transaction() as sess:
                 current = sess['user_id']
 
+        # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEquals(previous, current)
 
 
