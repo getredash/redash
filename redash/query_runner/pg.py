@@ -269,7 +269,7 @@ class Redshift(PostgreSQL):
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND
             (
                 table_schema IN (SELECT schemaname FROM SVV_EXTERNAL_SCHEMAS) OR
-                HAS_TABLE_PRIVILEGE(table_schema || '.' || table_name, 'SELECT')
+                HAS_TABLE_PRIVILEGE('"' || table_schema || '"."' || table_name || '"', 'SELECT')
             )
         ORDER BY table_name, pos
         """
