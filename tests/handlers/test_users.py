@@ -203,7 +203,7 @@ class TestUserDisable(BaseTestCase):
         self.assertFalse(admin_user.is_disabled)
 
         rv = self.make_request('post', "/api/users/{}/disable".format(admin_user.id), user=admin_user)
-        self.assertEqual(rv.status_code, 400)
+        self.assertEqual(rv.status_code, 403)
 
         # user should stay enabled
         admin_user = models.User.query.get(admin_user.id)
