@@ -26,6 +26,7 @@ export default function ColorSelect(props) {
       defaultActiveFirstOption
       value={props.value || 'Automatic'}
       onChange={props.onChange}
+      dropdownClassName="ant-dropdown-in-bootstrap-modal"
     >
       {map(colors, (v, k) => <Select.Option key={v}>{colorOptionItem(v, k)}</Select.Option>)}
     </Select>);

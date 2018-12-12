@@ -248,6 +248,7 @@ export default class ChartEditor extends React.Component {
             placeholder="Choose Scale..."
             onChange={this.updateYAxisScale[i]}
             value={yAxis.type}
+            dropdownClassName="ant-dropdown-in-bootstrap-modal"
           >
             <Select.Option value="-">Auto Detect</Select.Option>
             <Select.Option value="datetime">Datetime</Select.Option>
@@ -297,6 +298,7 @@ export default class ChartEditor extends React.Component {
                   placeholder="Choose column..."
                   value={this.getXAxisColumn()}
                   onChange={this.updateXAxis}
+                  dropdownClassName="ant-dropdown-in-bootstrap-modal"
                 >
                   {this.xAxisOptions()}
                 </Select>
@@ -310,6 +312,7 @@ export default class ChartEditor extends React.Component {
                   value={this.getYAxisColumns()}
                   onChange={this.updateYAxis}
                   mode="multiple"
+                  dropdownClassName="ant-dropdown-in-bootstrap-modal"
                 >
                   {this.yAxisOptions()}
                 </Select>
@@ -323,6 +326,7 @@ export default class ChartEditor extends React.Component {
                     value={this.getGroupby()}
                     onChange={this.updateGroupby}
                     allowClear
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     {this.groupbyOptions()}
                   </Select>
@@ -336,6 +340,7 @@ export default class ChartEditor extends React.Component {
                     value={this.getSizeColumn()}
                     onChange={this.updateSizeColumn}
                     allowClear
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     {this.sizeColumnOptions()}
                   </Select>
@@ -348,6 +353,7 @@ export default class ChartEditor extends React.Component {
                     value={this.getZValue()}
                     onChange={this.updateZValue}
                     allowClear
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     {this.sizeColumnOptions()}
                   </Select>
@@ -360,6 +366,7 @@ export default class ChartEditor extends React.Component {
                     value={this.getErrorColumn()}
                     onChange={this.updateErrorColumn}
                     allowClear
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     {this.xAxisOptions()}
                   </Select>
@@ -397,6 +404,7 @@ export default class ChartEditor extends React.Component {
                     disabled={!includes(['line', 'area', 'column'], opts.globalSeriesType)}
                     value={opts.series ? opts.series.stacking : null}
                     onChange={this.updateStacking}
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     <Select.Option value={null}>Disabled</Select.Option>
                     <Select.Option value="stack">Stack</Select.Option>
@@ -458,6 +466,7 @@ export default class ChartEditor extends React.Component {
                     placeholder="Choose scale..."
                     value={opts.xAxis && opts.xAxis.type}
                     onChange={this.updateXAxisType}
+                    dropdownClassName="ant-dropdown-in-bootstrap-modal"
                   >
                     {map(['datetime', 'linear', 'logarithmic', 'category'], value =>
                       <Select.Option key={value}>{capitalize(value)}</Select.Option>)}
@@ -555,6 +564,7 @@ export default class ChartEditor extends React.Component {
                   placeholder="Choose color scheme..."
                   onChange={this.updateColorScheme}
                   allowClear
+                  dropdownClassName="ant-dropdown-in-bootstrap-modal"
                 >
                   {map(colorSchemes, c => <Select.Option key={c}>{c}</Select.Option>)}
                 </Select>

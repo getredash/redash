@@ -73,6 +73,7 @@ export default class Filters extends React.Component {
                 mode={fi.multiple ? 'multiple' : 'default'}
                 onChange={ch => this.changeFilters(ch, i)}
                 placeholder={`Select value for ${fi.friendlyName}...`}
+                dropdownClassName="ant-dropdown-in-bootstrap-modal"
               >
                 {(fi.multiple ? multiPreamble : []).concat(fi.values.map(v => this.filterValue(v, fi)))}
               </Select>

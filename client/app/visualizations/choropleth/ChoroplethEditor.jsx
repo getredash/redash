@@ -82,6 +82,7 @@ const ColorSelect = props => (
   <Select
     value={props.value}
     onChange={props.onChange}
+    dropdownClassName="ant-dropdown-in-bootstrap-modal"
   >
     {map(
       ChoroplethPalette,

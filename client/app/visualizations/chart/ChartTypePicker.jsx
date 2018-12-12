@@ -36,6 +36,7 @@ export default class ChartTypePicker extends React.Component {
       <Select
         value={this.props.value}
         onChange={this.props.onChange}
+        dropdownClassName="ant-dropdown-in-bootstrap-modal"
       >
         {this.chartTypes.map(c => (
           <Select.Option key={c.value}>

@@ -106,6 +106,7 @@ export default class MapEditor extends React.Component {
               value={opts.latColName}
               placeholder="Choose column..."
               onChange={this.updateLatColName}
+              dropdownClassName="ant-dropdown-in-bootstrap-modal"
             >
               {columnOptions([opts.classify, opts.lonColName])}
             </Select>
@@ -118,6 +119,7 @@ export default class MapEditor extends React.Component {
               value={opts.lonColName}
               placeholder="Choose column..."
               onChange={this.updateLonColName}
+              dropdownClassName="ant-dropdown-in-bootstrap-modal"
             >
               {columnOptions([opts.classify, opts.latColName])}
             </Select>
@@ -130,6 +132,7 @@ export default class MapEditor extends React.Component {
               value={opts.classify}
               placeholder="Choose column..."
               onChange={this.updateClassify}
+              dropdownClassName="ant-dropdown-in-bootstrap-modal"
             >
               {columnOptions([opts.lonColName, opts.latColName])}
               <Select.Option value="none">none</Select.Option>
