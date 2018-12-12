@@ -42,11 +42,19 @@ def sign(key, path, expires):
 @login_manager.user_loader
 def load_user(user_id_with_identity):
     org = current_org._get_current_object()
-    user_id, _ = user_id_with_identity.split("-")
+    is_legacy_session_identifier = user_id_with_identity.find('-') < 0
+
+    if is_legacy_session_identifier:
+        user_id = user_id_with_identity
+    else:
+        user_id, _ = user_id_with_identity.split("-")
 
     try:
         user = models.User.get_by_id_and_org(user_id, org)
-        if user.is_disabled or user.get_id() != user_id_with_identity:
+        if user.is_disabled:
+            return None
+
+        if not is_legacy_session_identifier and user.get_id() != user_id_with_identity:
             return None
 
         return user
