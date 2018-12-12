@@ -35,11 +35,11 @@ function disableUser(user, toastr, $sanitize) {
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
-    .catch(response => {
-      let message =
+    .catch((response) => {
+      const message =
         response.data && response.data.message
           ? response.data.message
-          : `Cannot disable user <b>${userName}</b><br>${response.statusText}`
+          : `Cannot disable user <b>${userName}</b><br>${response.statusText}`;
 
       toastr.error(message, { allowHtml: true });
     });
