@@ -86,7 +86,7 @@ export default class CounterRenderer extends React.Component {
     if (opts.targetColName) {
       const row = this.props.data.rows[targetRowNumber];
       if (row) {
-        targetValue = [opts.targetColName];
+        targetValue = row[opts.targetColName];
       }
     }
     let counterValue = null;
@@ -98,8 +98,8 @@ export default class CounterRenderer extends React.Component {
         counterValue = row[opts.counterColName];
       }
     }
-    const delta = opts.targetColName && opts.targetValue && (counterValue - opts.targetValue);
-    const trendPositive = delta && delta >= 0;
+    const delta = opts.targetColName && targetValue && (counterValue - targetValue);
+    const trendPositive = delta >= 0;
     const targetValueStr = isNumber(targetValue) && `(${numberFormat(targetValue)})`;
     let trend = '';
     if (targetValue && trendPositive) {
