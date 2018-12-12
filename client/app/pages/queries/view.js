@@ -514,6 +514,7 @@ function QueryViewCtrl(
       },
     });
   };
+  $scope.listenForResize = f => $scope.$parent.$on('angular-resizable.resizing', f);
 }
 
 export default function init(ngModule) {

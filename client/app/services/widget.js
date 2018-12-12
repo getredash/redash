@@ -87,8 +87,9 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
     }
 
     updateOptions(o) {
-      this.visualization = { ...this.visualization, options: { ...this.visualization.options, ...o } };
+      this.options = { ...this.options, ...o };
     }
+
     updateFilters(f) {
       this.getQuery().filters = f;
     }

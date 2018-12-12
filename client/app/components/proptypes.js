@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+export const RefObject = PropTypes.exact({ current: PropTypes.instanceOf(Element) });
+
 export const ClientConfig = PropTypes.shape({
   dateFormat: PropTypes.string,
   dateTimeFormat: PropTypes.string,

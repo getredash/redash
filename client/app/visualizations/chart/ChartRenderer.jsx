@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compact, each, extend, findKey, includes, fromPairs, get, map, sortBy, values } from 'lodash';
 
-import { ClientConfig, QueryData } from '@/components/proptypes';
+import { ClientConfig, RefObject, QueryData } from '@/components/proptypes';
 import PlotlyChart from './PlotlyChart';
 
 function getSeriesNames(mapping, columns) {
@@ -125,6 +125,7 @@ export default class ChartRenderer extends React.Component {
   });
 
   static propTypes = {
+    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: PlotlyChart.Options.isRequired,
     // eslint-disable-next-line react/no-unused-prop-types
@@ -170,6 +171,7 @@ export default class ChartRenderer extends React.Component {
 
     return (
       <PlotlyChart
+        containerRef={this.props.containerRef}
         options={extend({
           showDataLabels: this.props.options.globalSeriesType === 'pie',
           dateTimeFormat: this.props.clientConfig.dateTimeFormat,

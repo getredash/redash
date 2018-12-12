@@ -1,9 +1,8 @@
-import $ from 'jquery';
 import React from 'react';
 import d3 from 'd3';
 import { extend, filter, identity, includes, keys, map, reduce, sortBy, values } from 'lodash';
 
-import { QueryData } from '@/components/proptypes';
+import { QueryData, RefObject } from '@/components/proptypes';
 import d3sankey from '@/lib/visualizations/d3sankey';
 
 function getConnectedNodes(node) {
@@ -227,12 +226,11 @@ export default class SankeyRenderer extends React.Component {
   });
 
   static propTypes = {
+    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
   }
 
   componentDidMount() {
-    const parent = $(this.containerRef.current).parents('.grid-stack-item');
-    parent.on('gridstack.resize-end', this.drawSankey);
     this.drawSankey();
   }
 
@@ -244,11 +242,10 @@ export default class SankeyRenderer extends React.Component {
     return 'Check that your data is formatted into the rows this visualization requires.';
   }
 
-  drawSankey = () => createSankey(this.containerRef.current, this.props.data.rows);
+  drawSankey = () => createSankey(this.props.containerRef.current, this.props.data.rows);
 
-  containerRef = React.createRef();
 
   render() {
-    return <div className="sankey-visualization-container" ref={this.containerRef} />;
+    return <div className="sankey-visualization-container" ref={this.props.containerRef} />;
   }
 }

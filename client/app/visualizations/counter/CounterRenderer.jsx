@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
 import numberFormat from 'underscore.string/numberFormat';
 
-import { QueryData } from '@/components/proptypes';
+import { QueryData, RefObject } from '@/components/proptypes';
 
 function getRowNumber(index, size) {
   if (index >= 0) {
@@ -45,6 +45,7 @@ export default class CounterRenderer extends React.Component {
   };
 
   static propTypes = {
+    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: CounterOptions.isRequired,
     name: PropTypes.string.isRequired,
@@ -68,14 +69,13 @@ export default class CounterRenderer extends React.Component {
   rescale() {
     this.setState({
       scale: Math.floor(Math.min(
-        this.rootRef.current.offsetHeight / this.containerRef.current.offsetHeight,
-        this.rootRef.current.offsetWidth / this.containerRef.current.offsetWidth,
+        this.props.containerRef.current.offsetHeight / this.counterRef.current.offsetHeight,
+        this.props.containerRef.current.offsetWidth / this.counterRef.current.offsetWidth,
       ) * 100) / 100,
     });
   }
 
-  rootRef = React.createRef()
-  containerRef = React.createRef()
+  counterRef = React.createRef()
 
   render() {
     if (!this.props.data) return null;
@@ -119,9 +119,9 @@ export default class CounterRenderer extends React.Component {
     return (
 
       <div className="counter-renderer">
-        <div className={`counter ${trend}`} ref={this.rootRef}>
+        <div className={`counter ${trend}`} ref={this.props.containerRef}>
           <div
-            ref={this.containerRef}
+            ref={this.counterRef}
             style={{
               oTransform: `scale(${scale})`,
               msTransform: `scale(${scale})`,

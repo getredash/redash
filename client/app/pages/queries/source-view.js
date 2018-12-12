@@ -95,7 +95,6 @@ function QuerySourceCtrl(
   };
 
   $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
-  $scope.listenForResize = f => $scope.$parent.$on('angular-resizable.resizing', f);
 
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = newQueryText !== queryText;
