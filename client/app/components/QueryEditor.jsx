@@ -104,7 +104,8 @@ class QueryEditor extends React.Component {
       editor.commands.bindKey('Cmd+L', null);
       editor.commands.bindKey('Ctrl+L', null);
 
-      editor.commands.bindKey('Ctrl+P', 'golineup');
+      // golineup only mac
+      editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
 
       // eslint-disable-next-line react/prop-types
       this.props.QuerySnippet.query((snippets) => {
