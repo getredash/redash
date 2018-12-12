@@ -40,7 +40,7 @@ export class EditInPlace extends React.Component {
 
   stopEditing = () => {
     const newValue = this.inputRef.current.value;
-    const ignorableBlank = this.props.ignoreBlanks && this.props.value === '';
+    const ignorableBlank = this.props.ignoreBlanks && newValue === '';
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
     }
