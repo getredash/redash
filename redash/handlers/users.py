@@ -1,8 +1,8 @@
 import re
 import time
-from flask import request, after_this_request, session
+from flask import request
 from flask_restful import abort
-from flask_login import current_user
+from flask_login import current_user, login_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
@@ -195,16 +195,7 @@ class UserResource(BaseResource):
         try:
             self.update_model(user, params)
             models.db.session.commit()
-
-            @after_this_request
-            def update_identity_cookie(response):
-                session['user_id'] = user.get_id()
-
-                remember_token = request.cookies.get('remember_token')
-                if remember_token:
-                    response.set_cookie('remember_token', re.sub('.*\\|', user.get_id() + '|', remember_token))
-
-                return response
+            login_user(user, remember=True)
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."
