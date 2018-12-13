@@ -10,7 +10,7 @@ import { Map, GeoJSON } from 'react-leaflet';
 import chroma from 'chroma-js';
 import { connect, PromiseState } from 'react-refetch';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 import { ColorPalette } from '@/visualizations/chart/plotly/utils';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 import countriesDataUrl from './countries.geo.json';
@@ -201,17 +201,20 @@ class ChoroplethRenderer extends React.Component {
   })
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     countriesData: PropTypes.instanceOf(PromiseState).isRequired,
     data: QueryData.isRequired,
     options: ChoroplethOptions.isRequired,
     updateOptions: PropTypes.func.isRequired,
+    listenForResize: PropTypes.func.isRequired,
   }
 
-  componentDidUpdate() {
-    if (this.mapRef.current) {
-      this.mapRef.current.leafletElement.invalidateSize();
-    }
+  constructor(props) {
+    super(props);
+    this.props.listenForResize(() => {
+      if (this.mapRef.current) {
+        this.mapRef.current.leafletElement.invalidateSize();
+      }
+    });
   }
 
   mapRef = React.createRef()
@@ -219,6 +222,7 @@ class ChoroplethRenderer extends React.Component {
   updateViewport = viewport => this.props.updateOptions({ viewport })
 
   render() {
+    if (!this.props.countriesData.fulfilled) return null;
     const opts = this.props.options;
     const data = prepareData(
       this.props.data.rows,
@@ -226,20 +230,18 @@ class ChoroplethRenderer extends React.Component {
       opts.valueColumn,
     );
     const formatValue = createNumberFormatter(opts.valueFormat, opts.noValuePlaceholder);
-    let mapElement;
-    let legend;
-    if (this.props.countriesData.fulfilled) {
-      const { limits, colors, lg } = createScale(
-        this.props.countriesData.value.features,
-        data,
-        opts,
-      );
-      legend = lg;
-      const viewport = opts.viewport || null;
-      mapElement = (
+    const { limits, colors, legend } = createScale(
+      this.props.countriesData.value.features,
+      data,
+      opts,
+    );
+    const viewport = opts.viewport || null;
+
+    return (
+      <div className="map-visualization-container">
         <Map
-          ref={this.mapRef}
           style={{ background: opts.colors.background }}
+          ref={this.mapRef}
           zoom={1}
           zoomSnap={0}
           scrollWheelZoom={false}
@@ -295,24 +297,19 @@ class ChoroplethRenderer extends React.Component {
             }}
           />
         </Map>
-      );
-    }
-    return (
-      <div className="map-visualization-container" ref={this.props.containerRef}>
-        {this.props.countriesData.fulfilled && mapElement}
-        {this.props.countriesData.fulfilled && opts.legend.visible && legend && (legend.length > 0) ?
+        {opts.legend.visible && (legend.length > 0) ?
           <div className={`leaflet-bar map-custom-control ${opts.legend.position}`}>
             {legend.map(item => (
-              <div key={item.color} className="d-flex align-items-center">
+              <div className="d-flex align-items-center">
                 <span
                   className="m-0"
                   style={{
                   lineHeight: 1,
                   width: 12,
                   height: 12,
-                  backgroundColor: item.color,
+                  'background-color': item.color,
                   display: 'inline-block',
-                  marginRight: 5,
+                  'margin-right': 5,
                   }}
                 />
                 <div className={`flex-fill text-${opts.legend.alignText}`}>{formatValue(item.limit)}</div>

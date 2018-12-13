@@ -87,7 +87,9 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
     }
 
     updateOptions(o) {
-      this.options = { ...this.options, ...o };
+      if (this.visualization) {
+        Object.assign(this.options, o);
+      }
     }
 
     updateFilters(f) {

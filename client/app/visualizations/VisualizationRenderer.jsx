@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -28,19 +27,9 @@ export default class VisualizationRenderer extends React.Component {
   }
 
 
-  componentDidMount() {
-    const parent = $(this.containerRef.current).parents('.grid-stack-item');
-    // for dashboard widget resize
-    parent.on('gridstack.resize-end', () => this.forceUpdate());
-    // for query page resize
-    this.props.listenForResize(() => this.forceUpdate());
-  }
-
   static getDerivedStateFromError(error) {
     return { error };
   }
-
-  containerRef = React.createRef()
 
   render() {
     if (!this.props.data.columns.length || !this.props.visualization) return null;
@@ -59,7 +48,6 @@ export default class VisualizationRenderer extends React.Component {
         {/* eslint-disable-next-line react/prop-types */}
         <Filters filters={this.props.filters} onChange={this.props.setFilters} clientConfig={this.props.clientConfig} />
         <Vis
-          containerRef={this.containerRef}
           filters={this.props.filters}
           options={this.props.visualization.options}
           name={this.props.visualization.name}
@@ -69,6 +57,7 @@ export default class VisualizationRenderer extends React.Component {
             /* eslint-disable-next-line react/prop-types */
             this.props.clientConfig}
           updateOptions={this.props.updateOptions}
+          listenForResize={this.props.listenForResize}
         />
       </React.Fragment>
     );

@@ -5,7 +5,7 @@ import { each, first, includes, last, map, max, min, sortBy, values } from 'loda
 import 'cornelius/src/cornelius';
 import 'cornelius/src/cornelius.css';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 
 const momentInterval = {
   weekly: 'weeks',
@@ -143,9 +143,14 @@ export default class CohortRenderer extends React.Component {
   });
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: CohortOptions.isRequired,
+    listenForResize: PropTypes.func.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+    props.listenForResize(() => this.drawChart());
   }
 
   componentDidMount() {
@@ -157,7 +162,7 @@ export default class CohortRenderer extends React.Component {
   }
 
   drawChart() {
-    const node = this.props.containerRef.current;
+    const node = this.chartRef.current;
     while (node.hasChildNodes()) {
       node.removeChild(node.lastChild);
     }
@@ -194,7 +199,9 @@ export default class CohortRenderer extends React.Component {
     });
   }
 
+  chartRef = React.createRef();
+
   render() {
-    return <div ref={this.props.containerRef} />;
+    return <div ref={this.chartRef} />;
   }
 }

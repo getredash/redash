@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import d3 from 'd3';
 import { compact, filter, find, groupBy, has, identity, keys, map, sortBy } from 'lodash';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 
 const exitNode = '<<<Exit>>>';
 const colors = d3.scale.category10();
@@ -357,8 +358,13 @@ export default class SunburstRenderer extends React.Component {
   });
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
+    listenForResize: PropTypes.func.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+    props.listenForResize(() => this.draw());
   }
 
   componentDidMount() {
@@ -371,7 +377,9 @@ export default class SunburstRenderer extends React.Component {
 
   draw = () => drawSunburst(this.props.data.rows, this.containerRef.current);
 
+  containerRef = React.createRef()
+
   render() {
-    return <div className="sunburst-visualization-container" ref={this.props.containerRef} />;
+    return <div className="sunburst-visualization-container" ref={this.containerRef} />;
   }
 }

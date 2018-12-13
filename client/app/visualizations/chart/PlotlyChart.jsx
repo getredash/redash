@@ -9,7 +9,7 @@ import box from 'plotly.js/lib/box';
 import heatmap from 'plotly.js/lib/heatmap';
 import { each, isArray, isObject } from 'lodash';
 
-import { SeriesOptions, ValuesOptions, RefObject } from '@/components/proptypes';
+import { SeriesOptions, ValuesOptions } from '@/components/proptypes';
 import { normalizeValue, updateData, prepareData, prepareLayout } from '@/visualizations/chart/plotly/utils';
 
 
@@ -19,6 +19,7 @@ Plotly.setPlotConfig({
 });
 
 const Plot = createPlotlyComponent(Plotly);
+
 
 const timeSeriesToPlotlySeries = (ss) => {
   const x = [];
@@ -87,9 +88,9 @@ const PlotlyChartOptions = PropTypes.shape({
 export default class PlotlyChart extends React.Component {
   static Options = PlotlyChartOptions
   static propTypes = {
-    containerRef: RefObject.isRequired,
     options: PlotlyChartOptions.isRequired,
     series: PropTypes.arrayOf(Series).isRequired,
+    listenForResize: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -100,6 +101,7 @@ export default class PlotlyChart extends React.Component {
       x: null,
       ys: null,
     };
+    props.listenForResize(() => this.forceUpdate());
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -113,13 +115,6 @@ export default class PlotlyChart extends React.Component {
       data,
       revision: prevState.revision + 1,
     };
-  }
-
-  componentDidMount() {
-    // XXX this is to hook up the resize logic from the angular impl of dashboard widgets
-    if (this.plotRef.current) {
-      this.props.containerRef.current = this.plotRef.current.el;
-    }
   }
 
   refreshCustom = (figure, plotlyElement) => {
@@ -142,13 +137,10 @@ export default class PlotlyChart extends React.Component {
     }
   }
 
-  plotRef = React.createRef()
-
   render() {
     if (!this.props.options) { return ''; }
     return (
       <Plot
-        ref={this.plotRef}
         className="plotly-chart-container"
         revision={this.state.revision}
         style={{ width: '100%', height: '100%' }}

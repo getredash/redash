@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
 import numberFormat from 'underscore.string/numberFormat';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 
 function getRowNumber(index, size) {
   if (index >= 0) {
@@ -45,10 +45,10 @@ export default class CounterRenderer extends React.Component {
   };
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: CounterOptions.isRequired,
     name: PropTypes.string.isRequired,
+    listenForResize: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -56,6 +56,7 @@ export default class CounterRenderer extends React.Component {
     this.state = {
       scale: null,
     };
+    props.listenForResize(() => this.rescale());
   }
 
   componentDidMount() {
@@ -69,13 +70,14 @@ export default class CounterRenderer extends React.Component {
   rescale() {
     this.setState({
       scale: Math.floor(Math.min(
-        this.props.containerRef.current.offsetHeight / this.counterRef.current.offsetHeight,
-        this.props.containerRef.current.offsetWidth / this.counterRef.current.offsetWidth,
+        this.rootRef.current.offsetHeight / this.containerRef.current.offsetHeight,
+        this.rootRef.current.offsetWidth / this.containerRef.current.offsetWidth,
       ) * 100) / 100,
     });
   }
 
-  counterRef = React.createRef()
+  rootRef = React.createRef()
+  containerRef = React.createRef()
 
   render() {
     if (!this.props.data) return null;
@@ -119,9 +121,9 @@ export default class CounterRenderer extends React.Component {
     return (
 
       <div className="counter-renderer">
-        <div className={`counter ${trend}`} ref={this.props.containerRef}>
+        <div className={`counter ${trend}`} ref={this.rootRef}>
           <div
-            ref={this.counterRef}
+            ref={this.containerRef}
             style={{
               oTransform: `scale(${scale})`,
               msTransform: `scale(${scale})`,

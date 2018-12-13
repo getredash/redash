@@ -51,7 +51,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser) {
+function DashboardWidgetCtrl($element, $location, $uibModal, $window, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -119,6 +119,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   } else {
     this.type = 'textbox';
   }
+  this.listenForResize = f => $element.parent().parent().on('resize', f);
 }
 
 export default function init(ngModule) {

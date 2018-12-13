@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { sortBy, isNumber, every, difference, map } from 'lodash';
 import d3 from 'd3';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 import { ColorPalette, normalizeValue } from '@/visualizations/chart/plotly/utils';
 import './funnel.less';
 
@@ -47,9 +47,14 @@ export default class FunnelRenderer extends React.Component {
   })
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: FunnelOptions.isRequired,
+    listenForResize: PropTypes.func.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+    props.listenForResize(() => this.drawFunnel());
   }
 
   componentDidMount() {
@@ -97,7 +102,7 @@ export default class FunnelRenderer extends React.Component {
 
 
   drawFunnel = () => {
-    const node = this.props.containerRef.current;
+    const node = this.containerRef.current;
     while (node.hasChildNodes()) {
       node.removeChild(node.lastChild);
     }
@@ -168,6 +173,6 @@ export default class FunnelRenderer extends React.Component {
   }
 
   render() {
-    return <div className="funnel-visualization-container" ref={this.props.containerRef} />;
+    return <div className="funnel-visualization-container" ref={this.containerRef} />;
   }
 }

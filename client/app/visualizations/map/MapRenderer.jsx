@@ -14,7 +14,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
-import { QueryData, RefObject } from '@/components/proptypes';
+import { QueryData } from '@/components/proptypes';
 
 /*
 This is a workaround for an issue with giving Leaflet load the icon on its own.
@@ -51,7 +51,6 @@ export default class MapRenderer extends React.Component {
   })
 
   static propTypes = {
-    containerRef: RefObject.isRequired,
     data: QueryData.isRequired,
     options: MapOptions.isRequired,
   }
@@ -112,6 +111,8 @@ export default class MapRenderer extends React.Component {
       </LayersControl.Overlay>);
   }
 
+  containerRef = React.createRef()
+
   render() {
     if (!this.props.data) return null;
     let pointGroups;
@@ -135,7 +136,7 @@ export default class MapRenderer extends React.Component {
       <div className="map-visualization-container">
         <Map
           center={[14, 0]}
-          ref={this.props.containerRef}
+          ref={this.mapRef}
           maxZoom={16}
           zoom={1}
           zoomSnap={0}
