@@ -64,7 +64,9 @@ def load_user(user_id_with_identity):
         if user.is_disabled:
             return None
 
-        if not is_legacy_session_identifier and user.get_id() != user_id_with_identity:
+        if is_legacy_session_identifier:
+            login_user(user, remember=True)
+        elif user.get_id() != user_id_with_identity:
             return None
 
         return user
