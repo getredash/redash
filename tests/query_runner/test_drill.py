@@ -2,37 +2,8 @@
 import datetime
 from unittest import TestCase
 
-from mock import MagicMock
-
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING
-from redash.query_runner.drill import guess_type, convert_type, parse_response, Drill
-
-
-class TestGuessType(TestCase):
-    def test_handles_unicode(self):
-        self.assertEqual(guess_type(u'Текст'), TYPE_STRING)
-
-    def test_detects_booleans(self):
-        self.assertEqual(guess_type('true'), TYPE_BOOLEAN)
-        self.assertEqual(guess_type('True'), TYPE_BOOLEAN)
-        self.assertEqual(guess_type('TRUE'), TYPE_BOOLEAN)
-        self.assertEqual(guess_type('false'), TYPE_BOOLEAN)
-        self.assertEqual(guess_type('False'), TYPE_BOOLEAN)
-        self.assertEqual(guess_type('FALSE'), TYPE_BOOLEAN)
-
-    def test_detects_strings(self):
-        self.assertEqual(guess_type(None), TYPE_STRING)
-        self.assertEqual(guess_type(''), TYPE_STRING)
-        self.assertEqual(guess_type('redash'), TYPE_STRING)
-
-    def test_detects_integer(self):
-        self.assertEqual(guess_type('42'), TYPE_INTEGER)
-
-    def test_detects_float(self):
-        self.assertEqual(guess_type('3.14'), TYPE_FLOAT)
-
-    def test_detects_date(self):
-        self.assertEqual(guess_type('2018-10-31'), TYPE_DATETIME)
+from redash.query_runner.drill import convert_type, parse_response
 
 
 class TestConvertType(TestCase):
@@ -118,4 +89,3 @@ class TestParseResponse(TestCase):
         self.assertEqual(row_1['date'], datetime.datetime(2018, 2, 1, 0, 0))
         self.assertEqual(row_1['count'], 20)
         self.assertAlmostEqual(row_1['avg'], 6.28, 2)
-

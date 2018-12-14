@@ -1,44 +1,17 @@
 import os
 import logging
-import requests
 import re
 
 from dateutil import parser
 
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
+from redash.query_runner import (
+    BaseHTTPQueryRunner, register,
+    TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN,
+    guess_type
+)
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
-
-
-# Drill returns request result as strings, so we have to guess the actual column type
-def guess_type(string_value):
-    if string_value == '' or string_value is None:
-        return TYPE_STRING
-
-    try:
-        int(string_value)
-        return TYPE_INTEGER
-    except (ValueError, OverflowError):
-        pass
-
-    try:
-        float(string_value)
-        return TYPE_FLOAT
-    except (ValueError, OverflowError):
-        pass
-
-    if unicode(string_value).lower() in ('true', 'false'):
-        return TYPE_BOOLEAN
-
-    try:
-        parser.parse(string_value)
-        return TYPE_DATETIME
-    except (ValueError, OverflowError):
-        pass
-
-    return TYPE_STRING
 
 
 # Convert Drill string value to actual type
@@ -86,99 +59,31 @@ def parse_response(data):
     return {'columns': columns, 'rows': rows}
 
 
-class Drill(BaseQueryRunner):
+class Drill(BaseHTTPQueryRunner):
     noop_query = 'select version from sys.version'
+    response_error = "Drill API returned unexpected status code"
+    requires_authentication = False
+    requires_url = True
+    url_title = 'Drill URL'
+    username_title = 'Username'
+    password_title = 'Password'
 
     @classmethod
     def name(cls):
         return 'Apache Drill'
 
     @classmethod
-    def type(cls):
-        return 'drill'
-
-    @classmethod
-    def enabled(cls):
-        return True
-
-    @classmethod
     def configuration_schema(cls):
-        schema = {
-            'type': 'object',
-            'properties': {
-                'username': {
-                    'type': 'string',
-                    'title': 'Username',
-                },
-                'password': {
-                    'type': 'string',
-                    'title': 'Password',
-                },
-                'url': {
-                    'type': 'string',
-                    'title': 'Drill URL',
-                },
-                # Since Drill itself can act as aggregator of various datasources,
-                # it can contain quite a lot of schemas in `INFORMATION_SCHEMA`
-                # We added this to improve user experience and let users focus only on desired schemas.
-                'allowed_schemas': {
-                    'type': 'string',
-                    'title': 'List of schemas to use in schema browser (comma separated)'
-                }
-            },
-            'order': ['url', 'username', 'password', 'allowed_schemas'],
-            'required': ['url'],
-            'secret': ['password']
+        schema = super(Drill, cls).configuration_schema()
+        # Since Drill itself can act as aggregator of various datasources,
+        # it can contain quite a lot of schemas in `INFORMATION_SCHEMA`
+        # We added this to improve user experience and let users focus only on desired schemas.
+        schema['properties']['allowed_schemas'] = {
+            'type': 'string',
+            'title': 'List of schemas to use in schema browser (comma separated)'
         }
+        schema['order'] += ['allowed_schemas']
         return schema
-
-    def get_auth(self):
-        username = self.configuration.get('username')
-        password = self.configuration.get('password')
-        if username and password:
-            return (username, password)
-        else:
-            return None
-
-    def get_response(self, url, auth=None, **kwargs):
-        # Get authentication values if not given
-        if auth is None:
-            auth = self.get_auth()
-
-        # Then call requests to get the response from the given endpoint
-        # URL optionally, with the additional requests parameters.
-        error = None
-        response = None
-        try:
-            response = requests.post(url, auth=auth, **kwargs)
-            # Raise a requests HTTP exception with the appropriate reason
-            # for 4xx and 5xx response status codes which is later caught
-            # and passed back.
-            response.raise_for_status()
-
-            # Any other responses (e.g. 2xx and 3xx):
-            if response.status_code != 200:
-                error = '{} ({}).'.format(
-                    'Drill returned unexpected status code',
-                    response.status_code,
-                )
-
-        except requests.HTTPError as exc:
-            logger.exception(exc)
-            error = (
-                'Failed to execute query. '
-                'Return Code: {} Reason: {}'.format(
-                    response.status_code,
-                    response.text
-                )
-            )
-        except requests.RequestException as exc:
-            # Catch all other requests exceptions and return the error.
-            logger.exception(exc)
-            error = str(exc)
-
-        # Return response and error.
-        return response, error
 
     def run_query(self, query, user):
         drill_url = os.path.join(self.configuration['url'], 'query.json')
@@ -186,7 +91,7 @@ class Drill(BaseQueryRunner):
         try:
             payload = {'queryType': 'SQL', 'query': query}
 
-            response, error = self.get_response(drill_url, json=payload)
+            response, error = self.get_response(drill_url, http_method='post', json=payload)
             if error is not None:
                 return None, error
 
@@ -236,4 +141,3 @@ class Drill(BaseQueryRunner):
 
 
 register(Drill)
-
