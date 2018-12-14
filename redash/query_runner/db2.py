@@ -3,7 +3,7 @@ import json
 import logging
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class DB2(BaseSQLQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data)
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None
