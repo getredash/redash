@@ -8,7 +8,6 @@ from funcy import project
 from flask_login import current_user
 
 from redash import models
-from redash.handlers.query_results import run_query_sync
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
 
@@ -30,6 +29,9 @@ def public_widget(widget):
         # make sure the widget's query has a latest_query_data_id that is
         # not null so public dashboards work
         if q.latest_query_data_id is None:
+            # this import is inline since it triggers a circular
+            # import otherwise
+            from redash.handlers.query_results import run_query_sync
             run_query_sync(q.data_source, {}, q.query_text)
 
         query_data = q.latest_query_data.to_dict()

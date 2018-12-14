@@ -159,7 +159,7 @@ class QueryResultSetResource(BaseResource):
             for r in results:
                 aggregate_result['data']['rows'].extend(r['data']['rows'])
 
-        data = json.dumps({'query_result': aggregate_result}, cls=utils.JSONEncoder)
+        data = json_dumps({'query_result': aggregate_result})
         headers = {'Content-Type': "application/json"}
         return make_response(data, 200, headers)
 

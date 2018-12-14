@@ -1,7 +1,7 @@
 import requests
 import os
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 import json
 
 
@@ -96,7 +96,7 @@ class Rockset(BaseSQLQueryRunner):
             columns = []
             for k in rows[0]:
                 columns.append({'name': k, 'friendly_name': k, 'type': _get_type(rows[0][k])})
-        data = json.dumps({'columns': columns, 'rows': rows}, cls=JSONEncoder)
+        data = json_dumps({'columns': columns, 'rows': rows})
         return data, None
 
 
