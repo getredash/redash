@@ -8,7 +8,7 @@
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
-          <div class="alert alert-danger" role="alert">{{ message }}</div>
+          <div class="alert alert-danger" role="alert" data-test="ErrorMessage">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
@@ -41,11 +41,11 @@
       <input type="hidden" name="remember" value="on">
       <div class="form-group">
         <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
-        <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
+        <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}" data-test="Email">
       </div>
       <div class="form-group">
         <label for="inputPassword">Password</label>
-        <input type="password" class="form-control" id="inputPassword" name="password">
+        <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
       </div>
 
       <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
