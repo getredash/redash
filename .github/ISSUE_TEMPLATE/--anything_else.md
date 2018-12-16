@@ -1,6 +1,7 @@
 ---
 name: "\U0001F4A1Anything else"
 about: "For help, support, features & ideas - please use https://discuss.redash.io \U0001F46B "
+labels: "Support Question"
 ---
 
 We use GitHub only for bug reports 🐛
