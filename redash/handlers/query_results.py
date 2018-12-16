@@ -246,7 +246,7 @@ class QueryResultResource(BaseResource):
                     event['object_type'] = 'query_result'
                     event['object_id'] = query_result_id
 
-                record_event.delay(event)
+                self.record_event(event)
 
             if filetype == 'json':
                 response = self.make_json_response(query_result)

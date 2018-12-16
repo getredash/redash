@@ -1,19 +1,18 @@
-from flask_login import LoginManager, user_logged_in, login_user, logout_user
-from sqlalchemy.orm.exc import NoResultFound
 import hashlib
 import hmac
-import time
 import logging
-
-from flask import redirect, request, jsonify, url_for
+import time
 from urlparse import urlsplit, urlunsplit
-from werkzeug.exceptions import Unauthorized
 
+from flask import jsonify, redirect, request, url_for
+from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
-from redash.settings.organization import settings as org_settings
 from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
+from redash.settings.organization import settings as org_settings
 from redash.tasks import record_event
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.exceptions import Unauthorized
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
@@ -102,6 +101,8 @@ def get_user_from_api_key(api_key, query_id):
     org = current_org._get_current_object()
     try:
         user = models.User.get_by_api_key_and_org(api_key, org)
+        if user.is_disabled:
+            user = None
     except models.NoResultFound:
         try:
             api_key = models.ApiKey.get_by_api_key(api_key)
@@ -171,7 +172,7 @@ def jwt_token_load_user_from_request(request):
 
 def log_user_logged_in(app, user):
     event = {
-        'org_id': current_org.id,
+        'org_id': user.org_id,
         'user_id': user.id,
         'action': 'login',
         'object_type': 'redash',
