@@ -4,7 +4,7 @@
 
 v6.0.0 release version. Mainly includes  fixes for regressions from the beta version. 
 
-This release had contributions from 38 people: @rauchy, @denisov-vlad, @arikfr, @ariarijp, and @gabrieldutra. Thank you, everyone 🙏
+This release had contributions from 5 people: @rauchy, @denisov-vlad, @arikfr, @ariarijp, and @gabrieldutra. Thank you, everyone 🙏
 
 ### Changed
 
