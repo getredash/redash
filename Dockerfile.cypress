@@ -1,10 +1,11 @@
 FROM cypress/browsers:chrome67
 
-WORKDIR /usr/src/app
+ENV APP /usr/src/app
+WORKDIR $APP
 
-RUN npm install cypress > /dev/null
+RUN npm install --no-save cypress @percy/cypress > /dev/null
 
-COPY cypress /usr/src/app/cypress
-COPY cypress.json /usr/src/app/cypress.json
+COPY cypress $APP/cypress
+COPY cypress.json $APP/cypress.json
 
 RUN ./node_modules/.bin/cypress verify

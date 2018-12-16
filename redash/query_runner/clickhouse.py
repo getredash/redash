@@ -111,7 +111,7 @@ class ClickHouse(BaseSQLQueryRunner):
             column_name = r['name']
             column_type = self._define_column_type(r['type'])
 
-            if 'Int64' in r['type']:
+            if r['type'] in ('Int64', 'UInt64', 'Nullable(Int64)', 'Nullable(UInt64)'):
                 columns_int64.append(column_name)
             else:
                 columns_totals[column_name] = 'Total' if column_type == TYPE_STRING else None
@@ -121,7 +121,10 @@ class ClickHouse(BaseSQLQueryRunner):
         rows = result['data']
         for row in rows:
             for column in columns_int64:
-                row[column] = int(row[column])
+                try:
+                    row[column] = int(row[column])
+                except TypeError:
+                    row[column] = None
 
         if 'totals' in result:
             totals = result['totals']

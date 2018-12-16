@@ -1,10 +1,35 @@
 # Change Log
 
-## UNRELEASED
+## v6.0.0-beta - 2018-12-03
+
+This release was 2 months in the making and it is full with good stuff! 
+
+* We have 5 new data sources: Databricks, IBM DB2, Kylin, Druid and Rockset. ⌗
+* There are fixes and improvements to 11 existing data sources (MySQL, Redshift, Postgres, MongoDB, Google BigQuery, Vertica, TreasureData, Presto, ClickHouse, Google Sheets and Google Analytics).
+* The Query Results data source can now load cached results, just use the `cached_query_` prefix instead of `query_`.
+* On the visualizations front we added a Heatmap visualization and did updated the table and counter visualizations.
+* Alerts got some fixes and a new destination: PagerDuty.
+* If the live autocomplete in the code editor annoys you, you can disable it now (although we're working to make it better, see #3092).
+* Fast queries will now load faster. 🏃‍♂️
+* We improved the layout of visualizations and content on smaller screen sizes. 📱
+* For those of you who like sharing, you can now enable the ability to share ownership of queries and dashboards and let others to edit them. Check the Settings page to enable this feature.
+
+There were also important changes to the code and infrastructure: 
+
+* More components moved to React.
+* We switched to Webpack 4 with the help of @dmonego.
+* We upgraded to Celery 4 with the help of @emtwo, @jezdez, @mashrikt and @atharvai.
+* We started moving towards Python 3 for our backend. The first step was to make sure our code pass basic sanity tests with Flake 8, which was implemented by @cclauss.
+* We improved our testing on the frontend by adding setup for Jest tests and E2E testing using Cypress (@gabrieldutra).
+* Each pull request now gets a deploy preview using Netlify to easily test frontend changes.
+
+This is just a summary, you're welcome to review the full list below. ⬇
+
+This release had contributions from 38 people: @arikfr, @kravets-levko, @jezdez, @kyoshidajp, @kocsmy, @alison985, @gabrieldutra, @washort, @GitSumito, @emtwo, @rauchy, @alexanderlz, @denisov-vlad, @ariarijp, @yoavbls, @zhujunsan, @sjakthol, @koooge, @SakuradaJun, @dmonego, @Udomomo, @cclauss, @combineads, @zaimy, @Trigl, @ralphilius, @jodevsa, @deecay, @igorcanadi, @pashaxp, @hoangphuoc25, @toph, @burnash, @wankdanker, @Yossi-a, @Rovel, @kadrach, and @nicof38. Thank you, everyone 🙏
 
 ### Added
 
-* #2747 Add a new Databricks query runner. @alison985, @jezdez
+* #2747, #3143 Add a new Databricks query runner. @alison985, @jezdez, @arikfr
 * #2767 Add ability to add viz to dashboard from query edit page. @alison985, @jezdez
 * #2780 Add a query autocomplete toggle. @alison985, @jezdez, @arikfr
 * #2768 Add authentication via JWT providers. @SakuradaJun
@@ -27,6 +52,11 @@
 * #2936 Add Kylin data source. @Trigl
 * #3047 Add Druid data source. @rauchy
 * #3077 New user interface for the feature flag of the share edit permissions feature. @arikfr
+* #3007 Add permissions to the result of "manage.py groups list" command. @Udomomo
+* #3088 Add get_current_user() fuction for the Python query runner. @kyoshidajp
+* #3114 Add event tracking to autocomplete toggle. @arikfr
+* #3068 Add Rockset query runner. @igorcanadi, @arikfr
+* #3105 Display frontend version. @rauchy
 
 ### Changed
 
@@ -59,6 +89,18 @@
 * #3085 BigQuery: Switch to Standard SQL as the default. @kyoshidajp
 * #3094 Tags autocomplete: Show note when creating a new label. @kravets-levko
 * #2984 Autocomplete toggle improvements. @arikfr
+* #3089 Open new tab when forking a query. @kyoshidajp
+* #3126 MongoDB: add support for sorting columns. @arikfr
+* #3128 Improve backoff algorithm of query results polling to speed it up. @arikfr
+* #3125 Vertica: update driver & add support for connection timeout. @arikfr
+* #3124 Support unicode in Postgres/Redshift schema. @arikfr
+* #3138 Migrate all tags components to React. @kravets-levko
+* #3139 Better manage permissions modal. @kocsmy
+* #3149 Improve tag link colors and fix group tags on Users page. @kocsmy
+* #3146 Update, replace and fix new alert destination logos so it fits better. @kocsmy
+* #3147 Add and improve recent db logos that didn't fit in size properly. @kocsmy
+* #3148 Fix label positioning on no found screen. @kocsmy
+* #3156 json_dumps: add support for serializing buffer objects. @arikfr
 
 ### Fixed
 
@@ -104,6 +146,11 @@
 * #3046 Fix query page header. @kravets-levko
 * #3097 Mongo: Fix collection fields retreival bug when Views are present. @jodevsa
 * #3107 Keep query text in local state for now. @washort
+* #3111 Fix mobile padding issues on Query results. @kocsmy
+* #3122 Show menu divider only if query is archived. @jezdez
+* #3120 Fix tag counts for dashboards and queries. @jezdez
+* #3141 Fix schema refresh to work on MySQL 8. @hoangphuoc25
+* #3142 Fix: editing dashboard title results in the visualizations being replaced by the loading markers. @kravets-levko
 
 ### Other
 
