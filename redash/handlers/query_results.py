@@ -20,7 +20,7 @@ def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
 
-def safely_apply_parameters(template, parameters, data_source):
+def apply_parameters(template, parameters, data_source):
     query = SQLQuery(template).apply(parameters)
 
     # for now we only log `SQLInjectionError` to detect false positives
@@ -53,7 +53,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
     if missing_params:
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
-    query_text = safely_apply_parameters(query_text, parameter_values, data_source)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age <= 0:
         query_result = None
@@ -103,7 +103,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query_text = safely_apply_parameters(query_text, parameter_values, data_source)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age == 0:
         query_result = None
