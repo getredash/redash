@@ -102,8 +102,12 @@ class QueryEditor extends React.Component {
     this.onLoad = (editor) => {
       // Release Cmd/Ctrl+L to the browser
       editor.commands.bindKey('Cmd+L', null);
-      editor.commands.bindKey('Ctrl+P', null);
       editor.commands.bindKey('Ctrl+L', null);
+
+      // Ignore Ctrl+P to open new parameter dialog
+      editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
+      // Lineup only mac
+      editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
 
       // eslint-disable-next-line react/prop-types
       this.props.QuerySnippet.query((snippets) => {
