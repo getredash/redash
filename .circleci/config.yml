@@ -34,7 +34,7 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
+          command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
@@ -58,6 +58,7 @@ jobs:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.cypress.yml
       COMPOSE_PROJECT_NAME: cypress
+      PERCY_TOKEN_ENCODED: MWM3OGUzNzk4ZWQ2NTE4YTBhMDAwZDNiNWE1Nzc4ZjEzZjYyMzY1MjE0NjY0NDRiOGE5ODc5ZGYzYTU4ZmE4NQ==
     docker:
       - image: circleci/node:8
     steps:
@@ -65,15 +66,16 @@ jobs:
       - checkout
       - run:
           name: Install npm dependencies
-          command: npm install
+          command: |
+            npm install
       - run:
           name: Setup Redash server
           command: |
-            npm run cypress:server start-ci
-            docker-compose run cypress node ./cypress/cypress-server.js setup
+            npm run cypress start
+            docker-compose run cypress node ./cypress/cypress.js db-seed
       - run:
           name: Execute Cypress tests
-          command: docker-compose run cypress ./node_modules/.bin/cypress run
+          command: npm run cypress run-ci
   build-tarball:
     docker:
       - image: circleci/node:8
@@ -81,9 +83,9 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: npm install
+      - run: .circleci/update_version
       - run: npm run bundle
       - run: npm run build
-      - run: .circleci/update_version
       - run: .circleci/pack
       - store_artifacts:
           path: /tmp/artifacts/

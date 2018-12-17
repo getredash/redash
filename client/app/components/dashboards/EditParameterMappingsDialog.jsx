@@ -137,3 +137,5 @@ export default function init(ngModule) {
   ngModule.component('editParameterMappingsDialogImpl', react2angular(EditParameterMappingsDialog, null, [
     'Query', 'clientConfig']));
 }
+
+init.init = true;

@@ -95,8 +95,8 @@ def list(organization=None):
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nType: {}\nOrganization: {}".format(
-            group.id, group.name, group.type, group.org.slug))
+        print("Id: {}\nName: {}\nType: {}\nOrganization: {}\nPermissions: [{}]".format(
+            group.id, group.name, group.type, group.org.slug, ",".join(group.permissions)))
 
         members = models.Group.members(group.id)
         user_names = [m.name for m in members]

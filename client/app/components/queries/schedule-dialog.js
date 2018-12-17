@@ -21,9 +21,9 @@ function queryTimePicker() {
       saveQuery: '=',
     },
     template: `
-      <select ng-disabled="refreshType != 'daily'" ng-model="hour" ng-change="updateSchedule()" 
+      <select ng-disabled="refreshType != 'daily'" ng-model="hour" ng-change="updateSchedule()"
         ng-options="c as c for c in hourOptions"></select> :
-      <select ng-disabled="refreshType != 'daily'" ng-model="minute" ng-change="updateSchedule()" 
+      <select ng-disabled="refreshType != 'daily'" ng-model="minute" ng-change="updateSchedule()"
         ng-options="c as c for c in minuteOptions"></select>
     `,
     link($scope) {
@@ -127,3 +127,5 @@ export default function init(ngModule) {
   ngModule.directive('queryRefreshSelect', queryRefreshSelect);
   ngModule.component('scheduleDialog', ScheduleForm);
 }
+
+init.init = true;

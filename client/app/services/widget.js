@@ -238,3 +238,6 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
 export default function init(ngModule) {
   ngModule.factory('Widget', WidgetFactory);
 }
+
+init.init = true;
+

@@ -23,7 +23,12 @@
         <div class="d-flex flex-nowrap align-items-center">
           <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
           <h3>
-            <edit-in-place is-editable="canEdit" on-done="saveName" ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
+            <edit-in-place class="m-r-5" is-editable="canEdit" on-done="saveName"
+              ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
+            <query-tags-control
+              class="query-tags" ng-class="{'query-tags__empty': query.tags.length == 0}"
+              tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+              can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
           </h3>
 
           <span class="flex-fill">&nbsp;</span>
@@ -42,15 +47,15 @@
               </a>
             </span>
 
-            <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
+            <div ng-if="query.id != undefined" class="btn-group query-actions-menu" role="group" uib-dropdown>
               <button class="btn btn-default dropdown-toggle hidden-xs" uib-dropdown-toggle>
                 <span class="zmdi zmdi-more"></span>
               </button>
               <ul class="dropdown-menu pull-right" uib-dropdown-menu>
                 <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
-                  <a ng-click="duplicateQuery()"> Fork</a>
+                  <a ng-click="duplicateQuery()"> Fork <i class="fa fa-external-link"></i></a>
                 </li>
-                <li class="divider"></li>
+                <li class="divider" ng-if="query.is_archived"></li>
                 <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <a ng-click="archiveQuery()">Archive</a>
                 </li>
@@ -68,19 +73,18 @@
             </div>
           </div>
         </div>
-        <div style="padding-left: 23px; margin-top: -5px;">
-          <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
-          <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
-            popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-          <tags-control item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
-        </div>
+        <query-tags-control
+          class="query-tags__mobile" ng-class="{'query-tags__empty': query.tags.length == 0}"
+          tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
+          can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags"></query-tags-control>
       </div>
     </div>
   </div>
   <main class="query-fullscreen">
     <nav resizable r-directions="['right']" r-flex="true" resizable-toggle toggle-shortcut="Alt+Shift+D, Alt+D">
       <div class="editor__left__data-source">
-        <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode" on-select="updateDataSource()">
+        <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode"
+          on-select="updateDataSource()" data-test="SelectDataSource">
           <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
           <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
             {{ds.name}}
@@ -185,7 +189,7 @@
             </div>
           </div>
 
-          <section class="flex-fill p-relative t-body">
+          <section class="flex-fill p-relative t-body query-visualizations-wrapper">
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
                 <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>

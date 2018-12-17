@@ -16,7 +16,7 @@ class TestUserListResourcePost(BaseTestCase):
 
         rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
         self.assertEqual(rv.status_code, 400)
-    
+
     def test_returns_400_when_using_temporary_email(self):
         admin = self.factory.create_admin()
 
@@ -150,6 +150,17 @@ class TestUserResourcePost(BaseTestCase):
         user = models.User.query.get(self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
 
+    def test_returns_400_when_using_temporary_email(self):
+        admin = self.factory.create_admin()
+
+        test_user = {'email': 'user@mailinator.com'}
+        rv = self.make_request('post', '/api/users/{}'.format(self.factory.user.id), data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
+        test_user['email'] = 'arik@qq.com'
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
 
 class TestUserDisable(BaseTestCase):
     def test_non_admin_cannot_disable_user(self):
@@ -192,7 +203,7 @@ class TestUserDisable(BaseTestCase):
         self.assertFalse(admin_user.is_disabled)
 
         rv = self.make_request('post', "/api/users/{}/disable".format(admin_user.id), user=admin_user)
-        self.assertEqual(rv.status_code, 400)
+        self.assertEqual(rv.status_code, 403)
 
         # user should stay enabled
         admin_user = models.User.query.get(admin_user.id)

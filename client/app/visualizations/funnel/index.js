@@ -14,8 +14,12 @@ function isNoneNaNNum(val) {
 }
 
 function normalizePercentage(num) {
-  if (num < 0.01) { return '<0.01%'; }
-  if (num > 1000) { return '>1000%'; }
+  if (num < 0.01) {
+    return '<0.01%';
+  }
+  if (num > 1000) {
+    return '>1000%';
+  }
   return num.toFixed(2) + '%';
 }
 
@@ -28,25 +32,35 @@ function Funnel(scope, element) {
   function drawFunnel(data) {
     const maxToPrevious = d3.max(data, d => d.pctPrevious);
     // Table
-    const table = vis.append('table')
-      .attr('class', 'table table-condensed table-hover table-borderless');
+    const table = vis.append('table').attr('class', 'table table-condensed table-hover table-borderless');
 
     // Header
     const header = table.append('thead').append('tr');
     header.append('th').text(options.stepCol.displayAs);
-    header.append('th').attr('class', 'text-center').text(options.valueCol.displayAs);
-    header.append('th').attr('class', 'text-center').text('% Max');
-    header.append('th').attr('class', 'text-center').text('% Previous');
+    header
+      .append('th')
+      .attr('class', 'text-center')
+      .text(options.valueCol.displayAs);
+    header
+      .append('th')
+      .attr('class', 'text-center')
+      .text('% Max');
+    header
+      .append('th')
+      .attr('class', 'text-center')
+      .text('% Previous');
 
     // Body
-    const trs = table.append('tbody')
+    const trs = table
+      .append('tbody')
       .selectAll('tr')
       .data(data)
       .enter()
       .append('tr');
 
     // Steps row
-    trs.append('td')
+    trs
+      .append('td')
       .attr('class', 'col-xs-3 step')
       .text(d => d.step)
       .append('div')
@@ -54,34 +68,41 @@ function Funnel(scope, element) {
       .text(d => d.step);
 
     // Funnel bars
-    const valContainers = trs.append('td')
+    const valContainers = trs
+      .append('td')
       .attr('class', 'col-xs-5')
       .append('div')
       .attr('class', 'container');
-    valContainers.append('div')
+    valContainers
+      .append('div')
       .attr('class', 'bar centered')
       .style('background-color', ColorPalette.Cyan)
       .style('width', d => d.pctMax + '%');
-    valContainers.append('div')
+    valContainers
+      .append('div')
       .attr('class', 'value')
       .text(d => d.value.toLocaleString());
 
     // pctMax
-    trs.append('td')
+    trs
+      .append('td')
       .attr('class', 'col-xs-2 text-center')
       .text(d => normalizePercentage(d.pctMax));
 
     // pctPrevious
-    const pctContainers = trs.append('td')
+    const pctContainers = trs
+      .append('td')
       .attr('class', 'col-xs-2')
       .append('div')
       .attr('class', 'container');
-    pctContainers.append('div')
+    pctContainers
+      .append('div')
       .attr('class', 'bar')
       .style('background-color', ColorPalette.Gray)
       .style('opacity', '0.2')
-      .style('width', d => (d.pctPrevious / maxToPrevious * 100.0) + '%');
-    pctContainers.append('div')
+      .style('width', d => (d.pctPrevious / maxToPrevious) * 100.0 + '%');
+    pctContainers
+      .append('div')
       .attr('class', 'value')
       .text(d => normalizePercentage(d.pctPrevious));
   }
@@ -95,11 +116,14 @@ function Funnel(scope, element) {
   }
 
   function prepareData(queryData) {
-    const data = queryData.map(row => ({
-      step: normalizeValue(row[options.stepCol.colName]),
-      value: Number(row[options.valueCol.colName]),
-      sortVal: options.autoSort ? '' : row[options.sortKeyCol.colName],
-    }), []);
+    const data = queryData.map(
+      row => ({
+        step: normalizeValue(row[options.stepCol.colName]),
+        value: Number(row[options.valueCol.colName]),
+        sortVal: options.autoSort ? '' : row[options.sortKeyCol.colName],
+      }),
+      [],
+    );
     let sortedData;
     if (options.autoSort) {
       sortedData = sortBy(data, 'value').reverse();
@@ -113,8 +137,8 @@ function Funnel(scope, element) {
     }
     const maxVal = d3.max(data, d => d.value);
     sortedData.forEach((d, i) => {
-      d.pctMax = d.value / maxVal * 100.0;
-      d.pctPrevious = i === 0 ? 100.0 : d.value / sortedData[i - 1].value * 100.0;
+      d.pctMax = (d.value / maxVal) * 100.0;
+      d.pctPrevious = i === 0 ? 100.0 : (d.value / sortedData[i - 1].value) * 100.0;
     });
     return sortedData.slice(0, 100);
   }
@@ -122,7 +146,9 @@ function Funnel(scope, element) {
   function invalidColNames() {
     const colNames = scope.queryResult.getColumnNames();
     const colToCheck = [options.stepCol.colName, options.valueCol.colName];
-    if (!options.autoSort) { colToCheck.push(options.sortKeyCol.colName); }
+    if (!options.autoSort) {
+      colToCheck.push(options.sortKeyCol.colName);
+    }
     if (difference(colToCheck, colNames).length > 0) {
       return true;
     }
@@ -131,7 +157,9 @@ function Funnel(scope, element) {
 
   function refresh() {
     removeVisualization();
-    if (invalidColNames()) { return; }
+    if (invalidColNames()) {
+      return;
+    }
 
     const queryData = scope.queryResult.getData();
     const data = prepareData(queryData, options);
@@ -209,3 +237,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

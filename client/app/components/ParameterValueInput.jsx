@@ -204,3 +204,5 @@ export default function init(ngModule) {
     react2angular(ParameterValueInput, null, ['clientConfig', 'Query']),
   );
 }
+
+init.init = true;

@@ -534,3 +534,6 @@ export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
 }
+
+init.init = true;
+

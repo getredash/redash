@@ -150,3 +150,5 @@ export default function init(ngModule) {
   });
   ngModule.component('addTextboxDialogImpl', react2angular(AddTextboxDialog, null, ['toastr', 'Widget']));
 }
+
+init.init = true;

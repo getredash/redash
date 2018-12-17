@@ -3,8 +3,10 @@ import PropTypes from 'prop-types';
 
 import { react2angular } from 'react2angular';
 
+import frontendVersion from '../version.json';
+
 export function Footer({ clientConfig, currentUser }) {
-  const version = clientConfig.version;
+  const backendVersion = clientConfig.version;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
   const separator = ' \u2022 ';
 
@@ -19,7 +21,7 @@ export function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="https://redash.io">Redash</a> {version}
+      <a href="https://redash.io">Redash</a> {backendVersion} ({frontendVersion.substring(0, 8)})
       {newVersionString}
       {separator}
       <a href="https://redash.io/help/">Documentation</a>
@@ -42,3 +44,5 @@ Footer.propTypes = {
 export default function init(ngModule) {
   ngModule.component('footer', react2angular(Footer, [], ['clientConfig', 'currentUser']));
 }
+
+init.init = true;

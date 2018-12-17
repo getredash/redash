@@ -51,3 +51,5 @@ const EmptyStateComponent = {
 export default function init(ngModule) {
   ngModule.component('emptyState', EmptyStateComponent);
 }
+
+init.init = true;

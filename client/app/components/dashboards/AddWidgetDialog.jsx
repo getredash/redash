@@ -357,3 +357,5 @@ export default function init(ngModule) {
   ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog, null, [
     'toastr', 'Widget', 'Query', 'clientConfig']));
 }
+
+init.init = true;

@@ -77,9 +77,7 @@
                 <a href="dashboard/{{ dashboard.slug }}">
                   {{ dashboard.name }}
                 </a>
-                <br>
-                <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
-                <tags-control item="dashboard"></tags-control>
+                <dashboard-tags-control class="d-block" tags="dashboard.tags" is-draft="dashboard.is_draft" is-archived="dashboard.is_archived"></dashboard-tags-control>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{ dashboard.user.profile_image_url }}" class="profile__image_thumb" title="Created by {{ dashboard.user.name }}"

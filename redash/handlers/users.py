@@ -184,6 +184,12 @@ class UserResource(BaseResource):
 
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
+        
+        if 'email' in params:
+            _, domain = params['email'].split('@', 1)
+
+            if domain.lower() in blacklist or domain.lower() == 'qq.com':
+                abort(400, message='Bad email address.')
 
         try:
             self.update_model(user, params)
@@ -213,7 +219,7 @@ class UserDisableResource(BaseResource):
         # admin cannot disable self; current user is an admin (`@require_admin`)
         # so just check user id
         if user.id == current_user.id:
-            abort(400, message="You cannot disable your own account. "
+            abort(403, message="You cannot disable your own account. "
                                "Please ask another admin to do this for you.")
         user.disable()
         models.db.session.commit()

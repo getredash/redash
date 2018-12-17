@@ -46,3 +46,6 @@ function KeyboardShortcuts() {
 export default function init(ngModule) {
   ngModule.service('KeyboardShortcuts', KeyboardShortcuts);
 }
+
+init.init = true;
+

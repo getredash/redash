@@ -66,7 +66,10 @@ function registerAll(context) {
     .map(context)
     .map(module => module.default);
 
-  return modules.filter(isFunction).map(f => f(ngModule));
+  return modules
+    .filter(isFunction)
+    .filter(f => f.init)
+    .map(f => f(ngModule));
 }
 
 function requireImages() {

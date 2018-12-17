@@ -106,3 +106,5 @@ export class QueryBasedParameterInput extends React.Component {
 export default function init(ngModule) {
   ngModule.component('queryBasedParameterInput', react2angular(QueryBasedParameterInput, null, ['Query']));
 }
+
+init.init = true;

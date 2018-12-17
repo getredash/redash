@@ -50,3 +50,4 @@ export default function init(ngModule) {
   ngModule.component('dateTimeInput', react2angular(DateTimeInput, null, ['clientConfig']));
 }
 
+init.init = true;

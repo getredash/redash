@@ -35,8 +35,7 @@ export function getColumnCleanName(column) {
 }
 
 function getColumnFriendlyName(column) {
-  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
-    a.toUpperCase());
+  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
 function addPointToSeries(point, seriesCollection, seriesName) {
@@ -50,7 +49,6 @@ function addPointToSeries(point, seriesCollection, seriesName) {
 
   seriesCollection[seriesName].data.push(point);
 }
-
 
 function QueryResultService($resource, $timeout, $q, QueryResultError) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
@@ -121,7 +119,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
               newType = 'date';
-            } else if (typeof (v) === 'object' && v !== null) {
+            } else if (typeof v === 'object' && v !== null) {
               row[k] = JSON.stringify(v);
             } else {
               newType = 'string';
@@ -186,9 +184,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     getLog() {
-      if (!this.query_result.data ||
-          !this.query_result.data.log ||
-          this.query_result.data.log.length === 0) {
+      if (!this.query_result.data || !this.query_result.data.log || this.query_result.data.log.length === 0) {
         return null;
       }
 
@@ -221,11 +217,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
           return null;
         }
 
-        return filters.reduce(
-          (str, filter) =>
-            str + filter.current
-          , '',
-        );
+        return filters.reduce((str, filter) => str + filter.current, '');
       }
 
       const filters = this.getFilters();
@@ -251,15 +243,18 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
                 filter.current = [filter.current];
               }
 
-              return (memo && some(filter.current, (v) => {
-                const value = row[filter.name];
-                if (moment.isMoment(value)) {
-                  return value.isSame(v);
-                }
-                // We compare with either the value or the String representation of the value,
-                // because Select2 casts true/false to "true"/"false".
-                return (v === value || String(value) === v);
-              }));
+              return (
+                memo &&
+                some(filter.current, (v) => {
+                  const value = row[filter.name];
+                  if (moment.isMoment(value)) {
+                    return value.isSame(v);
+                  }
+                  // We compare with either the value or the String representation of the value,
+                  // because Select2 casts true/false to "true"/"false".
+                  return v === value || String(value) === v;
+                })
+              );
             }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
@@ -403,7 +398,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
             friendlyName: getColumnFriendlyName(name),
             column: col,
             values: [],
-            multiple: (type === 'multiFilter') || (type === 'multi-filter'),
+            multiple: type === 'multiFilter' || type === 'multi-filter',
           };
           filters.push(filter);
         }
@@ -449,15 +444,19 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       const queryResult = new QueryResult();
 
       queryResult.isLoadingResult = true;
-      QueryResultResource.get({ id }, (response) => {
-        // Success handler
-        queryResult.isLoadingResult = false;
-        queryResult.update(response);
-      }, (error) => {
-        // Error handler
-        queryResult.isLoadingResult = false;
-        handleErrorResponse(queryResult, error);
-      });
+      QueryResultResource.get(
+        { id },
+        (response) => {
+          // Success handler
+          queryResult.isLoadingResult = false;
+          queryResult.update(response);
+        },
+        (error) => {
+          // Error handler
+          queryResult.isLoadingResult = false;
+          handleErrorResponse(queryResult, error);
+        },
+      );
 
       return queryResult;
     }
@@ -493,22 +492,32 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       );
     }
 
-    refreshStatus(query) {
-      Job.get({ id: this.job.id }, (jobResponse) => {
-        this.update(jobResponse);
+    refreshStatus(query, tryNumber = 1) {
+      Job.get(
+        { id: this.job.id },
+        (jobResponse) => {
+          this.update(jobResponse);
 
-        if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-          this.loadResult();
-        } else if (this.getStatus() !== 'failed') {
-          $timeout(() => {
-            this.refreshStatus(query);
-          }, 3000);
-        }
-      }, (error) => {
-        logger('Connection error', error);
-        // TODO: use QueryResultError, or better yet: exception/reject of promise.
-        this.update({ job: { error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4 } });
-      });
+          if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
+            this.loadResult();
+          } else if (this.getStatus() !== 'failed') {
+            const waitTime = tryNumber > 10 ? 3000 : 500;
+            $timeout(() => {
+              this.refreshStatus(query, tryNumber + 1);
+            }, waitTime);
+          }
+        },
+        (error) => {
+          logger('Connection error', error);
+          // TODO: use QueryResultError, or better yet: exception/reject of promise.
+          this.update({
+            job: {
+              error: 'failed communicating with server. Please check your Internet connection and try again.',
+              status: 4,
+            },
+          });
+        },
+      );
     }
 
     getLink(queryId, fileType, apiKey) {
@@ -531,15 +540,19 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         params.query_id = queryId;
       }
 
-      QueryResultResource.post(params, (response) => {
-        queryResult.update(response);
+      QueryResultResource.post(
+        params,
+        (response) => {
+          queryResult.update(response);
 
-        if ('job' in response) {
-          queryResult.refreshStatus(query);
-        }
-      }, (error) => {
-        handleErrorResponse(queryResult, error);
-      });
+          if ('job' in response) {
+            queryResult.refreshStatus(query);
+          }
+        },
+        (error) => {
+          handleErrorResponse(queryResult, error);
+        },
+      );
 
       return queryResult;
     }
@@ -551,3 +564,5 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 export default function init(ngModule) {
   ngModule.factory('QueryResult', QueryResultService);
 }
+
+init.init = true;

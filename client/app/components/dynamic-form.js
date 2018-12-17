@@ -119,3 +119,6 @@ function DynamicForm($http, toastr) {
 export default function init(ngModule) {
   ngModule.directive('dynamicForm', DynamicForm);
 }
+
+init.init = true;
+

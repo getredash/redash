@@ -1,23 +1,20 @@
 {
   "name": "redash-client",
-  "version": "6.0.0-beta",
+  "version": "6.0.0",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
-    "build": "npm run clean && NODE_ENV=production webpack",
+    "build": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "test": "jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress",
-    "cypress:server": "node cypress/cypress-server.js",
-    "cypress:run": "cypress run",
-    "cypress:open": "cypress open",
-    "cypress": "npm run cypress:server start && cypress run && npm run cypress:server stop"
+    "cypress:install": "npm install --no-save cypress @percy/cypress",
+    "cypress": "node cypress/cypress.js"
   },
   "repository": {
     "type": "git",
