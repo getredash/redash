@@ -11,6 +11,7 @@ export function DateTimeRangeInput({
   onSelect,
   // eslint-disable-next-line react/prop-types
   clientConfig,
+  className,
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
@@ -20,6 +21,7 @@ export function DateTimeRangeInput({
   }
   return (
     <RangePicker
+      className={className}
       showTime
       {...additionalAttributes}
       format={format}
@@ -43,12 +45,14 @@ DateTimeRangeInput.propTypes = {
   },
   withSeconds: PropTypes.bool,
   onSelect: PropTypes.func,
+  className: PropTypes.string,
 };
 
 DateTimeRangeInput.defaultProps = {
   value: null,
   withSeconds: false,
   onSelect: () => {},
+  className: '',
 };
 
 export default function init(ngModule) {

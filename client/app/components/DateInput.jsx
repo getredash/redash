@@ -9,6 +9,7 @@ export function DateInput({
   onSelect,
   // eslint-disable-next-line react/prop-types
   clientConfig,
+  className,
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
@@ -17,6 +18,7 @@ export function DateInput({
   }
   return (
     <DatePicker
+      className={className}
       {...additionalAttributes}
       format={format}
       placeholder="Select Date"
@@ -34,11 +36,13 @@ DateInput.propTypes = {
     }
   },
   onSelect: PropTypes.func,
+  className: PropTypes.string,
 };
 
 DateInput.defaultProps = {
   value: null,
   onSelect: () => {},
+  className: '',
 };
 
 export default function init(ngModule) {

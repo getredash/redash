@@ -10,6 +10,7 @@ export function DateRangeInput({
   onSelect,
   // eslint-disable-next-line react/prop-types
   clientConfig,
+  className,
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
@@ -18,6 +19,7 @@ export function DateRangeInput({
   }
   return (
     <RangePicker
+      className={className}
       {...additionalAttributes}
       format={format}
       onChange={onSelect}
@@ -39,11 +41,13 @@ DateRangeInput.propTypes = {
     }
   },
   onSelect: PropTypes.func,
+  className: PropTypes.string,
 };
 
 DateRangeInput.defaultProps = {
   value: null,
   onSelect: () => {},
+  className: '',
 };
 
 export default function init(ngModule) {

@@ -1,7 +1,10 @@
-import { find, isFunction, isNull, isUndefined } from 'lodash';
+import { find, isFunction } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import { Select } from 'antd';
+
+const Option = Select.Option;
 
 function optionsFromQueryResult(queryResult) {
   const columns = queryResult.data.columns;
@@ -45,19 +48,25 @@ export class QueryBasedParameterInput extends React.Component {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
     value: null,
     queryId: null,
     onSelect: () => {},
+    className: '',
   };
 
   constructor(props) {
     super(props);
     this.state = {
       options: [],
+      loading: false,
     };
+  }
+
+  componentDidMount() {
     this._loadOptions(this.props.queryId);
   }
 
@@ -71,10 +80,11 @@ export class QueryBasedParameterInput extends React.Component {
   _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
       const Query = this.props.Query; // eslint-disable-line react/prop-types
+      this.setState({ loading: true });
       Query.resultById({ id: queryId }, (result) => {
         if (this.props.queryId === queryId) {
           const options = optionsFromQueryResult(result.query_result);
-          this.setState({ options });
+          this.setState({ options, loading: false });
 
           const found = find(options, option => option.value === this.props.value) !== undefined;
           if (!found && isFunction(this.props.onSelect)) {
@@ -88,16 +98,17 @@ export class QueryBasedParameterInput extends React.Component {
   render() {
     return (
       <span>
-        <select
-          className="form-control"
-          disabled={this.state.options.length === 0}
-          value={isNull(this.props.value) || isUndefined(this.props.value) ? '' : this.props.value}
-          onChange={event => this.props.onSelect(event.target.value)}
+        <Select
+          className={this.props.className}
+          disabled={this.state.loading || (this.state.options.length === 0)}
+          loading={this.state.loading}
+          defaultValue={this.props.value}
+          onChange={this.props.onSelect}
+          dropdownMatchSelectWidth={false}
+          dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
-          {this.state.options.map(option => (
-            <option value={option.value} key={option.value}>{option.name}</option>
-          ))}
-        </select>
+          {this.state.options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
+        </Select>
       </span>
     );
   }

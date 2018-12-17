@@ -174,9 +174,9 @@ function Dashboard($resource, $http, $location, currentUser, Widget, dashboardGr
           });
       }
     });
-    return _.values(globalParams).forEach((param) => {
+    return _.values(_.each(globalParams, (param) => {
       param.fromUrlParams(queryParams);
-    });
+    }));
   };
 
   return resource;

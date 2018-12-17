@@ -3,8 +3,11 @@
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Select } from 'antd';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
+
+const Option = Select.Option;
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
@@ -95,19 +98,20 @@ export class ParameterMappingInput extends React.Component {
     const { mapping, existingParamNames } = this.props;
     return (
       <div>
-        <select
-          className="form-control"
+        <Select
+          className="w-100"
           value={mapping.type}
-          onChange={event => this.updateParamMapping(mapping, { type: event.target.value })}
+          onChange={type => this.updateParamMapping(mapping, { type })}
+          dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
-          <option value={MappingType.DashboardAddNew}>Add the parameter to the dashboard</option>
+          <Option value={MappingType.DashboardAddNew}>Add the parameter to the dashboard</Option>
           {
             (existingParamNames.length > 0) &&
-            <option value={MappingType.DashboardMapToExisting}>Map to existing parameter</option>
+            <Option value={MappingType.DashboardMapToExisting}>Map to existing parameter</Option>
           }
-          <option value={MappingType.StaticValue}>Use static value for the parameter</option>
-          <option value={MappingType.WidgetLevel}>Keep the parameter at the widget level</option>
-        </select>
+          <Option value={MappingType.StaticValue}>Use static value for the parameter</Option>
+          <Option value={MappingType.WidgetLevel}>Keep the parameter at the widget level</Option>
+        </Select>
       </div>
     );
   }
@@ -136,16 +140,17 @@ export class ParameterMappingInput extends React.Component {
     const { mapping, existingParamNames } = this.props;
     return (
       <div className="m-t-10">
-        <select
-          className="form-control"
+        <Select
+          className="w-100"
           value={mapping.mapTo}
-          onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
+          onChange={mapTo => this.updateParamMapping(mapping, { mapTo })}
           disabled={existingParamNames.length === 0}
+          dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
           {map(existingParamNames, name => (
-            <option value={name} key={name}>{ name }</option>
+            <Option value={name} key={name}>{ name }</Option>
           ))}
-        </select>
+        </Select>
       </div>
     );
   }
@@ -155,6 +160,7 @@ export class ParameterMappingInput extends React.Component {
     return (
       <div className="m-t-10">
         <ParameterValueInput
+          className="w-100"
           type={mapping.param.type}
           value={mapping.value}
           enumOptions={mapping.param.enumOptions}

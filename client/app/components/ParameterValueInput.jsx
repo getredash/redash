@@ -2,11 +2,14 @@ import { isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import { Select } from 'antd';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
+
+const Option = Select.Option;
 
 export class ParameterValueInput extends React.Component {
   static propTypes = {
@@ -15,6 +18,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
@@ -23,6 +27,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     onSelect: () => {},
+    className: '',
   };
 
   renderDateTimeWithSecondsInput() {
@@ -33,6 +38,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateTimeInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
@@ -49,6 +55,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateTimeInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
@@ -64,6 +71,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
@@ -79,6 +87,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateTimeRangeInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
@@ -95,6 +104,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateTimeRangeInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
@@ -110,6 +120,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <DateRangeInput
+        className={this.props.className}
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
@@ -119,17 +130,18 @@ export class ParameterValueInput extends React.Component {
 
   renderEnumInput() {
     const { value, onSelect, enumOptions } = this.props;
-    const enumOptionsArray = enumOptions.split('\n');
+    const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
-      <select
-        className="form-control"
-        value={isNull(value) || isUndefined(value) ? '' : value}
-        onChange={event => onSelect(event.target.value)}
+      <Select
+        className={this.props.className}
+        disabled={enumOptionsArray.length === 0}
+        defaultValue={value}
+        onChange={onSelect}
+        dropdownMatchSelectWidth={false}
+        dropdownClassName="ant-dropdown-in-bootstrap-modal"
       >
-        {enumOptionsArray.map(option => (
-          <option value={option} key={option}>{ option }</option>
-        ))}
-      </select>
+        {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
+      </Select>
     );
   }
 
@@ -142,6 +154,7 @@ export class ParameterValueInput extends React.Component {
     } = this.props;
     return (
       <QueryBasedParameterInput
+        className={this.props.className}
         value={value}
         queryId={queryId}
         onSelect={onSelect}
@@ -155,7 +168,7 @@ export class ParameterValueInput extends React.Component {
     return (
       <input
         type={type}
-        className="form-control"
+        className={'form-control ' + this.props.className}
         value={isNull(value) || isUndefined(value) ? '' : value}
         onChange={event => onSelect(event.target.value)}
       />

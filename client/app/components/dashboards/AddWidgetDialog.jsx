@@ -1,13 +1,16 @@
-import { debounce, each, values, map, includes } from 'lodash';
+import { debounce, each, values, map, includes, first } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import { Select } from 'antd';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
+
+const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
@@ -105,9 +108,8 @@ class AddWidgetDialog extends React.Component {
   }
 
   selectVisualization(query, visualizationId) {
-    visualizationId = '' + visualizationId;
     each(query.visualizations, (visualization) => {
-      if ('' + visualization.id === visualizationId) {
+      if (visualization.id === visualizationId) {
         this.setState({ selectedVis: visualization });
         return false;
       }
@@ -256,18 +258,20 @@ class AddWidgetDialog extends React.Component {
       <div>
         <div className="form-group">
           <label>Choose Visualization</label>
-          <select
-            className="form-control"
-            onChange={event => this.selectVisualization(this.state.selectedQuery, event.target.value)}
+          <Select
+            className="w-100"
+            defaultValue={first(this.state.selectedQuery.visualizations).id}
+            onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
+            dropdownClassName="ant-dropdown-in-bootstrap-modal"
           >
             {visualizationGroups.map(visualizations => (
-              <optgroup label={visualizations[0].type} key={visualizations[0].type}>
+              <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
                 {visualizations.map(visualization => (
-                  <option value={visualization.id} key={visualization.id}>{visualization.name}</option>
+                  <Option value={visualization.id} key={visualization.id}>{visualization.name}</Option>
                 ))}
-              </optgroup>
+              </OptGroup>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
     );
