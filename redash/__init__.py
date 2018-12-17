@@ -101,6 +101,7 @@ def create_app(load_admin=True):
     app = Flask(__name__,
                 template_folder=settings.STATIC_ASSETS_PATH,
                 static_folder=settings.STATIC_ASSETS_PATH,
+                root_path='/app/',
                 static_path='/static')
 
     # Make sure we get the right referral address even behind proxies like nginx.

@@ -15,7 +15,7 @@ from sqlalchemy import cast
 from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import sort_query
 
-routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
+routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'), root_path='/app/')
 
 
 class BaseResource(Resource):
