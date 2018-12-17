@@ -28,7 +28,7 @@ node('ci') {
           sh """
             git clean -xdf
             mkdir ./out/
-            docker build -t ${imageTag} --target test -f Dockerfile .
+            docker build -t ${imageTag} -f Dockerfile .
             """
         }
 
