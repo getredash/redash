@@ -275,7 +275,7 @@ def refresh_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.info("Skipping refresh of %s because org is disabled.", query.id)
+                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
