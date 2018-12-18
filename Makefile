@@ -51,7 +51,7 @@ start: bundle
 	npm run start
 
 redis-cli:
-	docker-compose run redis redis-cli -h redis
+	docker-compose run --rm redis redis-cli -h redis
 
 bash:
 	docker-compose run --rm server bash
