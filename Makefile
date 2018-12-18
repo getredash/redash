@@ -18,6 +18,8 @@ create_database:
 
 clean:
 	docker-compose down && docker-compose rm
+	npm run clean
+	rm -rf node_modules/
 
 down:
 	docker-compose down
