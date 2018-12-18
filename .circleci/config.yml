@@ -52,7 +52,6 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: npm install
-      - run: npm run bundle
       - run: npm test
   frontend-e2e-tests:
     environment:
@@ -84,7 +83,6 @@ jobs:
       - run: sudo apt install python-pip
       - run: npm install
       - run: .circleci/update_version
-      - run: npm run bundle
       - run: npm run build
       - run: .circleci/pack
       - store_artifacts:

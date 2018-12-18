@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
     "build": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
