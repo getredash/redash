@@ -10,8 +10,6 @@ services:
       - redis
     ports:
       - "5000:5000"
-    volumes:
-      - ".:/app"
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
@@ -20,8 +18,6 @@ services:
   worker:
     build: .
     command: scheduler
-    volumes:
-      - ".:/app"
     depends_on:
       - server
     environment:
