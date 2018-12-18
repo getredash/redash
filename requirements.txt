@@ -23,7 +23,7 @@ python-dateutil==2.7.3
 pytz==2016.7
 PyYAML==3.12
 redis==3.0.1
-walrus==0.7.0
+walrus==0.7.1
 requests==2.11.1
 requests==2.21.0
 six==1.11.0
