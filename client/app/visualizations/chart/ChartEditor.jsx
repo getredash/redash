@@ -7,7 +7,7 @@ import Popover from 'antd/lib/popover';
 import Tabs from 'antd/lib/tabs';
 
 
-import { capitalize, compact, each, filter, findKey, fromPairs, has, includes, invert, keys, map, some, sortBy, toPairs } from 'lodash';
+import { capitalize, compact, each, filter, findKey, fromPairs, has, includes, invert, keys, map, pickBy, some, sortBy, toPairs } from 'lodash';
 
 import { QueryData } from '@/components/proptypes';
 import ChartTypePicker from './ChartTypePicker';
@@ -137,7 +137,12 @@ export default class ChartEditor extends React.Component {
       // build new seriesOptions to cover new columns in data
       newOptions.seriesOptions = fromPairs(map(
         seriesNames,
-        n => [n, opts.seriesOptions[n] || { type: opts.globalSeriesType, yAxis: 0 }],
+        (n, i) => [n, opts.seriesOptions[n] || {
+          type: opts.globalSeriesType,
+          yAxis: 0,
+          zIndex: i,
+          index: 0,
+        }],
       ));
       if (opts.globalSeriesType === 'pie') {
         const xColumn = findKey(newOptions.columnMapping, v => v === 'x');
@@ -202,7 +207,7 @@ export default class ChartEditor extends React.Component {
   updateXAxisLabelLength = xAxisLabelLength => this.updateOptions({ xAxisLabelLength })
   updateXAxis = x => this.updateColumn({ x })
   updateYAxis = (ys) => {
-    const newColMap = { ...this.props.options.columnMapping };
+    const newColMap = pickBy(this.props.options.columnMapping, c => c !== 'y');
     each(ys, (col) => { newColMap[col] = 'y'; });
     this.updateOptions({ columnMapping: newColMap });
   }

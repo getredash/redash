@@ -6,7 +6,7 @@ import { ClientConfig, QueryData } from '@/components/proptypes';
 import PlotlyChart from './PlotlyChart';
 
 function getSeriesNames(mapping, columns) {
-  return compact(map(columns, name => includes(['y', 'series', 'multiFilter', 'multi-filter'], mapping[name]) && name));
+  return compact(map(sortBy(columns, 'zIndex'), col => includes(['y', 'series', 'multiFilter', 'multi-filter'], mapping[col.name]) && col.name));
 }
 
 function addPointToSeries(point, seriesCollection, seriesName) {
@@ -98,7 +98,7 @@ function chartData(mapping, data) {
       addPointToSeries(point, series, seriesName);
     }
   });
-  return sortBy(values(series), 'name');
+  return sortBy(values(series), 'zIndex');
 }
 
 
@@ -147,8 +147,11 @@ export default class ChartRenderer extends React.Component {
       const opts = newProps.options;
       const seriesNames = getSeriesNames(opts.columnMapping, newProps.data.columns);
       // build new seriesOptions to cover new columns in data
-      const seriesOptions = fromPairs(map(seriesNames, n => [n, opts.seriesOptions[n] ||
-                                                             { type: opts.globalSeriesType, yAxis: 0 }]));
+      const seriesOptions = fromPairs(map(
+        seriesNames,
+        (n, i) => [n, opts.seriesOptions[n] ||
+                   { type: opts.globalSeriesType, yAxis: 0, zIndex: i }],
+      ));
       let valuesOptions = opts.valuesOptions;
       if (opts.globalSeriesType === 'pie') {
         const xColumn = findKey(opts.columnMapping, v => v === 'x');
@@ -167,7 +170,7 @@ export default class ChartRenderer extends React.Component {
 
   render() {
     const data = chartData(this.props.options.columnMapping, this.props.data);
-    const chartSeries = sortBy(data, (o, s) => get(o.seriesOptions, [s && s.name, 'zIndex'], 0));
+    const chartSeries = sortBy(data, d => get(this.props.options.seriesOptions, [d.name, 'zIndex'], 0));
 
     return (
       <PlotlyChart
