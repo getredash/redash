@@ -28,22 +28,12 @@ const components = {
 class SchemaTable extends React.Component {
   static propTypes = {
     schema: Schema,
-    updateSchema: PropTypes.func.isRequired
+    updateSchema: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     schema: null,
   };
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.schema && prevState.data.length === 0) {
-      return {
-        data: fetchTableData(nextProps.schema),
-        editingKey: prevState.editingKey
-      };
-    }
-    return prevState;
-  }
 
   constructor(props) {
     super(props);
@@ -59,10 +49,11 @@ class SchemaTable extends React.Component {
       width: '55%',
       key: 'table_description',
       editable: true,
+      render: this.truncateDescriptionText.bind(this),
     }, {
       title: 'Visibility',
       dataIndex: 'table_visible',
-      width: '15%',
+      width: '13%',
       key: 'table_visible',
       editable: true,
       render: (text, record) => {
@@ -74,18 +65,42 @@ class SchemaTable extends React.Component {
             </TableVisibilityCheckbox>
           </div>
         );
-      }
+      },
     }, {
       title: '',
-      width: '10%',
+      width: '11%',
       dataIndex: 'edit',
+      key: 'edit',
       render: (text, record) => {
         // Purposely calling fieldEditor() instead of setting render() to it
         // because render() will pass a different third argument than what
         // fieldEditory() takes
         return this.fieldEditor(text, record);
-      }
+      },
     }];
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.schema && prevState.data.length === 0) {
+      return {
+        data: fetchTableData(nextProps.schema),
+        editingKey: prevState.editingKey,
+      };
+    }
+    return prevState;
+  }
+
+  truncateDescriptionText(text) {
+    if (!text) {
+      return;
+    }
+    const MAX_CHARACTER_COUNT = 305;
+    const addEllipses = text.length > MAX_CHARACTER_COUNT ? true : false;
+    return (
+      <div title={text}>
+        {`${text.replace(/\n/g, " ").substring(0, MAX_CHARACTER_COUNT)}${addEllipses ? '...' : '' }`}
+      </div>
+    );
   }
 
   fieldEditor(text, record, tableData) {
@@ -123,15 +138,28 @@ class SchemaTable extends React.Component {
 
   expandedRowRender(tableData) {
     const columns = [
-      { title: 'Column Name', dataIndex: 'name', key: 'name', width: '15%' },
-      { title: 'Column Type', dataIndex: 'type', key: 'type', width: '15%' },
-      { title: 'Column Example', dataIndex: 'example', key: 'example', width: '20%' },
       {
+        title: 'Column Name',
+        dataIndex: 'name',
+        key: 'name',
+        width: '15%'
+      }, {
+        title: 'Column Type',
+        dataIndex: 'type',
+        key: 'type',
+        width: '15%'
+      }, {
+        title: 'Column Example',
+        dataIndex: 'example',
+        key: 'example',
+        width: '20%'
+      }, {
         title: 'Column Description',
         dataIndex: 'column_description',
         key: 'column_description',
-        width: '40%',
+        width: '39%',
         editable: true,
+        render: this.truncateDescriptionText.bind(this),
         onCell: record => ({
           record,
           inputType: 'text',
@@ -142,7 +170,7 @@ class SchemaTable extends React.Component {
       },
       {
         title: '',
-        width: '10%',
+        width: '11%',
         dataIndex: 'edit',
         render: (text, record) => {
           return this.fieldEditor(text, record, tableData);
@@ -230,7 +258,6 @@ class SchemaTable extends React.Component {
         side="middle"
         dataSource={this.state.data}
         pagination={false}
-        scroll={{ x: 100, y: 500 }}
         columns={columns}
         rowClassName="editable-row"
         expandedRowRender={this.expandedRowRender.bind(this)}

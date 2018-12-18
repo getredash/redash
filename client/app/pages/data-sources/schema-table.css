@@ -1,5 +1,4 @@
-.editable-row .ant-form-explain {
-  position: absolute;
-  font-size: 12px;
-  margin-top: -4px;
+.editable-row, .table-description {
+  word-break: break-all;
+  white-space: pre-line;
 }

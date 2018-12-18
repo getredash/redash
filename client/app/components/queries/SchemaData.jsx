@@ -53,7 +53,7 @@ class SchemaData extends React.PureComponent {
         onClose={this.props.onClose}
         visible={this.props.show}
       >
-        <h5 class='table-description'>
+        <h5 className="table-description">
           {this.props.tableDescription}
         </h5>
         <Table

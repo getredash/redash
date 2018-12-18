@@ -2,6 +2,7 @@ import React from 'react';
 import Form from 'antd/lib/form';
 import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
+const { TextArea } = Input;
 
 const FormItem = Form.Item;
 export const EditableContext = React.createContext();
@@ -54,7 +55,7 @@ export class EditableCell extends React.Component {
           onChange={this.onChange}
         ></TableVisibilityCheckbox>);
     }
-    return <Input />;
+    return <TextArea autosize={{ minRows: 1 }} style={{ resize: 'vertical' }}/>;
   };
 
   render() {
