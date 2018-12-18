@@ -4,7 +4,10 @@ COPY package.json package-lock.json webpack.config.js /frontend/
 COPY client/ /frontend/client
 WORKDIR /frontend
 
-# TODO: RUN npm run bundle
+COPY bin/bundle-extensions /frontend/bin/bundle-extensions
+RUN apt-get update -qq && apt-get install -y python-pip && pip install -U setuptools==23.1.0
+RUN npm run bundle
+
 RUN npm install && npm run build
 
 FROM redash/base:latest
