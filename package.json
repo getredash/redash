@@ -21,8 +21,8 @@
     "url": "git+https://github.com/getredash/redash.git"
   },
   "engines": {
-    "node": "^10.14.2",
-    "npm": "^6.4.1"
+    "node": "^8.0.0",
+    "npm": "^5.0.0"
   },
   "author": "Redash Contributors",
   "license": "BSD-2-Clause",

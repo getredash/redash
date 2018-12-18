@@ -1,7 +1,11 @@
-FROM node:10.14.2 as builder
+FROM node:10 as frontend-builder
 
-COPY . /app
-RUN npm install && npm run bundle && npm run build && rm -rf node_modules
+COPY package.json package-lock.json webpack.config.js /frontend/
+COPY client/ /frontend/client
+WORKDIR /frontend
+
+# TODO: RUN npm run bundle
+RUN npm install && npm run build
 
 FROM redash/base:latest
 
@@ -14,7 +18,9 @@ COPY requirements.txt requirements_dev.txt requirements_all_ds.txt ./
 RUN pip install -r requirements.txt -r requirements_dev.txt
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
-COPY --from=builder /app /app
+COPY . /app
+RUN rm -rf /app/client/*
+COPY --from=frontend-builder /frontend/client/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
 
