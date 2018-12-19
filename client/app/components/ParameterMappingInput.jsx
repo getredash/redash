@@ -3,11 +3,9 @@
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Select } from 'antd';
+import Select, { Option } from 'antd/lib/select';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-
-const Option = Select.Option;
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
@@ -100,7 +98,7 @@ export class ParameterMappingInput extends React.Component {
       <div>
         <Select
           className="w-100"
-          value={mapping.type}
+          defaultValue={mapping.type}
           onChange={type => this.updateParamMapping(mapping, { type })}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
@@ -142,7 +140,7 @@ export class ParameterMappingInput extends React.Component {
       <div className="m-t-10">
         <Select
           className="w-100"
-          value={mapping.mapTo}
+          defaultValue={mapping.mapTo}
           onChange={mapTo => this.updateParamMapping(mapping, { mapTo })}
           disabled={existingParamNames.length === 0}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"

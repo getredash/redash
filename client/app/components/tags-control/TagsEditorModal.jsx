@@ -2,9 +2,7 @@ import { map, trim, uniq } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { Select } from 'antd';
-
-const Option = Select.Option;
+import Select, { Option } from 'antd/lib/select';
 
 class TagsEditorModal extends React.Component {
   static propTypes = {

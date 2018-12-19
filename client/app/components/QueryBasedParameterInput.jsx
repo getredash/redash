@@ -2,9 +2,7 @@ import { find, isFunction } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { Select } from 'antd';
-
-const Option = Select.Option;
+import Select, { Option } from 'antd/lib/select';
 
 function optionsFromQueryResult(queryResult) {
   const columns = queryResult.data.columns;
@@ -96,18 +94,20 @@ export class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
+    const { className, value, onSelect } = this.props;
+    const { loading, options } = this.state;
     return (
       <span>
         <Select
-          className={this.props.className}
-          disabled={this.state.loading || (this.state.options.length === 0)}
-          loading={this.state.loading}
-          defaultValue={this.props.value}
-          onChange={this.props.onSelect}
+          className={className}
+          disabled={loading || (options.length === 0)}
+          loading={loading}
+          defaultValue={value}
+          onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
-          {this.state.options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
+          {options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
         </Select>
       </span>
     );

@@ -2,14 +2,12 @@ import { isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { Select } from 'antd';
+import Select, { Option } from 'antd/lib/select';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
-
-const Option = Select.Option;
 
 export class ParameterValueInput extends React.Component {
   static propTypes = {

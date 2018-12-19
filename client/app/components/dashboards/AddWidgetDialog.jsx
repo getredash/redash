@@ -2,15 +2,13 @@ import { debounce, each, values, map, includes, first } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { Select } from 'antd';
+import Select, { Option, OptGroup } from 'antd/lib/select';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
-
-const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
