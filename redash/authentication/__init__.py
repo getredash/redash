@@ -105,7 +105,7 @@ def hmac_load_user_from_request(request):
                 return user
 
         if query_id:
-            query = models.db.session.query(models.Query).filter(models.Query.id == query_id).one()
+            query = models.Query.query.filter(models.Query.id == query_id).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:

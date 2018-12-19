@@ -19,5 +19,10 @@ def timestamp_before_update(mapper, connection, target):
 
 class BelongsToOrgMixin(object):
     @classmethod
-    def get_by_id_and_org(cls, object_id, org):
-        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one()
+    def get_by_id_and_org(cls, object_id, org, org_cls=None):
+        query = cls.query.filter(cls.id == object_id)
+        if org_cls is None:
+            query = query.filter(cls.org == org)
+        else:
+            query = query.join(org_cls).filter(org_cls.org == org)
+        return query.one()

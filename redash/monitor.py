@@ -8,9 +8,9 @@ def get_redis_status():
 
 def get_object_counts():
     status = {}
-    status['queries_count'] = models.db.session.query(models.Query).count()
+    status['queries_count'] = models.Query.query.count()
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
-        status['query_results_count'] = models.db.session.query(models.QueryResult).count()
+        status['query_results_count'] = models.QueryResult.query.count()
         status['unused_query_results_count'] = models.QueryResult.unused().count()
     status['dashboards_count'] = models.Dashboard.query.count()
     status['widgets_count'] = models.Widget.query.count()
