@@ -4,6 +4,10 @@ WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 RUN npm install
 
+COPY bin/bundle-extensions /frontend/bin/bundle-extensions
+RUN apt-get update -qq && apt-get install -y python-pip && pip install -U setuptools==23.1.0
+RUN npm run bundle
+
 COPY . /frontend
 RUN npm run build
 
