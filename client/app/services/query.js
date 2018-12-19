@@ -2,8 +2,8 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has,
+  isNull, isUndefined, isArray, isObject, identity, extend,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -471,20 +471,13 @@ function QueryResource(
       url += '/source';
     }
 
-    let params = '';
+    let params = {};
     if (this.getParameters().isRequired()) {
-      each(this.getParameters().getValues(), (value, name) => {
-        if (value === null) {
-          return;
-        }
-
-        if (params !== '') {
-          params += '&';
-        }
-
-        params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+      this.getParametersDefs().forEach((param) => {
+        extend(params, param.toUrlParams());
       });
     }
+    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
       url += `?${params}`;
