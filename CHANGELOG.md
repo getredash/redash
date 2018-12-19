@@ -1,5 +1,33 @@
 # Change Log
 
+## v6.0.0 - 2018-12-16
+
+v6.0.0 release version. Mainly includes  fixes for regressions from the beta version. 
+
+This release had contributions from 5 people: @rauchy, @denisov-vlad, @arikfr, @ariarijp, and @gabrieldutra. Thank you, everyone 🙏
+
+### Changed
+
+* #3183 Make refresh_queries less noisey in logs. @arikfr
+
+### Fixed
+
+* #3163 Include correct version in production builds. @rauchy
+* #3161 Clickhouse: fix int() conversion error. @denisov-vlad
+* #3166 Directly using record_event task requires timestamp. @arikfr
+* #3167 Alert.evaluate failing when the column is missing. @arikfr
+* ##3162 Remove API permissions for users who have been disabled. @rauchy
+* #3171 Reject empty query name. @ariarijp
+* #3175, #3186 Fix disable error message. @rauchy, @gabrieldutra
+* #3182 [Redshift] support for schema names with dots. @arikfr
+* #3187 Safely create_app in Celery code (try to fetch current_app first). @arikfr
+
+### Other
+
+* #3155 Add DB Seed to Cypress and setup Percy. @gabrieldutra
+* #3180 Remove coverage from pytest terminal output. @rauchy
+
+
 ## v6.0.0-beta - 2018-12-03
 
 This release was 2 months in the making and it is full with good stuff! 
