@@ -3,7 +3,7 @@ import logging
 import urlparse
 import urllib
 import redis
-from flask import Flask
+from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
@@ -18,7 +18,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '6.0.0-beta'
+__version__ = '6.0.0'
 
 
 def setup_logging():
@@ -141,3 +141,11 @@ def create_app(load_admin=True):
     chrome_logger.init_app(app)
 
     return app
+
+
+def safe_create_app():
+    """Return current_app or create a new one."""
+    if current_app:
+        return current_app
+
+    return create_app()
