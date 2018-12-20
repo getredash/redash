@@ -12,7 +12,6 @@ services:
       - "5000:5000"
     volumes:
       - ".:/app"
-      - /app/client/dist
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
@@ -23,7 +22,6 @@ services:
     command: scheduler
     volumes:
       - ".:/app"
-      - /app/client/dist
     depends_on:
       - server
     environment:
