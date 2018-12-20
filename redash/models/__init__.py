@@ -141,6 +141,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
     options = Column(ConfigurationContainer.as_mutable(Configuration))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
@@ -159,6 +160,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'id': self.id,
             'name': self.name,
             'type': self.type,
+            'description': self.description,
             'syntax': self.query_runner.syntax,
             'paused': self.paused,
             'pause_reason': self.pause_reason

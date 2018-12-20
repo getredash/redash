@@ -53,6 +53,7 @@ class DataSourceResource(BaseResource):
 
         data_source.type = req['type']
         data_source.name = req['name']
+        data_source.description = req['description'] if 'description' in req else ''
         models.db.session.add(data_source)
 
         try:
@@ -126,9 +127,11 @@ class DataSourceListResource(BaseResource):
             abort(400)
 
         try:
+            description = req['description'] if 'description' in req else ''
             datasource = models.DataSource.create_with_group(org=self.current_org,
                                                              name=req['name'],
                                                              type=req['type'],
+                                                             description=description,
                                                              options=config)
 
             models.db.session.commit()

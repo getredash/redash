@@ -88,6 +88,9 @@
           <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
           <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
             {{ds.name}}
+            <span ng-if="ds.description" uib-popover="{{ds.description}}" popover-trigger="'mouseenter'" popover-placement='right' container='body' popover-append-to-body="true">
+              <i class="fa fa-question-circle info"></i>
+            </span>
           </ui-select-choices>
         </ui-select>
       </div>
