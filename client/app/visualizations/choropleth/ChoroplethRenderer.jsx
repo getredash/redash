@@ -235,7 +235,7 @@ class ChoroplethRenderer extends React.Component {
       data,
       opts,
     );
-    const viewport = opts.viewport || null;
+    const viewport = opts.viewport || ChoroplethRenderer.DEFAULT_OPTIONS.viewport;
 
     return (
       <div className="map-visualization-container">
@@ -300,16 +300,16 @@ class ChoroplethRenderer extends React.Component {
         {opts.legend.visible && (legend.length > 0) ?
           <div className={`leaflet-bar map-custom-control ${opts.legend.position}`}>
             {legend.map(item => (
-              <div className="d-flex align-items-center">
+              <div key={item.color} className="d-flex align-items-center">
                 <span
                   className="m-0"
                   style={{
                   lineHeight: 1,
                   width: 12,
                   height: 12,
-                  'background-color': item.color,
+                  backgroundColor: item.color,
                   display: 'inline-block',
-                  'margin-right': 5,
+                  marginRight: 5,
                   }}
                 />
                 <div className={`flex-fill text-${opts.legend.alignText}`}>{formatValue(item.limit)}</div>

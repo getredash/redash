@@ -152,14 +152,14 @@ export default class ChoroplethEditor extends React.Component {
     },
   })
 
-  updateCountryCodeColumn = e => this.props.updateOptions({
-    countryCodeColumn: e.target.value,
-    countryCodeType: inferCountryCodeType(this.props.data.rows, e.target.value) ||
+  updateCountryCodeColumn = col => this.props.updateOptions({
+    countryCodeColumn: col,
+    countryCodeType: inferCountryCodeType(this.props.data.rows, col) ||
       this.props.options.countrycodeType,
   })
 
   updateCountryCodeType = e => this.props.updateOptions({ countryCodeType: e.target.value })
-  updateValueColumn = e => this.props.updateOptions({ valueColumn: e.target.value })
+  updateValueColumn = valueColumn => this.props.updateOptions({ valueColumn })
   updateValueFormat = e => this.props.updateOptions({ valueFormat: e.target.value })
   updateValuePlaceholder = e => this.props.updateOptions({ noValuePlaceholder: e.target.value })
   updateSteps = e => this.props.updateOptions({ steps: e.target.value })
@@ -198,9 +198,13 @@ export default class ChoroplethEditor extends React.Component {
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Country code column</label>
-                <select value={opts.countryCodeColumn} className="form-control" onChange={this.updateCountryCodeColumn}>
-                  {this.props.data.columns.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                </select>
+                <Select
+                  value={opts.countryCodeColumn}
+                  onChange={this.updateCountryCodeColumn}
+                  dropdownClassName="ant-dropdown-in-bootstrap-modal"
+                >
+                  {this.props.data.columns.map(c => <Select.Option key={c.name}>{c.name}</Select.Option>)}
+                </Select>
               </div>
             </div>
             <div className="col-xs-6">
@@ -217,9 +221,13 @@ export default class ChoroplethEditor extends React.Component {
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Value column</label>
-                <select value={opts.valueColumn} className="form-control" onChange={this.updateValueColumn}>
-                  {this.props.data.columns.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                </select>
+                <Select
+                  value={opts.valueColumn}
+                  onChange={this.updateValueColumn}
+                  dropdownClassName="ant-dropdown-in-bootstrap-modal"
+                >
+                  {this.props.data.columns.map(c => <Select.Option key={c.name}>{c.name}</Select.Option>)}
+                </Select>
               </div>
             </div>
 

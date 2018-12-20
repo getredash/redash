@@ -49,7 +49,6 @@ export default class VisualizationOptionsEditor extends React.Component {
               value={this.props.visualization.type}
               disabled={this.props.visualization && !!this.props.visualization.id}
               onChange={this.updateType}
-              className="form-control"
               dropdownClassName="ant-dropdown-in-bootstrap-modal"
             >
               {map(visualizationRegistry, (v, t) => <Select.Option key={t}>{v.name}</Select.Option>)}
