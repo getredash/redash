@@ -14,3 +14,17 @@ export const Table = PropTypes.shape({
 });
 
 export const Schema = PropTypes.arrayOf(Table);
+
+export const Field = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox']).isRequired,
+  defaultValue: PropTypes.oneOf([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+});
+
+export const Action = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  callback: PropTypes.func.isRequired,
+});
