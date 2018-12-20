@@ -1,6 +1,6 @@
+import codecs
 import cStringIO
 import csv
-import codecs
 import datetime
 import decimal
 import hashlib
@@ -10,15 +10,16 @@ import re
 import uuid
 import binascii
 
+from six import string_types
+
 import pystache
 import pytz
 import simplejson
 from funcy import distinct, select_values
-from six import string_types
+from redash import settings
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
-from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
