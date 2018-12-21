@@ -532,10 +532,16 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
-    static get(dataSourceId, query, maxAge, queryId) {
+    static get(dataSourceId, query, parameters, maxAge, queryId) {
       const queryResult = new QueryResult();
 
-      const params = { data_source_id: dataSourceId, query, max_age: maxAge };
+      const params = {
+        data_source_id: dataSourceId,
+        parameters,
+        query,
+        max_age: maxAge,
+      };
+
       if (queryId !== undefined) {
         params.query_id = queryId;
       }
