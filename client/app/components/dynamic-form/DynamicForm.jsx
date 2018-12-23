@@ -1,9 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, InputNumber, Checkbox, Button } from 'antd';
+import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon } from 'antd';
 import { react2angular } from 'react2angular';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
+
+const getValuePropNameForType = (type) => {
+  switch (type) {
+    case 'checkbox':
+      return 'checked';
+    case 'file':
+      return 'fileList';
+    default:
+      return 'value';
+  }
+};
 
 export class DynamicForm extends React.Component {
   static propTypes = {
@@ -43,16 +54,18 @@ export class DynamicForm extends React.Component {
     };
 
     const options = {
-      rules: [
-        { required: field.required, message: `${fieldLabel} is required!` },
-      ],
-      valuePropName: type === 'checkbox' ? 'checked' : 'value',
+      rules: [{ required: field.required, message: `${fieldLabel} is required!` }],
+      valuePropName: getValuePropNameForType(type),
       initialValue,
     };
+
+    const uploadButton = (<Button><Icon type="upload" /> Click to upload</Button>);
 
     switch (type) {
       case 'checkbox':
         return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
+      case 'file':
+        return getFieldDecorator(name, options)(<Upload {...props}>{uploadButton}</Upload>);
       case 'number':
         return getFieldDecorator(name, options)(<InputNumber {...props} />);
       default:
