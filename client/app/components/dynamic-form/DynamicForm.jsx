@@ -36,7 +36,9 @@ export class DynamicForm extends React.Component {
 
     const props = {
       autoFocus: (firstItem === field),
+      className: 'w-100',
       name,
+      type,
       placeholder: field.placeholder,
     };
 
@@ -66,6 +68,8 @@ export class DynamicForm extends React.Component {
 
       const formItemProps = {
         key: name,
+        className: 'm-b-10',
+        hasFeedback: false,
         label: type === 'checkbox' ? '' : fieldLabel,
       };
 
