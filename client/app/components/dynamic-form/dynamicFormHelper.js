@@ -1,12 +1,15 @@
 import { isUndefined, each, includes } from 'lodash';
 
-function orderedInputs(properties, order) {
+function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
   Object.keys(properties).forEach((key) => {
     const position = order.indexOf(key);
     const input = {
       name: key,
-      property: properties[key],
+      type: properties[key].type,
+      placeholder: properties[key].default && properties[key].default.toString(),
+      required: properties[key].required,
+      initialValue: targetOptions[key],
     };
 
     if (position > -1) {
@@ -32,6 +35,10 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'checkbox';
     }
 
+    if (prop.type === 'string') {
+      prop.type = 'text';
+    }
+
     prop.required = includes(configurationSchema.required, name);
   });
 
@@ -49,14 +56,19 @@ function setDefaults(configurationSchema, options) {
   }
 }
 
-function getInputs(configurationSchema, targetOptions) {
+function getFields(configurationSchema, target) {
   normalizeSchema(configurationSchema);
-  setDefaults(configurationSchema, targetOptions);
-  const inputs = orderedInputs(configurationSchema.properties, configurationSchema.order);
-
-  inputs.forEach((input) => {
-    input.hasErrors = input.property.required && !targetOptions[input.name];
-  });
+  setDefaults(configurationSchema, target.options);
+  const inputs = [
+    {
+      name: 'name',
+      title: 'Name',
+      type: 'text',
+      required: true,
+      initialValue: target.name,
+    },
+    ...orderedInputs(configurationSchema.properties, configurationSchema.order, target.options),
+  ];
 
   return inputs;
 }
@@ -65,43 +77,7 @@ function toHuman(text) {
   return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-const updateFieldState = (fieldName, value, hasErrors) => {
-  if (!this) return;
-
-  const fields = this.state.fields
-    .map(field => (
-      field.name === fieldName ? { ...field, value, hasErrors } : field
-    ));
-
-  const nameErrors = fieldName === 'name' ? hasErrors : this.state.nameErrors;
-
-  this.setState({
-    target: {
-      ...this.state.target,
-      options: {
-        ...this.state.target.options,
-        [fieldName]: value,
-      },
-    },
-    nameErrors,
-    fields,
-  });
-};
-
-const setActionInProgress = (actionName, inProgress) => {
-  if (!this) return;
-
-  this.setState({
-    inProgressActions: {
-      ...this.state.inProgressActions,
-      [actionName]: inProgress,
-    },
-  });
-};
-
 export default {
-  getInputs,
-  updateFieldState,
-  setActionInProgress,
+  getFields,
   toHuman,
 };

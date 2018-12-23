@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Checkbox } from 'antd';
+import { Form, Input, InputNumber, Checkbox, Button } from 'antd';
 import { react2angular } from 'react2angular';
-import { Field, Action } from '../proptypes';
+import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
 export class DynamicForm extends React.Component {
@@ -10,123 +10,105 @@ export class DynamicForm extends React.Component {
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     onSubmit: PropTypes.func,
+    form: AntdForm.isRequired,
   };
 
   static defaultProps = {
-    fields: [
-      {
-        name: 'name',
-        title: 'Name',
-        type: 'text',
-        placeholder: 'Name',
-      },
-      {
-        name: 'test',
-        title: 'Test',
-        type: 'text',
-        placeholder: 'Name',
-      },
-      {
-        name: 'check',
-        title: 'Test Checkbox',
-        type: 'checkbox',
-      },
-    ],
+    fields: [],
     actions: [],
     onSubmit: () => {},
   };
 
-  constructor(props) {
-    super(props);
-
-    const data = this.props.fields.reduce((acc, cur) => ({
-      ...acc,
-      [cur.name]: cur.defaultValue,
-    }), {});
-
-    this.state = {
-      data,
-    };
-
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.renderFields = this.renderFields.bind(this);
-  }
-
-  handleInputChange = (e) => {
-    const data = {
-      ...this.state.data,
-      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
-    };
-
-    this.setState({
-      data,
-    });
-  };
-
-  renderFields() {
-    const [firstItem] = this.props.fields;
-
-    return this.props.fields.map((field) => {
-      const FormItem = Form.Item;
-      const {
-        name,
-        title,
-        type,
-        placeholder,
-      } = field;
-      const fieldLabel = title || helper.toHuman(name);
-
-      const value = this.state.data[name];
-
-      const props = {
-        autoFocus: (firstItem === field),
-        onChange: this.handleInputChange,
-        name,
-        placeholder,
-      };
-
-      switch (type) {
-        case 'checkbox':
-          return (
-            <FormItem key={name} className="m-b-10">
-              <Checkbox {...props} checked={value}>{fieldLabel}</Checkbox>
-            </FormItem>
-          );
-        default:
-          return (
-            <FormItem key={name} label={fieldLabel} className="m-b-10">
-              <Input {...props} value={value} />
-            </FormItem>
-          );
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.props.form.validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        this.props.onSubmit(values);
       }
     });
   }
 
-  render() {
-    const { onSubmit } = this.props;
+  renderField(field) {
+    const [firstItem] = this.props.fields;
+    const { getFieldDecorator } = this.props.form;
+    const { name, type, initialValue } = field;
+    const fieldLabel = field.title || helper.toHuman(name);
 
+    const props = {
+      autoFocus: (firstItem === field),
+      name,
+      placeholder: field.placeholder,
+    };
+
+    const options = {
+      rules: [
+        { required: field.required, message: `${fieldLabel} is required!` },
+      ],
+      valuePropName: type === 'checkbox' ? 'checked' : 'value',
+      initialValue,
+    };
+
+    switch (type) {
+      case 'checkbox':
+        return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
+      case 'number':
+        return getFieldDecorator(name, options)(<InputNumber {...props} />);
+      default:
+        return getFieldDecorator(name, options)(<Input {...props} />);
+    }
+  }
+
+  renderFields() {
+    return this.props.fields.map((field) => {
+      const FormItem = Form.Item;
+      const { name, title, type } = field;
+      const fieldLabel = title || helper.toHuman(name);
+
+      const formItemProps = {
+        key: name,
+        label: type === 'checkbox' ? '' : fieldLabel,
+      };
+
+      return (
+        <FormItem {...formItemProps}>
+          {this.renderField(field)}
+        </FormItem>
+      );
+    });
+  }
+
+  render() {
     return (
-      <Form onSubmit={onSubmit}>
+      <Form onSubmit={this.handleSubmit}>
         {this.renderFields()}
+        <Button type="primary" htmlType="submit">
+          Save
+        </Button>
       </Form>
     );
   }
 }
 
 export default function init(ngModule) {
-  ngModule.component('dynamicForm', {
+  ngModule.directive('dynamicForm', () => ({
+    restrict: 'E',
+    transclude: true,
     template: `
       <dynamic-form-impl
+        fields="fields"
       ></dynamic-form-impl>
     `,
-    bindings: {
+    scope: {
       target: '=',
       type: '=',
       actions: '=',
-      onSubmit: '=',
     },
-  });
-  ngModule.component('dynamicFormImpl', react2angular(DynamicForm));
+    link($scope) {
+      $scope.fields = helper.getFields($scope.type.configuration_schema, $scope.target);
+    },
+  }));
+
+  ngModule.component('dynamicFormImpl', react2angular(Form.create()(DynamicForm), ['fields']));
 }
 
 init.init = true;

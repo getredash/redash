@@ -19,7 +19,7 @@ export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
   type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox']).isRequired,
-  defaultValue: PropTypes.oneOf([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
   required: PropTypes.bool,
   placeholder: PropTypes.string,
 });
@@ -27,4 +27,8 @@ export const Field = PropTypes.shape({
 export const Action = PropTypes.shape({
   name: PropTypes.string.isRequired,
   callback: PropTypes.func.isRequired,
+});
+
+export const AntdForm = PropTypes.shape({
+  validateFieldsAndScroll: PropTypes.func,
 });
