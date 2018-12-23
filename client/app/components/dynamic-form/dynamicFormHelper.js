@@ -6,6 +6,7 @@ function orderedInputs(properties, order, targetOptions) {
     const position = order.indexOf(key);
     const input = {
       name: key,
+      title: properties[key].title,
       type: properties[key].type,
       placeholder: properties[key].default && properties[key].default.toString(),
       required: properties[key].required,
