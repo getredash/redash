@@ -91,3 +91,40 @@
     }
   }
 }
+
+.dashboard-header, .page-header--query {
+  .tags-control a {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover {
+    .tags-control a {
+      opacity: 1;
+    }
+  }
+}
+
+
+// Mobile fixes
+@media (max-width: 767px) {
+  dashboard-page {
+    .dashboard-header {
+      padding: 0 !important;
+
+      .page-title h3 {
+        margin-bottom: 0 !important;
+        font-size: 18px;
+        line-height: 2;
+      }
+
+      .dashboard__control {
+        margin: 5px 0;
+      }
+    }
+
+    favorites-control {
+      margin-top: 4px;
+    }
+  }
+}

@@ -1,13 +1,12 @@
-import os
 import sys
 import logging
 import urlparse
 import urllib
 import redis
-from flask import Flask, safe_join
+from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
-from werkzeug.routing import BaseConverter, ValidationError
+from werkzeug.routing import BaseConverter
 from statsd import StatsClient
 from flask_mail import Mail
 from flask_limiter import Limiter
@@ -19,7 +18,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '4.0.0'
+__version__ = '6.0.0'
 
 
 def setup_logging():
@@ -93,6 +92,7 @@ class SlugConverter(BaseConverter):
 def create_app(load_admin=True):
     from redash import extensions, handlers
     from redash.handlers.webpack import configure_webpack
+    from redash.handlers import chrome_logger
     from redash.admin import init_admin
     from redash.models import db
     from redash.authentication import setup_authentication
@@ -138,4 +138,14 @@ def create_app(load_admin=True):
     handlers.init_app(app)
     configure_webpack(app)
     extensions.init_extensions(app)
+    chrome_logger.init_app(app)
+
     return app
+
+
+def safe_create_app():
+    """Return current_app or create a new one."""
+    if current_app:
+        return current_app
+
+    return create_app()

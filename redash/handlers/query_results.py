@@ -1,21 +1,44 @@
 import logging
-import json
 import time
 
-import pystache
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from redash import models, settings, utils
-from redash.tasks import QueryTask, record_event
-from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
+from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
+from redash.permissions import (has_access, not_view_only, require_access,
+                                require_permission, view_only)
+from redash.tasks import QueryTask, record_event
 from redash.tasks.queries import enqueue_query
+from redash.utils import (collect_parameters_from_request,
+                          collect_query_parameters, gen_query_hash, json_dumps,
+                          utcnow)
+from redash.utils.sql_query import SQLInjectionError, SQLQuery
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
+
+
+def apply_parameters(template, parameters, data_source):
+    query = SQLQuery(template).apply(parameters)
+
+    # for now we only log `SQLInjectionError` to detect false positives
+    try:
+        text = query.text
+    except SQLInjectionError:
+        record_event({
+            'action': 'sql_injection',
+            'object_type': 'query',
+            'query': template,
+            'parameters': parameters,
+            'timestamp': time.time(),
+            'org_id': data_source.org_id
+        })
+    finally:
+        text = query.query
+
+    return text
 
 
 #
@@ -30,8 +53,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
     if missing_params:
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
-    if query_parameters:
-        query_text = pystache.render(query_text, parameter_values)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age <= 0:
         query_result = None
@@ -56,7 +78,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
                                                                               query_hash, query_text, data,
-                                                                              run_time, utils.utcnow())
+                                                                              run_time, utcnow())
 
         models.db.session.commit()
         return query_result
@@ -81,8 +103,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    if query_parameters:
-        query_text = pystache.render(query_text, parameter_values)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age == 0:
         query_result = None
@@ -104,15 +125,19 @@ class QueryResultListResource(BaseResource):
 
         :qparam string query: The query text to execute
         :qparam number query_id: The query object to update with the result (optional)
-        :qparam number max_age: If query results less than `max_age` seconds old are available, return them, otherwise execute the query; if omitted, always execute
+        :qparam number max_age: If query results less than `max_age` seconds old are available,
+                                return them, otherwise execute the query; if omitted or -1, returns
+                                any cached result, or executes if not available. Set to zero to
+                                always execute.
         :qparam number data_source_id: ID of data source to query
+        :qparam object parameters: A set of parameter values to apply to the query.
         """
         params = request.get_json(force=True)
-        parameter_values = collect_parameters_from_request(request.args)
 
         query = params['query']
         max_age = int(params.get('max_age', -1))
         query_id = params.get('query_id', 'adhoc')
+        parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
@@ -121,12 +146,13 @@ class QueryResultListResource(BaseResource):
 
         self.record_event({
             'action': 'execute_query',
-            'timestamp': int(time.time()),
             'object_id': data_source.id,
             'object_type': 'data_source',
-            'query': query
+            'query': query,
+            'query_id': query_id,
+            'parameters': parameters
         })
-        return run_query(data_source, parameter_values, query, query_id, max_age)
+        return run_query(data_source, parameters, query, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
@@ -191,10 +217,10 @@ class QueryResultResource(BaseResource):
 
             if query_result is None and query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
-                
+
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
@@ -207,7 +233,6 @@ class QueryResultResource(BaseResource):
                     'user_id': None,
                     'org_id': self.current_org.id,
                     'action': 'api_get',
-                    'timestamp': int(time.time()),
                     'api_key': self.current_user.name,
                     'file_type': filetype,
                     'user_agent': request.user_agent.string,
@@ -221,7 +246,7 @@ class QueryResultResource(BaseResource):
                     event['object_type'] = 'query_result'
                     event['object_id'] = query_result_id
 
-                record_event.delay(event)
+                self.record_event(event)
 
             if filetype == 'json':
                 response = self.make_json_response(query_result)
@@ -242,7 +267,7 @@ class QueryResultResource(BaseResource):
             abort(404, message='No cached result found for this query.')
 
     def make_json_response(self, query_result):
-        data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+        data = json_dumps({'query_result': query_result.to_dict()})
         headers = {'Content-Type': "application/json"}
         return make_response(data, 200, headers)
 

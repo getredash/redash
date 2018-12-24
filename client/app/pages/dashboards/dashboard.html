@@ -1,14 +1,15 @@
 <div class="container">
-
-  <div class="row p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 dashboard-header">
-    <div class="col-xs-5 col-sm-5 col-lg-5 page-header--new p-l-0">
+  <div class="row p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 dashboard-header page-header--new">
+    <div class="page-title col-xs-8 col-sm-7 col-lg-7 p-l-0">
+      <favorites-control item="$ctrl.dashboard"></favorites-control>
       <h3>
-        <edit-in-place editable="$ctrl.layoutEditing" done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name"></edit-in-place>
-        <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
-        <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+        <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
+      <dashboard-tags-control class="hidden-xs"
+        tags="$ctrl.dashboard.tags" is-draft="$ctrl.dashboard.is_draft" is-archived="$ctrl.dashboard.is_archived"
+        can-edit="$ctrl.isDashboardOwner" get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags"></dashboard-tags-control>
     </div>
-    <div class="col-xs-7 col-sm-7 col-lg-7 text-right dashboard__control p-r-0">
+    <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
           <div class="btn-group">
             <button type="button" class="btn btn-primary btn-sm"
@@ -31,41 +32,42 @@
           <div class="btn-group" uib-dropdown ng-if="!$ctrl.layoutEditing">
             <button id="split-button" type="button"
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}"
-                    class="btn btn-sm" ng-click="$ctrl.loadDashboard(true)">
+                    class="btn btn-sm" ng-click="$ctrl.refreshDashboard()">
               <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
             </button>
-            <button type="button" class="btn" uib-dropdown-toggle
+            <button type="button" class="btn hidden-xs" uib-dropdown-toggle
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}">
               <span class="caret"></span>
               <span class="sr-only">Split button!</span>
             </button>
             <ul class="dropdown-menu pull-right" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
-              <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates">
-                <a href="#" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+              <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates" ng-class="{disabled: !refreshRate.enabled}">
+                <a href="javascript:void(0)" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
               </li>
               <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
                 <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>
               </li>
             </ul>
           </div>
-          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-fullscreen"></span>
           </button>
-          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>
-          <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
-            <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
-              <span class="zmdi zmdi-more"></span>
-            </button>
-            <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-              <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{hidden: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit</a></li>
-              <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
-              <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish</a></li>
-              <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive</a></li>
-            </ul>
-          </div>
+
+      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
+        <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
+          <span class="zmdi zmdi-more"></span>
+        </button>
+        <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+          <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{hidden: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit</a></li>
+          <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
+          <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish</a></li>
+          <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -92,7 +94,7 @@
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
         gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
         <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget()"></dashboard-widget>
+          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
     </div>

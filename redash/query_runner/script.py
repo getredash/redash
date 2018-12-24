@@ -5,6 +5,29 @@ import sys
 from redash.query_runner import *
 
 
+def query_to_script_path(path, query):
+    if path != "*":
+        script = os.path.join(path, query.split(" ")[0])
+        if not os.path.exists(script):
+            raise IOError("Script '{}' not found in script directory".format(query))
+
+        return os.path.join(path, query).split(" ")
+
+    return query
+
+
+def run_script(script, shell):
+    output = subprocess.check_output(script, shell=shell)
+    if output is None:
+        return None, "Error reading output"
+
+    output = output.strip()
+    if not output:
+        return None, "Empty output from script"
+
+    return output, None
+
+
 class Script(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
@@ -51,34 +74,14 @@ class Script(BaseQueryRunner):
 
     def run_query(self, query, user):
         try:
-            json_data = None
-            error = None
-
-            script = query
-
-            if self.configuration["path"] != "*":
-                script = os.path.join(self.configuration["path"], query.split(" ")[0])
-                if not os.path.exists(script):
-                    return None, "Script '%s' not found in script directory" % query
-
-                script = os.path.join(self.configuration["path"], query).split(" ")
-
-            output = subprocess.check_output(script, shell=self.configuration['shell'])
-            if output is not None:
-                output = output.strip()
-                if output != "":
-                    return output, None
-
-            error = "Error reading output"
+            script = query_to_script_path(self.configuration["path"], query)
+            return run_script(script, self.configuration['shell'])
+        except IOError as e:
+            return None, e.message
         except subprocess.CalledProcessError as e:
             return None, str(e)
         except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
-
-        return json_data, error
+            return None, "Query cancelled by user."
 
 
 register(Script)

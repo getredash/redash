@@ -1,11 +1,10 @@
-import hashlib
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url
+from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
                                            validate_token)
@@ -107,8 +106,9 @@ def login(org_slug=None):
     elif current_org == None:
         return redirect('/')
 
-    index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    index_url = url_for('redash.index', org_slug=org_slug)
+    unsafe_next_path = request.args.get('next', index_url)
+    next_path = get_next_path(unsafe_next_path)
     if current_user.is_authenticated:
         return redirect(next_path)
 
@@ -116,7 +116,7 @@ def login(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)
-            if user and user.verify_password(request.form['password']):
+            if user and not user.is_disabled and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -154,34 +154,43 @@ def base_href():
     return base_href
 
 
+def date_format_config():
+    date_format = current_org.get_setting('date_format')
+    date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    return {
+        'dateFormat': date_format,
+        'dateFormatList': list(date_format_list),
+        'dateTimeFormat': "{0} HH:mm".format(date_format),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
-            'newVersionAvailable': get_latest_version(),
+            'newVersionAvailable': bool(get_latest_version()),
             'version': __version__
         }
     else:
         client_config = {}
 
-    date_format = current_org.get_setting('date_format')
-
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
+        'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'dateFormat': date_format,
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
+        'pageSize': settings.PAGE_SIZE,
+        'pageSizeOptions': settings.PAGE_SIZE_OPTIONS,
     }
 
     client_config.update(defaults)
     client_config.update({
         'basePath': base_href()
     })
+    client_config.update(date_format_config())
 
     return client_config
 

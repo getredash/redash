@@ -21,3 +21,5 @@ function OfflineListener(toastr) {
 export default function init(ngModule) {
   ngModule.service('OfflineListener', OfflineListener);
 }
+
+init.init = true;

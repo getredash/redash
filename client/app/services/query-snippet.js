@@ -19,3 +19,6 @@ function QuerySnippet($resource) {
 export default function init(ngModule) {
   ngModule.factory('QuerySnippet', QuerySnippet);
 }
+
+init.init = true;
+

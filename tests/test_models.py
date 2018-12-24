@@ -246,63 +246,6 @@ class QueryArchiveTest(BaseTestCase):
         self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
 
 
-class QueryResultTest(BaseTestCase):
-    def setUp(self):
-        super(QueryResultTest, self).setUp()
-
-    def test_get_latest_returns_none_if_not_found(self):
-        found_query_result = models.QueryResult.get_latest(self.factory.data_source, "SELECT 1", 60)
-        self.assertIsNone(found_query_result)
-
-    def test_get_latest_returns_when_found(self):
-        qr = self.factory.create_query_result()
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
-
-        self.assertEqual(qr, found_query_result)
-
-    def test_get_latest_doesnt_return_query_from_different_data_source(self):
-        qr = self.factory.create_query_result()
-        data_source = self.factory.create_data_source()
-        found_query_result = models.QueryResult.get_latest(data_source, qr.query_text, 60)
-
-        self.assertIsNone(found_query_result)
-
-    def test_get_latest_doesnt_return_if_ttl_expired(self):
-        yesterday = utcnow() - datetime.timedelta(days=1)
-        qr = self.factory.create_query_result(retrieved_at=yesterday)
-
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, max_age=60)
-
-        self.assertIsNone(found_query_result)
-
-    def test_get_latest_returns_if_ttl_not_expired(self):
-        yesterday = utcnow() - datetime.timedelta(seconds=30)
-        qr = self.factory.create_query_result(retrieved_at=yesterday)
-
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, max_age=120)
-
-        self.assertEqual(found_query_result, qr)
-
-    def test_get_latest_returns_the_most_recent_result(self):
-        yesterday = utcnow() - datetime.timedelta(seconds=30)
-        old_qr = self.factory.create_query_result(retrieved_at=yesterday)
-        qr = self.factory.create_query_result()
-
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
-
-        self.assertEqual(found_query_result.id, qr.id)
-
-    def test_get_latest_returns_the_last_cached_result_for_negative_ttl(self):
-        yesterday = utcnow() + datetime.timedelta(days=-100)
-        very_old = self.factory.create_query_result(retrieved_at=yesterday)
-
-        yesterday = utcnow() + datetime.timedelta(days=-1)
-        qr = self.factory.create_query_result(retrieved_at=yesterday)
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, -1)
-
-        self.assertEqual(found_query_result.id, qr.id)
-
-
 class TestUnusedQueryResults(BaseTestCase):
     def test_returns_only_unused_query_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
@@ -355,6 +298,20 @@ class TestQueryAll(BaseTestCase):
     def test_includes_drafts_of_given_user(self):
         q = self.factory.create_query(is_draft=True)
         self.assertIn(q, models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id))
+
+    def test_order_by_relationship(self):
+        u1 = self.factory.create_user(name='alice')
+        u2 = self.factory.create_user(name='bob')
+        self.factory.create_query(user=u1)
+        self.factory.create_query(user=u2)
+        db.session.commit()
+        # have to reset the order here with None since all_queries orders by
+        # created_at by default
+        base = models.Query.all_queries([self.factory.default_group.id]).order_by(None)
+        qs1 = base.order_by(models.User.name)
+        self.assertEqual(['alice', 'bob'], [q.user.name for q in qs1])
+        qs2 = base.order_by(models.User.name.desc())
+        self.assertEqual(['bob', 'alice'], [q.user.name for q in qs2])
 
 
 class TestGroup(BaseTestCase):
@@ -551,94 +508,3 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
-
-
-class TestDashboardRecent(BaseTestCase):
-    def setUp(self):
-        super(TestDashboardRecent, self).setUp()
-        _set_up_dashboard_test(self)
-
-    def test_returns_recent_dashboards_basic(self):
-        db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
-                                    object_type="dashboard", object_id=self.w1.dashboard.id))
-        db.session.flush()
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u2.group_ids, None))
-
-    def test_recent_excludes_drafts(self):
-        models.db.session.add_all([
-        models.Event(org=self.factory.org, user=self.u1, action="view",
-                     object_type="dashboard", object_id=self.w1.dashboard.id),
-        models.Event(org=self.factory.org, user=self.u1, action="view",
-                     object_type="dashboard", object_id=self.w2.dashboard.id)])
-
-        self.w2.dashboard.is_draft = True
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(
-            self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(
-            self.u1.org, self.u1.group_ids, None))
-
-    def test_returns_recent_dashboards_created_by_user(self):
-        d1 = self.factory.create_dashboard(user=self.u1, is_draft=False)
-        db.session.flush()
-        db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
-                                    object_type="dashboard", object_id=d1.id))
-        self.assertIn(d1, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(d1, models.Dashboard.recent(self.u2.org, [0], self.u2.id))
-
-    def test_returns_recent_dashboards_with_no_visualizations(self):
-        w1 = self.factory.create_widget(visualization=None)
-        w1.dashboard.is_draft = False
-        db.session.flush()
-        db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
-                                    object_type="dashboard", object_id=w1.dashboard.id))
-        db.session.flush()
-        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-
-    def test_restricts_dashboards_for_user(self):
-        db.session.flush()
-        db.session.add_all([
-            models.Event(org=self.factory.org, user=self.u1, action="view",
-                         object_type="dashboard", object_id=self.w1.dashboard.id),
-            models.Event(org=self.factory.org, user=self.u2, action="view",
-                         object_type="dashboard", object_id=self.w2.dashboard.id),
-            models.Event(org=self.factory.org, user=self.u1, action="view",
-                         object_type="dashboard", object_id=self.w5.dashboard.id),
-            models.Event(org=self.factory.org, user=self.u2, action="view",
-                         object_type="dashboard", object_id=self.w5.dashboard.id)
-        ])
-        db.session.flush()
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w2.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
-        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
-
-    def test_returns_each_dashboard_once(self):
-        db.session.flush()
-        db.session.add_all([
-            models.Event(org=self.factory.org, user=self.u1, action="view",
-                         object_type="dashboard", object_id=self.w1.dashboard.id),
-            models.Event(org=self.factory.org, user=self.u1, action="view",
-                         object_type="dashboard", object_id=self.w1.dashboard.id)
-            ])
-        db.session.flush()
-        dashboards = list(models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertEqual(len(dashboards), 1)
-
-    def test_returns_dashboards_from_current_org_only(self):
-        w1 = self.factory.create_widget(visualization=None)
-        w1.dashboard.is_draft = False
-        db.session.flush()
-        db.session.add(models.Event(
-            org=self.factory.org, user=self.u1, action="view",
-            object_type="dashboard", object_id=w1.dashboard.id))
-        db.session.flush()
-        user = self.factory.create_user(org=self.factory.create_org())
-
-        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(w1.dashboard, models.Dashboard.recent(user.org, user.group_ids, None))

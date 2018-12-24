@@ -23,6 +23,7 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
     });
   };
 
+  this.dateFormatList = clientConfig.dateFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
 
   this.disablePasswordLoginToggle = () =>
@@ -49,4 +50,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
 

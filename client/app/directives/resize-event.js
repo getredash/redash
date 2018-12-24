@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import { findIndex } from 'lodash';
 
 const items = new Map();
 
@@ -35,7 +35,7 @@ function resizeEvent() {
         });
 
         $scope.$on('$destroy', () => {
-          const index = _.findIndex(items, item => item.node === node);
+          const index = findIndex(items, item => item.node === node);
           if (index >= 0) {
             items.splice(index, 1); // remove item
           }
@@ -48,3 +48,6 @@ function resizeEvent() {
 export default function init(ngModule) {
   ngModule.directive('resizeEvent', resizeEvent);
 }
+
+init.init = true;
+

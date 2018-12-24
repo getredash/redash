@@ -1,4 +1,4 @@
-import { find } from 'underscore';
+import { find } from 'lodash';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
 
@@ -51,3 +51,6 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;
+

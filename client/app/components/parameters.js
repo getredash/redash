@@ -1,7 +1,12 @@
-import { find } from 'underscore';
+import { find, includes, words, capitalize, extend } from 'lodash';
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
+import parameterInputTemplate from './parameter-input.html';
+
+function humanize(str) {
+  return capitalize(words(str).join(' '));
+}
 
 const ParameterSettingsComponent = {
   template: parameterSettingsTemplate,
@@ -15,6 +20,10 @@ const ParameterSettingsComponent = {
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
+    this.isNewParameter = this.parameter.name === '';
+    this.shouldGenerateTitle = this.isNewParameter && this.parameter.title === '';
+
+    this.parameterAlreadyExists = name => includes(this.resolve.existingParameters, name);
 
     if (this.parameter.queryId) {
       Query.get({ id: this.parameter.queryId }, (query) => {
@@ -27,9 +36,15 @@ const ParameterSettingsComponent = {
         return;
       }
 
-      Query.search({ q: term }, (results) => {
-        this.queries = results;
+      Query.query({ q: term }, (results) => {
+        this.queries = results.results;
       });
+    };
+
+    this.updateTitle = () => {
+      if (this.shouldGenerateTitle) {
+        this.parameter.title = humanize(this.parameter.name);
+      }
     };
   },
 };
@@ -117,26 +132,22 @@ function ParametersDirective($location, $uibModal) {
     link(scope) {
       // is this the correct location for this logic?
       if (scope.syncValues !== false) {
-        scope.$watch('parameters', () => {
-          if (scope.changed) {
-            scope.changed({});
-          }
-          scope.parameters.forEach((param) => {
-            if (param.value !== null || param.value !== '') {
-              $location.search(`p_${param.name}`, param.value);
+        scope.$watch(
+          'parameters',
+          () => {
+            if (scope.changed) {
+              scope.changed({});
             }
-          });
-        }, true);
+            const params = extend({}, $location.search());
+            scope.parameters.forEach((param) => {
+              extend(params, param.toUrlParams());
+            });
+            $location.search(params);
+          },
+          true,
+        );
       }
 
-      // These are input as newline delimited values,
-      // so we split them here.
-      scope.extractEnumOptions = (enumOptions) => {
-        if (enumOptions) {
-          return enumOptions.split('\n');
-        }
-        return [];
-      };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
           component: 'parameterSettings',
@@ -149,8 +160,33 @@ function ParametersDirective($location, $uibModal) {
   };
 }
 
+const ParameterInputComponent = {
+  template: parameterInputTemplate,
+  bindings: {
+    param: '<',
+  },
+  controller($scope) {
+    // These are input as newline delimited values,
+    // so we split them here.
+    this.extractEnumOptions = (enumOptions) => {
+      if (enumOptions) {
+        return enumOptions.split('\n');
+      }
+      return [];
+    };
+
+    $scope.setParamValue = (value) => {
+      this.param.setValue(value);
+      $scope.$applyAsync();
+    };
+  },
+};
+
 export default function init(ngModule) {
   ngModule.directive('parameters', ParametersDirective);
   ngModule.component('queryBasedParameter', QueryBasedParameterComponent);
   ngModule.component('parameterSettings', ParameterSettingsComponent);
+  ngModule.component('parameterInput', ParameterInputComponent);
 }
+
+init.init = true;

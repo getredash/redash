@@ -1,8 +1,11 @@
+@import (reference, less) '~bootstrap/less/labels.less';
+
 // Variables
 @redash-gray: rgba(102, 136, 153, 1);
 @redash-orange: rgba(255, 120, 100, 1);
 @redash-black: rgba(0, 0, 0, 1);
 @redash-yellow: rgba(252, 252, 161, 0.75);
+@redash-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
 @spacing: 15px;
 
@@ -10,12 +13,13 @@
 @redash-space: 10px;
 
 @redash-radius: 3px;
+@redash-input-radius: 2px;
 
 // General
 body {
   padding-top: 0;
-  background: #cad1dc2b;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+  background: #F6F8F9;
+  font-family: @redash-font;
 
   &.headless {
     padding-top: 10px;
@@ -48,6 +52,24 @@ body {
 
 .callout-info {
   border-left-color: #1b809e;
+}
+
+.list-content {
+  @media (min-width: 992px) {
+    padding-right: 0;
+  }
+}
+
+.list-control-r-b {
+  @media (max-width: 992px) {
+    display: none;
+  }
+}
+
+.list-control-t {
+  @media (min-width: 992px) {
+    display: none;
+  }
 }
 
 // Fixed width layout for specific pages
@@ -141,6 +163,90 @@ body {
   }
 }
 
+.list-group-item.active, .list-group-item.active:hover, .list-group-item.active:focus {
+  background-color: #fff;
+  box-shadow: inset 3px 0px 0px @brand-primary;
+}
+
+.table.table-data {
+  > tbody > tr > td {
+    padding-top: 5px !important;
+  }
+
+  tr:hover {
+    cursor: pointer;
+  }
+
+  .btn-favourite {
+    font-size: 15px;
+  }
+}
+
+.table-main-title {
+  font-weight: 500;
+  line-height: 1.7 !important;
+  a {
+    //font-size: 15px;
+  }
+}
+
+.btn-favourite {
+  color: #d4d4d4;
+  transition: all .25s ease-in-out;
+
+  &:hover, &:focus {
+    color: @yellow-darker;
+  }
+
+  .fa-star {
+    color: @yellow-darker;
+  }
+}
+
+.page-header--new .btn-favourite {
+  font-size: 19px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+
+  h3 {
+    margin-right: 5px !important;
+  }
+
+  .label {
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  favorites-control {
+    margin-right: 5px;
+  }
+
+  @media (max-width: 767px) {
+    display: block;
+
+    favorites-control {
+      float: left;
+    }
+
+    h3 {
+      width: 100%;
+      margin-bottom: 5px !important;
+      display: block !important;
+    }
+  }
+}
+
+.navbar li a .btn-favourite .fa {
+  font-size: 100%;
+}
+
+.float-right {
+  float: right;
+}
+
 .database-source {
   display: inline-flex;
   flex-wrap: wrap;
@@ -178,6 +284,8 @@ body {
     font-size: 13px;
     color: #323232;
     margin: 0 !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 }
 
@@ -260,8 +368,8 @@ body {
 
 page-header, .page-header--new {
   h3 {
-    margin: 0;
-    line-height: 1.75;
+    margin: 0.2em 0;
+    line-height: 1.3;
     font-weight: 500;
   }
 }
@@ -336,10 +444,34 @@ page-header, .page-header--new {
   border-radius: 2px;
   padding: 3px 6px 4px;
   font-weight: 500;
+  font-size: 11px;
 }
 
 .label-default {
   background: fade(@redash-gray, 85%);
+}
+
+.label-tag-unpublished {
+  background: fade(@redash-gray, 85%);
+}
+
+.label-tag-archived {
+  .label-warning();
+}
+
+.label-tag {
+  background: fade(@redash-gray, 10%);
+  color: fade(@redash-gray, 75%);
+}
+
+.label-tag-unpublished,
+.label-tag-archived,
+.label-tag {
+  margin-right: 3px;
+  display: inline-block;
+  margin-top: 2px;
+  max-width: 24ch;
+  .text-overflow();
 }
 
 .tab-nav > li > a {
@@ -619,6 +751,14 @@ page-header, .page-header--new {
   margin-top: 2px;
 }
 
+.tags-list {
+
+  .badge-light {
+    background: fade(@redash-gray, 10%);
+    color: fade(@redash-gray, 75%);
+  }
+}
+
 .dropdown-menu--profile {
   li {
     width: 200px;
@@ -665,12 +805,17 @@ page-header, .page-header--new {
 
 // Forms
 .form-control {
-  border-radius: 2px;
-  color: #6d6d6d;
+  border-radius: @redash-input-radius;
+  color: #9E9E9E;
 
   &:focus {
     box-shadow: none !important;
     color: #111;
+    border-color: @blue;
+  }
+
+  &:hover {
+    border-color: @blue;
   }
 }
 
@@ -684,6 +829,16 @@ text.slicetext {
 @media (max-width: 767px) {
   .text-center-xs {
     text-align: center !important;
+  }
+
+  .query-page-wrapper {
+    h3 {
+      font-size: 18px;
+    }
+
+    favorites-control {
+      margin-top: -3px;
+    }
   }
 
   .navbar-brand {
@@ -725,6 +880,16 @@ text.slicetext {
     .navbar-right {
       margin-bottom: 0;
     }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 850px) {
+  .menu-search {
+    width: 175px;
+  }
+
+  a.navbar-brand {
+    display: none !important;
   }
 }
 

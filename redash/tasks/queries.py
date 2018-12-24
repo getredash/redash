@@ -1,19 +1,18 @@
-import json
 import logging
 import signal
 import time
 
-import pystache
 import redis
-
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import models, redis_connection, settings, statsd_client, utils
+from six import text_type
+
+from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
-from redash.utils import gen_query_hash
-from redash.worker import celery
 from redash.tasks.alerts import check_alerts_for_query
+from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
+from redash.worker import celery
 
 logger = get_task_logger(__name__)
 
@@ -59,7 +58,7 @@ class QueryTaskTracker(object):
 
         self.data['updated_at'] = time.time()
         key_name = self._key_name(self.data['task_id'])
-        connection.set(key_name, utils.json_dumps(self.data))
+        connection.set(key_name, json_dumps(self.data))
         connection.zadd(self._get_list(), time.time(), key_name)
 
         for l in self.ALL_LISTS:
@@ -96,7 +95,7 @@ class QueryTaskTracker(object):
     @classmethod
     def create_from_data(cls, data):
         if data:
-            data = json.loads(data)
+            data = json_loads(data)
             return cls(data)
 
         return None
@@ -276,16 +275,16 @@ def refresh_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.info("Skipping refresh of %s because org is disabled.", query.id)
+                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p['value']
+                    query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
-                    query_text = pystache.render(query.query_text, query_params)
+                    query_text = mustache_render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
 
@@ -306,7 +305,7 @@ def refresh_queries():
     redis_connection.hmset('redash:status', {
         'outdated_queries_count': outdated_queries_count,
         'last_refresh_at': now,
-        'query_ids': json.dumps(query_ids)
+        'query_ids': json_dumps(query_ids)
     })
 
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
@@ -427,11 +426,17 @@ class QueryExecutor(object):
         self.query_hash = gen_query_hash(self.query)
         self.scheduled_query = scheduled_query
         # Load existing tracker or create a new one if the job was created before code update:
-        self.tracker = QueryTaskTracker.get_by_task_id(task.request.id) or QueryTaskTracker.create(task.request.id,
-                                                                                                   'created',
-                                                                                                   self.query_hash,
-                                                                                                   self.data_source_id,
-                                                                                                   False, metadata)
+        self.tracker = (
+            QueryTaskTracker.get_by_task_id(task.request.id) or
+            QueryTaskTracker.create(
+                task.request.id,
+                'created',
+                self.query_hash,
+                self.data_source_id,
+                False,
+                metadata
+            )
+        )
         if self.tracker.scheduled:
             models.scheduled_queries_executions.update(self.tracker.query_id)
 
@@ -448,7 +453,7 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = unicode(e)
+            error = text_type(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
@@ -466,6 +471,8 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+            models.db.session.commit()
+            raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -474,15 +481,16 @@ class QueryExecutor(object):
             query_result, updated_query_ids = models.QueryResult.store_result(
                 self.data_source.org_id, self.data_source,
                 self.query_hash, self.query, data,
-                run_time, utils.utcnow())
+                run_time, utcnow())
+            models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress('checking_alerts')
             for query_id in updated_query_ids:
                 check_alerts_for_query.delay(query_id)
             self._log_progress('finished')
 
             result = query_result.id
-        models.db.session.commit()
-        return result
+            models.db.session.commit()
+            return result
 
     def _annotate_query(self, query_runner):
         if query_runner.annotate_query():

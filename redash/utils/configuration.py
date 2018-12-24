@@ -1,8 +1,8 @@
-import json
 import jsonschema
 from jsonschema import ValidationError
-
 from sqlalchemy.ext.mutable import Mutable
+
+from redash.utils import json_dumps, json_loads
 
 SECRET_PLACEHOLDER = '--------'
 
@@ -45,7 +45,7 @@ class ConfigurationContainer(Mutable):
         jsonschema.validate(self._config, self._schema)
 
     def to_json(self):
-        return json.dumps(self._config, sort_keys=True)
+        return json_dumps(self._config, sort_keys=True)
 
     def iteritems(self):
         return self._config.iteritems()
@@ -92,4 +92,4 @@ class ConfigurationContainer(Mutable):
 
     @classmethod
     def from_json(cls, config_in_json):
-        return cls(json.loads(config_in_json))
+        return cls(json_loads(config_in_json))

@@ -8,7 +8,7 @@ from flask import current_app
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
-from redash import __version__, create_app, settings
+from redash import __version__, safe_create_app, settings
 from redash.metrics import celery as celery_metrics
 
 celery = Celery('redash',
@@ -44,12 +44,12 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         'schedule': timedelta(minutes=5)
     }
 
-celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
-                   CELERYBEAT_SCHEDULE=celery_schedule,
-                   CELERY_TIMEZONE='UTC',
-                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES,
-                   CELERYD_LOG_FORMAT=settings.CELERYD_LOG_FORMAT,
-                   CELERYD_TASK_LOG_FORMAT=settings.CELERYD_TASK_LOG_FORMAT)
+celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
+                   beat_schedule=celery_schedule,
+                   timezone='UTC',
+                   result_expires=settings.CELERY_RESULT_EXPIRES,
+                   worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
+                   worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT)
 
 if settings.SENTRY_DSN:
     from raven import Client
@@ -70,11 +70,21 @@ class ContextTask(TaskBase):
         with current_app.app_context():
             return TaskBase.__call__(self, *args, **kwargs)
 
+
 celery.Task = ContextTask
 
 
 # Create Flask app after forking a new worker, to make sure no resources are shared between processes.
 @worker_process_init.connect
 def init_celery_flask_app(**kwargs):
-    app = create_app()
+    app = safe_create_app()
     app.app_context().push()
+
+
+# Hook for extensions to add periodic tasks.
+@celery.on_after_configure.connect
+def add_periodic_tasks(sender, **kwargs):
+    app = safe_create_app()
+    periodic_tasks = getattr(app, 'periodic_tasks', {})
+    for params in periodic_tasks.values():
+        sender.add_periodic_task(**params)

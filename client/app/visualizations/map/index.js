@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import d3 from 'd3';
 import L from 'leaflet';
 import 'leaflet.markercluster';
@@ -38,7 +38,7 @@ function mapRenderer() {
       const mapControls = L.control.layers().addTo(map);
       const layers = {};
       const tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
       function getBounds() {
@@ -193,7 +193,7 @@ function mapRenderer() {
             return { color: colorScale(group) };
           });
 
-          $scope.visualization.options.groups = _.object(groupNames, options);
+          $scope.visualization.options.groups = _.zipObject(groupNames, options);
 
           _.each(layers, (v) => {
             removeLayer(v);
@@ -224,7 +224,7 @@ function mapEditor() {
     link($scope) {
       $scope.currentTab = 'general';
       $scope.columns = $scope.queryResult.getColumns();
-      $scope.columnNames = _.pluck($scope.columns, 'name');
+      $scope.columnNames = _.map($scope.columns, i => i.name);
       $scope.classify_columns = $scope.columnNames.concat('none');
       $scope.mapTiles = [
         {
@@ -307,3 +307,6 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;
+

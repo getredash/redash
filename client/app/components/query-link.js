@@ -18,8 +18,16 @@ export default function init(ngModule) {
     bindings: {
       query: '<',
       visualization: '<',
+      readonly: '<',
     },
-    template: '<a ng-href="{{$ctrl.link}}" class="query-link">{{$ctrl.query.name}}</a>',
+    template: `
+      <a ng-href="{{$ctrl.readonly ? undefined : $ctrl.link}}" class="query-link">
+        <visualization-name visualization="$ctrl.visualization"/>
+        <span>{{$ctrl.query.name}}</span>
+      </a>
+    `,
     controller: QueryLinkController,
   });
 }
+
+init.init = true;

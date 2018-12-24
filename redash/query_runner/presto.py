@@ -1,7 +1,5 @@
-import json
-
-from redash.utils import JSONEncoder
 from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,6 +40,10 @@ class Presto(BaseQueryRunner):
                 'host': {
                     'type': 'string'
                 },
+                'protocol': {
+                    'type': 'string',
+                    'default': 'http'
+                },
                 'port': {
                     'type': 'number'
                 },
@@ -53,8 +55,9 @@ class Presto(BaseQueryRunner):
                 },
                 'username': {
                     'type': 'string'
-                }
+                },
             },
+            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
             'required': ['host']
         }
 
@@ -65,9 +68,6 @@ class Presto(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "presto"
-
-    def __init__(self, configuration):
-        super(Presto, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema = {}
@@ -82,11 +82,11 @@ class Presto(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            
+
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
@@ -98,6 +98,7 @@ class Presto(BaseQueryRunner):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
+                protocol=self.configuration.get('protocol', 'http'),
                 username=self.configuration.get('username', 'redash'),
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
@@ -111,12 +112,15 @@ class Presto(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
             json_data = None
             default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
-            message = db.message.get('failureInfo', {'message', None}).get('message')
+            if isinstance(db.message, dict):
+                message = db.message.get('failureInfo', {'message', None}).get('message')
+            else:
+                message = None
             error = default_message if message is None else message
         except (KeyboardInterrupt, InterruptException) as e:
             cursor.cancel()

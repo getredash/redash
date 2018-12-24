@@ -1,5 +1,5 @@
 import numberFormat from 'underscore.string/numberFormat';
-import * as _ from 'underscore';
+import { isNumber } from 'lodash';
 
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
@@ -23,41 +23,28 @@ function CounterRenderer($timeout) {
     link($scope, $element) {
       $scope.fontSize = '1em';
 
-      const rootNode = $element[0].querySelector('counter');
+      $scope.scale = 1;
+      const root = $element[0].querySelector('counter');
+      const container = $element[0].querySelector('counter > div');
       $scope.handleResize = () => {
-        const rootMeasures = {
-          height: Math.floor(rootNode.offsetHeight),
-          fontSize: parseFloat(window.getComputedStyle(rootNode).fontSize),
-        };
-        const rulers = rootNode.querySelectorAll('.ruler');
-        const rulerMeasures = _.chain(rulers)
-          .map(ruler => ({
-            height: ruler.offsetHeight,
-            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
-          }))
-          .reduce((result, value) => ({
-            height: result.height + value.height,
-            fontSize: result.fontSize + value.fontSize,
-          }))
-          .value();
-
-        /* eslint-disable function-paren-newline */
-        const fontSize = Math.floor(
-          (rootMeasures.height / rulerMeasures.height * rulerMeasures.fontSize) /
-          (rulerMeasures.fontSize / rootMeasures.fontSize),
-        );
-        /* eslint-enable function-paren-newline */
-        $scope.fontSize = fontSize + 'px';
+        const scale = Math.min(root.offsetWidth / container.offsetWidth, root.offsetHeight / container.offsetHeight);
+        $scope.scale = Math.floor(scale * 100) / 100; // keep only two decimal places
       };
 
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
         if (queryData) {
           const rowNumber = getRowNumber($scope.visualization.options.rowNumber, queryData.length);
-          const targetRowNumber =
-            getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
+          const targetRowNumber = getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
+          const counterLabel = $scope.visualization.options.counterLabel;
+
+          if (counterLabel) {
+            $scope.counterLabel = counterLabel;
+          } else {
+            $scope.counterLabel = $scope.visualization.name;
+          }
 
           if ($scope.visualization.options.countRow) {
             $scope.counterValue = queryData.length;
@@ -75,7 +62,7 @@ function CounterRenderer($timeout) {
             $scope.targetValue = null;
           }
 
-          $scope.isNumber = _.isNumber($scope.counterValue);
+          $scope.isNumber = isNumber($scope.counterValue);
           if ($scope.isNumber) {
             $scope.stringPrefix = $scope.visualization.options.stringPrefix;
             $scope.stringSuffix = $scope.visualization.options.stringSuffix;
@@ -84,12 +71,7 @@ function CounterRenderer($timeout) {
             const stringDecChar = $scope.visualization.options.stringDecChar;
             const stringThouSep = $scope.visualization.options.stringThouSep;
             if (stringDecimal || stringDecChar || stringThouSep) {
-              $scope.counterValue = numberFormat(
-                $scope.counterValue,
-                stringDecimal,
-                stringDecChar,
-                stringThouSep,
-              );
+              $scope.counterValue = numberFormat($scope.counterValue, stringDecimal, stringDecChar, stringThouSep);
               $scope.isNumber = false;
             }
           } else {
@@ -130,12 +112,11 @@ function CounterEditor() {
             scope.counterValue = queryData[rowNumber][counterColName];
           }
         }
-        return _.isNumber(scope.counterValue);
+        return isNumber(scope.counterValue);
       };
     },
   };
 }
-
 
 export default function init(ngModule) {
   ngModule.directive('counterEditor', CounterEditor);
@@ -143,9 +124,7 @@ export default function init(ngModule) {
 
   ngModule.config((VisualizationProvider) => {
     const renderTemplate =
-        '<counter-renderer ' +
-        'options="visualization.options" query-result="queryResult">' +
-        '</counter-renderer>';
+      '<counter-renderer options="visualization.options" query-result="queryResult"></counter-renderer>';
 
     const editTemplate = '<counter-editor></counter-editor>';
     const defaultOptions = {
@@ -168,3 +147,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

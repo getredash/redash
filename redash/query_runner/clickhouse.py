@@ -1,9 +1,11 @@
-import json
 import logging
-from redash.query_runner import *
-from redash.utils import JSONEncoder
-import requests
 import re
+
+import requests
+
+from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +31,11 @@ class ClickHouse(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "timeout": {
+                    "type": "number",
+                    "title": "Request Timeout",
+                    "default": 30
                 }
             },
             "required": ["dbname"],
@@ -39,9 +46,6 @@ class ClickHouse(BaseSQLQueryRunner):
     def type(cls):
         return "clickhouse"
 
-    def __init__(self, configuration):
-        super(ClickHouse, self).__init__(configuration)
-
     def _get_tables(self, schema):
         query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"
 
@@ -50,7 +54,7 @@ class ClickHouse(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['database'], row['table'])
@@ -63,10 +67,17 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        r = requests.post(self.configuration['url'], data=data.encode("utf-8"), stream=stream, params={
-            'user': self.configuration['user'], 'password':  self.configuration['password'],
-            'database': self.configuration['dbname']
-        })
+        r = requests.post(
+            self.configuration['url'],
+            data=data.encode("utf-8"),
+            stream=stream,
+            timeout=self.configuration.get('timeout', 30),
+            params={
+                'user': self.configuration['user'],
+                'password':  self.configuration['password'],
+                'database': self.configuration['dbname']
+            }
+        )
         if r.status_code != 200:
             raise Exception(r.text)
         # logging.warning(r.json())
@@ -90,16 +101,37 @@ class ClickHouse(BaseSQLQueryRunner):
             return TYPE_STRING
 
     def _clickhouse_query(self, query):
-        query += ' FORMAT JSON'
+        query += '\nFORMAT JSON'
         result = self._send_query(query)
-        columns = [{'name': r['name'], 'friendly_name': r['name'],
-                    'type': self._define_column_type(r['type'])} for r in result['meta']]
-        # db converts value to string if its type equals UInt64
-        columns_uint64 = [r['name'] for r in result['meta'] if r['type'] == 'UInt64']
+        columns = []
+        columns_int64 = []  # db converts value to string if its type equals UInt64
+        columns_totals = {}
+
+        for r in result['meta']:
+            column_name = r['name']
+            column_type = self._define_column_type(r['type'])
+
+            if r['type'] in ('Int64', 'UInt64', 'Nullable(Int64)', 'Nullable(UInt64)'):
+                columns_int64.append(column_name)
+            else:
+                columns_totals[column_name] = 'Total' if column_type == TYPE_STRING else None
+
+            columns.append({'name': column_name, 'friendly_name': column_name, 'type': column_type})
+
         rows = result['data']
         for row in rows:
-            for column in columns_uint64:
-                row[column] = int(row[column])
+            for column in columns_int64:
+                try:
+                    row[column] = int(row[column])
+                except TypeError:
+                    row[column] = None
+
+        if 'totals' in result:
+            totals = result['totals']
+            for column, value in columns_totals.iteritems():
+                totals[column] = value
+            rows.append(totals)
+
         return {'columns': columns, 'rows': rows}
 
     def run_query(self, query, user):
@@ -110,7 +142,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
         try:
             q = self._clickhouse_query(query)
-            data = json.dumps(q, cls=JSONEncoder)
+            data = json_dumps(q)
             error = None
         except Exception as e:
             data = None

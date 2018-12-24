@@ -1,5 +1,6 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import getTags from '@/services/getTags';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
@@ -22,7 +23,6 @@ function getWidgetsWithChangedPositions(widgets) {
 }
 
 function DashboardCtrl(
-  $rootScope,
   $routeParams,
   $location,
   $timeout,
@@ -35,6 +35,7 @@ function DashboardCtrl(
   clientConfig,
   Events,
   toastr,
+  Policy,
 ) {
   this.saveInProgress = false;
 
@@ -46,7 +47,7 @@ function DashboardCtrl(
     this.saveInProgress = true;
     const showMessages = true;
     return $q
-      .all(_.map(widgets, widget => widget.$save()))
+      .all(_.map(widgets, widget => widget.save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Changes saved.');
@@ -73,17 +74,26 @@ function DashboardCtrl(
   this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
+  this.isDashboardOwner = false;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
     rate: interval,
+    enabled: true,
   }));
+
+  const allowedIntervals = Policy.getDashboardRefreshIntervals();
+  if (_.isArray(allowedIntervals)) {
+    _.each(this.refreshRates, (rate) => {
+      rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
+    });
+  }
 
   this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
     if (rate !== null) {
       if (load) {
-        this.loadDashboard(true);
+        this.refreshDashboard();
       }
       this.autoRefresh();
     }
@@ -99,7 +109,7 @@ function DashboardCtrl(
           .filter(p => p.global)
           .forEach((param) => {
             const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name] = param.clone();
             defaults[param.name].locals = [];
             globalParams = _.defaults(globalParams, defaults);
             globalParams[param.name].locals.push(param);
@@ -118,7 +128,7 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.loadPromise(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -168,6 +178,7 @@ function DashboardCtrl(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
         this.dashboard = dashboard;
+        this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
 
@@ -206,18 +217,20 @@ function DashboardCtrl(
 
   this.loadDashboard();
 
+  this.refreshDashboard = () => {
+    renderDashboard(this.dashboard, true);
+  };
+
   this.autoRefresh = () => {
     $timeout(() => {
-      this.loadDashboard(true);
+      this.refreshDashboard();
     }, this.refreshRate.rate * 1000).then(() => this.autoRefresh());
   };
 
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete(() => {
-        $rootScope.$broadcast('reloadDashboards');
-      });
+      this.dashboard.$delete();
     };
 
     const title = 'Archive Dashboard';
@@ -232,6 +245,7 @@ function DashboardCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
+        owner: this.dashboard.user,
       },
     });
   };
@@ -260,25 +274,39 @@ function DashboardCtrl(
     }
   };
 
-  this.saveName = () => {
+  this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
+
+  const updateDashboard = (data) => {
+    _.extend(this.dashboard, data);
+    data = _.extend({}, data, {
+      slug: this.dashboard.id,
+      version: this.dashboard.version,
+    });
     Dashboard.save(
-      { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
+      data,
       (dashboard) => {
-        this.dashboard = dashboard;
-        $rootScope.$broadcast('reloadDashboards');
+        _.extend(this.dashboard, _.pick(dashboard, _.keys(data)));
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          toastr.error('Dashboard update failed: Permission Denied.');
         } else if (error.status === 409) {
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
+            'Please copy/backup your changes and reload this page.',
             { autoDismiss: false },
           );
         }
       },
     );
+  };
+
+  this.saveName = (name) => {
+    updateDashboard({ name });
+  };
+
+  this.saveTags = (tags) => {
+    updateDashboard({ tags });
   };
 
   this.updateDashboardFiltersState = () => {
@@ -319,12 +347,13 @@ function DashboardCtrl(
         // Save position of newly added widget (but not entire layout)
         const widget = _.last(this.dashboard.widgets);
         if (_.isObject(widget)) {
-          return widget.$save();
+          return widget.save();
         }
       });
   };
 
-  this.removeWidget = () => {
+  this.removeWidget = (widgetId) => {
+    this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
@@ -359,7 +388,6 @@ function DashboardCtrl(
       (dashboard) => {
         this.saveInProgress = false;
         this.dashboard.version = dashboard.version;
-        $rootScope.$broadcast('reloadDashboards');
       },
     );
   };
@@ -435,3 +463,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

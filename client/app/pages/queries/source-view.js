@@ -1,15 +1,18 @@
+import { map, defer } from 'lodash';
 import template from './query.html';
 
 function QuerySourceCtrl(
-  Events, toastr, $controller, $scope, $location, $http, $q,
-  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts,
+  Events,
+  $controller,
+  $scope,
+  $location,
+  $uibModal,
+  currentUser,
+  KeyboardShortcuts,
+  $rootScope,
 ) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
-  // TODO:
-  // This doesn't get inherited. Setting it on this didn't work either (which is weird).
-  // Obviously it shouldn't be repeated, but we got bigger fish to fry.
-  const DEFAULT_TAB = 'table';
 
   Events.record('view_source', 'query', $scope.query.id);
 
@@ -20,8 +23,7 @@ function QuerySourceCtrl(
   $scope.sourceMode = true;
   $scope.isDirty = false;
   $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
-
-  $scope.newVisualization = undefined;
+  $scope.modKey = KeyboardShortcuts.modKey;
 
   // @override
   Object.defineProperty($scope, 'showDataset', {
@@ -36,6 +38,9 @@ function QuerySourceCtrl(
         $scope.saveQuery();
       }
     },
+    'mod+p': () => {
+      $scope.addNewParameter();
+    },
   };
 
   KeyboardShortcuts.bind(shortcuts);
@@ -45,6 +50,8 @@ function QuerySourceCtrl(
   });
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+
+  $scope.updateQuery = newQueryText => defer(() => $scope.$apply(() => { $scope.query.query = newQueryText; }));
 
   // @override
   $scope.saveQuery = (options, data) => {
@@ -65,36 +72,33 @@ function QuerySourceCtrl(
     return savePromise;
   };
 
-  $scope.formatQuery = () => {
-    Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then((query) => { $scope.query.query = query; })
-      .catch(error => toastr.error(error));
-  };
-
-  $scope.deleteVisualization = ($e, vis) => {
-    $e.preventDefault();
-
-    const title = undefined;
-    const message = `Are you sure you want to delete ${vis.name} ?`;
-    const confirm = { class: 'btn-danger', title: 'Delete' };
-
-    AlertDialog.open(title, message, confirm).then(() => {
-      Events.record('delete', 'visualization', vis.id);
-
-      Visualization.delete({ id: vis.id }, () => {
-        if ($scope.selectedTab === String(vis.id)) {
-          $scope.selectedTab = DEFAULT_TAB;
-          $location.hash($scope.selectedTab);
-        }
-        $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
-      }, () => {
-        toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
+  $scope.addNewParameter = () => {
+    $uibModal
+      .open({
+        component: 'parameterSettings',
+        resolve: {
+          parameter: {
+            title: '',
+            name: '',
+            type: 'text',
+            value: null,
+            global: false,
+          },
+          existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
+        },
+      })
+      .result.then((param) => {
+        param = $scope.query.getParameters().add(param);
+        $rootScope.$broadcast('query-editor.command', 'paste', param.toQueryTextFragment());
+        $rootScope.$broadcast('query-editor.command', 'focus');
       });
-    });
   };
+
+  $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
+  $scope.listenForResize = f => $scope.$parent.$on('angular-resizable.resizing', f);
 
   $scope.$watch('query.query', (newQueryText) => {
-    $scope.isDirty = (newQueryText !== queryText);
+    $scope.isDirty = newQueryText !== queryText;
   });
 }
 
@@ -135,3 +139,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

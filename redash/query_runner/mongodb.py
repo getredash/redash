@@ -1,12 +1,11 @@
 import datetime
-import json
 import logging
 import re
 
 from dateutil.parser import parse
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder, parse_human_time
+from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ def datetime_parser(dct):
 
 
 def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+    query_data = json_loads(query, object_hook=datetime_parser)
     return query_data
 
 
@@ -92,7 +91,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = '{}.{}'.format(key, inner_key)
+                    column_name = u'{}.{}'.format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append({
                             "name": column_name,
@@ -175,6 +174,13 @@ class MongoDB(BaseQueryRunner):
               if property not in columns:
                   columns.append(property)
 
+    def _is_collection_a_view(self, db, collection_name):
+        try:
+            db.command('collstats', collection_name)
+            return False
+        except Exception:
+            return True
+
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
         # to have the same fields as another documet in the collection its a bit hard to
@@ -185,29 +191,34 @@ class MongoDB(BaseQueryRunner):
         # as we don't know the correct order. In most single server installations it would be
         # find. In replicaset when reading from non master it might not return the really last
         # document written.
-        first_document = None
-        last_document = None
+        collection_is_a_view = self._is_collection_a_view(db, collection_name)
+        documents_sample = []
+        if collection_is_a_view:
+            for d in db[collection_name].find().limit(2):
+                documents_sample.append(d)
+        else:
+            for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+                documents_sample.append(d)
 
-        for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
-            first_document = d
-
-        for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
-            last_document = d
-
+            for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+                documents_sample.append(d)
         columns = []
-        if first_document: self._merge_property_names(columns, first_document)
-        if last_document: self._merge_property_names(columns, last_document)
-
+        for d in documents_sample:
+            self._merge_property_names(columns, d)
         return columns
 
     def get_schema(self, get_stats=False):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():
+            if collection_name.startswith('system.'):
+                continue
             columns = self._get_collection_fields(db, collection_name)
-            schema[collection_name] = { "name" : collection_name, "columns" : sorted(columns) }
+            schema[collection_name] = {
+                "name": collection_name, "columns": sorted(columns)}
 
         return schema.values()
+
 
     def run_query(self, query, user):
         db = self._get_db()
@@ -307,12 +318,16 @@ class MongoDB(BaseQueryRunner):
 
             columns = ordered_columns
 
+        if query_data.get('sortColumns'):
+            reverse = query_data['sortColumns'] == 'desc'
+            columns = sorted(columns, key=lambda col: col['name'], reverse=reverse)
+
         data = {
             "columns": columns,
             "rows": rows
         }
         error = None
-        json_data = json.dumps(data, cls=MongoDBJSONEncoder)
+        json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
 

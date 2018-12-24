@@ -82,12 +82,18 @@ class AppViewComponent {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('$exceptionHandler', () => function exceptionHandler(exception) {
-    handler.process(exception);
-  });
+  ngModule.factory(
+    '$exceptionHandler',
+    () =>
+      function exceptionHandler(exception) {
+        handler.process(exception);
+      },
+  );
 
   ngModule.component('appView', {
     template,
     controller: AppViewComponent,
   });
 }
+
+init.init = true;

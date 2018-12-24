@@ -8,9 +8,7 @@ const stateClass = {
 };
 
 class AlertsListCtrl {
-  constructor(Events, Alert) {
-    Events.record('view', 'page', 'alerts');
-
+  constructor(Alert) {
     this.showEmptyState = false;
     this.showList = false;
 
@@ -48,3 +46,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

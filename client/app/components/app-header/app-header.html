@@ -15,20 +15,50 @@
 
       <ul class="nav navbar-nav nav__main">
         <li class="dropdown btn-group" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
-          <a id="split-button" class="btn" href="dashboards">Dashboards</a>
+          <a class="btn" href="dashboards">Dashboards</a>
           <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
             <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
-            <li><a href="dashboards">All Dashboards</a></li>
-            <li class="divider" ng-if="$ctrl.dashboards | notEmpty"></li>
+            <li ng-if="$ctrl.dashboards.length == 0">
+              <a>
+                <em>
+                  <span class="btn-favourite">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                  Favorite Dashboards will appear here
+                </em>
+              </a>
+            </li>
             <li ng-repeat="dashboard in $ctrl.dashboards">
-              <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+              <a href="dashboard/{{ dashboard.slug }}">
+                {{ dashboard.name }}
+              </a>
             </li>
           </ul>
         </li>
-        <li class="dropdown" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
-          <a href="queries">Queries</a>
+        <li class="dropdown btn-group" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
+          <a class="btn" href="queries">Queries</a>
+          <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
+            <span class="caret caret--nav"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu>
+            <li ng-if="$ctrl.queries.length == 0">
+              <a>
+                <em>
+                  <span class="btn-favourite">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                  Favorite Queries will appear here
+                </em>
+              </a>
+            </li>
+            <li ng-repeat="query in $ctrl.queries">
+              <a href="queries/{{ query.id }}">
+                {{ query.name }}
+              </a>
+            </li>
+          </ul>
         </li>
         <li ng-if="$ctrl.showAlertsLink">
           <a href="alerts">Alerts</a>
@@ -56,8 +86,8 @@
           <!--<a href="users" title="Settings"><i class="fa fa-cog"></i></a>-->
         <!--</li>-->
         <li class="dropdown" uib-dropdown>
-          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
-            <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="20"/>
+          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle data-test="ProfileDropdown">
+            <img ng-src="{{ $ctrl.currentUser.profile_image_url }}" class="profile__image--navbar" width="20"/>
             <span class="dropdown--profile__username" ng-bind="$ctrl.currentUser.name"></span> <span
             class="caret caret--nav"></span></a>
           <ul class="dropdown-menu dropdown-menu--profile">
@@ -98,7 +128,7 @@
       <!-- Search -->
       <form class="navbar-form navbar-right" role="search" ng-submit="$ctrl.searchQueries()">
         <div class="input-group menu-search">
-          <input type="text" ng-model="$ctrl.term" class="form-control navbar__search__input" placeholder="Search queries...">
+          <input type="text" ng-model="$ctrl.searchTerm" class="form-control navbar__search__input" placeholder="Search queries...">
           <span class="input-group-btn">
             <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
           </span>

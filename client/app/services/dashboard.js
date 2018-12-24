@@ -1,16 +1,18 @@
-import _ from 'underscore';
+import _ from 'lodash';
 
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
   // This value should be big enough so auto-height widgets will not overlap other ones.
-  const defaultWidgetSizeY = Math.max(
-    _.chain(widgets)
-      .map(w => w.options.position.sizeY)
-      .max()
-      .value(),
-    20,
-  ) + 5;
+  const defaultWidgetSizeY =
+    Math.max(
+      _
+        .chain(widgets)
+        .map(w => w.options.position.sizeY)
+        .max()
+        .value(),
+      20,
+    ) + 5;
 
   // Fix layout:
   // 1. sort and group widgets by row
@@ -24,9 +26,7 @@ function prepareWidgetsForDashboard(widgets) {
       _.each(widgetsAtRow, (widget) => {
         height = Math.max(
           height,
-          widget.options.position.autoHeight
-            ? defaultWidgetSizeY
-            : widget.options.position.sizeY,
+          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY,
         );
         widget.options.position.row = row;
         if (widget.options.position.sizeY < 1) {
@@ -57,38 +57,57 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   }
 
   const transform = $http.defaults.transformResponse.concat((data) => {
-    if (_.isArray(data)) {
-      data.forEach(transformSingle);
+    if (data.results) {
+      data.results.forEach(transformSingle);
     } else {
       transformSingle(data);
     }
     return data;
   });
 
-  const resource = $resource('api/dashboards/:slug', { slug: '@slug' }, {
-    get: { method: 'GET', transformResponse: transform },
-    save: { method: 'POST', transformResponse: transform },
-    query: { method: 'GET', isArray: true, transformResponse: transform },
-    recent: {
-      method: 'get',
-      isArray: true,
-      url: 'api/dashboards/recent',
-      transformResponse: transform,
+  const resource = $resource(
+    'api/dashboards/:slug',
+    { slug: '@slug' },
+    {
+      get: { method: 'GET', transformResponse: transform },
+      save: { method: 'POST', transformResponse: transform },
+      query: { method: 'GET', isArray: false, transformResponse: transform },
+      recent: {
+        method: 'get',
+        isArray: true,
+        url: 'api/dashboards/recent',
+        transformResponse: transform,
+      },
+      favorites: {
+        method: 'get',
+        isArray: false,
+        url: 'api/dashboards/favorites',
+      },
+      favorite: {
+        method: 'post',
+        isArray: false,
+        url: 'api/dashboards/:slug/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      unfavorite: {
+        method: 'delete',
+        isArray: false,
+        url: 'api/dashboards/:slug/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
     },
-  });
+  );
 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;
   };
 
   resource.prototype.calculateNewWidgetPosition = function calculateNewWidgetPosition(widget) {
-    const width = (_.extend(
-      { sizeX: dashboardGridOptions.defaultSizeX },
-      _.extend({}, widget.options).position,
-    )).sizeX;
+    const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, widget.options).position).sizeX;
 
     // Find first free row for each column
-    const bottomLine = _.chain(this.widgets)
+    const bottomLine = _
+      .chain(this.widgets)
       .map((w) => {
         const options = _.extend({}, w.options);
         const position = _.extend({ row: 0, sizeY: 0 }, options.position);
@@ -114,10 +133,12 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
     // Go through columns, pick them by count necessary to hold new block,
     // and calculate bottom-most free row per group.
     // Choose group with the top-most free row (comparing to other groups)
-    return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+    return _
+      .chain(_.range(0, dashboardGridOptions.columns - width + 1))
       .map(col => ({
         col,
-        row: _.chain(bottomLine)
+        row: _
+          .chain(bottomLine)
           .slice(col, col + width)
           .max()
           .value(),
@@ -136,3 +157,6 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
 export default function init(ngModule) {
   ngModule.factory('Dashboard', Dashboard);
 }
+
+init.init = true;
+

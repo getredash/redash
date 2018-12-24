@@ -1,58 +1,42 @@
 import moment from 'moment';
+import { extend } from 'lodash';
 
-import { LivePaginator } from '@/lib/pagination';
+import ListCtrl from '@/lib/list-ctrl';
 import template from './queries-list.html';
+import './queries-list.css';
 
-class QueriesListCtrl {
-  constructor($location, Title, Query) {
-    const page = parseInt($location.search().page || 1, 10);
 
-    this.defaultOptions = {};
+class QueriesListCtrl extends ListCtrl {
+  constructor($scope, $location, currentUser, clientConfig, Query) {
+    super($scope, $location, currentUser, clientConfig);
+    this.Type = Query;
+    this.showMyQueries = currentUser.hasPermission('create_query');
+  }
 
-    const self = this;
+  processResponse(data) {
+    super.processResponse(data);
+    const rows = data.results.map((query) => {
+      query.created_at = moment(query.created_at);
+      query.retrieved_at = moment(query.retrieved_at);
+      return new this.Type(query);
+    });
 
-    switch ($location.path()) {
-      case '/queries':
-        Title.set('Queries');
-        this.resource = Query.query;
-        break;
-      case '/queries/my':
-        Title.set('My Queries');
-        this.resource = Query.myQueries;
-        break;
-      default:
-        break;
+    this.paginator.updateRows(rows, data.count);
+
+    if (data.count === 0) {
+      if (this.isInSearchMode()) {
+        this.emptyType = 'search';
+      } else if (this.selectedTags.size > 0) {
+        this.emptyType = 'tags';
+      } else if (this.currentPage === 'favorites') {
+        this.emptyType = 'favorites';
+      } else if (this.currentPage === 'my') {
+        this.emptyType = 'my';
+      } else {
+        this.emptyType = 'default';
+      }
     }
-
-    function queriesFetcher(requestedPage, itemsPerPage, paginator) {
-      $location.search('page', requestedPage);
-
-      const request = Object.assign(
-        {}, self.defaultOptions,
-        { page: requestedPage, page_size: itemsPerPage },
-      );
-
-      return self.resource(request).$promise.then((data) => {
-        const rows = data.results.map((query) => {
-          query.created_at = moment(query.created_at);
-          query.retrieved_at = moment(query.retrieved_at);
-          return query;
-        });
-
-        paginator.updateRows(rows, data.count);
-      });
-    }
-
-    this.paginator = new LivePaginator(queriesFetcher, { page });
-
-    this.tabs = [
-      { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
-      { name: 'My Queries', path: 'queries/my' },
-      { name: 'Search', path: 'queries/search' },
-    ];
-
-    this.showList = () => this.paginator.getPageRows() !== undefined && this.paginator.getPageRows().length > 0;
-    this.showEmptyState = () => this.paginator.getPageRows() !== undefined && this.paginator.getPageRows().length === 0;
+    this.showEmptyState = data.count === 0;
   }
 }
 
@@ -62,14 +46,58 @@ export default function init(ngModule) {
     controller: QueriesListCtrl,
   });
 
+  const route = {
+    template: '<page-queries-list></page-queries-list>',
+    reloadOnSearch: false,
+  };
+
   return {
-    '/queries': {
-      template: '<page-queries-list></page-queries-list>',
-      reloadOnSearch: false,
-    },
-    '/queries/my': {
-      template: '<page-queries-list></page-queries-list>',
-      reloadOnSearch: false,
-    },
+    '/queries': extend(
+      {
+        title: 'Queries',
+        resolve: {
+          currentPage: () => 'all',
+          resource(Query) {
+            'ngInject';
+
+            return Query.query.bind(Query);
+          },
+        },
+      },
+      route,
+    ),
+    '/queries/my': extend(
+      {
+        title: 'My Queries',
+        resolve: {
+          currentPage: () => 'my',
+          resource: (Query) => {
+            'ngInject';
+
+            return Query.myQueries.bind(Query);
+          },
+        },
+      },
+      route,
+    ),
+    '/queries/favorites': extend(
+      {
+        title: 'Favorite Queries',
+        resolve: {
+          currentPage: () => 'favorites',
+          resource: (Query) => {
+            'ngInject';
+
+            return Query.favorites.bind(Query);
+          },
+        },
+      },
+      route,
+    ),
+    // TODO: setup redirect?
+    // '/queries/search': _.extend(
   };
 }
+
+init.init = true;
+
