@@ -89,9 +89,22 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
             abort(503, message="Unable to get result from the database.")
         return None
 
+
+def parameter_names(parameter_values):
+    names = []
+    for key, value in parameter_values.iteritems():
+        if isinstance(value, dict):
+            for inner_key in value.keys():
+                names.append(u'{}.{}'.format(key, inner_key))
+        else:
+            names.append(key)
+    
+    return names
+
+
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     query_parameters = set(collect_query_parameters(query_text))
-    missing_params = set(query_parameters) - set(parameter_values.keys())
+    missing_params = set(query_parameters) - set(parameter_names(parameter_values))
     if missing_params:
         return error_response('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
