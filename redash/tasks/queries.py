@@ -322,19 +322,22 @@ def cleanup_tasks():
             _unlock(tracker.query_hash, tracker.data_source_id)
             tracker.update(state='finished')
 
+    # Maintain constant size of the finished tasks list:
+    removed = 1000
+    while removed > 0:
+        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
+
     waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
     for tracker in waiting:
+        if tracker is None:
+            continue
+
         result = AsyncResult(tracker.task_id)
 
         if result.ready():
             logging.info("waiting tracker %s finished", tracker.query_hash)
             _unlock(tracker.query_hash, tracker.data_source_id)
             tracker.update(state='finished')
-
-    # Maintain constant size of the finished tasks list:
-    removed = 1000
-    while removed > 0:
-        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
 @celery.task(name="redash.tasks.cleanup_query_results")
