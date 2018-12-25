@@ -40,12 +40,35 @@ def sign(key, path, expires):
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id_with_identity):
     org = current_org._get_current_object()
+
+    '''
+    Users who logged in prior to https://github.com/getredash/redash/pull/3174 going live are going
+    to have their (integer) user_id as their session user identifier.
+    These session user identifiers will be updated the first time they visit any page so we add special
+    logic to allow a frictionless transition.
+    This logic will be removed 2-4 weeks after going live, and users who haven't
+    visited any page during that time will simply have to log in again.
+    '''
+
+    is_legacy_session_identifier = user_id_with_identity.find('-') < 0
+
+    if is_legacy_session_identifier:
+        user_id = user_id_with_identity
+    else:
+        user_id, _ = user_id_with_identity.split("-")
+
     try:
         user = models.User.get_by_id_and_org(user_id, org)
         if user.is_disabled:
             return None
+
+        if is_legacy_session_identifier:
+            login_user(user, remember=True)
+        elif user.get_id() != user_id_with_identity:
+            return None
+
         return user
     except models.NoResultFound:
         return None

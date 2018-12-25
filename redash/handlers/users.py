@@ -1,7 +1,8 @@
+import re
 import time
 from flask import request
 from flask_restful import abort
-from flask_login import current_user
+from flask_login import current_user, login_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
@@ -184,7 +185,7 @@ class UserResource(BaseResource):
 
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
-        
+
         if 'email' in params:
             _, domain = params['email'].split('@', 1)
 
@@ -194,6 +195,11 @@ class UserResource(BaseResource):
         try:
             self.update_model(user, params)
             models.db.session.commit()
+
+            # The user has updated their email or password. This should invalidate all _other_ sessions,
+            # forcing them to log in again. Since we don't want to force _this_ session to have to go
+            # through login again, we call `login_user` in order to update the session with the new identity details.
+            login_user(user, remember=True)
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."
