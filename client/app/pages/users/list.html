@@ -55,6 +55,9 @@
               <img ng-src="{{ user.profile_image_url }}" height="32px" class="profile__image--settings" />
               <a href="users/{{ user.id }}" ng-class="{'text-muted': user.is_disabled}">{{ user.name }}</a>
               <span class="text-muted"> ({{user.email}})</span>
+              <span class="user_list__user--invitation-pending" ng-if="user.is_invitation_pending">
+                  (Invitation Pending)
+              </span>
             </td>
             <td>
               <a ng-repeat="group in user.groups" class="label label-tag" href="groups/{{group.id}}">{{group.name}}</a>
