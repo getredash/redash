@@ -27,6 +27,8 @@ export const Field = PropTypes.shape({
 export const Action = PropTypes.shape({
   name: PropTypes.string.isRequired,
   callback: PropTypes.func.isRequired,
+  class: PropTypes.string,
+  disabledWhenDirty: PropTypes.bool,
 });
 
 export const AntdForm = PropTypes.shape({

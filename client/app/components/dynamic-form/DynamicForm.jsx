@@ -54,7 +54,7 @@ export class DynamicForm extends React.Component {
     };
 
     const options = {
-      rules: [{ required: field.required, message: `${fieldLabel} is required!` }],
+      rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
       valuePropName: getValuePropNameForType(type),
       initialValue,
     };
@@ -107,25 +107,18 @@ export class DynamicForm extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.directive('dynamicForm', () => ({
-    restrict: 'E',
-    transclude: true,
-    template: `
-      <dynamic-form-impl
-        fields="fields"
-      ></dynamic-form-impl>
-    `,
-    scope: {
-      target: '=',
-      type: '=',
-      actions: '=',
-    },
-    link($scope) {
-      $scope.fields = helper.getFields($scope.type.configuration_schema, $scope.target);
-    },
-  }));
+  ngModule.component('dynamicForm', react2angular((props) => {
+    const UpdatedDynamicForm = Form.create()(DynamicForm);
+    const fields = helper.getFields(props.type.configuration_schema, props.target);
 
-  ngModule.component('dynamicFormImpl', react2angular(Form.create()(DynamicForm), ['fields']));
+    const updatedProps = {
+      fields,
+      actions: props.actions,
+      onSubmit: props.target.$save,
+    };
+
+    return (<UpdatedDynamicForm {...updatedProps} />);
+  }, ['target', 'type', 'actions']));
 }
 
 init.init = true;
