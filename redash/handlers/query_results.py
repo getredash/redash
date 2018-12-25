@@ -104,9 +104,13 @@ def parameter_names(parameter_values):
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     query_parameters = set(collect_query_parameters(query_text))
+    print set(query_parameters)
+
     missing_params = set(query_parameters) - set(parameter_names(parameter_values))
+    print missing_params
     if missing_params:
-        return error_response('Missing parameter value for: {}'.format(", ".join(missing_params)))
+        print "hello"
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
 
     if data_source.paused:
         if data_source.pause_reason:
