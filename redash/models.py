@@ -474,6 +474,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'created_at': self.created_at,
             'disabled_at': self.disabled_at,
             'is_disabled': self.is_disabled,
+            'is_invitation_pending': self.is_invitation_pending
         }
 
         if self.password_hash is None:
@@ -502,6 +503,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         # TODO: this should be cached.
         return list(itertools.chain(*[g.permissions for g in
                                       Group.query.filter(Group.id.in_(self.group_ids))]))
+
+    @property
+    def is_invitation_pending(self):
+        return self.password_hash is None
 
     @classmethod
     def get_by_email_and_org(cls, email, org):
