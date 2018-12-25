@@ -78,9 +78,10 @@
           <div ng-if="currentUser.isAdmin">
             <br>
             <div class="form-group">
-              <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
+              <button class="btn btn-default" ng-if="!user.is_invitation_pending" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
                 Password Reset Email
               </button>
+              <button class="btn btn-default" ng-if="user.is_invitation_pending" ng-click="resendInvitation()" ng-disabled="disablePasswordResetButton">Resend Invitation</button>
             </div>
 
             <div ng-if="passwordResetLink" class="alert alert-success">
