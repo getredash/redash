@@ -40,10 +40,12 @@ function scheduleInLocalTime(schedule) {
 }
 
 function getAcceptableIntervals(refreshOptions) {
-  const acceptableIntervals = [{
-    name: IntervalEnum.NEVER,
-    time: null,
-  }];
+  const acceptableIntervals = [
+    {
+      name: IntervalEnum.NEVER,
+      time: null,
+    },
+  ];
   refreshOptions.forEach((seconds) => {
     const { count, interval } = secondsToInterval(seconds);
     if (count === 1) {
@@ -80,11 +82,12 @@ function intervalToSeconds(count, interval) {
 class ScheduleDialog extends React.Component {
   static propTypes = {
     show: PropTypes.bool.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
     query: PropTypes.object.isRequired,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateQuery: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -104,7 +107,7 @@ class ScheduleDialog extends React.Component {
     this.state = {
       hour: parts ? parts[0] : null,
       minute: parts ? parts[1] : null,
-      count: interval.count ? String(interval.count) : "1",
+      count: interval.count ? String(interval.count) : '1',
       interval: interval.interval || IntervalEnum.NEVER,
       dayOfWeek: dayOfWeek ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(dayOfWeek)] : null,
     };
@@ -114,20 +117,26 @@ class ScheduleDialog extends React.Component {
     return range(1, INTERVAL_OPTIONS_MAP[this.state.interval]);
   }
 
-  setKeep = e => this.props.updateQuery({ schedule_resultset_size: parseInt(e.target.value, 10) })
+  setKeep = e => this.props.updateQuery({ schedule_resultset_size: parseInt(e.target.value, 10) });
 
   setTime = (h, m) => {
     this.props.updateQuery({
       schedule: Object.assign({}, this.props.query.schedule, {
-        time: h && m ? moment().hour(h).minute(m).utc()
-          .format('HH:mm') : null,
+        time:
+          h && m
+            ? moment()
+              .hour(h)
+              .minute(m)
+              .utc()
+              .format('HH:mm')
+            : null,
       }),
     });
     this.setState({
       hour: h,
       minute: m,
     });
-  }
+  };
   setInterval = (e) => {
     const newInterval = e.target.value;
     const newSchedule = Object.assign({}, this.props.query.schedule);
@@ -141,8 +150,10 @@ class ScheduleDialog extends React.Component {
     if (newInterval !== IntervalEnum.WEEKS) {
       newSchedule.day_of_week = null;
     }
-    if ((newInterval === IntervalEnum.DAYS || newInterval === IntervalEnum.WEEKS) &&
-               (!this.state.minute || !this.state.hour)) {
+    if (
+      (newInterval === IntervalEnum.DAYS || newInterval === IntervalEnum.WEEKS) &&
+      (!this.state.minute || !this.state.hour)
+    ) {
       newSchedule.time = moment()
         .hour('00')
         .minute('15')
@@ -153,11 +164,11 @@ class ScheduleDialog extends React.Component {
       newSchedule.day_of_week = WEEKDAYS_FULL[0];
     }
 
-    const totalSeconds = newInterval ? intervalToSeconds(parseInt(this.state.count), newInterval) : null;
+    const totalSeconds = newInterval ? intervalToSeconds(parseInt(this.state.count, 10), newInterval) : null;
     const timeParts = newSchedule.time ? scheduleInLocalTime(newSchedule.time).split(':') : null;
     this.setState({
       interval: newInterval,
-      count: newInterval !== IntervalEnum.NEVER ? this.state.count : "1",
+      count: newInterval !== IntervalEnum.NEVER ? this.state.count : '1',
       hour: timeParts ? timeParts[0] : null,
       minute: timeParts ? timeParts[1] : null,
       dayOfWeek: newSchedule.day_of_week ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(newSchedule.day_of_week)] : null,
@@ -166,22 +177,22 @@ class ScheduleDialog extends React.Component {
     this.props.updateQuery({
       schedule: Object.assign(newSchedule, { interval: totalSeconds }),
     });
-  }
+  };
   setCount = (e) => {
     const newCount = e.target.value;
-    const totalSeconds = intervalToSeconds(parseInt(newCount), this.state.interval);
+    const totalSeconds = intervalToSeconds(parseInt(newCount, 10), this.state.interval);
     this.setState({ count: newCount });
 
     this.props.updateQuery({
       schedule: Object.assign({}, this.props.query.schedule, { interval: totalSeconds }),
     });
-  }
+  };
 
   setScheduleUntil = (momentDate, date) => {
     this.props.updateQuery({
       schedule: Object.assign({}, this.props.query.schedule, { until: date }),
     });
-  }
+  };
 
   setWeekday = (e) => {
     const dayOfWeek = e.target.value;
@@ -191,7 +202,7 @@ class ScheduleDialog extends React.Component {
         day_of_week: dayOfWeek ? WEEKDAYS_FULL[WEEKDAYS_SHORT.indexOf(dayOfWeek)] : null,
       }),
     });
-  }
+  };
 
   render() {
     const schedule = this.props.query.schedule;
@@ -204,28 +215,20 @@ class ScheduleDialog extends React.Component {
         className="schedule"
         visible={this.props.show}
         onCancel={this.props.onClose}
-        footer={[
-          null,
-          null,
-        ]}
+        footer={[null, null]}
       >
         <div className="schedule-component">
           <div>Refresh every</div>
-          {schedule.interval ?
-            <select
-              value={this.state.count}
-              onChange={this.setCount}
-            >
+          {schedule.interval ? (
+            <select value={this.state.count} onChange={this.setCount}>
               {this.getAcceptableCounts().map(count => (
                 <option value={String(count)} key={count}>
                   {String(count)}
                 </option>
               ))}
-            </select> : null}
-          <select
-            value={this.state.interval}
-            onChange={this.setInterval}
-          >
+            </select>
+          ) : null}
+          <select value={this.state.interval} onChange={this.setInterval}>
             {getAcceptableIntervals(this.props.refreshOptions).map(iv => (
               <option value={iv.name || ''} key={iv.name}>
                 {String(iv.name)}
@@ -233,23 +236,42 @@ class ScheduleDialog extends React.Component {
             ))}
           </select>
         </div>
-        {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(this.state.interval) !== -1 ?
+        {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(this.state.interval) !== -1 ? (
           <div className="schedule-component">
             <div>At the following time</div>
             <select value={this.state.hour} onChange={e => this.setTime(e.target.value, this.state.minute)}>
-              {hourOptions.map(h => <option key={h} value={h}>{h}</option>)}
+              {hourOptions.map(h => (
+                <option key={h} value={h}>
+                  {h}
+                </option>
+              ))}
             </select>
             <select value={this.state.minute} onChange={e => this.setTime(this.state.hour, e.target.value)}>
-              {minuteOptions.map(m => <option key={m} value={m}>{m}</option>)}
+              {minuteOptions.map(m => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
             </select>
-          </div> : null}
-        {IntervalEnum.WEEKS === this.state.interval ?
+          </div>
+        ) : null}
+        {IntervalEnum.WEEKS === this.state.interval ? (
           <div className="btn-toolbar schedule-component">
             <div className="btn-group" data-toggle="buttons">
-              {WEEKDAYS_SHORT.map(day => <button className={`btn btn-xs btn-default${this.state.dayOfWeek === day ? ' active' : ''}`} onClick={this.setWeekday} key={day} value={day}>{day}</button>)}
+              {WEEKDAYS_SHORT.map(day => (
+                <button
+                  className={`btn btn-xs btn-default${this.state.dayOfWeek === day ? ' active' : ''}`}
+                  onClick={this.setWeekday}
+                  key={day}
+                  value={day}
+                >
+                  {day}
+                </button>
+              ))}
             </div>
-          </div> : null}
-        {schedule.interval ?
+          </div>
+        ) : null}
+        {schedule.interval ? (
           <div className="schedule-component">
             <div>Stop refresh on:</div>
             <DatePicker
@@ -258,13 +280,15 @@ class ScheduleDialog extends React.Component {
               placeholder={schedule.until || 'Select Date'}
               onChange={this.setScheduleUntil}
             />
-          </div> : null}
+          </div>
+        ) : null}
       </Modal>
     );
   }
 }
 
-
 export default function init(ngModule) {
   ngModule.component('scheduleDialog', react2angular(ScheduleDialog));
 }
+
+init.init = true;
