@@ -125,6 +125,11 @@ class QueryEditor extends React.Component {
     editor.commands.bindKey('Cmd+L', null);
     editor.commands.bindKey('Ctrl+P', null);
     editor.commands.bindKey('Ctrl+L', null);
+            
+    // Ignore Ctrl+P to open new parameter dialog
+    editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
+    // Lineup only mac
+    editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
 
     // Reset Completer in case dot is pressed
     editor.commands.on('afterExec', (e) => {
@@ -194,7 +199,7 @@ class QueryEditor extends React.Component {
     const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery();
 
     return (
-      <section style={{ height: '100%' }}>
+      <section style={{ height: '100%' }} data-test="QueryEditor">
         <div className="container p-15 m-b-10" style={{ height: '100%' }}>
           <div style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
             <AceEditor
@@ -277,6 +282,7 @@ class QueryEditor extends React.Component {
                   className={'btn btn-primary m-l-5' + (isExecuteDisabled ? ' disabled' : '')}
                   disabled={isExecuteDisabled}
                   onClick={this.props.executeQuery}
+                  data-test="ExecuteButton"
                 >
                   <span className="zmdi zmdi-play" />
                   <span className="hidden-xs m-l-5">Execute</span>

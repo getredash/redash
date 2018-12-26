@@ -553,6 +553,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def has_access(self, obj, access_type):
         return AccessPermission.exists(obj, access_type, grantee=self)
 
+    def get_id(self):
+        identity = hashlib.md5("{0},{1}".format(self.email, self.password_hash)).hexdigest()
+        return u"{0}-{1}".format(self.id, identity)
+
 
 class Configuration(TypeDecorator):
     impl = db.Text
@@ -1308,7 +1312,8 @@ class Alert(TimestampMixin, db.Model):
 
     def evaluate(self):
         data = json_loads(self.query_rel.latest_query_data.data)
-        if data['rows']:
+
+        if data['rows'] and self.options['column'] in data['rows'][0]:
             value = data['rows'][0][self.options['column']]
             op = self.options['op']
 
