@@ -35,6 +35,8 @@ def apply_parameters(template, parameters, data_source):
             'timestamp': time.time(),
             'org_id': data_source.org_id
         })
+    except Exception as e:
+        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(query.query), e.message)
     finally:
         text = query.query
 
