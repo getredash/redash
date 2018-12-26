@@ -21,7 +21,13 @@ logger = logging.getLogger('authentication')
 
 def get_login_url(external=False, next="/"):
     if org_settings['aws_cognito_enabled']:
-        login_url = org_settings['aws_cognito_base_url'] + 'login?response_type=token&client_id=' + org_settings['auth_jwt_auth_audience'] + '&redirect_uri=' + settings.HOST + '/default'+ '/login'
+        login_url = org_settings['aws_cognito_base_url'] \
+                    + 'login?response_type=token&client_id=' \
+                    + org_settings['auth_jwt_auth_audience'] \
+                    + '&redirect_uri=' \
+                    + settings.HOST \
+                    + '/default' \
+                    + '/login'
     elif settings.MULTI_ORG and current_org == None:
         login_url = '/'
     elif settings.MULTI_ORG:
@@ -234,7 +240,15 @@ def logout_and_redirect_to_index():
     logout_user()
 
     if org_settings['aws_cognito_enabled']:
-        index_url = org_settings['aws_cognito_base_url'] + 'logout?response_type=token&client_id=' + org_settings['auth_jwt_auth_audience'] + '&redirect_uri=' + settings.HOST + '/default'+ '/login'
+        index_url = org_settings['aws_cognito_base_url'] \
+                    + 'logout?' \
+                    + 'response_type=token' \
+                    + '&client_id=' \
+                    + org_settings['auth_jwt_auth_audience'] \
+                    + '&redirect_uri=' \
+                    + settings.HOST \
+                    + '/default' \
+                    + '/login'
     elif settings.MULTI_ORG and current_org == None:
         index_url = '/'
     elif settings.MULTI_ORG:

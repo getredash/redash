@@ -21,7 +21,7 @@ def default_route():
     elif current_user.is_authenticated:
         return render_index()
     else:
-    	return redirect("/login/", code=302)
+        return redirect("/login/", code=302)
 
 
 @routes.route('/status.json')
