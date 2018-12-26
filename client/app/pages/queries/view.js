@@ -429,10 +429,11 @@ function QueryViewCtrl(
   const allowedIntervals = Policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.updateQueryMetadata = changes => $scope.$apply(() => {
-    $scope.query = Object.assign($scope.query, changes);
-    $scope.saveQuery();
-  });
+  $scope.updateQueryMetadata = changes =>
+    $scope.$apply(() => {
+      $scope.query = Object.assign($scope.query, changes);
+      $scope.saveQuery();
+    });
   $scope.showScheduleForm = false;
   $scope.openScheduleForm = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
@@ -441,7 +442,9 @@ function QueryViewCtrl(
     $scope.showScheduleForm = true;
   };
   $scope.closeScheduleForm = () => {
-    $scope.$apply(() => { $scope.showScheduleForm = false; });
+    $scope.$apply(() => {
+      $scope.showScheduleForm = false;
+    });
   };
 
   $scope.openAddToDashboardForm = (visId) => {
@@ -512,4 +515,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
