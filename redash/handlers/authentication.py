@@ -149,12 +149,12 @@ def logout(org_slug=None):
     logout_user()
     if org_settings['aws_cognito_enabled']:
         return redirect(org_settings['aws_cognito_base_url']
-                        + 'logout?response_type=token&client_id='
+                        + 'logout?response_type=token'
+                        + '&client_id='
                         + org_settings['auth_jwt_auth_audience']
                         + '&redirect_uri='
                         + settings.HOST
-                        + '/default'
-                        + '/login')
+                        + '/default/login')
     else:
         return redirect(get_login_url(next=None))
 
