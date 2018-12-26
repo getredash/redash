@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon } from 'antd';
+import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon, message } from 'antd';
 import { react2angular } from 'react2angular';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
@@ -34,7 +34,11 @@ export class DynamicForm extends React.Component {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        this.props.onSubmit(values);
+        this.props.onSubmit(
+          values,
+          message.success,
+          message.error,
+        );
       }
     });
   }
@@ -98,7 +102,7 @@ export class DynamicForm extends React.Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {this.renderFields()}
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" className="w-100">
           Save
         </Button>
       </Form>
@@ -111,10 +115,26 @@ export default function init(ngModule) {
     const UpdatedDynamicForm = Form.create()(DynamicForm);
     const fields = helper.getFields(props.type.configuration_schema, props.target);
 
+    const onSubmit = (values, onSuccess, onError) => {
+      helper.updateTargetWithValues(props.target, values);
+      props.target.$save(
+        () => {
+          onSuccess('Saved.');
+        },
+        (error) => {
+          if (error.status === 400 && 'message' in error.data) {
+            onError(error.data.message);
+          } else {
+            onError('Failed saving.');
+          }
+        },
+      );
+    };
+
     const updatedProps = {
       fields,
       actions: props.actions,
-      onSubmit: props.target.$save,
+      onSubmit,
     };
 
     return (<UpdatedDynamicForm {...updatedProps} />);

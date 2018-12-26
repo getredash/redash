@@ -74,11 +74,21 @@ function getFields(configurationSchema, target) {
   return inputs;
 }
 
+function updateTargetWithValues(target, values) {
+  target.name = values.name;
+  Object.keys(values).forEach((key) => {
+    if (key !== 'name') {
+      target.options[key] = values[key];
+    }
+  });
+}
+
 function toHuman(text) {
   return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
 export default {
   getFields,
+  updateTargetWithValues,
   toHuman,
 };
