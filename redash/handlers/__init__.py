@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, redirect
 from flask_login import login_required
 
 from redash.handlers.api import api
@@ -10,6 +10,10 @@ from redash.permissions import require_super_admin
 @routes.route('/ping', methods=['GET'])
 def ping():
     return 'PONG.'
+
+@routes.route('/', methods=['GET'])
+def default_route():
+    return redirect("/default/", code=302)
 
 
 @routes.route('/status.json')

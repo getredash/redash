@@ -4,9 +4,10 @@ import logging
 import time
 from urlparse import urlsplit, urlunsplit
 
-from flask import jsonify, redirect, request, url_for
+from flask import jsonify, redirect, request, url_for, g
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
+from redash.models import Organization
 from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.settings.organization import settings as org_settings
@@ -19,7 +20,9 @@ logger = logging.getLogger('authentication')
 
 
 def get_login_url(external=False, next="/"):
-    if settings.MULTI_ORG and current_org == None:
+    if org_settings['aws_cognito_enabled']:
+        login_url = org_settings['aws_cognito_base_url'] + 'login?response_type=token&client_id=' + org_settings['auth_jwt_auth_audience'] + '&redirect_uri=' + settings.HOST + '/default'+ '/login'
+    elif settings.MULTI_ORG and current_org == None:
         login_url = '/'
     elif settings.MULTI_ORG:
         login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
@@ -168,6 +171,8 @@ def jwt_token_load_user_from_request(request):
         jwt_token = request.cookies.get(org_settings['auth_jwt_auth_cookie_name'], None)
     elif org_settings['auth_jwt_auth_header_name']:
         jwt_token = request.headers.get(org_settings['auth_jwt_auth_header_name'], None)
+    elif org_settings['aws_cognito_enabled']:
+        jwt_token = request.args.get('id_token', None)
     else:
         return None
 
@@ -185,10 +190,16 @@ def jwt_token_load_user_from_request(request):
     if not payload:
         return
 
+    custom_org = Organization.get_by_slug(payload[org_settings['aws_cognito_org_attribute']])
+    g.org = custom_org
+
+    logging.debug("Current organization: %s (slug: %s)", custom_org, payload[org_settings['aws_cognito_org_attribute']])
+
     try:
-        user = models.User.get_by_email_and_org(payload['email'], org)
+        user = models.User.get_by_email_and_org(payload['email'], custom_org)
+        login_user(user, remember=True)
     except models.NoResultFound:
-        user = create_and_login_user(current_org, payload['email'], payload['email'])
+        user = create_and_login_user(custom_org, payload['email'], payload['email'])
 
     return user
 
@@ -222,7 +233,9 @@ def redirect_to_login():
 def logout_and_redirect_to_index():
     logout_user()
 
-    if settings.MULTI_ORG and current_org == None:
+    if org_settings['aws_cognito_enabled']:
+        index_url = org_settings['aws_cognito_base_url'] + 'logout?response_type=token&client_id=' + org_settings['auth_jwt_auth_audience'] + '&redirect_uri=' + settings.HOST + '/default'+ '/login'
+    elif settings.MULTI_ORG and current_org == None:
         index_url = '/'
     elif settings.MULTI_ORG:
         index_url = url_for('redash.index', org_slug=current_org.slug, _external=False)

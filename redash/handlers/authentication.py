@@ -4,6 +4,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
+from redash.settings.organization import settings as org_settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
@@ -59,6 +60,8 @@ def render_token_login_page(template, org_slug, token):
 
     return render_template(template,
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
+                           aws_cognito_enabled=org_settings['aws_cognito_enabled'],
+                           aws_cognito_org_attribute=org_settings['aws_cognito_org_attribute'],
                            google_auth_url=google_auth_url,
                            show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
@@ -133,6 +136,8 @@ def login(org_slug=None):
                            email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
+                           aws_cognito_enabled=org_settings['aws_cognito_enabled'],
+                           aws_cognito_org_attribute=org_settings['aws_cognito_org_attribute'],
                            show_password_login=current_org.get_setting('auth_password_login_enabled'),
                            show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
@@ -142,7 +147,10 @@ def login(org_slug=None):
 @routes.route(org_scoped_rule('/logout'))
 def logout(org_slug=None):
     logout_user()
-    return redirect(get_login_url(next=None))
+    if org_settings['aws_cognito_enabled']:
+        return redirect(org_settings['aws_cognito_base_url'] + 'logout?response_type=token&client_id=' + org_settings['auth_jwt_auth_audience'] + '&redirect_uri=' + settings.HOST + '/default'+ '/login')
+    else:
+        return redirect(get_login_url(next=None))
 
 
 def base_href():
