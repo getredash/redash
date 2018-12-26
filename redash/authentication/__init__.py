@@ -55,7 +55,7 @@ def load_user(user_id_with_identity):
     visited any page during that time will simply have to log in again.
     '''
 
-    is_legacy_session_identifier = user_id_with_identity.find('-') < 0
+    is_legacy_session_identifier = str(user_id_with_identity).find('-') < 0
 
     if is_legacy_session_identifier:
         user_id = user_id_with_identity
