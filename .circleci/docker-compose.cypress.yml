@@ -28,7 +28,7 @@ services:
   cypress:
     build:
       context: ../
-      dockerfile: Dockerfile.cypress
+      dockerfile: .circleci/Dockerfile.cypress
     depends_on:
       - server
       - worker
