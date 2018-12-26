@@ -10,9 +10,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask, record_event
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request,
-                          collect_query_parameters, gen_query_hash, json_dumps,
-                          utcnow)
+from redash.utils import (collect_parameters_from_request, find_missing_params, gen_query_hash, json_dumps, utcnow)
 from redash.utils.sql_query import SQLInjectionError, SQLQuery
 
 
@@ -48,8 +46,7 @@ def apply_parameters(template, parameters, data_source):
 #             on the client side. Please don't reuse in other API handlers.
 #
 def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    query_parameters = set(collect_query_parameters(query_text))
-    missing_params = set(query_parameters) - set(parameter_values.keys())
+    missing_params = find_missing_params(query_text, parameter_values)
     if missing_params:
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
@@ -90,22 +87,8 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def parameter_names(parameter_values):
-    names = []
-    for key, value in parameter_values.iteritems():
-        if isinstance(value, dict):
-            for inner_key in value.keys():
-                names.append(u'{}.{}'.format(key, inner_key))
-        else:
-            names.append(key)
-    
-    return names
-
-
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
-    query_parameters = set(collect_query_parameters(query_text))
-
-    missing_params = set(query_parameters) - set(parameter_names(parameter_values))
+    missing_params = find_missing_params(query_text, parameter_values)
     if missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
 
