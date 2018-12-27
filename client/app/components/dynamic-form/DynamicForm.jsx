@@ -30,16 +30,62 @@ export class DynamicForm extends React.Component {
     onSubmit: () => {},
   };
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isSubmitting: false,
+      inProgressActions: [],
+    };
+
+    this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
+      ...acc,
+      [cur.name]: cur.callback,
+    }), []);
+
+    props.actions.forEach((action) => {
+      this.state.inProgressActions[action.name] = false;
+    });
+  }
+
   handleSubmit = (e) => {
+    this.setState({ isSubmitting: true });
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.props.onSubmit(
           values,
-          message.success,
-          message.error,
+          (msg) => {
+            const { setFieldsValue, getFieldsValue } = this.props.form;
+            this.setState({ isSubmitting: false });
+            setFieldsValue(getFieldsValue()); // reset form touched state
+            message.success(msg);
+          },
+          (msg) => {
+            this.setState({ isSubmitting: false });
+            message.error(msg);
+          },
         );
-      }
+      } else this.setState({ isSubmitting: false });
+    });
+  }
+
+  handleAction = (e) => {
+    const actionName = e.target.dataset.action;
+
+    this.setState({
+      inProgressActions: {
+        ...this.state.inProgressActions,
+        [actionName]: true,
+      },
+    });
+    this.actionCallbacks[actionName](() => {
+      this.setState({
+        inProgressActions: {
+          ...this.state.inProgressActions,
+          [actionName]: false,
+        },
+      });
     });
   }
 
@@ -65,16 +111,14 @@ export class DynamicForm extends React.Component {
 
     const uploadButton = (<Button><Icon type="upload" /> Click to upload</Button>);
 
-    switch (type) {
-      case 'checkbox':
-        return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
-      case 'file':
-        return getFieldDecorator(name, options)(<Upload {...props}>{uploadButton}</Upload>);
-      case 'number':
-        return getFieldDecorator(name, options)(<InputNumber {...props} />);
-      default:
-        return getFieldDecorator(name, options)(<Input {...props} />);
+    if (type === 'checkbox') {
+      return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
+    } else if (type === 'file') {
+      return getFieldDecorator(name, options)(<Upload {...props}>{uploadButton}</Upload>);
+    } else if (type === 'number') {
+      return getFieldDecorator(name, options)(<InputNumber {...props} />);
     }
+    return getFieldDecorator(name, options)(<Input {...props} />);
   }
 
   renderFields() {
@@ -98,13 +142,39 @@ export class DynamicForm extends React.Component {
     });
   }
 
+  renderActions() {
+    return this.props.actions.map((action) => {
+      const inProgress = this.state.inProgressActions[action.name];
+
+      const actionProps = {
+        key: action.name,
+        htmlType: 'button',
+        className: `${action.class} m-t-10`,
+        disabled: inProgress || this.props.form.isFieldsTouched(),
+        loading: inProgress,
+        onClick: this.handleAction,
+      };
+
+      return (<Button {...actionProps} data-action={action.name}>{action.name}</Button>);
+    });
+  }
+
   render() {
+    const submitProps = {
+      type: 'primary',
+      htmlType: 'submit',
+      className: 'w-100',
+      disabled: this.state.isSubmitting,
+      loading: this.state.isSubmitting,
+    };
+
     return (
       <Form onSubmit={this.handleSubmit}>
         {this.renderFields()}
-        <Button type="primary" htmlType="submit" className="w-100">
+        <Button {...submitProps}>
           Save
         </Button>
+        {this.renderActions()}
       </Form>
     );
   }
@@ -133,7 +203,7 @@ export default function init(ngModule) {
 
     const updatedProps = {
       fields,
-      actions: props.actions,
+      actions: props.target.id ? props.actions : [],
       onSubmit,
     };
 

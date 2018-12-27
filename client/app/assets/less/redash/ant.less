@@ -43,6 +43,7 @@
   z-index: 1050;
 }
 
+// Make Ant labels more like Redash
 .ant-form-item-label label {
   color: inherit;
   white-space: initial;
@@ -50,6 +51,14 @@
   text-align: left;
 }
 
+// Fix for text becoming black on disabled buttons
+.btn-danger, .btn-primary, .btn-success, .btn-info {
+  &[disabled] {
+    color: @white !important;
+  }
+}
+
+// Remove green border from Ant inputs
 .has-success .ant-input,
 .has-success .ant-input:hover {
   border-color: @border-color-base !important;
