@@ -25,27 +25,6 @@ class TestBuildUrl(TestCase):
         self.assertEqual("http://example.com:443/test", build_url(DummyRequest("example.com:443", "http"), "example.com", "/test"))
 
 
-class TestCollectParametersFromQuery(TestCase):
-    def test_returns_empty_list_for_regular_query(self):
-        query = u"SELECT 1"
-        self.assertEqual([], collect_query_parameters(query))
-
-    def test_finds_all_params(self):
-        query = u"SELECT {{param}} FROM {{table}}"
-        params = ['param', 'table']
-        self.assertEqual(params, collect_query_parameters(query))
-
-    def test_deduplicates_params(self):
-        query = u"SELECT {{param}}, {{param}} FROM {{table}}"
-        params = ['param', 'table']
-        self.assertEqual(params, collect_query_parameters(query))
-
-    def test_handles_nested_params(self):
-        query = u"SELECT {{param}}, {{param}} FROM {{table}} -- {{#test}} {{nested_param}} {{/test}}"
-        params = ['param', 'table', 'test', 'nested_param']
-        self.assertEqual(params, collect_query_parameters(query))
-
-
 class TestCollectParametersFromRequest(TestCase):
     def test_ignores_non_prefixed_values(self):
         self.assertEqual({}, collect_parameters_from_request({'test': 1}))
