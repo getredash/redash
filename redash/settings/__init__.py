@@ -53,7 +53,9 @@ AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 INVITATION_TOKEN_MAX_AGE = int(os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7))
 
 # The secret key to use in the Flask app for various cryptographic features
-SECRET_KEY = os.environ.get('REDASH_SECRET_KEY', "c292a0a3aa32397cdb050e233733900f")
+SECRET_KEY = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
+# The secret key to use when encrypting data source options
+DATASOURCE_SECRET_KEY = os.environ.get('REDASH_SECRET_KEY', SECRET_KEY)
 
 # Whether and how to redirect non-HTTP requests to HTTPS. Disabled by default.
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
@@ -63,13 +65,21 @@ ENFORCE_HTTPS_PERMANENT = parse_boolean(
 ENFORCE_FILE_SAVE = parse_boolean(
     os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
 
-COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", SECRET_KEY)
+# Whether to use secure cookies by default.
+COOKIES_SECURE = parse_boolean(
+    os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
 # Whether the session cookie is set to secure.
 SESSION_COOKIE_SECURE = parse_boolean(
-    os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
+    os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE))
 # Whether the session cookie is set HttpOnly.
 SESSION_COOKIE_HTTPONLY = parse_boolean(
     os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true"))
+# Whether the session cookie is set to secure.
+REMEMBER_COOKIE_SECURE = parse_boolean(
+    os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE))
+# Whether the remember cookie is set HttpOnly.
+REMEMBER_COOKIE_HTTPONLY = parse_boolean(
+    os.environ.get("REDASH_REMEMBER_COOKIE_HTTPONLY", "true"))
 
 # Doesn't set X-Frame-Options by default since it's highly dependent
 # on the specific deployment.
@@ -88,8 +98,7 @@ HSTS_PRELOAD = parse_boolean(os.environ.get("REDASH_HSTS_PRELOAD", "false"))
 HSTS_MAX_AGE = int(
     os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
 HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
-    os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false")
-)
+    os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false"))
 
 # Whether and how to send Content-Security-Policy response headers.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
