@@ -62,6 +62,17 @@ class TestUserSearch(BaseTestCase):
         assert user in User.search(User.all(user.org), term=u'א')
 
 
+class TestUserRegenerateApiKey(BaseTestCase):
+    def test_regenerate_api_key(self):
+        user = self.factory.user
+        before_api_key = user.api_key
+        user.regenerate_api_key()
+
+        # check committed by research
+        user = User.query.get(user.id)
+        self.assertNotEquals(user.api_key, before_api_key)
+
+
 class TestUserDetail(BaseTestCase):
     # def setUp(self):
     #     super(TestUserDetail, self).setUp()
