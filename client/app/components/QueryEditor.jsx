@@ -125,7 +125,7 @@ class QueryEditor extends React.Component {
     editor.commands.bindKey('Cmd+L', null);
     editor.commands.bindKey('Ctrl+P', null);
     editor.commands.bindKey('Ctrl+L', null);
-            
+
     // Ignore Ctrl+P to open new parameter dialog
     editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
     // Lineup only mac
