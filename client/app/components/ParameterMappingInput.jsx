@@ -3,9 +3,11 @@
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select, { Option } from 'antd/lib/select';
+import Select from 'antd/lib/select';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
+
+const { Option } = Select;
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',

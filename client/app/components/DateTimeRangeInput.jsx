@@ -3,7 +3,9 @@ import { isArray } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { RangePicker } from 'antd/lib/date-picker';
+import DatePicker from 'antd/lib/date-picker';
+
+const { RangePicker } = DatePicker;
 
 export function DateTimeRangeInput({
   value,
