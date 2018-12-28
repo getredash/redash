@@ -3,7 +3,7 @@ import debug from 'debug';
 import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity, extend,
+  isNull, isUndefined, isArray, isObject, identity, extend, each,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values

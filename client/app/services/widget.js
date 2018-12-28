@@ -170,7 +170,8 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
 
     getParametersDefs() {
       const mappings = this.getParameterMappings();
-      const params = this.getQuery().getParametersDefs();
+      // textboxes does not have query
+      const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
 
       each(params, (param) => {
         param.mappingType = mappings[param.name].type;
@@ -204,7 +205,9 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       }
 
       const existingParams = {};
-      each(this.getQuery().getParametersDefs(), (param) => {
+      // textboxes does not have query
+      const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
+      each(params, (param) => {
         existingParams[param.name] = true;
         if (!isObject(this.options.parameterMappings[param.name])) {
           // "migration" for old dashboards: parameters with `global` flag
