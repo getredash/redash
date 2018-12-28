@@ -92,6 +92,8 @@ LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
 # For AD this should be "org\\user".
 LDAP_BIND_DN = os.environ.get('REDASH_LDAP_BIND_DN', None)
 LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
+# Allows dynamic Bind DN with entered in form username and password
+LDAP_BIND_DN_DYNAMIC = parse_boolean(os.environ.get('REDASH_LDAP_BIND_DN_DYNAMIC', 'false'))
 # AD/LDAP email and display name keys
 LDAP_DISPLAY_NAME_KEY = os.environ.get('REDASH_LDAP_DISPLAY_NAME_KEY', 'displayName')
 LDAP_EMAIL_KEY = os.environ.get('REDASH_LDAP_EMAIL_KEY', "mail")
