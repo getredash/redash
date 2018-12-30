@@ -11,7 +11,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
 from redash.tasks import QueryTask, record_event
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, find_missing_params, gen_query_hash, json_dumps, utcnow)
-from redash.utils.sql_query import SQLInjectionError, SQLQuery
+from redash.utils.sql_query import SQLInjectionError, ParameterizedSqlQuery
 
 
 def error_response(message):
@@ -19,7 +19,7 @@ def error_response(message):
 
 
 def apply_parameters(template, parameters, data_source):
-    query = SQLQuery(template).apply(parameters)
+    query = ParameterizedSqlQuery(template).apply(parameters)
 
     # for now we only log `SQLInjectionError` to detect false positives
     try:

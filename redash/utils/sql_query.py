@@ -44,7 +44,7 @@ def _same_type(a, b):
         return _equivalent_leaves(a, b)
 
 
-class SQLQuery(object):
+class ParameterizedSqlQuery(object):
     def __init__(self, template):
         self.template = template
         self.query = template
