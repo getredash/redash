@@ -43,12 +43,23 @@
   z-index: 1050;
 }
 
-// Make Ant labels more like Redash
+// Make Ant labels more Redash like
 .ant-form-item-label label {
   color: inherit;
   white-space: initial;
   line-height: initial;
   text-align: left;
+}
+
+// Fix ant input number showing duplicate arrows
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ant-input-number-input {
+  -moz-appearance: textfield;
 }
 
 // Fix for text becoming black on disabled buttons
