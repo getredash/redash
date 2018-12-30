@@ -76,6 +76,15 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 400)
         self.assertIn('job', rv.json)
 
+        rv = self.make_request('post', '/api/query_results',
+                               data={'data_source_id': self.factory.data_source.id,
+                                     'query': query,
+                                     'parameters': {'param': 1},
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
         rv = self.make_request('post', '/api/query_results?p_param=1',
                                data={'data_source_id': self.factory.data_source.id,
                                      'query': query,

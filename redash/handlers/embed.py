@@ -11,7 +11,7 @@ from redash import models, utils
 from redash.handlers import routes
 from redash.handlers.base import (get_object_or_404, org_scoped_rule,
                                   record_event)
-from redash.handlers.query_results import collect_query_parameters
+from redash.utils import find_missing_params
 from redash.handlers.static import render_index
 from redash.utils import gen_query_hash, mustache_render
 
@@ -23,13 +23,11 @@ from redash.utils import gen_query_hash, mustache_render
 #             on the client side. Please don't reuse in other API handlers.
 #
 def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    query_parameters = set(collect_query_parameters(query_text))
-    missing_params = set(query_parameters) - set(parameter_values.keys())
+    missing_params = find_missing_params(query_text, parameter_values)
     if missing_params:
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
-    if query_parameters:
-        query_text = mustache_render(query_text, parameter_values)
+    query_text = mustache_render(query_text, parameter_values)
 
     if max_age <= 0:
         query_result = None
