@@ -3,6 +3,7 @@ import requests
 
 from redash import settings
 from redash.utils import json_loads
+from redash.utils.parameterized_query import ParameterizedSqlQuery, ParameterizedQuery
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,13 @@ class BaseQueryRunner(object):
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
         return json_loads(results)['rows']
+
+    @property
+    def parameterized_query_class(self):
+        if self.syntax == 'sql':
+            return ParameterizedSqlQuery
+        else:
+            return ParameterizedQuery
 
     @classmethod
     def to_dict(cls):

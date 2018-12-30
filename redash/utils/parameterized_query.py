@@ -44,7 +44,7 @@ def _same_type(a, b):
         return _equivalent_leaves(a, b)
 
 
-class ParameterizedSqlQuery(object):
+class ParameterizedQuery(object):
     def __init__(self, template):
         self.template = template
         self.query = template
@@ -52,6 +52,15 @@ class ParameterizedSqlQuery(object):
     def apply(self, parameters):
         self.query = mustache_render(self.template, parameters)
         return self
+
+    @property
+    def text(self):
+        return self.query
+
+
+class ParameterizedSqlQuery(ParameterizedQuery):
+    def __init__(self, template):
+        ParameterizedQuery.__init__(self, template)
 
     def is_safe(self):
         template_tree = sqlparse.parse(_replace_params(self.template))
@@ -64,7 +73,7 @@ class ParameterizedSqlQuery(object):
         if not self.is_safe():
             raise SQLInjectionError()
         else:
-            return self.query
+            return super(ParameterizedSqlQuery, self).text
 
 
 class SQLInjectionError(Exception):
