@@ -87,8 +87,18 @@ function toHuman(text) {
   return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.substr(reader.result.indexOf(',') + 1));
+    reader.onerror = error => reject(error);
+  });
+}
+
 export default {
   getFields,
   updateTargetWithValues,
   toHuman,
+  getBase64,
 };

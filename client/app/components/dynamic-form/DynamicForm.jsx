@@ -1,20 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon, message } from 'antd';
+import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon } from 'antd';
 import { react2angular } from 'react2angular';
+import { toastr } from '@/services/toastr';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
-const getValuePropNameForType = (type) => {
-  switch (type) {
-    case 'checkbox':
-      return 'checked';
-    case 'file':
-      return 'fileList';
-    default:
-      return 'value';
-  }
-};
+const renderUpload = (props, disabled) => (
+  <Upload {...props} beforeUpload={() => false}>
+    <Button disabled={disabled}><Icon type="upload" /> Click to upload</Button>
+  </Upload>
+);
 
 export class DynamicForm extends React.Component {
   static propTypes = {
@@ -48,6 +44,15 @@ export class DynamicForm extends React.Component {
     });
   }
 
+  setActionInProgress = (actionName, inProgress) => {
+    this.setState({
+      inProgressActions: {
+        ...this.state.inProgressActions,
+        [actionName]: inProgress,
+      },
+    });
+  }
+
   handleSubmit = (e) => {
     this.setState({ isSubmitting: true });
     e.preventDefault();
@@ -59,11 +64,11 @@ export class DynamicForm extends React.Component {
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
             setFieldsValue(getFieldsValue()); // reset form touched state
-            message.success(msg);
+            toastr.success(msg);
           },
           (msg) => {
             this.setState({ isSubmitting: false });
-            message.error(msg);
+            toastr.error(msg);
           },
         );
       } else this.setState({ isSubmitting: false });
@@ -73,25 +78,23 @@ export class DynamicForm extends React.Component {
   handleAction = (e) => {
     const actionName = e.target.dataset.action;
 
-    this.setState({
-      inProgressActions: {
-        ...this.state.inProgressActions,
-        [actionName]: true,
-      },
-    });
+    this.setActionInProgress(actionName, true);
     this.actionCallbacks[actionName](() => {
-      this.setState({
-        inProgressActions: {
-          ...this.state.inProgressActions,
-          [actionName]: false,
-        },
-      });
+      this.setActionInProgress(actionName, false);
     });
+  }
+
+  base64File = (fieldName, e) => {
+    if (e && e.fileList[0]) {
+      helper.getBase64(e.file).then((value) => {
+        this.props.form.setFieldsValue({ [fieldName]: value });
+      });
+    }
   }
 
   renderField(field) {
     const [firstItem] = this.props.fields;
-    const { getFieldDecorator } = this.props.form;
+    const { getFieldDecorator, getFieldValue } = this.props.form;
     const { name, type, initialValue } = field;
     const fieldLabel = field.title || helper.toHuman(name);
 
@@ -101,20 +104,26 @@ export class DynamicForm extends React.Component {
       name,
       type,
       placeholder: field.placeholder,
+      'data-test': fieldLabel,
     };
 
     const options = {
       rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
-      valuePropName: getValuePropNameForType(type),
+      valuePropName: type === 'checkbox' ? 'checked' : 'value',
       initialValue,
     };
 
-    const uploadButton = (<Button><Icon type="upload" /> Click to upload</Button>);
+    const fileOptions = {
+      rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
+      initialValue,
+      getValueFromEvent: this.base64File.bind(this, name),
+    };
 
     if (type === 'checkbox') {
       return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
     } else if (type === 'file') {
-      return getFieldDecorator(name, options)(<Upload {...props}>{uploadButton}</Upload>);
+      const disabled = getFieldValue(name) !== undefined && getFieldValue(name) !== initialValue;
+      return getFieldDecorator(name, fileOptions)(renderUpload(props, disabled));
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
     }
