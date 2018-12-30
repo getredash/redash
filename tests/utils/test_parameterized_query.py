@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from redash.utils.sql_query import SQLInjectionError, ParameterizedSqlQuery
+from redash.utils.parameterized_query import SQLInjectionError, ParameterizedSqlQuery
 
 
 class TestSQLQuery(TestCase):
