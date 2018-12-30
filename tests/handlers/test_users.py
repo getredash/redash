@@ -2,7 +2,6 @@ from redash import models
 from tests import BaseTestCase
 from mock import patch
 
-
 class TestUserListResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin(self):
         rv = self.make_request('post', "/api/users")
@@ -193,6 +192,15 @@ class TestUserResourcePost(BaseTestCase):
 
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEquals(previous, current)
+
+    def test_admin_can_delete_user(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+
+        rv = self.make_request('delete', "/api/users/{}".format(other_user.id), user=admin_user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.User.query.get(other_user.id), None)
 
 
 class TestUserDisable(BaseTestCase):

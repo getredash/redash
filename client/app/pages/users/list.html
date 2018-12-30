@@ -68,7 +68,8 @@
             <td>
               <div ng-if="$ctrl.currentUser.hasPermission('admin') && (user.id != $ctrl.currentUser.id)">
                 <button type="button" class="btn btn-primary" ng-if="user.is_disabled" ng-click="$ctrl.enableUser(user)">Enable</button>
-                <button type="button" class="btn btn-default" ng-if="!user.is_disabled" ng-click="$ctrl.disableUser(user)">Disable</button>
+                <button type="button" class="btn btn-default" ng-if="!(user.is_invitation_pending || user.is_disabled)" ng-click="$ctrl.disableUser(user)">Disable</button>
+                <button type="button" class="btn btn-default" ng-if="user.is_invitation_pending" ng-click="$ctrl.deleteUser(user)">Delete</button>
               </div>
             </td>
           </tr>

@@ -217,6 +217,19 @@ class UserResource(BaseResource):
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
+    @require_admin
+    def delete(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        # admin cannot delete self; current user is an admin (`@require_admin`)
+        # so just check user id
+        if user.id == current_user.id:
+            abort(403, message="You cannot delete your own account. "
+                               "Please ask another admin to do this for you.")
+        models.db.session.delete(user)
+        models.db.session.commit()
+
+        return user.to_dict(with_api_key=is_admin_or_owner(user_id))
+
 
 class UserDisableResource(BaseResource):
     @require_admin
