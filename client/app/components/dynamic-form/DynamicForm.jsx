@@ -6,12 +6,6 @@ import { toastr } from '@/services/toastr';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
-const renderUpload = (props, disabled) => (
-  <Upload {...props} beforeUpload={() => false}>
-    <Button disabled={disabled}><Icon type="upload" /> Click to upload</Button>
-  </Upload>
-);
-
 export class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
@@ -92,20 +86,32 @@ export class DynamicForm extends React.Component {
     }
   }
 
-  renderField(field) {
-    const [firstItem] = this.props.fields;
+  renderUpload(field, props) {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { name, type, initialValue } = field;
+    const { name, initialValue, required } = field;
     const fieldLabel = field.title || helper.toHuman(name);
 
-    const props = {
-      autoFocus: (firstItem === field),
-      className: 'w-100',
-      name,
-      type,
-      placeholder: field.placeholder,
-      'data-test': fieldLabel,
+    const fileOptions = {
+      rules: [{ required, message: `${fieldLabel} is required.` }],
+      initialValue,
+      getValueFromEvent: this.base64File.bind(this, name),
     };
+
+    const disabled = getFieldValue(name) !== undefined && getFieldValue(name) !== initialValue;
+
+    const upload = (
+      <Upload {...props} beforeUpload={() => false}>
+        <Button disabled={disabled}><Icon type="upload" /> Click to upload</Button>
+      </Upload>
+    );
+
+    return getFieldDecorator(name, fileOptions)(upload);
+  }
+
+  renderField(field, props) {
+    const { getFieldDecorator } = this.props.form;
+    const { name, type, initialValue } = field;
+    const fieldLabel = field.title || helper.toHuman(name);
 
     const options = {
       rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
@@ -113,17 +119,10 @@ export class DynamicForm extends React.Component {
       initialValue,
     };
 
-    const fileOptions = {
-      rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
-      initialValue,
-      getValueFromEvent: this.base64File.bind(this, name),
-    };
-
     if (type === 'checkbox') {
       return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
     } else if (type === 'file') {
-      const disabled = getFieldValue(name) !== undefined && getFieldValue(name) !== initialValue;
-      return getFieldDecorator(name, fileOptions)(renderUpload(props, disabled));
+      return this.renderUpload(field, props);
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
     }
@@ -132,6 +131,7 @@ export class DynamicForm extends React.Component {
 
   renderFields() {
     return this.props.fields.map((field) => {
+      const [firstItem] = this.props.fields;
       const FormItem = Form.Item;
       const { name, title, type } = field;
       const fieldLabel = title || helper.toHuman(name);
@@ -143,11 +143,16 @@ export class DynamicForm extends React.Component {
         label: type === 'checkbox' ? '' : fieldLabel,
       };
 
-      return (
-        <FormItem {...formItemProps}>
-          {this.renderField(field)}
-        </FormItem>
-      );
+      const fieldProps = {
+        autoFocus: (firstItem === field),
+        className: 'w-100',
+        name,
+        type,
+        placeholder: field.placeholder,
+        'data-test': fieldLabel,
+      };
+
+      return (<FormItem {...formItemProps}>{this.renderField(field, fieldProps)}</FormItem>);
     });
   }
 
