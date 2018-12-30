@@ -44,9 +44,6 @@ const config = {
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
-    new webpack.DefinePlugin({
-      ON_TEST: process.env.NODE_ENV === "test"
-    }),
     // Enforce angular to use jQuery instead of jqLite
     new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
     // bundle only default `moment` locale (`en`)
