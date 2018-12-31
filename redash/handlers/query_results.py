@@ -18,30 +18,6 @@ def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
 
-def apply_parameters(template, parameters, data_source):
-    parameterized_query_class = data_source.query_runner.parameterized_query_class
-    query = parameterized_query_class(template).apply(parameters)
-
-    # for now we only log `SQLInjectionError` to detect false positives
-    try:
-        text = query.text
-    except SQLInjectionError:
-        record_event({
-            'action': 'sql_injection',
-            'object_type': 'query',
-            'query': template,
-            'parameters': parameters,
-            'timestamp': time.time(),
-            'org_id': data_source.org_id
-        })
-    except Exception as e:
-        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(query.query), e.message)
-    finally:
-        text = query.query
-
-    return text
-
-
 #
 # Run a parameterized query synchronously and return the result
 # DISCLAIMER: Temporary solution to support parameters in queries. Should be
@@ -49,52 +25,44 @@ def apply_parameters(template, parameters, data_source):
 #             on the client side. Please don't reuse in other API handlers.
 #
 def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+    parameterized_query_class = data_source.query_runner.parameterized_query_class
+    parameterized_query = parameterized_query_class(query_text).apply(parameter_values)
 
-    query_text = apply_parameters(query_text, parameter_values, data_source)
+    if parameterized_query.missing_params:
+        raise Exception('Missing parameter value for: {}'.format(", ".join(parameterized_query.missing_params)))
 
-    if max_age <= 0:
-        query_result = None
-    else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
-
+    query_text = parameterized_query.query
     query_hash = gen_query_hash(query_text)
 
-    if query_result:
+    if max_age:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
         logging.info("Returning cached result for query %s" % query_hash)
         return query_result
+    else:
+        try:
+            started_at = time.time()
+            data, error = data_source.query_runner.run_query(query_text, current_user)
 
-    try:
-        started_at = time.time()
-        data, error = data_source.query_runner.run_query(query_text, current_user)
+            if error:
+                logging.info('got bak error')
+                logging.info(error)
+                return None
 
-        if error:
-            logging.info('got bak error')
-            logging.info(error)
+            run_time = time.time() - started_at
+            query_result, _ = models.QueryResult.store_result(data_source.org_id, data_source, query_hash,
+                                                              query_text, data, run_time, utcnow())
+
+            models.db.session.commit()
+            return query_result
+        except Exception:
+            if max_age > 0:
+                abort(404, message="Unable to get result from the database, and no cached query result found.")
+            else:
+                abort(503, message="Unable to get result from the database.")
             return None
-
-        run_time = time.time() - started_at
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                              query_hash, query_text, data,
-                                                                              run_time, utcnow())
-
-        models.db.session.commit()
-        return query_result
-    except Exception as e:
-        if max_age > 0:
-            abort(404, message="Unable to get result from the database, and no cached query result found.")
-        else:
-            abort(503, message="Unable to get result from the database.")
-        return None
 
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
-
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -103,17 +71,37 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query_text = apply_parameters(query_text, parameter_values, data_source)
+    parameterized_query_class = data_source.query_runner.parameterized_query_class
+    parameterized_query = parameterized_query_class(query_text).apply(parameter_values)
 
-    if max_age == 0:
-        query_result = None
-    else:
+    if parameterized_query.missing_params:
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(parameterized_query.missing_params)))
+
+    # for now we only log `SQLInjectionError` to detect false positives
+    try:
+        query_text = parameterized_query.text
+    except SQLInjectionError:
+        record_event({
+            'action': 'sql_injection',
+            'object_type': 'query',
+            'query': query_text,
+            'parameters': parameter_values,
+            'timestamp': time.time(),
+            'org_id': data_source.org_id
+        })
+        query_text = parameterized_query.query
+    except Exception as e:
+        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(parameterized_query.query), e.message)
+        query_text = parameterized_query.query
+
+    if max_age:
         query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
-
-    if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(query_text, data_source, current_user.id, metadata={
+            "Username": current_user.email,
+            "Query ID": query_id
+        })
         return {'job': job.to_dict()}
 
 
