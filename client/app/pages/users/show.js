@@ -138,7 +138,7 @@ function UserCtrl(
           const message =
             response.message
               ? response.message
-              : `Cannot regenerate API Key ${response.statusText}`;
+              : `Failed regenerating API Key: ${response.statusText}`;
 
           toastr.error(message);
           $scope.disableRegenerateApiKeyButton = false;
