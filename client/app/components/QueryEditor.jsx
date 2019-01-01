@@ -108,7 +108,14 @@ class QueryEditor extends React.Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
-      return { keywords: [], liveAutocompleteDisabled: false };
+      return {
+        keywords: {
+          table: [],
+          column: [],
+          tableColumn: [],
+        },
+        liveAutocompleteDisabled: false,
+      };
     } else if (nextProps.schema !== prevState.schema) {
       const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
