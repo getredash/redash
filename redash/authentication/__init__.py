@@ -142,11 +142,13 @@ def get_user_from_api_key(api_key, query_id):
 def get_api_key_from_request(request):
     api_key = request.args.get('api_key', None)
 
-    if api_key is None and request.headers.get('Authorization'):
+    if api_key is not None:
+        return api_key
+
+    if request.headers.get('Authorization'):
         auth_header = request.headers.get('Authorization')
         api_key = auth_header.replace('Key ', '', 1)
-
-    if api_key is None and request.view_args.get('token'):
+    elif request.view_args is not None and request.view_args.get('token'):
         api_key = request.view_args['token']
 
     return api_key
@@ -154,8 +156,12 @@ def get_api_key_from_request(request):
 
 def api_key_load_user_from_request(request):
     api_key = get_api_key_from_request(request)
-    query_id = request.view_args.get('query_id', None)
-    user = get_user_from_api_key(api_key, query_id)
+    if request.view_args is not None: 
+        query_id = request.view_args.get('query_id', None)
+        user = get_user_from_api_key(api_key, query_id)
+    else:
+        user = None
+
     return user
 
 
