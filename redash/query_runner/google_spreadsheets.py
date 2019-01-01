@@ -147,6 +147,9 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(GoogleSpreadsheet, self).__init__(configuration)
+        self.syntax = 'custom'
 
     @classmethod
     def annotate_query(cls):
