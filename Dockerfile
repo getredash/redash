@@ -7,7 +7,7 @@ RUN npm install
 COPY . /frontend
 RUN npm run build
 
-FROM redash/base:latest
+FROM redash/base:debian
 
 # Controls whether to install extra dependencies needed for all data sources.
 ARG skip_ds_deps
