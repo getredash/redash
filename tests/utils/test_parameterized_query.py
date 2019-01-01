@@ -3,7 +3,7 @@ from unittest import TestCase
 from redash.utils.parameterized_query import SQLInjectionError, ParameterizedSqlQuery, ParameterizedQuery
 
 
-class TestSQLQuery(TestCase):
+class TestParameterizedQuery(TestCase):
     def test_serializes(self):
         query = ParameterizedSqlQuery("SELECT * FROM users WHERE userid='{{userid}}'").apply({
             "userid": 22

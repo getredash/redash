@@ -3,7 +3,7 @@ import re
 import sqlparse
 import pystache
 from redash.utils import mustache_render
-from funcy import import distinct
+from funcy import distinct
 
 
 def _replace_params(template):
@@ -80,9 +80,10 @@ class ParameterizedQuery(object):
     def __init__(self, template):
         self.template = template
         self.query = template
+        self.parameters = {}
 
     def apply(self, parameters):
-        self.parameters = parameters
+        self.parameters.update(parameters)
         self.query = mustache_render(self.template, self.parameters)
         return self
 

@@ -2,8 +2,7 @@ from collections import namedtuple
 from unittest import TestCase
 
 from redash.utils import (build_url, collect_parameters_from_request,
-                          find_missing_params, filter_none,
-                          json_dumps, generate_token)
+                          filter_none, json_dumps, generate_token)
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
