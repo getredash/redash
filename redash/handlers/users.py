@@ -155,8 +155,7 @@ class UserRegenerateApiKeyResource(BaseResource):
         if user.is_disabled:
             abort(404, message='Not found')
         if not is_admin_or_owner(user_id):
-            abort(403, message="You cannot regenerate API Key."
-                               "Please ask another admin to do this for you.")
+            abort(403)
 
         user.regenerate_api_key()
         models.db.session.commit()
