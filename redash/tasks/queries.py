@@ -240,9 +240,21 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id)
+                argsrepr = json_dumps({
+                    'org_id': data_source.org_id,
+                    'data_source_id': data_source.id,
+                    'enqueue_time': time.time(),
+                    'scheduled': scheduled_query_id is not None,
+                    'query_id': metadata.get('Query ID'),
+                    'user_id': user_id
+                })
+
+                result = execute_query.apply_async(args=args,
+                                                   argsrepr=argsrepr,
                                                    queue=queue_name,
                                                    time_limit=time_limit)
+
                 job = QueryTask(async_result=result)
                 tracker = QueryTaskTracker.create(
                     result.id, 'created', query_hash, data_source.id,
