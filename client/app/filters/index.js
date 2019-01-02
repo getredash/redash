@@ -27,6 +27,27 @@ export function secondsToInterval(seconds) {
   return { count, interval };
 }
 
+export function intervalToSeconds(count, interval) {
+  let intervalInSeconds = 0;
+  switch (interval) {
+    case IntervalEnum.MINUTES:
+      intervalInSeconds = 60;
+      break;
+    case IntervalEnum.HOURS:
+      intervalInSeconds = 3600;
+      break;
+    case IntervalEnum.DAYS:
+      intervalInSeconds = 86400;
+      break;
+    case IntervalEnum.WEEKS:
+      intervalInSeconds = 604800;
+      break;
+    default:
+      return null;
+  }
+  return intervalInSeconds * count;
+}
+
 export function durationHumanize(duration) {
   let humanized = '';
 
