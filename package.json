@@ -81,6 +81,7 @@
     "react-plotly.js": "^2.2.0",
     "react-refetch": "^1.0.4",
     "react-sortable-hoc": "^0.6.8",
+    "react-virtualized": "^9.21.0",
     "react2angular": "^3.2.1",
     "ui-select": "^0.19.8",
     "underscore.string": "^3.3.4"

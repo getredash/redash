@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
 import numberFormat from 'underscore.string/numberFormat';
-
+import { AutoSizer } from 'react-virtualized';
 import { QueryData } from '@/components/proptypes';
 
 function getRowNumber(index, size) {
@@ -67,16 +67,18 @@ export default class CounterRenderer extends React.Component {
     if (this.state.scale === null) this.rescale();
   }
 
+  scale = (height, width) => this.containerRef.current && (
+    Math.floor(Math.min(
+      height / this.containerRef.current.offsetHeight,
+      width / this.containerRef.current.offsetWidth,
+    ) * 100) / 100)
+
   rescale() {
     this.setState({
-      scale: Math.floor(Math.min(
-        this.rootRef.current.offsetHeight / this.containerRef.current.offsetHeight,
-        this.rootRef.current.offsetWidth / this.containerRef.current.offsetWidth,
-      ) * 100) / 100,
+      scale: this.scale(),
     });
   }
 
-  rootRef = React.createRef()
   containerRef = React.createRef()
 
   render() {
@@ -117,33 +119,37 @@ export default class CounterRenderer extends React.Component {
       );
       counter = `${opts.stringPrefix || ''}${counterFormatted}${opts.stringSuffix || ''}`;
     }
-    const scale = this.state.scale || 1;
     return (
-
       <div className="counter-renderer">
-        <div className={`counter ${trend}`} ref={this.rootRef}>
-          <div
-            ref={this.containerRef}
-            style={{
-              oTransform: `scale(${scale})`,
-              msTransform: `scale(${scale})`,
-              mozTransform: `scale(${scale})`,
-              webkitTransform: `scale(${scale})`,
-              transform: `scale(${scale})`,
-            }}
-          >
-            <div className="value">
-              {counter}
-            </div>
-            {targetValueStr ?
-              <div className="counter-target" title={targetValueStr}>
-                {targetValueStr}
-              </div> : null }
-            <div className="counter-name">
-              {this.props.name}
-            </div>
-          </div>
-        </div>
+        <AutoSizer>
+          {({ height, width }) => {
+            const scale = this.scale(height, width) || 1;
+            return (
+              <div className={`counter ${trend}`} style={{ height, width }}>
+                <div
+                  ref={this.containerRef}
+                  style={{
+                    oTransform: `scale(${scale})`,
+                    msTransform: `scale(${scale})`,
+                    mozTransform: `scale(${scale})`,
+                    webkitTransform: `scale(${scale})`,
+                    transform: `scale(${scale})`,
+                  }}
+                >
+                  <div className="value">
+                    {counter}
+                  </div>
+                  {targetValueStr ?
+                    <div className="counter-target" title={targetValueStr}>
+                      {targetValueStr}
+                    </div> : null }
+                  <div className="counter-name">
+                    {this.props.name}
+                  </div>
+                </div>
+              </div>);
+          }}
+        </AutoSizer>
       </div>);
   }
 }
