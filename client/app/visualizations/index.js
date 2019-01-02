@@ -12,7 +12,7 @@ function VisualizationProvider() {
   };
 }
 
-function VisualizationName(Visualization) {
+function VisualizationName() {
   return {
     restrict: 'E',
     scope: {
@@ -21,8 +21,8 @@ function VisualizationName(Visualization) {
     template: '{{name}}',
     replace: false,
     link(scope) {
-      if (Visualization.visualizations[scope.visualization.type]) {
-        const defaultName = Visualization.visualizations[scope.visualization.type].name;
+      if (visualizationRegistry[scope.visualization.type]) {
+        const defaultName = visualizationRegistry[scope.visualization.type].name;
         if (defaultName !== scope.visualization.name) {
           scope.name = scope.visualization.name;
         }
@@ -35,7 +35,7 @@ export default function init(ngModule) {
   ngModule.provider('Visualization', VisualizationProvider);
   ngModule.component('visualizationRenderer', react2angular(VisualizationRenderer, null, ['clientConfig']));
   ngModule.component('visualizationOptionsEditor', react2angular(VisualizationOptionsEditor, null, ['clientConfig']));
-  ngModule.component('visualizationName', VisualizationName);
+  ngModule.directive('visualizationName', VisualizationName);
   ngModule.component('editVisualizationDialog', EditVisualizationDialog);
 }
 
