@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import DatePicker from 'antd/lib/date-picker';
-import { range, padStart } from 'lodash';
+import { range, padStart, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, intervalToSeconds, IntervalEnum } from '@/filters';
 
@@ -46,17 +46,22 @@ class ScheduleDialog extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = this.initState;
+  }
 
-    const { time, interval: secs, day_of_week: day } = props.query.schedule;
+  get initState() {
+    const newSchedule = clone(this.props.query.schedule);
+    const { time, interval: secs, day_of_week: day } = newSchedule;
     const interval = secs ? secondsToInterval(secs) : {};
     const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
 
-    this.state = {
+    return {
       hour,
       minute,
       count: interval.count ? String(interval.count) : '1',
       interval: interval.interval || IntervalEnum.NEVER,
       dayOfWeek: day ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(day)] : null,
+      newSchedule,
     };
   }
 
@@ -82,8 +87,8 @@ class ScheduleDialog extends React.Component {
   }
 
   set newSchedule(newProps) {
-    this.props.updateQuery({
-      schedule: Object.assign({}, this.props.query.schedule, newProps),
+    this.setState({
+      newSchedule: Object.assign(this.state.newSchedule, newProps),
     });
   }
 
@@ -107,7 +112,7 @@ class ScheduleDialog extends React.Component {
 
   setInterval = (e) => {
     const newInterval = e.target.value;
-    const newSchedule = Object.assign({}, this.props.query.schedule);
+    const { newSchedule } = this.state;
 
     // resets to defaults
     if (newInterval === IntervalEnum.NEVER) {
@@ -173,6 +178,20 @@ class ScheduleDialog extends React.Component {
     };
   };
 
+  save() {
+    // save if changed
+    if (!isEqual(this.state.newSchedule, this.props.query.schedule)) {
+      this.props.updateQuery({ schedule: clone(this.state.newSchedule) });
+    }
+    this.props.onClose();
+  }
+
+  cancel() {
+    // reset changes
+    this.setState(this.initState);
+    this.props.onClose();
+  }
+
   render() {
     const {
       interval, minute, hour, until, count,
@@ -183,8 +202,8 @@ class ScheduleDialog extends React.Component {
         title="Refresh Schedule"
         className="schedule"
         visible={this.props.show}
-        onCancel={this.props.onClose}
-        footer={null}
+        onCancel={() => this.cancel()}
+        onOk={() => this.save()}
       >
         <div className="schedule-component">
           <div>Refresh every</div>
