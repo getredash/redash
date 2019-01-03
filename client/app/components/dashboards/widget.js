@@ -51,7 +51,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, currentUser, Widget) {
+function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -95,7 +95,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
     if (!this.localParameters) {
       this.localParameters = filter(
         this.widget.getParametersDefs(),
-        param => param.mappingType !== Widget.MappingType.StaticValue,
+        param => !this.widget.isStaticParam(param),
       );
     }
     return this.localParameters;

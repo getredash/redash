@@ -168,17 +168,16 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       return $http.delete(url);
     }
 
+    isStaticParam(param) {
+      const mappings = this.getParameterMappings();
+      const mappingType = mappings[param.name].type;
+      return mappingType === Widget.MappingType.StaticValue;
+    }
+
     getParametersDefs() {
       const mappings = this.getParameterMappings();
       // textboxes does not have query
       const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
-
-      each(params, (param) => {
-        param.mappingType = mappings[param.name].type;
-        if (mappings[param.name].type === Widget.MappingType.StaticValue) {
-          param.setValue(mappings[param.name].value);
-        }
-      });
 
       const queryParams = $location.search();
 
@@ -189,11 +188,16 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       return map(
         filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
         (param) => {
+          const mapping = mappings[param.name];
           const result = param.clone();
-          result.title = mappings[param.name].title || param.title;
+          result.title = mapping.title || param.title;
           result.locals = [param];
           result.urlPrefix = `w${this.id}_`;
-          result.fromUrlParams(queryParams);
+          if (mapping.type === Widget.MappingType.StaticValue) {
+            result.setValue(mapping.value);
+          } else {
+            result.fromUrlParams(queryParams);
+          }
           return result;
         },
       );
