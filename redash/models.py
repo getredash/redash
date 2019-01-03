@@ -290,6 +290,12 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
     def is_api_user(self):
         return True
+    
+    @property
+    def org_id(self):
+        if not self.org:
+            return None
+        return self.org.id
 
     @property
     def permissions(self):
