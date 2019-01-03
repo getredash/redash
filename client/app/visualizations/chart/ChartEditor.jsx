@@ -526,16 +526,17 @@ export default class ChartEditor extends React.Component {
               <div className="m-t-10 m-b-10">
                 {this.yAxisPanel('Left', 0)}
                 {this.yAxisPanel('Right', 1)}
-                <div className="checkbox">
-                  <label>
-                    <input
-                      type="checkbox"
-                      onChange={this.toggleSortY}
-                      checked={opts.sortY || false}
-                    />
-                    <i className="input-helper" /> Sort Values
-                  </label>
-                </div>
+                {opts.globalSeriesType === 'heatmap' ?
+                  <div className="checkbox">
+                    <label>
+                      <input
+                        type="checkbox"
+                        onChange={this.toggleSortY}
+                        checked={opts.sortY || false}
+                      />
+                      <i className="input-helper" /> Sort Values
+                    </label>
+                  </div> : null}
                 <div className="checkbox">
                   <label>
                     <input
