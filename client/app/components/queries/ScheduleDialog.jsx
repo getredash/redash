@@ -1,7 +1,10 @@
 import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, DatePicker, Select, Radio } from 'antd';
+import Modal from 'antd/lib/modal';
+import DatePicker from 'antd/lib/date-picker';
+import Select from 'antd/lib/select';
+import Radio from 'antd/lib/radio';
 import { range, padStart, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, intervalToSeconds, IntervalEnum } from '@/filters';
