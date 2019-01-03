@@ -108,7 +108,14 @@ class QueryEditor extends React.Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
-      return { keywords: [], liveAutocompleteDisabled: false };
+      return {
+        keywords: {
+          table: [],
+          column: [],
+          tableColumn: [],
+        },
+        liveAutocompleteDisabled: false,
+      };
     } else if (nextProps.schema !== prevState.schema) {
       const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
@@ -125,7 +132,7 @@ class QueryEditor extends React.Component {
     editor.commands.bindKey('Cmd+L', null);
     editor.commands.bindKey('Ctrl+P', null);
     editor.commands.bindKey('Ctrl+L', null);
-            
+
     // Ignore Ctrl+P to open new parameter dialog
     editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
     // Lineup only mac
