@@ -24,3 +24,11 @@
 .schedule-component datepicker {
   display: block;
 }
+
+.schedule-phrase {
+  display: inline-block;
+}
+
+a.schedule-phrase {
+  cursor: pointer;
+}
