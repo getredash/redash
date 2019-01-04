@@ -43,6 +43,7 @@ module.exports = {
       ignoreRegExpLiterals: true,
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
-    }]
+    }],
+    "object-curly-newline": ["error", {"consistent": true}]
   }
 };
