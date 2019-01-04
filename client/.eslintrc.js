@@ -44,6 +44,7 @@ module.exports = {
       ignoreStrings: true,
       ignoreTemplateLiterals: true,
     }],
+    "no-else-return": ["error", {"allowElseIf": true}],
     "object-curly-newline": ["error", {"consistent": true}]
   }
 };
