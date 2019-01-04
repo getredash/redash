@@ -3,7 +3,7 @@ engines:
     enabled: true
   eslint:
     enabled: true
-    channel: "eslint-3"
+    channel: "eslint-5"
     config:
       config: client/.eslintrc.js
     checks:
@@ -19,4 +19,3 @@ exclude_paths:
 - old_migrations/**/*.py
 - setup/**/*
 - bin/**/*
-
