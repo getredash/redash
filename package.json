@@ -11,6 +11,7 @@
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
+    "lint": "eslint --config ./client/.eslintrc.js ./client/app",
     "test": "TZ=Asia/Jerusalem jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress @percy/cypress",
