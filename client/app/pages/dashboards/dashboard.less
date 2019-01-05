@@ -17,6 +17,10 @@
     overflow: visible;
   }
 
+  visualization-renderer > .counter-renderer {
+    overflow: hidden;
+  }
+
   &.preview-mode {
     .widget-menu-regular {
       display: block;
@@ -53,6 +57,10 @@
         flex-grow: 1;
         position: relative;
       }
+      .counter-renderer {
+        flex-grow: 0;
+        position: static;
+      }
     }
 
     .sunburst-visualization-container,
@@ -69,14 +77,13 @@
       overflow: hidden;
     }
 
-    counter {
+    .counter {
       position: absolute;
       left: 10px;
       top: 15px;
       right: 10px;
       bottom: 15px;
       height: auto;
-      overflow: hidden;
       padding: 0;
     }
   }

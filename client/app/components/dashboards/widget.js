@@ -1,3 +1,4 @@
+import { onResize } from '@/directives/resize-event';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
@@ -119,7 +120,7 @@ function DashboardWidgetCtrl($element, $location, $uibModal, $window, Events, cu
   } else {
     this.type = 'textbox';
   }
-  this.listenForResize = f => $element.parent().parent().on('resize', f);
+  this.listenForResize = f => onResize($element.parent().parent()[0], f);
 }
 
 export default function init(ngModule) {
