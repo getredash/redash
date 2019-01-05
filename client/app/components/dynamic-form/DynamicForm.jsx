@@ -183,7 +183,7 @@ export class DynamicForm extends React.Component {
     };
 
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <Form layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
         <Button {...submitProps}>
           Save
