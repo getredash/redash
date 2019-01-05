@@ -38,7 +38,7 @@ function mapRenderer() {
       const mapControls = L.control.layers().addTo(map);
       const layers = {};
       const tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
       function getBounds() {
@@ -307,3 +307,6 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;
+

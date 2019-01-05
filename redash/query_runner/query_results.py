@@ -20,6 +20,10 @@ class PermissionError(Exception):
     pass
 
 
+class CreateTableError(Exception):
+    pass
+
+
 def _guess_type(value):
     if value == '' or value is None:
         return TYPE_STRING
@@ -66,18 +70,18 @@ def _load_query(user, query_id):
 
 
 def get_query_results(user, query_id, bring_from_cache):
-        query = _load_query(user, query_id)
-        if bring_from_cache:
-            if query.latest_query_data_id is not None:
-                results = query.latest_query_data.data
-            else:
-                raise Exception("No cached result available for query {}.".format(query.id))
+    query = _load_query(user, query_id)
+    if bring_from_cache:
+        if query.latest_query_data_id is not None:
+            results = query.latest_query_data.data
         else:
-            results, error = query.data_source.query_runner.run_query(query.query_text, user)
-            if error:
-                raise Exception("Failed loading results for query id {}.".format(query.id))
+            raise Exception("No cached result available for query {}.".format(query.id))
+    else:
+        results, error = query.data_source.query_runner.run_query(query.query_text, user)
+        if error:
+            raise Exception("Failed loading results for query id {}.".format(query.id))
 
-        return json_loads(results)
+    return json_loads(results)
 
 
 def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
@@ -93,19 +97,22 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
 
 
 def fix_column_name(name):
-    return name.replace(':', '_').replace('.', '_').replace(' ', '_')
+    return u'"{}"'.format(name.replace(':', '_').replace('.', '_').replace(' ', '_'))
 
 
 def create_table(connection, table_name, query_results):
-    columns = [column['name']
-               for column in query_results['columns']]
-    safe_columns = [fix_column_name(column) for column in columns]
+    try:
+        columns = [column['name']
+                   for column in query_results['columns']]
+        safe_columns = [fix_column_name(column) for column in columns]
 
-    column_list = ", ".join(safe_columns)
-    create_table = u"CREATE TABLE {table_name} ({column_list})".format(
-        table_name=table_name, column_list=column_list)
-    logger.debug("CREATE TABLE query: %s", create_table)
-    connection.execute(create_table)
+        column_list = ", ".join(safe_columns)
+        create_table = u"CREATE TABLE {table_name} ({column_list})".format(
+            table_name=table_name, column_list=column_list)
+        logger.debug("CREATE TABLE query: %s", create_table)
+        connection.execute(create_table)
+    except sqlite3.OperationalError as exc:
+        raise CreateTableError(u"Error creating table {}: {}".format(table_name, exc.message))
 
     insert_template = u"insert into {table_name} ({column_list}) values ({place_holders})".format(
         table_name=table_name,
@@ -134,7 +141,7 @@ class Results(BaseQueryRunner):
 
     @classmethod
     def name(cls):
-        return "Query Results (Beta)"
+        return "Query Results"
 
     def run_query(self, query, user):
         connection = sqlite3.connect(':memory:')

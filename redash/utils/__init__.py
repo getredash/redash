@@ -1,6 +1,6 @@
+import codecs
 import cStringIO
 import csv
-import codecs
 import datetime
 import decimal
 import hashlib
@@ -8,16 +8,18 @@ import os
 import random
 import re
 import uuid
+import binascii
+
+from six import string_types
 
 import pystache
 import pytz
 import simplejson
 from funcy import distinct, select_values
-from six import string_types
+from redash import settings
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
-from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
@@ -81,6 +83,8 @@ class JSONEncoder(simplejson.JSONEncoder):
             return str(o)
         elif isinstance(o, (datetime.date, datetime.time)):
             return o.isoformat()
+        elif isinstance(o, buffer):
+            return binascii.hexlify(o)
         else:
             return super(JSONEncoder, self).default(o)
 
@@ -96,6 +100,11 @@ def json_dumps(data, *args, **kwargs):
     simplejson.dumps function."""
     kwargs.setdefault('cls', JSONEncoder)
     return simplejson.dumps(data, *args, **kwargs)
+
+
+def mustache_render(template, context=None, **kwargs):
+    renderer = pystache.Renderer(escape=lambda u: u)
+    return renderer.render(template, context, **kwargs)
 
 
 def build_url(request, host, path):
@@ -160,6 +169,23 @@ def collect_query_parameters(query):
     nodes = pystache.parse(query)
     keys = _collect_key_names(nodes)
     return keys
+
+
+def parameter_names(parameter_values):
+    names = []
+    for key, value in parameter_values.iteritems():
+        if isinstance(value, dict):
+            for inner_key in value.keys():
+                names.append(u'{}.{}'.format(key, inner_key))
+        else:
+            names.append(key)
+
+    return names
+
+
+def find_missing_params(query_text, parameter_values):
+    query_parameters = set(collect_query_parameters(query_text))
+    return set(query_parameters) - set(parameter_names(parameter_values))
 
 
 def collect_parameters_from_request(args):

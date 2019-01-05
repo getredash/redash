@@ -71,17 +71,19 @@ function AuthService($window, $location, $q, $http) {
       if (Auth.isAuthenticated()) {
         return $q.when(getLocalSessionData());
       }
-      return Auth.loadSession().then(() => {
-        if (Auth.isAuthenticated()) {
-          logger('Loaded session');
-          return getLocalSessionData();
-        }
-        logger('Need to login, redirecting');
-        this.login();
-      }).catch(() => {
-        logger('Need to login, redirecting');
-        this.login();
-      });
+      return Auth.loadSession()
+        .then(() => {
+          if (Auth.isAuthenticated()) {
+            logger('Loaded session');
+            return getLocalSessionData();
+          }
+          logger('Need to login, redirecting');
+          this.login();
+        })
+        .catch(() => {
+          logger('Need to login, redirecting');
+          this.login();
+        });
     },
   };
 
@@ -94,7 +96,7 @@ function CurrentUserService() {
 
   this.canEdit = (object) => {
     const userId = object.user_id || (object.user && object.user.id);
-    return this.hasPermission('admin') || (userId && (userId === this.id));
+    return this.hasPermission('admin') || (userId && userId === this.id);
   };
 
   this.hasPermission = permission => this.permissions.indexOf(permission) !== -1;
@@ -130,3 +132,6 @@ export default function init(ngModule) {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
   });
 }
+
+init.init = true;
+

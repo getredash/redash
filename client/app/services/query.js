@@ -2,9 +2,11 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has,
+  isNull, isUndefined, isArray, isObject, identity, extend,
 } from 'lodash';
+
+Mustache.escape = identity; // do not html-escape values
 
 const logger = debug('redash:services:query');
 
@@ -414,7 +416,7 @@ function QueryResource(
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
-    let queryText = this.query;
+    const queryText = this.query;
 
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
@@ -436,8 +438,6 @@ function QueryResource(
     }
 
     if (parameters.isRequired()) {
-      queryText = Mustache.render(queryText, parameters.getValues());
-
       // Need to clear latest results, to make sure we don't use results for different params.
       this.latest_query_data = null;
       this.latest_query_data_id = null;
@@ -454,7 +454,7 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
+      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
@@ -469,20 +469,13 @@ function QueryResource(
       url += '/source';
     }
 
-    let params = '';
+    let params = {};
     if (this.getParameters().isRequired()) {
-      each(this.getParameters().getValues(), (value, name) => {
-        if (value === null) {
-          return;
-        }
-
-        if (params !== '') {
-          params += '&';
-        }
-
-        params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+      this.getParametersDefs().forEach((param) => {
+        extend(params, param.toUrlParams());
       });
     }
+    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
       url += `?${params}`;
@@ -518,3 +511,6 @@ export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
 }
+
+init.init = true;
+

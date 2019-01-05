@@ -36,3 +36,6 @@ function queryResultLink() {
 export default function init(ngModule) {
   ngModule.directive('queryResultLink', queryResultLink);
 }
+
+init.init = true;
+

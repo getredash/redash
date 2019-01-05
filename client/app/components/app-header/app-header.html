@@ -86,7 +86,7 @@
           <!--<a href="users" title="Settings"><i class="fa fa-cog"></i></a>-->
         <!--</li>-->
         <li class="dropdown" uib-dropdown>
-          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
+          <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle data-test="ProfileDropdown">
             <img ng-src="{{ $ctrl.currentUser.profile_image_url }}" class="profile__image--navbar" width="20"/>
             <span class="dropdown--profile__username" ng-bind="$ctrl.currentUser.name"></span> <span
             class="caret caret--nav"></span></a>

@@ -11,10 +11,11 @@ const ErrorMessagesComponent = {
     input: '<',
     form: '<',
   },
-  controller() {
-  },
+  controller() {},
 };
 
 export default function init(ngModule) {
   ngModule.component('errorMessages', ErrorMessagesComponent);
 }
+
+init.init = true;

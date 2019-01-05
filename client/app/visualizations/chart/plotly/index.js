@@ -5,6 +5,7 @@ import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
+import heatmap from 'plotly.js/lib/heatmap';
 
 import {
   ColorPalette,
@@ -15,7 +16,7 @@ import {
   normalizeValue,
 } from './utils';
 
-Plotly.register([bar, pie, histogram, box]);
+Plotly.register([bar, pie, histogram, box, heatmap]);
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
 });
@@ -45,7 +46,9 @@ const PlotlyChart = () => ({
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
 
       // It will auto-purge previous graph
-      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
+      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions).then(() => {
+        updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+      });
 
       plotlyElement.on('plotly_restyle', (updates) => {
         // This event is triggered if some plotly data/layout has changed.
@@ -135,3 +138,6 @@ export default function init(ngModule) {
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
+
+init.init = true;
+

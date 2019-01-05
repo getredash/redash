@@ -43,7 +43,7 @@ def parse_ga_response(response):
         })
 
     rows = []
-    for r in response['rows']:
+    for r in response.get('rows', []):
         d = {}
         for c, value in enumerate(r):
             column_name = response['columnHeaders'][c]['name']

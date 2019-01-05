@@ -5,7 +5,7 @@ import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25];
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DISPLAY_AS_OPTIONS = [
   { name: 'Text', value: 'string' },
@@ -18,7 +18,7 @@ const DISPLAY_AS_OPTIONS = [
 ];
 
 const DEFAULT_OPTIONS = {
-  itemsPerPage: 15,
+  itemsPerPage: 25,
   autoHeight: true,
   defaultRows: 14,
   defaultColumns: 3,
@@ -231,3 +231,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

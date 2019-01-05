@@ -16,7 +16,7 @@ Today **_Redash_** has support for querying multiple databases, including: Redsh
 
 **_Redash_** consists of two parts:
 
-1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it. Also it's possible to fork it and generate new datasets and reach new insights.
+1. **Query Editor**: think of [JS Fiddle](https://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it. Also it's possible to fork it and generate new datasets and reach new insights.
 2. **Visualizations and Dashboards**: once you have a dataset, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently Redash supports charts, pivot table, cohorts and [more](https://redash.io/help/user-guide/visualizations/visualization-types).
 
 <img src="https://raw.githubusercontent.com/getredash/website/8e820cd02c73a8ddf4f946a9d293c54fd3fb08b9/website/_assets/images/redash-anim.gif" width="80%"/>
@@ -28,13 +28,12 @@ Today **_Redash_** has support for querying multiple databases, including: Redsh
 
 ## Supported Data Sources
 
-Redash supports more than 25 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
+Redash supports more than 35 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
 
 ## Getting Help
 
 * Issues: https://github.com/getredash/redash/issues
 * Discussion Forum: https://discuss.redash.io/
-* Slack: http://slack.redash.io/
 
 ## Reporting Bugs and Contributing Code
 

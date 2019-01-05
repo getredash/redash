@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import getTags from '@/services/getTags';
 import { durationHumanize } from '@/filters';
-import { getTags } from '@/services/tags';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
@@ -245,6 +245,7 @@ function DashboardCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
+        owner: this.dashboard.user,
       },
     });
   };
@@ -273,22 +274,26 @@ function DashboardCtrl(
     }
   };
 
-  this.loadTags = () => getTags('api/dashboards/tags');
+  this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
 
-  this.saveName = (name) => {
-    this.dashboard.name = name;
+  const updateDashboard = (data) => {
+    _.extend(this.dashboard, data);
+    data = _.extend({}, data, {
+      slug: this.dashboard.id,
+      version: this.dashboard.version,
+    });
     Dashboard.save(
-      { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
+      data,
       (dashboard) => {
-        this.dashboard = dashboard;
+        _.extend(this.dashboard, _.pick(dashboard, _.keys(data)));
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          toastr.error('Dashboard update failed: Permission Denied.');
         } else if (error.status === 409) {
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
+            'Please copy/backup your changes and reload this page.',
             { autoDismiss: false },
           );
         }
@@ -296,25 +301,12 @@ function DashboardCtrl(
     );
   };
 
-  this.saveTags = () => {
-    Dashboard.save(
-      { slug: this.dashboard.id, version: this.dashboard.version, tags: this.dashboard.tags },
-      (dashboard) => {
-        this.dashboard.tags = dashboard.tags;
-        this.dashboard.version = dashboard.version;
-      },
-      (error) => {
-        if (error.status === 403) {
-          toastr.error('Tags update failed: Permission denied.');
-        } else if (error.status === 409) {
-          toastr.error(
-            'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
-          );
-        }
-      },
-    );
+  this.saveName = (name) => {
+    updateDashboard({ name });
+  };
+
+  this.saveTags = (tags) => {
+    updateDashboard({ tags });
   };
 
   this.updateDashboardFiltersState = () => {
@@ -471,3 +463,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

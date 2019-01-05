@@ -6,3 +6,6 @@ function AlertSubscription($resource) {
 export default function init(ngModule) {
   ngModule.factory('AlertSubscription', AlertSubscription);
 }
+
+init.init = true;
+

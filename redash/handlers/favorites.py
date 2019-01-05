@@ -20,8 +20,10 @@ class QueryFavoriteListResource(BaseResource):
 
         favorites = filter_by_tags(favorites, models.Query.tags)
 
-        # order results according to passed order parameter
-        ordered_favorites = order_results(favorites)
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_favorites = order_results(favorites, fallback=bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

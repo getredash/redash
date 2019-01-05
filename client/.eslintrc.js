@@ -1,11 +1,14 @@
 module.exports = {
   root: true,
-  extends: "airbnb",
+  extends: ["airbnb", "plugin:jest/recommended"],
+  plugins: ["jest", "cypress"],
   settings: {
     "import/resolver": "webpack"
   },
   parser: "babel-eslint",
   env: {
+    "jest/globals": true,
+    "cypress/globals": true,
     "browser": true,
     "node": true
   },

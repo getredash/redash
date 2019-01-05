@@ -57,7 +57,7 @@
               <span class="text-muted"> ({{user.email}})</span>
             </td>
             <td>
-              <a ng-repeat="group in user.groups" class="label label-default" href="groups/{{group.id}}">{{group.name}}</a>
+              <a ng-repeat="group in user.groups" class="label label-tag" href="groups/{{group.id}}">{{group.name}}</a>
             </td>
             <td>
               <span am-time-ago="user.created_at"></span>
