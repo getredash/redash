@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, InputNumber, Checkbox, Button, Upload, Icon } from 'antd';
+import Form from 'antd/lib/form';
+import Input from 'antd/lib/input';
+import InputNumber from 'antd/lib/input-number';
+import Checkbox from 'antd/lib/checkbox';
+import Button from 'antd/lib/button';
+import Upload from 'antd/lib/upload';
+import Icon from 'antd/lib/icon';
 import { react2angular } from 'react2angular';
 import { toastr } from '@/services/toastr';
 import { Field, Action, AntdForm } from '../proptypes';
@@ -31,7 +37,7 @@ export class DynamicForm extends React.Component {
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
       ...acc,
       [cur.name]: cur.callback,
-    }), []);
+    }), null);
 
     props.actions.forEach((action) => {
       this.state.inProgressActions[action.name] = false;
