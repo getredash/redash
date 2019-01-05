@@ -3,7 +3,7 @@ engines:
     enabled: true
   eslint:
     enabled: true
-    channel: "eslint-5"
+    channel: "eslint-4"
     config:
       config: client/.eslintrc.js
     checks:
