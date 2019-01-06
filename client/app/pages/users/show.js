@@ -4,7 +4,6 @@ import { absoluteUrl } from '@/services/utils';
 import template from './show.html';
 import './settings.less';
 
-const regenerateConfirm = { class: 'btn-warning', title: 'Regenerate' };
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
   clientConfig, currentUser, User, AlertDialog,
@@ -148,7 +147,8 @@ function UserCtrl(
     const title = 'Regenerate API Key';
     const message = 'Are you sure you want to regenerate?';
 
-    AlertDialog.open(title, message, regenerateConfirm).then(doRegenerate);
+    AlertDialog.open(title, message, { class: 'btn-warning', title: 'Regenerate' })
+      .then(doRegenerate);
   };
 }
 
