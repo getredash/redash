@@ -167,12 +167,14 @@ export class DynamicForm extends React.Component {
   renderActions() {
     return this.props.actions.map((action) => {
       const inProgress = this.state.inProgressActions[action.name];
+      const { isFieldsTouched } = this.props.form;
 
       const actionProps = {
         key: action.name,
         htmlType: 'button',
-        className: `${action.class} m-t-10`,
-        disabled: inProgress || this.props.form.isFieldsTouched(),
+        className: action.pullRight ? 'pull-right m-t-10' : 'm-t-10',
+        type: action.type,
+        disabled: inProgress || (isFieldsTouched() && action.disableWhenDirty),
         loading: inProgress,
         onClick: this.handleAction,
       };

@@ -28,7 +28,7 @@ function DestinationCtrl(
     $scope.destination = new Destination({ options: {} });
   };
 
-  $scope.delete = () => {
+  function deleteDestination(callback) {
     const doDelete = () => {
       $scope.destination.$delete(() => {
         toastrSuccessAndPath('Destination', 'destinations', toastr, $location);
@@ -40,8 +40,12 @@ function DestinationCtrl(
     const title = 'Delete Destination';
     const message = `Are you sure you want to delete the "${$scope.destination.name}" destination?`;
 
-    AlertDialog.open(title, message, deleteConfirm).then(doDelete);
-  };
+    AlertDialog.open(title, message, deleteConfirm).then(doDelete, callback);
+  }
+
+  $scope.actions = [
+    { name: 'Delete', type: 'danger', callback: deleteDestination },
+  ];
 }
 
 export default function init(ngModule) {
