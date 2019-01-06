@@ -1,5 +1,5 @@
 .schedule {
-  width: 300px !important;
+  width: 449px !important;
   margin: 0 auto;
 }
 
@@ -7,7 +7,20 @@
   padding: 5px 0px;
 }
 
-.schedule-component > div {
-  padding-right: 5px;
-  float: left;
+.schedule-component > * {
+  display: inline-block;
+}
+
+.schedule-component h5 {
+  margin-right: 10px;
+  width: 87px;
+  text-align: right;
+}
+
+.schedule-component > div > *:not(:last-child) {
+  margin-right: 3px;
+}
+
+.schedule-component datepicker {
+  display: block;
 }
