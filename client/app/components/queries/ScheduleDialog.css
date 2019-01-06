@@ -1,0 +1,13 @@
+.schedule {
+  width: 300px !important;
+  margin: 0 auto;
+}
+
+.schedule-component {
+  padding: 5px 0px;
+}
+
+.schedule-component > div {
+  padding-right: 5px;
+  float: left;
+}
