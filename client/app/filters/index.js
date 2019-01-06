@@ -1,6 +1,32 @@
 import moment from 'moment';
 import { capitalize as _capitalize, isEmpty } from 'lodash';
 
+export const IntervalEnum = {
+  NEVER: 'Never',
+  MINUTES: 'minute(s)',
+  HOURS: 'hour(s)',
+  DAYS: 'day(s)',
+  WEEKS: 'week(s)',
+};
+
+export function secondsToInterval(seconds) {
+  let interval = IntervalEnum.MINUTES;
+  let count = seconds / 60;
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.HOURS;
+  }
+  if (count >= 24 && interval === IntervalEnum.HOURS) {
+    count /= 24;
+    interval = IntervalEnum.DAYS;
+  }
+  if (count >= 7 && interval === IntervalEnum.DAYS) {
+    count /= 7;
+    interval = IntervalEnum.WEEKS;
+  }
+  return { count, interval };
+}
+
 export function durationHumanize(duration) {
   let humanized = '';
 
@@ -27,21 +53,26 @@ export function durationHumanize(duration) {
 }
 
 export function scheduleHumanize(schedule) {
-  if (schedule === null) {
+  if (!schedule.interval) {
     return 'Never';
-  } else if (schedule.match(/\d\d:\d\d/) !== null) {
-    const parts = schedule.split(':');
-    const localTime = moment
-      .utc()
+  }
+  const { count, interval } = secondsToInterval(schedule.interval);
+  let scheduleString = `Every ${count} ${interval} `;
+
+  if (schedule.time) {
+    const parts = schedule.time.split(':');
+    const localTime = moment.utc()
       .hour(parts[0])
       .minute(parts[1])
       .local()
       .format('HH:mm');
-
-    return `Every day at ${localTime}`;
+    scheduleString += `at ${localTime} `;
   }
 
-  return `Every ${durationHumanize(parseInt(schedule, 10))}`;
+  if (schedule.day_of_week) {
+    scheduleString += `on ${schedule.day_of_week}`;
+  }
+  return scheduleString;
 }
 
 export function toHuman(text) {
