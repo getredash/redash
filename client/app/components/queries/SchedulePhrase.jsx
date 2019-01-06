@@ -19,8 +19,8 @@ class SchedulePhrase extends React.Component {
   };
 
   get content() {
-    const { isNew, schedule: { interval: seconds } } = this.props;
-    if (!seconds || isNew) {
+    const { interval: seconds } = this.props.schedule;
+    if (!seconds) {
       return ['Never'];
     }
     const { count, interval } = secondsToInterval(seconds);
@@ -39,6 +39,10 @@ class SchedulePhrase extends React.Component {
   }
 
   render() {
+    if (this.props.isNew) {
+      return 'Never';
+    }
+
     const [short, full] = this.content;
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
 
