@@ -34,7 +34,7 @@
           <td>{{row.runtime | durationHumanize}}</td>
           <td>{{row.retrieved_at | dateTime}}</td>
           <td>{{row.created_at | dateTime }}</td>
-          <td>{{row.schedule | scheduleHumanize}}</td>
+          <td><schedule-phrase schedule="row.schedule" is-new="row.isNew()" /></td>
         </tr>
         </tbody>
       </table>
