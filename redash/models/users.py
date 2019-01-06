@@ -428,11 +428,17 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         self.group_ids = groups
         self.org = org
 
-    def __str__(self):
-        return self.name
+    def __repr__(self):
+        return u"<{}>".format(self.name)
 
     def is_api_user(self):
         return True
+
+    @property
+    def org_id(self):
+        if not self.org:
+            return None
+        return self.org.id
 
     @property
     def permissions(self):
