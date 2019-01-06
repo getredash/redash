@@ -3,7 +3,8 @@
 
   <div ng-show="selectedTab == 'profile'">
     <div class="row">
-      <div class="col-md-4 col-md-offset-4 profile__container">
+      <user-show ng-if="!(currentUser.isAdmin || currentUser.id == user.id)" name="user.name" email="user.email" profile-image-url="user.profile_image_url"></user-show>
+      <div class="col-md-4 col-md-offset-4 profile__container" ng-if="(currentUser.isAdmin || currentUser.id == user.id)">
 
         <img ng-src="{{ user.profile_image_url }}" class="profile__image" width="40">
 
