@@ -3,9 +3,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import DatePicker from 'antd/lib/date-picker';
+import TimePicker from 'antd/lib/time-picker';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
-import { range, padStart, clone, isEqual } from 'lodash';
+import { range, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, intervalToSeconds, IntervalEnum } from '@/filters';
 
@@ -21,8 +22,6 @@ const INTERVAL_OPTIONS_MAP = {
   [IntervalEnum.WEEKS]: 5,
 };
 
-const HOUR_OPTIONS = range(0, 24).map(x => padStart(x, 2, '0')); // [00, 01, 02, ..]
-const MINUTE_OPTIONS = range(0, 60, 5).map(x => padStart(x, 2, '0')); // [00, 05, 10, ..]
 const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const Option = Select.Option;
@@ -96,22 +95,10 @@ class ScheduleDialog extends React.Component {
     });
   }
 
-  setTime = (h, m) => {
+  setTime = (time) => {
     this.newSchedule = {
-      time:
-        h && m
-          ? moment()
-            .hour(h)
-            .minute(m)
-            .utc()
-            .format(HOUR_FORMAT)
-          : null,
+      time: moment(time).utc().format(HOUR_FORMAT),
     };
-
-    this.setState({
-      hour: h,
-      minute: m,
-    });
   };
 
   setInterval = (newInterval) => {
@@ -203,8 +190,9 @@ class ScheduleDialog extends React.Component {
     const {
       interval, minute, hour, count, newSchedule: { until },
     } = this.state;
+    const fixZIndex = { getPopupContainer: () => this.modalRef.current };
     const selectProps = {
-      getPopupContainer: () => this.modalRef.current,
+      ...fixZIndex,
       className: 'input',
       dropdownMatchSelectWidth: false,
     };
@@ -238,24 +226,14 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On time</h5>
             <div>
-              <Select
-                value={hour}
-                onChange={value => this.setTime(value, minute)}
-                {...selectProps}
-              >
-                {HOUR_OPTIONS.map(h => (
-                  <Option key={h} value={h}>{h}</Option>
-                ))}
-              </Select>
-              <Select
-                value={minute}
-                onChange={value => this.setTime(hour, value)}
-                {...selectProps}
-              >
-                {MINUTE_OPTIONS.map(m => (
-                  <Option key={m} value={m}>{m}</Option>
-                ))}
-              </Select>
+              <TimePicker
+                allowEmpty={false}
+                defaultValue={moment().hour(hour).minute(minute)}
+                format={HOUR_FORMAT}
+                minuteStep={5}
+                onChange={this.setTime}
+                {...fixZIndex}
+              />
             </div>
           </div>
         ) : null}
