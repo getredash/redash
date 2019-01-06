@@ -184,8 +184,8 @@ function QueryViewCtrl(
 
     $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
-      const url = newQuery.getSourceLink();
-      $window.open(url, tabName);
+      const queryUrl = newQuery.getUrl(true);
+      $window.open(queryUrl, tabName);
     });
   };
 
