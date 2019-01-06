@@ -24,7 +24,6 @@ pytz==2016.7
 PyYAML==3.12
 redis==3.0.1
 walrus==0.7.1
-requests==2.11.1
 requests==2.21.0
 six==1.11.0
 SQLAlchemy==1.2.12
@@ -34,7 +33,7 @@ sqlparse==0.2.4
 statsd==2.1.2
 gunicorn==19.7.1
 celery==4.2.1
-kombu==4.2.2
+kombu==4.2.2.post1
 jsonschema==2.4.0
 RestrictedPython==3.6.0
 pysaml2==4.5.0
