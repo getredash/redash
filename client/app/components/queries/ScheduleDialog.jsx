@@ -8,7 +8,7 @@ import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
 import { range, clone, isEqual } from 'lodash';
 import moment from 'moment';
-import { secondsToInterval, intervalToSeconds, IntervalEnum } from '@/filters';
+import { secondsToInterval, intervalToSeconds, IntervalEnum, localizeTime } from '@/filters';
 
 import './ScheduleDialog.css';
 
@@ -25,16 +25,6 @@ const INTERVAL_OPTIONS_MAP = {
 const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const Option = Select.Option;
-
-function localizeTime(time) {
-  const [hrs, mins] = time.split(':');
-  return moment
-    .utc()
-    .hour(hrs)
-    .minute(mins)
-    .local()
-    .format(HOUR_FORMAT);
-}
 
 class ScheduleDialog extends React.Component {
   static propTypes = {

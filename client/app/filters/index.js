@@ -9,6 +9,16 @@ export const IntervalEnum = {
   WEEKS: 'week(s)',
 };
 
+export function localizeTime(time) {
+  const [hrs, mins] = time.split(':');
+  return moment
+    .utc()
+    .hour(hrs)
+    .minute(mins)
+    .local()
+    .format('HH:mm');
+}
+
 export function secondsToInterval(seconds) {
   let interval = IntervalEnum.MINUTES;
   let count = seconds / 60;
@@ -71,29 +81,6 @@ export function durationHumanize(duration) {
     humanized = `${minutes} minutes`;
   }
   return humanized;
-}
-
-export function scheduleHumanize(schedule) {
-  if (!schedule.interval) {
-    return 'Never';
-  }
-  const { count, interval } = secondsToInterval(schedule.interval);
-  let scheduleString = `Every ${count} ${interval} `;
-
-  if (schedule.time) {
-    const parts = schedule.time.split(':');
-    const localTime = moment.utc()
-      .hour(parts[0])
-      .minute(parts[1])
-      .local()
-      .format('HH:mm');
-    scheduleString += `at ${localTime} `;
-  }
-
-  if (schedule.day_of_week) {
-    scheduleString += `on ${schedule.day_of_week}`;
-  }
-  return scheduleString;
 }
 
 export function toHuman(text) {
