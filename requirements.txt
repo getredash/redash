@@ -23,7 +23,7 @@ python-dateutil==2.4.2
 pytz==2016.7
 PyYAML==3.12
 redis==2.10.5
-requests==2.11.1
+requests==2.21.0
 six==1.11.0
 SQLAlchemy==1.2.7
 SQLAlchemy-Searchable==0.10.6

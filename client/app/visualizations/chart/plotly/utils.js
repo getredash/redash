@@ -429,9 +429,9 @@ function prepareChartData(seriesList, options) {
     // Sort by x - `Map` preserves order of items
     const data = sortX ? sortBy(series.data, d => normalizeValue(d.x)) : series.data;
 
-    // For bubble charts `y` may be any (similar to `x`) - numeric is only bubble size;
+    // For bubble/scatter charts `y` may be any (similar to `x`) - numeric is only bubble size;
     // for other types `y` is always number
-    const cleanYValue = seriesOptions.type === 'bubble' ? normalizeValue : cleanNumber;
+    const cleanYValue = includes(['bubble', 'scatter'], seriesOptions.type) ? normalizeValue : cleanNumber;
 
     const sourceData = new Map();
     const xValues = [];
@@ -639,7 +639,7 @@ function updateSeriesText(seriesList, options) {
       };
       const item = series.sourceData.get(x);
       if (item) {
-        text['@@y'] = seriesOptions.type === 'bubble' ? item.y : series.formatNumber(item.y);
+        text['@@y'] = includes(['bubble', 'scatter'], seriesOptions.type) ? item.y : series.formatNumber(item.y);
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
         }
