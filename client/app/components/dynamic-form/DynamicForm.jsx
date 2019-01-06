@@ -16,6 +16,7 @@ export class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
+    feedbackIcons: PropTypes.bool,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
   };
@@ -23,6 +24,7 @@ export class DynamicForm extends React.Component {
   static defaultProps = {
     fields: [],
     actions: [],
+    feedbackIcons: false,
     onSubmit: () => {},
   };
 
@@ -145,7 +147,7 @@ export class DynamicForm extends React.Component {
       const formItemProps = {
         key: name,
         className: 'm-b-10',
-        hasFeedback: false,
+        hasFeedback: type !== 'checkbox' && type !== 'file' && this.props.feedbackIcons,
         label: type === 'checkbox' ? '' : fieldLabel,
       };
 
@@ -224,6 +226,7 @@ export default function init(ngModule) {
     const updatedProps = {
       fields,
       actions: props.target.id ? props.actions : [],
+      feedbackIcons: true,
       onSubmit,
     };
 
