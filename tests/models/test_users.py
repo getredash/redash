@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from tests import BaseTestCase, authenticated_user
 
+from redash import redis_connection
 from redash.models import User, db
 from redash.utils import dt_from_timestamp
 from redash.models.users import sync_last_active_at, update_user_active_at, LAST_ACTIVE_KEY
@@ -87,10 +88,10 @@ class TestUserDetail(BaseTestCase):
 
     def test_sync(self):
         with authenticated_user(self.client) as user:
-            update_user_active_at(self.app)
+            rv = self.client.get('/default/')
             timestamp = dt_from_timestamp(redis_connection.hget(LAST_ACTIVE_KEY, user.id))
             sync_last_active_at()
 
-            user_reloaded = models.User.query.filter_by(id=user.id).first()
+            user_reloaded = User.query.filter(User.id==user.id).first()
             self.assertIn('active_at', user_reloaded.details)
             self.assertEqual(user_reloaded.active_at, timestamp)
