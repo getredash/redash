@@ -56,6 +56,7 @@ class TestInvitePost(BaseTestCase):
         self.assertEqual(response.status_code, 302)
         user = User.query.get(self.factory.user.id)
         self.assertTrue(user.verify_password(password))
+        self.assertFalse(user.is_invitation_pending)
 
 
 class TestLogin(BaseTestCase):
