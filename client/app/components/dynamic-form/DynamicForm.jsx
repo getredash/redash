@@ -231,7 +231,6 @@ export default function init(ngModule) {
       feedbackIcons: true,
       onSubmit,
     };
-
     return (<UpdatedDynamicForm {...updatedProps} />);
   }, ['target', 'type', 'actions']));
 }
