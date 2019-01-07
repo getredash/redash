@@ -105,7 +105,7 @@ def hmac_load_user_from_request(request):
                 return user
 
         if query_id:
-            query = models.db.session.query(models.Query).filter(models.Query.id == query_id).one()
+            query = models.Query.query.filter(models.Query.id == query_id).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
@@ -238,7 +238,7 @@ def logout_and_redirect_to_index():
     return redirect(index_url)
 
 
-def setup_authentication(app):
+def init_app(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
     login_manager.init_app(app)
