@@ -27,6 +27,10 @@ celery_schedule = {
     'refresh_schemas': {
         'task': 'redash.tasks.refresh_schemas',
         'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)
+    },
+    'sync_user_details': {
+        'task': 'redash.tasks.sync_user_details',
+        'schedule': timedelta(minutes=1),
     }
 }
 

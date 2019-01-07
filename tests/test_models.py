@@ -1,15 +1,15 @@
 #encoding: utf8
 import calendar
 import datetime
-import json
 from unittest import TestCase
 
-import mock
+import pytz
+import walrus
 from dateutil.parser import parse as date_parse
-from tests import BaseTestCase
+from tests import BaseTestCase, authenticated_user
 
-from redash import models
-from redash.models import db
+from redash import models, redis_connection
+from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
 
 
@@ -282,9 +282,6 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
 
 class QueryArchiveTest(BaseTestCase):
-    def setUp(self):
-        super(QueryArchiveTest, self).setUp()
-
     def test_archive_query_sets_flag(self):
         query = self.factory.create_query()
         db.session.flush()
@@ -315,7 +312,7 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Widget).get(widget.id), None)
+        self.assertEqual(models.Widget.query.get(widget.id), None)
 
     def test_removes_scheduling(self):
         query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
@@ -330,19 +327,19 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Alert).get(subscription.alert.id), None)
-        self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
+        self.assertEqual(models.Alert.query.get(subscription.alert.id), None)
+        self.assertEqual(models.AlertSubscription.query.get(subscription.id), None)
 
 
 class TestUnusedQueryResults(BaseTestCase):
     def test_returns_only_unused_query_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         qr = self.factory.create_query_result()
-        query = self.factory.create_query(latest_query_data=qr)
+        self.factory.create_query(latest_query_data=qr)
         db.session.flush()
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((qr.id,), list(models.QueryResult.unused()))
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(qr, list(models.QueryResult.unused()))
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
@@ -350,8 +347,8 @@ class TestUnusedQueryResults(BaseTestCase):
         db.session.flush()
         new_unused_qr = self.factory.create_query_result()
 
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((new_unused_qr.id,), models.QueryResult.unused())
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(new_unused_qr, list(models.QueryResult.unused()))
 
 
 class TestQueryAll(BaseTestCase):
@@ -546,6 +543,7 @@ def _set_up_dashboard_test(d):
     d.w2.dashboard.is_draft = False
     d.w4.dashboard.is_draft = False
 
+
 class TestDashboardAll(BaseTestCase):
     def setUp(self):
         super(TestDashboardAll, self).setUp()
@@ -596,3 +594,85 @@ class TestDashboardAll(BaseTestCase):
 
         self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
+
+
+class Timestamp(walrus.Model):
+    __database__ = redis_connection
+    __namespace__ = 'redash.tests.timestamp'
+
+    created_at = types.UTCDateTimeField(index=True, default=utcnow)
+
+
+class TestUserDetail(BaseTestCase):
+
+    def setUp(self):
+        super(TestUserDetail, self).setUp()
+        redis_connection.flushdb()
+
+    def test_walrus_utcdatetimefield(self):
+        timestamp = Timestamp()
+        timestamp.save()
+
+        timestamps = list(Timestamp.all())
+        self.assertEqual(len(timestamps), 1)
+        self.assertIsInstance(timestamps[0].created_at, datetime.datetime)
+        self.assertEqual(timestamps[0].created_at.tzinfo, pytz.utc)
+
+    def test_userdetail_db_default(self):
+        with authenticated_user(self.client) as user:
+            self.assertEqual(user.details, {})
+            self.assertIsNone(user.active_at)
+
+    def test_userdetail_db_default_save(self):
+        with authenticated_user(self.client) as user:
+            user.details['test'] = 1
+            models.db.session.commit()
+
+            user_reloaded = models.User.query.filter_by(id=user.id).first()
+            self.assertEqual(user.details['test'], 1)
+            self.assertEqual(
+                user_reloaded,
+                models.User.query.filter(
+                    models.User.details['test'].astext.cast(models.db.Integer) == 1
+                ).first()
+            )
+
+    def test_userdetail_create(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        user_detail = models.UserDetail.create(user_id=1)
+        user_detail.save()
+        self.assertEqual(
+            models.UserDetail.get(models.UserDetail.user_id == 1)._id,
+            user_detail._id,
+        )
+
+    def test_userdetail_update(self):
+        self.assertEqual(len(list(models.UserDetail.all())), 0)
+        # first try to create a user with a user id that we haven't used before
+        # and see if the creation was successful
+        models.UserDetail.update(user_id=1000)  # non-existent user
+        all_user_details = list(models.UserDetail.all())
+        self.assertEqual(len(all_user_details), 1)
+        created_user_detail = all_user_details[0]
+
+        # then see if we can update the same user detail again
+        updated_user_detail = models.UserDetail.update(
+            user_id=created_user_detail.user_id
+        )
+        self.assertGreater(
+            updated_user_detail.updated_at,
+            created_user_detail.updated_at
+        )
+
+    def test_sync(self):
+        with authenticated_user(self.client) as user:
+            user_detail = models.UserDetail.update(user_id=user.id)
+            self.assertEqual(user.details, {})
+
+            self.assertEqual(len(list(models.UserDetail.all())), 1)
+            models.UserDetail.sync()
+            self.assertEqual(len(list(models.UserDetail.all())), 0)
+
+            user_reloaded = models.User.query.filter_by(id=user.id).first()
+            self.assertIn('active_at', user_reloaded.details)
+            self.assertEqual(user_reloaded.active_at, user_detail.updated_at)
