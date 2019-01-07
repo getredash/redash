@@ -227,6 +227,9 @@ class UserResource(BaseResource):
         if user.id == current_user.id:
             abort(403, message="You cannot delete your own account. "
                                "Please ask another admin to do this for you.")
+        elif not user.is_invitation_pending:
+            abort(403, message="You cannot delete activated users. "
+                               "Please disable the user instead.")
         models.db.session.delete(user)
         models.db.session.commit()
 
