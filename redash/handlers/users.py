@@ -20,6 +20,8 @@ from redash.authentication.account import invite_link_for_user, send_invite_emai
 order_map = {
     'name': 'name',
     '-name': '-name',
+    'active_at': 'active_at',
+    '-active_at': '-active_at',
     'created_at': 'created_at',
     '-created_at': '-created_at',
     'groups': 'group_ids',

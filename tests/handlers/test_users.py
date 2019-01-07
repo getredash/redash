@@ -27,7 +27,6 @@ class TestUserListResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
-
     def test_creates_user(self):
         admin = self.factory.create_admin()
 
@@ -282,12 +281,12 @@ class TestUserDisable(BaseTestCase):
         self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = self.client.post('/login', data={'email': user.email, 'password': 'password'})
+            rv = self.post_request('/login', data={'email': user.email, 'password': 'password'}, org=self.factory.org)
             # login handler should not be called
             login_user_mock.assert_not_called()
-            # check for redirect back to login page
-            self.assertEquals(rv.status_code, 301)
-            self.assertIn('/login', rv.headers.get('Location', None))
+            # check if error is raised
+            self.assertEquals(rv.status_code, 200)
+            self.assertIn('Wrong email or password', rv.data)
 
     def test_disabled_user_should_not_access_api(self):
         # Note: some API does not require user, so check the one which requires
