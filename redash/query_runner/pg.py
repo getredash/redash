@@ -71,9 +71,9 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "title": "Database Name"
                 },
                 "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -95,7 +95,8 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != 'public':
-                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
+                table_name = u'{}.{}'.format(
+                    row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
@@ -139,13 +140,14 @@ class PostgreSQL(BaseSQLQueryRunner):
         return schema.values()
 
     def _get_connection(self):
-        connection = psycopg2.connect(user=self.configuration.get('user'),
-                                      password=self.configuration.get('password'),
-                                      host=self.configuration.get('host'),
-                                      port=self.configuration.get('port'),
-                                      dbname=self.configuration.get('dbname'),
-                                      sslmode=self.configuration.get('sslmode'),
-                                      async_=True)
+        connection = psycopg2.connect(
+            user=self.configuration.get('user'),
+            password=self.configuration.get('password'),
+            host=self.configuration.get('host'),
+            port=self.configuration.get('port'),
+            dbname=self.configuration.get('dbname'),
+            sslmode=self.configuration.get('sslmode'),
+            async_=True)
 
         return connection
 
@@ -160,8 +162,10 @@ class PostgreSQL(BaseSQLQueryRunner):
             _wait(connection)
 
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
+                                              for i in cursor.description])
+                rows = [dict(zip((c['name'] for c in columns), row))
+                        for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
@@ -191,16 +195,18 @@ class Redshift(PostgreSQL):
         return "redshift"
 
     def _get_connection(self):
-        sslrootcert_path = os.path.join(os.path.dirname(__file__), './files/redshift-ca-bundle.crt')
+        sslrootcert_path = os.path.join(
+            os.path.dirname(__file__), './files/redshift-ca-bundle.crt')
 
-        connection = psycopg2.connect(user=self.configuration.get('user'),
-                                      password=self.configuration.get('password'),
-                                      host=self.configuration.get('host'),
-                                      port=self.configuration.get('port'),
-                                      dbname=self.configuration.get('dbname'),
-                                      sslmode=self.configuration.get('sslmode', 'prefer'),
-                                      sslrootcert=sslrootcert_path,
-                                      async_=True)
+        connection = psycopg2.connect(
+            user=self.configuration.get('user'),
+            password=self.configuration.get('password'),
+            host=self.configuration.get('host'),
+            port=self.configuration.get('port'),
+            dbname=self.configuration.get('dbname'),
+            sslmode=self.configuration.get('sslmode', 'prefer'),
+            sslrootcert=sslrootcert_path,
+            async_=True)
 
         return connection
 
@@ -227,9 +233,9 @@ class Redshift(PostgreSQL):
                     "title": "Database Name"
                 },
                 "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
