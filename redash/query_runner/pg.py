@@ -74,9 +74,22 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "SSL Mode",
                     "default": "prefer"
+                },
+                "sslrootcert": {
+                    "type": "string",
+                    "title": "Path to server certificate file (SSL)"
+                },
+                "sslcert": {
+                    "type": "string",
+                    "title": "Path to client public key certificate file (SSL)"
+                },
+                "sslkey": {
+                    "type": "string",
+                    "title": "Path to client private key file (SSL)"
                 }
             },
-            "order": ['host', 'port', 'user', 'password'],
+            "order": ["host", "port", "user", "password", "dbname",
+                      "sslmode", "sslrootcert", "sslcert", "sslkey"],
             "required": ["dbname"],
             "secret": ["password"]
         }
@@ -147,6 +160,9 @@ class PostgreSQL(BaseSQLQueryRunner):
             port=self.configuration.get('port'),
             dbname=self.configuration.get('dbname'),
             sslmode=self.configuration.get('sslmode'),
+            sslrootcert=self.configuration.get('sslrootcert'),
+            sslcert=self.configuration.get('sslcert'),
+            sslkey=self.configuration.get('sslkey'),
             async_=True)
 
         return connection
