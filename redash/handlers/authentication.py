@@ -39,7 +39,8 @@ def render_token_login_page(template, org_slug, token):
 
     if not user.is_invitation_pending:
         return render_template("error.html",
-                               error_message="This invitation has already been accepted. Please try resetting your password instead."), 400
+                               error_message=("This invitation has already been accepted. "
+                                              "Please try resetting your password instead.")), 400
 
     status_code = 200
     if request.method == 'POST':

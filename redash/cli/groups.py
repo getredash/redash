@@ -9,6 +9,7 @@ from redash import models
 
 manager = AppGroup(help="Groups management commands.")
 
+
 @manager.command()
 @argument('name')
 @option('--org', 'organization', default='default',

@@ -268,8 +268,8 @@ def create_and_login_user(org, name, email, picture=None):
             models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User(org=org, name=name, email=email, is_invitation_pending=False, _profile_image_url=picture,
-                                  group_ids=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, is_invitation_pending=False,
+                                  _profile_image_url=picture, group_ids=[org.default_group.id])
         models.db.session.add(user_object)
         models.db.session.commit()
 
