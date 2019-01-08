@@ -105,7 +105,7 @@ def hmac_load_user_from_request(request):
                 return user
 
         if query_id:
-            query = models.db.session.query(models.Query).filter(models.Query.id == query_id).one()
+            query = models.Query.query.filter(models.Query.id == query_id).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
@@ -142,11 +142,13 @@ def get_user_from_api_key(api_key, query_id):
 def get_api_key_from_request(request):
     api_key = request.args.get('api_key', None)
 
-    if api_key is None and request.headers.get('Authorization'):
+    if api_key is not None:
+        return api_key
+
+    if request.headers.get('Authorization'):
         auth_header = request.headers.get('Authorization')
         api_key = auth_header.replace('Key ', '', 1)
-
-    if api_key is None and request.view_args.get('token'):
+    elif request.view_args is not None and request.view_args.get('token'):
         api_key = request.view_args['token']
 
     return api_key
@@ -154,8 +156,12 @@ def get_api_key_from_request(request):
 
 def api_key_load_user_from_request(request):
     api_key = get_api_key_from_request(request)
-    query_id = request.view_args.get('query_id', None)
-    user = get_user_from_api_key(api_key, query_id)
+    if request.view_args is not None: 
+        query_id = request.view_args.get('query_id', None)
+        user = get_user_from_api_key(api_key, query_id)
+    else:
+        user = None
+
     return user
 
 
@@ -232,7 +238,7 @@ def logout_and_redirect_to_index():
     return redirect(index_url)
 
 
-def setup_authentication(app):
+def init_app(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
     login_manager.init_app(app)

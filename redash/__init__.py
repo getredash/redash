@@ -2,7 +2,8 @@ import sys
 import logging
 import urlparse
 import urllib
-import redis
+
+import walrus
 from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
@@ -47,7 +48,7 @@ def create_redis_connection():
         else:
             db = 0
 
-        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
+        client = walrus.Database(unix_socket_path=redis_url.path, db=db)
     else:
         if redis_url.path:
             redis_db = redis_url.path[1]
@@ -55,13 +56,14 @@ def create_redis_connection():
             redis_db = 0
         # Redis passwords might be quoted with special characters
         redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
+        client = walrus.Database(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
 
-    return r
+    return client
 
 
 setup_logging()
 redis_connection = create_redis_connection()
+
 mail = Mail()
 migrate = Migrate()
 mail.init_mail(settings.all_settings())
@@ -90,12 +92,10 @@ class SlugConverter(BaseConverter):
 
 
 def create_app(load_admin=True):
-    from redash import extensions, handlers
+    from redash import admin, authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
-    from redash.admin import init_admin
-    from redash.models import db
-    from redash.authentication import setup_authentication
+    from redash.models import db, users
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
@@ -131,14 +131,15 @@ def create_app(load_admin=True):
     db.init_app(app)
     migrate.init_app(app, db)
     if load_admin:
-        init_admin(app)
+        admin.init_admin(app)
     mail.init_app(app)
-    setup_authentication(app)
+    authentication.init_app(app)
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
     extensions.init_extensions(app)
     chrome_logger.init_app(app)
+    users.init_app(app)
 
     return app
 

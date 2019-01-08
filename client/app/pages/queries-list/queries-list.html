@@ -103,7 +103,7 @@
               <td>{{query.created_at | dateTime}}</td>
               <td>{{query.runtime | durationHumanize}}</td>
               <td>{{query.retrieved_at | dateTime}}</td>
-              <td>{{query.schedule | scheduleHumanize}}</td>
+              <td><schedule-phrase schedule="query.schedule" is-new="query.isNew()" /></td>
             </tr>
           </tbody>
         </table>

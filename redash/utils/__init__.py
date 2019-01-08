@@ -76,17 +76,31 @@ class JSONEncoder(simplejson.JSONEncoder):
     def default(self, o):
         # Some SQLAlchemy collections are lazy.
         if isinstance(o, Query):
-            return list(o)
+            result = list(o)
         elif isinstance(o, decimal.Decimal):
-            return float(o)
+            result = float(o)
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
-            return str(o)
-        elif isinstance(o, (datetime.date, datetime.time)):
-            return o.isoformat()
+            result = str(o)
+        # See "Date Time String Format" in the ECMA-262 specification.
+        if isinstance(o, datetime.datetime):
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:23] + result[26:]
+            if result.endswith('+00:00'):
+                result = result[:-6] + 'Z'
+        elif isinstance(o, datetime.date):
+            result = o.isoformat()
+        elif isinstance(o, datetime.time):
+            if o.utcoffset() is not None:
+                raise ValueError("JSON can't represent timezone-aware times.")
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:12]
         elif isinstance(o, buffer):
-            return binascii.hexlify(o)
+            result = binascii.hexlify(o)
         else:
-            return super(JSONEncoder, self).default(o)
+            result = super(JSONEncoder, self).default(o)
+        return result
 
 
 def json_loads(data, *args, **kwargs):
@@ -169,6 +183,23 @@ def collect_query_parameters(query):
     nodes = pystache.parse(query)
     keys = _collect_key_names(nodes)
     return keys
+
+
+def parameter_names(parameter_values):
+    names = []
+    for key, value in parameter_values.iteritems():
+        if isinstance(value, dict):
+            for inner_key in value.keys():
+                names.append(u'{}.{}'.format(key, inner_key))
+        else:
+            names.append(key)
+
+    return names
+
+
+def find_missing_params(query_text, parameter_values):
+    query_parameters = set(collect_query_parameters(query_text))
+    return set(query_parameters) - set(parameter_names(parameter_values))
 
 
 def collect_parameters_from_request(args):
