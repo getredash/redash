@@ -13,7 +13,7 @@ import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
-
+import { onResize } from '@/directives/resize-event';
 import { QueryData } from '@/components/proptypes';
 
 /*
@@ -100,6 +100,11 @@ export default class MapRenderer extends React.Component {
     options: MapOptions.isRequired,
   }
 
+  componentDidUpdate() {
+    this.mapControls.leafletElement._map.eachLayer(l => l._url || this.mapControls.leafletElement._map.removeLayer(l));
+    this.drawMarkers(this.mapControls);
+  }
+
   makeLayer = (points, name, mapControls, layers, groupColors) => {
     const latCol = this.props.options.latColName || 'lat';
     const lonCol = this.props.options.lonColName || 'lon';
@@ -134,6 +139,7 @@ export default class MapRenderer extends React.Component {
   }
 
   drawMarkers = (mapControls) => {
+    this.mapControls = mapControls;
     let pointGroups;
     if (this.props.options.classify && this.props.options.classify !== 'none') {
       pointGroups = groupBy(this.props.data.rows, this.props.options.classify);
@@ -152,28 +158,33 @@ export default class MapRenderer extends React.Component {
       pointGroups,
       (points, name) => this.makeLayer(points, name, mapControls, layers, zipObject(groupNames, groupColors)),
     );
-    const b = this.props.options.bounds;
-    if (b) {
-      mapControls.leafletElement._map.fitBounds([[b._southWest.lat, b._southWest.lng],
-        [b._northEast.lat, b._northEast.lng]]);
-    } else if (layers.length) {
-      const allMarkers = flatMap(layers, l => l.getLayers());
-      // eslint-disable-next-line new-cap
-      const group = new L.featureGroup(allMarkers);
-      mapControls.leafletElement._map.fitBounds(group.getBounds());
-    }
+    const setBounds = () => {
+      const b = this.props.options.bounds;
+      if (b) {
+        mapControls.leafletElement._map.fitBounds([[b._southWest.lat, b._southWest.lng],
+          [b._northEast.lat, b._northEast.lng]]);
+      } else if (layers.length) {
+        const allMarkers = flatMap(layers, l => l.getLayers());
+        // eslint-disable-next-line new-cap
+        const group = new L.featureGroup(allMarkers);
+        mapControls.leafletElement._map.fitBounds(group.getBounds());
+      }
+    };
+    const resize = () => {
+      mapControls.leafletElement._map.invalidateSize(false);
+      setBounds();
+    };
+    setBounds();
+    onResize(this.containerRef.current, resize);
   }
-
-  mapRef = React.createRef()
-  layersControlRef = React.createRef()
+  containerRef = React.createRef()
 
   render() {
     if (!this.props.data) return null;
     return (
-      <div className="map-visualization-container">
+      <div className="map-visualization-container" ref={this.containerRef}>
         <Map
           center={[0, 0]}
-          ref={this.mapRef}
           maxZoom={16}
           zoom={4}
           zoomSnap={1}
@@ -188,7 +199,7 @@ export default class MapRenderer extends React.Component {
             attribution={'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'}
           />
           <LayersControl ref={this.drawMarkers} />
-          <AttributionControl/>
+          <AttributionControl />
         </Map>
       </div>);
   }

@@ -45,6 +45,14 @@ function resizeEvent() {
   };
 }
 
+export function onResize(node, f) {
+  if (!items.has(node)) {
+    items.set(node, {
+      callback: f,
+    });
+  }
+}
+
 export default function init(ngModule) {
   ngModule.directive('resizeEvent', resizeEvent);
 }
