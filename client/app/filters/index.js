@@ -1,6 +1,63 @@
 import moment from 'moment';
 import { capitalize as _capitalize, isEmpty } from 'lodash';
 
+export const IntervalEnum = {
+  NEVER: 'Never',
+  MINUTES: 'minute(s)',
+  HOURS: 'hour(s)',
+  DAYS: 'day(s)',
+  WEEKS: 'week(s)',
+};
+
+export function localizeTime(time) {
+  const [hrs, mins] = time.split(':');
+  return moment
+    .utc()
+    .hour(hrs)
+    .minute(mins)
+    .local()
+    .format('HH:mm');
+}
+
+export function secondsToInterval(seconds) {
+  let interval = IntervalEnum.MINUTES;
+  let count = seconds / 60;
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.HOURS;
+  }
+  if (count >= 24 && interval === IntervalEnum.HOURS) {
+    count /= 24;
+    interval = IntervalEnum.DAYS;
+  }
+  if (count >= 7 && interval === IntervalEnum.DAYS) {
+    count /= 7;
+    interval = IntervalEnum.WEEKS;
+  }
+  return { count, interval };
+}
+
+export function intervalToSeconds(count, interval) {
+  let intervalInSeconds = 0;
+  switch (interval) {
+    case IntervalEnum.MINUTES:
+      intervalInSeconds = 60;
+      break;
+    case IntervalEnum.HOURS:
+      intervalInSeconds = 3600;
+      break;
+    case IntervalEnum.DAYS:
+      intervalInSeconds = 86400;
+      break;
+    case IntervalEnum.WEEKS:
+      intervalInSeconds = 604800;
+      break;
+    default:
+      return null;
+  }
+  return intervalInSeconds * count;
+}
+
 export function durationHumanize(duration) {
   let humanized = '';
 
@@ -24,24 +81,6 @@ export function durationHumanize(duration) {
     humanized = `${minutes} minutes`;
   }
   return humanized;
-}
-
-export function scheduleHumanize(schedule) {
-  if (schedule === null) {
-    return 'Never';
-  } else if (schedule.match(/\d\d:\d\d/) !== null) {
-    const parts = schedule.split(':');
-    const localTime = moment
-      .utc()
-      .hour(parts[0])
-      .minute(parts[1])
-      .local()
-      .format('HH:mm');
-
-    return `Every day at ${localTime}`;
-  }
-
-  return `Every ${durationHumanize(parseInt(schedule, 10))}`;
 }
 
 export function toHuman(text) {

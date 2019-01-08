@@ -36,6 +36,12 @@ def render_token_login_page(template, org_slug, token):
         logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
+
+    if not user.is_invitation_pending:
+        return render_template("error.html",
+                               error_message=("This invitation has already been accepted. "
+                                              "Please try resetting your password instead.")), 400
+
     status_code = 200
     if request.method == 'POST':
         if 'password' not in request.form:
@@ -48,7 +54,7 @@ def render_token_login_page(template, org_slug, token):
             flash('Password length is too short (<6).')
             status_code = 400
         else:
-            # TODO: set active flag
+            user.is_invitation_pending = False
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)
