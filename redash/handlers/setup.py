@@ -27,7 +27,11 @@ def create_org(org_name, user_name, email, password):
     db.session.add_all([default_org, admin_group, default_group])
     db.session.commit()
 
-    user = User(org=default_org, name=user_name, email=email, group_ids=[admin_group.id, default_group.id])
+    user = User(org=default_org,
+                name=user_name,
+                email=email,
+                is_invitation_pending=False,
+                group_ids=[admin_group.id, default_group.id])
     user.hash_password(password)
 
     db.session.add(user)
