@@ -61,7 +61,6 @@ class GFKBase(object):
     """
     Compatibility with 'generic foreign key' approach Peewee used.
     """
-    # XXX Replace this with table-per-association.
     object_type = Column(db.String(255))
     object_id = Column(db.Integer)
 

@@ -37,8 +37,7 @@ from .changes import ChangeTrackingMixin, Change  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
 from .types import Configuration, MutableDict, MutableList, PseudoJSON
-from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User,
-                    UserDetail)  # noqa
+from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User)  # noqa
 
 logger = logging.getLogger(__name__)
 

@@ -1,10 +1,10 @@
 import hashlib
 import itertools
 import logging
+import time
 from functools import reduce
 from operator import or_
 
-import walrus
 from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
 from passlib.apps import custom_app_context as pwd_context
@@ -16,107 +16,43 @@ from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
 from redash import redis_connection
-from redash.utils import generate_token, utcnow
+from redash.utils import generate_token, utcnow, dt_from_timestamp
 
 from .base import db, Column, GFKBase
 from .mixins import TimestampMixin, BelongsToOrgMixin
-from .types import json_cast_property, MutableDict, MutableList, UTCDateTimeField
+from .types import json_cast_property, MutableDict, MutableList
 
 logger = logging.getLogger(__name__)
 
 
-class UserDetail(walrus.Model):
+LAST_ACTIVE_KEY = 'users:last_active_at'
+
+
+def sync_last_active_at():
     """
-    A walrus data model to store some user data to Redis to be
-    synced to Postgres asynchronously.
+    Update User model with the active_at timestamp from Redis. We first fetch
+    all the user_ids to update, and then fetch the timestamp to minimize the
+    time between fetching the value and updating the DB. This is because there
+    might be a more recent update we skip otherwise. 
     """
-    __database__ = redis_connection
-    __namespace__ = 'redash.user.details'
-
-    user_id = walrus.IntegerField(index=True)
-    updated_at = UTCDateTimeField(index=True, default=utcnow)
-
-    @classmethod
-    def update(cls, user_id):
-        """
-        Update the user details hash using the given redis
-        pipeline, user id, optional redis id and optional user
-        details.
-
-        The fields uid, rid and updated (timestamp) are
-        enforced and can't be overwritten.
-        """
-        # try getting the user detail with the given user ID
-        # or create one if it doesn't exist yet (e.g. when key was purged)
-        try:
-            user_detail = cls.get(cls.user_id == user_id)
-            # update the timestamp with the current time
-            user_detail.updated_at = utcnow()
-            # save to Redis
-            user_detail.save()
-        except ValueError:
-            user_detail = cls.create(
-                user_id=user_id,
-                updated_at=utcnow(),
-            )
-        return user_detail
-
-    @classmethod
-    def sync(cls, chunksize=1000):
-        """
-        Syncs user details to Postgres (to the JSON field User.details).
-        """
-        to_sync = {}
-        try:
-            for user_detail in cls.all():
-                to_sync[user_detail.user_id] = user_detail
-
-            user_ids = list(to_sync.keys())
-            if not user_ids:
-                return
-            logger.info(
-                'syncing users: %s',
-                ', '.join([str(uid) for uid in user_ids])
-            )
-            # get all SQLA users that need to be updated
-            users = User.query.filter(User.id.in_(user_ids))
-            for i, user in enumerate(users):
-                update = to_sync[user.id]
-                user.active_at = update.updated_at
-                # flush changes to the database after a certain
-                # number of items and extend the list of keys to
-                # stop sync in case of exceptions
-                if i % chunksize == 0:
-                    db.session.flush()
-            db.session.commit()
-        except DBAPIError:
-            # reset list of keys to stop sync
-            pass
-        finally:
-            user_ids = [str(user_id) for user_id in to_sync.keys()]
-            if user_ids:
-                logger.info(
-                    'Deleting temporary user details for users %s',
-                    ', '.join(user_ids)
-                )
-                delete_query = [
-                    UserDetail.user_id == str(user_id)
-                    for user_id in user_ids
-                ]
-                UserDetail.query_delete(reduce(or_, delete_query))
+    user_ids = redis_connection.hkeys(LAST_ACTIVE_KEY)
+    for user_id in user_ids:
+        timestamp = redis_connection.hget(LAST_ACTIVE_KEY, user_id)
+        active_at = dt_from_timestamp(timestamp)
+        user = User.query.filter(User.id == user_id).first()
+        if user:
+            user.active_at = active_at
+        redis_connection.hdel(LAST_ACTIVE_KEY, user_id)
+    db.session.commit()
 
 
-def update_user_detail(sender, *args, **kwargs):
+def update_user_active_at(sender, *args, **kwargs):
     """
     Used as a Flask request_started signal callback that adds
     the current user's details to Redis
     """
-    if (
-        current_user.get_id() and
-        current_user.is_authenticated and
-        not current_user.is_api_user()
-    ):
-        UserDetail.update(current_user.id)
+    if current_user.is_authenticated and not current_user.is_api_user():
+        redis_connection.hset(LAST_ACTIVE_KEY, current_user.id, int(time.time()))
 
 
 def init_app(app):
@@ -124,7 +60,7 @@ def init_app(app):
     A Flask extension to keep user details updates in Redis and
     sync it periodically to the database (User.details).
     """
-    request_started.connect(update_user_detail, app)
+    request_started.connect(update_user_active_at, app)
 
 
 class PermissionsCheckMixin(object):
@@ -150,7 +86,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     email = Column(EmailType)
     _profile_image_url = Column('profile_image_url', db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
-    # XXX replace with association table
     group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
     api_key = Column(db.String(40),
                      default=lambda: generate_token(40),
