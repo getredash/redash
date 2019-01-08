@@ -161,6 +161,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                      server_default='{}', default={})
     active_at = json_cast_property(db.DateTime(True), 'details', 'active_at',
                                    default=None)
+    is_invitation_pending = json_cast_property(db.Boolean(True), 'details', 'is_invitation_pending', default=True)
 
     __tablename__ = 'users'
     __table_args__ = (
@@ -203,6 +204,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'disabled_at': self.disabled_at,
             'is_disabled': self.is_disabled,
             'active_at': self.active_at,
+            'is_invitation_pending': self.is_invitation_pending,
         }
 
         if self.password_hash is None:

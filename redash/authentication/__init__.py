@@ -156,7 +156,7 @@ def get_api_key_from_request(request):
 
 def api_key_load_user_from_request(request):
     api_key = get_api_key_from_request(request)
-    if request.view_args is not None: 
+    if request.view_args is not None:
         query_id = request.view_args.get('query_id', None)
         user = get_user_from_api_key(api_key, query_id)
     else:
@@ -259,14 +259,17 @@ def create_and_login_user(org, name, email, picture=None):
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.is_disabled:
             return None
+        if user_object.is_invitation_pending:
+            user_object.is_invitation_pending = False
+            models.db.session.commit()
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
-                                  group_ids=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, is_invitation_pending=False,
+                                  _profile_image_url=picture, group_ids=[org.default_group.id])
         models.db.session.add(user_object)
         models.db.session.commit()
 
