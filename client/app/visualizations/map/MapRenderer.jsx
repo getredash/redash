@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { compact, groupBy, includes, isNumber, keys, map, zipObject } from 'lodash';
+import { each, flatMap, groupBy, keys, map, zipObject } from 'lodash';
 import d3 from 'd3';
 import L from 'leaflet';
-import { CircleMarker, Map, Marker, LayersControl, LayerGroup, Popup, TileLayer } from 'react-leaflet';
-import MarkerClusterGroup from 'react-leaflet-markercluster';
+import { AttributionControl, Map, LayersControl, TileLayer } from 'react-leaflet';
+import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -38,6 +38,51 @@ const MapOptions = PropTypes.shape({
   })),
 });
 
+function createDescription(latCol, lonCol, row) {
+  const lat = row[latCol];
+  const lon = row[lonCol];
+
+  let description = '<ul style="list-style-type: none;padding-left: 0">';
+  description += `<li><strong>${lat}, ${lon}</strong>`;
+
+  each(row, (v, k) => {
+    if (!(k === latCol || k === lonCol)) {
+      description += `<li>${k}: ${v}</li>`;
+    }
+  });
+
+  return description;
+}
+
+function createIcon(color, cluster) {
+  const childCount = cluster.getChildCount();
+  let c = ' marker-cluster-';
+  if (childCount < 10) {
+    c += 'small';
+  } else if (childCount < 100) {
+    c += 'medium';
+  } else {
+    c += 'large';
+  }
+  c = '';
+  const style = `color: white; background-color: ${color};`;
+  return L.divIcon({
+    html: `<div style="${style}"><span>${childCount}</span></div>`,
+    className: `marker-cluster${c}`,
+    iconSize: new L.Point(40, 40),
+  });
+}
+
+function heatpoint(lat, lon, color) {
+  const style = {
+    fillColor: color,
+    fillOpacity: 0.9,
+    stroke: false,
+  };
+
+  return L.circleMarker([lat, lon], style);
+}
+
 export default class MapRenderer extends React.Component {
   static Options = MapOptions
   static colorScale = d3.scale.category10();
@@ -55,66 +100,40 @@ export default class MapRenderer extends React.Component {
     options: MapOptions.isRequired,
   }
 
-  createIcon = (color, cluster) => {
-    const childCount = cluster.getChildCount();
-    let c = ' marker-cluster-';
-    if (childCount < 10) {
-      c += 'small';
-    } else if (childCount < 100) {
-      c += 'medium';
-    } else {
-      c += 'large';
-    }
-    c = '';
-    const style = `color: white; background-color: ${color};`;
-    return L.divIcon({
-      html: `<div style="${style}"><span>${childCount}</span></div>`,
-      className: `marker-cluster${c}`,
-      iconSize: new L.Point(40, 40),
-    });
-  };
-
-  makeLayer = (points, name, groupColors) => {
+  makeLayer = (points, name, mapControls, layers, groupColors) => {
     const latCol = this.props.options.latColName || 'lat';
     const lonCol = this.props.options.lonColName || 'lon';
     const classify = this.props.options.classify;
     const color = groupColors[name].color;
-    const markers = compact(map(points, (row) => {
+    let markers;
+    if (this.props.options.clusterMarkers) {
+      markers = L.markerClusterGroup({ iconCreateFunction: classify ? cluster => createIcon(color, cluster) : null });
+    } else {
+      markers = L.layerGroup();
+    }
+    // create markers
+    each(points, (row) => {
+      let marker;
+
       const lat = row[latCol];
       const lon = row[lonCol];
-      if (!isNumber(lat) || !isNumber(lon)) return;
-      const description = (
-        <Popup position={[lat, lon]}>
-          <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-            <li><strong>{lat}, {lon}</strong></li>
-            {map(row, (v, k) => !includes([latCol, lonCol], k) &&
-              <li>{k}: {v}</li>)}
-          </ul>
-        </Popup>);
+
+      if (lat === null || lon === null) return;
+
       if (classify && classify !== 'none') {
-        return (
-          <CircleMarker key={`${lat}${lon}`} center={[lat, lon]} fillColor={color} fillOpacity={0.9} stroke={false}>
-            {description}
-          </CircleMarker>);
+        marker = heatpoint(lat, lon, color);
+      } else {
+        marker = L.marker([lat, lon]);
       }
-      return <Marker key={`${lat}${lon}`} position={[lat, lon]}>{description}</Marker>;
-    }));
-    return (
-      <LayersControl.Overlay checked key={name} name={name}>
-        {this.props.options.clusterMarkers ?
-          <MarkerClusterGroup key={name} iconCreateFunction={cluster => this.createIcon(color, cluster)}>
-            {markers}
-          </MarkerClusterGroup> :
-          <LayerGroup key={name}>
-            {markers}
-          </LayerGroup>}
-      </LayersControl.Overlay>);
+
+      marker.bindPopup(createDescription(latCol, lonCol, row));
+      markers.addLayer(marker);
+    });
+    layers.push(markers);
+    mapControls.addOverlay(markers, name, true);
   }
 
-  containerRef = React.createRef()
-
-  render() {
-    if (!this.props.data) return null;
+  drawMarkers = (mapControls) => {
     let pointGroups;
     if (this.props.options.classify && this.props.options.classify !== 'none') {
       pointGroups = groupBy(this.props.data.rows, this.props.options.classify);
@@ -128,18 +147,36 @@ export default class MapRenderer extends React.Component {
       }
       return { color: MapRenderer.colorScale(group) };
     });
-    const markerLayers = map(
+    const layers = [];
+    each(
       pointGroups,
-      (points, name) => this.makeLayer(points, name, zipObject(groupNames, groupColors)),
+      (points, name) => this.makeLayer(points, name, mapControls, layers, zipObject(groupNames, groupColors)),
     );
+    const b = this.props.options.bounds;
+    if (b) {
+      mapControls.leafletElement._map.fitBounds([[b._southWest.lat, b._southWest.lng],
+        [b._northEast.lat, b._northEast.lng]]);
+    } else if (layers.length) {
+      const allMarkers = flatMap(layers, l => l.getLayers());
+      // eslint-disable-next-line new-cap
+      const group = new L.featureGroup(allMarkers);
+      mapControls.leafletElement._map.fitBounds(group.getBounds());
+    }
+  }
+
+  mapRef = React.createRef()
+  layersControlRef = React.createRef()
+
+  render() {
+    if (!this.props.data) return null;
     return (
       <div className="map-visualization-container">
         <Map
-          center={[14, 0]}
+          center={[0, 0]}
           ref={this.mapRef}
           maxZoom={16}
-          zoom={1}
-          zoomSnap={0}
+          zoom={4}
+          zoomSnap={1}
           scrollWheelZoom={false}
           maxBoundsViscosity={1}
           attributionControl={false}
@@ -150,9 +187,8 @@ export default class MapRenderer extends React.Component {
             url={this.props.options.mapTileUrl || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}
             attribution={'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'}
           />
-          <LayersControl>
-            {markerLayers}
-          </LayersControl>
+          <LayersControl ref={this.drawMarkers} />
+          <AttributionControl/>
         </Map>
       </div>);
   }
