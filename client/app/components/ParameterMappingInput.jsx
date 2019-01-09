@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -159,10 +159,11 @@ export class ParameterMappingInput extends React.Component {
     const { mapping } = this.props;
     return (
       <div className="m-t-10">
+        <label>Change parameter value:</label>
         <ParameterValueInput
           className="w-100"
           type={mapping.param.type}
-          value={mapping.value}
+          value={isUndefined(mapping.value) || isNull(mapping.value) ? mapping.param.normalizedValue : mapping.value}
           enumOptions={mapping.param.enumOptions}
           queryId={mapping.param.queryId}
           onSelect={value => this.updateParamMapping(mapping, { value })}
@@ -185,14 +186,18 @@ export class ParameterMappingInput extends React.Component {
 
   renderTitleInput() {
     const { mapping } = this.props;
+    if (mapping.type === MappingType.StaticValue) {
+      return null;
+    }
     return (
       <div className="m-t-10">
+        <label>Change parameter title (leave empty to use existing):</label>
         <input
           type="text"
           className="form-control"
           value={mapping.title}
           onChange={event => this.updateParamMapping(mapping, { title: event.target.value })}
-          placeholder="Change parameter title (leave empty to use existing"
+          placeholder={mapping.param.title}
         />
       </div>
     );
