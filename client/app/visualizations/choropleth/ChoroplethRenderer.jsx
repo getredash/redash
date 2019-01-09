@@ -217,6 +217,17 @@ class ChoroplethRenderer extends React.Component {
     });
   }
 
+  componentDidUpdate(newProps) {
+    if (newProps.options !== this.props.options) {
+      const geo = this.geoJsonRef.current;
+      // GeoJSON component doesn't re-run layer creation when options change, so we're going to recreate it
+      geo.leafletElement.remove();
+      geo.leafletElement = geo.createLeafletElement(geo.props);
+      geo.leafletElement.addTo(this.mapRef.current.leafletElement);
+    }
+  }
+
+  geoJsonRef = React.createRef()
   mapRef = React.createRef()
 
   updateViewport = viewport => this.props.updateOptions({ viewport })
@@ -253,6 +264,7 @@ class ChoroplethRenderer extends React.Component {
           onViewportChanged={this.updateViewport}
         >
           <GeoJSON
+            ref={this.geoJsonRef}
             data={this.props.countriesData.value}
             onEachFeature={(feature, layer) => {
               const value = getValueForFeature(feature, data, opts.countryCodeType);
