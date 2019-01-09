@@ -3,6 +3,7 @@ import requests
 from celery.utils.log import get_task_logger
 from flask_mail import Message
 from redash import mail, models, settings
+from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import celery
 
@@ -69,4 +70,4 @@ def send_mail(to, subject, html, text):
     expires=45,
 )
 def sync_user_details():
-    models.UserDetail.sync()
+    users.sync_last_active_at()

@@ -101,6 +101,7 @@ class UserListResource(BaseResource):
         user = models.User(org=self.current_org,
                            name=req['name'],
                            email=req['email'],
+                           is_invitation_pending=True,
                            group_ids=[self.current_org.default_group.id])
 
         try:
