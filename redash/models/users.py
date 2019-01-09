@@ -33,7 +33,7 @@ def sync_last_active_at():
     Update User model with the active_at timestamp from Redis. We first fetch
     all the user_ids to update, and then fetch the timestamp to minimize the
     time between fetching the value and updating the DB. This is because there
-    might be a more recent update we skip otherwise. 
+    might be a more recent update we skip otherwise.
     """
     user_ids = redis_connection.hkeys(LAST_ACTIVE_KEY)
     for user_id in user_ids:
@@ -96,7 +96,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                      server_default='{}', default={})
     active_at = json_cast_property(db.DateTime(True), 'details', 'active_at',
                                    default=None)
-    is_invitation_pending = json_cast_property(db.Boolean(True), 'details', 'is_invitation_pending', default=True)
+    is_invitation_pending = json_cast_property(db.Boolean(True), 'details', 'is_invitation_pending', default=False)
 
     __tablename__ = 'users'
     __table_args__ = (
