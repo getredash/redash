@@ -1,3 +1,4 @@
+<div ng-if="!$ctrl.isEmailVerified" class="alert alert-danger">We have sent an email with a confirmation link to your email address. Please follw the link to verify your e-mail address. <a href="#">Resend e-mail</a>.</div>
 <div class="empty-state bg-white tiled" ng-if="$ctrl.shouldShowOnboarding()">
     <div class="empty-state__summary">
         <h4 ng-if="$ctrl.title">{{$ctrl.title}}</h4>

@@ -224,7 +224,8 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions
+            'permissions': current_user.permissions,
+            'is_email_verified': current_user.is_email_verified
         }
 
     return json_response({
