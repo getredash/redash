@@ -9,7 +9,7 @@ httplib2==0.10.3
 Flask-Admin==1.5.2
 Flask-RESTful==0.3.5
 Flask-Login==0.4.0
-Flask-OAuthLib==0.9.3
+Flask-OAuthLib==0.9.5
 Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.0.1
 flask-mail==0.9.1
