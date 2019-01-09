@@ -38,7 +38,6 @@ order_results = partial(
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
     send_invite_email(inviter, user, invite_url, org)
-    return invite_url
 
 
 class UserListResource(BaseResource):
@@ -118,15 +117,9 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        if request.args.get('no_invite') is not None:
-            invite_url = invite_link_for_user(user)
-        else:
-            invite_url = invite_user(self.current_org, self.current_user, user)
+        invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserInviteResource(BaseResource):
@@ -135,10 +128,7 @@ class UserInviteResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         invite_url = invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserResetPasswordResource(BaseResource):

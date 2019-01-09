@@ -109,10 +109,8 @@ function UserCtrl(
   };
 
   $scope.resendInvitation = () => {
-    $http.post(`api/users/${$scope.user.id}/invite`).success((data) => {
-      const inviteLink = absoluteUrl(data.invite_link);
-      toastr.success(`You can use the following link to invite them yourself: <textarea class="form-control m-t-10" rows="3" readonly>${inviteLink}</textarea>`, 'Invitation sent.', {
-        allowHtml: true,
+    $http.post(`api/users/${$scope.user.id}/invite`).success(() => {
+      toastr.success('Invitation sent.', {
         timeOut: 10000,
       });
     });
