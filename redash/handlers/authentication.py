@@ -55,6 +55,7 @@ def render_token_login_page(template, org_slug, token):
             status_code = 400
         else:
             user.is_invitation_pending = False
+            user.is_email_verified = True
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)
