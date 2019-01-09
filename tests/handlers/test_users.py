@@ -194,7 +194,7 @@ class TestUserResourcePost(BaseTestCase):
 
     def test_admin_can_delete_user(self):
         admin_user = self.factory.create_admin()
-        other_user = self.factory.create_user()
+        other_user = self.factory.create_user(is_invitation_pending=True)
 
         rv = self.make_request('delete', "/api/users/{}".format(other_user.id), user=admin_user)
 
