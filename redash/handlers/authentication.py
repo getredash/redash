@@ -84,6 +84,24 @@ def reset(token, org_slug=None):
     return render_token_login_page("reset.html", org_slug, token)
 
 
+@routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
+def verify(token, org_slug=None):
+    try:
+        user_id = validate_token(token)
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
+    except (BadSignature, NoResultFound):
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
+        return render_template("error.html",
+                               error_message="Your verification link is invalid. Please ask for a new one."), 400
+
+    user.is_email_verified = True
+    models.db.session.add(user)
+    models.db.session.commit()
+
+    return render_template("verify.html", org_slug=org_slug)
+
+
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
     if not current_org.get_setting('auth_password_login_enabled'):
