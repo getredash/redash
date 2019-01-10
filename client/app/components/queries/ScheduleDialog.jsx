@@ -194,7 +194,7 @@ export class ScheduleDialog extends React.Component {
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
             <h5>On time</h5>
-            <div>
+            <div data-testid="time">
               <TimePicker
                 allowEmpty={false}
                 defaultValue={moment().hour(hour).minute(minute)}
@@ -209,23 +209,25 @@ export class ScheduleDialog extends React.Component {
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
             <h5>On day</h5>
-            <Radio.Group
-              size="medium"
-              defaultValue={this.state.dayOfWeek}
-              onChange={this.setWeekday}
-            >
-              {WEEKDAYS_SHORT.map(day => (
-                <Radio.Button value={day} key={day} className="input">
-                  {day[0]}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
+            <div data-testid="weekday">
+              <Radio.Group
+                size="medium"
+                defaultValue={this.state.dayOfWeek}
+                onChange={this.setWeekday}
+              >
+                {WEEKDAYS_SHORT.map(day => (
+                  <Radio.Button value={day} key={day} className="input">
+                    {day[0]}
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
+            </div>
           </div>
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
             <h5>Ends</h5>
-            <div className="ends">
+            <div className="ends" data-testid="ends">
               <Radio.Group
                 size="medium"
                 value={!!until}
