@@ -167,4 +167,31 @@ describe('ScheduleDialog', () => {
       expect(texts).toEqual(expected);
     });
   });
+
+  test('Resets selected count value if out-of-range', () => {
+    // init
+    const initProps = { interval: 600 };
+    const [wrapper] = getWrapper(initProps);
+
+    const intervalWrapper = findByTestID(wrapper, 'select-interval');
+    const options = getSelectOptions(intervalWrapper);
+
+    // change to 'hours(s)'
+    options
+      .filterWhere(node => node.text() === 'hour(s)')
+      .simulate('click');
+    wrapper.update();
+
+    // should stay '10'
+    expect(wrapper.state('count')).toBe('10');
+
+    // change to 'week(s)'
+    options
+      .filterWhere(node => node.text() === 'week(s)')
+      .simulate('click');
+    wrapper.update();
+
+    // should have changed to '1'
+    expect(wrapper.state('count')).toBe('1');
+  });
 });
