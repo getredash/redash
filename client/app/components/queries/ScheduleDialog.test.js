@@ -194,4 +194,69 @@ describe('ScheduleDialog', () => {
     // should have changed to '1'
     expect(wrapper.state('count')).toBe('1');
   });
+
+  describe('Modal Confirm/Cancel feature', () => {
+    const confirmCb = jest.fn().mockName('confirmCb');
+    const closeCb = jest.fn().mockName('closeCb');
+    const initProps = { updateQuery: confirmCb, onClose: closeCb };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('Query saved on confirm if state changed', () => {
+      // init
+      const [wrapper, props] = getWrapper(null, initProps);
+
+      // change state
+      const change = { time: '22:15' };
+      const newSchedule = Object.assign({}, props.schedule, change);
+      wrapper.setState({ newSchedule });
+
+      // click confirm button
+      wrapper
+        .find('.ant-modal-footer')
+        .find('.ant-btn-primary')
+        .simulate('click');
+
+      // expect calls
+      expect(confirmCb).toBeCalled();
+      expect(closeCb).toBeCalled();
+    });
+
+    test('Query not saved on confirm if state unchanged', () => {
+      // init
+      const [wrapper] = getWrapper(null, initProps);
+
+      // click confirm button
+      wrapper
+        .find('.ant-modal-footer')
+        .find('.ant-btn-primary')
+        .simulate('click');
+
+      // expect calls
+      expect(confirmCb).not.toBeCalled();
+      expect(closeCb).toBeCalled();
+    });
+
+    test('Cancel closes modal and query unsaved', () => {
+      // init
+      const [wrapper, props] = getWrapper(null, initProps);
+
+      // change state
+      const change = { time: '22:15' };
+      const newSchedule = Object.assign({}, props.schedule, change);
+      wrapper.setState({ newSchedule });
+
+      // click cancel button
+      wrapper
+        .find('.ant-modal-footer')
+        .find('button:not(.ant-btn-primary)')
+        .simulate('click');
+
+      // expect calls
+      expect(confirmCb).not.toBeCalled();
+      expect(closeCb).toBeCalled();
+    });
+  });
 });
