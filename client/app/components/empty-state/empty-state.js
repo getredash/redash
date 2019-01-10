@@ -15,7 +15,7 @@ const EmptyStateComponent = {
     showInviteStep: '<',
     onboardingMode: '<',
   },
-  controller($uibModal, OrganizationStatus, currentUser) {
+  controller($scope, $http, $uibModal, OrganizationStatus, currentUser, toastr) {
     this.isAdmin = currentUser.isAdmin;
     this.isEmailVerified = currentUser.is_email_verified;
 
@@ -44,6 +44,12 @@ const EmptyStateComponent = {
         resolve: {
           dashboard: () => ({ name: null, layout: null }),
         },
+      });
+    };
+
+    $scope.verifyEmail = () => {
+      $http.get('/send_verification').success((data) => {
+        toastr.success(data);
       });
     };
   },
