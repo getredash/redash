@@ -39,6 +39,7 @@ Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
   const [newPrefix] = newUrl.split('?');
   return prevPrefix !== newPrefix;
 };
+Pace.start();
 
 const requirements = [
   ngRoute,
