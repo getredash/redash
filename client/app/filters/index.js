@@ -20,6 +20,9 @@ export function localizeTime(time) {
 }
 
 export function secondsToInterval(seconds) {
+  if (!seconds) {
+    return { interval: IntervalEnum.NEVER };
+  }
   let interval = IntervalEnum.MINUTES;
   let count = seconds / 60;
   if (count >= 60) {
