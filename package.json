@@ -11,7 +11,7 @@
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
-    "test": "jest",
+    "test": "TZ=Asia/Jerusalem jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress @percy/cypress",
     "cypress": "node cypress/cypress.js"
@@ -116,6 +116,7 @@
     "less-loader": "^4.1.0",
     "less-plugin-autoprefix": "^1.5.1",
     "mini-css-extract-plugin": "^0.4.4",
+    "mockdate": "^2.0.2",
     "raw-loader": "^0.5.1",
     "react-test-renderer": "^16.5.2",
     "request": "^2.88.0",
@@ -132,7 +133,8 @@
   },
   "jest": {
     "setupFiles": [
-      "./client/app/jest_setup.js"
+      "./client/app/__tests__/enzyme_setup.js",
+      "./client/app/__tests__/mocks.js"
     ],
     "snapshotSerializers": [
       "enzyme-to-json/serializer"
@@ -140,6 +142,9 @@
     "moduleNameMapper": {
       "^@/(.*)": "<rootDir>/client/app/$1",
       "\\.(css|less)$": "identity-obj-proxy"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "<rootDir>/client/app/__tests__/"
+    ]
   }
 }

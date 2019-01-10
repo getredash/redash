@@ -58,11 +58,6 @@ function getSelectOptions(wrapper) {
 }
 
 describe('ScheduleDialog', () => {
-  beforeAll(() => {
-    // mock date string so snapshots don't get invalidated
-    window.Date.prototype.toISOString = jest.fn(() => 'mocked ISO');
-  });
-
   describe('Sets correct schedule settings', () => {
     test('Sets to "Never"', () => {
       const [wrapper] = getWrapper();

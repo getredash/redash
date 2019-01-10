@@ -270,7 +270,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
       }
     }
     allowEmpty={false}
-    defaultValue={"mocked ISO"}
+    defaultValue={"1999-12-31T22:15:00.000Z"}
     disabled={false}
     focusOnOpen={true}
     format="HH:mm"
@@ -304,7 +304,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         className=""
         clearText="clear"
         defaultOpen={false}
-        defaultOpenValue={"mocked ISO"}
+        defaultOpenValue={"2000-01-01T00:00:00.000Z"}
         disabled={false}
         disabledHours={[Function]}
         disabledMinutes={[Function]}
@@ -331,7 +331,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         style={Object {}}
         transitionName="slide-up"
         use12Hours={false}
-        value={"mocked ISO"}
+        value={"1999-12-31T22:15:00.000Z"}
       >
         <Trigger
           action={
@@ -435,7 +435,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               addon={[Function]}
               allowEmpty={false}
               clearText="clear"
-              defaultOpenValue={"mocked ISO"}
+              defaultOpenValue={"2000-01-01T00:00:00.000Z"}
               disabledHours={[Function]}
               disabledMinutes={[Function]}
               disabledSeconds={[Function]}
@@ -454,7 +454,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               showMinute={true}
               showSecond={false}
               use12Hours={false}
-              value={"mocked ISO"}
+              value={"1999-12-31T22:15:00.000Z"}
             />
           }
           popupAlign={
@@ -1030,7 +1030,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
       }
     }
     allowEmpty={false}
-    defaultValue={"mocked ISO"}
+    defaultValue={"1999-12-31T22:15:00.000Z"}
     disabled={false}
     focusOnOpen={true}
     format="HH:mm"
@@ -1064,7 +1064,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         className=""
         clearText="clear"
         defaultOpen={false}
-        defaultOpenValue={"mocked ISO"}
+        defaultOpenValue={"2000-01-01T00:00:00.000Z"}
         disabled={false}
         disabledHours={[Function]}
         disabledMinutes={[Function]}
@@ -1091,7 +1091,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         style={Object {}}
         transitionName="slide-up"
         use12Hours={false}
-        value={"mocked ISO"}
+        value={"1999-12-31T22:15:00.000Z"}
       >
         <Trigger
           action={
@@ -1195,7 +1195,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               addon={[Function]}
               allowEmpty={false}
               clearText="clear"
-              defaultOpenValue={"mocked ISO"}
+              defaultOpenValue={"2000-01-01T00:00:00.000Z"}
               disabledHours={[Function]}
               disabledMinutes={[Function]}
               disabledSeconds={[Function]}
@@ -1214,7 +1214,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               showMinute={true}
               showSecond={false}
               use12Hours={false}
-              value={"mocked ISO"}
+              value={"1999-12-31T22:15:00.000Z"}
             />
           }
           popupAlign={
@@ -2308,7 +2308,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
     prefixCls="ant-calendar"
     size="small"
     transitionName="slide-up"
-    value={"mocked ISO"}
+    value={"2029-12-31T22:00:00.000Z"}
   >
     <LocaleReceiver
       componentName="DatePicker"
@@ -2372,7 +2372,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
         size="small"
         timePicker={null}
         transitionName="slide-up"
-        value={"mocked ISO"}
+        value={"2029-12-31T22:00:00.000Z"}
       >
         <span
           className="datepicker ant-calendar-picker ant-calendar-picker-small"
@@ -2386,7 +2386,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
               <Calendar
                 className=""
                 dateInputPlaceholder="Select date"
-                defaultValue={"mocked ISO"}
+                defaultValue={"2000-01-01T00:00:00.000Z"}
                 disabledTime={null}
                 format="YYYY-MM-DD"
                 locale={
@@ -2437,7 +2437,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                 showToday={true}
                 style={Object {}}
                 timePicker={null}
-                value={"mocked ISO"}
+                value={"2029-12-31T22:00:00.000Z"}
                 visible={true}
               />
             }
@@ -2500,7 +2500,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
             style={Object {}}
             timePicker={null}
             transitionName="slide-up"
-            value={"mocked ISO"}
+            value={"2029-12-31T22:00:00.000Z"}
           >
             <Trigger
               action={
@@ -2602,7 +2602,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                 <Calendar
                   className=""
                   dateInputPlaceholder="Select date"
-                  defaultValue={"mocked ISO"}
+                  defaultValue={"2029-12-31T22:00:00.000Z"}
                   disabledTime={null}
                   format="YYYY-MM-DD"
                   locale={
@@ -2649,12 +2649,12 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                   prefixCls="ant-calendar"
                   renderFooter={[Function]}
                   renderSidebar={[Function]}
-                  selectedValue={"mocked ISO"}
+                  selectedValue={"2029-12-31T22:00:00.000Z"}
                   showDateInput={true}
                   showToday={true}
                   style={Object {}}
                   timePicker={null}
-                  value={"mocked ISO"}
+                  value={"2029-12-31T22:00:00.000Z"}
                   visible={true}
                 />
               }
