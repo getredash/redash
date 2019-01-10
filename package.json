@@ -95,6 +95,9 @@
     "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^0.28.7",
+    "enzyme": "^3.8.0",
+    "enzyme-adapter-react-16": "^1.7.1",
+    "enzyme-to-json": "^3.3.5",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.0.1",
@@ -107,6 +110,7 @@
     "eslint-plugin-react": "^7.7.0",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^23.6.0",
     "less": "^2.7.3",
     "less-loader": "^4.1.0",
@@ -125,5 +129,17 @@
   },
   "optionalDependencies": {
     "fsevents": "^1.2.4"
+  },
+  "jest": {
+    "setupFiles": [
+      "./client/app/jest_setup.js"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)": "<rootDir>/client/app/$1",
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   }
 }

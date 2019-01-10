@@ -18,7 +18,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const { Option, OptGroup } = Select;
 
-class ScheduleDialog extends React.Component {
+export class ScheduleDialog extends React.Component {
   static propTypes = {
     show: PropTypes.bool.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
@@ -178,7 +178,7 @@ class ScheduleDialog extends React.Component {
       >
         <div className="schedule-component" ref={this.modalRef}>
           <h5>Refresh every</h5>
-          <div>
+          <div data-testid="interval">
             <Select value={seconds} onChange={this.setInterval} {...selectProps}>
               <Option value={null} key="never">Never</Option>
               {Object.keys(this.intervals).map(int => (
