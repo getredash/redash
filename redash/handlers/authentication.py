@@ -127,7 +127,7 @@ def send_verification(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
 
-    return "Please check your e-mail inbox in order to verify your address.", 200
+    return "Please check your email inbox in order to verify your email address.", 200
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
