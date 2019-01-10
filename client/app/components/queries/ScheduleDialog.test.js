@@ -37,6 +37,26 @@ function findByTestID(wrapper, id) {
   return wrapper.find(`[data-testid="${id}"]`);
 }
 
+function getSelectOptions(wrapper) {
+  jest.useFakeTimers();
+
+  // click select
+  wrapper.find('.ant-select').simulate('click');
+
+  // run timers
+  jest.runAllTimers();
+  jest.useRealTimers();
+
+  // get dropdown menu
+  const dropdown = mount(wrapper
+    .find('Trigger')
+    .instance()
+    .getComponent());
+
+  // get menu items
+  return dropdown.find('MenuItem');
+}
+
 describe('ScheduleDialog', () => {
   beforeAll(() => {
     // mock date string so snapshots don't get invalidated
@@ -114,6 +134,37 @@ describe('ScheduleDialog', () => {
         const el = findByTestID(wrapper, 'ends');
         expect(el).toMatchSnapshot();
       });
+    });
+  });
+
+  describe('Adheres to user permissions', () => {
+    test('Shows correct interval options', () => {
+      const refreshOptions = [60, 3600]; // 1 min, 1 hour
+      const [wrapper] = getWrapper(null, { refreshOptions });
+      const selectWrapper = findByTestID(wrapper, 'select-interval');
+      const options = getSelectOptions(selectWrapper);
+
+      const texts = options.map(node => node.text());
+      const expected = ['Never', 'minute(s)', 'hour(s)'];
+
+      // eslint-disable-next-line jest/prefer-to-have-length
+      expect(options.length).toEqual(expected.length);
+      expect(texts).toEqual(expected);
+    });
+
+    // skipped due to issue #3263 https://git.io/fhZcG
+    // eslint-disable-next-line jest/no-disabled-tests
+    test.skip('Shows correct count options', () => {
+      const [wrapper] = getWrapper({ interval: 300 });
+      const selectWrapper = findByTestID(wrapper, 'select-count');
+      const options = getSelectOptions(selectWrapper);
+
+      const texts = options.map(node => node.text());
+      const expected = ['1', '5', '10'];
+
+      // eslint-disable-next-line jest/prefer-to-have-length
+      expect(options.length).toEqual(expected.length);
+      expect(texts).toEqual(expected);
     });
   });
 });
