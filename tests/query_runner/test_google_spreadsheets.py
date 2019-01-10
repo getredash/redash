@@ -4,35 +4,9 @@ from unittest import TestCase
 
 from mock import MagicMock
 
-from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER
-from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _get_columns_and_column_names, _guess_type, _value_eval_list, parse_query
+from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
+from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _get_columns_and_column_names, _value_eval_list, parse_query
 from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, parse_spreadsheet, parse_worksheet
-
-
-class TestGuessType(TestCase):
-    def test_handles_unicode(self):
-        self.assertEqual(_guess_type(u'יוניקוד'), TYPE_STRING)
-
-    def test_detects_booleans(self):
-        self.assertEqual(_guess_type('true'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('True'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('TRUE'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('false'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('False'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('FALSE'), TYPE_BOOLEAN)
-
-    def test_detects_strings(self):
-        self.assertEqual(TYPE_STRING, _guess_type(''))
-        self.assertEqual(TYPE_STRING, _guess_type('redash'))
-
-    def test_detects_integer(self):
-        self.assertEqual(TYPE_INTEGER, _guess_type('42'))
-
-    def test_detects_float(self):
-        self.assertEqual(TYPE_FLOAT, _guess_type('3.14'))
-
-    def test_detects_date(self):
-        self.assertEqual(TYPE_DATETIME, _guess_type('2018-06-28'))
 
 
 class TestValueEvalList(TestCase):
