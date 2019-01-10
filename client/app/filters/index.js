@@ -30,7 +30,7 @@ export function secondsToInterval(seconds) {
     count /= 24;
     interval = IntervalEnum.DAYS;
   }
-  if (count >= 7 && interval === IntervalEnum.DAYS) {
+  if (count >= 7 && !(count % 7) && interval === IntervalEnum.DAYS) {
     count /= 7;
     interval = IntervalEnum.WEEKS;
   }
