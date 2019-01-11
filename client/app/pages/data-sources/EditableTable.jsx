@@ -1,12 +1,16 @@
 import React from 'react';
 import Form from 'antd/lib/form';
-import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
-const { TextArea } = Input;
+import PropTypes from 'prop-types';
+import { TableMetadata } from '@/components/proptypes';
+import TableVisibilityCheckbox from './TableVisibilityCheckbox';
+import './schema-table.css';
 
 const FormItem = Form.Item;
+const { TextArea } = Input;
 export const EditableContext = React.createContext();
 
+// eslint-disable-next-line react/prop-types
 const EditableRow = ({ form, index, ...props }) => (
   <EditableContext.Provider value={form}>
     <tr {...props} />
@@ -16,10 +20,24 @@ const EditableRow = ({ form, index, ...props }) => (
 export const EditableFormRow = Form.create()(EditableRow);
 
 export class EditableCell extends React.Component {
+  static propTypes = {
+    dataIndex: PropTypes.string,
+    input_type: PropTypes.string,
+    editing: PropTypes.bool,
+    record: TableMetadata,
+  };
+
+  static defaultProps = {
+    dataIndex: undefined,
+    input_type: undefined,
+    editing: false,
+    record: {},
+  };
+
   constructor(props) {
     super(props);
     this.state = {
-      visible: this.props.record ? this.props.record.table_visible : false
+      visible: this.props.record ? this.props.record.table_visible : false,
     };
   }
 
@@ -28,24 +46,21 @@ export class EditableCell extends React.Component {
   }
 
   getInput = () => {
-    if (this.props.inputType === 'checkbox') {
+    if (this.props.input_type === 'table_visible') {
       return (
         <TableVisibilityCheckbox
           visible={this.state.visible}
           onChange={this.onChange}
-        ></TableVisibilityCheckbox>);
+        />);
     }
-    return <TextArea autosize={{ minRows: 1 }} style={{ resize: 'vertical' }}/>;
+    return <TextArea className="table-textarea" placeholder="Enter table description..." style={{ resize: 'vertical' }} />;
   };
 
   render() {
     const {
       editing,
       dataIndex,
-      title,
-      inputType,
       record,
-      index,
       ...restProps
     } = this.props;
 

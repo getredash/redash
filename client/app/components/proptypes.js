@@ -39,6 +39,13 @@ export const RefreshScheduleDefault = {
   until: null,
 };
 
+export const TableMetadata = PropTypes.shape({
+  key: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  table_description: PropTypes.string.isRequired,
+  table_visible: PropTypes.bool.isRequired,
+});
+
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
