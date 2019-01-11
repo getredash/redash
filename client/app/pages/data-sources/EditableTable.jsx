@@ -15,26 +15,6 @@ const EditableRow = ({ form, index, ...props }) => (
 
 export const EditableFormRow = Form.create()(EditableRow);
 
-export class TableVisibilityCheckbox extends React.Component {
-  render() {
-    const {
-      visible,
-      onChange,
-      disabled
-    } = this.props;
-
-    return (
-      <Checkbox
-        checked={this.props.visible}
-        onChange={this.props.onChange}
-        disabled={this.props.disabled}
-      >
-        {this.props.visible ? 'Visible' : 'Hidden'}
-      </Checkbox>
-    )
-  }
-}
-
 export class EditableCell extends React.Component {
   constructor(props) {
     super(props);
