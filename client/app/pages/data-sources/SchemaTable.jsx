@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
 import Popconfirm from 'antd/lib/popconfirm';
 import { Schema } from '@/components/proptypes';
-import { EditableCell, EditableFormRow, EditableContext, TableVisibilityCheckbox } from './EditableTable';
+import { EditableCell, EditableFormRow, EditableContext } from './EditableTable';
+import TableVisibilityCheckbox from './TableVisibilityCheckbox';
 
 import './schema-table.css';
 
@@ -27,7 +28,7 @@ const components = {
 
 class SchemaTable extends React.Component {
   static propTypes = {
-    schema: Schema,
+    schema: Schema, // eslint-disable-line react/no-unused-prop-types
     updateSchema: PropTypes.func.isRequired,
   };
 
@@ -46,37 +47,33 @@ class SchemaTable extends React.Component {
     }, {
       title: 'Table Description',
       dataIndex: 'table_description',
-      width: '55%',
+      width: '52%',
       key: 'table_description',
       editable: true,
-      render: this.truncateDescriptionText.bind(this),
+      render: this.truncateDescriptionText,
     }, {
       title: 'Visibility',
       dataIndex: 'table_visible',
       width: '13%',
       key: 'table_visible',
       editable: true,
-      render: (text, record) => {
-        return (
-          <div>
-            <TableVisibilityCheckbox
-              disabled={true}
-              visible={record.table_visible}>
-            </TableVisibilityCheckbox>
-          </div>
-        );
-      },
+      render: (text, record) => (
+        <div>
+          <TableVisibilityCheckbox
+            disabled
+            visible={record.table_visible}
+          />
+        </div>
+      ),
     }, {
       title: '',
-      width: '11%',
+      width: '15%',
       dataIndex: 'edit',
       key: 'edit',
-      render: (text, record) => {
-        // Purposely calling fieldEditor() instead of setting render() to it
-        // because render() will pass a different third argument than what
-        // fieldEditory() takes
-        return this.fieldEditor(text, record);
-      },
+      // Purposely calling fieldEditor() instead of setting render() to it
+      // because render() will pass a different third argument than what
+      // fieldEditory() takes
+      render: (text, record) => this.fieldEditor(text, record),
     }];
   }
 
@@ -90,15 +87,16 @@ class SchemaTable extends React.Component {
     return prevState;
   }
 
-  truncateDescriptionText(text) {
+  truncateDescriptionText = (text) => {
     if (!text) {
       return;
     }
     const MAX_CHARACTER_COUNT = 305;
-    const addEllipses = text.length > MAX_CHARACTER_COUNT ? true : false;
+    const addEllipses = text.length > MAX_CHARACTER_COUNT;
+
     return (
       <div title={text}>
-        {`${text.replace(/\n/g, " ").substring(0, MAX_CHARACTER_COUNT)}${addEllipses ? '...' : '' }`}
+        {`${text.replace(/\n/g, ' ').substring(0, MAX_CHARACTER_COUNT)}${addEllipses ? '...' : ''}`}
       </div>
     );
   }
@@ -113,56 +111,61 @@ class SchemaTable extends React.Component {
           <span>
             <EditableContext.Consumer>
               {form => (
-                <a
-                  href="javascript:;"
+                <button
+                  className="btn btn-default"
                   onClick={() => this.save(form, tableKey, columnKey)}
                   style={{ marginRight: 8 }}
                 >
                   Save
-                </a>
+                </button>
               )}
             </EditableContext.Consumer>
             <Popconfirm
               title="Sure to cancel?"
               onConfirm={() => this.cancel(record.key)}
             >
-              <a>Cancel</a>
+              <button className="btn btn-default">Cancel</button>
             </Popconfirm>
           </span>
         ) : (
-          <a onClick={() => this.edit(record.key)}>Edit</a>
+          <button
+            className="btn btn-default"
+            onClick={() => this.edit(record.key)}
+          >
+            Edit
+          </button>
         )}
       </div>
     );
   }
 
-  expandedRowRender(tableData) {
+  expandedRowRender = (tableData) => {
     const columns = [
       {
         title: 'Column Name',
         dataIndex: 'name',
         key: 'name',
-        width: '15%'
+        width: '15%',
       }, {
         title: 'Column Type',
         dataIndex: 'type',
         key: 'type',
-        width: '15%'
+        width: '15%',
       }, {
         title: 'Column Example',
         dataIndex: 'example',
         key: 'example',
-        width: '20%'
+        width: '20%',
       }, {
         title: 'Column Description',
         dataIndex: 'column_description',
         key: 'column_description',
-        width: '39%',
+        width: '35%',
         editable: true,
-        render: this.truncateDescriptionText.bind(this),
+        render: this.truncateDescriptionText,
         onCell: record => ({
           record,
-          inputType: 'text',
+          input_type: 'text',
           dataIndex: 'column_description',
           title: 'Column Description',
           editing: this.isEditing(record),
@@ -170,12 +173,11 @@ class SchemaTable extends React.Component {
       },
       {
         title: '',
-        width: '11%',
+        width: '15%',
         dataIndex: 'edit',
-        render: (text, record) => {
-          return this.fieldEditor(text, record, tableData);
-        }
-      }
+        key: 'edit',
+        render: (text, record) => this.fieldEditor(text, record, tableData),
+      },
     ];
 
     return (
@@ -235,21 +237,16 @@ class SchemaTable extends React.Component {
   }
 
   render() {
-    const columns = this.columns.map((col) => {
-      if (!col.editable) {
-        return col;
-      }
-      return {
-        ...col,
-        onCell: record => ({
-          record,
-          inputType: col.dataIndex === 'table_visible' ? 'checkbox' : 'text',
-          dataIndex: col.dataIndex,
-          title: col.title,
-          editing: this.isEditing(record),
-        }),
-      };
-    });
+    const columns = this.columns.map(col => ({
+      ...col,
+      onCell: record => ({
+        record,
+        input_type: col.dataIndex,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        editing: col.editable ? this.isEditing(record) : false,
+      }),
+    }));
 
     return (
       <Table
@@ -260,7 +257,7 @@ class SchemaTable extends React.Component {
         pagination={false}
         columns={columns}
         rowClassName="editable-row"
-        expandedRowRender={this.expandedRowRender.bind(this)}
+        expandedRowRender={this.expandedRowRender}
       />
     );
   }
