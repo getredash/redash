@@ -13,7 +13,12 @@ def log_queries():
     for q in get_debug_queries():
         total_duration += q.duration
         queries_count += 1
-        chromelogger.info(q.statement % q.parameters)
+        if isinstance(q.parameters, tuple):
+            for param in q.parameters:
+                chromelogger.info(q.statement % param)
+        else:
+            chromelogger.info(q.statement % q.parameters)
+
         chromelogger.info("Runtime: {:.2f}ms".format(1000 * q.duration))
 
     chromelogger.info("{} queries executed in {:.2f}ms.".format(queries_count, total_duration*1000))

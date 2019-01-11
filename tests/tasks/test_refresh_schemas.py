@@ -6,8 +6,9 @@ from tests import BaseTestCase
 
 from redash import models, utils
 from redash.tasks import (refresh_schemas, refresh_schema,
-    update_sample, refresh_samples)
+                          update_sample, refresh_samples)
 from redash.models import TableMetadata, ColumnMetadata
+from redash.serializers import ColumnMetadataSerializer, TableMetadataSerializer
 
 
 class TestRefreshSchemas(BaseTestCase):
@@ -28,7 +29,8 @@ class TestRefreshSchemas(BaseTestCase):
             'exists': True,
         }
 
-        get_schema_patcher = patch('redash.query_runner.pg.PostgreSQL.get_schema')
+        get_schema_patcher = patch(
+            'redash.query_runner.pg.PostgreSQL.get_schema')
         self.patched_get_schema = get_schema_patcher.start()
         self.addCleanup(get_schema_patcher.stop)
         self.default_schema_return_value = [{
@@ -41,10 +43,12 @@ class TestRefreshSchemas(BaseTestCase):
         }]
         self.patched_get_schema.return_value = self.default_schema_return_value
 
-        get_table_sample_patcher = patch('redash.query_runner.BaseQueryRunner.get_table_sample')
-        self.patched_get_table_sample = get_table_sample_patcher.start()
+        get_table_sample_patcher = patch(
+            'redash.query_runner.BaseQueryRunner.get_table_sample')
+        patched_get_table_sample = get_table_sample_patcher.start()
         self.addCleanup(get_table_sample_patcher.stop)
-        self.patched_get_table_sample.return_value = {self.COLUMN_NAME: self.COLUMN_EXAMPLE}
+        patched_get_table_sample.return_value = {
+            self.COLUMN_NAME: self.COLUMN_EXAMPLE}
 
     def tearDown(self):
         self.factory.data_source.query_runner.configuration['samples'] = False
@@ -68,7 +72,6 @@ class TestRefreshSchemas(BaseTestCase):
             refresh_schemas()
             refresh_job.assert_called()
 
-
     def test_refresh_schema_creates_tables(self):
         EXPECTED_TABLE_METADATA = {
             'id': 1,
@@ -76,11 +79,12 @@ class TestRefreshSchemas(BaseTestCase):
             'exists': True,
             'name': 'table',
             'visible': True,
-            'sample_query': None,
+            'column_metadata': False,
             'description': None,
             'column_metadata': True,
             'data_source_id': 1,
             'sample_updated_at': None,
+            'sample_queries': {}
         }
 
         refresh_schema(self.factory.data_source.id)
@@ -95,8 +99,10 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertEqual(table_metadata[0].to_dict(), EXPECTED_TABLE_METADATA)
-        self.assertEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
+        self.assertEqual(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize(), EXPECTED_TABLE_METADATA)
+        self.assertEqual(ColumnMetadataSerializer(
+            column_metadata[0]).serialize(), self.EXPECTED_COLUMN_METADATA)
 
     def test_refresh_schema_deleted_table_marked(self):
         refresh_schema(self.factory.data_source.id)
@@ -105,7 +111,8 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertTrue(table_metadata[0].to_dict()['exists'])
+        self.assertTrue(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['exists'])
 
         # Table is gone, `exists` should be False.
         self.patched_get_schema.return_value = []
@@ -116,13 +123,15 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertFalse(table_metadata[0].to_dict()['exists'])
+        self.assertFalse(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['exists'])
 
         # Table is back, `exists` should be True again.
         self.patched_get_schema.return_value = self.default_schema_return_value
         refresh_schema(self.factory.data_source.id)
         table_metadata = TableMetadata.query.all()
-        self.assertTrue(table_metadata[0].to_dict()['exists'])
+        self.assertTrue(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['exists'])
 
     def test_refresh_schema_table_with_new_metadata_updated(self):
         refresh_schema(self.factory.data_source.id)
@@ -131,7 +140,8 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertTrue(table_metadata[0].to_dict()['column_metadata'])
+        self.assertTrue(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['column_metadata'])
 
         # Table has no metdata field, `column_metadata` should be False.
         self.patched_get_schema.return_value = [{
@@ -145,20 +155,23 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertFalse(table_metadata[0].to_dict()['column_metadata'])
+        self.assertFalse(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['column_metadata'])
 
         # Table metadata field is back, `column_metadata` should be True again.
         self.patched_get_schema.return_value = self.default_schema_return_value
         refresh_schema(self.factory.data_source.id)
         table_metadata = TableMetadata.query.all()
-        self.assertTrue(table_metadata[0].to_dict()['column_metadata'])
+        self.assertTrue(TableMetadataSerializer(
+            table_metadata[0], with_favorite_state=False).serialize()['column_metadata'])
 
     def test_refresh_schema_delete_column(self):
         NEW_COLUMN_NAME = 'new_column'
         refresh_schema(self.factory.data_source.id)
         column_metadata = ColumnMetadata.query.all()
 
-        self.assertTrue(column_metadata[0].to_dict()['exists'])
+        self.assertTrue(ColumnMetadataSerializer(
+            column_metadata[0]).serialize()['exists'])
 
         self.patched_get_schema.return_value = [{
             'name': 'table',
@@ -173,8 +186,10 @@ class TestRefreshSchemas(BaseTestCase):
         column_metadata = ColumnMetadata.query.all()
         self.assertEqual(len(column_metadata), 2)
 
-        self.assertFalse(column_metadata[1].to_dict()['exists'])
-        self.assertTrue(column_metadata[0].to_dict()['exists'])
+        self.assertFalse(ColumnMetadataSerializer(
+            column_metadata[1]).serialize()['exists'])
+        self.assertTrue(ColumnMetadataSerializer(
+            column_metadata[0]).serialize()['exists'])
 
     def test_refresh_schema_update_column(self):
         UPDATED_COLUMN_TYPE = 'varchar'
@@ -187,7 +202,8 @@ class TestRefreshSchemas(BaseTestCase):
             "2019-05-09T17:07:52.386910Z"
         )
         column_metadata = ColumnMetadata.query.all()
-        self.assertEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
+        self.assertEqual(ColumnMetadataSerializer(
+            column_metadata[0]).serialize(), self.EXPECTED_COLUMN_METADATA)
 
         updated_schema = copy.deepcopy(self.default_schema_return_value)
         updated_schema[0]['metadata'][0]['type'] = UPDATED_COLUMN_TYPE
@@ -195,8 +211,10 @@ class TestRefreshSchemas(BaseTestCase):
 
         refresh_schema(self.factory.data_source.id)
         column_metadata = ColumnMetadata.query.all()
-        self.assertNotEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
-        self.assertEqual(column_metadata[0].to_dict()['type'], UPDATED_COLUMN_TYPE)
+        self.assertNotEqual(ColumnMetadataSerializer(
+            column_metadata[0]).serialize(), self.EXPECTED_COLUMN_METADATA)
+        self.assertEqual(ColumnMetadataSerializer(
+            column_metadata[0]).serialize()['type'], UPDATED_COLUMN_TYPE)
 
     def test_refresh_samples_rate_limits(self):
         NEW_COLUMN_NAME = 'new_column'
@@ -270,7 +288,8 @@ class TestRefreshSchemas(BaseTestCase):
             TableMetadata.sample_updated_at.isnot(None)
         )
         self.assertEqual(table_metadata.count(), NUM_TABLES)
-        self.assertTrue(table_metadata.first().sample_updated_at > TIME_BEFORE_UPDATE)
+        self.assertTrue(table_metadata.first(
+        ).sample_updated_at > TIME_BEFORE_UPDATE)
 
         table_metadata.update({
             'sample_updated_at': utils.utcnow() - datetime.timedelta(days=30)
@@ -282,7 +301,8 @@ class TestRefreshSchemas(BaseTestCase):
         table_metadata_list = TableMetadata.query.filter(
             TableMetadata.sample_updated_at.isnot(None)
         )
-        self.assertTrue(table_metadata_list.first().sample_updated_at > TIME_BEFORE_UPDATE)
+        self.assertTrue(table_metadata_list.first(
+        ).sample_updated_at > TIME_BEFORE_UPDATE)
 
     def test_refresh_schema_doesnt_overwrite_samples(self):
         self.factory.data_source.query_runner.configuration['samples'] = True
@@ -319,51 +339,5 @@ class TestRefreshSchemas(BaseTestCase):
         table_metadata = TableMetadata.query.filter(
             TableMetadata.sample_updated_at.isnot(None)
         )
-        self.assertEqual(table_metadata.count(), len(self.default_schema_return_value))
-
-    def test_recent_empty_sample_refreshs(self):
-        self.factory.data_source.query_runner.configuration['samples'] = True
-        refresh_schema(self.factory.data_source.id)
-
-        # Confirm no sample exists
-        column_metadata = ColumnMetadata.query.first()
-        self.assertEqual(column_metadata.example, None)
-
-        LAST_UPDATE = utils.utcnow() - datetime.timedelta(days=5)
-        update_sample(
-            self.factory.data_source.id,
-            'table',
-            1,
-            LAST_UPDATE.isoformat()
-        )
-
-        column_metadata = ColumnMetadata.query.first()
-        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
-
-    def test_recent_non_empty_sample_doesnt_refresh(self):
-        self.factory.data_source.query_runner.configuration['samples'] = True
-        refresh_schema(self.factory.data_source.id)
-
-        update_sample(
-            self.factory.data_source.id,
-            'table',
-            1,
-            None
-        )
-
-        # Confirm a sample was added
-        column_metadata = ColumnMetadata.query.first()
-        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
-
-        self.patched_get_table_sample.return_value = {self.COLUMN_NAME: "a new example"}
-        LAST_UPDATE = utils.utcnow() - datetime.timedelta(days=5)
-        update_sample(
-            self.factory.data_source.id,
-            'table',
-            1,
-            LAST_UPDATE.isoformat()
-        )
-
-        # The sample doesn't take on the new value that is returned.
-        column_metadata = ColumnMetadata.query.first()
-        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
+        self.assertEqual(table_metadata.count(), len(
+            self.default_schema_return_value))

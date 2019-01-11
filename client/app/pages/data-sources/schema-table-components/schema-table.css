@@ -2,3 +2,23 @@
   word-break: break-all;
   white-space: pre-line;
 }
+
+.add-sample, .sample-list {
+  display: inline-block;
+}
+
+.add-sample {
+  float: right;
+}
+
+.sample-list .ant-input {
+  border-color: #e8e8e8 !important;
+}
+
+.ant-form-item-control {
+  line-height: 0 !important;
+}
+
+#table_description {
+  height: 0;
+}
