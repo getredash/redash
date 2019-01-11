@@ -7,6 +7,8 @@ from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
+from redash.models import TableMetadata, ColumnMetadata
+from redash.serializers import QuerySerializer
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
@@ -158,19 +160,43 @@ class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         require_access(data_source.groups, self.current_user, view_only)
-        refresh = request.args.get('refresh') is not None
 
         response = {}
 
         try:
-            response['schema'] = data_source.get_schema(refresh)
+            schema = []
+            tables = models.db.session.query(TableMetadata).filter(TableMetadata.data_source_id == data_source.id).all()
 
             # If the TableMetadata table has no information about this data source,
             # this might be due to a fresh migration to these new tables.
             # They will likely only populate at the next refresh (30 min intervals)
             # So let's refresh them now to get them sooner.
-            if len(response['schema']) == 0:
+            if len(tables) == 0:
                 refresh_schemas.apply_async(queue="schemas")
+
+            for table in tables:
+                sample_queries_dict = dict([(v['id'], v) for v in QuerySerializer(table.sample_queries).serialize()])
+                table_info = {
+                    'id': table.id,
+                    'name': table.table_name,
+                    'exists': table.table_exists,
+                    'visible': table.table_visible,
+                    'hasColumnMetadata': table.column_metadata,
+                    'table_description': table.table_description,
+                    'sample_queries': sample_queries_dict,
+                    'columns': []}
+                columns = models.db.session.query(ColumnMetadata).filter(ColumnMetadata.table_id==table.id)
+                table_info['columns'] = sorted([{
+                    'key': column.id,
+                    'name': column.column_name,
+                    'type': column.column_type,
+                    'exists': column.column_exists,
+                    'example': column.column_example,
+                    'column_description': column.column_description,
+                } for column in columns], key=lambda column: column['name'])
+                schema.append(table_info)
+
+            response['schema'] = sorted(schema, key=lambda table: table['name'])
         except NotSupported:
             response['error'] = {
                 'code': 1,

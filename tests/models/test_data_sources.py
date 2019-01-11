@@ -4,35 +4,6 @@ from redash.models import DataSource, Query, QueryResult
 from redash.utils.configuration import ConfigurationContainer
 
 
-class DataSourceTest(BaseTestCase):
-    def test_get_schema(self):
-        data_source = self.factory.create_data_source()
-        table_metadata = self.factory.create_table_metadata(data_source_id=data_source.id)
-        column_metadata = self.factory.create_column_metadata(
-            table_id=table_metadata.id,
-            column_type='boolean',
-            column_example=True)
-
-        return_value = [{
-            'id': table_metadata.id,
-            'name': 'table',
-            'hasColumnMetadata': False,
-            'exists': True,
-            'visible': True,
-            'table_description': None,
-            'columns': [{
-                'key': 1,
-                'name': 'column',
-                'type': 'boolean',
-                'column_description': None,
-                'exists': True,
-                'example': True
-            }]
-        }]
-        schema = data_source.get_schema()
-        self.assertEqual(return_value, schema)
-
-
 class TestDataSourceCreate(BaseTestCase):
     def test_adds_data_source_to_default_group(self):
         data_source = DataSource.create_with_group(org=self.factory.org, name='test', options=ConfigurationContainer.from_json('{"dbname": "test"}'), type='pg')

@@ -14,6 +14,35 @@ class TestDataSourceGetSchema(BaseTestCase):
         response = self.make_request("get", "/api/data_sources/{}/schema".format(self.factory.data_source.id), user=other_admin)
         self.assertEqual(response.status_code, 404)
 
+    def test_get_schema_returns_expected_values(self):
+        data_source = self.factory.create_data_source()
+        table_metadata = self.factory.create_table_metadata(data_source_id=data_source.id)
+        column_metadata = self.factory.create_column_metadata(
+            table_id=table_metadata.id,
+            column_type='boolean',
+            column_example=True)
+        admin = self.factory.create_admin()
+        response = self.make_request("get", "/api/data_sources/{}/schema".format(data_source.id), user=admin)
+
+        return_value = [{
+            'id': table_metadata.id,
+            'name': 'table',
+            'hasColumnMetadata': False,
+            'exists': True,
+            'visible': True,
+            'table_description': None,
+            'sample_queries': {},
+            'columns': [{
+                'key': 1,
+                'name': 'column',
+                'type': 'boolean',
+                'column_description': None,
+                'exists': True,
+                'example': True
+            }]
+        }]
+        self.assertEqual(return_value, response.json['schema'])
+
 
 class TestDataSourceListGet(BaseTestCase):
     def test_returns_each_data_source_once(self):
