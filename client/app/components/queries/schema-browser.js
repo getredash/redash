@@ -16,6 +16,7 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     $scope.tableName = table.name;
     $scope.tableDescription = table.description;
     $scope.tableMetadata = table.columns;
+    $scope.sampleQueries = Object.values(table.sample_queries);
     $scope.showSchemaInfo = true;
     $event.stopPropagation();
   };

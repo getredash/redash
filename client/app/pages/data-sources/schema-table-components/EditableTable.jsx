@@ -4,6 +4,8 @@ import Input from 'antd/lib/input';
 import PropTypes from 'prop-types';
 import { TableMetadata } from '@/components/proptypes';
 import TableVisibilityCheckbox from './TableVisibilityCheckbox';
+import SampleQueryList from './SampleQueryList';
+
 import './schema-table.css';
 
 const FormItem = Form.Item;
@@ -53,8 +55,10 @@ export class EditableCell extends React.Component {
           onChange={this.onChange}
         />
       );
+    } else if (this.props.input_type === 'sample_queries') {
+      return <SampleQueryList />;
     }
-    return <TextArea className="table-textarea" placeholder="Enter table description..." style={{ resize: 'vertical' }} />;
+    return <TextArea className="table-textarea" placeholder="Enter description..." style={{ resize: 'vertical' }} />;
   };
 
   render() {

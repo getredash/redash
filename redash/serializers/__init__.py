@@ -85,6 +85,69 @@ class QuerySerializer(Serializer):
         return result
 
 
+class ColumnMetadataSerializer(Serializer):
+    def __init__(self, object_or_list):
+        self.object_or_list = object_or_list
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.ColumnMetadata):
+            result = serialize_column_metadata(self.object_or_list)
+        else:
+            result = [serialize_column_metadata(
+                column_metadata) for column_metadata in self.object_or_list]
+        return result
+
+
+class TableMetadataSerializer(Serializer):
+    def __init__(self, object_or_list, **kwargs):
+        self.object_or_list = object_or_list
+        self.options = kwargs
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.TableMetadata):
+            result = serialize_table_metadata(
+                self.object_or_list, self.options)
+        else:
+            result = [serialize_table_metadata(
+                column_metadata, self.options) for column_metadata in self.object_or_list]
+        return result
+
+
+def serialize_table_metadata(table_metadata, options):
+    sample_queries_dict = dict(
+        [(v['id'], v) for v in QuerySerializer(
+            table_metadata.sample_queries, **options).serialize()]
+    )
+    d = {
+        'id': table_metadata.id,
+        'org_id': table_metadata.org_id,
+        'data_source_id': table_metadata.data_source_id,
+        'exists': table_metadata.exists,
+        'visible': table_metadata.visible,
+        'name': table_metadata.name,
+        'description': table_metadata.description,
+        'column_metadata': table_metadata.column_metadata,
+        'sample_updated_at': table_metadata.sample_updated_at,
+        'sample_queries': sample_queries_dict,
+    }
+
+    return d
+
+
+def serialize_column_metadata(column_metadata):
+    d = {
+        'id': column_metadata.id,
+        'org_id': column_metadata.org_id,
+        'table_id': column_metadata.table_id,
+        'name': column_metadata.name,
+        'type': column_metadata.type,
+        'example': column_metadata.example,
+        'exists': column_metadata.exists,
+        'description': column_metadata.description,
+    }
+    return d
+
+
 def serialize_query(query, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
     d = {
         'id': query.id,
