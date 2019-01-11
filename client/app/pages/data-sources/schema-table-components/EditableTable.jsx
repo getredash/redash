@@ -4,6 +4,8 @@ import Input from 'antd/lib/input';
 import PropTypes from 'prop-types';
 import { TableMetadata } from '@/components/proptypes';
 import TableVisibilityCheckbox from './TableVisibilityCheckbox';
+import SampleQueryList from './SampleQueryList';
+
 import './schema-table.css';
 
 const FormItem = Form.Item;
@@ -24,6 +26,7 @@ export class EditableCell extends React.Component {
     dataIndex: PropTypes.string,
     input_type: PropTypes.string,
     editing: PropTypes.bool,
+    query: PropTypes.func,
     record: TableMetadata,
   };
 
@@ -31,6 +34,7 @@ export class EditableCell extends React.Component {
     dataIndex: undefined,
     input_type: undefined,
     editing: false,
+    query: function query() {},
     record: {},
   };
 
@@ -52,6 +56,8 @@ export class EditableCell extends React.Component {
           visible={this.state.visible}
           onChange={this.onChange}
         />);
+    } else if (this.props.input_type === 'sample_queries') {
+      return <SampleQueryList query={this.props.query} />;
     }
     return <TextArea className="table-textarea" placeholder="Enter table description..." style={{ resize: 'vertical' }} />;
   };

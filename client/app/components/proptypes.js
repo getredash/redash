@@ -46,6 +46,11 @@ export const TableMetadata = PropTypes.shape({
   table_visible: PropTypes.bool.isRequired,
 });
 
+export const Query = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+});
+
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,

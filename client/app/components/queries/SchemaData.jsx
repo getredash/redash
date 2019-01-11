@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular';
 import Drawer from 'antd/lib/drawer';
 import Table from 'antd/lib/table';
 
-import { DataSourceMetadata } from '@/components/proptypes';
+import { DataSourceMetadata, Query } from '@/components/proptypes';
 
 class SchemaData extends React.PureComponent {
   static propTypes = {
@@ -12,6 +12,7 @@ class SchemaData extends React.PureComponent {
     onClose: PropTypes.func.isRequired,
     tableName: PropTypes.string,
     tableDescription: PropTypes.string,
+    sampleQueries: PropTypes.arrayOf(Query),
     tableMetadata: PropTypes.arrayOf(DataSourceMetadata),
   };
 
@@ -19,10 +20,35 @@ class SchemaData extends React.PureComponent {
     tableName: '',
     tableDescription: '',
     tableMetadata: [],
+    sampleQueries: [],
   };
 
   render() {
-    const columns = [{
+    const tableDataColumns = [{
+      title: 'Metadata',
+      dataIndex: 'metadata',
+      width: 400,
+      key: 'metadata',
+    }, {
+      title: 'Value',
+      dataIndex: 'value',
+      width: 400,
+      key: 'value',
+      render: (text) => {
+        if (typeof text === 'string') {
+          return text;
+        }
+        return (
+          <ul style={{ margin: 0, paddingLeft: '15px' }}>
+            {Object.values(text).map(query => (
+              <li><a target="_blank" rel="noopener noreferrer" href={`queries/${query.id}/source`}>{query.name}</a></li>
+            ))}
+          </ul>
+        );
+      },
+    }];
+
+    const columnDataColumns = [{
       title: 'Column Name',
       dataIndex: 'name',
       width: 400,
@@ -44,24 +70,41 @@ class SchemaData extends React.PureComponent {
       key: 'column_description',
     }];
 
+    const tableData = [{
+      metadata: 'Table Description',
+      value: this.props.tableDescription || 'N/A',
+    }, {
+      metadata: 'Sample Usage',
+      value: this.props.sampleQueries.length > 0 ? this.props.sampleQueries : 'N/A',
+    }];
+
     return (
       <Drawer
-        title={this.props.tableName}
         closable={false}
         placement="bottom"
         height={500}
         onClose={this.props.onClose}
         visible={this.props.show}
       >
-        <h5 className="table-description">
-          {this.props.tableDescription}
-        </h5>
+        <h4 style={{ margin: 0 }}>{this.props.tableName}</h4>
+        <hr />
+        <h5>Table Data</h5>
         <Table
-          dataSource={this.props.tableMetadata}
+          dataSource={tableData}
           pagination={false}
           scroll={{ y: 350 }}
           size="small"
-          columns={columns}
+          showHeader={false}
+          columns={tableDataColumns}
+        />
+        <br />
+        <h5>Column Data</h5>
+        <Table
+          dataSource={this.props.tableMetadata}
+          pagination={false}
+          scroll={{ y: 175 }}
+          size="small"
+          columns={columnDataColumns}
         />
       </Drawer>
     );
