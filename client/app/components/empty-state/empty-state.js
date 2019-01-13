@@ -48,7 +48,7 @@ const EmptyStateComponent = {
     };
 
     $scope.verifyEmail = () => {
-      $http.get('/send_verification').success((data) => {
+      $http.post('/verification_email').success((data) => {
         toastr.success(data);
       });
     };
