@@ -43,10 +43,13 @@ def validate_token(token):
 
 
 def send_verify_email(user, org):
-    context = dict(user=user, verify_url=verify_link_for_user(user))
+    context = {
+        'user': user,
+        'verify_url': verify_link_for_user(user),
+    }
     html_content = render_template('emails/verify.html', **context)
     text_content = render_template('emails/verify.txt', **context)
-    subject = u"{}, please verify your e-mail address".format(user.name)
+    subject = u"{}, please verify your email address".format(user.name)
 
     send_mail.delay([user.email], subject, html_content, text_content)
 
