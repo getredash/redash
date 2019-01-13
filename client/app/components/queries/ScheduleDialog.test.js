@@ -37,26 +37,6 @@ function findByTestID(wrapper, id) {
   return wrapper.find(`[data-testid="${id}"]`);
 }
 
-function getSelectOptions(wrapper) {
-  jest.useFakeTimers();
-
-  // click select
-  wrapper.find('.ant-select').simulate('click');
-
-  // run timers
-  jest.runAllTimers();
-  jest.useRealTimers();
-
-  // get dropdown menu
-  const dropdown = mount(wrapper
-    .find('Trigger')
-    .instance()
-    .getComponent());
-
-  // get menu items
-  return dropdown.find('MenuItem');
-}
-
 describe('ScheduleDialog', () => {
   describe('Sets correct schedule settings', () => {
     test('Sets to "Never"', () => {
@@ -134,60 +114,28 @@ describe('ScheduleDialog', () => {
 
   describe('Adheres to user permissions', () => {
     test('Shows correct interval options', () => {
-      const refreshOptions = [60, 3600]; // 1 min, 1 hour
+      const refreshOptions = [60, 300, 3600, 7200]; // 1 min, 1 hour
       const [wrapper] = getWrapper(null, { refreshOptions });
-      const selectWrapper = findByTestID(wrapper, 'select-interval');
-      const options = getSelectOptions(selectWrapper);
+
+      // click select
+      findByTestID(wrapper, 'interval')
+        .find('.ant-select')
+        .simulate('click');
+
+      // get dropdown menu items
+      const options = mount(wrapper
+        .find('Trigger')
+        .instance()
+        .getComponent())
+        .find('MenuItem');
 
       const texts = options.map(node => node.text());
-      const expected = ['Never', 'minute(s)', 'hour(s)'];
+      const expected = ['Never', '1 minute', '5 minutes', '1 hour', '2 hours'];
 
       // eslint-disable-next-line jest/prefer-to-have-length
       expect(options.length).toEqual(expected.length);
       expect(texts).toEqual(expected);
     });
-
-    // skipped due to issue #3263 https://git.io/fhZcG
-    // eslint-disable-next-line jest/no-disabled-tests
-    test.skip('Shows correct count options', () => {
-      const [wrapper] = getWrapper({ interval: 300 });
-      const selectWrapper = findByTestID(wrapper, 'select-count');
-      const options = getSelectOptions(selectWrapper);
-
-      const texts = options.map(node => node.text());
-      const expected = ['1', '5', '10'];
-
-      // eslint-disable-next-line jest/prefer-to-have-length
-      expect(options.length).toEqual(expected.length);
-      expect(texts).toEqual(expected);
-    });
-  });
-
-  test('Resets selected count value if out-of-range', () => {
-    // init
-    const initProps = { interval: 600 };
-    const [wrapper] = getWrapper(initProps);
-
-    const intervalWrapper = findByTestID(wrapper, 'select-interval');
-    const options = getSelectOptions(intervalWrapper);
-
-    // change to 'hours(s)'
-    options
-      .filterWhere(node => node.text() === 'hour(s)')
-      .simulate('click');
-    wrapper.update();
-
-    // should stay '10'
-    expect(wrapper.state('count')).toBe('10');
-
-    // change to 'week(s)'
-    options
-      .filterWhere(node => node.text() === 'week(s)')
-      .simulate('click');
-    wrapper.update();
-
-    // should have changed to '1'
-    expect(wrapper.state('count')).toBe('1');
   });
 
   describe('Modal Confirm/Cancel feature', () => {
