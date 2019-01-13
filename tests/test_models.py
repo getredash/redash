@@ -1,15 +1,14 @@
 #encoding: utf8
 import calendar
 import datetime
-import json
 from unittest import TestCase
 
-import mock
+import pytz
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
 
-from redash import models
-from redash.models import db
+from redash import models, redis_connection
+from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
 
 
@@ -282,9 +281,6 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
 
 class QueryArchiveTest(BaseTestCase):
-    def setUp(self):
-        super(QueryArchiveTest, self).setUp()
-
     def test_archive_query_sets_flag(self):
         query = self.factory.create_query()
         db.session.flush()
@@ -315,7 +311,7 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Widget).get(widget.id), None)
+        self.assertEqual(models.Widget.query.get(widget.id), None)
 
     def test_removes_scheduling(self):
         query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
@@ -330,19 +326,19 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Alert).get(subscription.alert.id), None)
-        self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
+        self.assertEqual(models.Alert.query.get(subscription.alert.id), None)
+        self.assertEqual(models.AlertSubscription.query.get(subscription.id), None)
 
 
 class TestUnusedQueryResults(BaseTestCase):
     def test_returns_only_unused_query_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         qr = self.factory.create_query_result()
-        query = self.factory.create_query(latest_query_data=qr)
+        self.factory.create_query(latest_query_data=qr)
         db.session.flush()
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((qr.id,), list(models.QueryResult.unused()))
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(qr, list(models.QueryResult.unused()))
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
@@ -350,8 +346,8 @@ class TestUnusedQueryResults(BaseTestCase):
         db.session.flush()
         new_unused_qr = self.factory.create_query_result()
 
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((new_unused_qr.id,), models.QueryResult.unused())
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(new_unused_qr, list(models.QueryResult.unused()))
 
 
 class TestQueryAll(BaseTestCase):
@@ -545,6 +541,7 @@ def _set_up_dashboard_test(d):
     d.w1.dashboard.is_draft = False
     d.w2.dashboard.is_draft = False
     d.w4.dashboard.is_draft = False
+
 
 class TestDashboardAll(BaseTestCase):
     def setUp(self):

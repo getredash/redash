@@ -3,10 +3,11 @@ import { capitalize as _capitalize, isEmpty } from 'lodash';
 
 export const IntervalEnum = {
   NEVER: 'Never',
-  MINUTES: 'minute(s)',
-  HOURS: 'hour(s)',
-  DAYS: 'day(s)',
-  WEEKS: 'week(s)',
+  SECONDS: 'second',
+  MINUTES: 'minute',
+  HOURS: 'hour',
+  DAYS: 'day',
+  WEEKS: 'week',
 };
 
 export function localizeTime(time) {
@@ -19,9 +20,16 @@ export function localizeTime(time) {
     .format('HH:mm');
 }
 
-export function secondsToInterval(seconds) {
-  let interval = IntervalEnum.MINUTES;
-  let count = seconds / 60;
+export function secondsToInterval(count) {
+  if (!count) {
+    return { interval: IntervalEnum.NEVER };
+  }
+
+  let interval = IntervalEnum.SECONDS;
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.MINUTES;
+  }
   if (count >= 60) {
     count /= 60;
     interval = IntervalEnum.HOURS;
@@ -30,7 +38,7 @@ export function secondsToInterval(seconds) {
     count /= 24;
     interval = IntervalEnum.DAYS;
   }
-  if (count >= 7 && interval === IntervalEnum.DAYS) {
+  if (count >= 7 && !(count % 7) && interval === IntervalEnum.DAYS) {
     count /= 7;
     interval = IntervalEnum.WEEKS;
   }
@@ -58,29 +66,23 @@ export function intervalToSeconds(count, interval) {
   return intervalInSeconds * count;
 }
 
-export function durationHumanize(duration) {
-  let humanized = '';
+export function pluralize(text, count) {
+  const should = count !== 1;
+  return text + (should ? 's' : '');
+}
 
-  if (duration === undefined || duration === null) {
-    humanized = '-';
-  } else if (duration < 60) {
-    const seconds = Math.round(duration);
-    humanized = `${seconds} seconds`;
-  } else if (duration > 3600 * 24) {
-    const days = Math.round(parseFloat(duration) / 60.0 / 60.0 / 24.0);
-    humanized = `${days} days`;
-  } else if (duration === 3600) {
-    humanized = '1 hour';
-  } else if (duration >= 3600) {
-    const hours = Math.round(parseFloat(duration) / 60.0 / 60.0);
-    humanized = `${hours} hours`;
-  } else if (duration === 60) {
-    humanized = '1 minute';
-  } else {
-    const minutes = Math.round(parseFloat(duration) / 60.0);
-    humanized = `${minutes} minutes`;
+export function durationHumanize(duration, options = {}) {
+  if (!duration) {
+    return '-';
   }
-  return humanized;
+  let ret = '';
+  const { interval, count } = secondsToInterval(duration);
+  const rounded = Math.round(count);
+  if (rounded !== 1 || !options.omitSingleValueNumber) {
+    ret = `${rounded} `;
+  }
+  ret += pluralize(interval, rounded);
+  return ret;
 }
 
 export function toHuman(text) {
