@@ -20,6 +20,9 @@ export function localizeTime(time) {
 }
 
 export function secondsToInterval(seconds) {
+  if (!seconds) {
+    return { interval: IntervalEnum.NEVER };
+  }
   let interval = IntervalEnum.MINUTES;
   let count = seconds / 60;
   if (count >= 60) {
@@ -30,7 +33,7 @@ export function secondsToInterval(seconds) {
     count /= 24;
     interval = IntervalEnum.DAYS;
   }
-  if (count >= 7 && interval === IntervalEnum.DAYS) {
+  if (count >= 7 && !(count % 7) && interval === IntervalEnum.DAYS) {
     count /= 7;
     interval = IntervalEnum.WEEKS;
   }
