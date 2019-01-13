@@ -6,27 +6,19 @@ import DatePicker from 'antd/lib/date-picker';
 import TimePicker from 'antd/lib/time-picker';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
-import { range, clone, isEqual } from 'lodash';
+import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
-import { secondsToInterval, intervalToSeconds, IntervalEnum, localizeTime } from '@/filters';
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
 
 import './ScheduleDialog.css';
 
 const WEEKDAYS_SHORT = moment.weekdaysShort();
 const WEEKDAYS_FULL = moment.weekdays();
-const INTERVAL_OPTIONS_MAP = {
-  [IntervalEnum.NEVER]: 1,
-  [IntervalEnum.MINUTES]: 60,
-  [IntervalEnum.HOURS]: 24,
-  [IntervalEnum.DAYS]: 7,
-  [IntervalEnum.WEEKS]: 5,
-};
-
 const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
-const Option = Select.Option;
+const { Option, OptGroup } = Select;
 
-class ScheduleDialog extends React.Component {
+export class ScheduleDialog extends React.Component {
   static propTypes = {
     show: PropTypes.bool.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
@@ -44,31 +36,31 @@ class ScheduleDialog extends React.Component {
 
   get initState() {
     const newSchedule = clone(this.props.query.schedule);
-    const { time, interval: secs, day_of_week: day } = newSchedule;
-    const interval = secs ? secondsToInterval(secs) : {};
+    const { time, interval: seconds, day_of_week: day } = newSchedule;
+    const { interval } = secondsToInterval(seconds);
     const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
 
     return {
       hour,
       minute,
-      count: interval.count ? String(interval.count) : '1',
-      interval: interval.interval || IntervalEnum.NEVER,
+      seconds,
+      interval,
       dayOfWeek: day ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(day)] : null,
       newSchedule,
     };
   }
 
   get intervals() {
-    const ret = this.props.refreshOptions
-      .map((seconds) => {
-        const { count, interval } = secondsToInterval(seconds);
-        return count === 1 ? {
-          name: interval,
-          time: seconds,
-        } : null;
-      })
-      .filter(x => x !== null);
-    ret.unshift({ name: IntervalEnum.NEVER });
+    const ret = {
+      [IntervalEnum.NEVER]: [],
+    };
+    this.props.refreshOptions.forEach((seconds) => {
+      const { count, interval } = secondsToInterval(seconds);
+      if (!(interval in ret)) {
+        ret[interval] = [];
+      }
+      ret[interval].push([count, seconds]);
+    });
 
     Object.defineProperty(this, 'intervals', { value: ret }); // memoize
 
@@ -81,16 +73,15 @@ class ScheduleDialog extends React.Component {
     });
   }
 
-  getCounts = interval => range(1, INTERVAL_OPTIONS_MAP[interval])
-
   setTime = (time) => {
     this.newSchedule = {
       time: moment(time).utc().format(HOUR_FORMAT),
     };
   };
 
-  setInterval = (newInterval) => {
+  setInterval = (newSeconds) => {
     const { newSchedule } = this.state;
+    const { interval: newInterval } = secondsToInterval(newSeconds);
 
     // resets to defaults
     if (newInterval === IntervalEnum.NEVER) {
@@ -116,15 +107,7 @@ class ScheduleDialog extends React.Component {
       newSchedule.day_of_week = WEEKDAYS_FULL[0];
     }
 
-    // reset count if out of new interval count range
-    let count = this.state.count;
-    if (this.getCounts(newInterval).indexOf(Number(count)) === -1) {
-      count = '1';
-    }
-
-    newSchedule.interval = newInterval
-      ? intervalToSeconds(Number(count), newInterval)
-      : null;
+    newSchedule.interval = newSeconds;
 
     const [hour, minute] = newSchedule.time ?
       localizeTime(newSchedule.time).split(':')
@@ -132,7 +115,7 @@ class ScheduleDialog extends React.Component {
 
     this.setState({
       interval: newInterval,
-      count,
+      seconds: newSeconds,
       hour,
       minute,
       dayOfWeek: newSchedule.day_of_week
@@ -141,12 +124,6 @@ class ScheduleDialog extends React.Component {
     });
 
     this.newSchedule = newSchedule;
-  };
-
-  setCount = (newCount) => {
-    const totalSeconds = intervalToSeconds(parseInt(newCount, 10), this.state.interval);
-    this.setState({ count: newCount });
-    this.newSchedule = { interval: totalSeconds };
   };
 
   setScheduleUntil = (_, date) => {
@@ -182,7 +159,7 @@ class ScheduleDialog extends React.Component {
 
   render() {
     const {
-      interval, minute, hour, count, newSchedule: { until },
+      interval, minute, hour, seconds, newSchedule: { until },
     } = this.state;
     const fixZIndex = { getPopupContainer: () => this.modalRef.current };
     const selectProps = {
@@ -201,25 +178,23 @@ class ScheduleDialog extends React.Component {
       >
         <div className="schedule-component" ref={this.modalRef}>
           <h5>Refresh every</h5>
-          <div>
-            {interval !== IntervalEnum.NEVER ? (
-              <Select value={count} onChange={this.setCount} {...selectProps}>
-                {this.getCounts(this.state.interval).map(cnt => (
-                  <Option value={String(cnt)} key={cnt}>{cnt}</Option>
+          <div data-testid="interval">
+            <Select value={seconds} onChange={this.setInterval} {...selectProps}>
+              <Option value={null} key="never">Never</Option>
+              {Object.keys(this.intervals).map(int => (
+                <OptGroup label={capitalize(pluralize(int))} key={int}>
+                  {this.intervals[int].map(([cnt, secs]) => (
+                    <Option value={secs} key={cnt}>{durationHumanize(secs)}</Option>
+                  ))}
+                </OptGroup>
                 ))}
-              </Select>
-            ) : null}
-            <Select value={interval} onChange={this.setInterval} {...selectProps}>
-              {this.intervals.map(iv => (
-                <Option value={iv.name} key={iv.name}>{iv.name}</Option>
-              ))}
             </Select>
           </div>
         </div>
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
             <h5>On time</h5>
-            <div>
+            <div data-testid="time">
               <TimePicker
                 allowEmpty={false}
                 defaultValue={moment().hour(hour).minute(minute)}
@@ -234,23 +209,25 @@ class ScheduleDialog extends React.Component {
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
             <h5>On day</h5>
-            <Radio.Group
-              size="medium"
-              defaultValue={this.state.dayOfWeek}
-              onChange={this.setWeekday}
-            >
-              {WEEKDAYS_SHORT.map(day => (
-                <Radio.Button value={day} key={day} className="input">
-                  {day[0]}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
+            <div data-testid="weekday">
+              <Radio.Group
+                size="medium"
+                defaultValue={this.state.dayOfWeek}
+                onChange={this.setWeekday}
+              >
+                {WEEKDAYS_SHORT.map(day => (
+                  <Radio.Button value={day} key={day} className="input">
+                    {day[0]}
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
+            </div>
           </div>
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
             <h5>Ends</h5>
-            <div className="ends">
+            <div className="ends" data-testid="ends">
               <Radio.Group
                 size="medium"
                 value={!!until}
