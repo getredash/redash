@@ -261,7 +261,6 @@ def create_and_login_user(org, name, email, picture=None):
             return None
         if user_object.is_invitation_pending:
             user_object.is_invitation_pending = False
-            user_object.is_email_verified = True
             models.db.session.commit()
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
@@ -270,7 +269,7 @@ def create_and_login_user(org, name, email, picture=None):
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(org=org, name=name, email=email, is_invitation_pending=False,
-                                  is_email_verified=True, _profile_image_url=picture, group_ids=[org.default_group.id])
+                                  _profile_image_url=picture, group_ids=[org.default_group.id])
         models.db.session.add(user_object)
         models.db.session.commit()
 
