@@ -95,7 +95,7 @@ class UserListResource(BaseResource):
         require_fields(req, ('name', 'email'))
 
         if '@' not in req['email']:
-            abort(400, message='Bad email address.!!!')
+            abort(400, message='Bad email address.')
         name, domain = req['email'].split('@', 1)
 
         if domain.lower() in blacklist or domain.lower() == 'qq.com':
