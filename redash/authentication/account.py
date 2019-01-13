@@ -16,6 +16,13 @@ def invite_token(user):
     return serializer.dumps(str(user.id))
 
 
+def verify_link_for_user(user):
+    token = invite_token(user)
+    verify_url = "{}/verify/{}".format(base_url(user.org), token)
+
+    return verify_url
+
+
 def invite_link_for_user(user):
     token = invite_token(user)
     invite_url = "{}/invite/{}".format(base_url(user.org), token)
@@ -33,6 +40,18 @@ def reset_link_for_user(user):
 def validate_token(token):
     max_token_age = settings.INVITATION_TOKEN_MAX_AGE
     return serializer.loads(token, max_age=max_token_age)
+
+
+def send_verify_email(user, org):
+    context = {
+        'user': user,
+        'verify_url': verify_link_for_user(user),
+    }
+    html_content = render_template('emails/verify.html', **context)
+    text_content = render_template('emails/verify.txt', **context)
+    subject = u"{}, please verify your email address".format(user.name)
+
+    send_mail.delay([user.email], subject, html_content, text_content)
 
 
 def send_invite_email(inviter, invited, invite_url, org):

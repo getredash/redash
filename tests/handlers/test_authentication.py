@@ -23,12 +23,16 @@ class TestInvite(BaseTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_valid_token(self):
-        token = invite_token(self.factory.user)
+        user = self.factory.create_user(is_invitation_pending=True)
+        token = invite_token(user)
         response = self.get_request('/invite/{}'.format(token), org=self.factory.org)
         self.assertEqual(response.status_code, 200)
 
     def test_already_active_user(self):
-        pass
+        token = invite_token(self.factory.user)
+        self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        response = self.get_request('/invite/{}'.format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
 
 
 class TestInvitePost(BaseTestCase):
@@ -47,15 +51,20 @@ class TestInvitePost(BaseTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_already_active_user(self):
-        pass
+        token = invite_token(self.factory.user)
+        self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
 
     def test_valid_password(self):
-        token = invite_token(self.factory.user)
+        user = self.factory.create_user(is_invitation_pending=True)
+        token = invite_token(user)
         password = 'test1234'
         response = self.post_request('/invite/{}'.format(token), data={'password': password}, org=self.factory.org)
         self.assertEqual(response.status_code, 302)
-        user = User.query.get(self.factory.user.id)
+        user = User.query.get(user.id)
         self.assertTrue(user.verify_password(password))
+        self.assertFalse(user.is_invitation_pending)
 
 
 class TestLogin(BaseTestCase):

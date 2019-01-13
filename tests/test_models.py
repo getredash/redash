@@ -1,14 +1,14 @@
 #encoding: utf8
+import calendar
 import datetime
-import json
 from unittest import TestCase
 
-import mock
+import pytz
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
 
-from redash import models
-from redash.models import db
+from redash import models, redis_connection
+from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
 
 
@@ -32,58 +32,117 @@ class ShouldScheduleNextTest(TestCase):
     def test_interval_schedule_that_needs_reschedule(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
-        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
-                                                    0))
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600"))
 
     def test_interval_schedule_that_doesnt_need_reschedule(self):
         now = utcnow()
         half_an_hour_ago = now - datetime.timedelta(minutes=30)
-        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now,
-                                                     "3600", 0))
+        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now, "3600"))
 
     def test_exact_time_that_needs_reschedule(self):
         now = utcnow()
         yesterday = now - datetime.timedelta(days=1)
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertTrue(models.should_schedule_next(yesterday, now,
-                                                    scheduled_time, 0))
+        self.assertTrue(models.should_schedule_next(yesterday, now, "86400",
+                                                    scheduled_time))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
         now = date_parse("2015-10-16 20:10")
         yesterday = date_parse("2015-10-15 23:07")
         schedule = "23:00"
-        self.assertFalse(models.should_schedule_next(yesterday, now, schedule,
-                                                     0))
+        self.assertFalse(models.should_schedule_next(yesterday, now, "86400", schedule))
 
     def test_exact_time_with_day_change(self):
         now = utcnow().replace(hour=0, minute=1)
         previous = (now - datetime.timedelta(days=2)).replace(hour=23,
                                                               minute=59)
         schedule = "23:59".format(now.hour + 3)
-        self.assertTrue(models.should_schedule_next(previous, now, schedule,
-                                                    0))
+        self.assertTrue(models.should_schedule_next(previous, now, "86400", schedule))
+
+    def test_exact_time_every_x_days_that_needs_reschedule(self):
+        now = utcnow()
+        four_days_ago = now - datetime.timedelta(days=4)
+        three_day_interval = "259200"
+        scheduled_datetime = now - datetime.timedelta(hours=3)
+        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        self.assertTrue(models.should_schedule_next(four_days_ago, now, three_day_interval,
+                                                    scheduled_time))
+
+    def test_exact_time_every_x_days_that_doesnt_need_reschedule(self):
+        now = utcnow()
+        four_days_ago = now - datetime.timedelta(days=2)
+        three_day_interval = "259200"
+        scheduled_datetime = now - datetime.timedelta(hours=3)
+        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        self.assertFalse(models.should_schedule_next(four_days_ago, now, three_day_interval,
+                                                    scheduled_time))
+
+    def test_exact_time_every_x_days_with_day_change(self):
+        now = utcnow().replace(hour=23, minute=59)
+        previous = (now - datetime.timedelta(days=2)).replace(hour=0, minute=1)
+        schedule = "23:58"
+        three_day_interval = "259200"
+        self.assertTrue(models.should_schedule_next(previous, now, three_day_interval, schedule))
+
+    def test_exact_time_every_x_weeks_that_needs_reschedule(self):
+        # Setup:
+        #
+        # 1) The query should run every 3 weeks on Tuesday
+        # 2) The last time it ran was 3 weeks ago from this week's Thursday
+        # 3) It is now Wednesday of this week
+        #
+        # Expectation: Even though less than 3 weeks have passed since the
+        #              last run 3 weeks ago on Thursday, it's overdue since
+        #              it should be running on Tuesdays.
+        this_thursday = utcnow() + datetime.timedelta(days=list(calendar.day_name).index("Thursday") - utcnow().weekday())
+        three_weeks_ago = this_thursday - datetime.timedelta(weeks=3)
+        now = this_thursday - datetime.timedelta(days=1)
+        three_week_interval = "1814400"
+        scheduled_datetime = now - datetime.timedelta(hours=3)
+        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        self.assertTrue(models.should_schedule_next(three_weeks_ago, now, three_week_interval,
+                                                    scheduled_time, "Tuesday"))
+
+    def test_exact_time_every_x_weeks_that_doesnt_need_reschedule(self):
+        # Setup:
+        #
+        # 1) The query should run every 3 weeks on Thurday
+        # 2) The last time it ran was 3 weeks ago from this week's Tuesday
+        # 3) It is now Wednesday of this week
+        #
+        # Expectation: Even though more than 3 weeks have passed since the
+        #              last run 3 weeks ago on Tuesday, it's not overdue since
+        #              it should be running on Thursdays.
+        this_tuesday = utcnow() + datetime.timedelta(days=list(calendar.day_name).index("Tuesday") - utcnow().weekday())
+        three_weeks_ago = this_tuesday - datetime.timedelta(weeks=3)
+        now = this_tuesday + datetime.timedelta(days=1)
+        three_week_interval = "1814400"
+        scheduled_datetime = now - datetime.timedelta(hours=3)
+        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        self.assertFalse(models.should_schedule_next(three_weeks_ago, now, three_week_interval,
+                                                    scheduled_time, "Thursday"))
 
     def test_backoff(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
         self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
-                                                    5))
+                                                    failures=5))
         self.assertFalse(models.should_schedule_next(two_hours_ago, now,
-                                                     "3600", 10))
+                                                     "3600", failures=10))
 
 
 class QueryOutdatedQueriesTest(BaseTestCase):
     # TODO: this test can be refactored to use mock version of should_schedule_next to simplify it.
     def test_outdated_queries_skips_unscheduled_queries(self):
-        query = self.factory.create_query(schedule=None)
+        query = self.factory.create_query(schedule={'interval':None, 'time': None, 'until':None, 'day_of_week':None})
         queries = models.Query.outdated_queries()
 
         self.assertNotIn(query, queries)
 
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         two_hours_ago = utcnow() - datetime.timedelta(hours=2)
-        query = self.factory.create_query(schedule="3600")
+        query = self.factory.create_query(schedule={'interval':'3600', 'time': None, 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
@@ -92,7 +151,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
     def test_outdated_queries_works_scheduled_queries_tracker(self):
         two_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=2)
-        query = self.factory.create_query(schedule="3600")
+        query = self.factory.create_query(schedule={'interval':'3600', 'time': None, 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
@@ -103,7 +162,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
     def test_skips_fresh_queries(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
-        query = self.factory.create_query(schedule="3600")
+        query = self.factory.create_query(schedule={'interval':'3600', 'time': None, 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago)
         query.latest_query_data = query_result
 
@@ -112,7 +171,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
     def test_outdated_queries_works_with_specific_time_schedule(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
-        query = self.factory.create_query(schedule=half_an_hour_ago.strftime('%H:%M'))
+        query = self.factory.create_query(schedule={'interval':'86400', 'time':half_an_hour_ago.strftime('%H:%M'), 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago - datetime.timedelta(days=1))
         query.latest_query_data = query_result
 
@@ -124,9 +183,9 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         Only one query per data source with the same text will be reported by
         Query.outdated_queries().
         """
-        query = self.factory.create_query(schedule="60")
+        query = self.factory.create_query(schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None})
         query2 = self.factory.create_query(
-            schedule="60", query_text=query.query_text,
+            schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None}, query_text=query.query_text,
             query_hash=query.query_hash)
         retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = self.factory.create_query_result(
@@ -143,9 +202,9 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         Query.outdated_queries() even if they have the same query text.
         """
         query = self.factory.create_query(
-            schedule="60", data_source=self.factory.create_data_source())
+            schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None}, data_source=self.factory.create_data_source())
         query2 = self.factory.create_query(
-            schedule="60", query_text=query.query_text,
+            schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None}, query_text=query.query_text,
             query_hash=query.query_hash)
         retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = self.factory.create_query_result(
@@ -162,9 +221,9 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         If multiple queries with the same text exist, only ones that are
         scheduled to be refreshed are reported by Query.outdated_queries().
         """
-        query = self.factory.create_query(schedule="60")
+        query = self.factory.create_query(schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None})
         query2 = self.factory.create_query(
-            schedule="3600", query_text=query.query_text,
+            schedule={'interval':'3600', 'until':None, 'time': None, 'day_of_week':None}, query_text=query.query_text,
             query_hash=query.query_hash)
         retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = self.factory.create_query_result(
@@ -180,7 +239,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         Execution failures recorded for a query result in exponential backoff
         for scheduling future execution.
         """
-        query = self.factory.create_query(schedule="60", schedule_failures=4)
+        query = self.factory.create_query(schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None}, schedule_failures=4)
         retrieved_at = utcnow() - datetime.timedelta(minutes=16)
         query_result = self.factory.create_query_result(
             retrieved_at=retrieved_at, query_text=query.query_text,
@@ -192,11 +251,36 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=17)
         self.assertEqual(list(models.Query.outdated_queries()), [query])
 
+    def test_schedule_until_after(self):
+        """
+        Queries with non-null ``schedule['until']`` are not reported by
+        Query.outdated_queries() after the given time is past.
+        """
+        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule={'interval':'3600', 'until':one_day_ago, 'time':None, 'day_of_week':None})
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        queries = models.Query.outdated_queries()
+        self.assertNotIn(query, queries)
+
+    def test_schedule_until_before(self):
+        """
+        Queries with non-null ``schedule['until']`` are reported by
+        Query.outdated_queries() before the given time is past.
+        """
+        one_day_from_now = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule={'interval':'3600', 'until':one_day_from_now, 'time': None, 'day_of_week':None})
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        queries = models.Query.outdated_queries()
+        self.assertIn(query, queries)
+
 
 class QueryArchiveTest(BaseTestCase):
-    def setUp(self):
-        super(QueryArchiveTest, self).setUp()
-
     def test_archive_query_sets_flag(self):
         query = self.factory.create_query()
         db.session.flush()
@@ -205,7 +289,7 @@ class QueryArchiveTest(BaseTestCase):
         self.assertEquals(query.is_archived, True)
 
     def test_archived_query_doesnt_return_in_all(self):
-        query = self.factory.create_query(schedule="1")
+        query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
         yesterday = utcnow() - datetime.timedelta(days=1)
         query_result, _ = models.QueryResult.store_result(
             query.org_id, query.data_source, query.query_hash, query.query_text,
@@ -227,14 +311,14 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Widget).get(widget.id), None)
+        self.assertEqual(models.Widget.query.get(widget.id), None)
 
     def test_removes_scheduling(self):
-        query = self.factory.create_query(schedule="1")
+        query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
 
         query.archive()
 
-        self.assertEqual(None, query.schedule)
+        self.assertEqual({}, query.schedule)
 
     def test_deletes_alerts(self):
         subscription = self.factory.create_alert_subscription()
@@ -242,19 +326,19 @@ class QueryArchiveTest(BaseTestCase):
         db.session.commit()
         query.archive()
         db.session.flush()
-        self.assertEqual(db.session.query(models.Alert).get(subscription.alert.id), None)
-        self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
+        self.assertEqual(models.Alert.query.get(subscription.alert.id), None)
+        self.assertEqual(models.AlertSubscription.query.get(subscription.id), None)
 
 
 class TestUnusedQueryResults(BaseTestCase):
     def test_returns_only_unused_query_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         qr = self.factory.create_query_result()
-        query = self.factory.create_query(latest_query_data=qr)
+        self.factory.create_query(latest_query_data=qr)
         db.session.flush()
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((qr.id,), list(models.QueryResult.unused()))
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(qr, list(models.QueryResult.unused()))
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
@@ -262,8 +346,8 @@ class TestUnusedQueryResults(BaseTestCase):
         db.session.flush()
         new_unused_qr = self.factory.create_query_result()
 
-        self.assertIn((unused_qr.id,), models.QueryResult.unused())
-        self.assertNotIn((new_unused_qr.id,), models.QueryResult.unused())
+        self.assertIn(unused_qr, list(models.QueryResult.unused()))
+        self.assertNotIn(new_unused_qr, list(models.QueryResult.unused()))
 
 
 class TestQueryAll(BaseTestCase):
@@ -457,6 +541,7 @@ def _set_up_dashboard_test(d):
     d.w1.dashboard.is_draft = False
     d.w2.dashboard.is_draft = False
     d.w4.dashboard.is_draft = False
+
 
 class TestDashboardAll(BaseTestCase):
     def setUp(self):

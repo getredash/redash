@@ -59,11 +59,11 @@ class QueryTaskTracker(object):
         self.data['updated_at'] = time.time()
         key_name = self._key_name(self.data['task_id'])
         connection.set(key_name, json_dumps(self.data))
-        connection.zadd(self._get_list(), time.time(), key_name)
+        connection.zadd(self._get_list(), {key_name: time.time()})
 
-        for l in self.ALL_LISTS:
-            if l != self._get_list():
-                connection.zrem(l, key_name)
+        for _list in self.ALL_LISTS:
+            if _list != self._get_list():
+                connection.zrem(_list, key_name)
 
     # TOOD: this is not thread/concurrency safe. In current code this is not an issue, but better to fix this.
     def update(self, **kwargs):
