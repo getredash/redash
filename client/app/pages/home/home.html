@@ -1,4 +1,5 @@
 <div class="container">
+  <div ng-if="!$ctrl.isEmailVerified" class="alert alert-danger">We have sent an email with a confirmation link to your email address. Please follow the link to verify your email address. <a ng-click="verifyEmail()">Resend email</a>.</div>
   <empty-state title="Welcome to Redash 👋" description="Connect to any data source, easily visualize and share your data"
     show-dashboard-step="true" show-invite-step="true" onboarding-mode="true" illustration="dashboard" help-link="https://redash.io/help/user-guide/getting-started"></empty-state>
 
