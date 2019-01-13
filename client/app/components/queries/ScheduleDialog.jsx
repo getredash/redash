@@ -8,7 +8,7 @@ import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
 import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
-import { secondsToInterval, IntervalEnum, localizeTime } from '@/filters';
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
 
 import './ScheduleDialog.css';
 
@@ -182,9 +182,9 @@ class ScheduleDialog extends React.Component {
             <Select value={seconds} onChange={this.setInterval} {...selectProps}>
               <Option value={null} key="never">Never</Option>
               {Object.keys(this.intervals).map(int => (
-                <OptGroup label={capitalize(int)} key={int}>
+                <OptGroup label={capitalize(pluralize(int))} key={int}>
                   {this.intervals[int].map(([cnt, secs]) => (
-                    <Option value={secs} key={cnt}>{cnt} {int}</Option>
+                    <Option value={secs} key={cnt}>{durationHumanize(secs)}</Option>
                   ))}
                 </OptGroup>
                 ))}
