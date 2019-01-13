@@ -1,6 +1,6 @@
 Hi {{ user.name }},
 
-Please verify that {{ user.email }} is your correct e-mail address by visiting the following link:
+Please verify that {{ user.email }} is your correct email address by visiting the following link:
 
 {{ verify_url }}
 
