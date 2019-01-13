@@ -1,6 +1,6 @@
 import template from './home.html';
 
-function HomeCtrl(Events, Dashboard, Query, $scope, $http, currentUser, toastr) {
+function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;
@@ -17,7 +17,7 @@ function HomeCtrl(Events, Dashboard, Query, $scope, $http, currentUser, toastr) 
     this.noQueries = data.results.length === 0;
   });
 
-  $scope.verifyEmail = () => {
+  this.verifyEmail = () => {
     $http.post('/verification_email').success((data) => {
       toastr.success(data);
     });
