@@ -23,7 +23,9 @@ class SchedulePhrase extends React.Component {
     if (!seconds) {
       return ['Never'];
     }
-    const humanized = durationHumanize(seconds);
+    const humanized = durationHumanize(seconds, {
+      omitSingleValueNumber: true,
+    });
     const short = `Every ${humanized}`;
     let full = `Refreshes every ${humanized}`;
 

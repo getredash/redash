@@ -71,13 +71,18 @@ export function pluralize(text, count) {
   return text + (should ? 's' : '');
 }
 
-export function durationHumanize(duration) {
+export function durationHumanize(duration, options = {}) {
   if (!duration) {
     return '-';
   }
+  let ret = '';
   const { interval, count } = secondsToInterval(duration);
   const rounded = Math.round(count);
-  return `${rounded} ${pluralize(interval, rounded)}`;
+  if (rounded !== 1 || !options.omitSingleValueNumber) {
+    ret = `${rounded} `;
+  }
+  ret += pluralize(interval, rounded);
+  return ret;
 }
 
 export function toHuman(text) {
