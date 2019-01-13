@@ -118,7 +118,9 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        invite_user(self.current_org, self.current_user, user)
+        should_send_invitation = 'no_invite' not in request.args
+        if should_send_invitation:
+            invite_user(self.current_org, self.current_user, user)
 
         return user.to_dict()
 
