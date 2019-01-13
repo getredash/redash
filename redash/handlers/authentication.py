@@ -127,7 +127,9 @@ def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
 
-    return "Please check your email inbox in order to verify your email address.", 200
+    return json_response({
+        "message": "Please check your email inbox in order to verify your email address."
+    })
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
