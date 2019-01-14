@@ -1,10 +1,9 @@
-import binascii
 from collections import namedtuple
 from unittest import TestCase
 
 from redash.utils import (build_url, collect_parameters_from_request,
-                          collect_query_parameters, filter_none,
-                          json_dumps)
+                          find_missing_params, filter_none,
+                          json_dumps, generate_token)
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
@@ -26,25 +25,31 @@ class TestBuildUrl(TestCase):
         self.assertEqual("http://example.com:443/test", build_url(DummyRequest("example.com:443", "http"), "example.com", "/test"))
 
 
-class TestCollectParametersFromQuery(TestCase):
+class TestFindMissingParams(TestCase):
     def test_returns_empty_list_for_regular_query(self):
         query = u"SELECT 1"
-        self.assertEqual([], collect_query_parameters(query))
+        self.assertEqual(set([]), find_missing_params(query, {}))
+
+    def test_finds_all_params_when_missing(self):
+        query = u"SELECT {{param}} FROM {{table}}"
+        self.assertEqual(set(['param', 'table']), find_missing_params(query, {}))
 
     def test_finds_all_params(self):
         query = u"SELECT {{param}} FROM {{table}}"
-        params = ['param', 'table']
-        self.assertEqual(params, collect_query_parameters(query))
+        self.assertEqual(set([]), find_missing_params(query, {'param': 'value', 'table': 'value'}))
 
     def test_deduplicates_params(self):
         query = u"SELECT {{param}}, {{param}} FROM {{table}}"
-        params = ['param', 'table']
-        self.assertEqual(params, collect_query_parameters(query))
+        self.assertEqual(set([]), find_missing_params(query, {'param': 'value', 'table': 'value'}))
 
     def test_handles_nested_params(self):
         query = u"SELECT {{param}}, {{param}} FROM {{table}} -- {{#test}} {{nested_param}} {{/test}}"
-        params = ['param', 'table', 'test', 'nested_param']
-        self.assertEqual(params, collect_query_parameters(query))
+        self.assertEqual(set(['test', 'nested_param']),
+                find_missing_params(query, {'param': 'value', 'table': 'value'}))
+
+    def test_handles_objects(self):
+        query = u"SELECT * FROM USERS WHERE created_at between '{{ created_at.start }}' and '{{ created_at.end }}'"
+        self.assertEqual(set([]), find_missing_params(query, {'created_at': {'start': 1, 'end': 2}}))
 
 
 class TestCollectParametersFromRequest(TestCase):
@@ -68,3 +73,9 @@ class TestSkipNones(TestCase):
 class TestJsonDumps(TestCase):
     def test_handles_binary(self):
         self.assertEqual(json_dumps(buffer("test")), '"74657374"')
+
+
+class TestGenerateToken(TestCase):
+    def test_format(self):
+        token = generate_token(40)
+        self.assertRegexpMatches(token, r"[a-zA-Z0-9]{40}")

@@ -108,6 +108,14 @@ function UserCtrl(
     });
   };
 
+  $scope.resendInvitation = () => {
+    $http.post(`api/users/${$scope.user.id}/invite`).success(() => {
+      toastr.success('Invitation sent.', {
+        timeOut: 10000,
+      });
+    });
+  };
+
   $scope.enableUser = (user) => {
     User.enableUser(user);
   };

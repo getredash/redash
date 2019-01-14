@@ -9,6 +9,7 @@ class UsersListCtrl extends ListCtrl {
     this.policy = Policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
+    this.deleteUser = user => User.deleteUser(user).then(this.update);
   }
 
   getRequest(requestedPage, itemsPerPage, orderByField) {

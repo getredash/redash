@@ -2,7 +2,6 @@ from redash import models
 from tests import BaseTestCase
 from mock import patch
 
-
 class TestUserListResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin(self):
         rv = self.make_request('post', "/api/users")
@@ -17,6 +16,9 @@ class TestUserListResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+        rv = self.make_request('post', '/api/users', data={'name': 'User', 'email': 'bademailaddress'}, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
     def test_returns_400_when_using_temporary_email(self):
         admin = self.factory.create_admin()
 
@@ -27,7 +29,6 @@ class TestUserListResourcePost(BaseTestCase):
         test_user['email'] = 'arik@qq.com'
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
-
 
     def test_creates_user(self):
         admin = self.factory.create_admin()
@@ -161,6 +162,48 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+    def test_changing_email_ends_any_other_sessions_of_current_user(self):
+        with self.client as c:
+            # visit profile page
+            self.make_request('get', "/api/users/{}".format(self.factory.user.id))
+            with c.session_transaction() as sess:
+                previous = sess['user_id']
+
+            # change e-mail address - this will result in a new `user_id` value inside the session
+            self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"email": "john@doe.com"})
+
+            # force the old `user_id`, simulating that the user is logged in from another browser
+            with c.session_transaction() as sess:
+                sess['user_id'] = previous
+            rv = self.get_request("/api/users/{}".format(self.factory.user.id))
+
+            self.assertEqual(rv.status_code, 404)
+
+    def test_changing_email_does_not_end_current_session(self):
+        self.make_request('get', "/api/users/{}".format(self.factory.user.id))
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                previous = sess['user_id']
+
+        self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"email": "john@doe.com"})
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                current = sess['user_id']
+
+        # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
+        self.assertNotEquals(previous, current)
+
+    def test_admin_can_delete_user(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user(is_invitation_pending=True)
+
+        rv = self.make_request('delete', "/api/users/{}".format(other_user.id), user=admin_user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.User.query.get(other_user.id), None)
+
 
 class TestUserDisable(BaseTestCase):
     def test_non_admin_cannot_disable_user(self):
@@ -241,12 +284,12 @@ class TestUserDisable(BaseTestCase):
         self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = self.client.post('/login', data={'email': user.email, 'password': 'password'})
+            rv = self.post_request('/login', data={'email': user.email, 'password': 'password'}, org=self.factory.org)
             # login handler should not be called
             login_user_mock.assert_not_called()
-            # check for redirect back to login page
-            self.assertEquals(rv.status_code, 301)
-            self.assertIn('/login', rv.headers.get('Location', None))
+            # check if error is raised
+            self.assertEquals(rv.status_code, 200)
+            self.assertIn('Wrong email or password', rv.data)
 
     def test_disabled_user_should_not_access_api(self):
         # Note: some API does not require user, so check the one which requires

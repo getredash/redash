@@ -5,20 +5,40 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.tasks import QueryTask
-from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import (collect_query_parameters,
-                          collect_parameters_from_request,
-                          gen_query_hash,
-                          json_dumps,
-                          utcnow,
-                          mustache_render)
+from redash.permissions import (has_access, not_view_only, require_access,
+                                require_permission, view_only)
+from redash.tasks import QueryTask, record_event
 from redash.tasks.queries import enqueue_query
+from redash.utils import (collect_parameters_from_request, find_missing_params, gen_query_hash, json_dumps, utcnow)
+from redash.utils.sql_query import SQLInjectionError, SQLQuery
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
+
+
+def apply_parameters(template, parameters, data_source):
+    query = SQLQuery(template).apply(parameters)
+
+    # for now we only log `SQLInjectionError` to detect false positives
+    try:
+        text = query.text
+    except SQLInjectionError:
+        record_event({
+            'action': 'sql_injection',
+            'object_type': 'query',
+            'query': template,
+            'parameters': parameters,
+            'timestamp': time.time(),
+            'org_id': data_source.org_id
+        })
+    except Exception as e:
+        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(query.query), e.message)
+    finally:
+        text = query.query
+
+    return text
 
 
 #
@@ -28,13 +48,11 @@ def error_response(message):
 #             on the client side. Please don't reuse in other API handlers.
 #
 def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    query_parameters = set(collect_query_parameters(query_text))
-    missing_params = set(query_parameters) - set(parameter_values.keys())
+    missing_params = find_missing_params(query_text, parameter_values)
     if missing_params:
         raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
-    if query_parameters:
-        query_text = mustache_render(query_text, parameter_values)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age <= 0:
         query_result = None
@@ -70,11 +88,11 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
             abort(503, message="Unable to get result from the database.")
         return None
 
+
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
-    query_parameters = set(collect_query_parameters(query_text))
-    missing_params = set(query_parameters) - set(parameter_values.keys())
+    missing_params = find_missing_params(query_text, parameter_values)
     if missing_params:
-        return error_response('Missing parameter value for: {}'.format(", ".join(missing_params)))
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
 
     if data_source.paused:
         if data_source.pause_reason:
@@ -84,8 +102,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    if query_parameters:
-        query_text = mustache_render(query_text, parameter_values)
+    query_text = apply_parameters(query_text, parameter_values, data_source)
 
     if max_age == 0:
         query_result = None
@@ -112,13 +129,14 @@ class QueryResultListResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         :qparam number data_source_id: ID of data source to query
+        :qparam object parameters: A set of parameter values to apply to the query.
         """
         params = request.get_json(force=True)
-        parameter_values = collect_parameters_from_request(request.args)
 
         query = params['query']
         max_age = int(params.get('max_age', -1))
         query_id = params.get('query_id', 'adhoc')
+        parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
@@ -129,9 +147,11 @@ class QueryResultListResource(BaseResource):
             'action': 'execute_query',
             'object_id': data_source.id,
             'object_type': 'data_source',
-            'query': query
+            'query': query,
+            'query_id': query_id,
+            'parameters': parameters
         })
-        return run_query(data_source, parameter_values, query, query_id, max_age)
+        return run_query(data_source, parameters, query, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25

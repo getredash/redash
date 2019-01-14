@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { map } from 'lodash';
 import Tooltip from 'antd/lib/tooltip';
 import { react2angular } from 'react2angular';
 
@@ -17,6 +16,7 @@ import 'brace/ext/searchbox';
 
 import localOptions from '@/lib/localOptions';
 import AutocompleteToggle from '@/components/AutocompleteToggle';
+import keywordBuilder from './keywordBuilder';
 import { DataSource, Schema } from './proptypes';
 
 const langTools = ace.acequire('ace/ext/language_tools');
@@ -34,24 +34,6 @@ function defineDummySnippets(mode) {
 defineDummySnippets('python');
 defineDummySnippets('sql');
 defineDummySnippets('json');
-
-function buildKeywordsFromSchema(schema) {
-  const keywords = {};
-  schema.forEach((table) => {
-    keywords[table.name] = 'Table';
-    table.columns.forEach((c) => {
-      keywords[c] = 'Column';
-      keywords[`${table.name}.${c}`] = 'Column';
-    });
-  });
-
-  return map(keywords, (v, k) => ({
-    name: k,
-    value: k,
-    score: 0,
-    meta: v,
-  }));
-}
 
 class QueryEditor extends React.Component {
   static propTypes = {
@@ -81,94 +63,135 @@ class QueryEditor extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
-      keywords: [], // eslint-disable-line react/no-unused-state
+      keywords: {
+        table: [],
+        column: [],
+        tableColumn: [],
+      },
       autocompleteQuery: localOptions.get('liveAutocomplete', true),
       liveAutocompleteDisabled: false,
       // XXX temporary while interfacing with angular
       queryText: props.queryText,
     };
-    langTools.addCompleter({
+
+    const schemaCompleter = {
+      identifierRegexps: [/[a-zA-Z_0-9.\-\u00A2-\uFFFF]/],
       getCompletions: (state, session, pos, prefix, callback) => {
-        if (prefix.length === 0) {
+        const tableKeywords = this.state.keywords.table;
+        const columnKeywords = this.state.keywords.column;
+        const tableColumnKeywords = this.state.keywords.tableColumn;
+
+        if (prefix.length === 0 || tableKeywords.length === 0) {
           callback(null, []);
           return;
         }
-        callback(null, this.state.keywords);
-      },
-    });
 
-    this.onLoad = (editor) => {
-      // Release Cmd/Ctrl+L to the browser
-      editor.commands.bindKey('Cmd+L', null);
-      editor.commands.bindKey('Ctrl+L', null);
-
-      // Ignore Ctrl+P to open new parameter dialog
-      editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
-      // Lineup only mac
-      editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
-
-      // eslint-disable-next-line react/prop-types
-      this.props.QuerySnippet.query((snippets) => {
-        const snippetManager = snippetsModule.snippetManager;
-        const m = {
-          snippetText: '',
-        };
-        m.snippets = snippetManager.parseSnippetFile(m.snippetText);
-        snippets.forEach((snippet) => {
-          m.snippets.push(snippet.getSnippet());
-        });
-        snippetManager.register(m.snippets || [], m.scope);
-      });
-      editor.focus();
-      this.props.listenForResize(() => editor.resize());
-      this.props.listenForEditorCommand((e, command, ...args) => {
-        switch (command) {
-          case 'focus': {
-            editor.focus();
-            break;
-          }
-          case 'paste': {
-            const [text] = args;
-            editor.session.doc.replace(editor.selection.getRange(), text);
-            const range = editor.selection.getRange();
-            this.props.updateQuery(editor.session.getValue());
-            editor.selection.setRange(range);
-            break;
-          }
-          default:
-            break;
+        if (prefix[prefix.length - 1] === '.') {
+          const tableName = prefix.substring(0, prefix.length - 1);
+          callback(null, tableKeywords.concat(tableColumnKeywords[tableName]));
+          return;
         }
-      });
+        callback(null, tableKeywords.concat(columnKeywords));
+      },
     };
 
-    this.formatQuery = () => {
-      // eslint-disable-next-line react/prop-types
-      const format = this.props.Query.format;
-      format(this.props.dataSource.syntax || 'sql', this.props.queryText)
-        .then(this.updateQuery)
-        .catch(error => toastr.error(error));
-    };
+    langTools.setCompleters([
+      langTools.snippetCompleter,
+      langTools.keyWordCompleter,
+      langTools.textCompleter,
+      schemaCompleter,
+    ]);
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     if (!nextProps.schema) {
-      return { keywords: [], liveAutocompleteDisabled: false };
+      return {
+        keywords: {
+          table: [],
+          column: [],
+          tableColumn: [],
+        },
+        liveAutocompleteDisabled: false,
+      };
     } else if (nextProps.schema !== prevState.schema) {
       const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
         schema: nextProps.schema,
-        keywords: buildKeywordsFromSchema(nextProps.schema),
+        keywords: keywordBuilder.buildKeywordsFromSchema(nextProps.schema),
         liveAutocompleteDisabled: tokensCount > 5000,
       };
     }
     return null;
   }
 
+  onLoad = (editor) => {
+    // Release Cmd/Ctrl+L to the browser
+    editor.commands.bindKey('Cmd+L', null);
+    editor.commands.bindKey('Ctrl+P', null);
+    editor.commands.bindKey('Ctrl+L', null);
+
+    // Ignore Ctrl+P to open new parameter dialog
+    editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
+    // Lineup only mac
+    editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
+
+    // Reset Completer in case dot is pressed
+    editor.commands.on('afterExec', (e) => {
+      if (e.command.name === 'insertstring' && e.args === '.'
+          && editor.completer) {
+        editor.completer.showPopup(editor);
+      }
+    });
+
+    // eslint-disable-next-line react/prop-types
+    this.props.QuerySnippet.query((snippets) => {
+      const snippetManager = snippetsModule.snippetManager;
+      const m = {
+        snippetText: '',
+      };
+      m.snippets = snippetManager.parseSnippetFile(m.snippetText);
+      snippets.forEach((snippet) => {
+        m.snippets.push(snippet.getSnippet());
+      });
+      snippetManager.register(m.snippets || [], m.scope);
+    });
+
+    editor.focus();
+    this.props.listenForResize(() => editor.resize());
+    this.props.listenForEditorCommand((e, command, ...args) => {
+      switch (command) {
+        case 'focus': {
+          editor.focus();
+          break;
+        }
+        case 'paste': {
+          const [text] = args;
+          editor.session.doc.replace(editor.selection.getRange(), text);
+          const range = editor.selection.getRange();
+          this.props.updateQuery(editor.session.getValue());
+          editor.selection.setRange(range);
+          break;
+        }
+        default:
+          break;
+      }
+    });
+  };
+
   updateQuery = (queryText) => {
     this.props.updateQuery(queryText);
     this.setState({ queryText });
+  };
+
+  formatQuery = () => {
+    // eslint-disable-next-line react/prop-types
+    const format = this.props.Query.format;
+    format(this.props.dataSource.syntax || 'sql', this.props.queryText)
+      .then(this.updateQuery)
+      .catch(error => toastr.error(error));
   };
 
   toggleAutocomplete = (state) => {
