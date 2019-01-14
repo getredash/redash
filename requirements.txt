@@ -26,7 +26,10 @@ redis==3.0.1
 requests==2.21.0
 six==1.11.0
 SQLAlchemy==1.2.12
+# We can't upgrade SQLAlchemy-Searchable version as newer versions require PostgreSQL > 9.6, but we target older versions at the moment.
 SQLAlchemy-Searchable==0.10.6
+# We need to pin the version of pyparsing, as newer versions break SQLAlchemy-Searchable-10.0.6 (newer versions no longer depend on it)
+pyparsing==2.3.0
 SQLAlchemy-Utils>=0.29.0
 sqlparse==0.2.4
 statsd==2.1.2
