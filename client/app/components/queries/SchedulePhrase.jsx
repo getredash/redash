@@ -8,18 +8,26 @@ import './ScheduleDialog.css';
 
 class SchedulePhrase extends React.Component {
   static propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    schedule: PropTypes.object.isRequired,
+    schedule: PropTypes.shape({
+      interval: PropTypes.number,
+      time: PropTypes.string,
+      day_of_week: PropTypes.string,
+    }),
     isNew: PropTypes.bool.isRequired,
     isLink: PropTypes.bool,
   };
 
   static defaultProps = {
+    schedule: {
+      interval: null,
+      time: null,
+      day_of_week: null,
+    },
     isLink: false,
   };
 
   get content() {
-    const { interval: seconds } = this.props.schedule;
+    const { interval: seconds } = this.propsSchedule;
     if (!seconds) {
       return ['Never'];
     }
@@ -38,6 +46,10 @@ class SchedulePhrase extends React.Component {
     }
 
     return [short, full];
+  }
+
+  get propsSchedule() {
+    return this.props.schedule || this.constructor.defaultProps.schedule;
   }
 
   render() {
