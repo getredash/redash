@@ -38,7 +38,6 @@ order_results = partial(
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
     send_invite_email(inviter, user, invite_url, org)
-    return invite_url
 
 
 class UserListResource(BaseResource):
@@ -94,6 +93,8 @@ class UserListResource(BaseResource):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email'))
 
+        if '@' not in req['email']:
+            abort(400, message='Bad email address.')
         name, domain = req['email'].split('@', 1)
 
         if domain.lower() in blacklist or domain.lower() == 'qq.com':
@@ -119,15 +120,11 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        if request.args.get('no_invite') is not None:
-            invite_url = invite_link_for_user(user)
-        else:
-            invite_url = invite_user(self.current_org, self.current_user, user)
+        should_send_invitation = 'no_invite' not in request.args
+        if should_send_invitation:
+            invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserInviteResource(BaseResource):
@@ -136,10 +133,7 @@ class UserInviteResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         invite_url = invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserResetPasswordResource(BaseResource):

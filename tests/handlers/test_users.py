@@ -16,6 +16,9 @@ class TestUserListResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+        rv = self.make_request('post', '/api/users', data={'name': 'User', 'email': 'bademailaddress'}, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
     def test_returns_400_when_using_temporary_email(self):
         admin = self.factory.create_admin()
 
