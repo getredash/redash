@@ -51,11 +51,6 @@
   z-index: 1050;
 }
 
-// Make Ant labels more Redash like
-.ant-form-item-label label {
-  color: inherit;
-}
-
 // Fix ant input number showing duplicate arrows
 .ant-input-number-input::-webkit-outer-spin-button,
 .ant-input-number-input::-webkit-inner-spin-button {
@@ -65,17 +60,4 @@
 
 .ant-input-number-input {
   -moz-appearance: textfield;
-}
-
-// Fix for text becoming black on disabled buttons
-.btn-danger, .btn-primary, .btn-success, .btn-info {
-  &[disabled] {
-    color: @white !important;
-  }
-}
-
-// Remove green border from Ant inputs
-.has-success .ant-input,
-.has-success .ant-input:hover {
-  border-color: @border-color-base !important;
 }
