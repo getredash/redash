@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { each, pick, extend, isObject, truncate } from 'lodash';
+import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
 
 function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
@@ -61,8 +61,16 @@ function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   return visualizationOptions;
 }
 
-function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
+export const ParameterMappingType = {
+  DashboardLevel: 'dashboard-level',
+  WidgetLevel: 'widget-level',
+  StaticValue: 'static-value',
+};
+
+function WidgetFactory($http, $location, Query, Visualization, dashboardGridOptions) {
   class Widget {
+    static MappingType = ParameterMappingType;
+
     constructor(data) {
       // Copy properties
       each(data, (v, k) => {
@@ -158,6 +166,76 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
     delete() {
       const url = `api/widgets/${this.id}`;
       return $http.delete(url);
+    }
+
+    isStaticParam(param) {
+      const mappings = this.getParameterMappings();
+      const mappingType = mappings[param.name].type;
+      return mappingType === Widget.MappingType.StaticValue;
+    }
+
+    getParametersDefs() {
+      const mappings = this.getParameterMappings();
+      // textboxes does not have query
+      const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
+
+      const queryParams = $location.search();
+
+      const localTypes = [
+        Widget.MappingType.WidgetLevel,
+        Widget.MappingType.StaticValue,
+      ];
+      return map(
+        filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
+        (param) => {
+          const mapping = mappings[param.name];
+          const result = param.clone();
+          result.title = mapping.title || param.title;
+          result.locals = [param];
+          result.urlPrefix = `w${this.id}_`;
+          if (mapping.type === Widget.MappingType.StaticValue) {
+            result.setValue(mapping.value);
+          } else {
+            result.fromUrlParams(queryParams);
+          }
+          return result;
+        },
+      );
+    }
+
+    getParameterMappings() {
+      if (!isObject(this.options.parameterMappings)) {
+        this.options.parameterMappings = {};
+      }
+
+      const existingParams = {};
+      // textboxes does not have query
+      const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
+      each(params, (param) => {
+        existingParams[param.name] = true;
+        if (!isObject(this.options.parameterMappings[param.name])) {
+          // "migration" for old dashboards: parameters with `global` flag
+          // should be mapped to a dashboard-level parameter with the same name
+          this.options.parameterMappings[param.name] = {
+            name: param.name,
+            type: param.global ? Widget.MappingType.DashboardLevel : Widget.MappingType.WidgetLevel,
+            mapTo: param.name, // map to param with the same name
+            value: null, // for StaticValue
+            title: '', // Use parameter's title
+          };
+        }
+      });
+
+      // Remove mappings for parameters that do not exists anymore
+      const removedParams = difference(
+        keys(this.options.parameterMappings),
+        keys(existingParams),
+      );
+      each(removedParams, (name) => {
+        delete this.options.parameterMappings[name];
+      });
+
+      return this.options.parameterMappings;
     }
   }
 
