@@ -260,8 +260,8 @@ export class ParameterMappingListInput extends React.Component {
       <div>
         {this.props.mappings.map((mapping, index) => {
           const existingParamsNames = this.props.existingParams
-              .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
-              .map(({ name }) => name); // keep names only
+            .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
+            .map(({ name }) => name); // keep names only
 
           return (
             <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>

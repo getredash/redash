@@ -197,7 +197,7 @@ export class ScheduleDialog extends React.Component {
                     <Option value={secs} key={cnt}>{durationHumanize(secs)}</Option>
                   ))}
                 </OptGroup>
-                ))}
+              ))}
             </Select>
           </div>
         </div>

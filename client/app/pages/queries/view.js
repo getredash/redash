@@ -454,11 +454,10 @@ function QueryViewCtrl(
   const allowedIntervals = policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.updateQueryMetadata = changes =>
-    $scope.$apply(() => {
-      $scope.query = Object.assign($scope.query, changes);
-      $scope.saveQuery();
-    });
+  $scope.updateQueryMetadata = changes => $scope.$apply(() => {
+    $scope.query = Object.assign($scope.query, changes);
+    $scope.saveQuery();
+  });
   $scope.showScheduleForm = false;
   $scope.openScheduleForm = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {

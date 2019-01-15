@@ -11,6 +11,7 @@ class TagsList {
       this.allTags = tags;
     });
   }
+
   toggleTag($event, tag) {
     if ($event.shiftKey) {
       // toggle tag
