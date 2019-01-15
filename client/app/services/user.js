@@ -45,6 +45,24 @@ function disableUser(user, toastr, $sanitize) {
     });
 }
 
+function deleteUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
+  return $http
+    .delete(`api/users/${user.id}`)
+    .then((data) => {
+      toastr.warning(`User <b>${userName}</b> has been deleted.`, { allowHtml: true });
+      return data;
+    })
+    .catch((response) => {
+      const message =
+        response.data && response.data.message
+          ? response.data.message
+          : `Cannot delete user <b>${userName}</b><br>${response.statusText}`;
+
+      toastr.error(message, { allowHtml: true });
+    });
+}
+
 function User($resource, $sanitize, toastr) {
   const actions = {
     get: { method: 'GET' },
@@ -59,6 +77,7 @@ function User($resource, $sanitize, toastr) {
 
   UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
   UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
+  UserResource.deleteUser = user => deleteUser(user, toastr, $sanitize);
 
   return UserResource;
 }

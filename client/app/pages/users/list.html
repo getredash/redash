@@ -46,6 +46,10 @@
               Joined
               <sort-icon column="'created_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
             </th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('active_at')">
+              Last Active At
+              <sort-icon column="'active_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
+            </th>
             <th width="1%"></th>
           </tr>
         </thead>
@@ -55,6 +59,9 @@
               <img ng-src="{{ user.profile_image_url }}" height="32px" class="profile__image--settings" />
               <a href="users/{{ user.id }}" ng-class="{'text-muted': user.is_disabled}">{{ user.name }}</a>
               <span class="text-muted"> ({{user.email}})</span>
+              <span class="user_list__user--invitation-pending" ng-if="user.is_invitation_pending">
+                  (Invitation Pending)
+              </span>
             </td>
             <td>
               <a ng-repeat="group in user.groups" class="label label-tag" href="groups/{{group.id}}">{{group.name}}</a>
@@ -63,9 +70,13 @@
               <span am-time-ago="user.created_at"></span>
             </td>
             <td>
+              <span am-time-ago="user.active_at" uib-tooltop="user.active_at"></span>
+            </td>
+            <td>
               <div ng-if="$ctrl.currentUser.hasPermission('admin') && (user.id != $ctrl.currentUser.id)">
                 <button type="button" class="btn btn-primary" ng-if="user.is_disabled" ng-click="$ctrl.enableUser(user)">Enable</button>
-                <button type="button" class="btn btn-default" ng-if="!user.is_disabled" ng-click="$ctrl.disableUser(user)">Disable</button>
+                <button type="button" class="btn btn-default" ng-if="!(user.is_invitation_pending || user.is_disabled)" ng-click="$ctrl.disableUser(user)">Disable</button>
+                <button type="button" class="btn btn-default" ng-if="user.is_invitation_pending" ng-click="$ctrl.deleteUser(user)">Delete</button>
               </div>
             </td>
           </tr>

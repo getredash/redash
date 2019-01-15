@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, isObject, map } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import template from './query.html';
@@ -21,6 +21,7 @@ function QueryViewCtrl(
   toastr,
   $uibModal,
   currentUser,
+  Policy,
   Query,
   DataSource,
   Visualization,
@@ -183,8 +184,8 @@ function QueryViewCtrl(
 
     $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
-      const url = newQuery.getSourceLink();
-      $window.open(url, tabName);
+      const queryUrl = newQuery.getUrl(true);
+      $window.open(queryUrl, tabName);
     });
   };
 
@@ -424,19 +425,25 @@ function QueryViewCtrl(
     $location.hash(null);
     $scope.openVisualizationEditor();
   }
+  const intervals = clientConfig.queryRefreshIntervals;
+  const allowedIntervals = Policy.getQueryRefreshIntervals();
+  $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
+  $scope.updateQueryMetadata = changes =>
+    $scope.$apply(() => {
+      $scope.query = Object.assign($scope.query, changes);
+      $scope.saveQuery();
+    });
+  $scope.showScheduleForm = false;
   $scope.openScheduleForm = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
-
-    $uibModal.open({
-      component: 'scheduleDialog',
-      size: 'sm',
-      resolve: {
-        query: $scope.query,
-        saveQuery: () => $scope.saveQuery,
-      },
+    $scope.showScheduleForm = true;
+  };
+  $scope.closeScheduleForm = () => {
+    $scope.$apply(() => {
+      $scope.showScheduleForm = false;
     });
   };
 
@@ -508,4 +515,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
