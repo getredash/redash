@@ -9,6 +9,7 @@ import Radio from 'antd/lib/radio';
 import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
+import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
 
@@ -21,24 +22,14 @@ const { Option, OptGroup } = Select;
 export class ScheduleDialog extends React.Component {
   static propTypes = {
     show: PropTypes.bool.isRequired,
-    schedule: PropTypes.shape({
-      interval: PropTypes.number,
-      time: PropTypes.string,
-      day_of_week: PropTypes.string,
-      until: PropTypes.string,
-    }),
+    schedule: RefreshScheduleType,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateQuery: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
-    schedule: {
-      interval: null,
-      time: null,
-      day_of_week: null,
-      until: null,
-    },
+    schedule: RefreshScheduleDefault,
   };
 
   constructor(props) {
@@ -48,7 +39,7 @@ export class ScheduleDialog extends React.Component {
   }
 
   get initState() {
-    const newSchedule = clone(this.propsSchedule);
+    const newSchedule = clone(this.props.schedule || ScheduleDialog.defaultProps.schedule);
     const { time, interval: seconds, day_of_week: day } = newSchedule;
     const { interval } = secondsToInterval(seconds);
     const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
@@ -61,10 +52,6 @@ export class ScheduleDialog extends React.Component {
       dayOfWeek: day ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(day)] : null,
       newSchedule,
     };
-  }
-
-  get propsSchedule() {
-    return this.props.schedule || this.constructor.defaultProps.schedule;
   }
 
   get intervals() {

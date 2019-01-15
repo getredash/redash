@@ -3,31 +3,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
 import { localizeTime, durationHumanize } from '@/filters';
+import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
 
 class SchedulePhrase extends React.Component {
   static propTypes = {
-    schedule: PropTypes.shape({
-      interval: PropTypes.number,
-      time: PropTypes.string,
-      day_of_week: PropTypes.string,
-    }),
+    schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,
     isLink: PropTypes.bool,
   };
 
   static defaultProps = {
-    schedule: {
-      interval: null,
-      time: null,
-      day_of_week: null,
-    },
+    schedule: RefreshScheduleDefault,
     isLink: false,
   };
 
   get content() {
-    const { interval: seconds } = this.propsSchedule;
+    const { interval: seconds } = this.props.schedule || SchedulePhrase.defaultProps.schedule;
     if (!seconds) {
       return ['Never'];
     }
@@ -46,10 +39,6 @@ class SchedulePhrase extends React.Component {
     }
 
     return [short, full];
-  }
-
-  get propsSchedule() {
-    return this.props.schedule || this.constructor.defaultProps.schedule;
   }
 
   render() {
