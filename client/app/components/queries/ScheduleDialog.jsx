@@ -148,9 +148,15 @@ export class ScheduleDialog extends React.Component {
   }
 
   save() {
+    const { newSchedule } = this.state;
+
     // save if changed
-    if (!isEqual(this.state.newSchedule, this.props.schedule)) {
-      this.props.updateQuery({ schedule: clone(this.state.newSchedule) });
+    if (!isEqual(newSchedule, this.props.schedule)) {
+      if (newSchedule.interval) {
+        this.props.updateQuery({ schedule: clone(newSchedule) });
+      } else {
+        this.props.updateQuery({ schedule: null });
+      }
     }
     this.props.onClose();
   }
