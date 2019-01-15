@@ -26,6 +26,7 @@ module.exports = {
     "no-lonely-if": "off",
     "consistent-return": "off",
     "no-control-regex": "off",
+    "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
     "react/jsx-filename-extension": "off",
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
@@ -33,6 +34,9 @@ module.exports = {
     "react/forbid-prop-types": "warn",
     "react/prop-types": "warn",
     "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/label-has-for": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
     "max-len": ['error', 120, 2, {
       ignoreUrls: true,
       ignoreComments: false,
