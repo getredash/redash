@@ -28,6 +28,7 @@ function DashboardCtrl(
   $timeout,
   $q,
   $uibModal,
+  $scope,
   Title,
   AlertDialog,
   Dashboard,
@@ -100,35 +101,18 @@ function DashboardCtrl(
   };
 
   this.extractGlobalParameters = () => {
-    let globalParams = {};
-    this.dashboard.widgets.forEach((widget) => {
-      if (widget.getQuery()) {
-        widget
-          .getQuery()
-          .getParametersDefs()
-          .filter(p => p.global)
-          .forEach((param) => {
-            const defaults = {};
-            defaults[param.name] = param.clone();
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          });
-      }
-    });
-    this.globalParameters = _.values(globalParams);
+    this.globalParameters = this.dashboard.getParametersDefs();
   };
 
-  this.onGlobalParametersChange = () => {
-    this.globalParameters.forEach((global) => {
-      global.locals.forEach((local) => {
-        local.value = global.value;
-      });
-    });
-  };
+  $scope.$on('dashboard.update-parameters', () => {
+    this.extractGlobalParameters();
+  });
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map((widget) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      return widget.load(forceRefresh);
+    }));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -334,10 +318,14 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = () => {
+  this.addWidget = (widgetType) => {
+    const widgetTypes = {
+      textbox: 'addTextboxDialog',
+      widget: 'addWidgetDialog',
+    };
     $uibModal
       .open({
-        component: 'addWidgetDialog',
+        component: widgetTypes[widgetType],
         resolve: {
           dashboard: () => this.dashboard,
         },
