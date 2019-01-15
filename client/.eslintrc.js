@@ -28,6 +28,7 @@ module.exports = {
     "no-control-regex": "off",
     'no-multiple-empty-lines': 'warn',
     "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
+    'operator-linebreak': 'off',
     'react/button-has-type': 'warn',
     'react/destructuring-assignment': 'warn',
     "react/jsx-filename-extension": "off",
