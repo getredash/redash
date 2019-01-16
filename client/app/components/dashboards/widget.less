@@ -89,3 +89,20 @@ visualization-name {
     }
   }
 }
+
+
+// react-grid-layout overrides
+.react-grid-item {
+
+  // placeholder color
+  &.react-grid-placeholder {
+    border-radius: 3px;
+    background-color: black;
+    opacity: 0.05;
+  }
+
+  // resize placeholder behind widget, the lib's default is above 🤷‍♂️
+  &.resizing {
+    z-index: 3;
+  }
+}

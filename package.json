@@ -47,6 +47,7 @@
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
+    "angular2react": "^3.0.2",
     "antd": "^3.12.3",
     "bootstrap": "^3.3.7",
     "brace": "^0.11.0",
@@ -58,7 +59,6 @@
     "d3-cloud": "^1.2.4",
     "debug": "^3.1.0",
     "font-awesome": "^4.7.0",
-    "gridstack": "^0.3.0",
     "hoist-non-react-statics": "^3.3.0",
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
@@ -80,6 +80,7 @@
     "react": "^16.8.3",
     "react-ace": "^6.1.0",
     "react-dom": "^16.8.3",
+    "react-grid-layout": "^0.16.6",
     "react2angular": "^3.2.1",
     "ui-select": "^0.19.8",
     "underscore.string": "^3.3.4"

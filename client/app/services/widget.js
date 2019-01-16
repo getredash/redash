@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
+import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from 'lodash';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
@@ -91,13 +91,6 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       if (this.options.position.sizeY < 0) {
         this.options.position.autoHeight = true;
       }
-
-      this.updateOriginalPosition();
-    }
-
-    updateOriginalPosition() {
-      // Save original position (create a shallow copy)
-      this.$originalPosition = extend({}, this.options.position);
     }
 
     getQuery() {
@@ -152,8 +145,11 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       return this.queryResult.toPromise();
     }
 
-    save() {
+    save(key, value) {
       const data = pick(this, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
+      if (key && value) {
+        data[key] = merge({}, data[key], value); // done like this so `this.options` doesn't get updated by side-effect
+      }
 
       let url = 'api/widgets';
       if (this.id) {
@@ -164,8 +160,6 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
         each(response.data, (v, k) => {
           this[k] = v;
         });
-
-        this.updateOriginalPosition();
 
         return this;
       });

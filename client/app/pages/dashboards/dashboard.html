@@ -25,7 +25,7 @@
                 </span>
                 <span ng-switch-default>
                   <span class="save-status" data-error>Saving Failed</span>
-                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.saveDashboardLayout()">
+                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.retrySaveDashboardLayout()">
                     Retry
                   </button>
                 </span>
@@ -101,18 +101,14 @@
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 
-  <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="$ctrl.layoutEditing" on-layout-changed="$ctrl.onLayoutChanged"
-      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
-      ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
-      <div class="dashboard-widget-wrapper"
-        ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}"  data-test="WidgetId{{ widget.id }}">
-        <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
-        </div>
-      </div>
-    </div>
+  <div style="margin: -15px -15px 0" ng-if="$ctrl.dashboard.widgets.length > 0">
+    <dashboard-grid
+      dashboard="$ctrl.dashboard"
+      widgets="$ctrl.dashboard.widgets"
+      is-editing="$ctrl.layoutEditing && !$ctrl.isGridDisabled"
+      on-layout-change="$ctrl.onLayoutChange"
+      on-remove-widget="$ctrl.removeWidget"
+    />
   </div>
 
   <div class="add-widget-container" ng-if="$ctrl.layoutEditing">

@@ -1,8 +1,10 @@
 import { filter } from 'lodash';
+import { angular2react } from 'angular2react';
 import template from './widget.html';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
+import lazyInjector from './lazyInjector';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -106,18 +108,25 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
   }
 }
 
+const DashboardWidgetOptions = {
+  template,
+  controller: DashboardWidgetCtrl,
+  bindings: {
+    widget: '<',
+    public: '<',
+    dashboard: '<',
+    deleted: '<',
+  },
+};
+
 export default function init(ngModule) {
   ngModule.component('widgetDialog', WidgetDialog);
-  ngModule.component('dashboardWidget', {
-    template,
-    controller: DashboardWidgetCtrl,
-    bindings: {
-      widget: '<',
-      public: '<',
-      dashboard: '<',
-      deleted: '&onDelete',
-    },
-  });
+  ngModule.component('dashboardWidget', DashboardWidgetOptions);
+  ngModule.run(['$injector', (_$injector) => {
+    lazyInjector.$injector = _$injector;
+  }]);
 }
 
 init.init = true;
+
+export const DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, lazyInjector.$injector);
