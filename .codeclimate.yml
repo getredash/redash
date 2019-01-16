@@ -1,4 +1,5 @@
-engines:
+version: "2"
+plugins:
   pep8:
     enabled: true
   eslint:
@@ -11,12 +12,8 @@ engines:
         enabled: false
       no-multiple-empty-lines: # TODO: Enable
         enabled: false
-ratings:
-  paths:
-  - "redash/**/*.py"
-  - "client/**/*.js"
-exclude_paths:
-- tests/**/*.py
-- migrations/**/*.py
-- setup/**/*
-- bin/**/*
+exclude_patterns:
+- "tests/**/*.py"
+- "migrations/**/*.py"
+- "setup/**/*"
+- "bin/**/*"
