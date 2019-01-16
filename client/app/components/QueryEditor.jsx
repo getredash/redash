@@ -129,6 +129,7 @@ class QueryEditor extends React.Component {
 
   onLoad = (editor) => {
     // Release Cmd/Ctrl+L to the browser
+    this.editor = editor;
     editor.commands.bindKey('Cmd+L', null);
     editor.commands.bindKey('Ctrl+P', null);
     editor.commands.bindKey('Ctrl+L', null);
@@ -181,6 +182,17 @@ class QueryEditor extends React.Component {
     });
   };
 
+  updateQueryWithSelection = (selection) => {
+    const doc = this.editor.getSession().doc;
+    const queryText = doc.getTextRange(selection.getRange());
+    const hasSelectedQuery = queryText.length > 1;
+    if (hasSelectedQuery) {
+      this.props.updateQuery(queryText);
+    } else {
+      this.props.updateQuery(this.state.queryText);
+    }
+  }
+
   updateQuery = (queryText) => {
     this.props.updateQuery(queryText);
     this.setState({ queryText });
@@ -229,6 +241,7 @@ class QueryEditor extends React.Component {
               onLoad={this.onLoad}
               onPaste={this.onPaste}
               onChange={this.updateQuery}
+              onSelectionChange={this.updateQueryWithSelection}
             />
           </div>
 
