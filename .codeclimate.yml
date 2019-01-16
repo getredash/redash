@@ -17,3 +17,6 @@ exclude_patterns:
 - "migrations/**/*.py"
 - "setup/**/*"
 - "bin/**/*"
+- "**/node_modules/"
+- "client/dist/"
+- "**/*.pyc"
