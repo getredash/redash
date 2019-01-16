@@ -32,34 +32,39 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         raise Exception('Missing parameter value for: {}'.format(", ".join(parameterized_query.missing_params)))
 
     query_text = parameterized_query.query
+
+    if max_age <= 0:
+        query_result = None
+    else:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
     query_hash = gen_query_hash(query_text)
 
-    if max_age:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+    if query_result:
         logging.info("Returning cached result for query %s" % query_hash)
         return query_result
-    else:
-        try:
-            started_at = time.time()
-            data, error = data_source.query_runner.run_query(query_text, current_user)
 
-            if error:
-                logging.info('got bak error')
-                logging.info(error)
-                return None
+    try:
+        started_at = time.time()
+        data, error = data_source.query_runner.run_query(query_text, current_user)
 
-            run_time = time.time() - started_at
-            query_result, _ = models.QueryResult.store_result(data_source.org_id, data_source, query_hash,
-                                                              query_text, data, run_time, utcnow())
-
-            models.db.session.commit()
-            return query_result
-        except Exception:
-            if max_age > 0:
-                abort(404, message="Unable to get result from the database, and no cached query result found.")
-            else:
-                abort(503, message="Unable to get result from the database.")
+        if error:
+            logging.info('got bak error')
+            logging.info(error)
             return None
+
+        run_time = time.time() - started_at
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
+                                                                              query_hash, query_text, data,
+                                                                              run_time, utcnow())
+        models.db.session.commit()
+        return query_result
+    except Exception as e:
+        if max_age > 0:
+            abort(404, message="Unable to get result from the database, and no cached query result found.")
+        else:
+            abort(503, message="Unable to get result from the database.")
+        return None
 
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
@@ -94,14 +99,15 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
         logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(parameterized_query.query), e.message)
         query_text = parameterized_query.query
 
-    if max_age:
+    if max_age == 0:
+        query_result = None
+    else:
         query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
+    if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, current_user.id, metadata={
-            "Username": current_user.email,
-            "Query ID": query_id
-        })
+        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
