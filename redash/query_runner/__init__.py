@@ -5,7 +5,6 @@ import requests
 
 from redash import settings
 from redash.utils import json_loads
-from redash.utils.parameterized_query import ParameterizedSqlQuery, ParameterizedQuery
 
 logger = logging.getLogger(__name__)
 
