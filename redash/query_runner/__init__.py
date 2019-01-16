@@ -119,13 +119,6 @@ class BaseQueryRunner(object):
             raise Exception("Failed running query [%s]." % query)
         return json_loads(results)['rows']
 
-    @property
-    def parameterized_query_class(self):
-        if self.syntax == 'sql':
-            return ParameterizedSqlQuery
-        else:
-            return ParameterizedQuery
-
     @classmethod
     def to_dict(cls):
         return {
