@@ -20,7 +20,7 @@ export const DataSourceMetadata = PropTypes.shape({
 });
 
 export const Table = PropTypes.shape({
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
 });
 
 export const Schema = PropTypes.arrayOf(Table);
