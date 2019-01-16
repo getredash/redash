@@ -623,7 +623,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
         kwargs = {a: getattr(self, a) for a in forked_list}
+        default_schedule = MutableDict({
+            'interval': None,
+            'until': None,
+            'day_of_week': None,
+            'time': None
+        })
         forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
+                                    schedule=default_schedule,
                                     user=user, **kwargs)
 
         for v in self.visualizations:
