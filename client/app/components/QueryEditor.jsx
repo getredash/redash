@@ -182,15 +182,23 @@ class QueryEditor extends React.Component {
     });
   };
 
+  setFullUnhighlightedQuery = () => {
+    this.props.updateQuery(this.state.queryText);
+  }
+
   updateQueryWithSelection = (selection) => {
     const doc = this.editor.getSession().doc;
-    const queryText = doc.getTextRange(selection.getRange());
-    const hasSelectedQuery = queryText.length > 1;
-    if (hasSelectedQuery) {
-      this.props.updateQuery(queryText);
+    const highlightedQueryText = doc.getTextRange(selection.getRange());
+    if (highlightedQueryText.length > 1) {
+      this.props.updateQuery(highlightedQueryText);
     } else {
-      this.props.updateQuery(this.state.queryText);
+      this.setFullUnhighlightedQuery();
     }
+  }
+
+  saveQuery = (customOptions, data) => {
+    this.setFullUnhighlightedQuery();
+    this.props.saveQuery(customOptions, data);
   }
 
   updateQuery = (queryText) => {
@@ -282,7 +290,7 @@ class QueryEditor extends React.Component {
               </select>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
-                  <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
+                  <button className="btn btn-default m-l-5" onClick={this.saveQuery} title="Save">
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
