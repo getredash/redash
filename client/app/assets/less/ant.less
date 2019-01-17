@@ -1,10 +1,14 @@
 @import '~antd/lib/style/core/iconfont.less';
 @import '~antd/lib/style/core/motion.less';
 @import '~antd/lib/input/style/index.less';
+@import '~antd/lib/input-number/style/index.less';
 @import '~antd/lib/date-picker/style/index.less';
 @import '~antd/lib/modal/style/index.less';
 @import '~antd/lib/tooltip/style/index.less';
 @import '~antd/lib/select/style/index.less';
+@import '~antd/lib/checkbox/style/index.less';
+@import '~antd/lib/upload/style/index.less';
+@import '~antd/lib/form/style/index.less';
 @import '~antd/lib/button/style/index.less';
 @import '~antd/lib/radio/style/index.less';
 @import '~antd/lib/time-picker/style/index.less';
@@ -45,4 +49,11 @@
 // Fix for Ant dropdowns when they are used in Boootstrap modals
 .ant-dropdown-in-bootstrap-modal {
   z-index: 1050;
+}
+
+// Fix ant input number showing duplicate arrows
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
