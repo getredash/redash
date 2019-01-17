@@ -38,7 +38,7 @@ def render_token_login_page(template, org_slug, token):
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
 
-    if not user.is_invitation_pending:
+    if user.details.get('is_invitation_pending') is False:
         return render_template("error.html",
                                error_message=("This invitation has already been accepted. "
                                               "Please try resetting your password instead.")), 400
