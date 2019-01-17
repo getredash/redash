@@ -8,37 +8,14 @@ from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
-from redash.tasks import QueryTask, record_event
+from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, find_missing_params, gen_query_hash, json_dumps, utcnow)
-from redash.utils.sql_query import SQLInjectionError, SQLQuery
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils.parameterized_query import ParameterizedQuery
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
-
-
-def apply_parameters(template, parameters, data_source):
-    query = SQLQuery(template).apply(parameters)
-
-    # for now we only log `SQLInjectionError` to detect false positives
-    try:
-        text = query.text
-    except SQLInjectionError:
-        record_event({
-            'action': 'sql_injection',
-            'object_type': 'query',
-            'query': template,
-            'parameters': parameters,
-            'timestamp': time.time(),
-            'org_id': data_source.org_id
-        })
-    except Exception as e:
-        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(query.query), e.message)
-    finally:
-        text = query.query
-
-    return text
 
 
 #
@@ -48,18 +25,17 @@ def apply_parameters(template, parameters, data_source):
 #             on the client side. Please don't reuse in other API handlers.
 #
 def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+    query = ParameterizedQuery(query_text).apply(parameter_values)
 
-    query_text = apply_parameters(query_text, parameter_values, data_source)
+    if query.missing_params:
+        raise Exception('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
 
     if max_age <= 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
-    query_hash = gen_query_hash(query_text)
+    query_hash = gen_query_hash(query.text)
 
     if query_result:
         logging.info("Returning cached result for query %s" % query_hash)
@@ -67,7 +43,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
     try:
         started_at = time.time()
-        data, error = data_source.query_runner.run_query(query_text, current_user)
+        data, error = data_source.query_runner.run_query(query.text, current_user)
 
         if error:
             logging.info('got bak error')
@@ -76,9 +52,8 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                              query_hash, query_text, data,
+                                                                              query_hash, query.text, data,
                                                                               run_time, utcnow())
-
         models.db.session.commit()
         return query_result
     except Exception as e:
@@ -90,10 +65,6 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
-
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -102,17 +73,20 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query_text = apply_parameters(query_text, parameter_values, data_source)
+    query = ParameterizedQuery(query_text).apply(parameter_values)
+
+    if query.missing_params:
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
 
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
