@@ -60,7 +60,7 @@ def create_redis_connection():
 
     return client
 
-        
+
 setup_logging()
 redis_connection = create_redis_connection()
 
