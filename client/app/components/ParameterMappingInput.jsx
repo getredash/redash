@@ -1,9 +1,15 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined } from 'lodash';
-import React from 'react';
+import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined, isEmpty } from 'lodash';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import Table from 'antd/lib/table';
+import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
+import Icon from 'antd/lib/icon';
+import Popover from 'antd/lib/popover';
+import Input from 'antd/lib/input';
+import Form from 'antd/lib/form';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 
@@ -14,6 +20,12 @@ export const MappingType = {
   DashboardMapToExisting: 'dashboard-map-to-existing',
   WidgetLevel: 'widget-level',
   StaticValue: 'static-value',
+};
+
+const MappingTypeLabel = {
+  [ParameterMappingType.DashboardLevel]: 'Dashboard parameter',
+  [ParameterMappingType.WidgetLevel]: 'Widget parameter',
+  [ParameterMappingType.StaticValue]: 'Static value',
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -220,6 +232,97 @@ export class ParameterMappingInput extends React.Component {
   }
 }
 
+class TitleInput extends React.Component {
+  static propTypes = {
+    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    onChange: PropTypes.func.isRequired,
+    getContainerElement: PropTypes.func.isRequired,
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      editMode: false,
+      title: this.props.mapping.title,
+    };
+  }
+
+  onVisibleChange = (visible) => {
+    this.setState({ editMode: visible });
+  }
+
+  onTitleChange = (event) => {
+    this.setState({ title: event.target.value });
+  }
+
+  get popover() {
+    const { param: { title: paramTitle } } = this.props.mapping;
+
+    return (
+      <Fragment>
+        <Input
+          size="small"
+          defaultValue={this.state.title}
+          placeholder={paramTitle}
+          style={{ width: 100, marginRight: 3 }}
+          onChange={this.onTitleChange}
+          onPressEnter={this.save}
+          autoFocus
+        />
+        <Button size="small" type="dashed" onClick={this.hide} style={{ marginRight: 2 }}>
+          <Icon type="close" />
+        </Button>
+        <Button size="small" type="dashed" onClick={this.save}>
+          <Icon type="check" />
+        </Button>
+      </Fragment>
+    );
+  }
+
+  save = () => {
+    const newMapping = extend({}, this.props.mapping, { title: this.state.title });
+    this.props.onChange(newMapping);
+    this.hide();
+  }
+
+  hide = () => {
+    this.setState({ editMode: false });
+  }
+
+  render() {
+    const { mapping } = this.props;
+    const { title, param: { title: paramTitle } } = mapping;
+
+    // if static value, return name
+    if (mapping.type === MappingType.StaticValue) {
+      return paramTitle;
+    }
+
+    // TODO css className
+    return (
+      <span style={{ whiteSpace: 'nowrap' }}>
+        {title || paramTitle}
+        <Popover
+          placement="right"
+          trigger="click"
+          content={this.popover}
+          visible={this.state.editMode}
+          onVisibleChange={this.onVisibleChange}
+          getPopupContainer={this.props.getContainerElement}
+        >
+          <Button
+            size="small"
+            type="dashed"
+            style={{ marginLeft: '10px' }}
+          >
+            <Icon type="edit" />
+          </Button>
+        </Popover>
+      </span>
+    );
+  }
+}
+
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
     mappings: PropTypes.arrayOf(PropTypes.object),
@@ -237,6 +340,11 @@ export class ParameterMappingListInput extends React.Component {
     Query: null,
   };
 
+  constructor(props) {
+    super(props);
+    this.wrapperRef = React.createRef();
+  }
+
   updateParamMapping(oldMapping, newMapping) {
     const mappings = [...this.props.mappings];
     const index = findIndex(mappings, oldMapping);
@@ -253,19 +361,73 @@ export class ParameterMappingListInput extends React.Component {
     const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
     const Query = this.props.Query; // eslint-disable-line react/prop-types
 
+    const data = this.props.mappings.map(mapping => ({
+      key: mapping.name,
+      title: mapping,
+      k: mapping.name,
+      v: isEmpty(mapping.value) ? mapping.param.normalizedValue : mapping.value,
+      s: mapping.type,
+      sourceKey: mapping.mapTo,
+      mapping,
+    }));
+
     return (
-      <div>
-        {this.props.mappings.map((mapping, index) => (
-          <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
-            <ParameterMappingInput
-              mapping={mapping}
-              existingParamNames={this.props.existingParamNames}
-              onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
-              clientConfig={clientConfig}
-              Query={Query}
-            />
-          </div>
-        ))}
+      <div ref={this.wrapperRef}>
+        <Table dataSource={data} size="middle" pagination={false}>
+          <Table.Column
+            title="Title"
+            dataIndex="title"
+            key="title"
+            render={mapping => (
+              <TitleInput
+                mapping={mapping}
+                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
+                getContainerElement={() => this.wrapperRef.current}
+              />
+            )}
+          />
+          <Table.Column
+            title="Keyword"
+            dataIndex="k"
+            key="k"
+            render={text => (
+              <code className="key">{`{{ ${text} }}`}</code>
+            )}
+          />
+          <Table.Column
+            title="Default Value"
+            dataIndex="v"
+            key="v"
+          />
+          <Table.Column
+            title="Value Source"
+            dataIndex="s"
+            key="s"
+            width={205}
+            render={type => (
+              <span>
+                {MappingTypeLabel[type]}{' '}
+                <Button size="small" type="dashed">
+                  <Icon type="edit" />
+                </Button>
+              </span>
+            )}
+          />
+        </Table>
+
+        <div>
+          {this.props.mappings.map((mapping, index) => (
+            <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
+              <ParameterMappingInput
+                mapping={mapping}
+                existingParamNames={this.props.existingParamNames}
+                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
+                clientConfig={clientConfig}
+                Query={Query}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
