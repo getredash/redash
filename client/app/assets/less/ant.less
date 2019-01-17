@@ -14,6 +14,11 @@
 @import '~antd/lib/time-picker/style/index';
 @import 'inc/ant-variables';
 
+// Remove bold in labels for Ant checkboxes and radio buttons
+.ant-checkbox-wrapper, .ant-radio-wrapper {
+  font-weight: normal;
+}
+
 // Fix for disabled button styles inside Tooltip component.
 // Tooltip wraps disabled buttons with `<span>` and moves all styles
 // and classes to that `<span>`. This resets all button styles and
