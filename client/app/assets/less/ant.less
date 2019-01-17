@@ -1,23 +1,33 @@
 @import '~antd/lib/style/core/iconfont.less';
 @import '~antd/lib/style/core/motion.less';
 @import '~antd/lib/input/style/index.less';
+@import '~antd/lib/input-number/style/index.less';
 @import '~antd/lib/date-picker/style/index.less';
 @import '~antd/lib/modal/style/index.less';
 @import '~antd/lib/tooltip/style/index.less';
 @import '~antd/lib/select/style/index.less';
+@import '~antd/lib/checkbox/style/index.less';
+@import '~antd/lib/upload/style/index.less';
+@import '~antd/lib/form/style/index.less';
 @import '~antd/lib/button/style/index.less';
 @import '~antd/lib/radio/style/index.less';
 @import '~antd/lib/time-picker/style/index.less';
 
 // Overwritting Ant Design defaults to fit into Redash current style
+@redash-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
 @font-family-no-number  : @redash-font;
 @font-family            : @redash-font;
 @code-family            : @redash-font;
+@font-size-base         : 13px;
+@text-color             : #767676;
 
-@border-radius-base     : @redash-input-radius;
+@input-height-base      : 35px;
+@input-color            : #9E9E9E;
+@border-radius-base     : 2px;
 @border-color-base      : #e8e8e8;
 
-@primary-color          : @blue;
+@primary-color          : #2196F3;
 
 // Fix for disabled button styles inside Tooltip component.
 // Tooltip wraps disabled buttons with `<span>` and moves all styles
@@ -39,4 +49,11 @@
 // Fix for Ant dropdowns when they are used in Boootstrap modals
 .ant-dropdown-in-bootstrap-modal {
   z-index: 1050;
+}
+
+// Fix ant input number showing duplicate arrows
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

@@ -14,3 +14,24 @@ export const Table = PropTypes.shape({
 });
 
 export const Schema = PropTypes.arrayOf(Table);
+
+export const Field = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  title: PropTypes.string,
+  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox', 'file']).isRequired,
+  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  required: PropTypes.bool,
+  placeholder: PropTypes.string,
+});
+
+export const Action = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  callback: PropTypes.func.isRequired,
+  type: PropTypes.string,
+  pullRight: PropTypes.bool,
+  disabledWhenDirty: PropTypes.bool,
+});
+
+export const AntdForm = PropTypes.shape({
+  validateFieldsAndScroll: PropTypes.func,
+});
