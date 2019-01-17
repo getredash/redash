@@ -10,6 +10,7 @@ from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404, require_fields
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
+from redash.tasks.queries import refresh_schemas
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  query_runners, NotSupported)
 from redash.utils import filter_none
@@ -126,6 +127,9 @@ class DataSourceListResource(BaseResource):
                                                              options=config)
 
             models.db.session.commit()
+
+            # Refresh the stored schemas when a new data source is added to the list
+            refresh_schemas.apply_async(queue="schemas")
         except IntegrityError as e:
             if req['name'] in e.message:
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
@@ -151,6 +155,13 @@ class DataSourceSchemaResource(BaseResource):
 
         try:
             response['schema'] = data_source.get_schema(refresh)
+
+            # If the TableMetadata table has no information about this data source,
+            # this might be due to a fresh migration to these new tables.
+            # They will likely only populate at the next refresh (30 min intervals)
+            # So let's refresh them now to get them sooner.
+            if len(response['schema']) == 0:
+                refresh_schemas.apply_async(queue="schemas")
         except NotSupported:
             response['error'] = {
                 'code': 1,
