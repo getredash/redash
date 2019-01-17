@@ -187,6 +187,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.id == _id).one()
 
     def delete(self):
+        # Delete the relevant metadata about a data source first.
+        tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).options(load_only('id'))
+        ColumnMetadata.query.filter(ColumnMetadata.table_id.in_(tables.subquery())).delete(synchronize_session=False)
+        tables.delete()
+
         Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
