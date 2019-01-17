@@ -9,6 +9,7 @@ import Radio from 'antd/lib/radio';
 import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
+import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
 
@@ -21,11 +22,14 @@ const { Option, OptGroup } = Select;
 export class ScheduleDialog extends React.Component {
   static propTypes = {
     show: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    query: PropTypes.object.isRequired,
+    schedule: RefreshScheduleType,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateQuery: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    schedule: RefreshScheduleDefault,
   };
 
   constructor(props) {
@@ -35,7 +39,7 @@ export class ScheduleDialog extends React.Component {
   }
 
   get initState() {
-    const newSchedule = clone(this.props.query.schedule);
+    const newSchedule = clone(this.props.schedule || ScheduleDialog.defaultProps.schedule);
     const { time, interval: seconds, day_of_week: day } = newSchedule;
     const { interval } = secondsToInterval(seconds);
     const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
@@ -144,9 +148,15 @@ export class ScheduleDialog extends React.Component {
   }
 
   save() {
+    const { newSchedule } = this.state;
+
     // save if changed
-    if (!isEqual(this.state.newSchedule, this.props.query.schedule)) {
-      this.props.updateQuery({ schedule: clone(this.state.newSchedule) });
+    if (!isEqual(newSchedule, this.props.schedule)) {
+      if (newSchedule.interval) {
+        this.props.updateQuery({ schedule: clone(newSchedule) });
+      } else {
+        this.props.updateQuery({ schedule: null });
+      }
     }
     this.props.onClose();
   }
