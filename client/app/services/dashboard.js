@@ -44,7 +44,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
+function Dashboard($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -150,6 +150,34 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
 
   resource.prepareDashboardWidgets = prepareDashboardWidgets;
   resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
+
+  resource.prototype.getParametersDefs = function getParametersDefs() {
+    const globalParams = {};
+    const queryParams = $location.search();
+    _.each(this.widgets, (widget) => {
+      if (widget.getQuery()) {
+        const mappings = widget.getParameterMappings();
+        widget
+          .getQuery()
+          .getParametersDefs()
+          .forEach((param) => {
+            const mapping = mappings[param.name];
+            if (mapping.type === Widget.MappingType.DashboardLevel) {
+              if (!globalParams[mapping.mapTo]) {
+                globalParams[mapping.mapTo] = param.clone();
+                globalParams[mapping.mapTo].name = mapping.mapTo;
+                globalParams[mapping.mapTo].title = mapping.title || param.title;
+                globalParams[mapping.mapTo].locals = [];
+              }
+              globalParams[mapping.mapTo].locals.push(param);
+            }
+          });
+      }
+    });
+    return _.values(_.each(globalParams, (param) => {
+      param.fromUrlParams(queryParams);
+    }));
+  };
 
   return resource;
 }
