@@ -1,8 +1,9 @@
-import { isNull, isUndefined } from 'lodash';
+import { isEmpty } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import Input from 'antd/lib/input';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -166,11 +167,12 @@ export class ParameterValueInput extends React.Component {
   renderTextInput() {
     const { value, onSelect, type } = this.props;
     return (
-      <input
+      <Input
         type={type}
-        className={'form-control ' + this.props.className}
-        value={isNull(value) || isUndefined(value) ? '' : value}
+        className={this.props.className}
+        value={isEmpty(value) ? '' : value}
         onChange={event => onSelect(event.target.value)}
+        style={{ width: 100 }}
       />
     );
   }
@@ -194,12 +196,12 @@ export class ParameterValueInput extends React.Component {
 export default function init(ngModule) {
   ngModule.component('parameterValueInput', {
     template: `
-      <parameter-value-input-impl 
-        type="$ctrl.param.type"       
-        value="$ctrl.param.normalizedValue"       
-        enum-options="$ctrl.param.enumOptions"       
+      <parameter-value-input-impl
+        type="$ctrl.param.type"
+        value="$ctrl.param.normalizedValue"
+        enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
-        on-select="$ctrl.setValue"       
+        on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
     bindings: {

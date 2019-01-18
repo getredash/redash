@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined, isEmpty } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined, isEmpty, clone, without } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
@@ -9,7 +9,7 @@ import Select from 'antd/lib/select';
 import Icon from 'antd/lib/icon';
 import Popover from 'antd/lib/popover';
 import Input from 'antd/lib/input';
-import Form from 'antd/lib/form';
+import Radio from 'antd/lib/radio';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 
@@ -23,9 +23,10 @@ export const MappingType = {
 };
 
 const MappingTypeLabel = {
-  [ParameterMappingType.DashboardLevel]: 'Dashboard parameter',
-  [ParameterMappingType.WidgetLevel]: 'Widget parameter',
-  [ParameterMappingType.StaticValue]: 'Static value',
+  [MappingType.DashboardAddNew]: 'Dashboard parameter',
+  [MappingType.DashboardMapToExisting]: 'Dashboard parameter',
+  [MappingType.WidgetLevel]: 'Widget parameter',
+  [MappingType.StaticValue]: 'Static value',
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -232,6 +233,176 @@ export class ParameterMappingInput extends React.Component {
   }
 }
 
+class SourceInput extends React.Component {
+  static propTypes = {
+    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onChange: PropTypes.func.isRequired,
+    getContainerElement: PropTypes.func.isRequired,
+    clientConfig: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+    Query: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      editMode: false,
+      mapping: clone(this.props.mapping),
+    };
+  }
+
+  onVisibleChange = (visible) => {
+    if (!visible) {
+      this.cancel();
+    } else {
+      this.setState({ editMode: true });
+    }
+  }
+
+  onChangeSourceType = (e) => {
+    this.mapping = { type: e.target.value };
+  }
+
+  onChangeMapToParam = (value) => {
+    this.mapping = {
+      mapTo: value,
+      type: includes(this.props.existingParamNames, value)
+        ? MappingType.DashboardMapToExisting
+        : MappingType.DashboardAddNew,
+    };
+  }
+
+  onChangeStaticValue = () => {
+    // this.setState({ staticValue: value });
+  }
+
+  get popover() {
+    const radioStyle = {
+      style: {
+        display: 'block',
+        height: '30px',
+        lineHeight: '30px',
+      },
+    };
+
+    const { existingParamNames: existing } = this.props;
+    const {
+      mapping: { name, type, mapTo },
+      mapping,
+    } = this.state;
+
+    // TODO: this code mess is to compensate for the dashboard type having
+    // 2 logical states and only 1 ui state. Should merge them
+    let dashboardMappingType = MappingType.DashboardAddNew;
+    if (type === MappingType.DashboardMapToExisting) {
+      dashboardMappingType = MappingType.DashboardMapToExisting;
+    }
+    const isDashboardSelected = type === dashboardMappingType;
+    const isStaticValSelected = type === MappingType.StaticValue;
+
+    return (
+      <Fragment>
+        <Radio.Group onChange={this.onChangeSourceType} value={type}>
+          <Radio {...radioStyle} value={dashboardMappingType} key={1}>
+            Dashboard parameter {' '}
+            <Select
+              class="w-100"
+              value={mapTo}
+              onChange={this.onChangeMapToParam}
+              size="small"
+              style={{
+                opacity: isDashboardSelected ? 1 : 0,
+                pointerEvents: isDashboardSelected ? null : 'none',
+              }}
+              dropdownMatchSelectWidth={false}
+              disabled={isEmpty(without(existing, name))}
+            >
+              {!includes(existing, name) ?
+                <Select.Option value={name} key={name}>{name}</Select.Option>
+              : null}
+              {existing.map(param => (
+                <Select.Option value={param} key={param}>{param}</Select.Option>
+              ))}
+            </Select>
+          </Radio>
+          <Radio {...radioStyle} value={ParameterMappingType.WidgetLevel} key={2}>
+            Widget parameter
+          </Radio>
+          <Radio {...radioStyle} value={ParameterMappingType.StaticValue} key={3}>
+            Static value
+            <span style={{
+              opacity: isStaticValSelected ? 1 : 0,
+              pointerEvents: isStaticValSelected ? null : 'none',
+            }}
+            >
+              <ParameterValueInput
+                type={mapping.param.type}
+                value={this.state.staticValue}
+                enumOptions={mapping.param.enumOptions}
+                queryId={mapping.param.queryId}
+                onSelect={this.onChangeStaticValue}
+                clientConfig={this.props.clientConfig}
+                Query={this.props.Query}
+              />
+            </span>
+          </Radio>
+        </Radio.Group>
+        <footer style={{
+         marginTop: 10, paddingTop: 10, borderTop: '1px solid #eee', textAlign: 'right',
+        }}
+        >
+          <Button size="small" onClick={this.cancel} style={{ marginRight: 2 }}>
+            Cancel
+          </Button>
+          <Button size="small" type="primary" onClick={this.save}>OK</Button>
+        </footer>
+      </Fragment>
+    );
+  }
+
+  set mapping(props) {
+    this.setState({
+      mapping: extend(this.state.mapping, props),
+    });
+  }
+
+  save = () => {
+    this.props.onChange(this.state.mapping);
+    this.hide();
+  }
+
+  cancel = () => {
+    this.mapping = clone(this.props.mapping); // restore original state
+    this.hide();
+  }
+
+  hide = () => {
+    this.setState({ editMode: false });
+  }
+
+  render() {
+    // console.log(this.state.mapping);
+    const { mapping, getContainerElement } = this.props;
+    return (
+      <span>
+        {MappingTypeLabel[mapping.type]}{' '}
+        <Popover
+          placement="left"
+          trigger="click"
+          content={this.popover}
+          visible={this.state.editMode}
+          onVisibleChange={this.onVisibleChange}
+          getPopupContainer={getContainerElement}
+        >
+          <Button size="small" type="dashed">
+            <Icon type="edit" />
+          </Button>
+        </Popover>
+      </span>
+    );
+  }
+}
+
 class TitleInput extends React.Component {
   static propTypes = {
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -239,12 +410,9 @@ class TitleInput extends React.Component {
     getContainerElement: PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      editMode: false,
-      title: this.props.mapping.title,
-    };
+  state = {
+    editMode: false,
+    title: this.props.mapping.title,
   }
 
   onVisibleChange = (visible) => {
@@ -361,22 +529,14 @@ export class ParameterMappingListInput extends React.Component {
     const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
     const Query = this.props.Query; // eslint-disable-line react/prop-types
 
-    const data = this.props.mappings.map(mapping => ({
-      key: mapping.name,
-      title: mapping,
-      k: mapping.name,
-      v: isEmpty(mapping.value) ? mapping.param.normalizedValue : mapping.value,
-      s: mapping.type,
-      sourceKey: mapping.mapTo,
-      mapping,
-    }));
+    const data = this.props.mappings.map(mapping => ({ mapping }));
 
     return (
       <div ref={this.wrapperRef}>
-        <Table dataSource={data} size="middle" pagination={false}>
+        <Table dataSource={data} size="middle" pagination={false} rowKey="uid">
           <Table.Column
             title="Title"
-            dataIndex="title"
+            dataIndex="mapping"
             key="title"
             render={mapping => (
               <TitleInput
@@ -388,29 +548,35 @@ export class ParameterMappingListInput extends React.Component {
           />
           <Table.Column
             title="Keyword"
-            dataIndex="k"
-            key="k"
-            render={text => (
-              <code className="key">{`{{ ${text} }}`}</code>
+            dataIndex="mapping"
+            key="keyword"
+            render={mapping => (
+              <code>{`{{ ${mapping.name} }}`}</code>
             )}
           />
           <Table.Column
             title="Default Value"
-            dataIndex="v"
-            key="v"
+            dataIndex="mapping"
+            key="value"
+            render={mapping => (
+              isEmpty(mapping.value) ? mapping.param.normalizedValue : mapping.value
+            )}
           />
           <Table.Column
             title="Value Source"
-            dataIndex="s"
-            key="s"
+            dataIndex="mapping"
+            key="source"
             width={205}
-            render={type => (
-              <span>
-                {MappingTypeLabel[type]}{' '}
-                <Button size="small" type="dashed">
-                  <Icon type="edit" />
-                </Button>
-              </span>
+            align="right"
+            render={mapping => (
+              <SourceInput
+                mapping={mapping}
+                existingParamNames={this.props.existingParamNames}
+                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
+                getContainerElement={() => this.wrapperRef.current}
+                clientConfig={clientConfig}
+                Query={Query}
+              />
             )}
           />
         </Table>
