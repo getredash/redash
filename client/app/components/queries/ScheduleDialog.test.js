@@ -1,17 +1,11 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import { ScheduleDialog } from './ScheduleDialog';
+import RefreshScheduleDefault from '../proptypes';
 
 const defaultProps = {
   show: true,
-  query: {
-    schedule: {
-      time: null,
-      until: null,
-      interval: null,
-      day_of_week: null,
-    },
-  },
+  schedule: RefreshScheduleDefault,
   refreshOptions: [
     60, 300, 600, // 1, 5 ,10 mins
     3600, 36000, 82800, // 1, 10, 23 hours
@@ -23,12 +17,11 @@ const defaultProps = {
 };
 
 function getWrapper(schedule = {}, props = {}) {
-  const defaultSchedule = defaultProps.query.schedule;
   props = Object.assign(
     {},
     defaultProps,
     props,
-    { query: { schedule: Object.assign({}, defaultSchedule, schedule) } },
+    { schedule: Object.assign({}, RefreshScheduleDefault, schedule) },
   );
   return [mount(<ScheduleDialog {...props} />), props];
 }
@@ -78,7 +71,7 @@ describe('ScheduleDialog', () => {
       const [wrapper] = getWrapper({
         interval: 1209600,
         time: '22:15',
-        day_of_week: 2,
+        day_of_week: 'Monday',
       });
 
       test('Sets to correct interval', () => {
