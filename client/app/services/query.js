@@ -375,12 +375,7 @@ function QueryResource(
     return new Query({
       query: '',
       name: 'New Query',
-      schedule: {
-        time: null,
-        until: null,
-        interval: null,
-        day_of_week: null,
-      },
+      schedule: null,
       user: currentUser,
       options: {},
     });

@@ -136,9 +136,12 @@ class QueryOutdatedQueriesTest(BaseTestCase):
     # TODO: this test can be refactored to use mock version of should_schedule_next to simplify it.
     def test_outdated_queries_skips_unscheduled_queries(self):
         query = self.factory.create_query(schedule={'interval':None, 'time': None, 'until':None, 'day_of_week':None})
+        query_with_none = self.factory.create_query(schedule=None)
+
         queries = models.Query.outdated_queries()
 
         self.assertNotIn(query, queries)
+        self.assertNotIn(query_with_none, queries)
 
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         two_hours_ago = utcnow() - datetime.timedelta(hours=2)
@@ -318,7 +321,7 @@ class QueryArchiveTest(BaseTestCase):
 
         query.archive()
 
-        self.assertEqual({}, query.schedule)
+        self.assertIsNone(query.schedule)
 
     def test_deletes_alerts(self):
         subscription = self.factory.create_alert_subscription()
