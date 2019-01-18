@@ -223,9 +223,8 @@ class QueryEditor extends React.Component {
     return (
       <section style={{ height: '100%' }} data-test="QueryEditor">
         <div className="container p-15 m-b-10" style={{ height: '100%' }}>
-          <div style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
+          <div data-executing={this.props.queryExecuting} style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
             <AceEditor
-              className={(this.props.queryExecuting) ? 'highlightedText' : ''}
               ref={this.refEditor}
               theme="textmate"
               mode={this.props.dataSource.syntax || 'sql'}
