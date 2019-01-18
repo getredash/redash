@@ -50,6 +50,12 @@ class TestInvitePost(BaseTestCase):
         response = self.post_request('/invite/{}'.format('jdsnfkjdsnfkj'), data={'password': '1234'}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
+    def test_user_invited_before_invitation_pending_check(self):
+        user = self.factory.create_user(details={})
+        token = invite_token(user)
+        response = self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        self.assertEqual(response.status_code, 302)
+
     def test_already_active_user(self):
         token = invite_token(self.factory.user)
         self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
