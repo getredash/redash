@@ -13,6 +13,8 @@ import Radio from 'antd/lib/radio';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 
+import './ParameterMappingInput.css';
+
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
   DashboardMapToExisting: 'dashboard-map-to-existing',
@@ -190,8 +192,8 @@ class SourceInput extends React.Component {
               pointerEvents: isStaticValSelected ? null : 'none',
             }}
             >
-              {console.log(param.type)}
               <ParameterValueInput
+                className="static-value-input"
                 size="small"
                 type={param.type}
                 value={value || param.normalizedValue}

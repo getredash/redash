@@ -191,10 +191,9 @@ export class ParameterValueInput extends React.Component {
       <Input
         size={size}
         type={type}
-        className={this.props.className}
+        className={'form-control ' + this.props.className}
         value={isEmpty(value) ? '' : value}
         onChange={event => onSelect(event.target.value)}
-        style={{ width: 100 }}
       />
     );
   }

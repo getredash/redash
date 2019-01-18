@@ -1,0 +1,6 @@
+.static-value-input {
+  max-width: 120px !important;
+}
+.static-value-input.ant-calendar-picker {
+  max-width: 189px !important;
+}
