@@ -53,7 +53,7 @@ class QueryEditor extends React.Component {
     queryExecuting: PropTypes.bool.isRequired,
     saveQuery: PropTypes.func.isRequired,
     updateQuery: PropTypes.func.isRequired,
-    updateHighlightedQuery: PropTypes.func.isRequired,
+    updateSelectedQuery: PropTypes.func.isRequired,
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
   };
@@ -80,7 +80,7 @@ class QueryEditor extends React.Component {
       liveAutocompleteDisabled: false,
       // XXX temporary while interfacing with angular
       queryText: props.queryText,
-      highlightedQueryText: null,
+      selectedQueryText: null,
     };
 
     const schemaCompleter = {
@@ -190,10 +190,10 @@ class QueryEditor extends React.Component {
   updateSelectedQuery = (selection) => {
     const { editor } = this.refEditor.current;
     const doc = editor.getSession().doc;
-    const rawHighlightedQueryText = doc.getTextRange(selection.getRange());
-    const highlightedQueryText = (rawHighlightedQueryText.length > 1) ? rawHighlightedQueryText : null;
-    this.setState({ highlightedQueryText });
-    this.props.updateHighlightedQuery(highlightedQueryText);
+    const rawSelectedQueryText = doc.getTextRange(selection.getRange());
+    const selectedQueryText = (rawSelectedQueryText.length > 1) ? rawSelectedQueryText : null;
+    this.setState({ selectedQueryText });
+    this.props.updateSelectedQuery(selectedQueryText);
   }
 
   updateQuery = (queryText) => {
@@ -308,7 +308,7 @@ class QueryEditor extends React.Component {
                   data-test="ExecuteButton"
                 >
                   <span className="zmdi zmdi-play" />
-                  <span className="hidden-xs m-l-5">{ (this.state.highlightedQueryText == null) ? 'Execute' : 'Execute Selected' }</span>
+                  <span className="hidden-xs m-l-5">{ (this.state.selectedQueryText == null) ? 'Execute' : 'Execute Selected' }</span>
                 </button>
               </Tooltip>
             </div>

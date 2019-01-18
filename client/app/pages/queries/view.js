@@ -26,7 +26,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge, highlightedQueryText) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -36,7 +36,7 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge, highlightedQueryText);
+    $scope.queryResult = $scope.query.getQueryResult(maxAge, selectedQueryText);
   }
 
   function getDataSourceId() {
@@ -105,8 +105,8 @@ function QueryViewCtrl(
     getSchema();
   }
 
-  $scope.updateHighlightedQuery = (highlightedQueryText) => {
-    $scope.highlightedQueryText = highlightedQueryText;
+  $scope.updateSelectedQuery = (selectedQueryText) => {
+    $scope.selectedQueryText = selectedQueryText;
   };
 
   $scope.executeQuery = () => {
@@ -118,7 +118,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0, $scope.highlightedQueryText);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
