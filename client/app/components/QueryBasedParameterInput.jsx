@@ -49,6 +49,7 @@ export class QueryBasedParameterInput extends React.Component {
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    size: PropTypes.string,
   };
 
   static defaultProps = {
@@ -56,6 +57,7 @@ export class QueryBasedParameterInput extends React.Component {
     queryId: null,
     onSelect: () => {},
     className: '',
+    size: null,
   };
 
   constructor(props) {
@@ -96,7 +98,9 @@ export class QueryBasedParameterInput extends React.Component {
   }
 
   render() {
-    const { className, value, onSelect } = this.props;
+    const {
+      className, value, onSelect, size,
+    } = this.props;
     const { loading, options } = this.state;
     return (
       <span>
@@ -108,6 +112,7 @@ export class QueryBasedParameterInput extends React.Component {
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
+          size={size}
         >
           {options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
         </Select>

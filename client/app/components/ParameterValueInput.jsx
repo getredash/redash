@@ -20,6 +20,7 @@ export class ParameterValueInput extends React.Component {
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    size: PropTypes.string,
   };
 
   static defaultProps = {
@@ -29,6 +30,7 @@ export class ParameterValueInput extends React.Component {
     queryId: null,
     onSelect: () => {},
     className: '',
+    size: null,
   };
 
   renderDateTimeWithSecondsInput() {
@@ -36,6 +38,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateTimeInput
@@ -44,6 +47,7 @@ export class ParameterValueInput extends React.Component {
         onSelect={onSelect}
         withSeconds
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
@@ -53,6 +57,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateTimeInput
@@ -60,6 +65,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
@@ -69,6 +75,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateInput
@@ -76,6 +83,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
@@ -85,6 +93,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateTimeRangeInput
@@ -93,6 +102,7 @@ export class ParameterValueInput extends React.Component {
         onSelect={onSelect}
         withSeconds
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
@@ -102,6 +112,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateTimeRangeInput
@@ -109,6 +120,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
@@ -118,6 +130,7 @@ export class ParameterValueInput extends React.Component {
       value,
       onSelect,
       clientConfig, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <DateRangeInput
@@ -125,12 +138,15 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         clientConfig={clientConfig}
+        size={size}
       />
     );
   }
 
   renderEnumInput() {
-    const { value, onSelect, enumOptions } = this.props;
+    const {
+      value, onSelect, enumOptions, size,
+    } = this.props;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
@@ -140,6 +156,7 @@ export class ParameterValueInput extends React.Component {
         onChange={onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
+        size={size}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
       </Select>
@@ -152,6 +169,7 @@ export class ParameterValueInput extends React.Component {
       onSelect,
       queryId,
       Query, // eslint-disable-line react/prop-types
+      size,
     } = this.props;
     return (
       <QueryBasedParameterInput
@@ -160,14 +178,18 @@ export class ParameterValueInput extends React.Component {
         queryId={queryId}
         onSelect={onSelect}
         Query={Query}
+        size={size}
       />
     );
   }
 
   renderTextInput() {
-    const { value, onSelect, type } = this.props;
+    const {
+      value, onSelect, type, size,
+    } = this.props;
     return (
       <Input
+        size={size}
         type={type}
         className={this.props.className}
         value={isEmpty(value) ? '' : value}
