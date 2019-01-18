@@ -436,7 +436,7 @@ function QueryResource(
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const queryText = (highlightedQueryText == null) ? this.query : highlightedQueryText;
+    const queryText = highlightedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 

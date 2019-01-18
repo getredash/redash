@@ -19,6 +19,8 @@ import AutocompleteToggle from '@/components/AutocompleteToggle';
 import keywordBuilder from './keywordBuilder';
 import { DataSource, Schema } from './proptypes';
 
+import './QueryEditor.css';
+
 const langTools = ace.acequire('ace/ext/language_tools');
 const snippetsModule = ace.acequire('ace/snippets');
 
@@ -64,6 +66,8 @@ class QueryEditor extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.refEditor = React.createRef();
 
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
@@ -131,7 +135,6 @@ class QueryEditor extends React.Component {
 
   onLoad = (editor) => {
     // Release Cmd/Ctrl+L to the browser
-    this.editor = editor;
     editor.commands.bindKey('Cmd+L', null);
     editor.commands.bindKey('Ctrl+P', null);
     editor.commands.bindKey('Ctrl+L', null);
@@ -185,7 +188,8 @@ class QueryEditor extends React.Component {
   };
 
   updateSelectedQuery = (selection) => {
-    const doc = this.editor.getSession().doc;
+    const { editor } = this.refEditor.current;
+    const doc = editor.getSession().doc;
     const rawHighlightedQueryText = doc.getTextRange(selection.getRange());
     const highlightedQueryText = (rawHighlightedQueryText.length > 1) ? rawHighlightedQueryText : null;
     this.setState({ highlightedQueryText });
@@ -221,6 +225,7 @@ class QueryEditor extends React.Component {
         <div className="container p-15 m-b-10" style={{ height: '100%' }}>
           <div style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
             <AceEditor
+              className={(this.props.queryExecuting) ? 'highlightedText' : ''}
               ref={this.refEditor}
               theme="textmate"
               mode={this.props.dataSource.syntax || 'sql'}

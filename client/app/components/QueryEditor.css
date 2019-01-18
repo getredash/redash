@@ -1,0 +1,8 @@
+@keyframes fadeIt {
+    0%   { background-color: rgba(255, 121, 100, 0.557); }
+    100% { background-color: transparent; }
+}
+
+.ace_editor.highlightedText .ace_marker-layer .ace_selection {
+    animation: fadeIt 0.5s ease-out;
+}
