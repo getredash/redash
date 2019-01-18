@@ -51,6 +51,7 @@ class QueryEditor extends React.Component {
     queryExecuting: PropTypes.bool.isRequired,
     saveQuery: PropTypes.func.isRequired,
     updateQuery: PropTypes.func.isRequired,
+    updateHighlightedQuery: PropTypes.func.isRequired,
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
   };
@@ -75,6 +76,7 @@ class QueryEditor extends React.Component {
       liveAutocompleteDisabled: false,
       // XXX temporary while interfacing with angular
       queryText: props.queryText,
+      highlightedQueryText: null,
     };
 
     const schemaCompleter = {
@@ -182,23 +184,12 @@ class QueryEditor extends React.Component {
     });
   };
 
-  setFullUnhighlightedQuery = () => {
-    this.props.updateQuery(this.state.queryText);
-  }
-
-  updateQueryWithSelection = (selection) => {
+  updateSelectedQuery = (selection) => {
     const doc = this.editor.getSession().doc;
-    const highlightedQueryText = doc.getTextRange(selection.getRange());
-    if (highlightedQueryText.length > 1) {
-      this.props.updateQuery(highlightedQueryText);
-    } else {
-      this.setFullUnhighlightedQuery();
-    }
-  }
-
-  saveQuery = (customOptions, data) => {
-    this.setFullUnhighlightedQuery();
-    this.props.saveQuery(customOptions, data);
+    const rawHighlightedQueryText = doc.getTextRange(selection.getRange());
+    const highlightedQueryText = (rawHighlightedQueryText.length > 1) ? rawHighlightedQueryText : null;
+    this.setState({ highlightedQueryText });
+    this.props.updateHighlightedQuery(highlightedQueryText);
   }
 
   updateQuery = (queryText) => {
@@ -249,7 +240,7 @@ class QueryEditor extends React.Component {
               onLoad={this.onLoad}
               onPaste={this.onPaste}
               onChange={this.updateQuery}
-              onSelectionChange={this.updateQueryWithSelection}
+              onSelectionChange={this.updateSelectedQuery}
             />
           </div>
 
@@ -290,7 +281,7 @@ class QueryEditor extends React.Component {
               </select>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
-                  <button className="btn btn-default m-l-5" onClick={this.saveQuery} title="Save">
+                  <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
@@ -313,7 +304,7 @@ class QueryEditor extends React.Component {
                   data-test="ExecuteButton"
                 >
                   <span className="zmdi zmdi-play" />
-                  <span className="hidden-xs m-l-5">Execute</span>
+                  <span className="hidden-xs m-l-5">{ (this.state.highlightedQueryText == null) ? 'Execute' : 'Execute Selected' }</span>
                 </button>
               </Tooltip>
             </div>

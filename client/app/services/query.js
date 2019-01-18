@@ -431,12 +431,12 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  Query.prototype.getQueryResult = function getQueryResult(maxAge) {
+  Query.prototype.getQueryResult = function getQueryResult(maxAge, highlightedQueryText) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
-    const queryText = this.query;
 
+    const queryText = (highlightedQueryText == null) ? this.query : highlightedQueryText;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
