@@ -1632,6 +1632,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
 >
   <RadioGroup
     buttonStyle="outline"
+    defaultValue="Mon"
     disabled={false}
     onChange={[Function]}
     size="medium"
@@ -1700,7 +1701,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         value="Mon"
       >
         <Radio
-          checked={false}
+          checked={true}
           className="input"
           disabled={false}
           onChange={[Function]}
@@ -1709,10 +1710,10 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           value="Mon"
         >
           <label
-            className="input ant-radio-button-wrapper"
+            className="input ant-radio-button-wrapper ant-radio-button-wrapper-checked"
           >
             <Checkbox
-              checked={false}
+              checked={true}
               className=""
               defaultChecked={false}
               disabled={false}
@@ -1725,11 +1726,11 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               value="Mon"
             >
               <span
-                className="ant-radio-button"
+                className="ant-radio-button ant-radio-button-checked"
                 style={Object {}}
               >
                 <input
-                  checked={false}
+                  checked={true}
                   className="ant-radio-button-input"
                   disabled={false}
                   onBlur={[Function]}
@@ -2375,7 +2376,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
-    value={null}
   >
     <Select
       allowClear={false}
@@ -2445,7 +2445,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
       tags={false}
       tokenSeparators={Array []}
       transitionName="slide-up"
-      value={null}
     >
       <SelectTrigger
         ariaId="test-uuid"
@@ -2478,11 +2477,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
         }
         showSearch={false}
         transitionName="slide-up"
-        value={
-          Array [
-            null,
-          ]
-        }
+        value={Array []}
         visible={false}
       >
         <Trigger
@@ -2577,11 +2572,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
               onMenuSelect={[Function]}
               onPopupFocus={[Function]}
               prefixCls="ant-select-dropdown"
-              value={
-                Array [
-                  null,
-                ]
-              }
+              value={Array []}
               visible={false}
             />
           }
@@ -2599,11 +2590,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
           }
           showSearch={false}
           transitionName="slide-up"
-          value={
-            Array [
-              null,
-            ]
-          }
+          value={Array []}
           visible={false}
         >
           <div
@@ -2631,21 +2618,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
             >
               <div
                 className="ant-select-selection__rendered"
-              >
-                <div
-                  className="ant-select-selection-selected-value"
-                  key="value"
-                  style={
-                    Object {
-                      "display": "block",
-                      "opacity": 1,
-                    }
-                  }
-                  title="Never"
-                >
-                  Never
-                </div>
-              </div>
+              />
               <span
                 className="ant-select-arrow"
                 key="arrow"
