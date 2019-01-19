@@ -36,7 +36,8 @@ class Webhook(BaseDestination):
             data = {
                 'event': 'alert_state_change',
                 'alert': serialize_alert(alert, full=False),
-                'url_base': host 
+                'url_base': host,
+                "description": alert.render_template(True) if alert.template else ''
             }
             headers = {'Content-Type': 'application/json'}
             auth = HTTPBasicAuth(options.get('username'), options.get('password')) if options.get('username') else None

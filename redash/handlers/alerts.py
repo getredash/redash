@@ -138,7 +138,10 @@ class AlertSubscriptionResource(BaseResource):
 class AlertTemplateResource(BaseResource):
     def post(self):
         req = request.get_json(True)
-        template = req.get("template", "")
         data = req.get("data", "")
+        if 'rows' not in data or 'columns' not in data:
+            return json_dumps({'preview': 'no query result.', "error": True})
+
+        template = req.get("template", "")
         preview, err = render_custom_template(template, data['rows'], data['columns'], True)
         return json_dumps({'preview': preview, "error": err})

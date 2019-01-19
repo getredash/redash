@@ -29,7 +29,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps, json_loads
+from redash.utils import generate_token, json_dumps, json_loads, render_custom_template
 from redash.utils.configuration import ConfigurationContainer
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
