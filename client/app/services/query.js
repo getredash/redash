@@ -2,8 +2,8 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has,
+  isNull, isUndefined, isArray, isObject, identity, extend, each,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -53,12 +53,18 @@ class Parameter {
     this.name = parameter.name;
     this.type = parameter.type;
     this.useCurrentDateTime = parameter.useCurrentDateTime;
-    this.global = parameter.global;
+    this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
 
+    // Used for meta-parameters (i.e. dashboard-level params)
+    this.locals = [];
+
     // validate value and init internal state
     this.setValue(parameter.value);
+
+    // Used for URL serialization
+    this.urlPrefix = 'p_';
   }
 
   clone() {
@@ -121,6 +127,12 @@ class Parameter {
       this.value = value;
       this.$$value = value;
     }
+
+    if (isArray(this.locals)) {
+      each(this.locals, (local) => {
+        local.setValue(this.value);
+      });
+    }
   }
 
   get normalizedValue() {
@@ -139,26 +151,28 @@ class Parameter {
     if (this.isEmpty) {
       return {};
     }
+    const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
       return {
-        [`p_${this.name}.start`]: this.value.start,
-        [`p_${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}.start`]: this.value.start,
+        [`${prefix}${this.name}.end`]: this.value.end,
       };
     }
     return {
-      [`p_${this.name}`]: this.value,
+      [`${prefix}${this.name}`]: this.value,
     };
   }
 
   fromUrlParams(query) {
+    const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
-      const keyStart = `p_${this.name}.start`;
-      const keyEnd = `p_${this.name}.end`;
+      const keyStart = `${prefix}${this.name}.start`;
+      const keyEnd = `${prefix}${this.name}.end`;
       if (has(query, keyStart) && has(query, keyEnd)) {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `p_${this.name}`;
+      const key = `${prefix}${this.name}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }
@@ -416,7 +430,7 @@ function QueryResource(
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
-    let queryText = this.query;
+    const queryText = this.query;
 
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
@@ -438,8 +452,6 @@ function QueryResource(
     }
 
     if (parameters.isRequired()) {
-      queryText = Mustache.render(queryText, parameters.getValues());
-
       // Need to clear latest results, to make sure we don't use results for different params.
       this.latest_query_data = null;
       this.latest_query_data_id = null;
@@ -456,7 +468,7 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
+      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
@@ -471,20 +483,13 @@ function QueryResource(
       url += '/source';
     }
 
-    let params = '';
+    let params = {};
     if (this.getParameters().isRequired()) {
-      each(this.getParameters().getValues(), (value, name) => {
-        if (value === null) {
-          return;
-        }
-
-        if (params !== '') {
-          params += '&';
-        }
-
-        params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+      this.getParametersDefs().forEach((param) => {
+        extend(params, param.toUrlParams());
       });
     }
+    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
       url += `?${params}`;

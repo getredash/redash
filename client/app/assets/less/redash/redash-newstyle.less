@@ -35,6 +35,10 @@ body {
   }
 }
 
+.word-wrap-break {
+  word-wrap: break-word;
+}
+
 .clearboth {
   clear: both;
 }
@@ -706,6 +710,11 @@ page-header, .page-header--new {
   height: 20px;
 }
 
+.user_list__user--invitation-pending {
+    color: fade(@alert-danger-bg, 75%);
+    font-weight: 500;
+}
+
 .btn__new {
   margin-left: 15px;
 }
@@ -806,11 +815,9 @@ page-header, .page-header--new {
 // Forms
 .form-control {
   border-radius: @redash-input-radius;
-  color: #9E9E9E;
 
   &:focus {
     box-shadow: none !important;
-    color: #111;
     border-color: @blue;
   }
 

@@ -240,10 +240,10 @@ edit-in-place p.editable:hover {
 
 a.label-tag {
   background: fade(@redash-gray, 15%);
-  color: #333;
+  color: darken(@redash-gray, 15%);
 
   &:hover {
-    color: #333;
+    color: darken(@redash-gray, 15%);
     background: fade(@redash-gray, 25%);
   }
 }
@@ -538,6 +538,16 @@ nav .rg-bottom {
   padding: 0 0 0 23px;
 }
 
+.table--permission {
+  .profile__image {
+    margin-right: 0;
+  }
+}
+
+.mp__permission-type {
+  text-transform: capitalize;
+}
+
 // Smaller screens
 
 @media (max-width: 880px) {
@@ -598,11 +608,6 @@ nav .rg-bottom {
       .query-metadata__property {
         white-space: nowrap;
       }
-    }
-
-    .query-visualizations-wrapper {
-      margin-left: -15px;
-      margin-right: -15px;
     }
 
     main {

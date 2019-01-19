@@ -7,6 +7,7 @@ from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
+                                           send_verify_email,
                                            validate_token)
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
@@ -36,6 +37,12 @@ def render_token_login_page(template, org_slug, token):
         logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
+
+    if user.details.get('is_invitation_pending') is False:
+        return render_template("error.html",
+                               error_message=("This invitation has already been accepted. "
+                                              "Please try resetting your password instead.")), 400
+
     status_code = 200
     if request.method == 'POST':
         if 'password' not in request.form:
@@ -48,7 +55,7 @@ def render_token_login_page(template, org_slug, token):
             flash('Password length is too short (<6).')
             status_code = 400
         else:
-            # TODO: set active flag
+            user.is_invitation_pending = False
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)
@@ -77,6 +84,24 @@ def reset(token, org_slug=None):
     return render_token_login_page("reset.html", org_slug, token)
 
 
+@routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
+def verify(token, org_slug=None):
+    try:
+        user_id = validate_token(token)
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
+    except (BadSignature, NoResultFound):
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
+        return render_template("error.html",
+                               error_message="Your verification link is invalid. Please ask for a new one."), 400
+
+    user.is_email_verified = True
+    models.db.session.add(user)
+    models.db.session.commit()
+
+    return render_template("verify.html", org_slug=org_slug)
+
+
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
     if not current_org.get_setting('auth_password_login_enabled'):
@@ -94,6 +119,16 @@ def forgot_password(org_slug=None):
             logging.error("No user found for forgot password: %s", email)
 
     return render_template("forgot.html", submitted=submitted)
+
+
+@routes.route(org_scoped_rule('/verification_email'), methods=['POST'])
+def verification_email(org_slug=None):
+    if not current_user.is_email_verified:
+        send_verify_email(current_user, current_org)
+
+    return json_response({
+        "message": "Please check your email inbox in order to verify your email address."
+    })
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
@@ -218,7 +253,8 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions
+            'permissions': current_user.permissions,
+            'is_email_verified': current_user.is_email_verified
         }
 
     return json_response({

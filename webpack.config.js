@@ -10,7 +10,10 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
+
 const path = require("path");
+
+const isProduction = process.env.NODE_ENV === "production";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 
@@ -22,14 +25,18 @@ const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
 const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
 
 const config = {
-  mode: "development",
+  mode: isProduction ? "production" : "development",
   entry: {
-    app: ["./client/app/index.js", "./client/app/assets/less/main.less"],
+    app: [
+      "./client/app/index.js",
+      "./client/app/assets/less/main.less",
+      "./client/app/assets/less/ant.less"
+    ],
     server: ["./client/app/assets/less/server.less"]
   },
   output: {
     path: path.join(basePath, "./dist"),
-    filename: "[name].js",
+    filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
     publicPath: "/static/"
   },
   resolve: {
@@ -41,9 +48,6 @@ const config = {
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
-    new webpack.DefinePlugin({
-      ON_TEST: process.env.NODE_ENV === "test"
-    }),
     // Enforce angular to use jQuery instead of jqLite
     new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
     // bundle only default `moment` locale (`en`)
@@ -170,7 +174,7 @@ const config = {
       }
     ]
   },
-  devtool: "cheap-eval-module-source-map",
+  devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
   stats: {
     modules: false,
     chunkModules: false
@@ -221,12 +225,6 @@ const config = {
 
 if (process.env.DEV_SERVER_HOST) {
   config.devServer.host = process.env.DEV_SERVER_HOST;
-}
-
-if (process.env.NODE_ENV === "production") {
-  config.mode = "production";
-  config.output.filename = "[name].[chunkhash].js";
-  config.devtool = "source-map";
 }
 
 if (process.env.BUNDLE_ANALYZER) {

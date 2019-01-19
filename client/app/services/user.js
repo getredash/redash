@@ -36,11 +36,30 @@ function disableUser(user, toastr, $sanitize) {
       return data;
     })
     .catch((response) => {
-      let message = response instanceof Error ? response.message : response.statusText;
-      if (!isString(message)) {
-        message = 'Unknown error';
-      }
-      toastr.error(`Cannot disable user <b>${userName}</b><br>${message}`, { allowHtml: true });
+      const message =
+        response.data && response.data.message
+          ? response.data.message
+          : `Cannot disable user <b>${userName}</b><br>${response.statusText}`;
+
+      toastr.error(message, { allowHtml: true });
+    });
+}
+
+function deleteUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
+  return $http
+    .delete(`api/users/${user.id}`)
+    .then((data) => {
+      toastr.warning(`User <b>${userName}</b> has been deleted.`, { allowHtml: true });
+      return data;
+    })
+    .catch((response) => {
+      const message =
+        response.data && response.data.message
+          ? response.data.message
+          : `Cannot delete user <b>${userName}</b><br>${response.statusText}`;
+
+      toastr.error(message, { allowHtml: true });
     });
 }
 
@@ -58,6 +77,7 @@ function User($resource, $sanitize, toastr) {
 
   UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
   UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
+  UserResource.deleteUser = user => deleteUser(user, toastr, $sanitize);
 
   return UserResource;
 }

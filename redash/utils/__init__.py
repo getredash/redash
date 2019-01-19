@@ -1,6 +1,6 @@
+import codecs
 import cStringIO
 import csv
-import codecs
 import datetime
 import decimal
 import hashlib
@@ -8,17 +8,19 @@ import os
 import random
 import re
 import uuid
+import binascii
+
+from six import string_types
 
 import pystache
 import pytz
 import simplejson
-from funcy import distinct, select_values
-from six import string_types
+from funcy import select_values
+from redash import settings
 from sqlalchemy.orm.query import Query
 from jinja2 import Template, Environment
 
 from .human_time import parse_human_time
-from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
@@ -75,15 +77,31 @@ class JSONEncoder(simplejson.JSONEncoder):
     def default(self, o):
         # Some SQLAlchemy collections are lazy.
         if isinstance(o, Query):
-            return list(o)
+            result = list(o)
         elif isinstance(o, decimal.Decimal):
-            return float(o)
+            result = float(o)
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
-            return str(o)
-        elif isinstance(o, (datetime.date, datetime.time)):
-            return o.isoformat()
+            result = str(o)
+        # See "Date Time String Format" in the ECMA-262 specification.
+        if isinstance(o, datetime.datetime):
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:23] + result[26:]
+            if result.endswith('+00:00'):
+                result = result[:-6] + 'Z'
+        elif isinstance(o, datetime.date):
+            result = o.isoformat()
+        elif isinstance(o, datetime.time):
+            if o.utcoffset() is not None:
+                raise ValueError("JSON can't represent timezone-aware times.")
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:12]
+        elif isinstance(o, buffer):
+            result = binascii.hexlify(o)
         else:
-            return super(JSONEncoder, self).default(o)
+            result = super(JSONEncoder, self).default(o)
+        return result
 
 
 def json_loads(data, *args, **kwargs):
@@ -164,24 +182,6 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
-
-
-def _collect_key_names(nodes):
-    keys = []
-    for node in nodes._parse_tree:
-        if isinstance(node, pystache.parser._EscapeNode):
-            keys.append(node.key)
-        elif isinstance(node, pystache.parser._SectionNode):
-            keys.append(node.key)
-            keys.extend(_collect_key_names(node.parsed))
-
-    return distinct(keys)
-
-
-def collect_query_parameters(query):
-    nodes = pystache.parse(query)
-    keys = _collect_key_names(nodes)
-    return keys
 
 
 def collect_parameters_from_request(args):
