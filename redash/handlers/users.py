@@ -149,6 +149,26 @@ class UserResetPasswordResource(BaseResource):
         }
 
 
+class UserRegenerateApiKeyResource(BaseResource):
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        if user.is_disabled:
+            abort(404, message='Not found')
+        if not is_admin_or_owner(user_id):
+            abort(403)
+
+        user.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': user.id,
+            'object_type': 'user'
+        })
+
+        return user.to_dict(with_api_key=True)
+
+
 class UserResource(BaseResource):
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
