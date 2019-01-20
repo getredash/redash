@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, isEmpty, clone, without } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, isEmpty, clone } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
@@ -10,6 +10,8 @@ import Icon from 'antd/lib/icon';
 import Popover from 'antd/lib/popover';
 import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
+import Tooltip from 'antd/lib/tooltip';
+import Tag from 'antd/lib/tag';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 
@@ -100,6 +102,7 @@ class SourceInput extends React.Component {
     super(props);
     this.state = {
       editMode: false,
+      originalMapTo: null,
       mapping: clone(this.props.mapping),
     };
   }
@@ -109,24 +112,32 @@ class SourceInput extends React.Component {
       this.cancel();
     } else {
       this.setState({ editMode: true });
+
+      // update states that might have changed (e.g. mapping.title)
+      this.mapping = clone(this.props.mapping);
+      this.setState({ originalMapTo: this.props.mapping.mapTo });
     }
+  }
+
+  onChangeAddNewName = (e) => {
+    this.mapping = { mapTo: e.target.value };
   }
 
   onChangeSourceType = (e) => {
     const type = e.target.value;
-    this.mapping = { type };
-    if (type !== MappingType.StaticValue) {
-      this.mapping = { value: null }; // reset
+    let mapTo = this.state.originalMapTo;
+    if (type === MappingType.DashboardMapToExisting) {
+      const { existingParamNames } = this.props;
+      if (!includes(existingParamNames, mapTo)) {
+        mapTo = existingParamNames[0]; // select first, undefined also ok
+      }
     }
+
+    this.mapping = { type, mapTo };
   }
 
-  onChangeMapToParam = (value) => {
-    this.mapping = {
-      mapTo: value,
-      type: includes(this.props.existingParamNames, value)
-        ? MappingType.DashboardMapToExisting
-        : MappingType.DashboardAddNew,
-    };
+  onChangeMapToParam = (mapTo) => {
+    this.mapping = { mapTo };
   }
 
   onChangeStaticValue = (value) => {
@@ -144,42 +155,82 @@ class SourceInput extends React.Component {
 
     const { existingParamNames: existing } = this.props;
     const {
-      name, type, mapTo, value, param,
+      type, mapTo, value, param,
     } = this.state.mapping;
 
-    // TODO: this code mess is to compensate for the dashboard type having
-    // 2 logical states and only 1 ui state. Should merge them
-    let dashboardMappingType = MappingType.DashboardAddNew;
-    if (type === MappingType.DashboardMapToExisting) {
-      dashboardMappingType = MappingType.DashboardMapToExisting;
+    const alreadyExists = includes(existing, mapTo);
+    const noExisting = isEmpty(existing);
+
+    let fulfilled = true;
+    if (
+      type === MappingType.DashboardMapToExisting && noExisting ||
+      type === MappingType.DashboardAddNew && (alreadyExists || isEmpty(mapTo))
+    ) {
+      fulfilled = false;
     }
-    const isDashboardSelected = type === dashboardMappingType;
-    const isStaticValSelected = type === MappingType.StaticValue;
 
     return (
       <Fragment>
         <Radio.Group onChange={this.onChangeSourceType} value={type}>
-          <Radio {...radioStyle} value={dashboardMappingType} key={1}>
-            Dashboard parameter {' '}
-            <Select
-              class="w-100"
-              value={mapTo}
-              onChange={this.onChangeMapToParam}
-              size="small"
-              style={{
-                opacity: isDashboardSelected ? 1 : 0,
-                pointerEvents: isDashboardSelected ? null : 'none',
-              }}
-              dropdownMatchSelectWidth={false}
-              disabled={isEmpty(without(existing, name))}
+          <Radio {...radioStyle} value={MappingType.DashboardAddNew} key={0}>
+            New dashboard parameter
+            <span style={{
+              opacity: type === MappingType.DashboardAddNew ? 1 : 0,
+              pointerEvents: type === MappingType.DashboardAddNew ? null : 'none',
+            }}
             >
-              {!includes(existing, name) ?
-                <Select.Option value={name} key={name}>{name}</Select.Option>
-              : null}
-              {existing.map(prm => (
-                <Select.Option value={prm} key={prm}>{prm}</Select.Option>
-              ))}
-            </Select>
+              <Input
+                size="small"
+                value={mapTo}
+                onChange={this.onChangeAddNewName}
+                style={{
+                 width: 80, marginLeft: 3, marginRight: 2, borderColor: fulfilled ? '#e8e8e8' : '#F44336',
+                }}
+              />
+              {alreadyExists ?
+                <Tooltip title={`A dashboard parameter named "${mapTo}" already exists.`}>
+                  <Icon type="exclamation-circle" style={{ color: '#F44336' }} />
+                </Tooltip>
+                : null
+              }
+              {isEmpty(mapTo) ?
+                <Tooltip title="Can't be left empty">
+                  <Icon type="exclamation-circle" style={{ color: '#F44336' }} />
+                </Tooltip>
+                : null
+              }
+            </span>
+          </Radio>
+          <Radio {...radioStyle} value={MappingType.DashboardMapToExisting} key={1}>
+            Existing dashboard parameter {' '}
+            {noExisting ?
+              <Tooltip title="There are currently no dashboard parameters">
+                <Icon
+                  type="exclamation-circle"
+                  style={{
+                    verticalAlign: 'text-bottom',
+                    position: 'relative',
+                    top: -1,
+                    color: type === MappingType.DashboardMapToExisting ? '#F44336' : '#d6d6d6',
+                  }}
+                />
+              </Tooltip> :
+              <Select
+                class="w-100"
+                value={mapTo}
+                onChange={this.onChangeMapToParam}
+                size="small"
+                style={{
+                  opacity: type === MappingType.DashboardMapToExisting ? 1 : 0,
+                  pointerEvents: type === MappingType.DashboardMapToExisting ? null : 'none',
+                }}
+                dropdownMatchSelectWidth={false}
+              >
+                {existing.map(prm => (
+                  <Select.Option value={prm} key={prm}>{prm}</Select.Option>
+                ))}
+              </Select>
+            }
           </Radio>
           <Radio {...radioStyle} value={ParameterMappingType.WidgetLevel} key={2}>
             Widget parameter
@@ -188,8 +239,8 @@ class SourceInput extends React.Component {
             Static value
             <span style={{
               marginLeft: 4,
-              opacity: isStaticValSelected ? 1 : 0,
-              pointerEvents: isStaticValSelected ? null : 'none',
+              opacity: type === MappingType.StaticValue ? 1 : 0,
+              pointerEvents: type === MappingType.StaticValue ? null : 'none',
             }}
             >
               <ParameterValueInput
@@ -213,7 +264,7 @@ class SourceInput extends React.Component {
           <Button size="small" onClick={this.cancel} style={{ marginRight: 2 }}>
             Cancel
           </Button>
-          <Button size="small" type="primary" onClick={this.save}>OK</Button>
+          <Button size="small" type="primary" onClick={this.save} disabled={!fulfilled}>OK</Button>
         </footer>
       </Fragment>
     );
@@ -242,8 +293,14 @@ class SourceInput extends React.Component {
   render() {
     const { mapping, getContainerElement } = this.props;
     return (
-      <span>
-        {MappingTypeLabel[mapping.type]}{' '}
+      <span style={{ whiteSpace: 'nowrap' }}>
+        {MappingTypeLabel[mapping.type]}
+        {' '}
+        {includes([MappingType.DashboardAddNew, MappingType.DashboardMapToExisting], mapping.type)
+          ? <code className="ant-tag" style={{ margin: 0 }}>{mapping.mapTo}</code>
+          : null
+        }
+        {' '}
         <Popover
           placement="left"
           trigger="click"
@@ -319,11 +376,6 @@ class TitleInput extends React.Component {
     const { mapping } = this.props;
     const { title, param: { title: paramTitle } } = mapping;
 
-    // if static value, return name
-    if (mapping.type === MappingType.StaticValue) {
-      return paramTitle;
-    }
-
     // TODO css className
     return (
       <span style={{ whiteSpace: 'nowrap' }}>
@@ -388,6 +440,8 @@ export class ParameterMappingListInput extends React.Component {
     const Query = this.props.Query; // eslint-disable-line react/prop-types
 
     const data = this.props.mappings.map(mapping => ({ mapping }));
+
+    console.log(data);
 
     return (
       <div ref={this.wrapperRef}>
