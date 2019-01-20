@@ -2,7 +2,7 @@ import { isUndefined, isString } from 'lodash';
 import renderJsonView from './json-view-interactive';
 import template from './template.html';
 
-const MAX_JSON_SIZE = 50000;
+const MAX_JSON_SIZE = 200000;
 
 function parseValue(value) {
   if (isString(value) && value.length <= MAX_JSON_SIZE) {
