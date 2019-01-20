@@ -328,3 +328,47 @@ class TestUserDisable(BaseTestCase):
             rv = self.make_request('post', '/api/users/{}/reset_password'.format(user.id), user=admin_user)
             self.assertEqual(rv.status_code, 404)
             send_password_reset_email_mock.assert_not_called()
+
+
+class TestUserRegenerateApiKey(BaseTestCase):
+    def test_non_admin_cannot_regenerate_other_user_api_key(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+        orig_api_key = other_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        other_user = models.User.query.get(other_user.id)
+        self.assertNotEquals(orig_api_key, other_user.api_key)
+
+    def test_admin_can_regenerate_other_user_api_key(self):
+        user1 = self.factory.create_user()
+        user2 = self.factory.create_user()
+        orig_user2_api_key = user2.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user2.id), user=user1)
+        self.assertEqual(rv.status_code, 403)
+
+        user = models.User.query.get(user2.id)
+        self.assertEquals(orig_user2_api_key, user.api_key)
+
+    def test_admin_can_regenerate_api_key_myself(self):
+        admin_user = self.factory.create_admin()
+        orig_api_key = admin_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(admin_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(admin_user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)
+
+    def test_user_can_regenerate_api_key_myself(self):
+        user = self.factory.create_user()
+        orig_api_key = user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)
