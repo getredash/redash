@@ -122,6 +122,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def enable(self):
         self.disabled_at = None
 
+    def regenerate_api_key(self):
+        self.api_key = generate_token(40)
+
     def to_dict(self, with_api_key=False):
         profile_image_url = self.profile_image_url
         if self.is_disabled:
