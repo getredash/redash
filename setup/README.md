@@ -1,6 +1,6 @@
-# Setup script for Redash with Docker on Ubuntu 18.04.
+# Setup script for Redash with Docker on CentOS 7 and Ubuntu 18.04.
 
-This is a reference setup for Redash on a single Ubuntu 18.04 server, which uses Docker and Docker Compose for deployment and management.
+This is a reference setup for Redash on a single server, using Docker and Docker Compose for deployment and management.
 
 This is the same setup we use for our official images (for AWS & Google Cloud) and can be used as reference if you want to manually setup Redash in a different environment (different OS or different deployment location).
 
