@@ -64,7 +64,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema={}):
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -73,7 +73,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text).apply(parameter_values)
+    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
@@ -171,8 +171,9 @@ class QueryResultResource(BaseResource):
         max_age = int(params.get('max_age', 0))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        parameter_schema = query.options.get("parameters", {})
 
-        return run_query(query.data_source, parameters, query.query_text, query_id, max_age)
+        return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
