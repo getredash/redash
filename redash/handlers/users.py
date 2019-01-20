@@ -161,10 +161,9 @@ class UserRegenerateApiKeyResource(BaseResource):
         models.db.session.commit()
 
         self.record_event({
-            'action': 'edit',
+            'action': 'regnerate_api_key',
             'object_id': user.id,
-            'object_type': 'user',
-            'updated_fields': ['api_key']
+            'object_type': 'user'
         })
 
         return user.to_dict(with_api_key=True)
