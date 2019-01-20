@@ -129,7 +129,7 @@ function UserCtrl(
       $http
         .post(`api/users/${$scope.user.id}/regenerate_api_key`)
         .success((data) => {
-          toastr.success('API Key is regenerated.');
+          toastr.success('The API Key has been updated.');
           user.api_key = data.api_key;
           $scope.disableRegenerateApiKeyButton = false;
         })
