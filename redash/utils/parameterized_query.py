@@ -59,6 +59,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda x: type(x) in (str, unicode),
+            "number": lambda x: type(x) == int,
         }
 
         return validators[definition["type"]](value)

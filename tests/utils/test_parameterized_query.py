@@ -53,5 +53,22 @@ class TestParameterizedQuery(TestCase):
     def test_validates_text_parameters(self):
         schema = [{"name": "bar", "type": "text"}]
         query = ParameterizedQuery("foo {{bar}}", schema)
+
         query.apply({"bar": u"baz"})
+
         self.assertEquals("foo baz", query.text)
+
+    def test_raises_on_invalid_number_parameters(self):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "baz"})
+
+    def test_validates_number_parameters(self):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": 7})
+
+        self.assertEquals("foo 7", query.text)
