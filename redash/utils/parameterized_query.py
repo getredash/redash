@@ -34,8 +34,9 @@ def _parameter_names(parameter_values):
 
 
 class ParameterizedQuery(object):
-    def __init__(self, template):
+    def __init__(self, template, schema={}):
         self.template = template
+        self.schema = schema
         self.query = template
         self.parameters = {}
 
