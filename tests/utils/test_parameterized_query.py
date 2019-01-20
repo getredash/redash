@@ -72,3 +72,18 @@ class TestParameterizedQuery(TestCase):
         query.apply({"bar": 7})
 
         self.assertEquals("foo 7", query.text)
+
+    def test_raises_on_invalid_date_parameters(self):
+        schema = [{"name": "bar", "type": "date"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "baz"})
+
+    def test_validates_date_parameters(self):
+        schema = [{"name": "bar", "type": "date"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "2000-01-01 12:00:00"})
+
+        self.assertEquals("foo 2000-01-01 12:00:00", query.text)

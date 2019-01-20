@@ -1,7 +1,7 @@
 import pystache
 from redash.utils import mustache_render
 from funcy import distinct
-
+from dateutil.parser import parse
 
 def _collect_key_names(nodes):
     keys = []
@@ -33,6 +33,14 @@ def _parameter_names(parameter_values):
     return names
 
 
+def _is_date(string):
+    try:
+        parse(string)
+        return True
+    except ValueError:
+        return False
+
+
 class ParameterizedQuery(object):
     def __init__(self, template, schema={}):
         self.template = template
@@ -60,6 +68,9 @@ class ParameterizedQuery(object):
         validators = {
             "text": lambda x: type(x) in (str, unicode),
             "number": lambda x: type(x) == int,
+            "date": _is_date,
+            "datetime-local": _is_date,
+            "datetime-with-seconds": _is_date,
         }
 
         return validators[definition["type"]](value)
