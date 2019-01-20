@@ -19,6 +19,8 @@ import AutocompleteToggle from '@/components/AutocompleteToggle';
 import keywordBuilder from './keywordBuilder';
 import { DataSource, Schema } from './proptypes';
 
+import './QueryEditor.css';
+
 const langTools = ace.acequire('ace/ext/language_tools');
 const snippetsModule = ace.acequire('ace/snippets');
 
@@ -51,6 +53,7 @@ class QueryEditor extends React.Component {
     queryExecuting: PropTypes.bool.isRequired,
     saveQuery: PropTypes.func.isRequired,
     updateQuery: PropTypes.func.isRequired,
+    updateSelectedQuery: PropTypes.func.isRequired,
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
   };
@@ -64,6 +67,8 @@ class QueryEditor extends React.Component {
   constructor(props) {
     super(props);
 
+    this.refEditor = React.createRef();
+
     this.state = {
       schema: null, // eslint-disable-line react/no-unused-state
       keywords: {
@@ -75,6 +80,7 @@ class QueryEditor extends React.Component {
       liveAutocompleteDisabled: false,
       // XXX temporary while interfacing with angular
       queryText: props.queryText,
+      selectedQueryText: null,
     };
 
     const schemaCompleter = {
@@ -181,6 +187,15 @@ class QueryEditor extends React.Component {
     });
   };
 
+  updateSelectedQuery = (selection) => {
+    const { editor } = this.refEditor.current;
+    const doc = editor.getSession().doc;
+    const rawSelectedQueryText = doc.getTextRange(selection.getRange());
+    const selectedQueryText = (rawSelectedQueryText.length > 1) ? rawSelectedQueryText : null;
+    this.setState({ selectedQueryText });
+    this.props.updateSelectedQuery(selectedQueryText);
+  }
+
   updateQuery = (queryText) => {
     this.props.updateQuery(queryText);
     this.setState({ queryText });
@@ -208,7 +223,7 @@ class QueryEditor extends React.Component {
     return (
       <section style={{ height: '100%' }} data-test="QueryEditor">
         <div className="container p-15 m-b-10" style={{ height: '100%' }}>
-          <div style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
+          <div data-executing={this.props.queryExecuting} style={{ height: 'calc(100% - 40px)', marginBottom: '0px' }} className="editor__container">
             <AceEditor
               ref={this.refEditor}
               theme="textmate"
@@ -229,6 +244,7 @@ class QueryEditor extends React.Component {
               onLoad={this.onLoad}
               onPaste={this.onPaste}
               onChange={this.updateQuery}
+              onSelectionChange={this.updateSelectedQuery}
             />
           </div>
 
@@ -292,7 +308,7 @@ class QueryEditor extends React.Component {
                   data-test="ExecuteButton"
                 >
                   <span className="zmdi zmdi-play" />
-                  <span className="hidden-xs m-l-5">Execute</span>
+                  <span className="hidden-xs m-l-5">{ (this.state.selectedQueryText == null) ? 'Execute' : 'Execute Selected' }</span>
                 </button>
               </Tooltip>
             </div>
