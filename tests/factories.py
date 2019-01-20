@@ -75,7 +75,7 @@ query_factory = ModelFactory(redash.models.Query,
                              user=user_factory.create,
                              is_archived=False,
                              is_draft=False,
-                             schedule={},
+                             schedule=None,
                              data_source=data_source_factory.create,
                              org_id=1)
 
