@@ -154,6 +154,26 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
+    @require_permission('execute_query')
+    def post(self, query_id):
+        """
+        Execute a saved query.
+
+        :param number query_id: The ID of the query whose results should be fetched.
+        :param object parameters: The parameter values to apply to the query.
+        :qparam number max_age: If query results less than `max_age` seconds old are available,
+                                return them, otherwise execute the query; if omitted or -1, returns
+                                any cached result, or executes if not available. Set to zero to
+                                always execute.
+        """
+        params = request.get_json(force=True)
+        parameters = params.get('parameters', {})
+        max_age = int(params.get('max_age', 0))
+
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+        return run_query(query.data_source, parameters, query.query_text, query_id, max_age)
+
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         """
