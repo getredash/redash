@@ -41,9 +41,27 @@ class ParameterizedQuery(object):
         self.parameters = {}
 
     def apply(self, parameters):
-        self.parameters.update(parameters)
-        self.query = mustache_render(self.template, self.parameters)
+        invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
+        if invalid_parameter_names:
+            message = u"The following parameter values are incompatible with their type definitions: {}".format(",".join(invalid_parameter_names))
+            raise InvalidParameterError(message)
+        else:
+            self.parameters.update(parameters)
+            self.query = mustache_render(self.template, self.parameters)
+
         return self
+
+    def _valid(self, name, value):
+        definition = next((definition for definition in self.schema if definition["name"] == name), None)
+
+        if not definition:
+            return True
+
+        validators = {
+            "text": lambda x: type(x) in (str, unicode),
+        }
+
+        return validators[definition["type"]](value)
 
     @property
     def missing_params(self):
@@ -53,3 +71,7 @@ class ParameterizedQuery(object):
     @property
     def text(self):
         return self.query
+
+
+class InvalidParameterError(Exception):
+    pass

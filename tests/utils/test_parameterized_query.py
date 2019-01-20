@@ -1,6 +1,7 @@
 from unittest import TestCase
+import pytest
 
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError
 
 
 class TestParameterizedQuery(TestCase):
@@ -41,3 +42,16 @@ class TestParameterizedQuery(TestCase):
             }
         })
         self.assertEqual(set([]), query.missing_params)
+
+    def test_raises_on_invalid_text_parameters(self):
+        schema = [{"name": "bar", "type": "text"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": 7})
+
+    def test_validates_text_parameters(self):
+        schema = [{"name": "bar", "type": "text"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+        query.apply({"bar": u"baz"})
+        self.assertEquals("foo baz", query.text)
