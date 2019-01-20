@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import phoenixdb
+    from phoenixdb.errors import *
     enabled = True
 
 except ImportError:
@@ -102,14 +103,15 @@ class Phoenix(BaseQueryRunner):
             json_data = json_dumps(data)
             error = None
             cursor.close()
+        except Error as e:
+            json_data = None
+            error = 'code: {}, sql state:{}, message: {}'.format(e.code, e.sqlstate, e.message)
         except (KeyboardInterrupt, InterruptException) as e:
             error = "Query cancelled by user."
             json_data = None
         except Exception as ex:
             json_data = None
-            error = 'error.{}.{}'.format(query, ex)
-            if not isinstance(error, basestring):
-                error = unicode(error)
+            error = unicode(ex)
         finally:
             if connection:
                 connection.close()
