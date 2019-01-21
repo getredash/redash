@@ -10,7 +10,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, json_loads, utcnow)
 from redash.utils.parameterized_query import ParameterizedQuery
 
 
@@ -154,6 +154,20 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
+    def _fetch_rows(self, query_id):
+        query = models.Query.get_by_id_and_org(query_id, self.current_org)
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
+        return json_loads(query_result.data)["rows"]
+
+    def _convert_queries_to_enums(self, definition):
+        if definition["type"] == "query":
+            definition["type"] = "enum"
+
+            rows = self._fetch_rows(definition.pop("queryId"))
+            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows]
+
+        return definition
+
     @require_permission('execute_query')
     def post(self, query_id):
         """
@@ -172,6 +186,7 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         parameter_schema = query.options.get("parameters", {})
+        parameter_schema = map(self._convert_queries_to_enums, parameter_schema)
 
         return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
 
