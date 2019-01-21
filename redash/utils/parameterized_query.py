@@ -74,7 +74,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda x: isinstance(x, basestring),
-            "number": lambda x: type(x) == int,
+            "number": lambda x: isinstance(x, int),
             "enum": lambda x: x in definition["enumOptions"],
             "date": _is_date,
             "datetime-local": _is_date,
