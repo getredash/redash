@@ -41,6 +41,15 @@ def _is_date(string):
         return False
 
 
+def _is_date_range(obj):
+    try:
+        parse(obj["start"])
+        parse(obj["end"])
+        return True
+    except (ValueError, KeyError, TypeError):
+        return False
+
+
 class ParameterizedQuery(object):
     def __init__(self, template, schema={}):
         self.template = template
@@ -72,6 +81,9 @@ class ParameterizedQuery(object):
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
+            "date-range": _is_date_range,
+            "datetime-range": _is_date_range,
+            "datetime-range-with-seconds": _is_date_range,
         }
 
         return validators[definition["type"]](value)

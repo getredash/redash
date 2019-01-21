@@ -109,3 +109,18 @@ class TestParameterizedQuery(TestCase):
         query.apply({"bar": "baz"})
 
         self.assertEquals("foo baz", query.text)
+
+    def test_raises_on_invalid_date_range_parameters(self):
+        schema = [{"name": "bar", "type": "date-range"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "baz"})
+
+    def test_validates_date_range_parameters(self):
+        schema = [{"name": "bar", "type": "date-range"}]
+        query = ParameterizedQuery("foo {{bar.start}} {{bar.end}}", schema)
+
+        query.apply({"bar": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"}})
+
+        self.assertEquals("foo 2000-01-01 12:00:00 2000-12-31 12:00:00", query.text)
