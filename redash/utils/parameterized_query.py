@@ -43,10 +43,8 @@ def _is_date(string):
 
 def _is_date_range(obj):
     try:
-        parse(obj["start"])
-        parse(obj["end"])
-        return True
-    except (ValueError, KeyError, TypeError):
+        return _is_date(obj["start"]) and _is_date(obj["end"])
+    except (KeyError, TypeError):
         return False
 
 
