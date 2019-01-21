@@ -87,3 +87,25 @@ class TestParameterizedQuery(TestCase):
         query.apply({"bar": "2000-01-01 12:00:00"})
 
         self.assertEquals("foo 2000-01-01 12:00:00", query.text)
+
+    def test_raises_on_invalid_enum_parameters(self):
+        schema = [{"name": "bar", "type": "enum", "enumOptions": ["baz", "qux"]}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": 7})
+
+    def test_raises_on_unlisted_enum_value_parameters(self):
+        schema = [{"name": "bar", "type": "enum", "enumOptions": ["baz", "qux"]}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "shlomo"})
+
+    def test_validates_enum_parameters(self):
+        schema = [{"name": "bar", "type": "enum", "enumOptions": ["baz", "qux"]}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "baz"})
+
+        self.assertEquals("foo baz", query.text)
