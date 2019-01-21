@@ -242,8 +242,12 @@ def refresh_schema(data_source_id):
             table_name = table['name']
             existing_tables.add(table_name)
 
-            # Assume that there will only exist 1 table with a given name so we use first()
-            persisted_table = models.db.session.query(TableMetadata.id).filter(TableMetadata.table_name==table_name).first()
+            # Assume that there will only exist 1 table with a given name for a given data source so we use first()
+            persisted_table = models.db.session.query(
+                TableMetadata).filter(
+                TableMetadata.table_name==table_name).filter(
+                TableMetadata.data_source_id==ds.id).first()
+
             if persisted_table:
                 models.db.session.query(TableMetadata).filter(TableMetadata.id==persisted_table.id).update({"table_exists": True})
             else:
