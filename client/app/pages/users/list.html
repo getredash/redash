@@ -82,7 +82,12 @@
           </tr>
         </tbody>
       </table>
-      <paginator paginator="$ctrl.paginator"></paginator>
+      <paginator
+        page="$ctrl.paginator.page"
+        items-per-page="$ctrl.paginator.itemsPerPage"
+        total-count="$ctrl.paginator.totalCount"
+        on-change="$ctrl.setCurrentPage"
+      ></paginator>
     </div>
   </div>
 </settings-screen>

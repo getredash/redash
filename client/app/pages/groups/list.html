@@ -18,7 +18,12 @@
           </tr>
         </tbody>
       </table>
-      <paginator paginator="groups"></paginator>
+      <paginator
+        page="groups.page"
+        items-per-page="groups.itemsPerPage"
+        total-count="groups.totalCount"
+        on-change="setCurrentPage"
+      ></paginator>
     </div>
   </div>
 </settings-screen>

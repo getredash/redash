@@ -82,7 +82,7 @@ function createRowRenderTemplate(columns, $compile) {
   return $compile(rowTemplate);
 }
 
-function DynamicTable($compile) {
+function DynamicTable($scope, $compile) {
   'ngInject';
 
   this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
@@ -180,8 +180,10 @@ function DynamicTable($compile) {
     }
   };
 
-  this.onPageChanged = () => {
+  this.onPageChanged = (page) => {
+    this.currentPage = page;
     updateRowsToDisplay(false);
+    $scope.$applyAsync();
   };
 
   this.onSearchTermChanged = () => {

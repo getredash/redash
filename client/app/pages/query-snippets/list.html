@@ -36,7 +36,12 @@
               </tr>
             </tbody>
           </table>
-          <paginator paginator="$ctrl.snippets"></paginator>
+          <paginator
+            page="$ctrl.snippets.page"
+            items-per-page="$ctrl.snippets.itemsPerPage"
+            total-count="$ctrl.snippets.totalCount"
+            on-change="$ctrl.setCurrentPage"
+          ></paginator>
         </div>
     </div>
 </settings-screen>

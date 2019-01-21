@@ -47,7 +47,12 @@
       </tr>
       </tbody>
     </table>
-    <paginator paginator="$ctrl.tasksPaginator"></paginator>
+    <paginator
+      page="$ctrl.tasksPaginator.page"
+      items-per-page="$ctrl.tasksPaginator.itemsPerPage"
+      total-count="$ctrl.tasksPaginator.totalCount"
+      on-change="$ctrl.setCurrentPage"
+    ></paginator>
 
     <div class="p-15">
       <label><input type="checkbox" ng-model="autoUpdate"> Auto Update</label>

@@ -27,7 +27,12 @@
       </tr>
       </tbody>
     </table>
-    <paginator paginator="$ctrl.alerts"></paginator>
+    <paginator
+      page="$ctrl.alerts.page"
+      items-per-page="$ctrl.alerts.itemsPerPage"
+      total-count="$ctrl.alerts.totalCount"
+      on-change="$ctrl.setCurrentPage"
+    ></paginator>
   </div>
 
 </div>

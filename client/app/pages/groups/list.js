@@ -5,6 +5,11 @@ import template from './list.html';
 function GroupsCtrl($scope, $uibModal, currentUser, Group) {
   $scope.currentUser = currentUser;
   $scope.groups = new Paginator([], { itemsPerPage: 20 });
+  $scope.setCurrentPage = (page) => {
+    $scope.groups.setPage(page);
+    $scope.$applyAsync();
+  };
+
   Group.query((groups) => {
     $scope.groups.updateRows(groups);
   });
