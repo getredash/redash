@@ -64,7 +64,9 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema={}):
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema=None):
+    if parameter_schema is None:
+        parameter_schema = {}
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
