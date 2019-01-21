@@ -1,4 +1,5 @@
 import pystache
+from numbers import Number
 from redash.utils import mustache_render
 from funcy import distinct
 from dateutil.parser import parse
@@ -73,7 +74,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda x: isinstance(x, basestring),
-            "number": lambda x: isinstance(x, int),
+            "number": lambda x: isinstance(x, Number),
             "enum": lambda x: x in definition["enumOptions"],
             "date": _is_date,
             "datetime-local": _is_date,
