@@ -26,16 +26,13 @@ export function Pagination({
 }
 
 Pagination.propTypes = {
-  page: PropTypes.number,
-  itemsPerPage: PropTypes.number,
-  totalCount: PropTypes.number,
+  page: PropTypes.number.isRequired,
+  itemsPerPage: PropTypes.number.isRequired,
+  totalCount: PropTypes.number.isRequired,
   onChange: PropTypes.func,
 };
 
 Pagination.defaultProps = {
-  page: 0,
-  itemsPerPage: 0,
-  totalCount: 0,
   onChange: () => {},
 };
 
