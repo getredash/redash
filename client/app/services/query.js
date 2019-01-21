@@ -375,12 +375,7 @@ function QueryResource(
     return new Query({
       query: '',
       name: 'New Query',
-      schedule: {
-        time: null,
-        until: null,
-        interval: null,
-        day_of_week: null,
-      },
+      schedule: null,
       user: currentUser,
       options: {},
     });
@@ -431,12 +426,12 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  Query.prototype.getQueryResult = function getQueryResult(maxAge) {
+  Query.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
-    const queryText = this.query;
 
+    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 

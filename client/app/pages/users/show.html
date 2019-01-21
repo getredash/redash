@@ -43,6 +43,9 @@
             <label class="control-label">API Key</label>
             <input type="text" class="form-control" value="{{user.api_key}}" size="44" readonly/>
           </div>
+          <div class="form-group">
+            <button class="btn btn-default" ng-click="regenerateUserApiKey(user)" ng-disabled="disableRegenerateApiKeyButton">Regenerate</button>
+          </div>
 
           <hr>
 

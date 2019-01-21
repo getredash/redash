@@ -3,16 +3,29 @@
     <div class="col-sm-6 p-l-0 filter-container" ng-repeat="filter in $ctrl.filters">
       <label>{{filter.friendlyName}}</label>
 
-      <ui-select ng-model="filter.current" ng-if="!filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)" on-remove="$ctrl.filterChangeListener(filter, $model)"
-        remove-selected="false" append-to-body="true">
+      <ui-select
+        ng-if="!filter.multiple"
+        ng-model="filter.current"
+        on-select="$ctrl.filterChangeListener(filter, $model)"
+        on-remove="$ctrl.filterChangeListener(filter, $model)"
+        remove-selected="false"
+        append-to-body="true"
+      >
         <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{$select.selected | filterValue:filter}}</ui-select-match>
         <ui-select-choices repeat="value in filter.values | filter: $select.search">
           {{value | filterValue:filter }}
         </ui-select-choices>
       </ui-select>
 
-      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)"
-                 on-remove="$ctrl.filterChangeListener(filter, $model)" remove-selected="false">
+      <ui-select
+        ng-if="filter.multiple"
+        multiple
+        ng-model="filter.current"
+        on-select="$ctrl.filterChangeListener(filter, $model)"
+        on-remove="$ctrl.filterChangeListener(filter, $model)"
+        remove-selected="false"
+        append-to-body="true"
+      >
         <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{$item | filterValue:filter}}</ui-select-match>
         <ui-select-choices repeat="value in filter.values | filter: $select.search" group-by="$ctrl.itemGroup">
           <span ng-if="value == '*'">

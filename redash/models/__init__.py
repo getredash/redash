@@ -443,7 +443,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def archive(self, user=None):
         db.session.add(self)
         self.is_archived = True
-        self.schedule = {}
+        self.schedule = None
 
         for vis in self.visualizations:
             for w in vis.widgets:
@@ -550,11 +550,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = (db.session.query(Query)
-                   .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                   .filter(Query.schedule != {})
-                   .order_by(Query.id))
-
+        queries = (Query.query
+                        .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
+                        .filter(Query.schedule.isnot(None))
+                        .order_by(Query.id))
+        
         now = utils.utcnow()
         outdated_queries = {}
         scheduled_queries_executions.refresh()

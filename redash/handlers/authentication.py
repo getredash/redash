@@ -38,7 +38,7 @@ def render_token_login_page(template, org_slug, token):
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
 
-    if not user.is_invitation_pending:
+    if user.details.get('is_invitation_pending') is False:
         return render_template("error.html",
                                error_message=("This invitation has already been accepted. "
                                               "Please try resetting your password instead.")), 400
@@ -199,6 +199,13 @@ def date_format_config():
     }
 
 
+def number_format_config():
+    return {
+        'integerFormat': current_org.get_setting('integer_format'),
+        'floatFormat': current_org.get_setting('float_format'),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
@@ -226,6 +233,7 @@ def client_config():
         'basePath': base_href()
     })
     client_config.update(date_format_config())
+    client_config.update(number_format_config())
 
     return client_config
 

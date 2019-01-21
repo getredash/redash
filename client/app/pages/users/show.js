@@ -6,7 +6,7 @@ import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, User,
+  clientConfig, currentUser, User, AlertDialog,
 ) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
@@ -121,6 +121,34 @@ function UserCtrl(
   };
   $scope.disableUser = (user) => {
     User.disableUser(user);
+  };
+
+  $scope.regenerateUserApiKey = (user) => {
+    const doRegenerate = () => {
+      $scope.disableRegenerateApiKeyButton = true;
+      $http
+        .post(`api/users/${$scope.user.id}/regenerate_api_key`)
+        .success((data) => {
+          toastr.success('The API Key has been updated.');
+          user.api_key = data.api_key;
+          $scope.disableRegenerateApiKeyButton = false;
+        })
+        .error((response) => {
+          const message =
+            response.message
+              ? response.message
+              : `Failed regenerating API Key: ${response.statusText}`;
+
+          toastr.error(message);
+          $scope.disableRegenerateApiKeyButton = false;
+        });
+    };
+
+    const title = 'Regenerate API Key';
+    const message = 'Are you sure you want to regenerate?';
+
+    AlertDialog.open(title, message, { class: 'btn-warning', title: 'Regenerate' })
+      .then(doRegenerate);
   };
 }
 

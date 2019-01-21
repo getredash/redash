@@ -15,6 +15,20 @@ export const Table = PropTypes.shape({
 
 export const Schema = PropTypes.arrayOf(Table);
 
+export const RefreshScheduleType = PropTypes.shape({
+  interval: PropTypes.number,
+  time: PropTypes.string,
+  day_of_week: PropTypes.string,
+  until: PropTypes.string,
+});
+
+export const RefreshScheduleDefault = {
+  interval: null,
+  time: null,
+  day_of_week: null,
+  until: null,
+};
+
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
