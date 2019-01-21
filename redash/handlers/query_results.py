@@ -185,8 +185,8 @@ class QueryResultResource(BaseResource):
         max_age = int(params.get('max_age', 0))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = query.options.get("parameters", {})
-        parameter_schema = map(self._convert_queries_to_enums, parameter_schema)
+        parameter_schema = map(self._convert_queries_to_enums,
+                               query.options.get("parameters", {}))
 
         return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
 
