@@ -52,7 +52,6 @@ class ParameterizedQuery(object):
     def __init__(self, template, schema=None):
         self.schema = schema or {}
         self.template = template
-        self.schema = schema
         self.query = template
         self.parameters = {}
 
