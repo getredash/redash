@@ -58,8 +58,7 @@ class ParameterizedQuery(object):
     def apply(self, parameters):
         invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
         if invalid_parameter_names:
-            message = u"The following parameter values are incompatible with their type definitions: {}".format(", ".join(invalid_parameter_names))
-            raise InvalidParameterError(message)
+            raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(self.template, self.parameters)
@@ -97,4 +96,6 @@ class ParameterizedQuery(object):
 
 
 class InvalidParameterError(Exception):
-    pass
+    def __init__(self, parameters):
+        message = u"The following parameter values are incompatible with their type definitions: {}".format(", ".join(parameters))
+        super(InvalidParameterError, self).__init__(message)
