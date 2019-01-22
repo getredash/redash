@@ -55,7 +55,6 @@ python-geoip-geolite2==2015.303
 chromelogger==0.4.3
 pypd==1.1.0
 disposable-email-domains
-urllib3==1.24.1
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
