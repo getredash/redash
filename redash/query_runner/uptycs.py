@@ -7,14 +7,10 @@ import json
 import jwt
 import datetime
 import requests
-import urllib3
 import logging
 logger = logging.getLogger(__name__)
 
-
 enabled = True
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class Uptycs(BaseSQLQueryRunner):
@@ -111,7 +107,7 @@ class Uptycs(BaseSQLQueryRunner):
 
     def run_query(self, query, user):
         data, error = self.api_call(query)
-        json_data = json_dumps(data, cls=JSONEncoder)
+        json_data = json_dumps(data)
         logger.debug("%s", json_data)
         return json_data, error
 
