@@ -15,7 +15,6 @@ export function Paginator({
   return (
     <div className="paginator-container">
       <Pagination
-        className="pagination"
         defaultCurrent={page}
         defaultPageSize={itemsPerPage}
         total={totalCount}

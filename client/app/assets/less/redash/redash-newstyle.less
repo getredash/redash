@@ -411,6 +411,22 @@ page-header, .page-header--new {
   }
 }
 
+.pagination {
+  .disabled a {
+    background-color: fade(@redash-gray, 14%);
+  }
+
+  li {
+    a {
+      background-color: fade(@redash-gray, 15%);
+
+      &:hover {
+        background-color: fade(@redash-gray, 25%);
+      }
+    }
+  }
+}
+
 .btn-default {
   background-color: fade(@redash-gray, 15%);
 }
@@ -765,6 +781,14 @@ page-header, .page-header--new {
   padding: 0 10px 0 10px;
 }
 
+// Pagination
+.pagination > li > a, .pagination > li > span {
+  border-radius: 3px !important;
+  width: 33px;
+  height: 33px;
+  line-height: 31px;
+}
+
 // Error state
 .error-state {
   display: flex;
@@ -807,56 +831,6 @@ text.slicetext {
   text-shadow: 1px 1px 5px #333;
 }
 
-.pagination {
-  margin: 18px 0 !important;
-  display: inline-block;
-  vertical-align: top;
-
-  & > li {
-    border: 1px solid @pagination-border !important;
-    padding: 0;
-    border-radius: 3px;
-    background-color: fade(@redash-gray, 15%);
-    color: @pagination-color;
-
-    &:focus,
-    &:hover {
-      color: @pagination-hover-color !important;
-      background-color: fade(@redash-gray, 25%);
-    }
-
-    & > a,
-    & > span {
-      background: none !important;
-      border: none !important;
-      border-radius: 0 !important;
-      padding: 0;
-      margin: 0;
-      color: inherit !important;
-      float: none;
-      min-width: 33px;
-      width: auto;
-      height: 33px;
-      line-height: 31px;
-    }
-
-    &.ant-pagination-item-active {
-      color: @pagination-active-color !important;
-      background-color: @pagination-active-bg;
-      cursor: default;
-      user-select: none;
-    }
-
-    &.ant-pagination-disabled {
-      .opacity(0.5);
-      background-color: fade(@redash-gray, 14%);
-    }
-
-    .anticon {
-      color: inherit !important;
-    }
-  }
-}
 
 // Responsive fixes
 @media (max-width: 767px) {
@@ -965,4 +939,3 @@ text.slicetext {
     top: 12px;
   }
 }
-
