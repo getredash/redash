@@ -60,11 +60,6 @@ export default class ListCtrl {
       orderByReverse: this.pageOrderReverse,
     });
 
-    this.setCurrentPage = (page) => {
-      this.paginator.setPage(page);
-      $scope.$applyAsync();
-    };
-
     this.navigateTo = ($event, url) => {
       if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
         // keep default browser behavior

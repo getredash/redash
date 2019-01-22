@@ -8,16 +8,11 @@ const stateClass = {
 };
 
 class AlertsListCtrl {
-  constructor($scope, Alert) {
+  constructor(Alert) {
     this.showEmptyState = false;
     this.showList = false;
 
     this.alerts = new Paginator([], { itemsPerPage: 20 });
-    this.setCurrentPage = (page) => {
-      this.alerts.setPage(page);
-      $scope.$applyAsync();
-    };
-
     Alert.query((alerts) => {
       if (alerts.length > 0) {
         this.showList = true;

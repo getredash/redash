@@ -82,8 +82,32 @@ function createRowRenderTemplate(columns, $compile) {
   return $compile(rowTemplate);
 }
 
+class DynamicTablePaginatorAdapter {
+  constructor($ctrl) {
+    this.$ctrl = $ctrl;
+  }
+
+  get page() {
+    return this.$ctrl.currentPage;
+  }
+
+  get itemsPerPage() {
+    return this.$ctrl.itemsPerPage;
+  }
+
+  get totalCount() {
+    return this.$ctrl.preparedRows.length;
+  }
+
+  setPage(page) {
+    this.$ctrl.onPageChanged(page);
+  }
+}
+
 function DynamicTable($scope, $compile) {
   'ngInject';
+
+  this.paginatorAdapter = new DynamicTablePaginatorAdapter(this);
 
   this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
   this.currentPage = 1;

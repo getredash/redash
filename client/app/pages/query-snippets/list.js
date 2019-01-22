@@ -2,13 +2,8 @@ import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
-function SnippetsCtrl($scope, $location, currentUser, QuerySnippet) {
+function SnippetsCtrl($location, currentUser, QuerySnippet) {
   this.snippets = new Paginator([], { itemsPerPage: 20 });
-  this.setCurrentPage = (page) => {
-    this.snippets.setPage(page);
-    $scope.$applyAsync();
-  };
-
   QuerySnippet.query((snippets) => {
     this.snippets.updateRows(snippets);
   });

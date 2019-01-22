@@ -32,9 +32,4 @@
     </tbody>
   </table>
 </div>
-<paginator
-  page="$ctrl.currentPage"
-  items-per-page="$ctrl.itemsPerPage"
-  total-count="$ctrl.preparedRows.length"
-  on-change="$ctrl.onPageChanged"
-></paginator>
+<paginator paginator="$ctrl.paginatorAdapter"></paginator>

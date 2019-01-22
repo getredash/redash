@@ -38,12 +38,7 @@
         </tr>
         </tbody>
       </table>
-      <paginator
-        page="$ctrl.queries.page"
-        items-per-page="$ctrl.queries.itemsPerPage"
-        total-count="$ctrl.queries.totalCount"
-        on-change="$ctrl.setCurrentPage"
-      ></paginator>
+      <paginator paginator="$ctrl.queries"></paginator>
 
       <div class="p-15">
         <div class="badge">

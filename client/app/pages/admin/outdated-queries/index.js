@@ -7,10 +7,6 @@ function OutdatedQueriesCtrl($scope, $http, $timeout) {
   $scope.autoUpdate = true;
 
   this.queries = new Paginator([], { itemsPerPage: 50 });
-  this.setCurrentPage = (page) => {
-    this.queries.setPage(page);
-    $scope.$applyAsync();
-  };
 
   const refresh = () => {
     if ($scope.autoUpdate) {
