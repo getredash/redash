@@ -47,7 +47,7 @@ class Uptycs(BaseSQLQueryRunner):
     def annotate_query(cls):
         return False
 
-    def generateHeaders(self, key, secret):
+    def generate_header(self, key, secret):
         header={}
         utcnow=datetime.datetime.utcnow()
         date=utcnow.strftime("%a, %d %b %Y %H:%M:%S GMT")
@@ -79,7 +79,7 @@ class Uptycs(BaseSQLQueryRunner):
 
     def api_call(self, sql):
         # JWT encoded header
-        header = self.generateHeaders( self.configuration.get('key'), 
+        header = self.generate_header( self.configuration.get('key'), 
                                        self.configuration.get('secret'))
 
         # URL form using API key file based on GLOBAL
@@ -116,7 +116,7 @@ class Uptycs(BaseSQLQueryRunner):
         return json_data, error
 
     def get_schema(self, get_stats=False):
-        header = self.generateHeaders(self.configuration.get('key'), 
+        header = self.generate_header(self.configuration.get('key'), 
                                      self.configuration.get('secret'))
         url = ("%s/public/api/customers/%s/schema/global" %
                 (self.configuration.get('url'), 
