@@ -1,8 +1,6 @@
 from redash.query_runner import *
-from redash.utils import JSONEncoder, json_dumps
+from redash.utils import json_dumps
 
-import os
-import sys
 import json
 import jwt
 import datetime
@@ -76,18 +74,18 @@ class Uptycs(BaseSQLQueryRunner):
     def api_call(self, sql):
         # JWT encoded header
         header = self.generate_header(self.configuration.get('key'),
-                self.configuration.get('secret'))
+                                      self.configuration.get('secret'))
 
         # URL form using API key file based on GLOBAL
         url = ("%s/public/api/customers/%s/query" %
-                (self.configuration.get('url'),
+               (self.configuration.get('url'),
                 self.configuration.get('customer_id')))
 
         # post data base sql
         post_data_json = {"query": sql}
 
-        response = requests.post(url, headers=header,
-                    json=post_data_json, verify=False)
+        response = requests.post(url, headers=header, json=post_data_json,
+                                 verify=False)
 
         if response.status_code == 200:
             response_output = json.loads(response.content)
@@ -113,9 +111,9 @@ class Uptycs(BaseSQLQueryRunner):
 
     def get_schema(self, get_stats=False):
         header = self.generate_header(self.configuration.get('key'),
-                    self.configuration.get('secret'))
+                                      self.configuration.get('secret'))
         url = ("%s/public/api/customers/%s/schema/global" %
-            (self.configuration.get('url'),
+               (self.configuration.get('url'),
                 self.configuration.get('customer_id')))
         response = requests.get(url, headers=header, verify=False)
         redash_json = []
@@ -127,6 +125,7 @@ class Uptycs(BaseSQLQueryRunner):
                 columns.append(col['name'])
             table_json = {"name": table_name, "columns": columns}
             redash_json.append(table_json)
+
         logger.debug("%s", schema.values())
         return redash_json
 
