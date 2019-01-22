@@ -12,6 +12,7 @@
 @import '~antd/lib/button/style/index';
 @import '~antd/lib/radio/style/index';
 @import '~antd/lib/time-picker/style/index';
+@import '~antd/lib/pagination/style/index';
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -46,4 +47,91 @@
 .ant-input-number-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+// Pagination overrides (based on existing Bootstrap overrides)
+.@{pagination-prefix-cls} {
+  display: inline-block;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  vertical-align: top;
+
+  &-item {
+    background-color: @pagination-bg;
+    border-color: transparent;
+    color: @pagination-color;
+    font-size: 14px;
+    margin-right: 5px;
+
+    a {
+      color: inherit;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+      a {
+        color: inherit;
+      }
+    }
+
+    &-active {
+      &,
+      &:hover,
+      &:focus {
+        background-color: @pagination-active-bg;
+        color: @pagination-active-color;
+        border-color: transparent;
+        pointer-events: none;
+        cursor: default;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
+  }
+
+  &-disabled {
+    &,
+    &:hover,
+    &:focus {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  &-prev,
+  &-next {
+    .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-bg;
+      border-color: transparent;
+      color: @pagination-color;
+      line-height: @pagination-item-size - 2px;
+    }
+
+    &:focus .@{pagination-prefix-cls}-item-link,
+    &:hover .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+    }
+  }
+
+  &-prev,
+  &-jump-prev,
+  &-jump-next {
+    margin-right: 5px;
+  }
+
+  &-jump-prev,
+  &-jump-next {
+    .@{pagination-prefix-cls}-item-container {
+      .@{pagination-prefix-cls}-item-link-icon {
+        color: @pagination-color;
+      }
+    }
+  }
 }
