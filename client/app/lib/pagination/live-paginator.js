@@ -4,6 +4,7 @@ export default class LivePaginator {
   } = {}) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
+    this.totalCount = 0;
     this.orderByField = orderByField;
     this.orderByReverse = orderByReverse;
     this.rowsFetcher = rowsFetcher;
