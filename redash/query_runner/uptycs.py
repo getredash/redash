@@ -16,9 +16,8 @@ enabled = True
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+
 class Uptycs(BaseSQLQueryRunner):
-
-
     noop_query = "SELECT 1"
 
     @classmethod
@@ -41,7 +40,7 @@ class Uptycs(BaseSQLQueryRunner):
             },
             "order": ['url', 'customer_id', 'key', 'secret'],
             "required": ["url", "customer_id", "key", "secret"],
-            "secret": ["secret", "customer_id", "key"]
+            "secret": ["secret", "key"]
         }
 
     @classmethod
@@ -81,18 +80,18 @@ class Uptycs(BaseSQLQueryRunner):
     def api_call(self, sql):
         # JWT encoded header
         header = self.generate_header(self.configuration.get('key'),
-                                       self.configuration.get('secret'))
+                self.configuration.get('secret'))
 
         # URL form using API key file based on GLOBAL
         url = ("%s/public/api/customers/%s/query" %
-            (self.configuration.get('url'),
-             self.configuration.get('customer_id')));
+                (self.configuration.get('url'),
+                self.configuration.get('customer_id')))
 
         # post data base sql
         post_data_json = {"query": sql}
 
         response = requests.post(url, headers=header,
-                json=post_data_json, verify=False)
+                    json=post_data_json, verify=False)
 
         if response.status_code == 200:
             response_output = json.loads(response.content)
@@ -101,7 +100,7 @@ class Uptycs(BaseSQLQueryRunner):
             error = error + "failed to connect"
             json_data = {}
             return json_data, error
-    
+        # if we get right status code then call transfored_to_redash
         json_data = self.transformed_to_redash_json(response_output)
         error = None
         # if we got error from Uptycs include error information
@@ -113,15 +112,15 @@ class Uptycs(BaseSQLQueryRunner):
     def run_query(self, query, user):
         data, error = self.api_call(query)
         json_data = json_dumps(data, cls=JSONEncoder)
-        logger.debug("%s",json_data)
+        logger.debug("%s", json_data)
         return json_data, error
 
     def get_schema(self, get_stats=False):
         header = self.generate_header(self.configuration.get('key'),
-                                     self.configuration.get('secret'))
+                                        self.configuration.get('secret'))
         url = ("%s/public/api/customers/%s/schema/global" %
             (self.configuration.get('url'),
-            self.configuration.get('customer_id')))
+                self.configuration.get('customer_id')))
         response = requests.get(url, headers=header, verify=False)
         redash_json = []
         schema = json.loads(response.content)
