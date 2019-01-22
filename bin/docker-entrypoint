@@ -3,7 +3,7 @@ set -e
 
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
   exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
