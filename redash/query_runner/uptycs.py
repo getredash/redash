@@ -113,7 +113,7 @@ class Uptycs(BaseSQLQueryRunner):
 
     def get_schema(self, get_stats=False):
         header = self.generate_header(self.configuration.get('key'),
-                                        self.configuration.get('secret'))
+                    self.configuration.get('secret'))
         url = ("%s/public/api/customers/%s/schema/global" %
             (self.configuration.get('url'),
                 self.configuration.get('customer_id')))
