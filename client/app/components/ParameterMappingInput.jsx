@@ -1,11 +1,19 @@
 /* eslint react/no-multi-comp: 0 */
 
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import Select from 'antd/lib/select';
+import Table from 'antd/lib/table';
+import Popover from 'antd/lib/popover';
+import Button from 'antd/lib/button';
+import Icon from 'antd/lib/icon';
+import Tag from 'antd/lib/tag';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
+
+import './ParameterMappingInput.less';
 
 const { Option } = Select;
 
@@ -206,16 +214,79 @@ export class ParameterMappingInput extends React.Component {
   render() {
     const { mapping } = this.props;
     return (
-      <div key={mapping.name} className="row">
-        <div className="col-xs-5">
-          <div className="form-control-static">{'{{ ' + mapping.name + ' }}'}</div>
-        </div>
-        <div className="col-xs-7">
-          {this.renderMappingTypeSelector()}
-          {this.renderInputBlock()}
-          {this.renderTitleInput()}
-        </div>
+      <div key={mapping.name}>
+        {this.renderMappingTypeSelector()}
+        {this.renderInputBlock()}
+        {this.renderTitleInput()}
       </div>
+    );
+  }
+}
+
+class EditMapping extends React.Component {
+  static propTypes = {
+    mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onChange: PropTypes.func.isRequired,
+    getContainerElement: PropTypes.func.isRequired,
+    clientConfig: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+    Query: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      visible: false,
+    };
+  }
+
+  onVisibleChange = (visible) => {
+    if (visible) this.show(); else this.hide();
+  }
+
+  get content() {
+    const { mapping, clientConfig, Query, onChange } = this.props;
+
+    return (
+      <div className="editMapping">
+        <header>Edit parameter</header>
+        <ParameterMappingInput
+          mapping={mapping}
+          existingParamNames={this.props.existingParamNames}
+          onChange={newMapping => onChange(mapping, newMapping)}
+          getContainerElement={() => this.wrapperRef.current}
+          clientConfig={clientConfig}
+          Query={Query}
+        />
+        <footer>
+          <Button onClick={this.hide}>Close</Button>
+        </footer>
+      </div>
+    );
+  }
+
+  show = () => {
+    this.setState({ visible: true });
+  }
+
+  hide = () => {
+    this.setState({ visible: false });
+  }
+
+  render() {
+    return (
+      <Popover
+        placement="right"
+        trigger="click"
+        content={this.content}
+        visible={this.state.visible}
+        onVisibleChange={this.onVisibleChange}
+        getPopupContainer={this.props.getContainerElement}
+      >
+        <Button size="small" type="dashed">
+          <Icon type="edit" theme="twoTone" />
+        </Button>
+      </Popover>
     );
   }
 }
@@ -240,6 +311,41 @@ export class ParameterMappingListInput extends React.Component {
     Query: null,
   };
 
+  constructor(props) {
+    super(props);
+    this.wrapperRef = React.createRef();
+  }
+
+  static getStringValue(value) {
+    // null
+    if (!value) {
+      return '';
+    }
+
+    // array
+    if (value instanceof Array) {
+      const arr = value.map(v => this.getStringValue(v));
+      const delimiter = moment.isMoment(value[0]) ? ' ~ ' : ', ';
+      return arr.join(delimiter);
+    }
+
+    // moment
+    if (moment.isMoment(value)) {
+      return value.format('DD/MM/YY');
+    }
+
+    // rest
+    return value.toString();
+  }
+
+  static getDefaultValue(mapping) {
+    const value = mapping.type === MappingType.StaticValue
+      ? mapping.value || mapping.param.normalizedValue
+      : mapping.param.normalizedValue;
+
+    return this.getStringValue(value);
+  }
+
   updateParamMapping(oldMapping, newMapping) {
     const mappings = [...this.props.mappings];
     const index = findIndex(mappings, oldMapping);
@@ -253,10 +359,11 @@ export class ParameterMappingListInput extends React.Component {
   }
 
   render() {
-    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
+    const { clientConfig, Query, existingParams } = this.props; // eslint-disable-line react/prop-types
+    const dataSource = this.props.mappings.map(mapping => ({ mapping }));
 
     return (
+<<<<<<< HEAD
       <div>
         {this.props.mappings.map((mapping, index) => {
           const existingParamsNames = this.props.existingParams
@@ -275,6 +382,79 @@ export class ParameterMappingListInput extends React.Component {
             </div>
           );
         })}
+=======
+      <div ref={this.wrapperRef} className="paramMappingList">
+        <Table
+          dataSource={dataSource}
+          size="middle"
+          pagination={false}
+          rowKey={(record, idx) => `row${idx}`}
+        >
+          <Table.Column
+            title="Edit"
+            dataIndex="mapping"
+            key="edit"
+            render={(mapping) => {
+              const existingParamsNames = existingParams
+                .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
+                .map(({ name }) => name); // keep names only
+
+              return (
+                <EditMapping
+                  mapping={mapping}
+                  existingParamNames={existingParamsNames}
+                  onChange={(oldMapping, newMapping) => this.updateParamMapping(oldMapping, newMapping)}
+                  getContainerElement={() => this.wrapperRef.current}
+                  clientConfig={clientConfig}
+                  Query={Query}
+                />
+              );
+            }}
+          />
+          <Table.Column
+            title="Title"
+            dataIndex="mapping"
+            key="title"
+            render={mapping => mapping.title || mapping.param.title}
+          />
+          <Table.Column
+            title="Keyword"
+            dataIndex="mapping"
+            key="keyword"
+            className="keyword"
+            render={mapping => <code>{`{{ ${mapping.name} }}`}</code>}
+          />
+          <Table.Column
+            title="Default Value"
+            dataIndex="mapping"
+            key="value"
+            render={mapping => this.constructor.getDefaultValue(mapping)}
+          />
+          <Table.Column
+            title="Value Source"
+            dataIndex="mapping"
+            key="source"
+            render={(mapping) => {
+              switch (mapping.type) {
+                case MappingType.DashboardAddNew:
+                case MappingType.DashboardMapToExisting:
+                  return (
+                    <Fragment>
+                      Dashboard parameter{' '}
+                      <Tag className="tag">{mapping.mapTo}</Tag>
+                    </Fragment>
+                  );
+                case MappingType.WidgetLevel:
+                  return 'Widget parameter';
+                case MappingType.StaticValue:
+                  return 'Static value';
+                default:
+                  return ''; // won't happen (typescript-ftw)
+              }
+            }}
+          />
+        </Table>
+>>>>>>> [Widget Params] Switched parameter list to table style
       </div>
     );
   }

@@ -1,0 +1,43 @@
+@import '~antd/lib/modal/style/index'; // for ant @vars
+
+.paramMappingList {
+  .keyword {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    code {
+      white-space: nowrap; // so the curly braces don't line break
+    }
+  }
+
+  // Ant <Tag> overrides
+  .tag {
+    margin: 0;
+    pointer-events: none; // unclickable
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.editMapping {
+  width: 340px;
+
+  header {
+    padding: 0 16px 10px;
+    margin: 0 -16px 20px;
+    border-bottom: @border-width-base @border-style-base @border-color-split;
+    font-size: @font-size-lg;
+    font-weight: 500;
+    color: @heading-color;
+  }
+
+  footer {
+    border-top: @border-width-base @border-style-base @border-color-split;
+    padding: 10px 16px 0;
+    margin: 20px -16px 0;
+    text-align: right;
+  }
+}
