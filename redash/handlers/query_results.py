@@ -169,7 +169,7 @@ class QueryResultResource(BaseResource):
             definition["type"] = "enum"
 
             rows = self._fetch_rows(definition.pop("queryId"))
-            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows]
+            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows if row]
 
         return definition
 
