@@ -63,9 +63,9 @@ class EditParameterMappingsDialog extends React.Component {
     const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
     const Query = this.props.Query; // eslint-disable-line react/prop-types
 
-    const existingParamNames = map(
+    const existingParams = map(
       this.props.dashboard.getParametersDefs(),
-      param => param.name,
+      ({ name, type }) => ({ name, type }),
     );
 
     return (
@@ -87,7 +87,7 @@ class EditParameterMappingsDialog extends React.Component {
             (this.state.parameterMappings.length > 0) &&
             <ParameterMappingListInput
               mappings={this.state.parameterMappings}
-              existingParamNames={existingParamNames}
+              existingParams={existingParams}
               onChange={mappings => this.updateParamMappings(mappings)}
               clientConfig={clientConfig}
               Query={Query}
