@@ -158,9 +158,9 @@ class QueryResultResource(BaseResource):
 
     def _fetch_rows(self, query_id):
         query = models.Query.get_by_id_and_org(query_id, self.current_org)
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
+        require_access(query.data_source.groups, self.current_user, view_only)
 
-        require_access(query_result.data_source.groups, self.current_user, view_only)
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
 
         return json_loads(query_result.data)["rows"]
 
