@@ -6,9 +6,8 @@ import jwt
 import datetime
 import requests
 import logging
-logger = logging.getLogger(__name__)
 
-enabled = True
+logger = logging.getLogger(__name__)
 
 
 class Uptycs(BaseSQLQueryRunner):
@@ -27,6 +26,10 @@ class Uptycs(BaseSQLQueryRunner):
                 },
                 "key": {
                     "type": "string"
+                },
+                "SSL": {
+                    "type": "boolean",
+                     "default": True
                 },
                 "secret": {
                     "type": "string",
@@ -85,7 +88,7 @@ class Uptycs(BaseSQLQueryRunner):
         post_data_json = {"query": sql}
 
         response = requests.post(url, headers=header, json=post_data_json,
-                                 verify=False)
+                                 verify=self.configuration.get('SSL'))
 
         if response.status_code == 200:
             response_output = json.loads(response.content)
