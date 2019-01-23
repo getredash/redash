@@ -3,6 +3,7 @@
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import moment from 'moment';
 import Select from 'antd/lib/select';
 import Table from 'antd/lib/table';
 import Popover from 'antd/lib/popover';
@@ -12,6 +13,8 @@ import Tag from 'antd/lib/tag';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { Parameter } from '@/services/query';
+
+import './ParameterMappingInput.less';
 
 import './ParameterMappingInput.less';
 
