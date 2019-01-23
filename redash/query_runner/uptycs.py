@@ -27,9 +27,10 @@ class Uptycs(BaseSQLQueryRunner):
                 "key": {
                     "type": "string"
                 },
-                "SSL": {
+                "verify_ssl": {
                     "type": "boolean",
-                    "default": True
+                    "default": True,
+                    "title": "Verify SSL Certificates",
                 },
                 "secret": {
                     "type": "string",
@@ -88,7 +89,8 @@ class Uptycs(BaseSQLQueryRunner):
         post_data_json = {"query": sql}
 
         response = requests.post(url, headers=header, json=post_data_json,
-                                 verify=self.configuration.get('SSL'))
+                                 verify=self.configuration.get('verify_ssl',
+                                                               True))
 
         if response.status_code == 200:
             response_output = json.loads(response.content)
@@ -118,7 +120,9 @@ class Uptycs(BaseSQLQueryRunner):
         url = ("%s/public/api/customers/%s/schema/global" %
                (self.configuration.get('url'),
                 self.configuration.get('customer_id')))
-        response = requests.get(url, headers=header, verify=False)
+        response = requests.get(url, headers=header,
+                                verify=self.configuration.get('verify_ssl',
+                                                              True))
         redash_json = []
         schema = json.loads(response.content)
         for each_def in schema['tables']:
