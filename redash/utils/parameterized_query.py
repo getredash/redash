@@ -73,9 +73,9 @@ class ParameterizedQuery(object):
             return True
 
         validators = {
-            "text": lambda x: isinstance(x, basestring),
-            "number": lambda x: isinstance(x, Number),
-            "enum": lambda x: x in definition["enumOptions"],
+            "text": lambda value: isinstance(value, basestring),
+            "number": lambda value: isinstance(value, Number),
+            "enum": lambda value: value in definition["enumOptions"],
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
@@ -84,7 +84,9 @@ class ParameterizedQuery(object):
             "datetime-range-with-seconds": _is_date_range,
         }
 
-        return validators[definition["type"]](value)
+        validate = validators.get(definition["type"], lambda x: False)
+
+        return validate(value)
 
     @property
     def missing_params(self):
