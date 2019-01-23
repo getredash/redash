@@ -6,7 +6,7 @@ from redash.utils import json_dumps
 from redash.handlers.base import org_scoped_rule
 from redash.handlers.permissions import ObjectPermissionsListResource, CheckPermissionResource
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
-from redash.handlers.dashboards import DashboardListResource, DashboardResource, DashboardShareResource, PublicDashboardResource 
+from redash.handlers.dashboards import DashboardListResource, DashboardResource, DashboardShareResource, PublicDashboardResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
 from redash.handlers.events import EventsResource
 from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
@@ -92,6 +92,7 @@ api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='qu
 api.add_org_resource(QueryResultResource,
                      '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',
+                     '/api/queries/<query_id>/results',
                      '/api/queries/<query_id>/results.<filetype>',
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
