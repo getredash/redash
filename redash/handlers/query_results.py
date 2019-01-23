@@ -172,7 +172,10 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-        return run_query(query.data_source, parameters, query.query_text, query_id, max_age)
+        if not has_access(query.data_source.groups, self.current_user, not_view_only):
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+        else:
+            return run_query(query.data_source, parameters, query.query_text, query_id, max_age)
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
