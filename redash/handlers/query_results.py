@@ -191,7 +191,7 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         parameter_schema = map(self._convert_queries_to_enums,
-                               query.options.get("parameters", {}))
+                               query.options.get("parameters", []))
 
         if not has_access(query.data_source.groups, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
