@@ -223,7 +223,10 @@ export class ParameterMappingInput extends React.Component {
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
     mappings: PropTypes.arrayOf(PropTypes.object),
-    existingParamNames: PropTypes.arrayOf(PropTypes.string),
+    existingParams: PropTypes.arrayOf(PropTypes.shape({
+      name: PropTypes.string,
+      type: PropTypes.string,
+    })),
     onChange: PropTypes.func,
     clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -231,7 +234,7 @@ export class ParameterMappingListInput extends React.Component {
 
   static defaultProps = {
     mappings: [],
-    existingParamNames: [],
+    existingParams: [],
     onChange: () => {},
     clientConfig: null,
     Query: null,
@@ -255,17 +258,23 @@ export class ParameterMappingListInput extends React.Component {
 
     return (
       <div>
-        {this.props.mappings.map((mapping, index) => (
-          <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
-            <ParameterMappingInput
-              mapping={mapping}
-              existingParamNames={this.props.existingParamNames}
-              onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
-              clientConfig={clientConfig}
-              Query={Query}
-            />
-          </div>
-        ))}
+        {this.props.mappings.map((mapping, index) => {
+          const existingParamsNames = this.props.existingParams
+              .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
+              .map(({ name }) => name); // keep names only
+
+          return (
+            <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
+              <ParameterMappingInput
+                mapping={mapping}
+                existingParamNames={existingParamsNames}
+                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
+                clientConfig={clientConfig}
+                Query={Query}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }
