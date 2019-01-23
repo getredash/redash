@@ -29,7 +29,7 @@ class Uptycs(BaseSQLQueryRunner):
                 },
                 "SSL": {
                     "type": "boolean",
-                     "default": True
+                    "default": True
                 },
                 "secret": {
                     "type": "string",
