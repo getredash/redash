@@ -193,7 +193,10 @@ class QueryResultResource(BaseResource):
         parameter_schema = map(self._convert_queries_to_enums,
                                query.options.get("parameters", {}))
 
-        return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
+        if not has_access(query.data_source.groups, self.current_user, not_view_only):
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+        else:
+            return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
