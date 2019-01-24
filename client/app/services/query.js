@@ -351,7 +351,7 @@ function QueryResource(
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
-      dropdown: {
+      dropdownOptions: {
         method: 'get',
         isArray: true,
         url: 'api/queries/:id/dropdown.json',

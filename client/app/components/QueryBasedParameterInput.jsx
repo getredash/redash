@@ -44,7 +44,7 @@ export class QueryBasedParameterInput extends React.Component {
     if (queryId && (queryId !== this.state.queryId)) {
       const Query = this.props.Query; // eslint-disable-line react/prop-types
       this.setState({ loading: true });
-      Query.dropdown({ id: queryId }, (options) => {
+      Query.dropdownOptions({ id: queryId }, (options) => {
         if (this.props.queryId === queryId) {
           this.setState({ options, loading: false });
 
