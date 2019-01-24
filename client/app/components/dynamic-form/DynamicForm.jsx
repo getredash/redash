@@ -8,7 +8,7 @@ import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
 import { react2angular } from 'react2angular';
-import { toastr } from '@/services/toastr';
+import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 

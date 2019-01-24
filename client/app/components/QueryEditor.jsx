@@ -14,6 +14,10 @@ import 'brace/mode/sql';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
+import { Query } from '@/services/query';
+import { QuerySnippet } from '@/services/query-snippet';
+import { KeyboardShortcuts } from '@/services/keyboard-shortcuts';
+
 import localOptions from '@/lib/localOptions';
 import AutocompleteToggle from '@/components/AutocompleteToggle';
 import keywordBuilder from './keywordBuilder';
@@ -152,8 +156,7 @@ class QueryEditor extends React.Component {
       }
     });
 
-    // eslint-disable-next-line react/prop-types
-    this.props.QuerySnippet.query((snippets) => {
+    QuerySnippet.query((snippets) => {
       const snippetManager = snippetsModule.snippetManager;
       const m = {
         snippetText: '',
@@ -194,7 +197,7 @@ class QueryEditor extends React.Component {
     const selectedQueryText = (rawSelectedQueryText.length > 1) ? rawSelectedQueryText : null;
     this.setState({ selectedQueryText });
     this.props.updateSelectedQuery(selectedQueryText);
-  }
+  };
 
   updateQuery = (queryText) => {
     this.props.updateQuery(queryText);
@@ -202,9 +205,7 @@ class QueryEditor extends React.Component {
   };
 
   formatQuery = () => {
-    // eslint-disable-next-line react/prop-types
-    const format = this.props.Query.format;
-    format(this.props.dataSource.syntax || 'sql', this.props.queryText)
+    Query.format(this.props.dataSource.syntax || 'sql', this.props.queryText)
       .then(this.updateQuery)
       .catch(error => toastr.error(error));
   };
@@ -212,11 +213,10 @@ class QueryEditor extends React.Component {
   toggleAutocomplete = (state) => {
     this.setState({ autocompleteQuery: state });
     localOptions.set('liveAutocomplete', state);
-  }
+  };
 
   render() {
-    // eslint-disable-next-line react/prop-types
-    const modKey = this.props.KeyboardShortcuts.modKey;
+    const modKey = KeyboardShortcuts.modKey;
 
     const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery();
 
@@ -320,7 +320,7 @@ class QueryEditor extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('queryEditor', react2angular(QueryEditor, null, ['QuerySnippet', 'Query', 'KeyboardShortcuts']));
+  ngModule.component('queryEditor', react2angular(QueryEditor));
 }
 
 init.init = true;
