@@ -3,8 +3,8 @@ import { includes, extend } from 'lodash';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let Auth = null;
-// eslint-disable-next-line import/no-mutable-exports
-export let currentUser = {
+
+export const currentUser = {
   canEdit(object) {
     const userId = object.user_id || (object.user && object.user.id);
     return this.hasPermission('admin') || (userId && userId === this.id);
@@ -18,8 +18,8 @@ export let currentUser = {
     return this.hasPermission('admin');
   },
 };
-// eslint-disable-next-line import/no-mutable-exports
-export let clientConfig = {};
+
+export const clientConfig = {};
 
 const logger = debug('redash:auth');
 const session = { loaded: false };
@@ -119,8 +119,6 @@ export default function init(ngModule) {
 
   ngModule.run(($injector) => {
     Auth = $injector.get('Auth');
-    currentUser = $injector.get('currentUser');
-    clientConfig = $injector.get('clientConfig');
   });
 }
 
