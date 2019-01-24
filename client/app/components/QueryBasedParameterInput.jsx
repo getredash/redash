@@ -6,43 +6,6 @@ import Select from 'antd/lib/select';
 
 const { Option } = Select;
 
-function optionsFromQueryResult(queryResult) {
-  const columns = queryResult.data.columns;
-  const numColumns = columns.length;
-  let options = [];
-  // If there are multiple columns, check if there is a column
-  // named 'name' and column named 'value'. If name column is present
-  // in results, use name from name column. Similar for value column.
-  // Default: Use first string column for name and value.
-  if (numColumns > 0) {
-    let nameColumn = null;
-    let valueColumn = null;
-    columns.forEach((column) => {
-      const columnName = column.name.toLowerCase();
-      if (columnName === 'name') {
-        nameColumn = column.name;
-      }
-      if (columnName === 'value') {
-        valueColumn = column.name;
-      }
-      // Assign first string column as name and value column.
-      if (nameColumn === null) {
-        nameColumn = column.name;
-      }
-      if (valueColumn === null) {
-        valueColumn = column.name;
-      }
-    });
-    if (nameColumn !== null && valueColumn !== null) {
-      options = queryResult.data.rows.map(row => ({
-        name: row[nameColumn],
-        value: row[valueColumn],
-      }));
-    }
-  }
-  return options;
-}
-
 export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -81,9 +44,9 @@ export class QueryBasedParameterInput extends React.Component {
     if (queryId && (queryId !== this.state.queryId)) {
       const Query = this.props.Query; // eslint-disable-line react/prop-types
       this.setState({ loading: true });
-      Query.resultById({ id: queryId }, (result) => {
+      Query.dropdown({ id: queryId }, (result) => {
         if (this.props.queryId === queryId) {
-          const options = optionsFromQueryResult(result.query_result);
+          const options = result.query_result.data.rows;
           this.setState({ options, loading: false });
 
           const found = find(options, option => option.value === this.props.value) !== undefined;
