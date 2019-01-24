@@ -134,8 +134,16 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
 class QueryResultDropdownResource(BaseResource):
+    def _fetch_rows(self, query_id):
+        query = models.Query.get_by_id_and_org(query_id, self.current_org)
+        require_access(query.data_source.groups, self.current_user, view_only)
+
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
+
+        return json_loads(query_result.data)["rows"]
+
     def get(self, query_id):
-        data = json_dumps([{"name": "first name", "value": "Omer"}, {"name": "second name", "value": "Sven"}])
+        data = json_dumps(self._fetch_rows(query_id))
         headers = {'Content-Type': "application/json"}
         return make_response(data, 200, headers)
 
