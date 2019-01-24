@@ -6,7 +6,7 @@ export class DashboardTagsControl extends ModelTagsControl {
 }
 
 export default function init(ngModule) {
-  ngModule.component('dashboardTagsControl', react2angular(DashboardTagsControl, null, ['$uibModal']));
+  ngModule.component('dashboardTagsControl', react2angular(DashboardTagsControl));
 }
 
 init.init = true;

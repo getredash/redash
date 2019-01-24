@@ -4,14 +4,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
+import { clientConfig } from '@/services/auth';
 
 const { RangePicker } = DatePicker;
 
 export function DateRangeInput({
   value,
   onSelect,
-  // eslint-disable-next-line react/prop-types
-  clientConfig,
   className,
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
@@ -53,7 +52,7 @@ DateRangeInput.defaultProps = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('dateRangeInput', react2angular(DateRangeInput, null, ['clientConfig']));
+  ngModule.component('dateRangeInput', react2angular(DateRangeInput));
 }
 
 init.init = true;
