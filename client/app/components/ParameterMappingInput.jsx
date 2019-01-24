@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, clone } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -112,7 +112,7 @@ export class ParameterMappingInput extends React.Component {
       <div>
         <Select
           className="w-100"
-          defaultValue={mapping.type}
+          value={mapping.type}
           onChange={type => this.updateParamMapping(mapping, { type })}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
         >
@@ -154,7 +154,7 @@ export class ParameterMappingInput extends React.Component {
       <div className="m-t-10">
         <Select
           className="w-100"
-          defaultValue={mapping.mapTo}
+          value={mapping.mapTo}
           onChange={mapTo => this.updateParamMapping(mapping, { mapTo })}
           disabled={existingParamNames.length === 0}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
@@ -226,6 +226,7 @@ class EditMapping extends React.Component {
     super(props);
     this.state = {
       visible: false,
+      mapping: clone(this.props.mapping),
     };
   }
 
@@ -233,8 +234,13 @@ class EditMapping extends React.Component {
     if (visible) this.show(); else this.hide();
   }
 
+  onChange = (mapping) => {
+    this.setState({ mapping });
+  }
+
   get content() {
-    const { mapping, clientConfig, Query, onChange } = this.props;
+    const { mapping } = this.state;
+    const { clientConfig, Query } = this.props;
 
     return (
       <div className="editMapping">
@@ -242,20 +248,29 @@ class EditMapping extends React.Component {
         <ParameterMappingInput
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
-          onChange={newMapping => onChange(mapping, newMapping)}
+          onChange={this.onChange}
           getContainerElement={() => this.wrapperRef.current}
           clientConfig={clientConfig}
           Query={Query}
         />
         <footer>
-          <Button onClick={this.hide}>Close</Button>
+          <Button onClick={this.hide}>Cancel</Button>
+          <Button onClick={this.save} type="primary">OK</Button>
         </footer>
       </div>
     );
   }
 
+  save = () => {
+    this.props.onChange(this.props.mapping, this.state.mapping);
+    this.hide();
+  }
+
   show = () => {
-    this.setState({ visible: true });
+    this.setState({
+      visible: true,
+      mapping: clone(this.props.mapping), // restore original state
+    });
   }
 
   hide = () => {
