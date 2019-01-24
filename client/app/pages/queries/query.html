@@ -208,7 +208,7 @@
                   <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
                 </div>
                 <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
-                  Query in queue&hellip;
+                  Query in queue (waiting on {{queryResult.job.queueLength}} quer<span ng-if="queryResult.job.queueLength === 1">y</span><span ng-if="queryResult.job.queueLength !== 1">ies</span>)&hellip;
                   <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>

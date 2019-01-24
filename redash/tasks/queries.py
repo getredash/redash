@@ -181,12 +181,21 @@ class QueryTask(object):
         else:
             query_result_id = None
 
+        queriesAhead = 0
+        if task_status == 'PENDING':
+            waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
+            # find our job's index, return number of queries after it
+            for i, t in enumerate(waiting):
+                if t.data['task_id' ]== self._async_result.id:
+                    queriesAhead = len(waiting) - i - 1
+                    break
         return {
             'id': self._async_result.id,
             'updated_at': updated_at,
             'status': status,
             'error': error,
             'query_result_id': query_result_id,
+            'queueLength': queriesAhead,
         }
 
     @property
