@@ -1,6 +1,7 @@
 import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
+import Notifications from '@/services/notifications';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -16,7 +17,6 @@ function QueryViewCtrl(
   KeyboardShortcuts,
   Title,
   AlertDialog,
-  Notifications,
   clientConfig,
   toastr,
   $uibModal,
