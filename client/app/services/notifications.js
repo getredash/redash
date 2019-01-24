@@ -1,6 +1,6 @@
 import { find } from 'lodash';
 import debug from 'debug';
-import { Events } from '@/services/events';
+import recordEvent from '@/services/record-event';
 
 const logger = debug('redash:notifications');
 
@@ -64,7 +64,7 @@ class NotificationsService {
     notification.onclick = function onClick() {
       window.focus();
       this.close();
-      Events.record('click', 'notification');
+      recordEvent('click', 'notification');
     };
   }
 }
