@@ -353,7 +353,7 @@ function QueryResource(
       },
       dropdown: {
         method: 'get',
-        isArray: false,
+        isArray: true,
         url: 'api/queries/:id/dropdown.json',
       },
       favorites: {

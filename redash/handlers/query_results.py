@@ -142,10 +142,25 @@ class QueryResultDropdownResource(BaseResource):
 
         return json_loads(query_result.data)["rows"]
 
+    def _pluck_name_and_value(self, row):
+        if "name" in row.keys():
+            name_column = "name"
+        else:
+            name_column = row.keys()[0]
+
+        if "value" in row.keys():
+            value_column = "value"
+        else:
+            value_column = row.keys()[0]
+
+        return {"name": row[name_column], "value": row[value_column]}
+
     def get(self, query_id):
-        data = json_dumps(self._fetch_rows(query_id))
+        data = map(self._pluck_name_and_value,
+                   self._fetch_rows(query_id))
+
         headers = {'Content-Type': "application/json"}
-        return make_response(data, 200, headers)
+        return make_response(json_dumps(data), 200, headers)
 
 
 class QueryResultResource(BaseResource):
