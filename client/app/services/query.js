@@ -49,7 +49,7 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
-class Parameter {
+export class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
     this.name = parameter.name;
@@ -78,20 +78,25 @@ class Parameter {
   }
 
   getValue() {
-    const isEmptyValue = isNull(this.value) || isUndefined(this.value) || (this.value === '');
+    return this.constructor.getValue(this);
+  }
+
+  static getValue(param) {
+    const { value, type, useCurrentDateTime } = param;
+    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
     if (isEmptyValue) {
       if (
-        includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type) &&
-        this.useCurrentDateTime
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
+        useCurrentDateTime
       ) {
-        return moment().format(DATETIME_FORMATS[this.type]);
+        return moment().format(DATETIME_FORMATS[type]);
       }
       return null; // normalize empty value
     }
-    if (this.type === 'number') {
-      return normalizeNumericValue(this.value, null); // normalize empty value
+    if (type === 'number') {
+      return normalizeNumericValue(value, null); // normalize empty value
     }
-    return this.value;
+    return value;
   }
 
   setValue(value) {

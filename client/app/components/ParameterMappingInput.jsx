@@ -3,7 +3,6 @@
 import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import Select from 'antd/lib/select';
 import Table from 'antd/lib/table';
 import Popover from 'antd/lib/popover';
@@ -12,6 +11,7 @@ import Icon from 'antd/lib/icon';
 import Tag from 'antd/lib/tag';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
+import { Parameter } from '@/services/query';
 
 import './ParameterMappingInput.less';
 
@@ -322,16 +322,14 @@ export class ParameterMappingListInput extends React.Component {
       return '';
     }
 
-    // array
-    if (value instanceof Array) {
-      const arr = value.map(v => this.getStringValue(v));
-      const delimiter = moment.isMoment(value[0]) ? ' ~ ' : ', ';
-      return arr.join(delimiter);
+    // range
+    if (value instanceof Object && 'start' in value && 'end' in value) {
+      return `${value.start} ~ ${value.end}`;
     }
 
-    // moment
-    if (moment.isMoment(value)) {
-      return value.format('DD/MM/YY');
+    // just to be safe, array or object
+    if (typeof value === 'object') {
+      return map(value, v => this.getStringValue(v)).join(', ');
     }
 
     // rest
@@ -339,9 +337,7 @@ export class ParameterMappingListInput extends React.Component {
   }
 
   static getDefaultValue(mapping) {
-    const value = mapping.type === MappingType.StaticValue
-      ? mapping.value || mapping.param.normalizedValue
-      : mapping.param.normalizedValue;
+    const value = Parameter.getValue(mapping.param);
 
     return this.getStringValue(value);
   }
