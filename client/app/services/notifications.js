@@ -1,6 +1,6 @@
 import { find } from 'lodash';
 import debug from 'debug';
-import recordEvent from '@/services/record-event';
+import recordEvent from '@/services/recordEvent';
 
 const logger = debug('redash:notifications');
 
