@@ -2,7 +2,7 @@ import React from 'react';
 import Tooltip from 'antd/lib/tooltip';
 import PropTypes from 'prop-types';
 import '@/redash-font/style.less';
-import recordEvent from '@/lib/recordEvent';
+import { Events } from '@/services/events';
 
 export default function AutocompleteToggle({ state, disabled, onToggle }) {
   let tooltipMessage = 'Live Autocomplete Enabled';
@@ -18,7 +18,7 @@ export default function AutocompleteToggle({ state, disabled, onToggle }) {
   }
 
   const toggle = (newState) => {
-    recordEvent('toggle_autocomplete', 'screen', 'query_editor', { state: newState });
+    Events.record('toggle_autocomplete', 'screen', 'query_editor', { state: newState });
     onToggle(newState);
   };
 

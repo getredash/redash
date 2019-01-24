@@ -1,5 +1,5 @@
 import { isString } from 'lodash';
-import { $http } from '@/services/ng';
+import { $http, $sanitize, toastr } from '@/services/ng';
 
 export let User = null; // eslint-disable-line import/no-mutable-exports
 
@@ -7,7 +7,7 @@ function disableResource(user) {
   return `api/users/${user.id}/disable`;
 }
 
-function enableUser(user, toastr, $sanitize) {
+function enableUser(user) {
   const userName = $sanitize(user.name);
 
   return $http
@@ -27,7 +27,7 @@ function enableUser(user, toastr, $sanitize) {
     });
 }
 
-function disableUser(user, toastr, $sanitize) {
+function disableUser(user) {
   const userName = $sanitize(user.name);
   return $http
     .post(disableResource(user))
@@ -47,7 +47,7 @@ function disableUser(user, toastr, $sanitize) {
     });
 }
 
-function deleteUser(user, toastr, $sanitize) {
+function deleteUser(user) {
   const userName = $sanitize(user.name);
   return $http
     .delete(`api/users/${user.id}`)
@@ -65,7 +65,7 @@ function deleteUser(user, toastr, $sanitize) {
     });
 }
 
-function UserService($resource, $sanitize, toastr) {
+function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
     save: { method: 'POST' },
@@ -77,9 +77,9 @@ function UserService($resource, $sanitize, toastr) {
 
   const UserResource = $resource('api/users/:id', { id: '@id' }, actions);
 
-  UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
-  UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
-  UserResource.deleteUser = user => deleteUser(user, toastr, $sanitize);
+  UserResource.enableUser = enableUser;
+  UserResource.disableUser = disableUser;
+  UserResource.deleteUser = deleteUser;
 
   return UserResource;
 }
