@@ -133,35 +133,25 @@ class QueryResultListResource(BaseResource):
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
-def _get_dropdown_values(query_id, current_user, current_org):
-    def _fetch_rows(query_id):
-        query = models.Query.get_by_id_and_org(query_id, current_org)
-        require_access(query.data_source.groups, current_user, view_only)
-
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
-
-        return json_loads(query_result.data)["rows"]
-
+def _dropdown_values(query_id, current_user, current_org):
     def _pluck_name_and_value(row):
-        if "name" in row.keys():
-            name_column = "name"
-        else:
-            name_column = row.keys()[0]
-
-        if "value" in row.keys():
-            value_column = "value"
-        else:
-            value_column = row.keys()[0]
+        name_column = "name" if "name" in row.keys() else row.keys()[0]
+        value_column = "value" if "value" in row.keys() else row.keys()[0]
 
         return {"name": row[name_column], "value": row[value_column]}
 
-    return map(_pluck_name_and_value,
-               _fetch_rows(query_id))
+    query = models.Query.get_by_id_and_org(query_id, current_org)
+    require_access(query.data_source.groups, current_user, view_only)
+    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
+
+    rows = json_loads(query_result.data)["rows"]
+
+    return map(_pluck_name_and_value, rows)
 
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        data = _get_dropdown_values(query_id, self.current_user, self.current_org)
+        data = _dropdown_values(query_id, self.current_user, self.current_org)
         headers = {'Content-Type': "application/json"}
         return make_response(json_dumps(data), 200, headers)
 
@@ -192,7 +182,7 @@ class QueryResultResource(BaseResource):
     def _convert_queries_to_enums(self, definition):
         if definition["type"] == "query":
             definition["type"] = "enum"
-            definition["enumOptions"] = _get_dropdown_values(definition.pop("queryId"), self.current_user, self.current_org)
+            definition["enumOptions"] = _dropdown_values(definition.pop("queryId"), self.current_user, self.current_org)
 
         return definition
 
