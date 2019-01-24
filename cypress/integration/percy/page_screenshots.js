@@ -4,7 +4,7 @@ const pages = [
   { name: 'Users', url: '/users' },
   { name: 'Groups', url: '/groups' },
   { name: 'Group', url: '/groups/1' },
-  { name: 'Create Destination - Types', url: '/destinations/new'},
+  { name: 'Create Destination - Types', url: '/destinations/new' },
   { name: 'Organization Settings', url: '/settings/organization' },
   { name: 'User Profile', url: '/users/me' },
 ];
