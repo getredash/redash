@@ -182,7 +182,8 @@ class QueryResultResource(BaseResource):
     def _convert_queries_to_enums(self, definition):
         if definition["type"] == "query":
             definition["type"] = "enum"
-            definition["enumOptions"] = _dropdown_values(definition.pop("queryId"), self.current_user, self.current_org)
+            permitted_values = _dropdown_values(definition.pop("queryId"), self.current_user, self.current_org)
+            definition["enumOptions"] = [v["value"] for v in permitted_values]
 
         return definition
 
