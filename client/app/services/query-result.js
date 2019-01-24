@@ -50,7 +50,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
   seriesCollection[seriesName].data.push(point);
 }
 
-function QueryResultService($resource, $timeout, $q, QueryResultError) {
+function QueryResultService($http, $resource, $timeout, $q, QueryResultError) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const statuses = {
@@ -89,6 +89,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 
       // extended status flags
       this.isLoadingResult = false;
+      this.queueStatus = null;
 
       if (props) {
         this.update(props);
@@ -519,6 +520,18 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       );
     }
 
+    refreshQueueStatus(dataSourceId) {
+      if (this.getStatus() === 'waiting') {
+        const p = $http.get(`/api/queue_status/${this.job.id}?data_source=${dataSourceId}`);
+        p.then((response) => {
+          $timeout(() => this.refreshQueueStatus(dataSourceId), 10000);
+          this.queueStatus = response.data.num_tasks;
+        });
+      } else {
+        this.queueStatus = null;
+      }
+    }
+
     getLink(queryId, fileType, apiKey) {
       let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
       if (apiKey) {
@@ -576,6 +589,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 
           if ('job' in response) {
             queryResult.refreshStatus(query);
+            queryResult.refreshQueueStatus(dataSourceId);
           }
         },
         (error) => {

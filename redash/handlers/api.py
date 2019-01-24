@@ -39,7 +39,8 @@ from redash.handlers.queries import (MyQueriesResource, QueryArchiveResource,
 from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
                                            QueryResultListResource,
-                                           QueryResultResource)
+                                           QueryResultResource,
+                                           QueueStatusResource)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
                                             QuerySnippetResource)
 from redash.handlers.settings import OrganizationSettings
@@ -128,7 +129,7 @@ api.add_org_resource(QueryResultResource,
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
 api.add_org_resource(JobResource, '/api/jobs/<job_id>', endpoint='job')
-
+api.add_org_resource(QueueStatusResource, '/api/queue_status/<job_id>', endpoint='2job_queue_status')
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
 api.add_org_resource(UserInviteResource, '/api/users/<user_id>/invite', endpoint='user_invite')

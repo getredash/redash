@@ -1,8 +1,8 @@
+import mock
 from tests import BaseTestCase
 
 from redash.models import db
-from redash.utils import json_dumps
-
+from redash.utils import gen_query_hash, json_dumps
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
     def test_uses_cache_headers_for_specific_result(self):
@@ -38,7 +38,6 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(query_result.id, rv.json['query_result']['id'])
 
     def test_execute_new_query(self):
-        query_result = self.factory.create_query_result()
         query = self.factory.create_query()
 
         rv = self.make_request('post', '/api/query_results',
@@ -49,6 +48,46 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertNotIn('query_result', rv.json)
         self.assertIn('job', rv.json)
+
+    def test_queue_length(self):
+        query = self.factory.create_query()
+        tasks = []
+        def fake_all(*a, **kw):
+            return tasks
+        def enqueue_query(query, *a, **kw):
+            from redash.tasks.queries import enqueue_query
+            job = enqueue_query(query, *a, **kw)
+            tasks.append(dict(
+                state='waiting_in_queue',
+                task_name='test task',
+                worker=None,
+                worker_pid=None,
+                start_time=None,
+                task_id=job.id,
+                queue='queries',
+            ))
+            return job
+        patch_all = mock.patch('redash.tasks.queries.get_waiting_in_queue', fake_all)
+        patch_enqueue_query = mock.patch('redash.handlers.query_results.enqueue_query',
+                                         enqueue_query)
+        with patch_all, patch_enqueue_query:
+            rv0 = self.make_request('post', '/api/query_results',
+                                    data={'data_source_id': self.factory.data_source.id,
+                                          'query': query.query_text,
+                                          'max_age': 0})
+            rv1 = self.make_request('post', '/api/query_results',
+                                    data={'data_source_id': self.factory.data_source.id,
+                                          'query': query.query_text,
+                                          'max_age': 0})
+            rv2 = self.make_request('post', '/api/query_results',
+                                    data={'data_source_id': self.factory.data_source.id,
+                                          'query': query.query_text,
+                                          'max_age': 0})
+
+        self.assertEquals(rv0.json['job']['queue_length'], 0)
+        self.assertEquals(rv1.json['job']['queue_length'], 1)
+        self.assertEquals(rv2.json['job']['queue_length'], 2)
+
 
     def test_execute_query_without_access(self):
         group = self.factory.create_group()
