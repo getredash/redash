@@ -135,7 +135,7 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        data = json_dumps({"query_result": {"data": {"rows": [{"name": "first name", "value": "Omer"}, {"name": "second name", "value": "Sven"}]}}})
+        data = json_dumps([{"name": "first name", "value": "Omer"}, {"name": "second name", "value": "Sven"}])
         headers = {'Content-Type': "application/json"}
         return make_response(data, 200, headers)
 
