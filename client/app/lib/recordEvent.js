@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import { $http } from '@/services/http';
+import { $http } from '@/services/ng';
 
 let events = [];
 

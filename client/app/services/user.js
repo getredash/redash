@@ -1,5 +1,7 @@
 import { isString } from 'lodash';
-import { $http } from '@/services/http';
+import { $http } from '@/services/ng';
+
+export let User = null; // eslint-disable-line import/no-mutable-exports
 
 function disableResource(user) {
   return `api/users/${user.id}/disable`;
@@ -63,7 +65,7 @@ function deleteUser(user, toastr, $sanitize) {
     });
 }
 
-function User($resource, $sanitize, toastr) {
+function UserService($resource, $sanitize, toastr) {
   const actions = {
     get: { method: 'GET' },
     save: { method: 'POST' },
@@ -83,7 +85,11 @@ function User($resource, $sanitize, toastr) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('User', User);
+  ngModule.factory('User', UserService);
+
+  ngModule.run(($injector) => {
+    User = $injector.get('User');
+  });
 }
 
 init.init = true;

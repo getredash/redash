@@ -1,8 +1,10 @@
 import debug from 'debug';
 
+export let Notifications = null; // eslint-disable-line import/no-mutable-exports
+
 const logger = debug('redash:notifications');
 
-function Notifications(currentUser, Events) {
+function NotificationsService(currentUser, Events) {
   const notificationService = { pageVisible: true };
 
   notificationService.monitorVisibility = function monitorVisibility() {
@@ -79,7 +81,11 @@ function Notifications(currentUser, Events) {
 
 
 export default function init(ngModule) {
-  ngModule.factory('Notifications', Notifications);
+  ngModule.factory('Notifications', NotificationsService);
+
+  ngModule.run(($injector) => {
+    Notifications = $injector.get('Notifications');
+  });
 }
 
 init.init = true;

@@ -1,13 +1,17 @@
 import recordEvent from '@/lib/recordEvent';
 
-function Events() {
-  this.record = (action, objectType, objectId, additionalProperties) => {
-    recordEvent(action, objectType, objectId, additionalProperties);
-  };
+export let Events = null; // eslint-disable-line import/no-mutable-exports
+
+function EventsService() {
+  this.record = recordEvent;
 }
 
 export default function init(ngModule) {
-  ngModule.service('Events', Events);
+  ngModule.service('Events', EventsService);
+
+  ngModule.run(($injector) => {
+    Events = $injector.get('Events');
+  });
 }
 
 init.init = true;

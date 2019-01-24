@@ -1,3 +1,5 @@
+export let AlertDialog = null; // eslint-disable-line import/no-mutable-exports
+
 const AlertDialogComponent = {
   template: `
 <div class="modal-header">
@@ -23,8 +25,8 @@ const AlertDialogComponent = {
   },
 };
 
-function AlertDialog($uibModal) {
-  const service = {
+function AlertDialogService($uibModal) {
+  return {
     open(title, message, confirm) {
       return $uibModal.open({
         component: 'alertDialog',
@@ -36,14 +38,15 @@ function AlertDialog($uibModal) {
       }).result;
     },
   };
-
-  return service;
 }
 
 export default function init(ngModule) {
   ngModule.component('alertDialog', AlertDialogComponent);
-  ngModule.factory('AlertDialog', AlertDialog);
+  ngModule.factory('AlertDialog', AlertDialogService);
+
+  ngModule.run(($injector) => {
+    AlertDialog = $injector.get('AlertDialog');
+  });
 }
 
 init.init = true;
-

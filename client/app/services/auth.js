@@ -1,10 +1,13 @@
 import debug from 'debug';
 import { includes, extend } from 'lodash';
 
-const currentUser = {
+// eslint-disable-next-line import/no-mutable-exports
+export let Auth = null;
+// eslint-disable-next-line import/no-mutable-exports
+export let currentUser = {
   canEdit(object) {
     const userId = object.user_id || (object.user && object.user.id);
-    return this.hasPermission('admin') || (userId && (userId === this.id));
+    return this.hasPermission('admin') || (userId && userId === this.id);
   },
 
   hasPermission(permission) {
@@ -15,8 +18,8 @@ const currentUser = {
     return this.hasPermission('admin');
   },
 };
-
-const clientConfig = {};
+// eslint-disable-next-line import/no-mutable-exports
+export let clientConfig = {};
 
 const logger = debug('redash:auth');
 const session = { loaded: false };
@@ -112,6 +115,12 @@ export default function init(ngModule) {
 
   ngModule.config(($httpProvider) => {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
+  });
+
+  ngModule.run(($injector) => {
+    Auth = $injector.get('Auth');
+    currentUser = $injector.get('currentUser');
+    clientConfig = $injector.get('clientConfig');
   });
 }
 
