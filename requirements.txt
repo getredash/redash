@@ -10,6 +10,8 @@ Flask-Admin==1.5.2
 Flask-RESTful==0.3.5
 Flask-Login==0.4.0
 Flask-OAuthLib==0.9.5
+# pin this until https://github.com/lepture/flask-oauthlib/pull/388 is released
+requests-oauthlib>=0.6.2,<1.2.0
 Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.0.1
 flask-mail==0.9.1
