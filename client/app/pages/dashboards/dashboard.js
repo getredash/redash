@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
+import policy from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
@@ -36,7 +37,6 @@ function DashboardCtrl(
   clientConfig,
   Events,
   toastr,
-  Policy,
 ) {
   this.saveInProgress = false;
 
@@ -83,7 +83,7 @@ function DashboardCtrl(
     enabled: true,
   }));
 
-  const allowedIntervals = Policy.getDashboardRefreshIntervals();
+  const allowedIntervals = policy.getDashboardRefreshIntervals();
   if (_.isArray(allowedIntervals)) {
     _.each(this.refreshRates, (rate) => {
       rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
