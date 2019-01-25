@@ -1,4 +1,4 @@
-export default class Policy {
+export default class AbstractPolicy {
   // eslint-disable-next-line class-methods-use-this
   _notImplemented() {
     throw new Error('Not implemented');

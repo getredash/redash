@@ -1,7 +1,7 @@
-import Policy from './Policy';
+import AbstractPolicy from './AbstractPolicy';
 import DefaultPolicy from './DefaultPolicy';
 
-class PolicyProxy extends Policy {
+class PolicyProxy extends AbstractPolicy {
   constructor(policy) {
     super();
     this.policy = policy;
@@ -11,7 +11,7 @@ class PolicyProxy extends Policy {
     return this._policy;
   }
   set policy(policy) {
-    this._policy = policy instanceof Policy ? policy : null;
+    this._policy = policy instanceof AbstractPolicy ? policy : null;
   }
 
   // Policy proxy methods
