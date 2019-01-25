@@ -1,4 +1,4 @@
-import settingsMenu from '@/services/SettingsMenu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './organization.html';
 
 function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {

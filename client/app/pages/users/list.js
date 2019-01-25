@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import ListCtrl from '@/lib/list-ctrl';
-import settingsMenu from '@/services/SettingsMenu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {

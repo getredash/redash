@@ -1,4 +1,4 @@
-import settingsMenu from '@/services/SettingsMenu';
+import settingsMenu from '@/services/settingsMenu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 

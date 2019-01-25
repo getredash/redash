@@ -1,4 +1,4 @@
-import settingsMenu from '@/services/SettingsMenu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './settings-screen.html';
 
 export default function init(ngModule) {
