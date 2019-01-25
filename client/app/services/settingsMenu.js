@@ -19,21 +19,12 @@ class SettingsMenuItem {
 
 class SettingsMenu {
   constructor() {
-    this._items = [];
-    this._dirty = false;
-  }
-
-  get items() {
-    if (this._dirty) {
-      this._items = sortBy(this._items, 'order');
-      this._dirty = false;
-    }
-    return this._items;
+    this.items = [];
   }
 
   add(item) {
-    this._items.push(new SettingsMenuItem(item));
-    this._dirty = true;
+    this.items.push(new SettingsMenuItem(item));
+    this.items = sortBy(this.items, 'order');
   }
 }
 
