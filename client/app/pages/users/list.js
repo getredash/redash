@@ -1,6 +1,6 @@
 import { extend } from 'lodash';
 import ListCtrl from '@/lib/list-ctrl';
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {
@@ -33,7 +33,7 @@ export default function init(ngModule) {
     permission: 'list_users',
     title: 'Users',
     path: 'users',
-    isActive: $location => $location.path().startsWith('/users') && $location.path() !== '/users/me',
+    isActive: path => path.startsWith('/users') && (path !== '/users/me'),
     order: 2,
   });
 
