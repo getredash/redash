@@ -1,4 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/SettingsMenu';
 import template from './list.html';
 
 function DestinationsCtrl($scope, $location, toastr, currentUser, Destination) {
