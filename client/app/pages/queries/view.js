@@ -1,6 +1,7 @@
 import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
+import Notifications from '@/services/notifications';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -16,7 +17,6 @@ function QueryViewCtrl(
   KeyboardShortcuts,
   Title,
   AlertDialog,
-  Notifications,
   clientConfig,
   toastr,
   $uibModal,
@@ -26,7 +26,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -36,7 +36,7 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    $scope.queryResult = $scope.query.getQueryResult(maxAge, selectedQueryText);
   }
 
   function getDataSourceId() {
@@ -105,6 +105,10 @@ function QueryViewCtrl(
     getSchema();
   }
 
+  $scope.updateSelectedQuery = (selectedQueryText) => {
+    $scope.selectedQueryText = selectedQueryText;
+  };
+
   $scope.executeQuery = () => {
     if (!$scope.canExecuteQuery()) {
       return;
@@ -114,7 +118,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
@@ -390,8 +394,11 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      $scope.query.latest_query_data_id = $scope.queryResult.getId();
-      $scope.query.queryResult = $scope.queryResult;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query;
+      if (!ranSelectedQuery) {
+        $scope.query.latest_query_data_id = $scope.queryResult.getId();
+        $scope.query.queryResult = $scope.queryResult;
+      }
 
       Notifications.showNotification('Redash', `${$scope.query.name} updated.`);
     } else if (status === 'failed') {

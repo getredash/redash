@@ -3,13 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
+import { clientConfig } from '@/services/auth';
 
 export function DateTimeInput({
   value,
   withSeconds,
   onSelect,
-  // eslint-disable-next-line react/prop-types
-  clientConfig,
   className,
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
@@ -51,7 +50,7 @@ DateTimeInput.defaultProps = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('dateTimeInput', react2angular(DateTimeInput, null, ['clientConfig']));
+  ngModule.component('dateTimeInput', react2angular(DateTimeInput));
 }
 
 init.init = true;

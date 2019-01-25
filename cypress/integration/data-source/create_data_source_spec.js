@@ -14,5 +14,8 @@ describe('Create Data Source', () => {
     cy.getByTestId('Database Name').type('postgres{enter}');
 
     cy.contains('Saved.');
+
+    cy.wait(1000);
+    cy.percySnapshot('Create Data Source page');
   });
 });
