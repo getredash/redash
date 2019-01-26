@@ -12,7 +12,7 @@ import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
-export class DynamicForm extends React.Component {
+export const DynamicForm = Form.create()(class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
@@ -202,11 +202,10 @@ export class DynamicForm extends React.Component {
       </Form>
     );
   }
-}
+});
 
 export default function init(ngModule) {
   ngModule.component('dynamicForm', react2angular((props) => {
-    const UpdatedDynamicForm = Form.create()(DynamicForm);
     const fields = helper.getFields(props.type.configuration_schema, props.target);
 
     const onSubmit = (values, onSuccess, onError) => {
@@ -231,7 +230,7 @@ export default function init(ngModule) {
       feedbackIcons: true,
       onSubmit,
     };
-    return (<UpdatedDynamicForm {...updatedProps} />);
+    return (<DynamicForm {...updatedProps} />);
   }, ['target', 'type', 'actions']));
 }
 
