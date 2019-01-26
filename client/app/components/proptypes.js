@@ -49,3 +49,10 @@ export const Action = PropTypes.shape({
 export const AntdForm = PropTypes.shape({
   validateFieldsAndScroll: PropTypes.func,
 });
+
+export const UserProfile = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+  email: PropTypes.string,
+  profileImageUrl: PropTypes.string,
+});
