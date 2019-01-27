@@ -1,8 +1,28 @@
 import pystache
+from flask_login import current_user
 from numbers import Number
-from redash.utils import mustache_render
+from redash import models
+from redash.utils import mustache_render, json_loads
+from redash.permissions import require_access, view_only
 from funcy import distinct
 from dateutil.parser import parse
+
+
+def dropdown_values(query_id, org):
+    def _pluck_name_and_value(row):
+        name_column = "name" if "name" in row.keys() else row.keys()[0]
+        value_column = "value" if "value" in row.keys() else row.keys()[0]
+
+        return {"name": row[name_column], "value": row[value_column]}
+
+    query = models.Query.get_by_id_and_org(query_id, org)
+    require_access(query.data_source.groups, current_user, view_only)
+    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
+
+    rows = json_loads(query_result.data)["rows"]
+
+    return map(_pluck_name_and_value, rows)
+
 
 def _collect_key_names(nodes):
     keys = []

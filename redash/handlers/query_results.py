@@ -10,8 +10,8 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, json_loads, utcnow)
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils.parameterized_query import ParameterizedQuery, dropdown_values
 
 
 def error_response(message):
@@ -131,25 +131,9 @@ class QueryResultListResource(BaseResource):
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
-def _dropdown_values(query_id, current_user, current_org):
-    def _pluck_name_and_value(row):
-        name_column = "name" if "name" in row.keys() else row.keys()[0]
-        value_column = "value" if "value" in row.keys() else row.keys()[0]
-
-        return {"name": row[name_column], "value": row[value_column]}
-
-    query = models.Query.get_by_id_and_org(query_id, current_org)
-    require_access(query.data_source.groups, current_user, view_only)
-    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
-
-    rows = json_loads(query_result.data)["rows"]
-
-    return map(_pluck_name_and_value, rows)
-
-
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        data = _dropdown_values(query_id, self.current_user, self.current_org)
+        data = dropdown_values(query_id, self.current_org)
         headers = {'Content-Type': "application/json"}
         return make_response(json_dumps(data), 200, headers)
 
@@ -180,7 +164,7 @@ class QueryResultResource(BaseResource):
     def _convert_queries_to_enums(self, definition):
         if definition["type"] == "query":
             definition["type"] = "enum"
-            permitted_values = _dropdown_values(definition.pop("queryId"), self.current_user, self.current_org)
+            permitted_values = dropdown_values(definition.pop("queryId"), self.current_org)
             definition["enumOptions"] = [v["value"] for v in permitted_values]
 
         return definition
