@@ -73,7 +73,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text, data_source.org, parameter_schema).apply(parameter_values)
+    query = ParameterizedQuery(query_text, parameter_schema, data_source.org).apply(parameter_values)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))

@@ -70,7 +70,7 @@ def _is_date_range(obj):
 
 
 class ParameterizedQuery(object):
-    def __init__(self, template, org=None, schema=None):
+    def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
         self.template = template
         self.query = template
