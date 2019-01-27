@@ -229,9 +229,14 @@ class EditMapping extends React.Component {
     existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     onChange: PropTypes.func.isRequired,
     getContainerElement: PropTypes.func.isRequired,
-    clientConfig: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
-    Query: PropTypes.any.isRequired, // eslint-disable-line react/forbid-prop-types
+    clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   };
+
+  static defaultProps = {
+    clientConfig: null,
+    Query: null,
+  }
 
   constructor(props) {
     super(props);
