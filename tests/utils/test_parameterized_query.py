@@ -1,4 +1,5 @@
 from unittest import TestCase
+from mock import patch
 import pytest
 
 from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError
@@ -104,6 +105,31 @@ class TestParameterizedQuery(TestCase):
 
     def test_validates_enum_parameters(self):
         schema = [{"name": "bar", "type": "enum", "enumOptions": ["baz", "qux"]}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "baz"})
+
+        self.assertEquals("foo baz", query.text)
+
+    @patch('redash.utils.parameterized_query.dropdown_values')
+    def test_raises_on_invalid_query_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": 7})
+
+    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    def test_raises_on_unlisted_query_value_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "shlomo"})
+
+    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    def test_validates_query_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
         query.apply({"bar": "baz"})
