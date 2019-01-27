@@ -70,11 +70,12 @@ def _is_date_range(obj):
 
 
 class ParameterizedQuery(object):
-    def __init__(self, template, schema=None):
+    def __init__(self, template, org=None, schema=None):
         self.schema = schema or []
         self.template = template
         self.query = template
         self.parameters = {}
+        self.org = org
 
     def apply(self, parameters):
         invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
@@ -96,6 +97,7 @@ class ParameterizedQuery(object):
             "text": lambda value: isinstance(value, basestring),
             "number": lambda value: isinstance(value, Number),
             "enum": lambda value: value in definition["enumOptions"],
+            "query": lambda value: value in [v["value"] for v in dropdown_values(definition["queryId"], self.org)],
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,

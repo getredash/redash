@@ -73,7 +73,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
+    query = ParameterizedQuery(query_text, data_source.org, parameter_schema).apply(parameter_values)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
@@ -161,14 +161,6 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    def _convert_queries_to_enums(self, definition):
-        if definition["type"] == "query":
-            definition["type"] = "enum"
-            permitted_values = dropdown_values(definition.pop("queryId"), self.current_org)
-            definition["enumOptions"] = [v["value"] for v in permitted_values]
-
-        return definition
-
     @require_permission('execute_query')
     def post(self, query_id):
         """
@@ -186,8 +178,7 @@ class QueryResultResource(BaseResource):
         max_age = int(params.get('max_age', 0))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = map(self._convert_queries_to_enums,
-                               query.options.get("parameters", []))
+        parameter_schema = query.options.get("parameters", [])
 
         if not has_access(query.data_source.groups, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
