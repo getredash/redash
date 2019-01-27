@@ -41,8 +41,6 @@ function UserCtrl(
 
   $scope.selectTab($location.hash() || 'profile');
 
-  $scope.userInfo = {};
-
   $scope.user = User.get({ id: $scope.userId }, (user) => {
     if (user.auth_type === 'password') {
       $scope.showSettings = $scope.canEdit;
@@ -54,6 +52,7 @@ function UserCtrl(
       name: user.name,
       email: user.email,
       profileImageUrl: user.profile_image_url,
+      apiKey: user.api_key,
     };
   });
 

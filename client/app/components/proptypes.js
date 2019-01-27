@@ -51,8 +51,9 @@ export const AntdForm = PropTypes.shape({
 });
 
 export const UserProfile = PropTypes.shape({
-  id: PropTypes.number,
-  name: PropTypes.string,
-  email: PropTypes.string,
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
   profileImageUrl: PropTypes.string,
+  apiKey: PropTypes.string,
 });

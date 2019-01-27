@@ -3,8 +3,8 @@
 
   <div ng-show="selectedTab == 'profile'">
     <div class="row">
-      <user-show ng-if="!(currentUser.isAdmin || currentUser.id == user.id)" name="user.name" email="user.email" profile-image-url="user.profile_image_url"></user-show>
-      <user-edit ng-if="(currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-edit>
+      <user-show ng-if="!(currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-show>
+      <user-edit ng-if="userInfo && (currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-edit>
 
       <div class="col-md-4 col-md-offset-4 profile__container" ng-if="(currentUser.isAdmin || currentUser.id == user.id)">
         <hr>
