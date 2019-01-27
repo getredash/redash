@@ -1,5 +1,5 @@
-import { debounce } from 'lodash';
-import { $http } from '@/services/http';
+import { debounce, extend } from 'lodash';
+import { $http } from '@/services/ng';
 
 let events = [];
 
@@ -18,7 +18,7 @@ export default function recordEvent(action, objectType, objectId, additionalProp
     timestamp: Date.now() / 1000.0,
     screen_resolution: `${window.screen.width}x${window.screen.height}`,
   };
-  Object.assign(event, additionalProperties);
+  extend(event, additionalProperties);
   events.push(event);
 
   post();

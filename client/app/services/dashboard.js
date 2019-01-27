@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
+
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
@@ -44,7 +46,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function Dashboard($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
+function DashboardService($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -183,8 +185,11 @@ function Dashboard($resource, $http, $location, currentUser, Widget, dashboardGr
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Dashboard', Dashboard);
+  ngModule.factory('Dashboard', DashboardService);
+
+  ngModule.run(($injector) => {
+    Dashboard = $injector.get('Dashboard');
+  });
 }
 
 init.init = true;
-
