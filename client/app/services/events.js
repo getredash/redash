@@ -1,9 +1,7 @@
-import recordEvent from '@/lib/recordEvent';
+import recordEvent from '@/services/recordEvent';
 
 function Events() {
-  this.record = (action, objectType, objectId, additionalProperties) => {
-    recordEvent(action, objectType, objectId, additionalProperties);
-  };
+  this.record = recordEvent;
 }
 
 export default function init(ngModule) {

@@ -6,7 +6,7 @@ export class QueryTagsControl extends ModelTagsControl {
 }
 
 export default function init(ngModule) {
-  ngModule.component('queryTagsControl', react2angular(QueryTagsControl, null, ['$uibModal']));
+  ngModule.component('queryTagsControl', react2angular(QueryTagsControl));
 }
 
 init.init = true;

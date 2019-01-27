@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import { Query } from '@/services/query';
 
 const { Option } = Select;
 
@@ -42,7 +43,6 @@ export class QueryBasedParameterInput extends React.Component {
 
   _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
-      const Query = this.props.Query; // eslint-disable-line react/prop-types
       this.setState({ loading: true });
       Query.dropdownOptions({ id: queryId }, (options) => {
         if (this.props.queryId === queryId) {
@@ -79,7 +79,7 @@ export class QueryBasedParameterInput extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('queryBasedParameterInput', react2angular(QueryBasedParameterInput, null, ['Query']));
+  ngModule.component('queryBasedParameterInput', react2angular(QueryBasedParameterInput));
 }
 
 init.init = true;

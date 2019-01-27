@@ -1,6 +1,7 @@
 import { map, trim } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { $uibModal } from '@/services/ng';
 
 export default class TagsControl extends React.Component {
   static propTypes = {
@@ -20,7 +21,7 @@ export default class TagsControl extends React.Component {
   };
 
   editTags() {
-    const { getAvailableTags, onEdit, $uibModal } = this.props; // eslint-disable-line react/prop-types
+    const { getAvailableTags, onEdit } = this.props; // eslint-disable-line react/prop-types
     const tags = map(this.props.tags, trim);
 
     getAvailableTags().then((availableTags) => {

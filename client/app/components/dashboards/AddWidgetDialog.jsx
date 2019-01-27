@@ -10,6 +10,10 @@ import {
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
 
+import { toastr } from '@/services/ng';
+import { Widget } from '@/services/widget';
+import { Query } from '@/services/query';
+
 const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
@@ -38,7 +42,6 @@ class AddWidgetDialog extends React.Component {
     };
 
     // Don't show draft (unpublished) queries
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
     Query.recent().$promise.then((items) => {
       this.setState({
         recentQueries: items.filter(item => !item.is_draft),
@@ -62,7 +65,6 @@ class AddWidgetDialog extends React.Component {
     });
 
     if (queryId) {
-      const Query = this.props.Query; // eslint-disable-line react/prop-types
       Query.get({ id: queryId }, (query) => {
         if (query) {
           const existingParamNames = map(
@@ -95,7 +97,6 @@ class AddWidgetDialog extends React.Component {
       return;
     }
 
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
     Query.query({ q: term }, (results) => {
       // If user will type too quick - it's possible that there will be
       // several requests running simultaneously. So we need to check
@@ -117,8 +118,6 @@ class AddWidgetDialog extends React.Component {
   }
 
   saveWidget() {
-    const Widget = this.props.Widget; // eslint-disable-line react/prop-types
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const dashboard = this.props.dashboard;
 
     this.setState({ saveInProgress: true });
@@ -278,9 +277,6 @@ class AddWidgetDialog extends React.Component {
   }
 
   render() {
-    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
-
     const existingParams = map(
       this.props.dashboard.getParametersDefs(),
       ({ name, type }) => ({ name, type }),
@@ -313,8 +309,6 @@ class AddWidgetDialog extends React.Component {
                 mappings={this.state.parameterMappings}
                 existingParams={existingParams}
                 onChange={mappings => this.updateParamMappings(mappings)}
-                clientConfig={clientConfig}
-                Query={Query}
               />,
             ]
           }
@@ -358,8 +352,7 @@ export default function init(ngModule) {
       dismiss: '&',
     },
   });
-  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog, null, [
-    'toastr', 'Widget', 'Query', 'clientConfig']));
+  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog));
 }
 
 init.init = true;

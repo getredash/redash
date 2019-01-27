@@ -31,99 +31,69 @@ export class ParameterValueInput extends React.Component {
   };
 
   renderDateTimeWithSecondsInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeRangeWithSecondsInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeRangeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateRangeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
@@ -146,19 +116,13 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const {
-      value,
-      onSelect,
-      queryId,
-      Query, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect, queryId } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
         value={value}
         queryId={queryId}
         onSelect={onSelect}
-        Query={Query}
       />
     );
   }
@@ -212,10 +176,7 @@ export default function init(ngModule) {
       };
     },
   });
-  ngModule.component(
-    'parameterValueInputImpl',
-    react2angular(ParameterValueInput, null, ['clientConfig', 'Query']),
-  );
+  ngModule.component('parameterValueInputImpl', react2angular(ParameterValueInput));
 }
 
 init.init = true;
