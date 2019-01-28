@@ -7,7 +7,7 @@ describe('Login', () => {
     cy.contains('h3', 'Login to Redash');
 
     cy.wait(1000);
-    cy.percySnapshot('Login page');
+    cy.percySnapshot('Login');
   });
 
   it('shows message on failed login', () => {
