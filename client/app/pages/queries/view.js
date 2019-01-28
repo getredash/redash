@@ -234,6 +234,15 @@ function QueryViewCtrl(
       customOptions,
     );
 
+    if (options.force) {
+      delete request.version;
+    }
+
+    function overwrite() {
+      options.force = true;
+      $scope.saveQuery(options, data);
+    }
+
     return Query.save(
       request,
       (updatedQuery) => {
@@ -242,11 +251,20 @@ function QueryViewCtrl(
       },
       (error) => {
         if (error.status === 409) {
-          toastr.error(
-            'It seems like the query has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
-          );
+          const errorMessage = 'It seems like the query has been modified by another user.';
+
+          if ($scope.isQueryOwner) {
+            const title = 'Overwrite Query';
+            const message = errorMessage + '<br>Are you sure you want to overwrite the query with your version?';
+            const confirm = { class: 'btn-warning', title: 'Overwrite' };
+
+            AlertDialog.open(title, message, confirm).then(overwrite);
+          } else {
+            toastr.error(
+              errorMessage + ' Please copy/backup your changes and reload this page.',
+              { autoDismiss: false },
+            );
+          }
         } else {
           toastr.error(options.errorMessage);
         }
