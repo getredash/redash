@@ -311,6 +311,4 @@ class BigQuery(BaseQueryRunner):
         return json_data, error
 
 
-
-
 register(BigQuery)

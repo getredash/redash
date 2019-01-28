@@ -9,7 +9,9 @@ try:
 except ImportError:
     enabled = False
 
+from redash.query_runner import register
 from .big_query import BigQuery
+
 
 class BigQueryGCE(BigQuery):
     @classmethod
@@ -68,5 +70,6 @@ class BigQueryGCE(BigQuery):
         http = credentials.authorize(http)
 
         return build("bigquery", "v2", http=http)
+
 
 register(BigQueryGCE)
