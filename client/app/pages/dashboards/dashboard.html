@@ -6,10 +6,8 @@
         <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
       
-      <img ng-src="$ctrl.dashboard.user.profile_image_url" class="profile__image_thumb--dashboard" alt="{{$ctrl.dashboard.user.name}}">
+      <img ng-src="{{$ctrl.dashboard.user.profile_image_url}}" class="profile__image_thumb--dashboard" alt="{{$ctrl.dashboard.user.name}}">
       
-      <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
-      <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       <dashboard-tags-control class="hidden-xs"
         tags="$ctrl.dashboard.tags" is-draft="$ctrl.dashboard.is_draft" is-archived="$ctrl.dashboard.is_archived"
         can-edit="$ctrl.isDashboardOwner" get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags"></dashboard-tags-control>
