@@ -1,12 +1,13 @@
 import { extend } from 'lodash';
+import { policy } from '@/services/policy';
 import ListCtrl from '@/lib/list-ctrl';
 import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, Policy, User) {
+  constructor($scope, $location, currentUser, clientConfig, User) {
     super($scope, $location, currentUser, clientConfig);
-    this.policy = Policy;
+    this.policy = policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
     this.deleteUser = user => User.deleteUser(user).then(this.update);
