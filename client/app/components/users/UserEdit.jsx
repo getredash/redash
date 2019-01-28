@@ -15,14 +15,37 @@ export class UserEdit extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { apiKey: props.user.apiKey };
+    this.state = { user: this.props.user };
   }
+
+  handleSave = (values, onSuccess, onError) => {
+    const data = {
+      id: this.props.user.id,
+      ...values,
+    };
+
+    User.save(data, (user) => {
+      onSuccess('Saved.');
+      this.setState({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          profileImageUrl: user.profile_image_url,
+          apiKey: user.api_key,
+        },
+      });
+    }, (error) => {
+      onError(error.data.message || 'Failed saving.');
+    });
+  };
 
   regenerateApiKey = () => {
     const doRegenerate = () => {
-      User.regenerateApiKey(this.props.user).then(({ data }) => {
+      User.regenerateApiKey(this.state.user).then(({ data }) => {
         if (data) {
-          this.setState({ apiKey: data.api_key });
+          const { user } = this.state;
+          this.setState({ user: { ...user, apiKey: data.api_key } });
         }
       });
     };
@@ -37,7 +60,7 @@ export class UserEdit extends React.Component {
   };
 
   render() {
-    const { user } = this.props;
+    const { user } = this.state;
 
     const formFields = [
       {
@@ -72,10 +95,10 @@ export class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        <DynamicForm fields={formFields} />
+        <DynamicForm fields={formFields} onSubmit={this.handleSave} />
         <hr />
         <label>API Key</label>
-        <Input addonAfter={regenerateButton} value={this.state.apiKey} readOnly />
+        <Input addonAfter={regenerateButton} value={user.apiKey} readOnly />
       </div>
     );
   }

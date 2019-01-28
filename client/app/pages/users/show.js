@@ -86,26 +86,6 @@ function UserCtrl(
     });
   };
 
-  $scope.updateUser = (form) => {
-    if (!form.$valid) {
-      return;
-    }
-
-    const data = {
-      id: $scope.user.id,
-      name: $scope.user.name,
-      email: $scope.user.email,
-    };
-
-    User.save(data, (user) => {
-      toastr.success('Saved.');
-      $scope.user = user;
-    }, (error) => {
-      const message = error.data.message || 'Failed saving.';
-      toastr.error(message);
-    });
-  };
-
   $scope.isCollapsed = true;
 
   $scope.sendPasswordReset = () => {
