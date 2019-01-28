@@ -356,7 +356,7 @@ function QueryResource(
       dropdownOptions: {
         method: 'get',
         isArray: true,
-        url: 'api/queries/:id/dropdown.json',
+        url: 'api/queries/:id/dropdown',
       },
       favorites: {
         method: 'get',
