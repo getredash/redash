@@ -19,7 +19,10 @@ function seedDatabase(seedValues) {
   });
 
   // Make sure the admin user has the same API key on every execution
-  execSync("docker-compose -p cypress run postgres psql -h postgres -c \"update users set api_key = 'secret' where email ='admin@redash.io';\"");
+  execSync(
+    "docker-compose -p cypress run postgres psql -h postgres -c \"update users set api_key = 'secret' where email ='admin@redash.io';\"",
+    { stdio: 'inherit' },
+  );
 }
 
 function startServer() {
