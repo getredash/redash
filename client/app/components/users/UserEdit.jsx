@@ -2,7 +2,9 @@ import React from 'react';
 import Icon from 'antd/lib/icon';
 import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
+import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
+import { User } from '@/services/user';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
 
@@ -17,7 +19,21 @@ export class UserEdit extends React.Component {
   }
 
   regenerateApiKey = () => {
-    // TODO
+    const doRegenerate = () => {
+      User.regenerateApiKey(this.props.user).then(({ data }) => {
+        if (data) {
+          this.setState({ apiKey: data.api_key });
+        }
+      });
+    };
+
+    Modal.confirm({
+      title: 'Regenerate API Key',
+      content: 'Are you sure you want to regenerate?',
+      okText: 'Regenerate',
+      onOk: doRegenerate,
+      autoFocusButton: null,
+    });
   };
 
   render() {

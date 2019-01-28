@@ -65,6 +65,23 @@ function deleteUser(user) {
     });
 }
 
+function regenerateApiKey(user) {
+  return $http
+    .post(`api/users/${user.id}/regenerate_api_key`)
+    .success((data) => {
+      toastr.success('The API Key has been updated.');
+      return data;
+    })
+    .error((response) => {
+      const message =
+        response.message
+          ? response.message
+          : `Failed regenerating API Key: ${response.statusText}`;
+
+      toastr.error(message);
+    });
+}
+
 function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
@@ -80,6 +97,7 @@ function UserService($resource) {
   UserResource.enableUser = enableUser;
   UserResource.disableUser = disableUser;
   UserResource.deleteUser = deleteUser;
+  UserResource.regenerateApiKey = regenerateApiKey;
 
   return UserResource;
 }
