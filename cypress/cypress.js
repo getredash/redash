@@ -17,24 +17,14 @@ function seedDatabase(seedValues) {
       seedDatabase(seedValues);
     }
   });
-
-  // Make sure the admin user has the same API key on every execution
-  execSync(
-    "docker-compose -p cypress run postgres psql -h postgres -c \"update users set api_key = 'secret' where email ='admin@redash.io';\"",
-    { stdio: 'inherit' },
-  );
 }
 
 function startServer() {
   console.log('Starting the server...');
 
-  execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', {
-    stdio: 'inherit',
-  });
+  execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', { stdio: 'inherit' });
   execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
-  execSync('docker-compose -p cypress run server create_db', {
-    stdio: 'inherit',
-  });
+  execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
 }
 
 function stopServer() {
