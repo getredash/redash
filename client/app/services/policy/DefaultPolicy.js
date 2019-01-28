@@ -1,59 +1,47 @@
 import { isArray } from 'lodash';
 import { $q } from '@/services/ng';
 import { currentUser, clientConfig } from '@/services/auth';
-import organizationStatus from '@/services/organizationStatus';
+
+/* eslint-disable class-methods-use-this */
 
 export default class DefaultPolicy {
-  // eslint-disable-next-line class-methods-use-this
-  get user() {
-    return currentUser;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  get organizationStatus() {
-    return organizationStatus;
-  }
-
   refresh() {
     return $q.resolve(this);
   }
 
   canCreateDataSource() {
-    return this.user.isAdmin;
+    return currentUser.isAdmin;
   }
 
   isCreateDataSourceEnabled() {
-    return this.user.isAdmin;
+    return currentUser.isAdmin;
   }
 
   canCreateDashboard() {
-    return this.user.hasPermission('create_dashboard');
+    return currentUser.hasPermission('create_dashboard');
   }
 
   isCreateDashboardEnabled() {
-    return this.user.hasPermission('create_dashboard');
+    return currentUser.hasPermission('create_dashboard');
   }
 
-  // eslint-disable-next-line class-methods-use-this
   canCreateAlert() {
     return true;
   }
 
   canCreateUser() {
-    return this.user.isAdmin;
+    return currentUser.isAdmin;
   }
 
   isCreateUserEnabled() {
-    return this.user.isAdmin;
+    return currentUser.isAdmin;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getDashboardRefreshIntervals() {
     const result = clientConfig.dashboardRefreshIntervals;
     return isArray(result) ? result : null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   getQueryRefreshIntervals() {
     const result = clientConfig.queryRefreshIntervals;
     return isArray(result) ? result : null;
