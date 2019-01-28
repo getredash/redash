@@ -1,4 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 function DataSourcesCtrl(Policy, DataSource) {
@@ -26,3 +26,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
+

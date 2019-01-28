@@ -37,3 +37,5 @@ const EditGroupDialogComponent = {
 export default function init(ngModule) {
   ngModule.component('editGroupDialog', EditGroupDialogComponent);
 }
+
+init.init = true;

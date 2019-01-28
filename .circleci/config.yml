@@ -3,7 +3,7 @@ version: 2.0
 flake8-steps: &steps
   - checkout
   - run: sudo pip install flake8
-  - run: ./flake8_tests.sh
+  - run: ./bin/flake8_tests.sh
 jobs:
   python-flake8-tests:
     docker:
@@ -34,7 +34,7 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
+          command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
@@ -54,6 +54,28 @@ jobs:
       - run: npm install
       - run: npm run bundle
       - run: npm test
+  frontend-e2e-tests:
+    environment:
+      COMPOSE_FILE: .circleci/docker-compose.cypress.yml
+      COMPOSE_PROJECT_NAME: cypress
+      PERCY_TOKEN_ENCODED: MWM3OGUzNzk4ZWQ2NTE4YTBhMDAwZDNiNWE1Nzc4ZjEzZjYyMzY1MjE0NjY0NDRiOGE5ODc5ZGYzYTU4ZmE4NQ==
+    docker:
+      - image: circleci/node:8
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Install npm dependencies
+          command: |
+            npm install
+      - run:
+          name: Setup Redash server
+          command: |
+            npm run cypress start
+            docker-compose run cypress node ./cypress/cypress.js db-seed
+      - run:
+          name: Execute Cypress tests
+          command: npm run cypress run-ci
   build-tarball:
     docker:
       - image: circleci/node:8
@@ -61,9 +83,9 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: npm install
+      - run: .circleci/update_version
       - run: npm run bundle
       - run: npm run build
-      - run: .circleci/update_version
       - run: .circleci/pack
       - store_artifacts:
           path: /tmp/artifacts/
@@ -77,64 +99,15 @@ jobs:
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker build -t redash/redash:$(.circleci/docker_tag) .
       - run: docker push redash/redash:$(.circleci/docker_tag)
-  integration-tests:
-    working_directory: ~/redash
-    machine: true
-    environment:
-      REDASH_SERVER_URL : "http://127.0.0.1:5000/"
-      DOCKER_IMAGE: mozilla/redash-ui-tests
-    steps:
-      - checkout
-      - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            pip install --upgrade pip
-            pip install docker-compose>=1.18
-            docker-compose --version
-      - run:
-          name: Pull redash images
-          command: |
-            set -x
-            docker-compose -f docker-compose.yml up --no-start
-            sleep 10
-      - run:
-          name: Pull redash-ui-tests
-          command: docker pull "${DOCKER_IMAGE}":latest
-      - run:
-          name: Setup redash instance
-          command: |
-            set -x
-            docker-compose run --rm --user root server create_db
-            docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests"
-            docker-compose run --rm --user root server /app/manage.py users create_root root@example.com "rootuser" --password "IAMROOT" --org default
-            docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"title": "uitests"}'
-            docker-compose run -d -p 5000:5000 --user root server
-            docker-compose start postgres
-            docker-compose run --rm --user root server npm install
-            docker-compose run --rm --user root server npm run bundle
-            docker-compose run --rm --user root server npm run build
-      - run:
-          name: Run tests
-          command: |
-            set -x
-            docker run --net="host" --env REDASH_SERVER_URL="${REDASH_SERVER_URL}" "${DOCKER_IMAGE}"
-      - store_artifacts:
-          path: report.html
 workflows:
   version: 2
-  # integration_tests:
-  #  jobs:
-  #    - integration-tests:
-  #        filters:
-  #           branches:
-  #             only: master
   build:
     jobs:
       - python-flake8-tests
       - legacy-python-flake8-tests
       - backend-unit-tests
       - frontend-unit-tests
+      - frontend-e2e-tests
       - build-tarball:
            requires:
              - backend-unit-tests
@@ -151,4 +124,6 @@ workflows:
            filters:
              branches:
                only:
+                 - master
+                 - preview-build
                  - /release\/.*/

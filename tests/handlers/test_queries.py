@@ -168,7 +168,7 @@ class TestQueryListResourcePost(BaseTestCase):
         query_data = {
             'name': 'Testing',
             'query': 'SELECT 1',
-            'schedule': "3600",
+            'schedule': {"interval": "3600"},
             'data_source_id': self.factory.data_source.id
         }
 

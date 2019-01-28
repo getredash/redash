@@ -3,12 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
+import { clientConfig } from '@/services/auth';
 
-function DateInput({
+export function DateInput({
   value,
   onSelect,
-  // eslint-disable-next-line react/prop-types
-  clientConfig,
+  className,
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
@@ -17,6 +17,7 @@ function DateInput({
   }
   return (
     <DatePicker
+      className={className}
       {...additionalAttributes}
       format={format}
       placeholder="Select Date"
@@ -34,14 +35,17 @@ DateInput.propTypes = {
     }
   },
   onSelect: PropTypes.func,
+  className: PropTypes.string,
 };
 
 DateInput.defaultProps = {
   value: null,
   onSelect: () => {},
+  className: '',
 };
 
 export default function init(ngModule) {
-  ngModule.component('dateInput', react2angular(DateInput, null, ['clientConfig']));
+  ngModule.component('dateInput', react2angular(DateInput));
 }
 
+init.init = true;

@@ -1,5 +1,213 @@
 # Change Log
 
+## v6.0.0 - 2018-12-16
+
+v6.0.0 release version. Mainly includes  fixes for regressions from the beta version. 
+
+This release had contributions from 5 people: @rauchy, @denisov-vlad, @arikfr, @ariarijp, and @gabrieldutra. Thank you, everyone 🙏
+
+### Changed
+
+* #3183 Make refresh_queries less noisey in logs. @arikfr
+
+### Fixed
+
+* #3163 Include correct version in production builds. @rauchy
+* #3161 Clickhouse: fix int() conversion error. @denisov-vlad
+* #3166 Directly using record_event task requires timestamp. @arikfr
+* #3167 Alert.evaluate failing when the column is missing. @arikfr
+* ##3162 Remove API permissions for users who have been disabled. @rauchy
+* #3171 Reject empty query name. @ariarijp
+* #3175, #3186 Fix disable error message. @rauchy, @gabrieldutra
+* #3182 [Redshift] support for schema names with dots. @arikfr
+* #3187 Safely create_app in Celery code (try to fetch current_app first). @arikfr
+
+### Other
+
+* #3155 Add DB Seed to Cypress and setup Percy. @gabrieldutra
+* #3180 Remove coverage from pytest terminal output. @rauchy
+
+
+## v6.0.0-beta - 2018-12-03
+
+This release was 2 months in the making and it is full with good stuff! 
+
+* We have 5 new data sources: Databricks, IBM DB2, Kylin, Druid and Rockset. ⌗
+* There are fixes and improvements to 11 existing data sources (MySQL, Redshift, Postgres, MongoDB, Google BigQuery, Vertica, TreasureData, Presto, ClickHouse, Google Sheets and Google Analytics).
+* The Query Results data source can now load cached results, just use the `cached_query_` prefix instead of `query_`.
+* On the visualizations front we added a Heatmap visualization and did updated the table and counter visualizations.
+* Alerts got some fixes and a new destination: PagerDuty.
+* If the live autocomplete in the code editor annoys you, you can disable it now (although we're working to make it better, see #3092).
+* Fast queries will now load faster. 🏃‍♂️
+* We improved the layout of visualizations and content on smaller screen sizes. 📱
+* For those of you who like sharing, you can now enable the ability to share ownership of queries and dashboards and let others to edit them. Check the Settings page to enable this feature.
+
+There were also important changes to the code and infrastructure: 
+
+* More components moved to React.
+* We switched to Webpack 4 with the help of @dmonego.
+* We upgraded to Celery 4 with the help of @emtwo, @jezdez, @mashrikt and @atharvai.
+* We started moving towards Python 3 for our backend. The first step was to make sure our code pass basic sanity tests with Flake 8, which was implemented by @cclauss.
+* We improved our testing on the frontend by adding setup for Jest tests and E2E testing using Cypress (@gabrieldutra).
+* Each pull request now gets a deploy preview using Netlify to easily test frontend changes.
+
+This is just a summary, you're welcome to review the full list below. ⬇
+
+This release had contributions from 38 people: @arikfr, @kravets-levko, @jezdez, @kyoshidajp, @kocsmy, @alison985, @gabrieldutra, @washort, @GitSumito, @emtwo, @rauchy, @alexanderlz, @denisov-vlad, @ariarijp, @yoavbls, @zhujunsan, @sjakthol, @koooge, @SakuradaJun, @dmonego, @Udomomo, @cclauss, @combineads, @zaimy, @Trigl, @ralphilius, @jodevsa, @deecay, @igorcanadi, @pashaxp, @hoangphuoc25, @toph, @burnash, @wankdanker, @Yossi-a, @Rovel, @kadrach, and @nicof38. Thank you, everyone 🙏
+
+### Added
+
+* #2747, #3143 Add a new Databricks query runner. @alison985, @jezdez, @arikfr
+* #2767 Add ability to add viz to dashboard from query edit page. @alison985, @jezdez
+* #2780 Add a query autocomplete toggle. @alison985, @jezdez, @arikfr
+* #2768 Add authentication via JWT providers. @SakuradaJun
+* #2790 Add the ability to sort favorited queries, paginate the dashboard list and improve UI inconsistencies. @jezdez
+* #2681 Add ability to search table column names in schema browser. @alison985
+* #2855 Add option to query cached results. @yoavbls
+* #2740 Add ability for extensions to add periodic tasks. @emtwo
+* #2924 Google Spreadsheets: Add support for opening by URL. @alexanderlz
+* #2903 Add PagerDuty as an Alert Destination. @alexanderlz
+* #2824 Add support for expanding dashboard visualizations. @sjakthol
+* #2900 Add ability to specify a counter label. @ralphilius
+* #2565 Add frontend extension capabilities. @emtwo
+* #2848 Add IBM Db2 as a data source using the ibm-db Python package. @nicof38
+* #2959 Add option to auto reload widget data in shared dashboards. @arikfr
+* #2993 Add page size settings. @kyoshidajp
+* #2080 New Heatmap chart visualization with Plotly. @deecay
+* #2991 Show users in CLI group list. @GitSumito
+* #2342 New SQLPARSE_FORMAT_OPTIONS setting to configure query formatter. @ariarijp
+* #3031 Add some tests for Query Results. @ariarijp
+* #2936 Add Kylin data source. @Trigl
+* #3047 Add Druid data source. @rauchy
+* #3077 New user interface for the feature flag of the share edit permissions feature. @arikfr
+* #3007 Add permissions to the result of "manage.py groups list" command. @Udomomo
+* #3088 Add get_current_user() fuction for the Python query runner. @kyoshidajp
+* #3114 Add event tracking to autocomplete toggle. @arikfr
+* #3068 Add Rockset query runner. @igorcanadi, @arikfr
+* #3105 Display frontend version. @rauchy
+
+### Changed
+
+* #2636 Rewrite query editor with React. @washort, @arikfr
+* #2637 Convert edit-in-place component to React. @washort, @arikfr
+* #2766 Suitable events are now being recorded server side instead of in the frontend. @alison985, @jezdez
+* #2796 Change placement (right/bottom) of chart legend depending on chart width. @kravets-levko
+* #2833 Uses server side sort order for tag list and show count of tagged items. @jezdez
+* #2318 Support authentication for the URL data source. @jezdez
+* #2884 Rename Yandex Metrika to Metrica. @jezdez
+* #2909 MySQL: hide sys tables. @arikfr
+* #2817 Consistently use simplejson for loading and dumping JSON. @jezdez
+* #2872 Use Plotly's function to clean y-values (x may be category or date/time). @kravets-levko
+* #2938 Auto focus tag input. @kyoshidajp
+* #2927 Design refinements for queries pages. @kocsmy
+* #2950 Show activity status in CLI user list. @GitSumito
+* #2968 Presto data source: setting protocol (http/https), safe loading of error messages. @arikfr
+* #2967 Show groups in CLI user list. @GitSumito
+* #2603 MongoDB: Update requirements to support srv. @arikfr
+* #2961 MongoDB: Skip system collections when loading schema. @arikfr
+* #2960 Add timeout to various HTTP requests. @arikfr
+* #2983 Databricks: New logo, updated name and enabled by default. @arikfr
+* #2982 Table visualization: change default size to 25 and add more size options. @arikfr
+* #2866 Redshift: Hide tables the configured user cannot access. @sjakthol
+* #3058 Mustache: don't html-escape query parameters values. @kravets-levko
+* #3079 Always use basic autocomplete, as well as the live autocomplete. @arikfr
+* #3084 Support tel://, sms://, mailto:// links in query results. @zhujunsan
+* #3083 Clickhouse: Add WITH TOTALS option support. @denisov-vlad
+* #3063 Allow setting colors for bubble charts. @toph
+* #3085 BigQuery: Switch to Standard SQL as the default. @kyoshidajp
+* #3094 Tags autocomplete: Show note when creating a new label. @kravets-levko
+* #2984 Autocomplete toggle improvements. @arikfr
+* #3089 Open new tab when forking a query. @kyoshidajp
+* #3126 MongoDB: add support for sorting columns. @arikfr
+* #3128 Improve backoff algorithm of query results polling to speed it up. @arikfr
+* #3125 Vertica: update driver & add support for connection timeout. @arikfr
+* #3124 Support unicode in Postgres/Redshift schema. @arikfr
+* #3138 Migrate all tags components to React. @kravets-levko
+* #3139 Better manage permissions modal. @kocsmy
+* #3149 Improve tag link colors and fix group tags on Users page. @kocsmy
+* #3146 Update, replace and fix new alert destination logos so it fits better. @kocsmy
+* #3147 Add and improve recent db logos that didn't fit in size properly. @kocsmy
+* #3148 Fix label positioning on no found screen. @kocsmy
+* #3156 json_dumps: add support for serializing buffer objects. @arikfr
+
+### Fixed
+
+* #2849 Fix invalid reference to alert.to_dict() in webhook. @wankdanker
+* #2840 Improve counter visualization text scaling. @kravets-levko
+* #2854 Widget titles are no longer rendered wrong on public dashboards. @kravets-levko
+* #2318 Removed redundant exception handling in data sources since that's handled in the query backend. @jezdez
+* #2886 Fix Javascript build that broke because registerAll tried to run EditInPlace component. @arikfr
+* #2911 Don’t show “Add to dashboard” in dropdown to unsaved queries. @jezdez
+* #2916 Fix export query results output file name. @gabrieldutra
+* #2917 Fix output file name not changing after rename query. @gabrieldutra
+* #2868 Address edge case when retrieving Glue schemas for Athena data source. @kadrach
+* #2929 Fix: date value in a filter is duplicated. @combineads
+* #2875 Unbreak charts with long legend break in horizontal mode. Update plotly.js. @kravets-levko
+* #2937 Fix event recording in admin API backend. @kyoshidajp
+* #2953 Minor fixes for the Clickhouse data source. @denisov-vlad
+* #2941 Bring back fix to Box plot hover. @arikfr
+* #2957 Apply missing CSS classes to EditInPlace component. @arikfr
+* #2897 Show "Add description" only after saving the query. @arikfr
+* #2922 Query page layout improvements for small screens. @kravets-levko
+* #2956 Clickhouse: move timeout to params. @denisov-vlad
+* #2964 Fix no tags shown when having empty set. @gabrieldutra
+* #2757 Use full text search ranking when searching in list views. @jezdez
+* #2969 Query Results data source: improved errors, quoted column names. @arikfr
+* #2906 Preventing open redirection in loging process. @kyoshidajp
+* #2867 TreasureData: Deduplicate column names. @zaimy
+* #2994 Fix scheme of various URLs from http to https. @kyoshidajp
+* #2992 Fix an invalid prop type warning in new version notifier. @kyoshidajp
+* #3022 Fix Toolbox covering part of a chart. @kravets-levko
+* #2998 Fix charts losing responsive features after refreshing the dashboard. @kravets-levko
+* #3034 Postgres: handle NaN/Infinity values. @kravets-levko
+* #2745 Sort columns with undefined values. @Yossi-a
+* #3041 Sort CLI output of lists. @GitSumito
+* #2803, #3006 Address various tag display issues on query list page. @kocsmy, @alison985
+* #3049 Fix edit-in-place component which ignored isEditable flag and didn't work on Groups page. @kravets-levko
+* #2965 Google Analytics: Fix crash when no results are returned. @alexanderlz
+* #3061 Fix table visualization so that the horizontal scrollbar is not be always visible. @kravets-levko
+* #3076 Add white-space padding to separators in the footer. @burnash
+* #2919 Fix URL data source to not require a URL. @arikfr
+* #3098 Force AngularJS to update query editor properly. @washort
+* #3100 Delete redundant regex segment in query result frontend. @zhujunsan
+* #2978 Prevent the query update timestamp from changing when it is linked to new query results. @rauchy
+* #3046 Fix query page header. @kravets-levko
+* #3097 Mongo: Fix collection fields retreival bug when Views are present. @jodevsa
+* #3107 Keep query text in local state for now. @washort
+* #3111 Fix mobile padding issues on Query results. @kocsmy
+* #3122 Show menu divider only if query is archived. @jezdez
+* #3120 Fix tag counts for dashboards and queries. @jezdez
+* #3141 Fix schema refresh to work on MySQL 8. @hoangphuoc25
+* #3142 Fix: editing dashboard title results in the visualizations being replaced by the loading markers. @kravets-levko
+
+### Other
+
+* #2850 The setup scripts are now based on Ubuntu 18.04 LTS and Docker. @pashaxp, @arikfr
+* #2985 Add Jest based tests to our stack. @arikfr
+* #2999 Add netlify configuration. @arikfr
+* #3000 Initial Cypress based E2E test infrastructure. @gabrieldutra
+* #2898 Move Ant styles into a central location. @arikfr
+* #2910 Fix webpack build error about BigMessage. @jezdez
+* #2928 Speed up builds by skipping installing requirements_all_ds.txt in CI unit tests. @arikfr
+* #2963 Fix tarball build failure. @emtwo
+* #2996 Fix setup.sh failures when run as root. @arikfr
+* #2989 Rearrange make targets. @koooge
+* #3036 Update Flask-Admin to 1.5.2. @yoavbls
+* #2901 Fix documentation links. @kravets-levko
+* #3073 Remove only Redash containers in clean Make task. @ariarijp
+* #3048 Remove pytest-watch dependency to workaround an issue with watchdog. @rauchy
+* #2905 Update development docker-compose.yml file to use latest Redis and Postgres servers and specify working volume explictly. @Rovel
+* #3032 Makefile: Add make targets for test. @koooge
+* #2933 Switch to Webpack 4. @dmonego
+* #2908 Update setup files. @arikfr
+* #2946 Update snowflake_connector_python version. @arikfr
+* #2773 Upgrade to Celery 4.2.1. @emtwo, @jezdez
+* #2881 CircleCI: Make flake8 tests pass on Legacy Python and Python 3. @cclauss
+* #2907 Remove unused dependencies (honcho, wsgiref). @arikfr
+* #3039 Build docker image on master branch. @arikfr
+* #3106 Fix registerAll failures after minification. @arikfr
+
+
 ## v5.0.2 - 2018-10-18
 
 ### Security

@@ -1,6 +1,5 @@
 <div class="container p-t-10 p-b-20">
-  <page-header title="{{$ctrl.dashboard.name}}">
-  </page-header>
+  <page-header title="$ctrl.dashboard.name"></page-header>
 
   <div class="m-b-5">
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
@@ -23,5 +22,5 @@
   <div class="text-center">
     <a href="https://redash.io"><img ng-src="{{$ctrl.logoUrl}}" width="38"/></a>
   </div>
-  Powered by <a href="http://redash.io/?ref=public-dashboard">Redash</a>
+  Powered by <a href="https://redash.io/?ref=public-dashboard">Redash</a>
 </div>

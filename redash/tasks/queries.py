@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 
-import pystache
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
@@ -12,7 +11,7 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow
+from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
@@ -60,11 +59,11 @@ class QueryTaskTracker(object):
         self.data['updated_at'] = time.time()
         key_name = self._key_name(self.data['task_id'])
         connection.set(key_name, json_dumps(self.data))
-        connection.zadd(self._get_list(), time.time(), key_name)
+        connection.zadd(self._get_list(), {key_name: time.time()})
 
-        for l in self.ALL_LISTS:
-            if l != self._get_list():
-                connection.zrem(l, key_name)
+        for _list in self.ALL_LISTS:
+            if _list != self._get_list():
+                connection.zrem(_list, key_name)
 
     # TOOD: this is not thread/concurrency safe. In current code this is not an issue, but better to fix this.
     def update(self, **kwargs):
@@ -241,9 +240,21 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id)
+                argsrepr = json_dumps({
+                    'org_id': data_source.org_id,
+                    'data_source_id': data_source.id,
+                    'enqueue_time': time.time(),
+                    'scheduled': scheduled_query_id is not None,
+                    'query_id': metadata.get('Query ID'),
+                    'user_id': user_id
+                })
+
+                result = execute_query.apply_async(args=args,
+                                                   argsrepr=argsrepr,
                                                    queue=queue_name,
                                                    time_limit=time_limit)
+
                 job = QueryTask(async_result=result)
                 tracker = QueryTaskTracker.create(
                     result.id, 'created', query_hash, data_source.id,
@@ -276,7 +287,7 @@ def refresh_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.info("Skipping refresh of %s because org is disabled.", query.id)
+                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
@@ -285,7 +296,7 @@ def refresh_queries():
                 if query.options and len(query.options.get('parameters', [])) > 0:
                     query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
-                    query_text = pystache.render(query.query_text, query_params)
+                    query_text = mustache_render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
 
@@ -323,19 +334,22 @@ def cleanup_tasks():
             _unlock(tracker.query_hash, tracker.data_source_id)
             tracker.update(state='finished')
 
+    # Maintain constant size of the finished tasks list:
+    removed = 1000
+    while removed > 0:
+        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
+
     waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
     for tracker in waiting:
+        if tracker is None:
+            continue
+
         result = AsyncResult(tracker.task_id)
 
         if result.ready():
             logging.info("waiting tracker %s finished", tracker.query_hash)
             _unlock(tracker.query_hash, tracker.data_source_id)
             tracker.update(state='finished')
-
-    # Maintain constant size of the finished tasks list:
-    removed = 1000
-    while removed > 0:
-        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
 @celery.task(name="redash.tasks.cleanup_query_results")

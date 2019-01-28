@@ -55,6 +55,7 @@ class Graphite(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(Graphite, self).__init__(configuration)
+        self.syntax = 'custom'
 
         if "username" in self.configuration and self.configuration["username"]:
             self.auth = (self.configuration["username"], self.configuration["password"])

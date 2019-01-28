@@ -241,7 +241,7 @@ def list(organization=None):
         users = models.User.query.filter(models.User.org == org)
     else:
         users = models.User.query
-    for i, user in enumerate(users):
+    for i, user in enumerate(users.order_by(models.User.name)):
         if i > 0:
             print("-" * 20)
 

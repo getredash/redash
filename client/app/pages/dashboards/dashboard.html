@@ -3,15 +3,17 @@
     <div class="page-title col-xs-8 col-sm-7 col-lg-7 p-l-0">
       <favorites-control item="$ctrl.dashboard"></favorites-control>
       <h3>
-        <edit-in-place class="edit-in-place" editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
+        <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
       
-      <img ng-src="https://www.gravatar.com/avatar/66798e3c11a929cbbb4a9a66310d43a0?s=40&amp;d=identicon" class="profile__image_thumb--dashboard" src="https://www.gravatar.com/avatar/66798e3c11a929cbbb4a9a66310d43a0?s=40&amp;d=identicon">
-
+      <img ng-src="$ctrl.dashboard.user.profile_image_url" class="profile__image_thumb--dashboard" alt="{{$ctrl.dashboard.user.name}}">
+      
       <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
       <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-      <tags-control class="hidden-xs" item="$ctrl.dashboard" can-edit="$ctrl.isDashboardOwner"
-        get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags()"></tags-control>
+      <dashboard-tags-control class="hidden-xs"
+        tags="$ctrl.dashboard.tags" is-draft="$ctrl.dashboard.is_draft" is-archived="$ctrl.dashboard.is_archived"
+        can-edit="$ctrl.isDashboardOwner" get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags"></dashboard-tags-control>
+      
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
@@ -83,7 +85,7 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
-    <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
+    <parameters parameters="$ctrl.globalParameters"></parameters>
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
@@ -109,6 +111,9 @@
       <i class="zmdi zmdi-widgets"></i>
       <span class="hidden-xs hidden-sm">Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.</span>
     </h2>
-    <a class="btn btn-primary" ng-click="$ctrl.addWidget()">Add Widget</a>
+    <div>
+      <a class="btn btn-default" ng-click="$ctrl.addWidget('textbox')">Add Textbox</a>
+      <a class="btn btn-primary m-l-10" ng-click="$ctrl.addWidget('widget')">Add Widget</a>
+    </div>
   </div>
 </div>

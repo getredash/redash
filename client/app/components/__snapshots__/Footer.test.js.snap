@@ -5,12 +5,15 @@ exports[`Footer renders 1`] = `
   id="footer"
 >
   <a
-    href="http://redash.io"
+    href="https://redash.io"
   >
     Redash
   </a>
    
   5.0.1
+   (
+  dev
+  )
   <small>
     <a
       href="https://version.redash.io/"
@@ -18,15 +21,15 @@ exports[`Footer renders 1`] = `
       (New Redash version available)
     </a>
   </small>
-  •
+   • 
   <a
     href="https://redash.io/help/"
   >
     Documentation
   </a>
-  •
+   • 
   <a
-    href="http://github.com/getredash/redash"
+    href="https://github.com/getredash/redash"
   >
     Contribute
   </a>

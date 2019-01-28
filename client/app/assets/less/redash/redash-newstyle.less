@@ -1,3 +1,5 @@
+@import (reference, less) '~bootstrap/less/labels.less';
+
 // Variables
 @redash-gray: rgba(102, 136, 153, 1);
 @redash-orange: rgba(255, 120, 100, 1);
@@ -31,6 +33,10 @@ body {
       display: none;
     }
   }
+}
+
+.word-wrap-break {
+  word-wrap: break-word;
 }
 
 .clearboth {
@@ -364,7 +370,7 @@ body {
   padding: 20px;
 }
 
-page-header, .page-header--new {
+.page-header-wrapper, .page-header--new {
   h3 {
     margin: 0.2em 0;
     line-height: 1.3;
@@ -449,10 +455,27 @@ page-header, .page-header--new {
   background: fade(@redash-gray, 85%);
 }
 
+.label-tag-unpublished {
+  background: fade(@redash-gray, 85%);
+}
+
+.label-tag-archived {
+  .label-warning();
+}
+
 .label-tag {
   background: fade(@redash-gray, 10%);
   color: fade(@redash-gray, 75%);
+}
+
+.label-tag-unpublished,
+.label-tag-archived,
+.label-tag {
   margin-right: 3px;
+  display: inline-block;
+  margin-top: 2px;
+  max-width: 24ch;
+  .text-overflow();
 }
 
 .tab-nav > li > a {
@@ -687,6 +710,11 @@ page-header, .page-header--new {
   height: 20px;
 }
 
+.user_list__user--invitation-pending {
+    color: fade(@alert-danger-bg, 75%);
+    font-weight: 500;
+}
+
 .btn__new {
   margin-left: 15px;
 }
@@ -733,6 +761,7 @@ page-header, .page-header--new {
 }
 
 .tags-list {
+
   .badge-light {
     background: fade(@redash-gray, 10%);
     color: fade(@redash-gray, 75%);
@@ -786,11 +815,9 @@ page-header, .page-header--new {
 // Forms
 .form-control {
   border-radius: @redash-input-radius;
-  color: #9E9E9E;
 
   &:focus {
     box-shadow: none !important;
-    color: #111;
     border-color: @blue;
   }
 

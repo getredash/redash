@@ -40,7 +40,7 @@ export class EditInPlace extends React.Component {
 
   stopEditing = () => {
     const newValue = this.inputRef.current.value;
-    const ignorableBlank = this.props.ignoreBlanks && this.props.value === '';
+    const ignorableBlank = this.props.ignoreBlanks && newValue === '';
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
     }
@@ -88,3 +88,5 @@ export class EditInPlace extends React.Component {
 export default function init(ngModule) {
   ngModule.component('editInPlace', react2angular(EditInPlace));
 }
+
+init.init = true;

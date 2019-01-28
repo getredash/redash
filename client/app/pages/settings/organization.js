@@ -1,4 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './organization.html';
 
 function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
@@ -50,4 +50,6 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;
 
