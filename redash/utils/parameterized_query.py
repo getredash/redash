@@ -10,8 +10,8 @@ from dateutil.parser import parse
 
 def dropdown_values(query_id, org):
     def _pluck_name_and_value(row):
-        name_column = "name" if "name" in row.keys() else row.keys()[0]
-        value_column = "value" if "value" in row.keys() else row.keys()[0]
+        name_column = "name" if "name" in row.keys() else row.keys()[-1]
+        value_column = "value" if "value" in row.keys() else row.keys()[-1]
 
         return {"name": row[name_column], "value": row[value_column]}
 
