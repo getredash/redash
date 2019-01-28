@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash';
-import policy from '@/services/policy';
+import { policy } from '@/services/policy';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {

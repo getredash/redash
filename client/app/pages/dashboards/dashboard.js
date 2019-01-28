@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
-import policy from '@/services/policy';
+import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';

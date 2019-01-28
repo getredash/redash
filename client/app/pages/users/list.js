@@ -1,5 +1,5 @@
 import { extend } from 'lodash';
-import policy from '@/services/policy';
+import { policy } from '@/services/policy';
 import ListCtrl from '@/lib/list-ctrl';
 import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';

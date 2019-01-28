@@ -1,7 +1,7 @@
 import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
-import policy from '@/services/policy';
+import { policy } from '@/services/policy';
 import Notifications from '@/services/notifications';
 import template from './query.html';
 

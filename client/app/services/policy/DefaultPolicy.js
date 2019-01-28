@@ -2,9 +2,8 @@ import { isArray } from 'lodash';
 import { $q } from '@/services/ng';
 import { currentUser, clientConfig } from '@/services/auth';
 import organizationStatus from '@/services/organizationStatus';
-import AbstractPolicy from './AbstractPolicy';
 
-export default class DefaultPolicy extends AbstractPolicy {
+export default class DefaultPolicy {
   // eslint-disable-next-line class-methods-use-this
   get user() {
     return currentUser;

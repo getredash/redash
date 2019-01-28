@@ -1,5 +1,5 @@
 import settingsMenu from '@/services/settingsMenu';
-import policy from '@/services/policy';
+import { policy } from '@/services/policy';
 import template from './list.html';
 
 function DataSourcesCtrl(DataSource) {
