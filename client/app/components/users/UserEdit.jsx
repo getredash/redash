@@ -33,6 +33,7 @@ export class UserEdit extends React.Component {
           email: user.email,
           profileImageUrl: user.profile_image_url,
           apiKey: user.api_key,
+          isDisabled: user.is_disabled,
         },
       });
     }, (error) => {
@@ -59,6 +60,23 @@ export class UserEdit extends React.Component {
     });
   };
 
+  renderApiKey() {
+    const { user } = this.state;
+
+    const regenerateButton = (
+      <Tooltip title="Regenerate API Key">
+        <Icon type="reload" style={{ cursor: 'pointer' }} onClick={this.regenerateApiKey} />
+      </Tooltip>
+    );
+
+    return (
+      <div>
+        <label>API Key</label>
+        <Input addonAfter={regenerateButton} value={user.apiKey} readOnly />
+      </div>
+    );
+  }
+
   render() {
     const { user } = this.state;
 
@@ -79,12 +97,6 @@ export class UserEdit extends React.Component {
       },
     ];
 
-    const regenerateButton = (
-      <Tooltip title="Regenerate API Key">
-        <Icon type="reload" style={{ cursor: 'pointer' }} onClick={this.regenerateApiKey} />
-      </Tooltip>
-    );
-
     return (
       <div className="col-md-4 col-md-offset-4">
         <img
@@ -95,10 +107,9 @@ export class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        <DynamicForm fields={formFields} onSubmit={this.handleSave} />
+        <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.handleSave} />
         <hr />
-        <label>API Key</label>
-        <Input addonAfter={regenerateButton} value={user.apiKey} readOnly />
+        {!user.isDisabled && this.renderApiKey()}
       </div>
     );
   }

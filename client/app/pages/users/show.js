@@ -53,6 +53,7 @@ function UserCtrl(
       email: user.email,
       profileImageUrl: user.profile_image_url,
       apiKey: user.api_key,
+      isDisabled: user.is_disabled,
     };
   });
 

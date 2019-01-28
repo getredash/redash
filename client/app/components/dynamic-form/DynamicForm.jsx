@@ -17,6 +17,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
+    readOnly: PropTypes.bool,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
   };
@@ -25,6 +26,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     fields: [],
     actions: [],
     feedbackIcons: false,
+    readOnly: false,
     onSubmit: () => {},
   };
 
@@ -139,23 +141,25 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
 
   renderFields() {
     return this.props.fields.map((field) => {
-      const [firstItem] = this.props.fields;
+      const [firstField] = this.props.fields;
       const FormItem = Form.Item;
       const { name, title, type } = field;
       const fieldLabel = title || helper.toHuman(name);
+      const { feedbackIcons, readOnly } = this.props;
 
       const formItemProps = {
         key: name,
         className: 'm-b-10',
-        hasFeedback: type !== 'checkbox' && type !== 'file' && this.props.feedbackIcons,
+        hasFeedback: type !== 'checkbox' && type !== 'file' && feedbackIcons,
         label: type === 'checkbox' ? '' : fieldLabel,
       };
 
       const fieldProps = {
-        autoFocus: (firstItem === field),
+        autoFocus: (firstField === field),
         className: 'w-100',
         name,
         type,
+        readOnly,
         placeholder: field.placeholder,
         'data-test': fieldLabel,
       };
@@ -191,13 +195,12 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
+    const saveButton = !this.props.readOnly;
 
     return (
       <Form layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
-        <Button {...submitProps}>
-          Save
-        </Button>
+        {saveButton && (<Button {...submitProps}>Save</Button>)}
         {this.renderActions()}
       </Form>
     );

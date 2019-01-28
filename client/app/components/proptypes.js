@@ -56,4 +56,5 @@ export const UserProfile = PropTypes.shape({
   email: PropTypes.string.isRequired,
   profileImageUrl: PropTypes.string,
   apiKey: PropTypes.string,
+  isDisabled: PropTypes.bool,
 });
