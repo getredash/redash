@@ -9,6 +9,7 @@ from dateutil.parser import parse
 
 
 def _pluck_name_and_value(row):
+    row = {k.lower(): v for k, v in row.items()}
     name_column = "name" if "name" in row.keys() else row.keys()[-1]
     value_column = "value" if "value" in row.keys() else row.keys()[-1]
 

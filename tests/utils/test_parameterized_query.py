@@ -159,7 +159,7 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
 
-    @patch('redash.models.QueryResult.get_by_id_and_org', return_value=namedtuple('query_result', 'data')('{"rows": [{"id": 5, "name": "John", "value": "John Doe"}]}'))
+    @patch('redash.models.QueryResult.get_by_id_and_org', return_value=namedtuple('query_result', 'data')('{"rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]}'))
     @patch('redash.utils.parameterized_query.require_access')
     @patch('redash.utils.parameterized_query.view_only')
     @patch('redash.utils.parameterized_query.current_user')
