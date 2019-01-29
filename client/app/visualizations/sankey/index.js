@@ -120,10 +120,7 @@ function createSankey(element, data) {
   const color = d3.scale.category20();
 
   data = graph(data);
-  data.nodes = _.map(data.nodes, d =>
-    _.extend(d, {
-      color: color(d.name.replace(/ .*/, '')),
-    }));
+  data.nodes = _.map(data.nodes, d => _.extend(d, { color: color(d.name.replace(/ .*/, '')) }));
 
   // append the svg canvas to the page
   const svg = d3

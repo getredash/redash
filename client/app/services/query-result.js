@@ -237,25 +237,24 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
             }
           });
 
-          this.filteredData = this.query_result.data.rows.filter(row =>
-            filters.reduce((memo, filter) => {
-              if (!isArray(filter.current)) {
-                filter.current = [filter.current];
-              }
+          this.filteredData = this.query_result.data.rows.filter(row => filters.reduce((memo, filter) => {
+            if (!isArray(filter.current)) {
+              filter.current = [filter.current];
+            }
 
-              return (
-                memo &&
-                some(filter.current, (v) => {
-                  const value = row[filter.name];
-                  if (moment.isMoment(value)) {
-                    return value.isSame(v);
-                  }
-                  // We compare with either the value or the String representation of the value,
-                  // because Select2 casts true/false to "true"/"false".
-                  return v === value || String(value) === v;
-                })
-              );
-            }, true));
+            return (
+              memo &&
+              some(filter.current, (v) => {
+                const value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                }
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return v === value || String(value) === v;
+              })
+            );
+          }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
         }
