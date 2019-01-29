@@ -145,6 +145,7 @@ class Parameter {
   get ngModel() {
     return this.normalizedValue;
   }
+
   set ngModel(value) {
     this.setValue(value);
   }

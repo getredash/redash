@@ -3,11 +3,13 @@ engines:
     enabled: true
   eslint:
     enabled: true
-    channel: "eslint-3"
+    channel: "eslint-5"
     config:
       config: client/.eslintrc.js
     checks:
       import/no-unresolved:
+        enabled: false
+      no-multiple-empty-lines: # TODO: Enable
         enabled: false
 ratings:
   paths:
@@ -16,7 +18,5 @@ ratings:
 exclude_paths:
 - tests/**/*.py
 - migrations/**/*.py
-- old_migrations/**/*.py
 - setup/**/*
 - bin/**/*
-
