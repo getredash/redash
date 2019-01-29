@@ -1,3 +1,4 @@
+import organizationStatus from '@/services/organizationStatus';
 import './empty-state.less';
 import template from './empty-state.html';
 
@@ -15,14 +16,14 @@ const EmptyStateComponent = {
     showInviteStep: '<',
     onboardingMode: '<',
   },
-  controller($uibModal, OrganizationStatus, currentUser) {
+  controller($uibModal, currentUser) {
     this.isAdmin = currentUser.isAdmin;
 
-    this.dataSourceStepCompleted = OrganizationStatus.objectCounters.data_sources > 0;
-    this.queryStepCompleted = OrganizationStatus.objectCounters.queries > 0;
-    this.dashboardStepCompleted = OrganizationStatus.objectCounters.dashboards > 0;
-    this.alertStepCompleted = OrganizationStatus.objectCounters.alerts > 0;
-    this.inviteStepCompleted = OrganizationStatus.objectCounters.users > 1;
+    this.dataSourceStepCompleted = organizationStatus.objectCounters.data_sources > 0;
+    this.queryStepCompleted = organizationStatus.objectCounters.queries > 0;
+    this.dashboardStepCompleted = organizationStatus.objectCounters.dashboards > 0;
+    this.alertStepCompleted = organizationStatus.objectCounters.alerts > 0;
+    this.inviteStepCompleted = organizationStatus.objectCounters.users > 1;
 
     this.shouldShowOnboarding = () => {
       if (!this.onboardingMode) {
