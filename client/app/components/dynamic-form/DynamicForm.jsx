@@ -18,6 +18,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
     readOnly: PropTypes.bool,
+    saveText: PropTypes.string,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
   };
@@ -27,6 +28,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     actions: [],
     feedbackIcons: false,
     readOnly: false,
+    saveText: 'Save',
     onSubmit: () => {},
   };
 
@@ -195,12 +197,13 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const saveButton = !this.props.readOnly;
+    const { readOnly, saveText } = this.props;
+    const saveButton = !readOnly;
 
     return (
       <Form layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
-        {saveButton && (<Button {...submitProps}>Save</Button>)}
+        {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
       </Form>
     );

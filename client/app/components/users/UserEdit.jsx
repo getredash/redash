@@ -1,10 +1,12 @@
 import React from 'react';
+import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
+import { currentUser } from '@/services/auth';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
 
@@ -15,7 +17,7 @@ export class UserEdit extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { user: this.props.user };
+    this.state = { user: this.props.user, changePassword: false };
   }
 
   handleSave = (values, onSuccess, onError) => {
@@ -41,6 +43,30 @@ export class UserEdit extends React.Component {
     });
   };
 
+  openChangePasswordModal = () => {
+    this.setState({ changePassword: true });
+  };
+
+  changePasswordModal() {
+    const fields = [
+      { name: 'old_password', title: 'Current Password' },
+      { name: 'password', title: 'New Password' },
+      { name: 'password_repeat', title: 'Repeat New Password' },
+    ].map(field => ({ ...field, type: 'password', required: true }));
+
+    return (
+      <Modal
+        visible={this.state.changePassword}
+        title="Change Password"
+        onCancel={() => { this.setState({ changePassword: false }); }}
+        footer={null}
+        destroyOnClose
+      >
+        <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.handleSave} />
+      </Modal>
+    );
+  }
+
   regenerateApiKey = () => {
     const doRegenerate = () => {
       User.regenerateApiKey(this.state.user).then(({ data }) => {
@@ -56,6 +82,7 @@ export class UserEdit extends React.Component {
       content: 'Are you sure you want to regenerate?',
       okText: 'Regenerate',
       onOk: doRegenerate,
+      maskClosable: true,
       autoFocusButton: null,
     });
   };
@@ -71,6 +98,7 @@ export class UserEdit extends React.Component {
 
     return (
       <div>
+        <hr />
         <label>API Key</label>
         <Input addonAfter={regenerateButton} value={user.apiKey} readOnly />
       </div>
@@ -108,8 +136,11 @@ export class UserEdit extends React.Component {
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
         <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.handleSave} />
-        <hr />
+        {this.changePasswordModal()}
         {!user.isDisabled && this.renderApiKey()}
+        <hr />
+        <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
+        {currentUser.isAdmin && <Button className="w-100 m-t-10">Send Password Reset Email</Button>}
       </div>
     );
   }

@@ -14,38 +14,7 @@
           <button type="button" class="btn btn-primary" ng-click="enableUser(user)">Enable</button>
         </div>
 
-          <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">Change password <span class="caret"></span></button>
-
-          <div uib-collapse="isCollapsed">
-            <div class="well">
-              <form class="form" name="userPasswordForm" ng-submit="savePassword(userPasswordForm)" novalidate>
-                <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.currentPassword | showError:userPasswordForm )}">
-                  <label class="control-label">Current Password</label>
-                  <input name="currentPassword" class="form-control" type="password" ng-model="password.current" required/>
-                  <error-messages input="userPasswordForm.currentPassword" form="userPasswordForm"></error-messages>
-                </div>
-                <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.newPassword | showError:userPasswordForm )}">
-                  <label class="control-label">New Password</label>
-                  <input name="newPassword" class="form-control" type="password" ng-model="password.new" ng-minlength="6"
-                         required/>
-                  <error-messages input="userPasswordForm.newPassword" form="userPasswordForm"></error-messages>
-                </div>
-                <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.passwordRepeat | showError:userPasswordForm )}">
-                  <label class="control-label">Repeat New Password</label>
-                  <input name="passwordRepeat" class="form-control" type="password" ng-model="password.newRepeat"
-                         compare-to="password.new"/>
-                  <span class="help-block error"
-                        ng-if="userPasswordForm.passwordRepeat.$error.compareTo">Passwords don't match.</span>
-                </div>
-                <div class="form-group">
-                  <button class="btn btn-primary">Set new password</button>
-                </div>
-              </form>
-            </div>
-          </div>
-
           <div ng-if="currentUser.isAdmin">
-            <br>
             <div class="form-group">
               <button class="btn btn-default" ng-if="!user.is_invitation_pending" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
                 Password Reset Email

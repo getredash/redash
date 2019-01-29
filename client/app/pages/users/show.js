@@ -57,38 +57,6 @@ function UserCtrl(
     };
   });
 
-  $scope.password = {
-    current: '',
-    new: '',
-    newRepeat: '',
-  };
-
-  $scope.savePassword = (form) => {
-    if (!form.$valid) {
-      return;
-    }
-
-    const data = {
-      id: $scope.user.id,
-      password: $scope.password.new,
-      old_password: $scope.password.current,
-    };
-
-    User.save(data, () => {
-      toastr.success('Password Saved.');
-      $scope.password = {
-        current: '',
-        new: '',
-        newRepeat: '',
-      };
-    }, (error) => {
-      const message = error.data.message || 'Failed saving password.';
-      toastr.error(message);
-    });
-  };
-
-  $scope.isCollapsed = true;
-
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
