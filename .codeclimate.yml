@@ -9,6 +9,8 @@ engines:
     checks:
       import/no-unresolved:
         enabled: false
+      no-multiple-empty-lines: # TODO: Enable
+        enabled: false
 ratings:
   paths:
   - "redash/**/*.py"
