@@ -285,7 +285,7 @@ class QueryEditor extends React.Component {
               </select>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
-                  <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
+                  <button type="button" className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}

@@ -18,6 +18,7 @@ export class EditInPlace extends React.Component {
     placeholder: '',
     value: '',
   };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -67,14 +68,13 @@ export class EditInPlace extends React.Component {
     </span>
   );
 
-  renderEdit = () =>
-    React.createElement(this.props.editor, {
-      ref: this.inputRef,
-      className: 'rd-form-control',
-      defaultValue: this.props.value,
-      onBlur: this.stopEditing,
-      onKeyDown: this.keyDown,
-    });
+  renderEdit = () => React.createElement(this.props.editor, {
+    ref: this.inputRef,
+    className: 'rd-form-control',
+    defaultValue: this.props.value,
+    onBlur: this.stopEditing,
+    onKeyDown: this.keyDown,
+  });
 
   render() {
     return (
