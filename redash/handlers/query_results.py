@@ -133,9 +133,7 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        data = dropdown_values(query_id, self.current_org)
-        headers = {'Content-Type': "application/json"}
-        return make_response(json_dumps(data), 200, headers)
+        return dropdown_values(query_id, self.current_org)
 
 
 class QueryResultResource(BaseResource):
