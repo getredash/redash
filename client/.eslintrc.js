@@ -29,7 +29,7 @@ module.exports = {
     'no-multiple-empty-lines': 'warn',
     "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
     'operator-linebreak': 'off',
-    'react/destructuring-assignment': 'warn',
+    'react/destructuring-assignment': 'off',
     "react/jsx-filename-extension": "off",
     'react/jsx-one-expression-per-line': 'off',
     "react/jsx-uses-react": "error",
