@@ -223,6 +223,7 @@ class QueryResultResource(BaseResource):
         max_age = int(request.args.get('maxAge', 0))
 
         query_result = None
+        query = None
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
@@ -275,6 +276,16 @@ class QueryResultResource(BaseResource):
 
             if should_cache:
                 response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
+
+            str_date = query_result.retrieved_at.strftime("%Y_%m_%d")
+            str_id = None
+            if query is not None:
+                str_id = str(query.id)
+            else:
+                str_id = str(query_result.id)
+            filename = "{}_{}.{}".format(str_id, str_date, filetype,)
+
+            response.headers.add_header("Content-Disposition", 'attachment; filename="{}"'.format(filename,))
 
             return response
 
