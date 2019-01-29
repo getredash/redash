@@ -8,13 +8,14 @@ from funcy import distinct
 from dateutil.parser import parse
 
 
+def _pluck_name_and_value(row):
+    name_column = "name" if "name" in row.keys() else row.keys()[-1]
+    value_column = "value" if "value" in row.keys() else row.keys()[-1]
+
+    return {"name": row[name_column], "value": row[value_column]}
+
+
 def dropdown_values(query_id, org):
-    def _pluck_name_and_value(row):
-        name_column = "name" if "name" in row.keys() else row.keys()[-1]
-        value_column = "value" if "value" in row.keys() else row.keys()[-1]
-
-        return {"name": row[name_column], "value": row[value_column]}
-
     query = models.Query.get_by_id_and_org(query_id, org)
     require_access(query.data_source.groups, current_user, view_only)
     query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
