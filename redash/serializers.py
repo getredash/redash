@@ -95,6 +95,7 @@ class QuerySerializer(Serializer):
 
 
 def serialize_query(query, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
+    from redash.tasks.queries import find_job_for_query
     d = {
         'id': query.id,
         'latest_query_data_id': query.latest_query_data_id,
@@ -114,6 +115,7 @@ def serialize_query(query, with_stats=False, with_visualizations=False, with_use
         'options': query.options,
         'version': query.version,
         'tags': query.tags or [],
+        'job': find_job_for_query(query.query_hash, query.data_source_id),
     }
 
     if with_user:
