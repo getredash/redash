@@ -283,7 +283,9 @@ class QueryResultResource(BaseResource):
                 str_id = str(query.id)
             else:
                 str_id = str(query_result.id)
-            response.headers.add_header("Content-Disposition", 'attachment; filename="{}_{}.{}"'.format(str_id, str_date, filetype,))
+            filename = "{}_{}.{}".format(str_id, str_date, filetype,)
+
+            response.headers.add_header("Content-Disposition", 'attachment; filename="{}"'.format(filename,))
 
             return response
 
