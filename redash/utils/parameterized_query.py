@@ -1,7 +1,8 @@
 import pystache
+from numbers import Number
 from redash.utils import mustache_render
 from funcy import distinct
-
+from dateutil.parser import parse
 
 def _collect_key_names(nodes):
     keys = []
@@ -33,16 +34,59 @@ def _parameter_names(parameter_values):
     return names
 
 
+def _is_date(string):
+    try:
+        parse(string)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_date_range(obj):
+    try:
+        return _is_date(obj["start"]) and _is_date(obj["end"])
+    except (KeyError, TypeError):
+        return False
+
+
 class ParameterizedQuery(object):
-    def __init__(self, template):
+    def __init__(self, template, schema=None):
+        self.schema = schema or []
         self.template = template
         self.query = template
         self.parameters = {}
 
     def apply(self, parameters):
-        self.parameters.update(parameters)
-        self.query = mustache_render(self.template, self.parameters)
+        invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
+        if invalid_parameter_names:
+            raise InvalidParameterError(invalid_parameter_names)
+        else:
+            self.parameters.update(parameters)
+            self.query = mustache_render(self.template, self.parameters)
+
         return self
+
+    def _valid(self, name, value):
+        definition = next((definition for definition in self.schema if definition["name"] == name), None)
+
+        if not definition:
+            return True
+
+        validators = {
+            "text": lambda value: isinstance(value, basestring),
+            "number": lambda value: isinstance(value, Number),
+            "enum": lambda value: value in definition["enumOptions"],
+            "date": _is_date,
+            "datetime-local": _is_date,
+            "datetime-with-seconds": _is_date,
+            "date-range": _is_date_range,
+            "datetime-range": _is_date_range,
+            "datetime-range-with-seconds": _is_date_range,
+        }
+
+        validate = validators.get(definition["type"], lambda x: False)
+
+        return validate(value)
 
     @property
     def missing_params(self):
@@ -52,3 +96,9 @@ class ParameterizedQuery(object):
     @property
     def text(self):
         return self.query
+
+
+class InvalidParameterError(Exception):
+    def __init__(self, parameters):
+        message = u"The following parameter values are incompatible with their type definitions: {}".format(", ".join(parameters))
+        super(InvalidParameterError, self).__init__(message)
