@@ -278,14 +278,12 @@ class QueryResultResource(BaseResource):
                 response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
 
             str_date = query_result.retrieved_at.strftime("%Y_%m_%d")
-
+            str_id = None
             if query is not None:
-                filename = query.name.replace(" ", "_") + "_" + str_date
+                str_id = str(query.id)
             else:
-                filename = str(query_result.id) + "_" + str_date
-            filename += "." + filetype
-
-            response.headers.add_header("Content-Disposition", 'attachment; filename="{}"'.format(filename,))
+                str_id = str(query_result.id)
+            response.headers.add_header("Content-Disposition", 'attachment; filename="{}_{}.{}"'.format(str_id, str_date, filetype,))
 
             return response
 
