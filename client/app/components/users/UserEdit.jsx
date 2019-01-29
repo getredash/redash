@@ -137,10 +137,14 @@ export class UserEdit extends React.Component {
         <hr />
         <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.handleSave} />
         {this.changePasswordModal()}
-        {!user.isDisabled && this.renderApiKey()}
-        <hr />
-        <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
-        {currentUser.isAdmin && <Button className="w-100 m-t-10">Send Password Reset Email</Button>}
+        {!user.isDisabled && (
+          <React.Fragment>
+            {this.renderApiKey()}
+            <hr />
+            <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
+            {currentUser.isAdmin && <Button className="w-100 m-t-10">Send Password Reset Email</Button>}
+          </React.Fragment>
+        )}
       </div>
     );
   }
