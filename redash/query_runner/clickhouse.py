@@ -74,7 +74,7 @@ class ClickHouse(BaseSQLQueryRunner):
             timeout=self.configuration.get('timeout', 30),
             params={
                 'user': self.configuration['user'],
-                'password':  self.configuration['password'],
+                'password':  self.configuration.get('password', ""),
                 'database': self.configuration['dbname']
             }
         )
