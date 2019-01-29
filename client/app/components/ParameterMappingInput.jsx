@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -163,7 +163,7 @@ export class ParameterMappingInput extends React.Component {
         <ParameterValueInput
           className="w-100"
           type={mapping.param.type}
-          value={isUndefined(mapping.value) || isNull(mapping.value) ? mapping.param.normalizedValue : mapping.value}
+          value={mapping.param.normalizedValue}
           enumOptions={mapping.param.enumOptions}
           queryId={mapping.param.queryId}
           onSelect={value => this.updateParamMapping(mapping, { value })}
