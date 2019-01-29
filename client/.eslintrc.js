@@ -31,7 +31,7 @@ module.exports = {
     'operator-linebreak': 'off',
     'react/destructuring-assignment': 'warn',
     "react/jsx-filename-extension": "off",
-    'react/jsx-one-expression-per-line': 'warn',
+    'react/jsx-one-expression-per-line': 'off',
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
     'react/jsx-wrap-multilines': 'warn',
