@@ -446,6 +446,12 @@ function QueryResource(
       return new QueryResultError("Can't execute empty query.");
     }
 
+    if (this.job) {
+      const q = new QueryResult({ job: { id: this.job } });
+      q.refreshStatus(this);
+      return q;
+    }
+
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
