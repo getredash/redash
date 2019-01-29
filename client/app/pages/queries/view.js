@@ -124,6 +124,7 @@ function QueryViewCtrl(
       return;
     }
 
+    $scope.dataSourceChanged = false;
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
