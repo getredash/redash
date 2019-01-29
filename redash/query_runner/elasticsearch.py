@@ -249,8 +249,6 @@ class BaseElasticSearch(BaseQueryRunner):
             for key, data in raw_result["aggregations"].iteritems():
                 collect_aggregations(mappings, result_rows, key, data, None, result_columns, result_columns_index)
 
-            logger.debug("result_rows %s", str(result_rows))
-            logger.debug("result_columns %s", str(result_columns))
         elif 'hits' in raw_result and 'hits' in raw_result['hits']:
             if result_fields:
                 for field in result_fields:
@@ -270,6 +268,19 @@ class BaseElasticSearch(BaseQueryRunner):
                     row[column] = value[0] if isinstance(value, list) and len(value) == 1 else value
 
                 result_rows.append(row)
+        elif 'rows' in raw_result and 'columns' in raw_result:
+            for column in raw_result["columns"]:
+                result_columns.append({
+                    "type": column[u"type"],
+                    "friendly_name": column[u"name"],
+                    "name": column[u"name"]
+
+                })
+
+            column_names = [column["name"] for column in result_columns]
+            for row in raw_result["rows"]:
+                result_rows.append(dict(zip(column_names, row)))
+
         else:
             raise Exception("Redash failed to parse the results it got from Elasticsearch.")
 
@@ -392,11 +403,11 @@ class ElasticSearch(BaseElasticSearch):
 
     def run_query(self, query, user):
         try:
-            error = None
 
             logger.debug(query)
             query_dict = json_loads(query)
 
+            mode = query_dict.pop("mode", "")
             index_name = query_dict.pop("index", "")
             result_fields = query_dict.pop("result_fields", None)
 
@@ -404,12 +415,16 @@ class ElasticSearch(BaseElasticSearch):
                 error = "Missing configuration key 'server'"
                 return None, error
 
-            url = "{0}/{1}/_search".format(self.server_url, index_name)
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
                 return None, error
+
+            if mode == "sql":
+                url = "{0}/_xpack/sql".format(self.server_url)
+            else:
+                url = "{0}/{1}/_search".format(self.server_url, index_name)
 
             logger.debug("Using URL: %s", url)
             logger.debug("Using query: %s", query_dict)
@@ -421,11 +436,14 @@ class ElasticSearch(BaseElasticSearch):
             result_rows = []
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
+            logger.debug("Columns: %s ", result_columns)
+            logger.debug("Rows: %s", result_rows)
+
             json_data = json_dumps({
                 "columns": result_columns,
                 "rows": result_rows
             })
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             logger.exception(e)
             error = "Query cancelled by user."
             json_data = None
