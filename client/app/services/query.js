@@ -429,7 +429,7 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText, isDirty) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
@@ -454,26 +454,30 @@ function QueryResource(
       });
     }
 
-    if (parameters.isRequired()) {
-      // Need to clear latest results, to make sure we don't use results for different params.
-      this.latest_query_data = null;
-      this.latest_query_data_id = null;
-    }
+    if (isDirty) {
+      if (parameters.isRequired()) {
+        // Need to clear latest results, to make sure we don't use results for different params.
+        this.latest_query_data = null;
+        this.latest_query_data_id = null;
+      }
 
-    if (this.latest_query_data && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult = new QueryResult({
-          query_result: this.latest_query_data,
-        });
+      if (this.latest_query_data && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({
+            query_result: this.latest_query_data,
+          });
+        }
+      } else if (this.latest_query_data_id && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        }
+      } else if (this.data_source_id) {
+        this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
+      } else {
+        return new QueryResultError('Please select data source to run this query.');
       }
-    } else if (this.latest_query_data_id && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
-      }
-    } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      this.queryResult = QueryResult.getByQueryId(this.id, parameters.getValues(), maxAge);
     }
 
     return this.queryResult;
