@@ -53,6 +53,7 @@ export default class TagsEditorModal extends React.Component {
           placeholder="Add some tags..."
           defaultValue={result}
           onChange={values => this.setState({ result: map(values, trim) })}
+          autoFocus
         >
           {this.selectOptions}
         </Select>
