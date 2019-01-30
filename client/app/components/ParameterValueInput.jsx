@@ -1,8 +1,9 @@
-import { isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import Input from 'antd/lib/input';
+import InputNumber from 'antd/lib/input-number';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -127,14 +128,24 @@ export class ParameterValueInput extends React.Component {
     );
   }
 
-  renderTextInput() {
-    const { value, onSelect, type } = this.props;
+  renderNumberInput() {
+    const { value, onSelect, className } = this.props;
     return (
-      <input
-        type={type}
-        className={'form-control ' + this.props.className}
-        value={isNull(value) || isUndefined(value) ? '' : value}
-        onChange={event => onSelect(event.target.value)}
+      <InputNumber
+        className={'form-control ' + className}
+        defaultValue={!isNaN(value) && value || 0}
+        onChange={onSelect}
+      />
+    );
+  }
+
+  renderTextInput() {
+    const { value, onSelect, className } = this.props;
+    return (
+      <Input
+        className={'form-control ' + className}
+        defaultValue={value || ''}
+        onChange={onSelect}
       />
     );
   }
@@ -150,6 +161,7 @@ export class ParameterValueInput extends React.Component {
       case 'date-range': return this.renderDateRangeInput();
       case 'enum': return this.renderEnumInput();
       case 'query': return this.renderQueryBasedInput();
+      case 'number': return this.renderNumberInput();
       default: return this.renderTextInput();
     }
   }
