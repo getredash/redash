@@ -18,7 +18,7 @@ function toggleItem(event, item, callback) {
 }
 
 export function FavoritesControl({ item, onChange }) {
-  const icon = item.is_favorite ? 'fa-star' : 'fa-star-o';
+  const icon = item.is_favorite ? 'fa fa-star' : 'fa fa-star-o';
   const title = item.is_favorite ? 'Remove from favorites' : 'Add to favorites';
   return (
     <a
@@ -27,7 +27,7 @@ export function FavoritesControl({ item, onChange }) {
       className="btn-favourite"
       onClick={event => toggleItem(event, item, onChange)}
     >
-      <i className={'fa ' + icon} aria-hidden="true" />
+      <i className={icon} aria-hidden="true" />
     </a>
   );
 }
