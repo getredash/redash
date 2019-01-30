@@ -490,26 +490,32 @@ function QueryResource(
       });
     }
 
-    if (parameters.isRequired()) {
-      // Need to clear latest results, to make sure we don't use results for different params.
-      this.latest_query_data = null;
-      this.latest_query_data_id = null;
-    }
-
-    if (this.latest_query_data && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult = new QueryResult({
-          query_result: this.latest_query_data,
-        });
+    if (isDirty) {
+      if (parameters.isRequired()) {
+        // Need to clear latest results, to make sure we don't use results for different params.
+        this.latest_query_data = null;
+        this.latest_query_data_id = null;
       }
-    } else if (this.latest_query_data_id && maxAge !== 0) {
-      if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+
+      if (this.latest_query_data && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({
+            query_result: this.latest_query_data,
+          });
+        }
+      } else if (this.latest_query_data_id && maxAge !== 0) {
+        if (!this.queryResult) {
+          this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        }
+      } else if (this.data_source_id) {
+        this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
+      } else {
+        return new QueryResultError('Please select data source to run this query.');
       }
     } else if (this.data_source_id) {
       this.queryResult = execute();
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      this.queryResult = QueryResult.getByQueryId(this.id, parameters.getValues(), maxAge);
     }
 
     return this.queryResult;
