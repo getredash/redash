@@ -1,4 +1,5 @@
 import { bind } from 'lodash';
+import $ from 'jquery';
 import { LivePaginator } from '@/lib/pagination';
 
 export default class ListCtrl {
@@ -61,6 +62,10 @@ export default class ListCtrl {
     });
 
     this.navigateTo = ($event, url) => {
+      // angular handles events before `react2angular` passes them to wrapped components
+      if ($($event.target).parents('favorites-control').length > 0) {
+        return;
+      }
       if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
         // keep default browser behavior
         return;
