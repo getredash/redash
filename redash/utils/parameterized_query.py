@@ -1,4 +1,5 @@
 import pystache
+from functools import partial
 from flask_login import current_user
 from numbers import Number
 from redash import models
@@ -8,25 +9,27 @@ from funcy import distinct
 from dateutil.parser import parse
 
 
-def _pluck_name_and_value(row):
+def _pluck_name_and_value(default_column, row):
     row = {k.lower(): v for k, v in row.items()}
-    name_column = "name" if "name" in row.keys() else row.keys()[-1]
-    value_column = "value" if "value" in row.keys() else row.keys()[-1]
+    name_column = "name" if "name" in row.keys() else default_column
+    value_column = "value" if "value" in row.keys() else default_column
 
     return {"name": row[name_column], "value": row[value_column]}
 
 
-def _load_data(query_id, org):
+def _load_result(query_id, org):
     query = models.Query.get_by_id_and_org(query_id, org)
     require_access(query.data_source.groups, current_user, view_only)
     query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
 
-    return json_loads(query_result.data)["rows"]
+    return json_loads(query_result.data)
 
 
 def dropdown_values(query_id, org):
-    rows = _load_data(query_id, org)
-    return map(_pluck_name_and_value, rows)
+    data = _load_result(query_id, org)
+    first_column = data["columns"][0]["name"]
+    pluck = partial(_pluck_name_and_value, first_column)
+    return map(pluck, data["rows"])
 
 
 def _collect_key_names(nodes):
