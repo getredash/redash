@@ -8,25 +8,16 @@ function toggleItem(event, item, callback) {
   event.preventDefault();
   event.stopPropagation();
 
-  if (item) {
-    if (item.is_favorite) {
-      item.$unfavorite().then(() => {
-        item.is_favorite = false;
-        $rootScope.$broadcast('reloadFavorites');
-        if (isFunction(callback)) {
-          callback();
-        }
-      });
-    } else {
-      item.$favorite().then(() => {
-        item.is_favorite = true;
-        $rootScope.$broadcast('reloadFavorites');
-        if (isFunction(callback)) {
-          callback();
-        }
-      });
+  const action = item.is_favorite ? item.$unfavorite.bind(item) : item.$favorite.bind(item);
+  const savedIsFavorite = item.is_favorite;
+
+  action().then(() => {
+    item.is_favorite = !savedIsFavorite;
+    $rootScope.$broadcast('reloadFavorites');
+    if (isFunction(callback)) {
+      callback();
     }
-  }
+  });
 }
 
 export function FavoritesControl({ item, onChange }) {
