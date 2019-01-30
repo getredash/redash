@@ -22,7 +22,7 @@
       </div>
 
       <div class="m-b-10">
-        <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+        <tags-list tags-url="'api/dashboards/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
 
       <div class="m-b-10">
@@ -110,7 +110,7 @@
       </div>
 
       <div class="m-b-10">
-          <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+          <tags-list tags-url="'api/dashboards/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
       <div class="m-b-5">
         <select ng-change="$ctrl.update()" ng-model="$ctrl.pageSize" class="form-control"

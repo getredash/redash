@@ -25,7 +25,7 @@
 
       <div ng-if="$ctrl.currentPage != 'my'">
         <div class="m-b-10">
-          <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+          <tags-list tags-url="'api/queries/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
         </div>
       </div>
 
@@ -134,7 +134,7 @@
       </div>
 
       <div ng-if="$ctrl.currentPage != 'my'" class="m-b-10">
-        <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+        <tags-list tags-url="'api/queries/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
 
       <div class="m-b-5">
