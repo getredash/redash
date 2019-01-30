@@ -159,20 +159,12 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
 
-    @patch('redash.models.QueryResult.get_by_id_and_org', return_value=namedtuple('query_result', 'data')('{"rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]}'))
-    @patch('redash.utils.parameterized_query.require_access')
-    @patch('redash.utils.parameterized_query.view_only')
-    @patch('redash.utils.parameterized_query.current_user')
-    @patch('redash.models.Query')
-    def test_dropdown_values_prefers_name_and_value_columns(self, *_):
+    @patch('redash.utils.parameterized_query._load_data', return_value=[{"id": 5, "Name": "John", "Value": "John Doe"}])
+    def test_dropdown_values_prefers_name_and_value_columns(self, _):
         values = dropdown_values(1, 2)
         self.assertEquals(values, [{"name": "John", "value": "John Doe"}])
 
-    @patch('redash.models.QueryResult.get_by_id_and_org', return_value=namedtuple('query_result', 'data')('{"rows": [{"id": 5, "fish": "Clown", "poultry": "Hen"}]}'))
-    @patch('redash.utils.parameterized_query.require_access')
-    @patch('redash.utils.parameterized_query.view_only')
-    @patch('redash.utils.parameterized_query.current_user')
-    @patch('redash.models.Query')
-    def test_dropdown_values_compromises_for_first_column(self, *_):
+    @patch('redash.utils.parameterized_query._load_data', return_value=[{"id": 5, "fish": "Clown", "poultry": "Hen"}])
+    def test_dropdown_values_compromises_for_first_column(self, _):
         values = dropdown_values(1, 2)
         self.assertEquals(values, [{"name": 5, "value": 5}])

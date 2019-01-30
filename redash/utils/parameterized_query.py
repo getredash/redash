@@ -16,13 +16,16 @@ def _pluck_name_and_value(row):
     return {"name": row[name_column], "value": row[value_column]}
 
 
-def dropdown_values(query_id, org):
+def _load_data(query_id, org):
     query = models.Query.get_by_id_and_org(query_id, org)
     require_access(query.data_source.groups, current_user, view_only)
     query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
 
-    rows = json_loads(query_result.data)["rows"]
+    return json_loads(query_result.data)["rows"]
 
+
+def dropdown_values(query_id, org):
+    rows = _load_data(query_id, org)
     return map(_pluck_name_and_value, rows)
 
 
