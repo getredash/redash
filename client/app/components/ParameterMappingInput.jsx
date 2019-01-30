@@ -342,7 +342,12 @@ export class ParameterMappingListInput extends React.Component {
   }
 
   static getDefaultValue(mapping) {
-    const value = Parameter.getValue(mapping.param);
+    // static type is different since it's fed param.normalizedValue
+    const param = mapping.type !== MappingType.StaticValue
+      ? mapping.param
+      : mapping.param.clone().setValue(mapping.value);
+
+    const value = Parameter.getValue(param);
 
     return this.getStringValue(value);
   }
@@ -364,26 +369,6 @@ export class ParameterMappingListInput extends React.Component {
     const dataSource = this.props.mappings.map(mapping => ({ mapping }));
 
     return (
-<<<<<<< HEAD
-      <div>
-        {this.props.mappings.map((mapping, index) => {
-          const existingParamsNames = this.props.existingParams
-            .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
-            .map(({ name }) => name); // keep names only
-
-          return (
-            <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>
-              <ParameterMappingInput
-                mapping={mapping}
-                existingParamNames={existingParamsNames}
-                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
-                clientConfig={clientConfig}
-                Query={Query}
-              />
-            </div>
-          );
-        })}
-=======
       <div ref={this.wrapperRef} className="paramMappingList">
         <Table
           dataSource={dataSource}
@@ -455,7 +440,6 @@ export class ParameterMappingListInput extends React.Component {
             }}
           />
         </Table>
->>>>>>> [Widget Params] Switched parameter list to table style
       </div>
     );
   }

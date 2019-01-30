@@ -140,6 +140,8 @@ export class Parameter {
         local.setValue(this.value);
       });
     }
+
+    return this;
   }
 
   get normalizedValue() {
