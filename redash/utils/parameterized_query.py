@@ -1,6 +1,7 @@
 import pystache
 from functools import partial
 from flask_login import current_user
+from redash.authentication.org_resolving import current_org
 from numbers import Number
 from redash import models
 from redash.utils import mustache_render, json_loads
@@ -17,16 +18,16 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": row[value_column]}
 
 
-def _load_result(query_id, org):
-    query = models.Query.get_by_id_and_org(query_id, org)
+def _load_result(query_id):
+    query = models.Query.get_by_id_and_org(query_id, current_org)
     require_access(query.data_source.groups, current_user, view_only)
-    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
+    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
 
     return json_loads(query_result.data)
 
 
-def dropdown_values(query_id, org):
-    data = _load_result(query_id, org)
+def dropdown_values(query_id):
+    data = _load_result(query_id)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return map(pluck, data["rows"])
@@ -78,12 +79,11 @@ def _is_date_range(obj):
 
 
 class ParameterizedQuery(object):
-    def __init__(self, template, schema=None, org=None):
+    def __init__(self, template, schema=None):
         self.schema = schema or []
         self.template = template
         self.query = template
         self.parameters = {}
-        self.org = org
 
     def apply(self, parameters):
         invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
@@ -105,7 +105,7 @@ class ParameterizedQuery(object):
             "text": lambda value: isinstance(value, basestring),
             "number": lambda value: isinstance(value, Number),
             "enum": lambda value: value in definition["enumOptions"],
-            "query": lambda value: value in [v["value"] for v in dropdown_values(definition["queryId"], self.org)],
+            "query": lambda value: value in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,

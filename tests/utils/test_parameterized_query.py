@@ -163,12 +163,12 @@ class TestParameterizedQuery(TestCase):
         "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
         "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]})
     def test_dropdown_values_prefers_name_and_value_columns(self, _):
-        values = dropdown_values(1, 2)
+        values = dropdown_values(1)
         self.assertEquals(values, [{"name": "John", "value": "John Doe"}])
 
     @patch('redash.utils.parameterized_query._load_result', return_value={
         "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
     def test_dropdown_values_compromises_for_first_column(self, _):
-        values = dropdown_values(1, 2)
+        values = dropdown_values(1)
         self.assertEquals(values, [{"name": 5, "value": 5}])

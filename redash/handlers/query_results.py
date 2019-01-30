@@ -73,7 +73,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text, parameter_schema, data_source.org).apply(parameter_values)
+    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
@@ -133,7 +133,7 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        return dropdown_values(query_id, self.current_org)
+        return dropdown_values(query_id)
 
 
 class QueryResultResource(BaseResource):
