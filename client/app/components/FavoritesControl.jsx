@@ -1,4 +1,3 @@
-import { isFunction } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -14,9 +13,7 @@ function toggleItem(event, item, callback) {
   action().then(() => {
     item.is_favorite = !savedIsFavorite;
     $rootScope.$broadcast('reloadFavorites');
-    if (isFunction(callback)) {
-      callback();
-    }
+    callback();
   });
 }
 
