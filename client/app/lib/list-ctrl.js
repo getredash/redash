@@ -33,6 +33,7 @@ export default class ListCtrl {
     this.onTagsUpdate = (tags) => {
       this.selectedTags = tags;
       this.update();
+      $scope.$applyAsync();
     };
 
     this.isInSearchMode = () => this.searchTerm !== undefined && this.searchTerm !== null && this.searchTerm.length > 0;
