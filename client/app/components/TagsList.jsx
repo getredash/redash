@@ -2,6 +2,7 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import classNames from 'classnames';
 import getTags from '@/services/getTags';
 
 export class TagsList extends React.Component {
@@ -62,7 +63,7 @@ export class TagsList extends React.Component {
           {map(allTags, tag => (
             <a
               key={tag.name}
-              className={'list-group-item max-character ' + (selectedTags.has(tag.name) ? 'active' : '')}
+              className={classNames('list-group-item', 'max-character', { active: selectedTags.has(tag.name) })}
               onClick={event => this.toggleTag(event, tag.name)}
             >
               <span className="badge badge-light">{tag.count}</span>
