@@ -2,14 +2,22 @@ import moment from 'moment';
 import { extend } from 'lodash';
 
 import ListCtrl from '@/lib/list-ctrl';
+import { $route } from '@/services/ng';
+import { Query } from '@/services/query';
+import { currentUser } from '@/services/auth';
 import template from './queries-list.html';
 import './queries-list.css';
 
-
 class QueriesListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, Query) {
-    super($scope, $location, currentUser, clientConfig);
-    this.Type = Query;
+  constructor($scope) {
+    const currentPage = $route.current.locals.currentPage;
+    const resources = {
+      all: Query.query.bind(Query),
+      my: Query.myQueries.bind(Query),
+      favorites: Query.favorites.bind(Query),
+    };
+    super($scope, currentPage, resources[currentPage]);
+
     this.showMyQueries = currentUser.hasPermission('create_query');
   }
 
@@ -18,7 +26,7 @@ class QueriesListCtrl extends ListCtrl {
     const rows = data.results.map((query) => {
       query.created_at = moment(query.created_at);
       query.retrieved_at = moment(query.retrieved_at);
-      return new this.Type(query);
+      return new Query(query);
     });
 
     this.paginator.updateRows(rows, data.count);
@@ -57,11 +65,6 @@ export default function init(ngModule) {
         title: 'Queries',
         resolve: {
           currentPage: () => 'all',
-          resource(Query) {
-            'ngInject';
-
-            return Query.query.bind(Query);
-          },
         },
       },
       route,
@@ -71,11 +74,6 @@ export default function init(ngModule) {
         title: 'My Queries',
         resolve: {
           currentPage: () => 'my',
-          resource: (Query) => {
-            'ngInject';
-
-            return Query.myQueries.bind(Query);
-          },
         },
       },
       route,
@@ -85,11 +83,6 @@ export default function init(ngModule) {
         title: 'Favorite Queries',
         resolve: {
           currentPage: () => 'favorites',
-          resource: (Query) => {
-            'ngInject';
-
-            return Query.favorites.bind(Query);
-          },
         },
       },
       route,

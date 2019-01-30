@@ -1,12 +1,16 @@
 import { extend } from 'lodash';
-import { policy } from '@/services/policy';
 import ListCtrl from '@/lib/list-ctrl';
 import settingsMenu from '@/services/settingsMenu';
+import { $route } from '@/services/ng';
+import { policy } from '@/services/policy';
+import { User } from '@/services/user';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, User) {
-    super($scope, $location, currentUser, clientConfig);
+  constructor($scope) {
+    const currentPage = $route.current.locals.currentPage;
+    super($scope, currentPage, User.query.bind(User));
+
     this.policy = policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
@@ -54,26 +58,16 @@ export default function init(ngModule) {
         title: 'Users',
         resolve: {
           currentPage: () => 'all',
-          resource(User) {
-            'ngInject';
-
-            return User.query.bind(User);
-          },
         },
       },
       route,
     ),
     '/users/disabled': extend(
       {
+        title: 'Disabled Users',
         resolve: {
           currentPage: () => 'disabled',
-          resource(User) {
-            'ngInject';
-
-            return User.query.bind(User);
-          },
         },
-        title: 'Disabled Users',
       },
       route,
     ),

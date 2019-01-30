@@ -1,9 +1,11 @@
 import { bind } from 'lodash';
 import $ from 'jquery';
 import { LivePaginator } from '@/lib/pagination';
+import { $location } from '@/services/ng';
+import { currentUser, clientConfig } from '@/services/auth';
 
 export default class ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, defaultOrder = '-created_at') {
+  constructor($scope, currentPage, resource, defaultOrder = '-created_at') {
     this.searchTerm = $location.search().q || '';
 
     this.page = parseInt($location.search().page || 1, 10);
@@ -20,10 +22,8 @@ export default class ListCtrl {
     }
     this.defaultOptions = {};
 
-    // use $parent because we're using a component as route target instead of controller;
-    // $parent refers to scope created for the page by router
-    this.resource = $scope.$parent.$resolve.resource;
-    this.currentPage = $scope.$parent.$resolve.currentPage;
+    this.currentPage = currentPage;
+    this.resource = resource;
     this.currentUser = currentUser;
 
     this.showEmptyState = false;

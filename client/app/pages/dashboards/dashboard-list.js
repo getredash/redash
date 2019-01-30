@@ -1,18 +1,24 @@
 import { extend } from 'lodash';
 
 import ListCtrl from '@/lib/list-ctrl';
+import { $route } from '@/services/ng';
+import { Dashboard } from '@/services/dashboard';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 class DashboardListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, Dashboard) {
-    super($scope, $location, currentUser, clientConfig);
-    this.Type = Dashboard;
+  constructor() {
+    const currentPage = $route.current.locals.currentPage;
+    const resources = {
+      all: Dashboard.query.bind(Dashboard),
+      favorites: Dashboard.favorites.bind(Dashboard),
+    };
+    super(currentPage, resources[currentPage]);
   }
 
   processResponse(data) {
     super.processResponse(data);
-    const rows = data.results.map(d => new this.Type(d));
+    const rows = data.results.map(d => new Dashboard(d));
     this.paginator.updateRows(rows, data.count);
     this.showEmptyState = data.count === 0;
   }
@@ -35,11 +41,6 @@ export default function init(ngModule) {
         title: 'Dashboards',
         resolve: {
           currentPage: () => 'all',
-          resource(Dashboard) {
-            'ngInject';
-
-            return Dashboard.query.bind(Dashboard);
-          },
         },
       },
       route,
@@ -49,11 +50,6 @@ export default function init(ngModule) {
         title: 'Favorite Dashboards',
         resolve: {
           currentPage: () => 'favorites',
-          resource(Dashboard) {
-            'ngInject';
-
-            return Dashboard.favorites.bind(Dashboard);
-          },
         },
       },
       route,
