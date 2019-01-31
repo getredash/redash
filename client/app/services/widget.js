@@ -194,7 +194,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
           const result = param.clone();
           result.title = mapping.title || param.title;
           result.locals = [param];
-          result.urlPrefix = `w${this.id}_`;
+          result.urlPrefix = `p_w${this.id}_`;
           if (mapping.type === WidgetService.MappingType.StaticValue) {
             result.setValue(mapping.value);
           } else {
