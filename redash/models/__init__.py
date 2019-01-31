@@ -22,8 +22,9 @@ from sqlalchemy import func
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.models import generic_repr
+from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
-from redash import redis_connection, utils
+from redash import redis_connection, utils, settings
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
@@ -36,7 +37,7 @@ from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
 from .changes import ChangeTrackingMixin, Change  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
-from .types import Configuration, MutableDict, MutableList, PseudoJSON
+from .types import EncryptedConfiguration, Configuration, MutableDict, MutableList, PseudoJSON
 from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User)  # noqa
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(ConfigurationContainer.as_mutable(Configuration))
+    # TODO: remove
+    _options = Column('options', db.Text, default='{}')
+    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.SECRET_KEY, FernetEngine)))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -554,7 +557,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                         .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
                         .filter(Query.schedule.isnot(None))
                         .order_by(Query.id))
-        
+
         now = utils.utcnow()
         outdated_queries = {}
         scheduled_queries_executions.refresh()
