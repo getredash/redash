@@ -6,7 +6,7 @@ import DatePicker from 'antd/lib/date-picker';
 import TimePicker from 'antd/lib/time-picker';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
-import { capitalize, clone, isEqual } from 'lodash';
+import { capitalize, clone, isEqual, chain, isNil } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
 import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
@@ -153,7 +153,8 @@ export class ScheduleDialog extends React.Component {
     // save if changed
     if (!isEqual(newSchedule, this.props.schedule)) {
       if (newSchedule.interval) {
-        this.props.updateQuery({ schedule: clone(newSchedule) });
+        const schedule = chain(newSchedule).clone().omitBy(isNil).value();
+        this.props.updateQuery({ schedule });
       } else {
         this.props.updateQuery({ schedule: null });
       }
