@@ -89,6 +89,11 @@ class ParameterizedQuery(object):
         return validate(value)
 
     @property
+    def is_safe(self):
+        text_parameters = filter(lambda p: p["type"] == "text", self.schema)
+        return not any(text_parameters)
+
+    @property
     def missing_params(self):
         query_parameters = set(_collect_query_parameters(self.template))
         return set(query_parameters) - set(_parameter_names(self.parameters))

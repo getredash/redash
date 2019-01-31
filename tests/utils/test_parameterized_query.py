@@ -131,3 +131,15 @@ class TestParameterizedQuery(TestCase):
 
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
+
+    def test_is_not_safe_if_expecting_text_parameter(self):
+        schema = [{"name": "bar", "type": "text"}]
+        query = ParameterizedQuery("foo", schema)
+
+        self.assertFalse(query.is_safe)
+
+    def test_is_safe_if_not_expecting_text_parameter(self):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("foo", schema)
+
+        self.assertTrue(query.is_safe)
