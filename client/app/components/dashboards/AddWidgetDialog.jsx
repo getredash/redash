@@ -9,6 +9,7 @@ import {
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
+import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
@@ -41,7 +42,7 @@ class AddWidgetDialog extends React.Component {
       parameterMappings: [],
     };
 
-    // Don't show draft (unpublished) queries
+    // Don't show draft (unpublished) queries in recent queries.
     Query.recent().$promise.then((items) => {
       this.setState({
         recentQueries: items.filter(item => !item.is_draft),
@@ -208,6 +209,8 @@ class AddWidgetDialog extends React.Component {
                     onClick={() => this.selectQuery(query.id)}
                   >
                     {query.name}
+                    {' '}
+                    <QueryTagsControl tags={query.tags} className="inline-tags-control" />
                   </a>
                 ))}
               </div>
@@ -226,12 +229,18 @@ class AddWidgetDialog extends React.Component {
                 {this.state.searchedQueries.map(query => (
                   <a
                     href="javascript:void(0)"
-                    className="list-group-item"
+                    className={'list-group-item ' + (query.is_draft ? 'inactive' : '')}
                     key={query.id}
                     onClick={() => this.selectQuery(query.id)}
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
-                  />
+                  >
+                    <div
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
+                      style={{ display: 'inline-block' }}
+                    />
+                    {' '}
+                    <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control" />
+                  </a>
                 ))}
               </div>
             )}
@@ -325,7 +334,7 @@ class AddWidgetDialog extends React.Component {
           <button
             type="button"
             className="btn btn-primary"
-            disabled={this.state.saveInProgress}
+            disabled={this.state.saveInProgress || !this.state.selectedQuery}
             onClick={() => this.saveWidget()}
           >
             Add to Dashboard

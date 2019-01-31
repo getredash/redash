@@ -469,7 +469,7 @@ body {
 .label-tag-archived,
 .label-tag {
   margin-right: 3px;
-  display: inline-block;
+  display: inline;
   margin-top: 2px;
   max-width: 24ch;
   .text-overflow();
@@ -937,3 +937,17 @@ text.slicetext {
   }
 }
 
+.ui-select-choices-row > span {
+  background-color: inherit !important;
+}
+
+.list-group-item.inactive,
+.ui-select-choices-row.disabled {
+  background-color: #eee !important;
+  border-color: transparent;
+  opacity: 0.5;
+  box-shadow: none;
+  color: #333;
+  pointer-events: none;
+  cursor: not-allowed;
+}
