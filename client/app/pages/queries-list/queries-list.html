@@ -1,10 +1,5 @@
 <div class="container">
-  <div ng-switch="$ctrl.currentPage">
-    <div ng-switch-when="my"><page-header title="My queries"></page-header></div>
-    <div ng-switch-when="all"><page-header title="All queries"></page-header></div>
-    <div ng-switch-when="archive"><page-header title="Archived queries"></page-header></div>
-    <div ng-switch-when="favorites"><page-header title="Favorite queries"></page-header></div>
-  </div>
+  <page-header title="$ctrl.title"></page-header>
   <div class="row">
     <div class="col-md-3 list-control-t">
       <div class="m-b-10">
