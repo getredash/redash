@@ -554,18 +554,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                         .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
                         .filter(Query.schedule.isnot(None))
                         .order_by(Query.id))
-        
+
         now = utils.utcnow()
         outdated_queries = {}
         scheduled_queries_executions.refresh()
 
         for query in queries:
-            schedule_until = pytz.utc.localize(datetime.datetime.strptime(
-                query.schedule['until'], '%Y-%m-%d')) if query.schedule['until'] else None
-            if (query.schedule['interval'] == None or (
-                    schedule_until != None and (
-                    schedule_until <= now))):
+            if query.schedule['interval'] is None:
                 continue
+
+            if query.schedule['until'] is not None:
+                schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule['until'], '%Y-%m-%d'))
+
+                if schedule_until <= now:
+                    continue
 
             if query.latest_query_data:
                 retrieved_at = query.latest_query_data.retrieved_at
