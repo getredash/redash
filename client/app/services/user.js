@@ -68,15 +68,29 @@ function deleteUser(user) {
 function regenerateApiKey(user) {
   return $http
     .post(`api/users/${user.id}/regenerate_api_key`)
-    .success((data) => {
+    .then(({ data }) => {
       toastr.success('The API Key has been updated.');
-      return data;
+      return data.api_key;
     })
-    .error((response) => {
+    .catch((response) => {
+      const message =
+        response.data && response.data.message
+          ? response.data.message
+          : `Failed regenerating API Key: ${response.statusText}`;
+
+      toastr.error(message);
+    });
+}
+
+function sendPasswordReset(user) {
+  return $http
+    .post(`api/users/${user.id}/reset_password`)
+    .then(({ data }) => data.reset_link)
+    .catch((response) => {
       const message =
         response.message
           ? response.message
-          : `Failed regenerating API Key: ${response.statusText}`;
+          : `Failed to send password reset email: ${response.statusText}`;
 
       toastr.error(message);
     });
@@ -98,6 +112,7 @@ function UserService($resource) {
   UserResource.disableUser = disableUser;
   UserResource.deleteUser = deleteUser;
   UserResource.regenerateApiKey = regenerateApiKey;
+  UserResource.sendPasswordReset = sendPasswordReset;
 
   return UserResource;
 }

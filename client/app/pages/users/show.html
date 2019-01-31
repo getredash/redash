@@ -7,8 +7,6 @@
       <user-edit ng-if="userInfo && (currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-edit>
 
       <div class="col-md-4 col-md-offset-4 profile__container" ng-if="(currentUser.isAdmin || currentUser.id == user.id)">
-        <hr>
-
         <div ng-if="user.is_disabled" class="d-flex justify-content-between align-items-center">
           <strong>This user is disabled.</strong>
           <button type="button" class="btn btn-primary" ng-click="enableUser(user)">Enable</button>
@@ -16,21 +14,7 @@
 
           <div ng-if="currentUser.isAdmin">
             <div class="form-group">
-              <button class="btn btn-default" ng-if="!user.is_invitation_pending" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
-                Password Reset Email
-              </button>
               <button class="btn btn-default" ng-if="user.is_invitation_pending" ng-click="resendInvitation()" ng-disabled="disablePasswordResetButton">Resend Invitation</button>
-            </div>
-
-            <div ng-if="passwordResetLink" class="alert alert-success">
-              <p ng-if="!clientConfig.mailSettingMissing">
-                <strong>The user should receive a link to reset their password by email soon.</strong>
-              </p>
-              <p ng-if="clientConfig.mailSettingsMissing">
-                You don't have mail server configured, please send the following link
-                to {{user.name}} to reset their password:<br/>
-                <textarea class="form-control m-t-10" rows="2" readonly>{{ passwordResetLink }}</textarea>
-              </p>
             </div>
           </div>
       </div>

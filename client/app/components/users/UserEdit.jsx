@@ -1,4 +1,5 @@
 import React from 'react';
+import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 import Input from 'antd/lib/input';
@@ -6,7 +7,8 @@ import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
-import { currentUser } from '@/services/auth';
+import { currentUser, clientConfig } from '@/services/auth';
+import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
 
@@ -17,7 +19,11 @@ export class UserEdit extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { user: this.props.user, changePassword: false };
+    this.state = {
+      user: this.props.user,
+      changingPassword: false,
+      sendingPasswordEmail: false,
+    };
   }
 
   handleSave = (values, onSuccess, onError) => {
@@ -44,7 +50,18 @@ export class UserEdit extends React.Component {
   };
 
   openChangePasswordModal = () => {
-    this.setState({ changePassword: true });
+    this.setState({ changingPassword: true });
+  };
+
+  sendPasswordReset = () => {
+    const { user } = this.state;
+    this.setState({ sendingPasswordEmail: true });
+
+    User.sendPasswordReset(user).then((passwordResetLink) => {
+      this.setState({ passwordResetLink });
+    }).finally(() => {
+      this.setState({ sendingPasswordEmail: false });
+    });
   };
 
   changePasswordModal() {
@@ -56,9 +73,9 @@ export class UserEdit extends React.Component {
 
     return (
       <Modal
-        visible={this.state.changePassword}
+        visible={this.state.changingPassword}
         title="Change Password"
-        onCancel={() => { this.setState({ changePassword: false }); }}
+        onCancel={() => { this.setState({ changingPassword: false }); }}
         footer={null}
         destroyOnClose
       >
@@ -69,11 +86,9 @@ export class UserEdit extends React.Component {
 
   regenerateApiKey = () => {
     const doRegenerate = () => {
-      User.regenerateApiKey(this.state.user).then(({ data }) => {
-        if (data) {
-          const { user } = this.state;
-          this.setState({ user: { ...user, apiKey: data.api_key } });
-        }
+      User.regenerateApiKey(this.state.user).then((apiKey) => {
+        const { user } = this.state;
+        this.setState({ user: { ...user, apiKey } });
       });
     };
 
@@ -102,6 +117,37 @@ export class UserEdit extends React.Component {
         <label>API Key</label>
         <Input addonAfter={regenerateButton} value={user.apiKey} readOnly />
       </div>
+    );
+  }
+
+  renderPasswordReset() {
+    const { user, sendingPasswordEmail, passwordResetLink } = this.state;
+
+    return (
+      <React.Fragment>
+        <Button
+          className="w-100 m-t-10"
+          onClick={this.sendPasswordReset}
+          loading={sendingPasswordEmail}
+        >
+          Send Password Reset Email
+        </Button>
+        {passwordResetLink &&
+          <Alert
+            message={clientConfig.mailSettingsMissing ? (
+              <p>
+                The mail server is not configured, please send the following link
+                to {user.name} to reset their password:
+                <Input.TextArea value={absoluteUrl(passwordResetLink)} readOnly />
+              </p>
+            ) : 'The user should receive a link to reset their password by email soon.'}
+            type="success"
+            className="m-t-20"
+            afterClose={() => { this.setState({ passwordResetLink: null }); }}
+            closable
+          />
+        }
+      </React.Fragment>
     );
   }
 
@@ -136,13 +182,13 @@ export class UserEdit extends React.Component {
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
         <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.handleSave} />
-        {this.changePasswordModal()}
         {!user.isDisabled && (
           <React.Fragment>
             {this.renderApiKey()}
             <hr />
+            {this.changePasswordModal()}
             <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
-            {currentUser.isAdmin && <Button className="w-100 m-t-10">Send Password Reset Email</Button>}
+            {currentUser.isAdmin && this.renderPasswordReset()}
           </React.Fragment>
         )}
       </div>

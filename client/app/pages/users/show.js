@@ -1,16 +1,14 @@
 import { each } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
-import { absoluteUrl } from '@/services/utils';
 import template from './show.html';
 import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, User,
+  currentUser, User,
 ) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
-  $scope.clientConfig = clientConfig;
 
   if ($scope.userId === undefined) {
     $scope.userId = currentUser.id;
@@ -56,14 +54,6 @@ function UserCtrl(
       isDisabled: user.is_disabled,
     };
   });
-
-  $scope.sendPasswordReset = () => {
-    $scope.disablePasswordResetButton = true;
-    $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
-      $scope.disablePasswordResetButton = false;
-      $scope.passwordResetLink = absoluteUrl(data.reset_link);
-    });
-  };
 
   $scope.resendInvitation = () => {
     $http.post(`api/users/${$scope.user.id}/invite`).success(() => {

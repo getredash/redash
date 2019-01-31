@@ -180,7 +180,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
         htmlType: 'button',
         className: action.pullRight ? 'pull-right m-t-10' : 'm-t-10',
         type: action.type,
-        disabled: inProgress || (isFieldsTouched() && action.disableWhenDirty),
+        disabled: (isFieldsTouched() && action.disableWhenDirty),
         loading: inProgress,
         onClick: this.handleAction,
       };
