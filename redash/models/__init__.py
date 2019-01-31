@@ -2,13 +2,9 @@ import cStringIO
 import csv
 import datetime
 import calendar
-import functools
-import hashlib
-import itertools
 import logging
 import time
 import pytz
-from functools import reduce
 
 import xlsxwriter
 from six import python_2_unicode_compatible, text_type
