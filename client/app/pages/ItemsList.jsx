@@ -155,6 +155,13 @@ export default class ItemsList extends React.Component {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  renderPageHeader() {
+    return (
+      <PageHeader title={$route.current.title} />
+    );
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   renderLoadingState() {
     return (
       <div className="text-center">
@@ -263,9 +270,7 @@ export default class ItemsList extends React.Component {
         onHeaderCell: () => ({
           onClick: () => this.toggleSorting(column.orderByField),
         }),
-        render(text, row, idx) {
-          return isFunction(column.render) ? column.render(text, row.item, idx) : text;
-        },
+        render: (text, row) => (isFunction(column.render) ? column.render(text, row.item, this) : text),
       }),
     );
     const rows = map(
@@ -303,8 +308,8 @@ export default class ItemsList extends React.Component {
     const list = isLoaded && !isEmpty ? this.renderList() : null;
 
     return (
-      <div className="container">
-        <PageHeader title={$route.current.title} />
+      <React.Fragment>
+        {this.renderPageHeader()}
         <div className="row">
           {sidebar && <div className="col-md-3 list-control-t">{sidebar}</div>}
           <div className={classNames('list-content', { 'col-md-9': sidebar, 'col-md-12': !sidebar })}>
@@ -314,7 +319,7 @@ export default class ItemsList extends React.Component {
           </div>
           {sidebar && <div className="col-md-3 list-control-r-b">{sidebar}</div>}
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

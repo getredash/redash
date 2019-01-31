@@ -201,6 +201,12 @@ class QueriesList extends ItemsList {
   renderTagsList() {
     return super.renderTagsList('api/queries/tags');
   }
+
+  render() {
+    return (
+      <div className="container">{super.render()}</div>
+    );
+  }
 }
 
 export default function init(ngModule) {

@@ -153,6 +153,12 @@ class DashboardList extends ItemsList {
   renderTagsList() {
     return super.renderTagsList('api/dashboards/tags');
   }
+
+  render() {
+    return (
+      <div className="container">{super.render()}</div>
+    );
+  }
 }
 
 export default function init(ngModule) {
