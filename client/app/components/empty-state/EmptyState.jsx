@@ -1,3 +1,4 @@
+import { some, map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -16,33 +17,71 @@ function createDashboard() {
   });
 }
 
+function getSteps({
+  showAlertStep,
+  showDashboardStep,
+  showInviteStep,
+}) {
+  return {
+    dataSource: {
+      show: true,
+      completed: organizationStatus.objectCounters.data_sources > 0,
+      render() {
+        return currentUser.isAdmin ?
+          (<span><a href="data_sources/new">Connect</a> a Data Source</span>) :
+          (<span>Ask an account admin to connect a data source.</span>);
+      },
+    },
+    query: {
+      show: true,
+      completed: organizationStatus.objectCounters.queries > 0,
+      render() {
+        return (<span><a href="queries/new">Create</a> your first Query</span>);
+      },
+    },
+    alert: {
+      show: showAlertStep,
+      completed: organizationStatus.objectCounters.alerts > 0,
+      render() {
+        return (<span><a href="alerts/new">Create</a> your first Alert</span>);
+      },
+    },
+    dashboard: {
+      show: showDashboardStep,
+      completed: organizationStatus.objectCounters.dashboards > 0,
+      render() {
+        return (<span><a onClick={createDashboard}>Create</a> your first Dashboard</span>);
+      },
+    },
+    inviteUsers: {
+      show: showInviteStep,
+      completed: organizationStatus.objectCounters.users > 1,
+      render() {
+        return (<span><a href="users/new">Invite</a> your team members</span>);
+      },
+    },
+  };
+}
+
+function renderStep(step, key) {
+  return step.show ? (
+    <li key={key} className={classNames({ done: step.completed })}>{step.render(step)}</li>
+  ) : null;
+}
+
 export function EmptyState({
   icon,
   title,
   description,
   illustration,
   helpLink,
-  showAlertStep,
-  showDashboardStep,
-  showInviteStep,
   onboardingMode,
+  ...showSteps
 }) {
-  const isAdmin = currentUser.isAdmin;
+  const steps = getSteps(showSteps);
+  const shouldShow = !onboardingMode || some(steps, { show: true, completed: false });
 
-  const dataSourceStepCompleted = organizationStatus.objectCounters.data_sources > 0;
-  const queryStepCompleted = organizationStatus.objectCounters.queries > 0;
-  const dashboardStepCompleted = organizationStatus.objectCounters.dashboards > 0;
-  const alertStepCompleted = organizationStatus.objectCounters.alerts > 0;
-  const inviteStepCompleted = organizationStatus.objectCounters.users > 1;
-
-  const shouldShowOnboarding = !onboardingMode || !(
-    dataSourceStepCompleted &&
-    queryStepCompleted &&
-    dashboardStepCompleted &&
-    inviteStepCompleted
-  );
-
-  if (shouldShowOnboarding) {
+  if (shouldShow) {
     return (
       <div className="empty-state bg-white tiled">
         <div className="empty-state__summary">
@@ -58,30 +97,7 @@ export function EmptyState({
         </div>
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
-          <ol>
-            <li className={classNames({ done: dataSourceStepCompleted })}>
-              {!isAdmin && <span>Ask an account admin to connect a data source.</span>}
-              {isAdmin && <span><a href="data_sources">Connect</a> a Data Source</span>}
-            </li>
-            <li className={classNames({ done: queryStepCompleted })}>
-              <a href="queries/new">Create</a> your first Query
-            </li>
-            { showAlertStep && (
-              <li className={classNames({ done: alertStepCompleted })}>
-                <a href="alerts/new">Create</a> your first Alert
-              </li>
-            )}
-            { showDashboardStep && (
-              <li className={classNames({ done: dashboardStepCompleted })}>
-                <a onClick={createDashboard}>Create</a> your first Dashboard
-              </li>
-            )}
-            { showInviteStep && (
-              <li className={classNames({ done: inviteStepCompleted })}>
-                <a href="users/new">Invite</a> your team members
-              </li>
-            )}
-          </ol>
+          <ol>{map(steps, renderStep)}</ol>
           <p>
             Need more support?{' '}
             <a href={helpLink} target="_blank" rel="noopener noreferrer">
