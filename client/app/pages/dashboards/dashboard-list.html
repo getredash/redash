@@ -38,8 +38,13 @@
 
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0 || $ctrl.searchText === undefined)">
-        <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
-          help-link="https://help.redash.io/category/22-dashboards"></empty-state>
+        <empty-state
+          icon="'zmdi zmdi-view-quilt'"
+          description="'See the big picture'"
+          illustration="'dashboard'"
+          help-link="'https://help.redash.io/category/22-dashboards'"
+          show-dashboard-step="true"
+        ></empty-state>
       </div>
 
       <big-message ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchTerm === undefined || $ctrl.searchTerm.length == 0) && $ctrl.selectedTags.size === 0"
