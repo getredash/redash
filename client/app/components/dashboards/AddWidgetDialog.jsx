@@ -159,15 +159,16 @@ class AddWidgetDialog extends React.Component {
   renderQueryInput() {
     return (
       <div className="form-group">
-        {!this.state.selectedQuery && <input
-          type="text"
-          placeholder="Search a query by name"
-          className="form-control"
-          value={this.state.searchTerm}
-          onChange={this.onSearchTermChanged}
-        />}
-        {
-          this.state.selectedQuery &&
+        {!this.state.selectedQuery && (
+          <input
+            type="text"
+            placeholder="Search a query by name"
+            className="form-control"
+            value={this.state.searchTerm}
+            onChange={this.onSearchTermChanged}
+          />
+        )}
+        {this.state.selectedQuery && (
           <div className="p-relative">
             <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
             <a
@@ -187,7 +188,7 @@ class AddWidgetDialog extends React.Component {
               <i className="text-muted fa fa-times" />
             </a>
           </div>
-        }
+        )}
       </div>
     );
   }
@@ -195,11 +196,9 @@ class AddWidgetDialog extends React.Component {
   renderSearchQueryResults() {
     return (
       <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-        {
-          (this.state.searchTerm === '') &&
+        {(this.state.searchTerm === '') && (
           <div>
-            {
-              this.state.recentQueries.length > 0 &&
+            {this.state.recentQueries.length > 0 && (
               <div className="list-group">
                 {this.state.recentQueries.map(query => (
                   <a
@@ -212,19 +211,17 @@ class AddWidgetDialog extends React.Component {
                   </a>
                 ))}
               </div>
-            }
+            )}
           </div>
-        }
+        )}
 
-        {
-          (this.state.searchTerm !== '') &&
+        {(this.state.searchTerm !== '') && (
           <div>
             {
               (this.state.searchedQueries.length === 0) &&
               <div className="text-muted">No results matching search term.</div>
             }
-            {
-              (this.state.searchedQueries.length > 0) &&
+            {(this.state.searchedQueries.length > 0) && (
               <div className="list-group">
                 {this.state.searchedQueries.map(query => (
                   <a
@@ -237,9 +234,9 @@ class AddWidgetDialog extends React.Component {
                   />
                 ))}
               </div>
-            }
+            )}
           </div>
-        }
+        )}
       </div>
     );
   }
@@ -256,8 +253,9 @@ class AddWidgetDialog extends React.Component {
     return (
       <div>
         <div className="form-group">
-          <label>Choose Visualization</label>
+          <label htmlFor="choose-visualization">Choose Visualization</label>
           <Select
+            id="choose-visualization"
             className="w-100"
             defaultValue={first(this.state.selectedQuery.visualizations).id}
             onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
@@ -303,9 +301,10 @@ class AddWidgetDialog extends React.Component {
 
           {
             (this.state.parameterMappings.length > 0) && [
-              <label key="parameters-title">Parameters</label>,
+              <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
               <ParameterMappingListInput
                 key="parameters-list"
+                id="parameter-mappings"
                 mappings={this.state.parameterMappings}
                 existingParams={existingParams}
                 onChange={mappings => this.updateParamMappings(mappings)}
