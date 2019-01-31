@@ -1,4 +1,4 @@
-import { some, map } from 'lodash';
+import { some, map, filter } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -22,10 +22,18 @@ function getSteps({
   showDashboardStep,
   showInviteStep,
 }) {
+  const {
+    data_sources: dataSourceCount,
+    queries: queriesCount,
+    alerts: alertsCount,
+    dashboards: dashboardsCount,
+    users: usersCount,
+  } = organizationStatus.objectCounters;
+
   return {
     dataSource: {
       show: true,
-      completed: organizationStatus.objectCounters.data_sources > 0,
+      completed: dataSourceCount > 0,
       render() {
         return currentUser.isAdmin ?
           (<span><a href="data_sources/new">Connect</a> a Data Source</span>) :
@@ -34,39 +42,33 @@ function getSteps({
     },
     query: {
       show: true,
-      completed: organizationStatus.objectCounters.queries > 0,
+      completed: queriesCount > 0,
       render() {
         return (<span><a href="queries/new">Create</a> your first Query</span>);
       },
     },
     alert: {
       show: showAlertStep,
-      completed: organizationStatus.objectCounters.alerts > 0,
+      completed: alertsCount > 0,
       render() {
         return (<span><a href="alerts/new">Create</a> your first Alert</span>);
       },
     },
     dashboard: {
       show: showDashboardStep,
-      completed: organizationStatus.objectCounters.dashboards > 0,
+      completed: dashboardsCount > 0,
       render() {
         return (<span><a onClick={createDashboard}>Create</a> your first Dashboard</span>);
       },
     },
     inviteUsers: {
       show: showInviteStep,
-      completed: organizationStatus.objectCounters.users > 1,
+      completed: usersCount > 1,
       render() {
         return (<span><a href="users/new">Invite</a> your team members</span>);
       },
     },
   };
-}
-
-function renderStep(step, key) {
-  return step.show ? (
-    <li key={key} className={classNames({ done: step.completed })}>{step.render(step)}</li>
-  ) : null;
 }
 
 export function EmptyState({
@@ -78,8 +80,8 @@ export function EmptyState({
   onboardingMode,
   ...showSteps
 }) {
-  const steps = getSteps(showSteps);
-  const shouldShow = !onboardingMode || some(steps, { show: true, completed: false });
+  const steps = filter(getSteps(showSteps), step => step.show);
+  const shouldShow = !onboardingMode || some(steps, { completed: false });
 
   if (shouldShow) {
     return (
@@ -88,7 +90,6 @@ export function EmptyState({
           {title && <h4>{title}</h4>}
           {icon && <h2><i className={icon} /></h2>}
           <p>{description}</p>
-
           <img
             src={'/static/images/illustrations/' + illustration + '.svg'}
             alt={illustration + 'Illustration'}
@@ -97,7 +98,11 @@ export function EmptyState({
         </div>
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
-          <ol>{map(steps, renderStep)}</ol>
+          <ol>
+            {map(steps, (step, key) => (
+              <li key={key} className={classNames({ done: step.completed })}>{step.render(step)}</li>
+            ))}
+          </ol>
           <p>
             Need more support?{' '}
             <a href={helpLink} target="_blank" rel="noopener noreferrer">
