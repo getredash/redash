@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 import { $uibModal } from '@/services/ng';
+import { currentUser } from '@/services/auth';
 import organizationStatus from '@/services/organizationStatus';
 import './empty-state.less';
 
@@ -65,7 +66,12 @@ export function EmptyState({ icon, title, description, illustration, helpLink, o
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
           <ol>
-            <Step completed={dataSourceCount > 0} url="data_sources/new" urlText="Connect" text="a Data Source" />
+            {currentUser.isAdmin && (
+              <Step completed={dataSourceCount > 0} url="data_sources/new" urlText="Connect" text="a Data Source" />
+            )}
+            {!currentUser.isAdmin && (
+              <Step completed={dataSourceCount > 0} text="Ask an account admin to connect a data source." />
+            )}
             <Step completed={queriesCount > 0} url="queries/new" urlText="Create" text="your first Qurey" />
             <Step
               show={showAlertStep}
