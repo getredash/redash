@@ -7,7 +7,7 @@ import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
 
-class SchedulePhrase extends React.Component {
+export class SchedulePhrase extends React.Component {
   static propTypes = {
     schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,

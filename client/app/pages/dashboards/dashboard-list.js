@@ -7,13 +7,13 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 class DashboardListCtrl extends ListCtrl {
-  constructor() {
+  constructor($scope) {
     const currentPage = $route.current.locals.currentPage;
     const resources = {
       all: Dashboard.query.bind(Dashboard),
       favorites: Dashboard.favorites.bind(Dashboard),
     };
-    super(currentPage, resources[currentPage]);
+    super($scope, currentPage, resources[currentPage]);
   }
 
   processResponse(data) {

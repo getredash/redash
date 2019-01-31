@@ -1,3 +1,5 @@
+import { isBoolean } from 'lodash';
+
 export default class LivePaginator {
   constructor(rowsFetcher, {
     page = 1, itemsPerPage = 20, orderByField, orderByReverse = false,
@@ -6,7 +8,7 @@ export default class LivePaginator {
     this.itemsPerPage = itemsPerPage;
     this.totalCount = 0;
     this.orderByField = orderByField;
-    this.orderByReverse = orderByReverse;
+    this.orderByReverse = !!orderByReverse;
     this.rowsFetcher = rowsFetcher;
     this.fetchPage(page);
   }
@@ -19,7 +21,7 @@ export default class LivePaginator {
     if (pageOrder) {
       this.orderByField = pageOrder;
     }
-    if (pageOrderReverse) {
+    if (isBoolean(pageOrderReverse)) {
       this.orderByReverse = pageOrderReverse;
     }
     if (pageSize) {
