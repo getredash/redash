@@ -1,10 +1,9 @@
-import { some, map, filter } from 'lodash';
+import { some } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 import { $uibModal } from '@/services/ng';
-import { currentUser } from '@/services/auth';
 import organizationStatus from '@/services/organizationStatus';
 import './empty-state.less';
 
@@ -17,11 +16,26 @@ function createDashboard() {
   });
 }
 
-function getSteps({
-  showAlertStep,
-  showDashboardStep,
-  showInviteStep,
-}) {
+export function Step({ completed, text, url = null, onClick = null, urlText, show = true }) {
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <li className={classNames({ done: completed })}>
+      {onClick && (
+        <a href="#" onClick={onClick}>
+          {urlText}
+        </a>
+      )}
+      {url && <a href={url}>{urlText}</a>}
+      {text}
+    </li>
+  );
+}
+
+export function EmptyState({ icon, title, description, illustration, helpLink, onboardingMode, ...showSteps }) {
+  const { showAlertStep, showDashboardStep, showInviteStep } = showSteps;
   const {
     data_sources: dataSourceCount,
     queries: queriesCount,
@@ -29,66 +43,18 @@ function getSteps({
     dashboards: dashboardsCount,
     users: usersCount,
   } = organizationStatus.objectCounters;
-
-  return {
-    dataSource: {
-      show: true,
-      completed: dataSourceCount > 0,
-      render() {
-        return currentUser.isAdmin ?
-          (<span><a href="data_sources/new">Connect</a> a Data Source</span>) :
-          (<span>Ask an account admin to connect a data source.</span>);
-      },
-    },
-    query: {
-      show: true,
-      completed: queriesCount > 0,
-      render() {
-        return (<span><a href="queries/new">Create</a> your first Query</span>);
-      },
-    },
-    alert: {
-      show: showAlertStep,
-      completed: alertsCount > 0,
-      render() {
-        return (<span><a href="alerts/new">Create</a> your first Alert</span>);
-      },
-    },
-    dashboard: {
-      show: showDashboardStep,
-      completed: dashboardsCount > 0,
-      render() {
-        return (<span><a onClick={createDashboard}>Create</a> your first Dashboard</span>);
-      },
-    },
-    inviteUsers: {
-      show: showInviteStep,
-      completed: usersCount > 1,
-      render() {
-        return (<span><a href="users/new">Invite</a> your team members</span>);
-      },
-    },
-  };
-}
-
-export function EmptyState({
-  icon,
-  title,
-  description,
-  illustration,
-  helpLink,
-  onboardingMode,
-  ...showSteps
-}) {
-  const steps = filter(getSteps(showSteps), step => step.show);
-  const shouldShow = !onboardingMode || some(steps, { completed: false });
+  const shouldShow = !onboardingMode || some(showSteps);
 
   if (shouldShow) {
     return (
       <div className="empty-state bg-white tiled">
         <div className="empty-state__summary">
           {title && <h4>{title}</h4>}
-          {icon && <h2><i className={icon} /></h2>}
+          {icon && (
+            <h2>
+              <i className={icon} />
+            </h2>
+          )}
           <p>{description}</p>
           <img
             src={'/static/images/illustrations/' + illustration + '.svg'}
@@ -99,9 +65,29 @@ export function EmptyState({
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
           <ol>
-            {map(steps, (step, key) => (
-              <li key={key} className={classNames({ done: step.completed })}>{step.render(step)}</li>
-            ))}
+            <Step completed={dataSourceCount > 0} url="data_sources/new" urlText="Connect" text="a Data Source" />
+            <Step completed={queriesCount > 0} url="queries/new" urlText="Create" text="your first Qurey" />
+            <Step
+              show={showAlertStep}
+              completed={alertsCount > 0}
+              url="alerts/new"
+              urlText="Create"
+              text="your first Alert"
+            />
+            <Step
+              show={showDashboardStep}
+              completed={dashboardsCount > 0}
+              onClick={createDashboard}
+              urlText="Create"
+              text="your first Dashboard"
+            />
+            <Step
+              show={showInviteStep}
+              completed={usersCount > 1}
+              url="users/new"
+              urlText="invite"
+              text="your team members"
+            />
           </ol>
           <p>
             Need more support?{' '}
