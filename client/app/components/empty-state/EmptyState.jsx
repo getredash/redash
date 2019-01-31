@@ -17,7 +17,7 @@ function createDashboard() {
   });
 }
 
-export function Step({ completed, text, url = null, onClick = null, urlText, show = true }) {
+function Step({ completed, text, url = null, onClick = null, urlText, show = true }) {
   if (!show) {
     return null;
   }
