@@ -5,7 +5,7 @@ describe('Logout', () => {
   });
 
   it('shows login page after logout', () => {
-    cy.get('[data-cy=dropdown-profile]').click();
+    cy.getByTestId('ProfileDropdown').click();
     cy.contains('Log out').click();
 
     cy.title().should('eq', 'Login to Redash');

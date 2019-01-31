@@ -1,5 +1,5 @@
 <div class="container">
-  <page-header title="Queries"></page-header>
+  <page-header title="'Queries'"></page-header>
 
   <div class="row">
     <div class="col-md-3 list-control-t">
@@ -25,7 +25,7 @@
 
       <div ng-if="$ctrl.currentPage != 'my'">
         <div class="m-b-10">
-          <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+          <tags-list tags-url="'api/queries/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
         </div>
       </div>
 
@@ -43,7 +43,12 @@
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <div ng-switch="$ctrl.emptyType">
         <div ng-switch-when="default">
-          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="https://help.redash.io/category/21-querying"></empty-state>
+          <empty-state
+            icon="'fa fa-code'"
+            illustration="'query'"
+            description="'Getting the data from your datasources.'"
+            help-link="'https://help.redash.io/category/21-querying'"
+          ></empty-state>
         </div>
 
         <div ng-switch-when="my" class="tiled bg-white p-15">
@@ -95,7 +100,7 @@
               </td>
               <td class="table-main-title">
                 <a href="queries/{{query.id}}">{{query.name}}</a>
-                <query-tags-control class="d-block" query="query"></query-tags-control>
+                <query-tags-control class="d-block" tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"></query-tags-control>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />
@@ -103,7 +108,7 @@
               <td>{{query.created_at | dateTime}}</td>
               <td>{{query.runtime | durationHumanize}}</td>
               <td>{{query.retrieved_at | dateTime}}</td>
-              <td>{{query.schedule | scheduleHumanize}}</td>
+              <td><schedule-phrase schedule="query.schedule" is-new="query.isNew()" /></td>
             </tr>
           </tbody>
         </table>
@@ -134,7 +139,7 @@
       </div>
 
       <div ng-if="$ctrl.currentPage != 'my'" class="m-b-10">
-        <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
+        <tags-list tags-url="'api/queries/tags'" on-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
 
       <div class="m-b-5">

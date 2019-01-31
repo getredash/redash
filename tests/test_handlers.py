@@ -20,6 +20,22 @@ class AuthenticationTestMixin(object):
 
 
 class TestAuthentication(BaseTestCase):
+    def test_responds_with_success_for_signed_in_user(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = self.factory.user.get_id()
+            rv = self.client.get("/default/")
+
+            self.assertEquals(200, rv.status_code)
+
+    def test_responds_with_success_for_signed_in_user_with_a_legacy_identity_session(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = str(self.factory.user.id)
+            rv = self.client.get("/default/")
+
+            self.assertEquals(200, rv.status_code)
+
     def test_redirects_for_nonsigned_in_user(self):
         rv = self.client.get("/default/")
         self.assertEquals(302, rv.status_code)

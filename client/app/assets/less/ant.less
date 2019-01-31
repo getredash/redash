@@ -1,0 +1,137 @@
+@import '~antd/lib/style/core/iconfont';
+@import '~antd/lib/style/core/motion';
+@import '~antd/lib/input/style/index';
+@import '~antd/lib/input-number/style/index';
+@import '~antd/lib/date-picker/style/index';
+@import '~antd/lib/modal/style/index';
+@import '~antd/lib/tooltip/style/index';
+@import '~antd/lib/select/style/index';
+@import '~antd/lib/checkbox/style/index';
+@import '~antd/lib/upload/style/index';
+@import '~antd/lib/form/style/index';
+@import '~antd/lib/button/style/index';
+@import '~antd/lib/radio/style/index';
+@import '~antd/lib/time-picker/style/index';
+@import '~antd/lib/pagination/style/index';
+@import 'inc/ant-variables';
+
+// Remove bold in labels for Ant checkboxes and radio buttons
+.ant-checkbox-wrapper, .ant-radio-wrapper {
+  font-weight: normal;
+}
+
+// Fix for disabled button styles inside Tooltip component.
+// Tooltip wraps disabled buttons with `<span>` and moves all styles
+// and classes to that `<span>`. This resets all button styles and
+// turns it into simple inline element (because now it's wrapper is a button)
+.btn {
+  button[disabled] {
+    -moz-appearance: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border: 0 !important;
+    outline: none !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+// Fix for Ant dropdowns when they are used in Boootstrap modals
+.ant-dropdown-in-bootstrap-modal {
+  z-index: 1050;
+}
+
+// Fix ant input number showing duplicate arrows
+.ant-input-number-input::-webkit-outer-spin-button,
+.ant-input-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+// Pagination overrides (based on existing Bootstrap overrides)
+.@{pagination-prefix-cls} {
+  display: inline-block;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  vertical-align: top;
+
+  &-item {
+    background-color: @pagination-bg;
+    border-color: transparent;
+    color: @pagination-color;
+    font-size: 14px;
+    margin-right: 5px;
+
+    a {
+      color: inherit;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+      a {
+        color: inherit;
+      }
+    }
+
+    &-active {
+      &,
+      &:hover,
+      &:focus {
+        background-color: @pagination-active-bg;
+        color: @pagination-active-color;
+        border-color: transparent;
+        pointer-events: none;
+        cursor: default;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
+  }
+
+  &-disabled {
+    &,
+    &:hover,
+    &:focus {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  &-prev,
+  &-next {
+    .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-bg;
+      border-color: transparent;
+      color: @pagination-color;
+      line-height: @pagination-item-size - 2px;
+    }
+
+    &:focus .@{pagination-prefix-cls}-item-link,
+    &:hover .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+    }
+  }
+
+  &-prev,
+  &-jump-prev,
+  &-jump-next {
+    margin-right: 5px;
+  }
+
+  &-jump-prev,
+  &-jump-next {
+    .@{pagination-prefix-cls}-item-container {
+      .@{pagination-prefix-cls}-item-link-icon {
+        color: @pagination-color;
+      }
+    }
+  }
+}

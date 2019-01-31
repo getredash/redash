@@ -172,6 +172,7 @@ default_query_runners = [
     'redash.query_runner.vertica',
     'redash.query_runner.clickhouse',
     'redash.query_runner.yandex_metrica',
+    'redash.query_runner.rockset',
     'redash.query_runner.treasuredata',
     'redash.query_runner.sqlite',
     'redash.query_runner.dynamodb_sql',
@@ -187,7 +188,9 @@ default_query_runners = [
     'redash.query_runner.qubole',
     'redash.query_runner.db2',
     'redash.query_runner.druid',
-    'redash.query_runner.kylin'
+    'redash.query_runner.kylin',
+    'redash.query_runner.drill',
+    'redash.query_runner.uptycs',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))

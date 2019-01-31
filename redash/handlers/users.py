@@ -1,7 +1,8 @@
+import re
 import time
 from flask import request
 from flask_restful import abort
-from flask_login import current_user
+from flask_login import current_user, login_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
@@ -19,6 +20,8 @@ from redash.authentication.account import invite_link_for_user, send_invite_emai
 order_map = {
     'name': 'name',
     '-name': '-name',
+    'active_at': 'active_at',
+    '-active_at': '-active_at',
     'created_at': 'created_at',
     '-created_at': '-created_at',
     'groups': 'group_ids',
@@ -35,7 +38,6 @@ order_results = partial(
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
     send_invite_email(inviter, user, invite_url, org)
-    return invite_url
 
 
 class UserListResource(BaseResource):
@@ -91,6 +93,8 @@ class UserListResource(BaseResource):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email'))
 
+        if '@' not in req['email']:
+            abort(400, message='Bad email address.')
         name, domain = req['email'].split('@', 1)
 
         if domain.lower() in blacklist or domain.lower() == 'qq.com':
@@ -99,6 +103,7 @@ class UserListResource(BaseResource):
         user = models.User(org=self.current_org,
                            name=req['name'],
                            email=req['email'],
+                           is_invitation_pending=True,
                            group_ids=[self.current_org.default_group.id])
 
         try:
@@ -115,15 +120,11 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        if request.args.get('no_invite') is not None:
-            invite_url = invite_link_for_user(user)
-        else:
-            invite_url = invite_user(self.current_org, self.current_user, user)
+        should_send_invitation = 'no_invite' not in request.args
+        if should_send_invitation:
+            invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserInviteResource(BaseResource):
@@ -132,10 +133,7 @@ class UserInviteResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         invite_url = invite_user(self.current_org, self.current_user, user)
 
-        d = user.to_dict()
-        d['invite_link'] = invite_url
-
-        return d
+        return user.to_dict()
 
 
 class UserResetPasswordResource(BaseResource):
@@ -149,6 +147,26 @@ class UserResetPasswordResource(BaseResource):
         return {
             'reset_link': reset_link,
         }
+
+
+class UserRegenerateApiKeyResource(BaseResource):
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        if user.is_disabled:
+            abort(404, message='Not found')
+        if not is_admin_or_owner(user_id):
+            abort(403)
+
+        user.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': user.id,
+            'object_type': 'user'
+        })
+
+        return user.to_dict(with_api_key=True)
 
 
 class UserResource(BaseResource):
@@ -185,9 +203,20 @@ class UserResource(BaseResource):
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
 
+        if 'email' in params:
+            _, domain = params['email'].split('@', 1)
+
+            if domain.lower() in blacklist or domain.lower() == 'qq.com':
+                abort(400, message='Bad email address.')
+
         try:
             self.update_model(user, params)
             models.db.session.commit()
+
+            # The user has updated their email or password. This should invalidate all _other_ sessions,
+            # forcing them to log in again. Since we don't want to force _this_ session to have to go
+            # through login again, we call `login_user` in order to update the session with the new identity details.
+            login_user(user, remember=True)
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."
@@ -205,6 +234,22 @@ class UserResource(BaseResource):
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
+    @require_admin
+    def delete(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        # admin cannot delete self; current user is an admin (`@require_admin`)
+        # so just check user id
+        if user.id == current_user.id:
+            abort(403, message="You cannot delete your own account. "
+                               "Please ask another admin to do this for you.")
+        elif not user.is_invitation_pending:
+            abort(403, message="You cannot delete activated users. "
+                               "Please disable the user instead.")
+        models.db.session.delete(user)
+        models.db.session.commit()
+
+        return user.to_dict(with_api_key=is_admin_or_owner(user_id))
+
 
 class UserDisableResource(BaseResource):
     @require_admin
@@ -213,7 +258,7 @@ class UserDisableResource(BaseResource):
         # admin cannot disable self; current user is an admin (`@require_admin`)
         # so just check user id
         if user.id == current_user.id:
-            abort(400, message="You cannot disable your own account. "
+            abort(403, message="You cannot disable your own account. "
                                "Please ask another admin to do this for you.")
         user.disable()
         models.db.session.commit()

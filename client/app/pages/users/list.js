@@ -1,14 +1,16 @@
 import { extend } from 'lodash';
+import { policy } from '@/services/policy';
 import ListCtrl from '@/lib/list-ctrl';
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, Policy, User) {
+  constructor($scope, $location, currentUser, clientConfig, User) {
     super($scope, $location, currentUser, clientConfig);
-    this.policy = Policy;
+    this.policy = policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
+    this.deleteUser = user => User.deleteUser(user).then(this.update);
   }
 
   getRequest(requestedPage, itemsPerPage, orderByField) {
@@ -32,7 +34,7 @@ export default function init(ngModule) {
     permission: 'list_users',
     title: 'Users',
     path: 'users',
-    isActive: $location => $location.path().startsWith('/users') && $location.path() !== '/users/me',
+    isActive: path => path.startsWith('/users') && (path !== '/users/me'),
     order: 2,
   });
 
@@ -79,4 +81,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

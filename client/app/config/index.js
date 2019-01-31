@@ -24,6 +24,8 @@ import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 
+import organizationStatus from '@/services/organizationStatus';
+
 import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
@@ -110,11 +112,7 @@ function registerPages() {
         route.authenticated = true;
         route.resolve = extend(
           {
-            __organizationStatus: (OrganizationStatus) => {
-              'ngInject';
-
-              return OrganizationStatus.refresh();
-            },
+            __organizationStatus: () => organizationStatus.refresh(),
           },
           route.resolve,
         );

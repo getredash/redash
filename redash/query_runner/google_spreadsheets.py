@@ -48,29 +48,6 @@ def _get_columns_and_column_names(row):
     return columns, column_names
 
 
-def _guess_type(value):
-    if value == '':
-        return TYPE_STRING
-    try:
-        val = int(value)
-        return TYPE_INTEGER
-    except ValueError:
-        pass
-    try:
-        val = float(value)
-        return TYPE_FLOAT
-    except ValueError:
-        pass
-    if unicode(value).lower() in ('true', 'false'):
-        return TYPE_BOOLEAN
-    try:
-        val = parser.parse(value)
-        return TYPE_DATETIME
-    except (ValueError, OverflowError):
-        pass
-    return TYPE_STRING
-
-
 def _value_eval_list(row_values, col_types):
     value_list = []
     raw_values = zip(col_types, row_values)
@@ -120,7 +97,7 @@ def parse_worksheet(worksheet):
 
     if len(worksheet) > 1:
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
-            columns[j]['type'] = _guess_type(value)
+            columns[j]['type'] = guess_type(value)
 
     column_types = [c['type'] for c in columns]
     rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
@@ -147,6 +124,9 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(GoogleSpreadsheet, self).__init__(configuration)
+        self.syntax = 'custom'
 
     @classmethod
     def annotate_query(cls):

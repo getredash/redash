@@ -76,6 +76,15 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 400)
         self.assertIn('job', rv.json)
 
+        rv = self.make_request('post', '/api/query_results',
+                               data={'data_source_id': self.factory.data_source.id,
+                                     'query': query,
+                                     'parameters': {'param': 1},
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
         rv = self.make_request('post', '/api/query_results?p_param=1',
                                data={'data_source_id': self.factory.data_source.id,
                                      'query': query,
@@ -118,6 +127,14 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
         self.assertEquals(rv.status_code, 200)
+
+    def test_execute_new_query(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={'parameters': {}})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
 
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)

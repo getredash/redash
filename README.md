@@ -28,13 +28,12 @@ Today **_Redash_** has support for querying multiple databases, including: Redsh
 
 ## Supported Data Sources
 
-Redash supports more than 25 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
+Redash supports more than 35 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
 
 ## Getting Help
 
 * Issues: https://github.com/getredash/redash/issues
 * Discussion Forum: https://discuss.redash.io/
-* Slack: http://slack.redash.io/
 
 ## Reporting Bugs and Contributing Code
 
