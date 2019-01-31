@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, clone } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, clone, isEmpty } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -10,6 +10,9 @@ import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 import Tag from 'antd/lib/tag';
 import Input from 'antd/lib/input';
+import Radio from 'antd/lib/radio';
+import Form from 'antd/lib/form';
+import Tooltip from 'antd/lib/tooltip';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { Parameter } from '@/services/query';
@@ -89,6 +92,7 @@ export class ParameterMappingInput extends React.Component {
     onChange: PropTypes.func,
     clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    inputError: PropTypes.string,
   };
 
   static defaultProps = {
@@ -97,90 +101,106 @@ export class ParameterMappingInput extends React.Component {
     onChange: () => {},
     clientConfig: null,
     Query: null,
+    inputError: null,
   };
 
-  updateParamMapping(mapping, updates) {
-    this.props.onChange(extend({}, mapping, updates));
+  constructor(props) {
+    super(props);
+
+    this.formItemProps = {
+      labelCol: { span: 5 },
+      wrapperCol: { span: 16 },
+      className: 'formItem',
+    };
+  }
+
+  updateParamMapping = (update) => {
+    const { onChange, mapping } = this.props;
+    const newMapping = extend({}, mapping, update);
+    onChange(newMapping);
   }
 
   renderMappingTypeSelector() {
-    const { mapping, existingParamNames } = this.props;
+    const noExisting = isEmpty(this.props.existingParamNames);
     return (
-      <div>
-        <Select
-          className="w-100"
-          value={mapping.type}
-          onChange={type => this.updateParamMapping(mapping, { type })}
-          dropdownClassName="ant-dropdown-in-bootstrap-modal"
+      <Radio.Group
+        value={this.props.mapping.type}
+        onChange={e => this.updateParamMapping({ type: e.target.value })}
+      >
+        <Radio className="radio" value={MappingType.DashboardAddNew}>
+          New dashboard parameter
+        </Radio>
+        <Radio
+          className="radio"
+          value={MappingType.DashboardMapToExisting}
+          disabled={noExisting}
         >
-          <Option value={MappingType.DashboardAddNew}>Add the parameter to the dashboard</Option>
-          {
-            (existingParamNames.length > 0) &&
-            <Option value={MappingType.DashboardMapToExisting}>Map to existing parameter</Option>
-          }
-          <Option value={MappingType.StaticValue}>Use static value for the parameter</Option>
-          <Option value={MappingType.WidgetLevel}>Keep the parameter at the widget level</Option>
-        </Select>
-      </div>
+          Existing dashboard parameter{' '}
+          {noExisting ? (
+            <Tooltip title="There are no dashboard parameters corresponding to this data type">
+              <Icon type="question-circle" theme="filled" />
+            </Tooltip>
+          ) : null }
+        </Radio>
+        <Radio className="radio" value={MappingType.WidgetLevel}>
+          Widget parameter
+        </Radio>
+        <Radio className="radio" value={MappingType.StaticValue}>
+          Static value
+        </Radio>
+      </Radio.Group>
     );
   }
 
   renderDashboardAddNew() {
-    const { mapping, existingParamNames } = this.props;
-    const alreadyExists = includes(existingParamNames, mapping.mapTo);
+    const { mapping: { mapTo } } = this.props;
     return (
-      <div className={'m-t-10' + (alreadyExists ? ' has-error' : '')}>
-        <input
-          type="text"
-          className="form-control"
-          value={mapping.mapTo}
-          onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
-        />
-        { alreadyExists && (
-          <div className="help-block">
-            Dashboard parameter with this name already exists
-          </div>
-        )}
-      </div>
+      <Input
+        value={mapTo}
+        onChange={e => this.updateParamMapping({ mapTo: e.target.value })}
+      />
     );
   }
 
   renderDashboardMapToExisting() {
     const { mapping, existingParamNames } = this.props;
+
+    // if mapped name doesn't already exists
+    // default to first select option
+    const shouldDefaultFirst = !includes(existingParamNames, mapping.mapTo);
+
     return (
-      <div className="m-t-10">
-        <Select
-          className="w-100"
-          value={mapping.mapTo}
-          onChange={mapTo => this.updateParamMapping(mapping, { mapTo })}
-          disabled={existingParamNames.length === 0}
-          dropdownClassName="ant-dropdown-in-bootstrap-modal"
-        >
-          {map(existingParamNames, name => (
-            <Option value={name} key={name}>{ name }</Option>
-          ))}
-        </Select>
-      </div>
+      <Select
+        value={mapping.mapTo}
+        onChange={mapTo => this.updateParamMapping({ mapTo })}
+        dropdownMatchSelectWidth={false}
+        defaultActiveFirstOption={shouldDefaultFirst}
+      >
+        {map(existingParamNames, name => (
+          <Option value={name} key={name}>{ name }</Option>
+        ))}
+      </Select>
     );
+  }
+
+  renderWidgetLevel() {
+    // eslint-disable-next-line no-use-before-define
+    const value = ParameterMappingListInput.getDefaultValue(this.props.mapping);
+    return <Input disabled value={value} />;
   }
 
   renderStaticValue() {
     const { mapping } = this.props;
     return (
-      <div className="m-t-10">
-        <label htmlFor="parameter-value-input">Change parameter value:</label>
-        <ParameterValueInput
-          id="parameter-value-input"
-          className="w-100"
-          type={mapping.param.type}
-          value={mapping.param.normalizedValue}
-          enumOptions={mapping.param.enumOptions}
-          queryId={mapping.param.queryId}
-          onSelect={value => this.updateParamMapping(mapping, { value })}
-          clientConfig={this.props.clientConfig}
-          Query={this.props.Query}
-        />
-      </div>
+      <ParameterValueInput
+        type={mapping.param.type}
+        value={mapping.param.normalizedValue}
+        enumOptions={mapping.param.enumOptions}
+        queryId={mapping.param.queryId}
+        onSelect={value => this.updateParamMapping({ value })}
+        clientConfig={this.props.clientConfig}
+        Query={this.props.Query}
+      />
     );
   }
 
@@ -189,18 +209,29 @@ export class ParameterMappingInput extends React.Component {
     switch (mapping.type) {
       case MappingType.DashboardAddNew: return this.renderDashboardAddNew();
       case MappingType.DashboardMapToExisting: return this.renderDashboardMapToExisting();
+      case MappingType.WidgetLevel: return this.renderWidgetLevel();
       case MappingType.StaticValue: return this.renderStaticValue();
       // no default
     }
   }
 
   render() {
-    const { mapping } = this.props;
+    const { inputError } = this.props;
+
     return (
-      <div key={mapping.name}>
-        {this.renderMappingTypeSelector()}
-        {this.renderInputBlock()}
-      </div>
+      <Form layout="horizontal">
+        <Form.Item label="Source" {...this.formItemProps}>
+          {this.renderMappingTypeSelector()}
+        </Form.Item>
+        <Form.Item
+          label="Value"
+          {...this.formItemProps}
+          validateStatus={inputError ? 'error' : ''}
+          help={inputError || '\u00A0'} // empty space so line doesn't collapse
+        >
+          {this.renderInputBlock()}
+        </Form.Item>
+      </Form>
     );
   }
 }
@@ -225,6 +256,7 @@ class EditMapping extends React.Component {
     this.state = {
       visible: false,
       mapping: clone(this.props.mapping),
+      inputError: null,
     };
   }
 
@@ -233,16 +265,26 @@ class EditMapping extends React.Component {
   }
 
   onChange = (mapping) => {
-    this.setState({ mapping });
+    let inputError = null;
+
+    if (mapping.type === MappingType.DashboardAddNew) {
+      if (isEmpty(mapping.mapTo)) {
+        inputError = 'Keyword must have a value';
+      } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
+        inputError = 'Parameter with this name already exists';
+      }
+    }
+
+    this.setState({ mapping, inputError });
   }
 
   get content() {
-    const { mapping } = this.state;
+    const { mapping, inputError } = this.state;
     const { clientConfig, Query } = this.props;
 
     return (
       <div className="editMapping">
-        <header>Edit parameter</header>
+        <header>Edit Source and Value</header>
         <ParameterMappingInput
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
@@ -250,10 +292,11 @@ class EditMapping extends React.Component {
           getContainerElement={() => this.wrapperRef.current}
           clientConfig={clientConfig}
           Query={Query}
+          inputError={inputError}
         />
         <footer>
           <Button onClick={this.hide}>Cancel</Button>
-          <Button onClick={this.save} type="primary">OK</Button>
+          <Button onClick={this.save} disabled={!!inputError} type="primary">OK</Button>
         </footer>
       </div>
     );
