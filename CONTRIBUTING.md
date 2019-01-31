@@ -6,7 +6,6 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
 - [Documentation](https://redash.io/help/)
 - [Blog](https://blog.redash.io/)

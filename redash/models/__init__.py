@@ -351,7 +351,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         for (r, row) in enumerate(query_data['rows']):
             for (c, name) in enumerate(column_names):
                 v = row.get(name)
-                if isinstance(v, list):
+                if isinstance(v, list) or isinstance(v, dict):
                     v = str(v).encode('utf-8')
                 sheet.write(r + 1, c, v)
 

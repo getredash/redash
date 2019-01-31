@@ -2,6 +2,8 @@ import { each, trim, without } from 'lodash';
 import Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 
+export let KeyboardShortcuts = null; // eslint-disable-line import/no-mutable-exports
+
 const handlers = {};
 
 function onShortcut(event, shortcut) {
@@ -10,7 +12,7 @@ function onShortcut(event, shortcut) {
   each(handlers[shortcut], fn => fn());
 }
 
-function KeyboardShortcuts() {
+function KeyboardShortcutsService() {
   this.modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'Cmd' : 'Ctrl';
 
   this.bind = function bind(keymap) {
@@ -44,8 +46,11 @@ function KeyboardShortcuts() {
 }
 
 export default function init(ngModule) {
-  ngModule.service('KeyboardShortcuts', KeyboardShortcuts);
+  ngModule.service('KeyboardShortcuts', KeyboardShortcutsService);
+
+  ngModule.run(($injector) => {
+    KeyboardShortcuts = $injector.get('KeyboardShortcuts');
+  });
 }
 
 init.init = true;
-

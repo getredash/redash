@@ -1,32 +1,40 @@
 import debug from 'debug';
+import { includes, extend } from 'lodash';
+
+// eslint-disable-next-line import/no-mutable-exports
+export let Auth = null;
+
+export const currentUser = {
+  canEdit(object) {
+    const userId = object.user_id || (object.user && object.user.id);
+    return this.hasPermission('admin') || (userId && userId === this.id);
+  },
+
+  hasPermission(permission) {
+    return includes(this.permissions, permission);
+  },
+
+  get isAdmin() {
+    return this.hasPermission('admin');
+  },
+};
+
+export const clientConfig = {};
 
 const logger = debug('redash:auth');
-const SESSION_ITEM = 'session';
 const session = { loaded: false };
 
-function storeSession(sessionData) {
+function updateSession(sessionData) {
   logger('Updating session to be:', sessionData);
-  Object.assign(session, sessionData, { loaded: true });
-}
-
-function getLocalSessionData() {
-  if (session.loaded) {
-    return session;
-  }
-
-  const sessionData = window.sessionStorage.getItem(SESSION_ITEM);
-  if (sessionData) {
-    storeSession(JSON.parse(sessionData));
-  }
-
-  return session;
+  extend(session, sessionData, { loaded: true });
+  extend(currentUser, session.user);
+  extend(clientConfig, session.client_config);
 }
 
 function AuthService($window, $location, $q, $http) {
-  const Auth = {
+  return {
     isAuthenticated() {
-      const sessionData = getLocalSessionData();
-      return sessionData.loaded && sessionData.user.id;
+      return session.loaded && session.user.id;
     },
     login() {
       const next = encodeURI($location.url());
@@ -35,27 +43,25 @@ function AuthService($window, $location, $q, $http) {
     },
     logout() {
       logger('Logout.');
-      window.sessionStorage.removeItem(SESSION_ITEM);
       $window.location.href = 'logout';
     },
     loadSession() {
       logger('Loading session');
-      const sessionData = getLocalSessionData();
-      if (sessionData.loaded && sessionData.user.id) {
+      if (session.loaded && session.user.id) {
         logger('Resolving with local value.');
-        return $q.resolve(sessionData);
+        return $q.resolve(session);
       }
 
       this.setApiKey(null);
       return $http.get('api/session').then((response) => {
-        storeSession(response.data);
+        updateSession(response.data);
         return session;
       });
     },
     loadConfig() {
       logger('Loading config');
       return $http.get('/api/config').then((response) => {
-        storeSession({ client_config: response.data.client_config, user: { permissions: [] } });
+        updateSession({ client_config: response.data.client_config, user: { permissions: [] } });
         return response.data;
       });
     },
@@ -68,14 +74,14 @@ function AuthService($window, $location, $q, $http) {
     },
     requireSession() {
       logger('Requested authentication');
-      if (Auth.isAuthenticated()) {
-        return $q.when(getLocalSessionData());
+      if (this.isAuthenticated()) {
+        return $q.when(session);
       }
-      return Auth.loadSession()
+      return this.loadSession()
         .then(() => {
-          if (Auth.isAuthenticated()) {
+          if (this.isAuthenticated()) {
             logger('Loaded session');
-            return getLocalSessionData();
+            return session;
           }
           logger('Need to login, redirecting');
           this.login();
@@ -86,33 +92,12 @@ function AuthService($window, $location, $q, $http) {
         });
     },
   };
-
-  return Auth;
-}
-
-function CurrentUserService() {
-  const sessionData = getLocalSessionData();
-  Object.assign(this, sessionData.user);
-
-  this.canEdit = (object) => {
-    const userId = object.user_id || (object.user && object.user.id);
-    return this.hasPermission('admin') || (userId && userId === this.id);
-  };
-
-  this.hasPermission = permission => this.permissions.indexOf(permission) !== -1;
-
-  this.isAdmin = this.hasPermission('admin');
-}
-
-function ClientConfigService() {
-  Object.assign(this, getLocalSessionData().client_config);
 }
 
 function apiKeyHttpInterceptor($injector) {
   return {
     request(config) {
-      const Auth = $injector.get('Auth');
-      const apiKey = Auth.getApiKey();
+      const apiKey = $injector.get('Auth').getApiKey();
       if (apiKey) {
         config.headers.Authorization = `Key ${apiKey}`;
       }
@@ -124,14 +109,17 @@ function apiKeyHttpInterceptor($injector) {
 
 export default function init(ngModule) {
   ngModule.factory('Auth', AuthService);
-  ngModule.service('currentUser', CurrentUserService);
-  ngModule.service('clientConfig', ClientConfigService);
+  ngModule.value('currentUser', currentUser);
+  ngModule.value('clientConfig', clientConfig);
   ngModule.factory('apiKeyHttpInterceptor', apiKeyHttpInterceptor);
 
   ngModule.config(($httpProvider) => {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
   });
+
+  ngModule.run(($injector) => {
+    Auth = $injector.get('Auth');
+  });
 }
 
 init.init = true;
-

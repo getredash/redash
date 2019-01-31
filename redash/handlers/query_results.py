@@ -10,7 +10,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, json_loads, utcnow)
 from redash.utils.parameterized_query import ParameterizedQuery
 
 
@@ -64,7 +64,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema=None):
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -73,7 +73,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text).apply(parameter_values)
+    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
@@ -154,6 +154,48 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
+    def _fetch_rows(self, query_id):
+        query = models.Query.get_by_id_and_org(query_id, self.current_org)
+        require_access(query.data_source.groups, self.current_user, view_only)
+
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
+
+        return json_loads(query_result.data)["rows"]
+
+    def _convert_queries_to_enums(self, definition):
+        if definition["type"] == "query":
+            definition["type"] = "enum"
+
+            rows = self._fetch_rows(definition.pop("queryId"))
+            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows if row]
+
+        return definition
+
+    @require_permission('execute_query')
+    def post(self, query_id):
+        """
+        Execute a saved query.
+
+        :param number query_id: The ID of the query whose results should be fetched.
+        :param object parameters: The parameter values to apply to the query.
+        :qparam number max_age: If query results less than `max_age` seconds old are available,
+                                return them, otherwise execute the query; if omitted or -1, returns
+                                any cached result, or executes if not available. Set to zero to
+                                always execute.
+        """
+        params = request.get_json(force=True)
+        parameters = params.get('parameters', {})
+        max_age = int(params.get('max_age', 0))
+
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        parameter_schema = map(self._convert_queries_to_enums,
+                               query.options.get("parameters", []))
+
+        if not has_access(query.data_source.groups, self.current_user, not_view_only):
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+        else:
+            return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
+
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         """
@@ -181,6 +223,7 @@ class QueryResultResource(BaseResource):
         max_age = int(request.args.get('maxAge', 0))
 
         query_result = None
+        query = None
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
@@ -233,6 +276,16 @@ class QueryResultResource(BaseResource):
 
             if should_cache:
                 response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
+
+            str_date = query_result.retrieved_at.strftime("%Y_%m_%d")
+            str_id = None
+            if query is not None:
+                str_id = str(query.id)
+            else:
+                str_id = str(query_result.id)
+            filename = "{}_{}.{}".format(str_id, str_date, filetype,)
+
+            response.headers.add_header("Content-Disposition", 'attachment; filename="{}"'.format(filename,))
 
             return response
 

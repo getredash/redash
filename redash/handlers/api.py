@@ -11,7 +11,7 @@ from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceL
 from redash.handlers.events import EventsResource
 from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
-from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource, UserDisableResource
+from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource, UserDisableResource, UserRegenerateApiKeyResource
 from redash.handlers.visualizations import VisualizationListResource
 from redash.handlers.visualizations import VisualizationResource
 from redash.handlers.widgets import WidgetResource, WidgetListResource
@@ -93,6 +93,7 @@ api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='qu
 api.add_org_resource(QueryResultResource,
                      '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',
+                     '/api/queries/<query_id>/results',
                      '/api/queries/<query_id>/results.<filetype>',
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
@@ -102,6 +103,9 @@ api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
 api.add_org_resource(UserInviteResource, '/api/users/<user_id>/invite', endpoint='user_invite')
 api.add_org_resource(UserResetPasswordResource, '/api/users/<user_id>/reset_password', endpoint='user_reset_password')
+api.add_org_resource(UserRegenerateApiKeyResource,
+                     '/api/users/<user_id>/regenerate_api_key',
+                     endpoint='user_regenerate_api_key')
 api.add_org_resource(UserDisableResource, '/api/users/<user_id>/disable', endpoint='user_disable')
 
 api.add_org_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')

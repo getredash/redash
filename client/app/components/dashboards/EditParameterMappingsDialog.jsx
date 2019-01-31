@@ -60,12 +60,9 @@ class EditParameterMappingsDialog extends React.Component {
   }
 
   render() {
-    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
-
-    const existingParamNames = map(
+    const existingParams = map(
       this.props.dashboard.getParametersDefs(),
-      param => param.name,
+      ({ name, type }) => ({ name, type }),
     );
 
     return (
@@ -83,16 +80,13 @@ class EditParameterMappingsDialog extends React.Component {
           <h4 className="modal-title">Parameters</h4>
         </div>
         <div className="modal-body">
-          {
-            (this.state.parameterMappings.length > 0) &&
+          {(this.state.parameterMappings.length > 0) && (
             <ParameterMappingListInput
               mappings={this.state.parameterMappings}
-              existingParamNames={existingParamNames}
+              existingParams={existingParams}
               onChange={mappings => this.updateParamMappings(mappings)}
-              clientConfig={clientConfig}
-              Query={Query}
             />
-          }
+          )}
         </div>
 
         <div className="modal-footer">
@@ -134,8 +128,7 @@ export default function init(ngModule) {
       dismiss: '&',
     },
   });
-  ngModule.component('editParameterMappingsDialogImpl', react2angular(EditParameterMappingsDialog, null, [
-    'Query', 'clientConfig']));
+  ngModule.component('editParameterMappingsDialogImpl', react2angular(EditParameterMappingsDialog));
 }
 
 init.init = true;

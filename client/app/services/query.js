@@ -8,6 +8,8 @@ import {
 
 Mustache.escape = identity; // do not html-escape values
 
+export let Query = null; // eslint-disable-line import/no-mutable-exports
+
 const logger = debug('redash:services:query');
 
 const DATETIME_FORMATS = {
@@ -143,6 +145,7 @@ class Parameter {
   get ngModel() {
     return this.normalizedValue;
   }
+
   set ngModel(value) {
     this.setValue(value);
   }
@@ -323,7 +326,7 @@ function QueryResource(
   QueryResultError,
   QueryResult,
 ) {
-  const Query = $resource(
+  const QueryService = $resource(
     'api/queries/:id',
     { id: '@id' },
     {
@@ -371,8 +374,8 @@ function QueryResource(
     },
   );
 
-  Query.newQuery = function newQuery() {
-    return new Query({
+  QueryService.newQuery = function newQuery() {
+    return new QueryService({
       query: '',
       name: 'New Query',
       schedule: null,
@@ -381,7 +384,7 @@ function QueryResource(
     });
   };
 
-  Query.format = function formatQuery(syntax, query) {
+  QueryService.format = function formatQuery(syntax, query) {
     if (syntax === 'json') {
       try {
         const formatted = JSON.stringify(JSON.parse(query), ' ', 4);
@@ -396,19 +399,19 @@ function QueryResource(
     }
   };
 
-  Query.prototype.getSourceLink = function getSourceLink() {
+  QueryService.prototype.getSourceLink = function getSourceLink() {
     return `/queries/${this.id}/source`;
   };
 
-  Query.prototype.isNew = function isNew() {
+  QueryService.prototype.isNew = function isNew() {
     return this.id === undefined;
   };
 
-  Query.prototype.hasDailySchedule = function hasDailySchedule() {
+  QueryService.prototype.hasDailySchedule = function hasDailySchedule() {
     return this.schedule && this.schedule.match(/\d\d:\d\d/) !== null;
   };
 
-  Query.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
+  QueryService.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
     const parts = this.schedule.split(':');
     return moment
       .utc()
@@ -418,20 +421,20 @@ function QueryResource(
       .format('HH:mm');
   };
 
-  Query.prototype.hasResult = function hasResult() {
+  QueryService.prototype.hasResult = function hasResult() {
     return !!(this.latest_query_data || this.latest_query_data_id);
   };
 
-  Query.prototype.paramsRequired = function paramsRequired() {
+  QueryService.prototype.paramsRequired = function paramsRequired() {
     return this.getParameters().isRequired();
   };
 
-  Query.prototype.getQueryResult = function getQueryResult(maxAge) {
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
-    const queryText = this.query;
 
+    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -476,7 +479,7 @@ function QueryResource(
     return this.queryResult;
   };
 
-  Query.prototype.getUrl = function getUrl(source, hash) {
+  QueryService.prototype.getUrl = function getUrl(source, hash) {
     let url = `queries/${this.id}`;
 
     if (source) {
@@ -502,11 +505,11 @@ function QueryResource(
     return url;
   };
 
-  Query.prototype.getQueryResultPromise = function getQueryResultPromise() {
+  QueryService.prototype.getQueryResultPromise = function getQueryResultPromise() {
     return this.getQueryResult().toPromise();
   };
 
-  Query.prototype.getParameters = function getParameters() {
+  QueryService.prototype.getParameters = function getParameters() {
     if (!this.$parameters) {
       this.$parameters = new Parameters(this, $location.search());
     }
@@ -514,17 +517,20 @@ function QueryResource(
     return this.$parameters;
   };
 
-  Query.prototype.getParametersDefs = function getParametersDefs() {
+  QueryService.prototype.getParametersDefs = function getParametersDefs() {
     return this.getParameters().get();
   };
 
-  return Query;
+  return QueryService;
 }
 
 export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
+
+  ngModule.run(($injector) => {
+    Query = $injector.get('Query');
+  });
 }
 
 init.init = true;
-

@@ -10,6 +10,10 @@ import {
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
 
+import { toastr } from '@/services/ng';
+import { Widget } from '@/services/widget';
+import { Query } from '@/services/query';
+
 const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
@@ -38,7 +42,6 @@ class AddWidgetDialog extends React.Component {
     };
 
     // Don't show draft (unpublished) queries
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
     Query.recent().$promise.then((items) => {
       this.setState({
         recentQueries: items.filter(item => !item.is_draft),
@@ -62,7 +65,6 @@ class AddWidgetDialog extends React.Component {
     });
 
     if (queryId) {
-      const Query = this.props.Query; // eslint-disable-line react/prop-types
       Query.get({ id: queryId }, (query) => {
         if (query) {
           const existingParamNames = map(
@@ -95,7 +97,6 @@ class AddWidgetDialog extends React.Component {
       return;
     }
 
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
     Query.query({ q: term }, (results) => {
       // If user will type too quick - it's possible that there will be
       // several requests running simultaneously. So we need to check
@@ -117,8 +118,6 @@ class AddWidgetDialog extends React.Component {
   }
 
   saveWidget() {
-    const Widget = this.props.Widget; // eslint-disable-line react/prop-types
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const dashboard = this.props.dashboard;
 
     this.setState({ saveInProgress: true });
@@ -160,15 +159,16 @@ class AddWidgetDialog extends React.Component {
   renderQueryInput() {
     return (
       <div className="form-group">
-        {!this.state.selectedQuery && <input
-          type="text"
-          placeholder="Search a query by name"
-          className="form-control"
-          value={this.state.searchTerm}
-          onChange={this.onSearchTermChanged}
-        />}
-        {
-          this.state.selectedQuery &&
+        {!this.state.selectedQuery && (
+          <input
+            type="text"
+            placeholder="Search a query by name"
+            className="form-control"
+            value={this.state.searchTerm}
+            onChange={this.onSearchTermChanged}
+          />
+        )}
+        {this.state.selectedQuery && (
           <div className="p-relative">
             <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
             <a
@@ -188,7 +188,7 @@ class AddWidgetDialog extends React.Component {
               <i className="text-muted fa fa-times" />
             </a>
           </div>
-        }
+        )}
       </div>
     );
   }
@@ -196,11 +196,9 @@ class AddWidgetDialog extends React.Component {
   renderSearchQueryResults() {
     return (
       <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-        {
-          (this.state.searchTerm === '') &&
+        {(this.state.searchTerm === '') && (
           <div>
-            {
-              this.state.recentQueries.length > 0 &&
+            {this.state.recentQueries.length > 0 && (
               <div className="list-group">
                 {this.state.recentQueries.map(query => (
                   <a
@@ -213,19 +211,17 @@ class AddWidgetDialog extends React.Component {
                   </a>
                 ))}
               </div>
-            }
+            )}
           </div>
-        }
+        )}
 
-        {
-          (this.state.searchTerm !== '') &&
+        {(this.state.searchTerm !== '') && (
           <div>
             {
               (this.state.searchedQueries.length === 0) &&
               <div className="text-muted">No results matching search term.</div>
             }
-            {
-              (this.state.searchedQueries.length > 0) &&
+            {(this.state.searchedQueries.length > 0) && (
               <div className="list-group">
                 {this.state.searchedQueries.map(query => (
                   <a
@@ -238,9 +234,9 @@ class AddWidgetDialog extends React.Component {
                   />
                 ))}
               </div>
-            }
+            )}
           </div>
-        }
+        )}
       </div>
     );
   }
@@ -257,8 +253,9 @@ class AddWidgetDialog extends React.Component {
     return (
       <div>
         <div className="form-group">
-          <label>Choose Visualization</label>
+          <label htmlFor="choose-visualization">Choose Visualization</label>
           <Select
+            id="choose-visualization"
             className="w-100"
             defaultValue={first(this.state.selectedQuery.visualizations).id}
             onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
@@ -278,12 +275,9 @@ class AddWidgetDialog extends React.Component {
   }
 
   render() {
-    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
-
-    const existingParamNames = map(
+    const existingParams = map(
       this.props.dashboard.getParametersDefs(),
-      param => param.name,
+      ({ name, type }) => ({ name, type }),
     );
 
     return (
@@ -307,14 +301,13 @@ class AddWidgetDialog extends React.Component {
 
           {
             (this.state.parameterMappings.length > 0) && [
-              <label key="parameters-title">Parameters</label>,
+              <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
               <ParameterMappingListInput
                 key="parameters-list"
+                id="parameter-mappings"
                 mappings={this.state.parameterMappings}
-                existingParamNames={existingParamNames}
+                existingParams={existingParams}
                 onChange={mappings => this.updateParamMappings(mappings)}
-                clientConfig={clientConfig}
-                Query={Query}
               />,
             ]
           }
@@ -358,8 +351,7 @@ export default function init(ngModule) {
       dismiss: '&',
     },
   });
-  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog, null, [
-    'toastr', 'Widget', 'Query', 'clientConfig']));
+  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog));
 }
 
 init.init = true;
