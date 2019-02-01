@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Moment } from '@/components/proptypes';
+import { clientConfig } from '@/services/auth';
 
 const interactiveComponents = new Set();
 
@@ -65,7 +66,11 @@ export class TimeAgo extends React.Component {
   }
 
   render() {
-    return this._value ? this._value.fromNow() : this.props.placeholder;
+    return this._value ? (
+      <span title={this._value.format(clientConfig.dateTimeFormat)}>{this._value.fromNow()}</span>
+    ) : (
+      this.props.placeholder
+    );
   }
 }
 
