@@ -1,4 +1,4 @@
-import { some } from 'lodash';
+import { keys, some } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -17,83 +17,87 @@ function createDashboard() {
   });
 }
 
-function Step({ completed, text, url = null, onClick = null, urlText, show = true }) {
-  if (!show) {
-    return null;
-  }
-
-  return (
+function Step({ show, completed, text, url, urlText, onClick }) {
+  return show ? (
     <li className={classNames({ done: completed })}>
-      {onClick && (
-        <a href="#" onClick={onClick}>
-          {urlText}
-        </a>
-      )}
-      {url && <a href={url}>{urlText}</a>}
+      {onClick && urlText && <a href="javascript:void(0)" onClick={onClick}>{urlText}</a>}
+      {url && urlText && <a href={url}>{urlText}</a>}
+      {text && urlText ? ' ' : ''}
       {text}
     </li>
-  );
+  ) : null;
 }
 
-export function EmptyState({ icon, title, description, illustration, helpLink, onboardingMode, ...showSteps }) {
-  const { showAlertStep, showDashboardStep, showInviteStep } = showSteps;
-  const {
-    data_sources: dataSourceCount,
-    queries: queriesCount,
-    alerts: alertsCount,
-    dashboards: dashboardsCount,
-    users: usersCount,
-  } = organizationStatus.objectCounters;
-  const shouldShow = !onboardingMode || some(showSteps);
+Step.propTypes = {
+  show: PropTypes.bool,
+  completed: PropTypes.bool,
+  text: PropTypes.string,
+  url: PropTypes.string,
+  urlText: PropTypes.string,
+  onClick: PropTypes.func,
+};
+
+Step.defaultProps = {
+  show: true,
+  completed: false,
+  text: null,
+  url: null,
+  urlText: null,
+  onClick: null,
+};
+
+export function EmptyState({
+  icon,
+  title,
+  description,
+  illustration,
+  helpLink,
+  onboardingMode,
+  showAlertStep,
+  showDashboardStep,
+  showInviteStep,
+}) {
+  const isAvailable = {
+    dataSource: true,
+    query: true,
+    alert: showAlertStep,
+    dashboard: showDashboardStep,
+    inviteUsers: showInviteStep,
+  };
+
+  const isCompleted = {
+    dataSource: organizationStatus.objectCounters.data_sources > 0,
+    query: organizationStatus.objectCounters.queries > 0,
+    alert: organizationStatus.objectCounters.alerts > 0,
+    dashboard: organizationStatus.objectCounters.dashboards > 0,
+    inviteUsers: organizationStatus.objectCounters.users > 1,
+  };
+
+  // Show if `onboardingMode=false` or any requested step not completed
+  const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
   if (shouldShow) {
     return (
       <div className="empty-state bg-white tiled">
         <div className="empty-state__summary">
           {title && <h4>{title}</h4>}
-          {icon && (
-            <h2>
-              <i className={icon} />
-            </h2>
-          )}
+          {icon && <h2><i className={icon} /></h2>}
           <p>{description}</p>
-          <img
-            src={'/static/images/illustrations/' + illustration + '.svg'}
-            alt={illustration + 'Illustration'}
-            width="75%"
-          />
+          <img src={'/static/images/illustrations/' + illustration + '.svg'} alt={illustration + ' Illustration'} width="75%" />
         </div>
         <div className="empty-state__steps">
           <h4>Let&apos;s get started</h4>
           <ol>
             {currentUser.isAdmin && (
-              <Step completed={dataSourceCount > 0} url="data_sources/new" urlText="Connect" text="a Data Source" />
+              <Step show={isAvailable.dataSource} completed={isCompleted.dataSource} url="data_sources/new" urlText="Connect" text="a Data Source" />
             )}
             {!currentUser.isAdmin && (
-              <Step completed={dataSourceCount > 0} text="Ask an account admin to connect a data source." />
+              <Step show={isAvailable.dataSource} completed={isCompleted.dataSource} text="Ask an account admin to connect a data source." />
             )}
-            <Step completed={queriesCount > 0} url="queries/new" urlText="Create" text="your first Qurey" />
-            <Step
-              show={showAlertStep}
-              completed={alertsCount > 0}
-              url="alerts/new"
-              urlText="Create"
-              text="your first Alert"
-            />
-            <Step
-              show={showDashboardStep}
-              completed={dashboardsCount > 0}
-              onClick={createDashboard}
-              urlText="Create"
-              text="your first Dashboard"
-            />
-            <Step
-              show={showInviteStep}
-              completed={usersCount > 1}
-              url="users/new"
-              urlText="invite"
-              text="your team members"
-            />
+            <Step show={isAvailable.query} completed={isCompleted.query} url="queries/new" urlText="Create" text="your first Query" />
+            <Step show={isAvailable.alert} completed={isCompleted.alert} url="alerts/new" urlText="Create" text="your first Alert" />
+            <Step show={isAvailable.dashboard} completed={isCompleted.dashboard} onClick={createDashboard} urlText="Create" text="your first Dashboard" />
+            <Step show={isAvailable.inviteUsers} completed={isCompleted.inviteUsers} url="users/new" urlText="Invite" text="your team members" />
           </ol>
           <p>
             Need more support?{' '}
@@ -117,10 +121,10 @@ EmptyState.propTypes = {
   illustration: PropTypes.string,
   helpLink: PropTypes.string,
 
+  onboardingMode: PropTypes.bool,
   showAlertStep: PropTypes.bool,
   showDashboardStep: PropTypes.bool,
   showInviteStep: PropTypes.bool,
-  onboardingMode: PropTypes.bool,
 };
 
 EmptyState.defaultProps = {
@@ -130,10 +134,10 @@ EmptyState.defaultProps = {
   illustration: null,
   helpLink: null,
 
+  onboardingMode: false,
   showAlertStep: false,
   showDashboardStep: false,
   showInviteStep: false,
-  onboardingMode: false,
 };
 
 export default function init(ngModule) {
