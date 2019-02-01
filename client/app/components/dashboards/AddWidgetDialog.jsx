@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import Modal from 'antd/lib/modal';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
@@ -19,15 +20,9 @@ const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    close: PropTypes.func,
-    dismiss: PropTypes.func,
-  };
-
-  static defaultProps = {
-    dashboard: null,
-    close: () => {},
-    dismiss: () => {},
+    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    onClose: PropTypes.func.isRequired,
+    onAdded: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -40,12 +35,14 @@ class AddWidgetDialog extends React.Component {
       searchedQueries: [],
       selectedVis: null,
       parameterMappings: [],
+      showModal: false, // show only after recent queries populated to avoid height "jump"
     };
 
     // Don't show draft (unpublished) queries in recent queries.
     Query.recent().$promise.then((items) => {
       this.setState({
         recentQueries: items.filter(item => !item.is_draft),
+        showModal: true,
       });
     });
 
@@ -143,7 +140,8 @@ class AddWidgetDialog extends React.Component {
       .save()
       .then(() => {
         dashboard.widgets.push(widget);
-        this.props.close();
+        this.props.onAdded();
+        this.close();
       })
       .catch(() => {
         toastr.error('Widget can not be added');
@@ -151,6 +149,10 @@ class AddWidgetDialog extends React.Component {
       .finally(() => {
         this.setState({ saveInProgress: false });
       });
+  }
+
+  close = () => {
+    this.setState({ showModal: false });
   }
 
   updateParamMappings(parameterMappings) {
@@ -290,77 +292,41 @@ class AddWidgetDialog extends React.Component {
     );
 
     return (
-      <div>
-        <div className="modal-header">
-          <button
-            type="button"
-            className="close"
-            disabled={this.state.saveInProgress}
-            aria-hidden="true"
-            onClick={this.props.dismiss}
-          >
-            &times;
-          </button>
-          <h4 className="modal-title">Add Widget</h4>
-        </div>
-        <div className="modal-body">
-          {this.renderQueryInput()}
-          {!this.state.selectedQuery && this.renderSearchQueryResults()}
-          {this.state.selectedQuery && this.renderVisualizationInput()}
+      <Modal
+        visible={this.state.showModal}
+        afterClose={this.props.onClose}
+        title="Add Widget"
+        onOk={() => this.saveWidget()}
+        okButtonProps={{
+          loading: this.state.saveInProgress,
+          disabled: !this.state.selectedQuery,
+        }}
+        okText="Add to Dashboard"
+        onCancel={this.close}
+      >
+        {this.renderQueryInput()}
+        {!this.state.selectedQuery && this.renderSearchQueryResults()}
+        {this.state.selectedQuery && this.renderVisualizationInput()}
 
-          {
-            (this.state.parameterMappings.length > 0) && [
-              <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
-              <ParameterMappingListInput
-                key="parameters-list"
-                id="parameter-mappings"
-                mappings={this.state.parameterMappings}
-                existingParams={existingParams}
-                onChange={mappings => this.updateParamMappings(mappings)}
-              />,
-            ]
-          }
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-default"
-            disabled={this.state.saveInProgress}
-            onClick={this.props.dismiss}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={this.state.saveInProgress || !this.state.selectedQuery}
-            onClick={() => this.saveWidget()}
-          >
-            Add to Dashboard
-          </button>
-        </div>
-      </div>
+        {
+          (this.state.parameterMappings.length > 0) && [
+            <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
+            <ParameterMappingListInput
+              key="parameters-list"
+              id="parameter-mappings"
+              mappings={this.state.parameterMappings}
+              existingParams={existingParams}
+              onChange={mappings => this.updateParamMappings(mappings)}
+            />,
+          ]
+        }
+      </Modal>
     );
   }
 }
 
 export default function init(ngModule) {
-  ngModule.component('addWidgetDialog', {
-    template: `
-      <add-widget-dialog-impl 
-        dashboard="$ctrl.resolve.dashboard"
-        close="$ctrl.close"
-        dismiss="$ctrl.dismiss"
-      ></add-widget-dialog-impl>
-    `,
-    bindings: {
-      resolve: '<',
-      close: '&',
-      dismiss: '&',
-    },
-  });
-  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog));
+  ngModule.component('addWidgetDialog', react2angular(AddWidgetDialog));
 }
 
 init.init = true;

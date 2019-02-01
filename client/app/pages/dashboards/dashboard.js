@@ -318,26 +318,35 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = (widgetType) => {
-    const widgetTypes = {
-      textbox: 'addTextboxDialog',
-      widget: 'addWidgetDialog',
-    };
+  this.addTextBox = () => {
     $uibModal
       .open({
-        component: widgetTypes[widgetType],
+        component: 'addTextboxDialog',
         resolve: {
           dashboard: () => this.dashboard,
         },
       })
-      .result.then(() => {
-        this.extractGlobalParameters();
-        // Save position of newly added widget (but not entire layout)
-        const widget = _.last(this.dashboard.widgets);
-        if (_.isObject(widget)) {
-          return widget.save();
-        }
-      });
+      .result.then(this.onWidgetAdded);
+  };
+
+  this.onWidgetAdded = () => {
+    this.extractGlobalParameters();
+    // Save position of newly added widget (but not entire layout)
+    const widget = _.last(this.dashboard.widgets);
+    if (_.isObject(widget)) {
+      return widget.save();
+    }
+  };
+
+  this.addWidgetDialogOpened = false;
+
+  this.openAddWidgetDialog = () => {
+    this.addWidgetDialogOpened = true;
+  };
+
+  this.closeAddWidgetDialog = () => {
+    this.addWidgetDialogOpened = false;
+    $scope.$applyAsync();
   };
 
   this.removeWidget = (widgetId) => {

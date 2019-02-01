@@ -5,13 +5,13 @@
       <h3>
         <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
-      
+
       <img ng-src="{{$ctrl.dashboard.user.profile_image_url}}" class="profile__image_thumb--dashboard" alt="{{$ctrl.dashboard.user.name}}">
-      
+
       <dashboard-tags-control class="hidden-xs"
         tags="$ctrl.dashboard.tags" is-draft="$ctrl.dashboard.is_draft" is-archived="$ctrl.dashboard.is_archived"
         can-edit="$ctrl.isDashboardOwner" get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags"></dashboard-tags-control>
-      
+
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
@@ -110,8 +110,9 @@
       <span class="hidden-xs hidden-sm">Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.</span>
     </h2>
     <div>
-      <a class="btn btn-default" ng-click="$ctrl.addWidget('textbox')">Add Textbox</a>
-      <a class="btn btn-primary m-l-10" ng-click="$ctrl.addWidget('widget')">Add Widget</a>
+      <a class="btn btn-default" ng-click="$ctrl.addTextBox()">Add Textbox</a>
+      <a class="btn btn-primary m-l-10" ng-click="$ctrl.openAddWidgetDialog()">Add Widget</a>
+      <add-widget-dialog ng-if="$ctrl.addWidgetDialogOpened" dashboard="$ctrl.dashboard" on-close="$ctrl.closeAddWidgetDialog" on-added="$ctrl.onWidgetAdded" />
     </div>
   </div>
 </div>
