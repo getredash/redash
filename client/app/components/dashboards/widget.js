@@ -77,18 +77,20 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
 
-  this.editParameterMappings = () => {
-    $uibModal.open({
-      component: 'editParameterMappingsDialog',
-      resolve: {
-        dashboard: this.dashboard,
-        widget: this.widget,
-      },
-      size: 'lg',
-    }).result.then(() => {
-      this.localParameters = null;
-      $rootScope.$broadcast('dashboard.update-parameters');
-    });
+  this.mappingsDialogOpened = false;
+
+  this.openMappingsDialog = () => {
+    this.mappingsDialogOpened = true;
+  };
+
+  this.closeMappingsDialog = () => {
+    this.mappingsDialogOpened = false;
+    $rootScope.$applyAsync();
+  };
+
+  this.onMappingsUpdated = () => {
+    this.localParameters = null;
+    $rootScope.$broadcast('dashboard.update-parameters');
   };
 
   this.localParametersDefs = () => {

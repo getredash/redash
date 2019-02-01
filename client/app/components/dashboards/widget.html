@@ -21,7 +21,10 @@
 
             <li ng-if="$ctrl.canViewQuery || ($ctrl.dashboard.canEdit() && $ctrl.hasParameters())" class="divider"></li>
             <li ng-if="$ctrl.canViewQuery"><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}">View Query</a></li>
-            <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()"><a ng-click="$ctrl.editParameterMappings()">Edit Parameters</a></li>
+            <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()">
+              <a ng-click="$ctrl.openMappingsDialog()">Edit Parameters</a>
+              <edit-parameter-mappings-dialog ng-if="$ctrl.mappingsDialogOpened" dashboard="$ctrl.dashboard" widget="$ctrl.widget" on-close="$ctrl.closeMappingsDialog" on-change="$ctrl.onMappingsUpdated" />
+            </li>
 
             <li ng-if="$ctrl.dashboard.canEdit()" class="divider"></li>
             <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
