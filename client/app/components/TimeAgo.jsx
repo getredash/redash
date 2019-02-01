@@ -2,6 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
+import { Moment } from '@/components/proptypes';
 
 const interactiveComponents = new Set();
 
@@ -17,13 +18,7 @@ export class TimeAgo extends React.Component {
       PropTypes.string,
       PropTypes.number,
       PropTypes.instanceOf(Date),
-      // `moment`
-      (props, propName, componentName) => {
-        const value = props[propName];
-        if ((value !== null) && !moment.isMoment(value)) {
-          return new Error('Prop `' + propName + '` supplied to `' + componentName + '` should be a Moment.js instance.');
-        }
-      },
+      Moment,
     ]),
     interactive: PropTypes.bool,
     placeholder: PropTypes.string,
