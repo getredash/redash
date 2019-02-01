@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { isNil } from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
@@ -8,9 +9,17 @@ const interactiveComponents = new Set();
 
 function updateInteractiveComponents() {
   interactiveComponents.forEach(component => component.forceUpdate());
-  setTimeout(updateInteractiveComponents, 15 * 1000);
+  setTimeout(updateInteractiveComponents, 30 * 1000);
 }
 updateInteractiveComponents();
+
+function toMoment(value) {
+  if (isNil(value)) {
+    return null;
+  }
+  value = moment(value);
+  return value.isValid() ? value : null;
+}
 
 export class TimeAgo extends React.Component {
   static propTypes = {
@@ -32,7 +41,7 @@ export class TimeAgo extends React.Component {
 
   constructor(props) {
     super(props);
-    this._value = moment(this.props.date);
+    this._value = toMoment(this.props.date);
   }
 
   componentDidMount() {
@@ -42,7 +51,7 @@ export class TimeAgo extends React.Component {
   }
 
   shouldComponentUpdate(nextProps) {
-    this._value = moment(nextProps.date);
+    this._value = toMoment(nextProps.date);
     if (nextProps.interactive) {
       interactiveComponents.add(this);
     } else {
@@ -56,7 +65,7 @@ export class TimeAgo extends React.Component {
   }
 
   render() {
-    return this._value.isValid() ? this._value.fromNow() : this.props.placeholder;
+    return this._value ? this._value.fromNow() : this.props.placeholder;
   }
 }
 
