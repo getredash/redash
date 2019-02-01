@@ -18,29 +18,30 @@ function createDashboard() {
 }
 
 function Step({ show, completed, text, url, urlText, onClick }) {
-  return show ? (
+  if (!show) {
+    return null;
+  }
+
+  return (
     <li className={classNames({ done: completed })}>
-      {onClick && urlText && <a href="javascript:void(0)" onClick={onClick}>{urlText}</a>}
-      {url && urlText && <a href={url}>{urlText}</a>}
-      {text && urlText ? ' ' : ''}
+      <a href={url || 'javascript:void(0)'} onClick={onClick}>
+        {urlText}
+      </a>{' '}
       {text}
     </li>
-  ) : null;
+  );
 }
 
 Step.propTypes = {
-  show: PropTypes.bool,
-  completed: PropTypes.bool,
-  text: PropTypes.string,
+  show: PropTypes.bool.isRequired,
+  completed: PropTypes.bool.isRequired,
+  text: PropTypes.string.isRequired,
   url: PropTypes.string,
   urlText: PropTypes.string,
   onClick: PropTypes.func,
 };
 
 Step.defaultProps = {
-  show: true,
-  completed: false,
-  text: null,
   url: null,
   urlText: null,
   onClick: null,
@@ -76,50 +77,90 @@ export function EmptyState({
   // Show if `onboardingMode=false` or any requested step not completed
   const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
-  if (shouldShow) {
-    return (
-      <div className="empty-state bg-white tiled">
-        <div className="empty-state__summary">
-          {title && <h4>{title}</h4>}
-          {icon && <h2><i className={icon} /></h2>}
-          <p>{description}</p>
-          <img src={'/static/images/illustrations/' + illustration + '.svg'} alt={illustration + ' Illustration'} width="75%" />
-        </div>
-        <div className="empty-state__steps">
-          <h4>Let&apos;s get started</h4>
-          <ol>
-            {currentUser.isAdmin && (
-              <Step show={isAvailable.dataSource} completed={isCompleted.dataSource} url="data_sources/new" urlText="Connect" text="a Data Source" />
-            )}
-            {!currentUser.isAdmin && (
-              <Step show={isAvailable.dataSource} completed={isCompleted.dataSource} text="Ask an account admin to connect a data source." />
-            )}
-            <Step show={isAvailable.query} completed={isCompleted.query} url="queries/new" urlText="Create" text="your first Query" />
-            <Step show={isAvailable.alert} completed={isCompleted.alert} url="alerts/new" urlText="Create" text="your first Alert" />
-            <Step show={isAvailable.dashboard} completed={isCompleted.dashboard} onClick={createDashboard} urlText="Create" text="your first Dashboard" />
-            <Step show={isAvailable.inviteUsers} completed={isCompleted.inviteUsers} url="users/new" urlText="Invite" text="your team members" />
-          </ol>
-          <p>
-            Need more support?{' '}
-            <a href={helpLink} target="_blank" rel="noopener noreferrer">
-              See our Help
-              <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-            </a>
-          </p>
-        </div>
-      </div>
-    );
+  if (!shouldShow) {
+    return null;
   }
 
-  return null;
+  return (
+    <div className="empty-state bg-white tiled">
+      <div className="empty-state__summary">
+        {title && <h4>{title}</h4>}
+        <h2>
+          <i className={icon} />
+        </h2>
+        <p>{description}</p>
+        <img
+          src={'/static/images/illustrations/' + illustration + '.svg'}
+          alt={illustration + ' Illustration'}
+          width="75%"
+        />
+      </div>
+      <div className="empty-state__steps">
+        <h4>Let&apos;s get started</h4>
+        <ol>
+          {currentUser.isAdmin && (
+            <Step
+              show={isAvailable.dataSource}
+              completed={isCompleted.dataSource}
+              url="data_sources/new"
+              urlText="Connect"
+              text="a Data Source"
+            />
+          )}
+          {currentUser.isAdmin && (
+            <Step
+              show={isAvailable.dataSource}
+              completed={isCompleted.dataSource}
+              text="Ask an account admin to connect a data source"
+            />
+          )}
+          <Step
+            show={isAvailable.query}
+            completed={isCompleted.query}
+            url="queries/new"
+            urlText="Create"
+            text="your first Query"
+          />
+          <Step
+            show={isAvailable.alert}
+            completed={isCompleted.alert}
+            url="alerts/new"
+            urlText="Create"
+            text="your first Alert"
+          />
+          <Step
+            show={isAvailable.dashboard}
+            completed={isCompleted.dashboard}
+            onClick={createDashboard}
+            urlText="Create"
+            text="your first Dashboard"
+          />
+          <Step
+            show={isAvailable.inviteUsers}
+            completed={isCompleted.inviteUsers}
+            url="users/new"
+            urlText="Invite"
+            text="your team members"
+          />
+        </ol>
+        <p>
+          Need more support?{' '}
+          <a href={helpLink} target="_blank" rel="noopener noreferrer">
+            See our Help
+            <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+          </a>
+        </p>
+      </div>
+    </div>
+  );
 }
 
 EmptyState.propTypes = {
-  icon: PropTypes.string,
+  icon: PropTypes.string.isRequired,
   title: PropTypes.string,
-  description: PropTypes.string,
-  illustration: PropTypes.string,
-  helpLink: PropTypes.string,
+  description: PropTypes.string.isRequired,
+  illustration: PropTypes.string.isRequired,
+  helpLink: PropTypes.string.isRequired,
 
   onboardingMode: PropTypes.bool,
   showAlertStep: PropTypes.bool,
@@ -128,11 +169,7 @@ EmptyState.propTypes = {
 };
 
 EmptyState.defaultProps = {
-  icon: null,
   title: null,
-  description: null,
-  illustration: null,
-  helpLink: null,
 
   onboardingMode: false,
   showAlertStep: false,
