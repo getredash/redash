@@ -8,7 +8,7 @@ const interactiveComponents = new Set();
 
 function updateInteractiveComponents() {
   interactiveComponents.forEach(component => component.forceUpdate());
-  setTimeout(updateInteractiveComponents, 3000);
+  setTimeout(updateInteractiveComponents, 15 * 1000);
 }
 updateInteractiveComponents();
 
