@@ -1,22 +1,38 @@
-import { extend } from 'lodash';
-import moment from 'moment';
+import { extend, map } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+
+import { PageHeader } from '@/components/PageHeader';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
-import { BigMessage } from '@/components/BigMessage';
-import { NoTaggedObjectsFound } from '@/components/NoTaggedObjectsFound';
-import { EmptyState } from '@/components/empty-state/EmptyState';
-import ItemsList from '@/pages/ItemsList';
-import { $location, $rootScope } from '@/services/ng';
+
+import ItemsListContext from '@/components/items-list/ItemsListContext';
+
+import LiveItemsList from '@/components/items-list/LiveItemsList';
+import LoadingState from '@/components/items-list/components/LoadingState';
+import SearchInput from '@/components/items-list/components/SearchInput';
+import SidebarMenu from '@/components/items-list/components/SidebarMenu';
+import SidebarTags from '@/components/items-list/components/SidebarTags';
+import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import ItemsTable from '@/components/items-list/components/ItemsTable';
+
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
+import navigateTo from '@/services/navigateTo';
 import { durationHumanize } from '@/filters';
 import { formatDateTime } from '@/filters/datetime';
+
+import QueriesListEmptyState from './QueriesListEmptyState';
+
 import './queries-list.css';
 
-class QueriesList extends ItemsList {
+class QueriesList extends React.Component {
+  static propTypes = {
+    currentPage: PropTypes.string.isRequired,
+  };
+
   static sidebarMenu = [
     {
       key: 'all',
@@ -36,6 +52,7 @@ class QueriesList extends ItemsList {
       icon: () => (
         <img src={currentUser.profile_image_url} className="profile__image--navbar m-r-5" width="13" alt={currentUser.name} />
       ),
+      isAvailable: () => currentUser.hasPermission('create_query'),
     },
   ];
 
@@ -119,92 +136,57 @@ class QueriesList extends ItemsList {
       my: Query.myQueries.bind(Query),
       favorites: Query.favorites.bind(Query),
     };
-    this._resource = resources[props.currentPage];
-    this.state.showMyQueries = currentUser.hasPermission('create_query');
+    const resource = resources[this.props.currentPage];
+    this.doRequest = request => resource(request).$promise
+      .then(({ results, count }) => ({
+        count,
+        results: map(results, item => new Query(item)),
+      }));
+
+    this.onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  onRowClick(event, query) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      // keep default browser behavior
-      return;
-    }
-    event.preventDefault();
-    $location.url('queries/' + query.id);
-    $rootScope.$applyAsync();
-  }
-
-  doRequest(request) {
-    return this._resource(request).$promise;
-  }
-
-  processResponse(data) {
-    super.processResponse(data);
-    const rows = data.results.map((query) => {
-      query.created_at = moment(query.created_at);
-      query.retrieved_at = moment(query.retrieved_at);
-      return new Query(query);
-    });
-
-    this.state.paginator.updateRows(rows, data.count);
-
-    const isEmpty = data.count === 0;
-    let emptyType = null;
-    if (isEmpty) {
-      if (this.isInSearchMode) {
-        emptyType = 'search';
-      } else if (this.state.selectedTags.length > 0) {
-        emptyType = 'tags';
-      } else {
-        emptyType = this.props.currentPage;
-      }
-    }
-
-    this.setState({ isEmpty, emptyType });
-  }
-
-  renderEmptyState() {
-    const { emptyType, selectedTags } = this.state;
-
-    switch (emptyType) {
-      case 'search': return (
-        <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />
-      );
-      case 'tags': return (
-        <NoTaggedObjectsFound objectType="queries" tags={selectedTags} />
-      );
-      case 'favorites': return (
-        <BigMessage message="Mark queries as Favorite to list them here." icon="fa-star" />
-      );
-      case 'my': return (
-        <div className="tiled bg-white p-15">
-          <a href="queries/new" className="btn btn-primary btn-sm">Create your first query</a> to populate My Queries
-          list. Need help? Check out our
-          <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
-        </div>
-      );
-      default: return (
-        <EmptyState
-          icon="fa fa-code"
-          illustration="query"
-          description="Getting the data from your datasources."
-          helpLink="https://help.redash.io/category/21-querying"
-        />
-      );
-    }
-  }
-
-  renderSearchInput() {
-    return super.renderSearchInput('Search Queries...');
-  }
-
-  renderTagsList() {
-    return super.renderTagsList('api/queries/tags');
+  renderSidebar() {
+    return (
+      <React.Fragment>
+        <SearchInput placeholder="Search Queries..." />
+        <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <SidebarTags url="api/queries/tags" />
+        <PageSizeSelect />
+      </React.Fragment>
+    );
   }
 
   render() {
+    const sidebar = this.renderSidebar();
+
     return (
-      <div className="container">{super.render()}</div>
+      <LiveItemsList doRequest={this.doRequest}>
+        <div className="container">
+          <ItemsListContext.Consumer>
+            {context => (
+              <React.Fragment>
+                <PageHeader title={context.title} />
+                <div className="row">
+                  <div className="col-md-3 list-control-t">{sidebar}</div>
+                  <div className="list-content col-md-9">
+                    {!context.isLoaded && <LoadingState />}
+                    {
+                      context.isLoaded && context.isEmpty &&
+                      <QueriesListEmptyState page={this.props.currentPage} />
+                    }
+                    {
+                      context.isLoaded && !context.isEmpty &&
+                      <ItemsTable columns={this.constructor.listColumns} onRowClick={this.onTableRowClick} />
+                    }
+                  </div>
+                  <div className="col-md-3 list-control-r-b">{sidebar}</div>
+                </div>
+              </React.Fragment>
+            )}
+          </ItemsListContext.Consumer>
+        </div>
+      </LiveItemsList>
     );
   }
 }

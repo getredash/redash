@@ -1,18 +1,31 @@
-import { extend, map, filter } from 'lodash';
-import moment from 'moment';
+import { isFunction, extend, map } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
-import { BigMessage } from '@/components/BigMessage';
+
+import ItemsListContext from '@/components/items-list/ItemsListContext';
+
+import LiveItemsList from '@/components/items-list/LiveItemsList';
+import LoadingState from '@/components/items-list/components/LoadingState';
+import EmptyState from '@/components/items-list/components/EmptyState';
+import SearchInput from '@/components/items-list/components/SearchInput';
+import SidebarMenu from '@/components/items-list/components/SidebarMenu';
+import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import ItemsTable from '@/components/items-list/components/ItemsTable';
+
 import { TimeAgo } from '@/components/TimeAgo';
-import ItemsList from '@/pages/ItemsList';
 import settingsMenu from '@/services/settingsMenu';
-import { $location, $rootScope } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
+import navigateTo from '@/services/navigateTo';
 
-class UsersList extends ItemsList {
+class UsersList extends React.Component {
+  static propTypes = {
+    currentPage: PropTypes.string.isRequired,
+  };
+
   static sidebarMenu = [
     {
       key: 'active',
@@ -56,7 +69,7 @@ class UsersList extends ItemsList {
       width: '1%',
       className: 'text-nowrap',
       sorter: true,
-      render: (text, user) => <TimeAgo date={user.created_at.toDate()} />,
+      render: (text, user) => <TimeAgo date={user.created_at} />,
     },
     {
       title: 'Last Active At',
@@ -64,106 +77,71 @@ class UsersList extends ItemsList {
       width: '1%',
       className: 'text-nowrap',
       sorter: true,
-      render: (text, user) => (user.active_at ? <TimeAgo date={user.active_at.toDate()} /> : null),
+      render: (text, user) => (user.active_at ? <TimeAgo date={user.active_at} /> : null),
     },
     {
       width: '1%',
       className: 'text-nowrap',
-      render: (text, user, self) => {
+      render: (text, user, context) => {
         if (user.id !== currentUser.id) {
           if (user.is_invitation_pending) {
             return (
-              <button type="button" className="btn btn-default" onClick={event => self.deleteUser(event, user)}>Delete</button>
+              <button type="button" className="btn btn-default" onClick={event => context.deleteUser(event, user)}>Delete</button>
             );
           }
           return user.is_disabled ? (
-            <button type="button" className="btn btn-primary" onClick={event => self.enableUser(event, user)}>Enable</button>
+            <button type="button" className="btn btn-primary" onClick={event => context.enableUser(event, user)}>Enable</button>
           ) : (
-            <button type="button" className="btn btn-default" onClick={event => self.disableUser(event, user)}>Disable</button>
+            <button type="button" className="btn btn-default" onClick={event => context.disableUser(event, user)}>Disable</button>
           );
         }
         return null;
       },
-      requireAdmin: true,
+      isAvailable: () => currentUser.isAdmin,
     },
   ];
-
-  _wrapUserAction(action) {
-    return (event, user) => {
-      event.preventDefault();
-      event.stopPropagation();
-      action(user).then(() => {
-        this.update();
-      });
-      // TODO: Error handling - ???
-    };
-  }
 
   constructor(props) {
     super(props);
 
-    this.enableUser = this._wrapUserAction(User.enableUser);
-    this.disableUser = this._wrapUserAction(User.disableUser);
-    this.deleteUser = this._wrapUserAction(User.deleteUser);
+    this.updateList = () => {};
 
-    this._resource = User.query.bind(User);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  onRowClick(event, user) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      // keep default browser behavior
-      return;
-    }
-    event.preventDefault();
-    $location.url('users/' + user.id);
-    $rootScope.$applyAsync();
-  }
-
-  getListColumns() {
-    return filter(
-      super.getListColumns(),
-      column => !column.requireAdmin || (column.requireAdmin && currentUser.isAdmin),
+    const wrapUserAction = action => (
+      (event, user) => {
+        event.preventDefault();
+        event.stopPropagation();
+        action(user).then(() => {
+          this.updateList();
+        });
+        // TODO: Error handling - ???
+      }
     );
-  }
 
-  getRequest(...args) {
-    const request = super.getRequest(...args);
-    if (this.props.currentPage === 'disabled') {
-      request.disabled = true;
-    }
-    return request;
-  }
+    this.actions = {
+      enableUser: wrapUserAction(User.enableUser),
+      disableUser: wrapUserAction(User.disableUser),
+      deleteUser: wrapUserAction(User.deleteUser),
+    };
 
-  doRequest(request) {
-    return this._resource(request).$promise;
-  }
+    const resource = User.query.bind(User);
+    this.doRequest = request => resource(request).$promise
+      .then(({ results, count }) => ({
+        count,
+        results: map(results, item => new User(item)),
+      }));
 
-  processResponse(data) {
-    super.processResponse(data);
-    const rows = data.results.map((user) => {
-      user.created_at = moment(user.created_at);
-      user.active_at = moment(user.active_at);
-      if (!user.active_at.isValid()) {
-        user.active_at = null;
+    this.getRequest = (request) => {
+      if (this.props.currentPage === 'disabled') {
+        request.disabled = true;
       }
-      return new User(user);
-    });
-    this.state.paginator.updateRows(rows, data.count);
+      return request;
+    };
 
-    const isEmpty = data.count === 0;
-    let emptyType = null;
-    if (isEmpty) {
-      if (this.isInSearchMode) {
-        emptyType = 'search';
-      } else if (this.state.selectedTags.length > 0) {
-        emptyType = 'tags';
-      } else {
-        emptyType = this.props.currentPage;
-      }
-    }
+    this.onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  }
 
-    this.setState({ isEmpty, emptyType });
+  saveCurrentContext(context) {
+    this.updateList = isFunction(context.update) ? context.update : () => {};
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -185,24 +163,48 @@ class UsersList extends ItemsList {
     return null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderEmptyState() {
-    return (
-      <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />
-    );
-  }
-
-  renderSearchInput() {
-    return super.renderSearchInput('Search...');
-  }
-
   renderSidebar() {
     return (
       <React.Fragment>
-        {this.renderSearchInput()}
-        {currentUser.isAdmin && this.renderSidebarMenu()}
-        {this.renderPageSizeSelect()}
+        <SearchInput placeholder="Search..." />
+        {
+          currentUser.isAdmin &&
+          <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        }
+        <PageSizeSelect />
       </React.Fragment>
+    );
+  }
+
+  render() {
+    const sidebar = this.renderSidebar();
+
+    return (
+      <LiveItemsList getRequest={this.getRequest} doRequest={this.doRequest}>
+        <ItemsListContext.Consumer>
+          {context => (
+            <React.Fragment>
+              {this.saveCurrentContext(context)}
+              {this.renderPageHeader()}
+              <div className="row">
+                <div className="col-md-3 list-control-t">{sidebar}</div>
+                <div className="list-content col-md-9">
+                  {!context.isLoaded && <LoadingState />}
+                  {context.isLoaded && context.isEmpty && <EmptyState />}
+                  {context.isLoaded && !context.isEmpty && (
+                    <ItemsTable
+                      columns={this.constructor.listColumns}
+                      context={this.actions}
+                      onRowClick={this.onTableRowClick}
+                    />
+                  )}
+                </div>
+                <div className="col-md-3 list-control-r-b">{sidebar}</div>
+              </div>
+            </React.Fragment>
+          )}
+        </ItemsListContext.Consumer>
+      </LiveItemsList>
     );
   }
 }

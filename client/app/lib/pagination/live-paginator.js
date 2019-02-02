@@ -1,20 +1,24 @@
 import { isBoolean } from 'lodash';
 
 export default class LivePaginator {
-  constructor(rowsFetcher, {
-    page = 1, itemsPerPage = 20, orderByField, orderByReverse = false,
-  } = {}) {
+  constructor(
+    rowsFetcher,
+    { page = 1, itemsPerPage = 20, orderByField, orderByReverse = false } = {},
+    fetchPage = true,
+  ) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
     this.totalCount = 0;
     this.orderByField = orderByField;
     this.orderByReverse = !!orderByReverse;
     this.rowsFetcher = rowsFetcher;
-    this.fetchPage(page);
+    if (fetchPage) {
+      this.fetchPage(page);
+    }
   }
 
-  fetchPage(page, requested = false) {
-    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse, this, requested);
+  fetchPage(page = null, requested = false) {
+    this.rowsFetcher(page || this.page, this.itemsPerPage, this.orderByField, this.orderByReverse, this, requested);
   }
 
   setPage(page, pageSize, pageOrder, pageOrderReverse) {

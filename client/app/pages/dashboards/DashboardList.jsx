@@ -1,19 +1,35 @@
-import { extend } from 'lodash';
-import moment from 'moment';
+import { extend, map } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+
+import { PageHeader } from '@/components/PageHeader';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { DashboardTagsControl } from '@/components/tags-control/DashboardTagsControl';
-import { BigMessage } from '@/components/BigMessage';
-import { NoTaggedObjectsFound } from '@/components/NoTaggedObjectsFound';
-import { EmptyState } from '@/components/empty-state/EmptyState';
-import ItemsList from '@/pages/ItemsList';
-import { $location, $rootScope } from '@/services/ng';
+
+import ItemsListContext from '@/components/items-list/ItemsListContext';
+
+import LiveItemsList from '@/components/items-list/LiveItemsList';
+import LoadingState from '@/components/items-list/components/LoadingState';
+import SearchInput from '@/components/items-list/components/SearchInput';
+import SidebarMenu from '@/components/items-list/components/SidebarMenu';
+import SidebarTags from '@/components/items-list/components/SidebarTags';
+import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import ItemsTable from '@/components/items-list/components/ItemsTable';
+
 import { Dashboard } from '@/services/dashboard';
+import navigateTo from '@/services/navigateTo';
 import { formatDateTime } from '@/filters/datetime';
+
+import DashboardListEmptyState from './DashboardListEmptyState';
+
 import './dashboard-list.css';
 
-class DashboardList extends ItemsList {
+class DashboardList extends React.Component {
+  static propTypes = {
+    currentPage: PropTypes.string.isRequired,
+  };
+
   static sidebarMenu = [
     {
       key: 'all',
@@ -80,83 +96,57 @@ class DashboardList extends ItemsList {
       all: Dashboard.query.bind(Dashboard),
       favorites: Dashboard.favorites.bind(Dashboard),
     };
-    this._resource = resources[props.currentPage];
+    const resource = resources[this.props.currentPage];
+    this.doRequest = request => resource(request).$promise
+      .then(({ results, count }) => ({
+        count,
+        results: map(results, item => new Dashboard(item)),
+      }));
+
+    this.onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  onRowClick(event, dashboard) {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-      // keep default browser behavior
-      return;
-    }
-    event.preventDefault();
-    $location.url('dashboard/' + dashboard.slug);
-    $rootScope.$applyAsync();
-  }
-
-  doRequest(request) {
-    return this._resource(request).$promise;
-  }
-
-  processResponse(data) {
-    super.processResponse(data);
-    const rows = data.results.map((dashboard) => {
-      dashboard.created_at = moment(dashboard.created_at);
-      return new Dashboard(dashboard);
-    });
-    this.state.paginator.updateRows(rows, data.count);
-
-    const isEmpty = data.count === 0;
-    let emptyType = null;
-    if (isEmpty) {
-      if (this.isInSearchMode) {
-        emptyType = 'search';
-      } else if (this.state.selectedTags.length > 0) {
-        emptyType = 'tags';
-      } else {
-        emptyType = this.props.currentPage;
-      }
-    }
-
-    this.setState({ isEmpty, emptyType });
-  }
-
-  renderEmptyState() {
-    const { emptyType, selectedTags } = this.state;
-
-    switch (emptyType) {
-      case 'search': return (
-        <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />
-      );
-      case 'tags': return (
-        <NoTaggedObjectsFound objectType="dashboards" tags={selectedTags} />
-      );
-      case 'favorites': return (
-        <BigMessage message="Mark dashboards as Favorite to list them here." icon="fa-star" />
-      );
-      default: return (
-        <EmptyState
-          icon="zmdi zmdi-view-quilt"
-          description="See the big picture"
-          illustration="dashboard"
-          helpLink="https://help.redash.io/category/22-dashboards"
-          showDashboardStep
-        />
-      );
-    }
-  }
-
-  renderSearchInput() {
-    return super.renderSearchInput('Search Dashboards...');
-  }
-
-  renderTagsList() {
-    return super.renderTagsList('api/dashboards/tags');
+  renderSidebar() {
+    return (
+      <React.Fragment>
+        <SearchInput placeholder="Search Dashboards..." />
+        <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <SidebarTags url="api/dashboards/tags" />
+        <PageSizeSelect />
+      </React.Fragment>
+    );
   }
 
   render() {
+    const sidebar = this.renderSidebar();
+
     return (
-      <div className="container">{super.render()}</div>
+      <LiveItemsList doRequest={this.doRequest}>
+        <div className="container">
+          <ItemsListContext.Consumer>
+            {context => (
+              <React.Fragment>
+                <PageHeader title={context.title} />
+                <div className="row">
+                  <div className="col-md-3 list-control-t">{sidebar}</div>
+                  <div className="list-content col-md-9">
+                    {!context.isLoaded && <LoadingState />}
+                    {
+                      context.isLoaded && context.isEmpty &&
+                      <DashboardListEmptyState page={this.props.currentPage} />
+                    }
+                    {
+                      context.isLoaded && !context.isEmpty &&
+                      <ItemsTable columns={this.constructor.listColumns} onRowClick={this.onTableRowClick} />
+                    }
+                  </div>
+                  <div className="col-md-3 list-control-r-b">{sidebar}</div>
+                </div>
+              </React.Fragment>
+            )}
+          </ItemsListContext.Consumer>
+        </div>
+      </LiveItemsList>
     );
   }
 }
