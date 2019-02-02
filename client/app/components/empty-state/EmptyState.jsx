@@ -107,7 +107,7 @@ export function EmptyState({
               text="a Data Source"
             />
           )}
-          {currentUser.isAdmin && (
+          {!currentUser.isAdmin && (
             <Step
               show={isAvailable.dataSource}
               completed={isCompleted.dataSource}
@@ -156,7 +156,7 @@ export function EmptyState({
 }
 
 EmptyState.propTypes = {
-  icon: PropTypes.string.isRequired,
+  icon: PropTypes.string,
   title: PropTypes.string,
   description: PropTypes.string.isRequired,
   illustration: PropTypes.string.isRequired,
@@ -169,6 +169,7 @@ EmptyState.propTypes = {
 };
 
 EmptyState.defaultProps = {
+  icon: null,
   title: null,
 
   onboardingMode: false,
