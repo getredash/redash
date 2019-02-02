@@ -51,13 +51,13 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
   }
 
   setActionInProgress = (actionName, inProgress) => {
-    this.setState({
+    this.setState(prevState => ({
       inProgressActions: {
-        ...this.state.inProgressActions,
+        ...prevState.inProgressActions,
         [actionName]: inProgress,
       },
-    });
-  }
+    }));
+  };
 
   handleSubmit = (e) => {
     this.setState({ isSubmitting: true });

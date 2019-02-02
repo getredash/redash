@@ -235,7 +235,7 @@ class BigQuery(BaseQueryRunner):
 
     def _get_columns_schema(self, table_data):
         columns = []
-        for column in table_data['schema']['fields']:
+        for column in table_data.get('schema', {}).get('fields', []):
             columns.extend(self._get_columns_schema_column(column))
 
         project_id = self._get_project_id()

@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, isNull, isUndefined } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -127,11 +127,11 @@ export class ParameterMappingInput extends React.Component {
           value={mapping.mapTo}
           onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
         />
-        { alreadyExists &&
-        <div className="help-block">
-          Dashboard parameter with this name already exists
-        </div>
-        }
+        { alreadyExists && (
+          <div className="help-block">
+            Dashboard parameter with this name already exists
+          </div>
+        )}
       </div>
     );
   }
@@ -159,11 +159,12 @@ export class ParameterMappingInput extends React.Component {
     const { mapping } = this.props;
     return (
       <div className="m-t-10">
-        <label>Change parameter value:</label>
+        <label htmlFor="parameter-value-input">Change parameter value:</label>
         <ParameterValueInput
+          id="parameter-value-input"
           className="w-100"
           type={mapping.param.type}
-          value={isUndefined(mapping.value) || isNull(mapping.value) ? mapping.param.normalizedValue : mapping.value}
+          value={mapping.param.normalizedValue}
           enumOptions={mapping.param.enumOptions}
           queryId={mapping.param.queryId}
           onSelect={value => this.updateParamMapping(mapping, { value })}
@@ -191,8 +192,9 @@ export class ParameterMappingInput extends React.Component {
     }
     return (
       <div className="m-t-10">
-        <label>Change parameter title (leave empty to use existing):</label>
+        <label htmlFor="parameter-title">Change parameter title (leave empty to use existing):</label>
         <input
+          id="parameter-title"
           type="text"
           className="form-control"
           value={mapping.title}
@@ -260,8 +262,8 @@ export class ParameterMappingListInput extends React.Component {
       <div>
         {this.props.mappings.map((mapping, index) => {
           const existingParamsNames = this.props.existingParams
-              .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
-              .map(({ name }) => name); // keep names only
+            .filter(({ type }) => type === mapping.param.type) // exclude mismatching param types
+            .map(({ name }) => name); // keep names only
 
           return (
             <div key={mapping.name} className={(index === 0 ? '' : ' m-t-15')}>

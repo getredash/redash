@@ -80,14 +80,13 @@ class EditParameterMappingsDialog extends React.Component {
           <h4 className="modal-title">Parameters</h4>
         </div>
         <div className="modal-body">
-          {
-            (this.state.parameterMappings.length > 0) &&
+          {(this.state.parameterMappings.length > 0) && (
             <ParameterMappingListInput
               mappings={this.state.parameterMappings}
               existingParams={existingParams}
               onChange={mappings => this.updateParamMappings(mappings)}
             />
-          }
+          )}
         </div>
 
         <div className="modal-footer">
