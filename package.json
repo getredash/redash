@@ -14,7 +14,7 @@
     "lint": "eslint --config ./client/.eslintrc.js --ext .js --ext .jsx ./client/app",
     "test": "TZ=Asia/Jerusalem jest",
     "test:watch": "jest --watch",
-    "cypress:install": "npm install --no-save cypress @percy/cypress",
+    "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3",
     "cypress": "node cypress/cypress.js"
   },
   "repository": {
