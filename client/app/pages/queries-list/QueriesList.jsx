@@ -12,10 +12,7 @@ import ItemsListContext from '@/components/items-list/ItemsListContext';
 
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import SearchInput from '@/components/items-list/components/SearchInput';
-import SidebarMenu from '@/components/items-list/components/SidebarMenu';
-import SidebarTags from '@/components/items-list/components/SidebarTags';
-import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable from '@/components/items-list/components/ItemsTable';
 
 import { Query } from '@/services/query';
@@ -146,19 +143,15 @@ class QueriesList extends React.Component {
     this.onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
   }
 
-  renderSidebar() {
-    return (
-      <React.Fragment>
-        <SearchInput placeholder="Search Queries..." />
-        <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        <SidebarTags url="api/queries/tags" />
-        <PageSizeSelect />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
+    const sidebar = (
+      <Sidebar
+        searchPlaceholder="Search Queries..."
+        menuItems={this.constructor.sidebarMenu}
+        selectedItem={this.props.currentPage}
+        tagsUrl="api/queries/tags"
+      />
+    );
 
     return (
       <LiveItemsList doRequest={this.doRequest}>

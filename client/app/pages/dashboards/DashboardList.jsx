@@ -11,10 +11,7 @@ import ItemsListContext from '@/components/items-list/ItemsListContext';
 
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import SearchInput from '@/components/items-list/components/SearchInput';
-import SidebarMenu from '@/components/items-list/components/SidebarMenu';
-import SidebarTags from '@/components/items-list/components/SidebarTags';
-import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable from '@/components/items-list/components/ItemsTable';
 
 import { Dashboard } from '@/services/dashboard';
@@ -106,19 +103,15 @@ class DashboardList extends React.Component {
     this.onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
   }
 
-  renderSidebar() {
-    return (
-      <React.Fragment>
-        <SearchInput placeholder="Search Dashboards..." />
-        <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        <SidebarTags url="api/dashboards/tags" />
-        <PageSizeSelect />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
+    const sidebar = (
+      <Sidebar
+        searchPlaceholder="Search Dashboards..."
+        menuItems={this.constructor.sidebarMenu}
+        selectedItem={this.props.currentPage}
+        tagsUrl="api/dashboards/tags"
+      />
+    );
 
     return (
       <LiveItemsList doRequest={this.doRequest}>

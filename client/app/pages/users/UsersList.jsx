@@ -9,9 +9,7 @@ import ItemsListContext from '@/components/items-list/ItemsListContext';
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
-import SearchInput from '@/components/items-list/components/SearchInput';
-import SidebarMenu from '@/components/items-list/components/SidebarMenu';
-import PageSizeSelect from '@/components/items-list/components/PageSizeSelect';
+import Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable from '@/components/items-list/components/ItemsTable';
 
 import { TimeAgo } from '@/components/TimeAgo';
@@ -163,21 +161,13 @@ class UsersList extends React.Component {
     return null;
   }
 
-  renderSidebar() {
-    return (
-      <React.Fragment>
-        <SearchInput placeholder="Search..." />
-        {
-          currentUser.isAdmin &&
-          <SidebarMenu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        }
-        <PageSizeSelect />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
+    const sidebar = (
+      <Sidebar
+        menuItems={this.constructor.sidebarMenu}
+        selectedItem={this.props.currentPage}
+      />
+    );
 
     return (
       <LiveItemsList getRequest={this.getRequest} doRequest={this.doRequest}>
