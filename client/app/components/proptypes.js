@@ -35,6 +35,7 @@ export const Field = PropTypes.shape({
   type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox', 'file']).isRequired,
   initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
   required: PropTypes.bool,
+  minLength: PropTypes.number,
   placeholder: PropTypes.string,
 });
 

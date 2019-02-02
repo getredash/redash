@@ -12,6 +12,18 @@ import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
+const fieldRules = ({ title, name, type, required, minLength }) => {
+  const fieldLabel = title || helper.toHuman(name);
+
+  const requiredRule = required;
+  const minLengthRule = minLength && ['text', 'email', 'password'].includes(type);
+
+  return [
+    requiredRule && { required, message: `${fieldLabel} is required.` },
+    minLengthRule && { min: minLength, message: `${fieldLabel} is too short.` },
+  ].filter(rule => rule);
+};
+
 export const DynamicForm = Form.create()(class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
@@ -100,11 +112,10 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
 
   renderUpload(field, props) {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { name, initialValue, required } = field;
-    const fieldLabel = field.title || helper.toHuman(name);
+    const { name, initialValue } = field;
 
     const fileOptions = {
-      rules: [{ required, message: `${fieldLabel} is required.` }],
+      rules: fieldRules(field),
       initialValue,
       getValueFromEvent: this.base64File.bind(this, name),
     };
@@ -126,7 +137,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     const fieldLabel = field.title || helper.toHuman(name);
 
     const options = {
-      rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
+      rules: fieldRules(field),
       valuePropName: type === 'checkbox' ? 'checked' : 'value',
       initialValue,
     };
