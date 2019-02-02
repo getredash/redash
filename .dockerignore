@@ -4,3 +4,10 @@ node_modules/
 .tmp/
 .venv/
 .git/
+/.codeclimate.yml
+/.coverage
+/coverage.xml
+/.circleci/
+/.github/
+/netlify.toml
+/setup/
