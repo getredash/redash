@@ -6,71 +6,69 @@ import PropTypes from 'prop-types';
 import { Moment } from '@/components/proptypes';
 import { clientConfig } from '@/services/auth';
 
-const interactiveComponents = new Set();
+const autoUpdateList = new Set();
 
-function updateInteractiveComponents() {
-  interactiveComponents.forEach(component => component.forceUpdate());
-  setTimeout(updateInteractiveComponents, 30 * 1000);
+function updateComponents() {
+  autoUpdateList.forEach(component => component.update());
+  setTimeout(updateComponents, 30 * 1000);
 }
-updateInteractiveComponents();
+updateComponents();
 
-function toMoment(value) {
-  if (isNil(value)) {
-    return null;
-  }
-  value = moment(value);
-  return value.isValid() ? value : null;
-}
-
-export class TimeAgo extends React.Component {
+export class TimeAgo extends React.PureComponent {
   static propTypes = {
+    // `date` and `placeholder` used in `getDerivedStateFromProps`
+    // eslint-disable-next-line react/no-unused-prop-types
     date: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
       PropTypes.instanceOf(Date),
       Moment,
     ]),
-    interactive: PropTypes.bool,
+    // eslint-disable-next-line react/no-unused-prop-types
     placeholder: PropTypes.string,
+    autoUpdate: PropTypes.bool,
   };
 
   static defaultProps = {
     date: null,
-    interactive: true,
     placeholder: '',
+    autoUpdate: true,
   };
 
-  constructor(props) {
-    super(props);
-    this._value = toMoment(this.props.date);
+  static getDerivedStateFromProps({ date, placeholder }) {
+    // if `date` prop is not empty and a valid date/time - convert it to `moment`
+    date = !isNil(date) ? moment(date) : null;
+    date = date && date.isValid() ? date : null;
+
+    return {
+      value: date ? date.fromNow() : placeholder,
+      title: date ? date.format(clientConfig.dateTimeFormat) : '',
+    };
   }
+
+  // Initial state, to get rid of React warning
+  state = {
+    title: null,
+    value: null,
+  };
 
   componentDidMount() {
-    if (this.props.interactive) {
-      interactiveComponents.add(this);
-    }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    this._value = toMoment(nextProps.date);
-    if (nextProps.interactive) {
-      interactiveComponents.add(this);
-    } else {
-      interactiveComponents.delete(this);
-    }
-    return true; // default behaviour
+    autoUpdateList.add(this);
+    this.update(true);
   }
 
   componentWillUnmount() {
-    interactiveComponents.delete(this);
+    autoUpdateList.delete(this);
+  }
+
+  update(force = false) {
+    if (force || this.props.autoUpdate) {
+      this.setState(this.constructor.getDerivedStateFromProps(this.props));
+    }
   }
 
   render() {
-    return this._value ? (
-      <span title={this._value.format(clientConfig.dateTimeFormat)}>{this._value.fromNow()}</span>
-    ) : (
-      this.props.placeholder
-    );
+    return <span title={this.state.title}>{this.state.value}</span>;
   }
 }
 
