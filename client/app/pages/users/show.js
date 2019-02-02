@@ -52,16 +52,9 @@ function UserCtrl(
       profileImageUrl: user.profile_image_url,
       apiKey: user.api_key,
       isDisabled: user.is_disabled,
+      isInvitationPending: user.is_invitation_pending,
     };
   });
-
-  $scope.resendInvitation = () => {
-    $http.post(`api/users/${$scope.user.id}/invite`).success(() => {
-      toastr.success('Invitation sent.', {
-        timeOut: 10000,
-      });
-    });
-  };
 
   $scope.enableUser = (user) => {
     User.enableUser(user);

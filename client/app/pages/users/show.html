@@ -11,13 +11,6 @@
           <strong>This user is disabled.</strong>
           <button type="button" class="btn btn-primary" ng-click="enableUser(user)">Enable</button>
         </div>
-
-          <div ng-if="currentUser.isAdmin">
-            <div class="form-group">
-              <button class="btn btn-default" ng-if="user.is_invitation_pending" ng-click="resendInvitation()" ng-disabled="disablePasswordResetButton">Resend Invitation</button>
-            </div>
-          </div>
-      </div>
       </div>
     </div>
   </div>

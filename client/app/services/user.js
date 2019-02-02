@@ -96,6 +96,22 @@ function sendPasswordReset(user) {
     });
 }
 
+function resendInvitation(user) {
+  return $http
+    .post(`api/users/${user.id}/invite`)
+    .then(() => {
+      toastr.success('Invitation sent.');
+    })
+    .catch((response) => {
+      const message =
+        response.message
+          ? response.message
+          : `Failed to resend invitation: ${response.statusText}`;
+
+      toastr.error(message);
+    });
+}
+
 function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
@@ -113,6 +129,7 @@ function UserService($resource) {
   UserResource.deleteUser = deleteUser;
   UserResource.regenerateApiKey = regenerateApiKey;
   UserResource.sendPasswordReset = sendPasswordReset;
+  UserResource.resendInvitation = resendInvitation;
 
   return UserResource;
 }

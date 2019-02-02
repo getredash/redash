@@ -24,6 +24,7 @@ export class UserEdit extends React.Component {
       user: this.props.user,
       changingPassword: false,
       sendingPasswordEmail: false,
+      resendingInvitation: false,
     };
   }
 
@@ -43,6 +44,7 @@ export class UserEdit extends React.Component {
           profileImageUrl: user.profile_image_url,
           apiKey: user.api_key,
           isDisabled: user.is_disabled,
+          isInvitationPending: user.is_invitation_pending,
         },
       });
     }, (error) => {
@@ -70,6 +72,15 @@ export class UserEdit extends React.Component {
       this.setState({ passwordResetLink });
     }).finally(() => {
       this.setState({ sendingPasswordEmail: false });
+    });
+  };
+
+  resendInvitation = () => {
+    const { user } = this.state;
+    this.setState({ resendingInvitation: true });
+
+    User.resendInvitation(user).finally(() => {
+      this.setState({ resendingInvitation: false });
     });
   };
 
@@ -130,24 +141,34 @@ export class UserEdit extends React.Component {
     );
   }
 
-  renderPasswordReset() {
-    const { user, sendingPasswordEmail, passwordResetLink } = this.state;
+  renderPasswordOptions() {
+    const { sendingPasswordEmail, passwordResetLink, resendingInvitation } = this.state;
 
     return (
       <Fragment>
-        <Button
-          className="w-100 m-t-10"
-          onClick={this.sendPasswordReset}
-          loading={sendingPasswordEmail}
-        >
-          Send Password Reset Email
-        </Button>
+        {this.state.user.isInvitationPending ? (
+          <Button
+            className="w-100 m-t-10"
+            onClick={this.resendInvitation}
+            loading={resendingInvitation}
+          >
+            Resend Invitation
+          </Button>
+        ) : (
+          <Button
+            className="w-100 m-t-10"
+            onClick={this.sendPasswordReset}
+            loading={sendingPasswordEmail}
+          >
+            Send Password Reset Email
+          </Button>
+        )}
         {passwordResetLink && (
           <Alert
             message={clientConfig.mailSettingsMissing ? (
               <p>
                 The mail server is not configured, please send the following link
-                to {user.name} to reset their password:
+                to {this.state.user.name} to reset their password:
                 <Input.TextArea value={absoluteUrl(passwordResetLink)} readOnly />
               </p>
             ) : 'The user should receive a link to reset their password by email soon.'}
@@ -198,7 +219,7 @@ export class UserEdit extends React.Component {
             <hr />
             {this.changePasswordModal()}
             <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
-            {currentUser.isAdmin && this.renderPasswordReset()}
+            {currentUser.isAdmin && this.renderPasswordOptions()}
           </Fragment>
         )}
       </div>
