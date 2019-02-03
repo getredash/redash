@@ -8,7 +8,8 @@ import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
-import { currentUser, clientConfig } from '@/services/auth';
+import { userPolicy } from '@/services/policy';
+import { clientConfig } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
@@ -101,7 +102,35 @@ export class UserEdit extends React.Component {
     });
   };
 
-  renderChangePasswordModal() {
+  renderBasicInfoForm() {
+    const { user } = this.state;
+    const formFields = [
+      {
+        name: 'name',
+        title: 'Name',
+        type: 'text',
+        initialValue: user.name,
+        required: true,
+      },
+      {
+        name: 'email',
+        title: 'Email',
+        type: 'email',
+        initialValue: user.email,
+        required: true,
+      },
+    ];
+
+    return (
+      <DynamicForm
+        fields={formFields}
+        readOnly={!userPolicy.canEditBasicInfo(user)}
+        onSubmit={this.onSaveUser}
+      />
+    );
+  }
+
+  renderChangePassword() {
     const fields = [
       { name: 'old_password', title: 'Current Password' },
       { name: 'password', title: 'New Password', minLength: 6 },
@@ -109,15 +138,19 @@ export class UserEdit extends React.Component {
     ].map(field => ({ ...field, type: 'password', required: true }));
 
     return (
-      <Modal
-        visible={this.state.changingPassword}
-        title="Change Password"
-        onCancel={() => { this.setState({ changingPassword: false }); }}
-        footer={null}
-        destroyOnClose
-      >
-        <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.onUpdatePassword} />
-      </Modal>
+      <Fragment>
+        <hr />
+        <Modal
+          visible={this.state.changingPassword}
+          title="Change Password"
+          onCancel={() => { this.setState({ changingPassword: false }); }}
+          footer={null}
+          destroyOnClose
+        >
+          <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.onUpdatePassword} />
+        </Modal>
+        <Button className="w-100 m-t-10" onClick={this.onClickChangePassword}>Change Password</Button>
+      </Fragment>
     );
   }
 
@@ -160,28 +193,30 @@ export class UserEdit extends React.Component {
     );
   }
 
-  renderPasswordOptions() {
-    const { sendingPasswordEmail, passwordResetLink, resendingInvitation } = this.state;
+  renderResendInvitation() {
+    return (
+      <Button
+        className="w-100 m-t-10"
+        onClick={this.onClickResendInvitation}
+        loading={this.state.resendingInvitation}
+      >
+        Resend Invitation
+      </Button>
+    );
+  }
+
+  renderSendPasswordReset() {
+    const { sendingPasswordEmail, passwordResetLink } = this.state;
 
     return (
       <Fragment>
-        {this.state.user.isInvitationPending ? (
-          <Button
-            className="w-100 m-t-10"
-            onClick={this.onClickResendInvitation}
-            loading={resendingInvitation}
-          >
-            Resend Invitation
-          </Button>
-        ) : (
-          <Button
-            className="w-100 m-t-10"
-            onClick={this.onClickSendPasswordReset}
-            loading={sendingPasswordEmail}
-          >
-            Send Password Reset Email
-          </Button>
-        )}
+        <Button
+          className="w-100 m-t-10"
+          onClick={this.onClickSendPasswordReset}
+          loading={sendingPasswordEmail}
+        >
+          Send Password Reset Email
+        </Button>
         {passwordResetLink && this.renderPasswordLinkAlert()}
       </Fragment>
     );
@@ -204,23 +239,6 @@ export class UserEdit extends React.Component {
   render() {
     const { user } = this.state;
 
-    const formFields = [
-      {
-        name: 'name',
-        title: 'Name',
-        type: 'text',
-        initialValue: user.name,
-        required: true,
-      },
-      {
-        name: 'email',
-        title: 'Email',
-        type: 'email',
-        initialValue: user.email,
-        required: true,
-      },
-    ];
-
     return (
       <div className="col-md-4 col-md-offset-4">
         <img
@@ -231,17 +249,12 @@ export class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.onSaveUser} />
-        {!user.isDisabled && (
-          <Fragment>
-            {this.renderApiKey()}
-            <hr />
-            {this.renderChangePasswordModal()}
-            <Button className="w-100 m-t-10" onClick={this.onClickChangePassword}>Change Password</Button>
-            {currentUser.isAdmin && this.renderPasswordOptions()}
-          </Fragment>
-        )}
-        {currentUser.isAdmin && this.renderToggleUser()}
+        {this.renderBasicInfoForm()}
+        {userPolicy.canViewApiKey(user) && this.renderApiKey()}
+        {userPolicy.canChangePassword(user) && this.renderChangePassword()}
+        {userPolicy.canResendInvitation(user) && this.renderResendInvitation()}
+        {userPolicy.canSendPasswordResetEmail(user) && this.renderSendPasswordReset()}
+        {userPolicy.canToggleUser(user) && this.renderToggleUser()}
       </div>
     );
   }
