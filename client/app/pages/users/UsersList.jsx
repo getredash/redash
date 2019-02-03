@@ -64,6 +64,7 @@ class UsersList extends React.Component {
       title: 'Name',
       field: 'name',
       width: null,
+      className: 'p-l-0',
     }),
     Columns.custom.sortable((text, user) => map(user.groups, group => (
       <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
@@ -88,6 +89,7 @@ class UsersList extends React.Component {
       }
       return null;
     }, {
+      className: 'p-r-0',
       isAvailable: () => currentUser.isAdmin,
     }),
   ];
@@ -182,11 +184,11 @@ class UsersList extends React.Component {
         <div className="row">
           <div className="col-md-3 list-control-t">{sidebar}</div>
           <div className="list-content col-md-9">
-            {!this.state.isLoaded && <LoadingState />}
-            {this.state.isLoaded && this.state.isEmpty && <EmptyState />}
+            {!this.state.isLoaded && <LoadingState className="" />}
+            {this.state.isLoaded && this.state.isEmpty && <EmptyState className="" />}
             {
               this.state.isLoaded && !this.state.isEmpty && (
-                <div className="bg-white tiled">
+                <div>
                   <ItemsTable
                     items={this.state.pageItems}
                     columns={this.constructor.listColumns}
