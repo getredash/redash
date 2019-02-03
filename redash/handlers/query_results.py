@@ -64,7 +64,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema=None):
+def run_query(parameterized_query, data_source, query_id, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -73,20 +73,18 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
-
-    if query.missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
+    if parameterized_query.missing_params:
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(parameterized_query.missing_params)))
 
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, parameterized_query.text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(parameterized_query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
@@ -112,6 +110,8 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
+        parameterized_query = ParameterizedQuery(query)
+
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
         if not has_access(data_source.groups, self.current_user, not_view_only):
@@ -125,7 +125,7 @@ class QueryResultListResource(BaseResource):
             'query_id': query_id,
             'parameters': parameters
         })
-        return run_query(data_source, parameters, query, query_id, max_age)
+        return run_query(parameterized_query.apply(parameters), data_source, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
@@ -195,7 +195,7 @@ class QueryResultResource(BaseResource):
         needs_execution_privileges = not parameterized_query.is_safe
 
         if has_access(query.data_source.groups, self.current_user, needs_execution_privileges):
-            return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
+            return run_query(parameterized_query.apply(parameters), query.data_source, query_id, max_age)
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
