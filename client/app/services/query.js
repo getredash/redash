@@ -429,12 +429,11 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText, isDirty) {
+  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -454,33 +453,40 @@ function QueryResource(
       });
     }
 
-    if (isDirty) {
-      if (parameters.isRequired()) {
-        // Need to clear latest results, to make sure we don't use results for different params.
-        this.latest_query_data = null;
-        this.latest_query_data_id = null;
-      }
+    if (parameters.isRequired()) {
+      // Need to clear latest results, to make sure we don't use results for different params.
+      this.latest_query_data = null;
+      this.latest_query_data_id = null;
+    }
 
-      if (this.latest_query_data && maxAge !== 0) {
-        if (!this.queryResult) {
-          this.queryResult = new QueryResult({
-            query_result: this.latest_query_data,
-          });
-        }
-      } else if (this.latest_query_data_id && maxAge !== 0) {
-        if (!this.queryResult) {
-          this.queryResult = QueryResult.getById(this.latest_query_data_id);
-        }
-      } else if (this.data_source_id) {
-        this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
-      } else {
-        return new QueryResultError('Please select data source to run this query.');
+    if (this.latest_query_data && maxAge !== 0) {
+      if (!this.queryResult) {
+        this.queryResult = new QueryResult({
+          query_result: this.latest_query_data,
+        });
       }
+    } else if (this.latest_query_data_id && maxAge !== 0) {
+      if (!this.queryResult) {
+        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+      }
+    } else if (this.data_source_id) {
+      this.queryResult = execute();
     } else {
-      this.queryResult = QueryResult.getByQueryId(this.id, parameters.getValues(), maxAge);
+      return new QueryResultError('Please select data source to run this query.');
     }
 
     return this.queryResult;
+  };
+
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
+    return this.prepareQueryResultExecution(() =>
+      QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge), maxAge);
+  };
+
+  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    return this.prepareQueryResultExecution(() =>
+      QueryResult.get(this.data_source_id, queryText, this.getParameters().getValues(), maxAge, this.id), maxAge);
   };
 
   QueryService.prototype.getUrl = function getUrl(source, hash) {

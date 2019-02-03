@@ -26,7 +26,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge, selectedQueryText, isDirty) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -36,8 +36,13 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge, selectedQueryText, isDirty);
+    if ($scope.isDirty) {
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+    } else {
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    }
   }
+
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -118,7 +123,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0, $scope.selectedQueryText, $scope.isDirty);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
