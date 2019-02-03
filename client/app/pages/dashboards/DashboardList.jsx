@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
+import { Paginator } from '@/components/Paginator';
 import { DashboardTagsControl } from '@/components/tags-control/DashboardTagsControl';
-
-import ItemsListContext from '@/components/items-list/ItemsListContext';
 
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import Sidebar from '@/components/items-list/components/Sidebar';
+import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import { Dashboard } from '@/services/dashboard';
@@ -35,7 +34,7 @@ class DashboardList extends React.Component {
       key: 'favorites',
       href: 'dashboards/favorites',
       title: 'Favorites',
-      icon: 'fa fa-star',
+      icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
   ];
 
@@ -62,57 +61,92 @@ class DashboardList extends React.Component {
 
   constructor(props) {
     super(props);
+
     const resources = {
       all: Dashboard.query.bind(Dashboard),
       favorites: Dashboard.favorites.bind(Dashboard),
     };
     const resource = resources[this.props.currentPage];
-    this.doRequest = request => resource(request).$promise
-      .then(({ results, count }) => ({
-        count,
-        results: map(results, item => new Dashboard(item)),
-      }));
+
+    this.controller = new LiveItemsList({
+      doRequest: request => resource(request).$promise
+        .then(({ results, count }) => ({
+          count,
+          results: map(results, item => new Dashboard(item)),
+        })),
+      onChange: () => this.setState(this.controller.state),
+    });
+    this.state = this.controller.state;
 
     this.onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
   }
 
-  render() {
-    const sidebar = (
-      <Sidebar
-        searchPlaceholder="Search Dashboards..."
-        menuItems={this.constructor.sidebarMenu}
-        selectedItem={this.props.currentPage}
-        tagsUrl="api/dashboards/tags"
-      />
+  componentDidMount() {
+    this.controller.update();
+  }
+
+  renderSidebar() {
+    return (
+      <React.Fragment>
+        <Sidebar.SearchInput
+          placeholder="Search Dashboards..."
+          value={this.state.searchTerm}
+          onChange={this.controller.updateSearch}
+        />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <Sidebar.Tags url="api/dashboards/tags" onChange={this.controller.updateSelectedTags} />
+        <Sidebar.PageSizeSelect
+          options={this.state.pageSizeOptions}
+          value={this.state.itemsPerPage}
+          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+        />
+      </React.Fragment>
     );
+  }
+
+  render() {
+    const sidebar = this.renderSidebar();
 
     return (
-      <LiveItemsList doRequest={this.doRequest}>
-        <div className="container">
-          <ItemsListContext.Consumer>
-            {context => (
-              <React.Fragment>
-                <PageHeader title={context.title} />
-                <div className="row">
-                  <div className="col-md-3 list-control-t">{sidebar}</div>
-                  <div className="list-content col-md-9">
-                    {!context.isLoaded && <LoadingState />}
-                    {
-                      context.isLoaded && context.isEmpty &&
-                      <DashboardListEmptyState page={this.props.currentPage} />
-                    }
-                    {
-                      context.isLoaded && !context.isEmpty &&
-                      <ItemsTable columns={this.constructor.listColumns} onRowClick={this.onTableRowClick} />
-                    }
-                  </div>
-                  <div className="col-md-3 list-control-r-b">{sidebar}</div>
+      <div className="container">
+        <PageHeader title={this.state.title} />
+        <div className="row">
+          <div className="col-md-3 list-control-t">{sidebar}</div>
+          <div className="list-content col-md-9">
+            {!this.state.isLoaded && <LoadingState />}
+            {
+              this.state.isLoaded && this.state.isEmpty && (
+                <DashboardListEmptyState
+                  page={this.props.currentPage}
+                  searchTerm={this.state.searchTerm}
+                  selectedTags={this.state.selectedTags}
+                />
+              )
+            }
+            {
+              this.state.isLoaded && !this.state.isEmpty && (
+                <div className="bg-white tiled">
+                  <ItemsTable
+                    items={this.state.pageItems}
+                    columns={this.constructor.listColumns}
+                    onRowClick={this.onTableRowClick}
+                    orderByField={this.state.orderByField}
+                    orderByReverse={this.state.orderByReverse}
+                    toggleSorting={this.controller.toggleSorting}
+                  />
+                  <Paginator
+                    totalCount={this.state.totalItemsCount}
+                    itemsPerPage={this.state.itemsPerPage}
+                    page={this.state.page}
+                    onChange={page => this.controller.updatePagination({ page })}
+                  />
                 </div>
-              </React.Fragment>
-            )}
-          </ItemsListContext.Consumer>
+              )
+            }
+          </div>
+          <div className="col-md-3 list-control-r-b">{sidebar}</div>
         </div>
-      </LiveItemsList>
+      </div>
     );
   }
 }

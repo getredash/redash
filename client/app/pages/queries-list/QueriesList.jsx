@@ -4,14 +4,13 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
+import { Paginator } from '@/components/Paginator';
 import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
-import ItemsListContext from '@/components/items-list/ItemsListContext';
-
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import Sidebar from '@/components/items-list/components/Sidebar';
+import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import { Query } from '@/services/query';
@@ -37,15 +36,13 @@ class QueriesList extends React.Component {
       key: 'favorites',
       href: 'queries/favorites',
       title: 'Favorites',
-      icon: 'fa fa-star',
+      icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
     {
       key: 'my',
       href: 'queries/my',
       title: 'My Queries',
-      icon: () => (
-        <img src={currentUser.profile_image_url} className="profile__image--navbar m-r-5" width="13" alt={currentUser.name} />
-      ),
+      icon: () => <Sidebar.ProfileImage user={currentUser} />,
       isAvailable: () => currentUser.hasPermission('create_query'),
     },
   ];
@@ -85,52 +82,86 @@ class QueriesList extends React.Component {
       favorites: Query.favorites.bind(Query),
     };
     const resource = resources[this.props.currentPage];
-    this.doRequest = request => resource(request).$promise
-      .then(({ results, count }) => ({
-        count,
-        results: map(results, item => new Query(item)),
-      }));
+
+    this.controller = new LiveItemsList({
+      doRequest: request => resource(request).$promise
+        .then(({ results, count }) => ({
+          count,
+          results: map(results, item => new Query(item)),
+        })),
+      onChange: () => this.setState(this.controller.state),
+    });
+    this.state = this.controller.state;
 
     this.onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
   }
 
-  render() {
-    const sidebar = (
-      <Sidebar
-        searchPlaceholder="Search Queries..."
-        menuItems={this.constructor.sidebarMenu}
-        selectedItem={this.props.currentPage}
-        tagsUrl="api/queries/tags"
-      />
+  componentDidMount() {
+    this.controller.update();
+  }
+
+  renderSidebar() {
+    return (
+      <React.Fragment>
+        <Sidebar.SearchInput
+          placeholder="Search Queries..."
+          value={this.state.searchTerm}
+          onChange={this.controller.updateSearch}
+        />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <Sidebar.Tags url="api/queries/tags" onChange={this.controller.updateSelectedTags} />
+        <Sidebar.PageSizeSelect
+          options={this.state.pageSizeOptions}
+          value={this.state.itemsPerPage}
+          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+        />
+      </React.Fragment>
     );
+  }
+
+  render() {
+    const sidebar = this.renderSidebar();
 
     return (
-      <LiveItemsList doRequest={this.doRequest}>
-        <div className="container">
-          <ItemsListContext.Consumer>
-            {context => (
-              <React.Fragment>
-                <PageHeader title={context.title} />
-                <div className="row">
-                  <div className="col-md-3 list-control-t">{sidebar}</div>
-                  <div className="list-content col-md-9">
-                    {!context.isLoaded && <LoadingState />}
-                    {
-                      context.isLoaded && context.isEmpty &&
-                      <QueriesListEmptyState page={this.props.currentPage} />
-                    }
-                    {
-                      context.isLoaded && !context.isEmpty &&
-                      <ItemsTable columns={this.constructor.listColumns} onRowClick={this.onTableRowClick} />
-                    }
-                  </div>
-                  <div className="col-md-3 list-control-r-b">{sidebar}</div>
+      <div className="container">
+        <PageHeader title={this.state.title} />
+        <div className="row">
+          <div className="col-md-3 list-control-t">{sidebar}</div>
+          <div className="list-content col-md-9">
+            {!this.state.isLoaded && <LoadingState />}
+            {
+              this.state.isLoaded && this.state.isEmpty && (
+                <QueriesListEmptyState
+                  page={this.props.currentPage}
+                  searchTerm={this.state.searchTerm}
+                  selectedTags={this.state.selectedTags}
+                />
+              )
+            }
+            {
+              this.state.isLoaded && !this.state.isEmpty && (
+                <div className="bg-white tiled">
+                  <ItemsTable
+                    items={this.state.pageItems}
+                    columns={this.constructor.listColumns}
+                    onRowClick={this.onTableRowClick}
+                    orderByField={this.state.orderByField}
+                    orderByReverse={this.state.orderByReverse}
+                    toggleSorting={this.controller.toggleSorting}
+                  />
+                  <Paginator
+                    totalCount={this.state.totalItemsCount}
+                    itemsPerPage={this.state.itemsPerPage}
+                    page={this.state.page}
+                    onChange={page => this.controller.updatePagination({ page })}
+                  />
                 </div>
-              </React.Fragment>
-            )}
-          </ItemsListContext.Consumer>
+              )
+            }
+          </div>
+          <div className="col-md-3 list-control-r-b">{sidebar}</div>
         </div>
-      </LiveItemsList>
+      </div>
     );
   }
 }

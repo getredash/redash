@@ -4,7 +4,6 @@ export default class LivePaginator {
   constructor(
     rowsFetcher,
     { page = 1, itemsPerPage = 20, orderByField, orderByReverse = false } = {},
-    fetchPage = true,
   ) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
@@ -12,13 +11,10 @@ export default class LivePaginator {
     this.orderByField = orderByField;
     this.orderByReverse = orderByReverse;
     this.rowsFetcher = rowsFetcher;
-    if (fetchPage) {
-      this.fetchPage(page);
-    }
   }
 
-  fetchPage(page = null, requested = false) {
-    this.rowsFetcher(page || this.page, this.itemsPerPage, this.orderByField, this.orderByReverse, this, requested);
+  fetchPage() {
+    this.rowsFetcher(this);
   }
 
   setPage(page, pageSize, pageOrder, pageOrderReverse) {
@@ -32,7 +28,7 @@ export default class LivePaginator {
       this.itemsPerPage = pageSize;
     }
     this.page = page;
-    this.fetchPage(page);
+    this.fetchPage();
   }
 
   getPageRows() {
@@ -57,7 +53,7 @@ export default class LivePaginator {
     }
 
     if (this.orderByField) {
-      this.fetchPage(this.page, true);
+      this.fetchPage();
     }
   }
 }

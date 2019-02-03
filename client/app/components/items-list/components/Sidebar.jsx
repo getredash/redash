@@ -4,123 +4,158 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Input from 'antd/lib/input';
 import Select from 'antd/lib/select';
-
 import { TagsList } from '@/components/TagsList';
 
-import { clientConfig } from '@/services/auth';
+/*
+    SearchInput
+ */
 
-import ItemsListContext from '../ItemsListContext';
-
-export default class Sidebar extends React.Component {
-  static propTypes = {
-    searchPlaceholder: PropTypes.string,
-    menuItems: PropTypes.arrayOf(PropTypes.shape({
-      key: PropTypes.string.isRequired,
-      href: PropTypes.string.isRequired,
-      // string: CSS class to use as icon (with `<i> tag)
-      // function: return value will be used as icon
-      icon: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-      title: PropTypes.string.isRequired,
-      // boolean: `true` to show item, `false` to hide
-      // function: should return boolean
-      // if omitted: show item
-      isAvailable: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-    })),
-    selectedItem: PropTypes.string,
-    tagsUrl: PropTypes.string,
-    pageSizeOptions: PropTypes.arrayOf(PropTypes.number),
-  };
-
-  static defaultProps = {
-    searchPlaceholder: 'Search...',
-    menuItems: [],
-    selectedItem: PropTypes.string,
-    tagsUrl: '',
-    pageSizeOptions: null, // defaults to `clientConfig.pageSizeOptions`, but it's not available on this stage
-  };
-
-  static contextType = ItemsListContext;
-
-  renderSearchInput() {
-    return (
-      <div className="m-b-10">
-        <Input
-          className="form-control"
-          placeholder={this.props.searchPlaceholder}
-          defaultValue={this.context.searchTerm}
-          onChange={event => this.context.updateSearch(event.target.value)}
-          autoFocus
-        />
-      </div>
-    );
-  }
-
-  renderMenu() {
-    const items = filter(
-      this.props.menuItems,
-      item => (isFunction(item.isAvailable) ? item.isAvailable() : defaultTo(item.isAvailable, true)),
-    );
-    if (items.length === 0) {
-      return null;
-    }
-    return (
-      <div className="list-group m-b-10 tags-list tiled">
-        {map(items, item => (
-          <a
-            key={item.key}
-            href={item.href}
-            className={classNames('list-group-item', { active: this.props.selectedItem === item.key })}
-          >
-            {
-              isString(item.icon) && (item.icon !== '') &&
-              <span className="btn-favourite m-r-5"><i className={item.icon} aria-hidden="true" /></span>
-            }
-            {isFunction(item.icon) && (item.icon(item) || null)}
-            {item.title}
-          </a>
-        ))}
-      </div>
-    );
-  }
-
-  renderTags() {
-    if (this.props.tagsUrl === '') {
-      return null;
-    }
-    return (
-      <div className="m-b-10">
-        <TagsList tagsUrl={this.props.tagsUrl} onUpdate={tags => this.context.updateSelectedTags(tags)} />
-      </div>
-    );
-  }
-
-  renderPageSizeSelect() {
-    const items = this.props.pageSizeOptions || clientConfig.pageSizeOptions;
-    return (
-      <div className="m-b-10">
-        <div className="m-b-10">
-          <Select
-            className="w-100"
-            defaultValue={this.context.itemsPerPage}
-            onChange={pageSize => this.context.updatePaginator({ pageSize })}
-          >
-            {map(items, option => (
-              <Select.Option key={option} value={option}>{ option } results</Select.Option>
-            ))}
-          </Select>
-        </div>
-      </div>
-    );
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-        {this.renderSearchInput()}
-        {this.renderMenu()}
-        {this.renderTags()}
-        {this.renderPageSizeSelect()}
-      </React.Fragment>
-    );
-  }
+export function SearchInput({ placeholder, value, onChange }) {
+  return (
+    <div className="m-b-10">
+      <Input
+        className="form-control"
+        placeholder={placeholder}
+        defaultValue={value}
+        onChange={event => onChange(event.target.value)}
+        autoFocus
+      />
+    </div>
+  );
 }
+
+SearchInput.propTypes = {
+  placeholder: PropTypes.string,
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+SearchInput.defaultProps = {
+  placeholder: 'Search...',
+};
+
+/*
+    Menu
+ */
+
+export function Menu({ items, selected }) {
+  items = filter(
+    items,
+    item => (isFunction(item.isAvailable) ? item.isAvailable() : defaultTo(item.isAvailable, true)),
+  );
+  if (items.length === 0) {
+    return null;
+  }
+  return (
+    <div className="list-group m-b-10 tags-list tiled">
+      {map(items, item => (
+        <a
+          key={item.key}
+          href={item.href}
+          className={classNames('list-group-item', { active: selected === item.key })}
+        >
+          {
+            isString(item.icon) && (item.icon !== '') &&
+            <span className="btn-favourite m-r-5"><i className={item.icon} aria-hidden="true" /></span>
+          }
+          {isFunction(item.icon) && (item.icon(item) || null)}
+          {item.title}
+        </a>
+      ))}
+    </div>
+  );
+}
+
+Menu.propTypes = {
+  items: PropTypes.arrayOf(PropTypes.shape({
+    key: PropTypes.string.isRequired,
+    href: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    icon: PropTypes.func, // function to render icon
+    isAvailable: PropTypes.func, // return `true` to show item and `false` to hide; if omitted: show item
+  })),
+  selected: PropTypes.string,
+};
+
+Menu.defaultProps = {
+  items: [],
+  selected: null,
+};
+
+/*
+    MenuIcon
+ */
+
+export function MenuIcon({ icon }) {
+  return <span className="btn-favourite m-r-5"><i className={icon} aria-hidden="true" /></span>;
+}
+
+MenuIcon.propTypes = {
+  icon: PropTypes.string.isRequired,
+};
+
+/*
+    ProfileImage
+ */
+
+export function ProfileImage({ user }) {
+  if (!isString(user.profile_image_url) || (user.profile_image_url === '')) {
+    return null;
+  }
+  return <img src={user.profile_image_url} className="profile__image--navbar m-r-5" width="13" alt={user.name} />;
+}
+
+ProfileImage.propTypes = {
+  user: PropTypes.shape({
+    profile_image_url: PropTypes.string,
+    name: PropTypes.string,
+  }).isRequired,
+};
+
+/*
+    Tags
+ */
+
+export function Tags({ url, onChange }) {
+  if (url === '') {
+    return null;
+  }
+  return (
+    <div className="m-b-10">
+      <TagsList tagsUrl={url} onUpdate={onChange} />
+    </div>
+  );
+}
+
+Tags.propTypes = {
+  url: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+/*
+    PageSizeSelect
+ */
+
+export function PageSizeSelect({ options, value, onChange }) {
+  return (
+    <div className="m-b-10">
+      <div className="m-b-10">
+        <Select
+          className="w-100"
+          defaultValue={value}
+          onChange={onChange}
+        >
+          {map(options, option => (
+            <Select.Option key={option} value={option}>{ option } results</Select.Option>
+          ))}
+        </Select>
+      </div>
+    </div>
+  );
+}
+
+PageSizeSelect.propTypes = {
+  options: PropTypes.arrayOf(PropTypes.number).isRequired,
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+};

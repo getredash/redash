@@ -2,12 +2,10 @@ import { isFunction, map, extend, omit, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
-import { Paginator } from '@/components/Paginator';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { TimeAgo } from '@/components/TimeAgo';
 import { durationHumanize } from '@/filters';
 import { formatDateTime } from '@/filters/datetime';
-import ItemsListContext from '../ItemsListContext';
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
@@ -73,6 +71,8 @@ Columns.custom.sortable = sortable;
 
 export default class ItemsTable extends React.Component {
   static propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    items: PropTypes.arrayOf(PropTypes.object),
     columns: PropTypes.arrayOf(PropTypes.shape({
       field: PropTypes.string, // data field
       orderByField: PropTypes.string, // field to order by (defaults to `field`)
@@ -81,29 +81,36 @@ export default class ItemsTable extends React.Component {
     onRowClick: PropTypes.func, // (event, item) => void
     // eslint-disable-next-line react/forbid-prop-types
     context: PropTypes.any, // any value that is passed to each column's `render` function
+
+    orderByField: PropTypes.string,
+    orderByReverse: PropTypes.bool,
+    toggleSorting: PropTypes.func,
   };
 
   static defaultProps = {
+    items: [],
     columns: [],
     onRowClick: null,
     context: null,
+
+    orderByField: null,
+    orderByReverse: false,
+    toggleSorting: () => {},
   };
 
-  static contextType = ItemsListContext;
-
-  prepareColumns(columns) {
-    const orderByField = this.context.orderByField;
-    const orderByDirection = this.context.orderByReverse ? 'descend' : 'ascend';
+  prepareColumns() {
+    const { orderByField, orderByReverse, toggleSorting } = this.props;
+    const orderByDirection = orderByReverse ? 'descend' : 'ascend';
 
     return map(
       map(
-        columns,
+        this.props.columns,
         column => extend(column, { orderByField: column.orderByField || column.field }),
       ),
       (column, index) => {
         // Bind click events only to sortable columns
         const onHeaderCell = column.sorter ? (
-          () => ({ onClick: () => this.context.toggleSorting(column.orderByField) })
+          () => ({ onClick: () => toggleSorting(column.orderByField) })
         ) : null;
 
         // Wrap render function to pass correct arguments
@@ -126,9 +133,9 @@ export default class ItemsTable extends React.Component {
   }
 
   render() {
-    const columns = this.prepareColumns(this.props.columns);
+    const columns = this.prepareColumns();
     const rows = map(
-      this.context.items,
+      this.props.items,
       (item, index) => ({ key: 'row' + index, item }),
     );
 
@@ -140,22 +147,14 @@ export default class ItemsTable extends React.Component {
     ) : null;
 
     return (
-      <div className="bg-white tiled">
-        <Table
-          className="table-data"
-          columns={columns}
-          dataSource={rows}
-          rowKey={row => row.key}
-          pagination={false}
-          onRow={onTableRow}
-        />
-        <Paginator
-          totalCount={this.context.totalItemsCount}
-          itemsPerPage={this.context.itemsPerPage}
-          page={this.context.page}
-          onChange={page => this.context.updatePaginator({ page })}
-        />
-      </div>
+      <Table
+        className="table-data"
+        columns={columns}
+        dataSource={rows}
+        rowKey={row => row.key}
+        pagination={false}
+        onRow={onTableRow}
+      />
     );
   }
 }

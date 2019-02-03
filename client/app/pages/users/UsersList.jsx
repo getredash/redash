@@ -1,15 +1,15 @@
-import { isFunction, extend, map } from 'lodash';
+import { extend, map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 
-import ItemsListContext from '@/components/items-list/ItemsListContext';
+import { Paginator } from '@/components/Paginator';
 
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
-import Sidebar from '@/components/items-list/components/Sidebar';
+import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import settingsMenu from '@/services/settingsMenu';
@@ -81,14 +81,12 @@ class UsersList extends React.Component {
   constructor(props) {
     super(props);
 
-    this.updateList = () => {};
-
     const wrapUserAction = action => (
       (event, user) => {
         event.preventDefault();
         event.stopPropagation();
         action(user).then(() => {
-          this.updateList();
+          this.controller.update();
         });
         // TODO: Error handling - ???
       }
@@ -101,24 +99,45 @@ class UsersList extends React.Component {
     };
 
     const resource = User.query.bind(User);
-    this.doRequest = request => resource(request).$promise
-      .then(({ results, count }) => ({
-        count,
-        results: map(results, item => new User(item)),
-      }));
 
-    this.getRequest = (request) => {
-      if (this.props.currentPage === 'disabled') {
-        request.disabled = true;
-      }
-      return request;
-    };
+    this.controller = new LiveItemsList({
+      getRequest: (request) => {
+        if (this.props.currentPage === 'disabled') {
+          request.disabled = true;
+        }
+        return request;
+      },
+      doRequest: request => resource(request).$promise
+        .then(({ results, count }) => ({
+          count,
+          results: map(results, item => new User(item)),
+        })),
+      onChange: () => this.setState(this.controller.state),
+    });
+    this.state = this.controller.state;
 
     this.onTableRowClick = (event, item) => navigateTo('users/' + item.id);
   }
 
-  saveCurrentContext(context) {
-    this.updateList = isFunction(context.update) ? context.update : () => {};
+  componentDidMount() {
+    this.controller.update();
+  }
+
+  renderSidebar() {
+    return (
+      <React.Fragment>
+        <Sidebar.SearchInput
+          value={this.state.searchTerm}
+          onChange={this.controller.updateSearch}
+        />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <Sidebar.PageSizeSelect
+          options={this.state.pageSizeOptions}
+          value={this.state.itemsPerPage}
+          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+        />
+      </React.Fragment>
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -141,39 +160,41 @@ class UsersList extends React.Component {
   }
 
   render() {
-    const sidebar = (
-      <Sidebar
-        menuItems={this.constructor.sidebarMenu}
-        selectedItem={this.props.currentPage}
-      />
-    );
+    const sidebar = this.renderSidebar();
 
     return (
-      <LiveItemsList getRequest={this.getRequest} doRequest={this.doRequest}>
-        <ItemsListContext.Consumer>
-          {context => (
-            <React.Fragment>
-              {this.saveCurrentContext(context)}
-              {this.renderPageHeader()}
-              <div className="row">
-                <div className="col-md-3 list-control-t">{sidebar}</div>
-                <div className="list-content col-md-9">
-                  {!context.isLoaded && <LoadingState />}
-                  {context.isLoaded && context.isEmpty && <EmptyState />}
-                  {context.isLoaded && !context.isEmpty && (
-                    <ItemsTable
-                      columns={this.constructor.listColumns}
-                      context={this.actions}
-                      onRowClick={this.onTableRowClick}
-                    />
-                  )}
+      <React.Fragment>
+        {this.renderPageHeader()}
+        <div className="row">
+          <div className="col-md-3 list-control-t">{sidebar}</div>
+          <div className="list-content col-md-9">
+            {!this.state.isLoaded && <LoadingState />}
+            {this.state.isLoaded && this.state.isEmpty && <EmptyState />}
+            {
+              this.state.isLoaded && !this.state.isEmpty && (
+                <div className="bg-white tiled">
+                  <ItemsTable
+                    items={this.state.pageItems}
+                    columns={this.constructor.listColumns}
+                    onRowClick={this.onTableRowClick}
+                    context={this.actions}
+                    orderByField={this.state.orderByField}
+                    orderByReverse={this.state.orderByReverse}
+                    toggleSorting={this.controller.toggleSorting}
+                  />
+                  <Paginator
+                    totalCount={this.state.totalItemsCount}
+                    itemsPerPage={this.state.itemsPerPage}
+                    page={this.state.page}
+                    onChange={page => this.controller.updatePagination({ page })}
+                  />
                 </div>
-                <div className="col-md-3 list-control-r-b">{sidebar}</div>
-              </div>
-            </React.Fragment>
-          )}
-        </ItemsListContext.Consumer>
-      </LiveItemsList>
+              )
+            }
+          </div>
+          <div className="col-md-3 list-control-r-b">{sidebar}</div>
+        </div>
+      </React.Fragment>
     );
   }
 }
