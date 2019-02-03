@@ -84,7 +84,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, parameterized_query.text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
