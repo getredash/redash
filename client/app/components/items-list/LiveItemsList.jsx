@@ -1,4 +1,4 @@
-import { isUndefined, isString, isNil, extend, omitBy, defaultTo, wrap, identity, noop } from 'lodash';
+import { isFunction, isString, isNil, extend, defaultTo, wrap, identity, noop } from 'lodash';
 import LivePaginator from '@/lib/pagination/live-paginator';
 import { $location, $route } from '@/services/ng';
 import { clientConfig } from '@/services/auth';
@@ -61,7 +61,7 @@ export default class LiveItemsList {
       // pagination
       page: paginator.page,
       itemsPerPage: paginator.itemsPerPage,
-      totalItemsCount: paginator.totalCount,
+      totalItemsCount: isLoaded ? paginator.totalCount : 0,
       pageSizeOptions: clientConfig.pageSizeOptions,
       pageItems: isLoaded ? paginator.getPageRows() : [],
     };
@@ -76,10 +76,11 @@ export default class LiveItemsList {
 
   constructor({ getRequest, doRequest, onChange }) {
     const params = this.getParamsFromUrl();
-    const handlers = extend(
-      { getRequest: identity, doRequest: null /* fail-fast */, onChange: noop },
-      omitBy({ getRequest, doRequest, onChange }, isUndefined),
-    );
+    const handlers = {
+      getRequest: isFunction(getRequest) ? getRequest : identity,
+      doRequest: isFunction(doRequest) ? doRequest : null, // fail-fast
+      onChange: isFunction(onChange) ? onChange : noop,
+    };
 
     const paginator = new LivePaginator(
       wrap(handlers, this._fetchData.bind(this)),
@@ -137,7 +138,7 @@ export default class LiveItemsList {
 
   _fetchData(handlers, paginator) {
     this.state = this.getStateWithUpdate({ isLoaded: false, paginator });
-    handlers.onChange();
+    handlers.onChange(this);
 
     this.updateUrlParams();
 
@@ -145,7 +146,7 @@ export default class LiveItemsList {
     return handlers.doRequest(request).then((data) => {
       paginator.updateRows(data.results, data.count);
       this.state = this.getStateWithUpdate({ isLoaded: true, paginator });
-      handlers.onChange();
+      handlers.onChange(this);
     });
   }
 }

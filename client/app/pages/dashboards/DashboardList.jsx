@@ -74,7 +74,7 @@ class DashboardList extends React.Component {
           count,
           results: map(results, item => new Dashboard(item)),
         })),
-      onChange: () => this.setState(this.controller.state),
+      onChange: ({ state }) => this.setState(state),
     });
     this.state = this.controller.state;
 

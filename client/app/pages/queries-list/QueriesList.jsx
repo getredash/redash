@@ -89,7 +89,7 @@ class QueriesList extends React.Component {
           count,
           results: map(results, item => new Query(item)),
         })),
-      onChange: () => this.setState(this.controller.state),
+      onChange: ({ state }) => this.setState(state),
     });
     this.state = this.controller.state;
 
