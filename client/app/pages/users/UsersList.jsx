@@ -1,4 +1,4 @@
-import { extend, map } from 'lodash';
+import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -17,11 +17,25 @@ import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 class UsersList extends React.Component {
   static propTypes = {
     currentPage: PropTypes.string.isRequired,
   };
+
+  static routes = [
+    {
+      path: '/users',
+      title: 'Users',
+      key: 'active',
+    },
+    {
+      path: '/users/disabled',
+      title: 'Disabled Users',
+      key: 'disabled',
+    },
+  ];
 
   static sidebarMenu = [
     {
@@ -210,31 +224,10 @@ export default function init(ngModule) {
 
   ngModule.component('pageUsersList', react2angular(UsersList));
 
-  const route = {
+  return routesToAngularRoutes(UsersList.routes, {
     template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
     reloadOnSearch: false,
-  };
-
-  return {
-    '/users': extend(
-      {
-        title: 'Users',
-        resolve: {
-          currentPage: () => 'active',
-        },
-      },
-      route,
-    ),
-    '/users/disabled': extend(
-      {
-        title: 'Disabled Users',
-        resolve: {
-          currentPage: () => 'disabled',
-        },
-      },
-      route,
-    ),
-  };
+  });
 }
 
 init.init = true;

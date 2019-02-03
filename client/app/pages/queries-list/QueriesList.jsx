@@ -1,4 +1,4 @@
-import { extend, map } from 'lodash';
+import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -16,6 +16,7 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 import QueriesListEmptyState from './QueriesListEmptyState';
 
@@ -25,6 +26,29 @@ class QueriesList extends React.Component {
   static propTypes = {
     currentPage: PropTypes.string.isRequired,
   };
+
+  static routes = [
+    {
+      path: '/queries',
+      title: 'Queries',
+      key: 'all',
+    },
+    {
+      path: '/queries/favorites',
+      title: 'Favorite Queries',
+      key: 'favorites',
+    },
+    {
+      path: '/queries/archive',
+      title: 'Archived Queries',
+      key: 'archive',
+    },
+    {
+      path: '/queries/my',
+      title: 'My Queries',
+      key: 'my',
+    },
+  ];
 
   static sidebarMenu = [
     {
@@ -37,6 +61,12 @@ class QueriesList extends React.Component {
       href: 'queries/favorites',
       title: 'Favorites',
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
+    },
+    {
+      key: 'archive',
+      href: 'queries/archive',
+      title: 'Archive',
+      icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
     {
       key: 'my',
@@ -76,10 +106,12 @@ class QueriesList extends React.Component {
 
   constructor(props) {
     super(props);
+
     const resources = {
       all: Query.query.bind(Query),
       my: Query.myQueries.bind(Query),
       favorites: Query.favorites.bind(Query),
+      archive: Query.archive.bind(Query),
     };
     const resource = resources[this.props.currentPage];
 
@@ -169,42 +201,10 @@ class QueriesList extends React.Component {
 export default function init(ngModule) {
   ngModule.component('pageQueriesList', react2angular(QueriesList));
 
-  const route = {
+  return routesToAngularRoutes(QueriesList.routes, {
     template: '<page-queries-list current-page="$resolve.currentPage"></page-queries-list>',
     reloadOnSearch: false,
-  };
-
-  return {
-    '/queries': extend(
-      {
-        title: 'Queries',
-        resolve: {
-          currentPage: () => 'all',
-        },
-      },
-      route,
-    ),
-    '/queries/my': extend(
-      {
-        title: 'My Queries',
-        resolve: {
-          currentPage: () => 'my',
-        },
-      },
-      route,
-    ),
-    '/queries/favorites': extend(
-      {
-        title: 'Favorite Queries',
-        resolve: {
-          currentPage: () => 'favorites',
-        },
-      },
-      route,
-    ),
-    // TODO: setup redirect?
-    // '/queries/search':
-  };
+  });
 }
 
 init.init = true;

@@ -19,6 +19,9 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     case 'favorites': return (
       <BigMessage message="Mark queries as Favorite to list them here." icon="fa-star" />
     );
+    case 'archive': return (
+      <BigMessage message="Archived queries will be listed here." icon="fa-archive" />
+    );
     case 'my': return (
       <div className="tiled bg-white p-15">
         <a href="queries/new" className="btn btn-primary btn-sm">Create your first query</a> to populate My Queries

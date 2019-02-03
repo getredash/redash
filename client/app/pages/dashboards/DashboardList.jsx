@@ -1,4 +1,4 @@
-import { extend, map } from 'lodash';
+import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -14,6 +14,7 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 
 import { Dashboard } from '@/services/dashboard';
 import navigateTo from '@/services/navigateTo';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 import DashboardListEmptyState from './DashboardListEmptyState';
 
@@ -23,6 +24,19 @@ class DashboardList extends React.Component {
   static propTypes = {
     currentPage: PropTypes.string.isRequired,
   };
+
+  static routes = [
+    {
+      path: '/dashboards',
+      title: 'Dashboards',
+      key: 'all',
+    },
+    {
+      path: '/dashboards/favorites',
+      title: 'Favorite Dashboards',
+      key: 'favorites',
+    },
+  ];
 
   static sidebarMenu = [
     {
@@ -154,31 +168,10 @@ class DashboardList extends React.Component {
 export default function init(ngModule) {
   ngModule.component('pageDashboardList', react2angular(DashboardList));
 
-  const route = {
+  return routesToAngularRoutes(DashboardList.routes, {
     template: '<page-dashboard-list current-page="$resolve.currentPage"></page-dashboard-list>',
     reloadOnSearch: false,
-  };
-
-  return {
-    '/dashboards': extend(
-      {
-        title: 'Dashboards',
-        resolve: {
-          currentPage: () => 'all',
-        },
-      },
-      route,
-    ),
-    '/dashboards/favorites': extend(
-      {
-        title: 'Favorite Dashboards',
-        resolve: {
-          currentPage: () => 'favorites',
-        },
-      },
-      route,
-    ),
-  };
+  });
 }
 
 init.init = true;
