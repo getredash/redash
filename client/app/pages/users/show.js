@@ -14,10 +14,6 @@ function UserCtrl(
     $scope.userId = currentUser.id;
   }
 
-  $scope.canEdit = currentUser.hasPermission('admin') || currentUser.id === parseInt($scope.userId, 10);
-  $scope.showSettings = false;
-  $scope.showPasswordSettings = false;
-
   $scope.selectTab = (tab) => {
     $scope.selectedTab = tab;
     each($scope.tabs, (v, k) => {
@@ -40,20 +36,8 @@ function UserCtrl(
   $scope.selectTab($location.hash() || 'profile');
 
   $scope.user = User.get({ id: $scope.userId }, (user) => {
-    if (user.auth_type === 'password') {
-      $scope.showSettings = $scope.canEdit;
-      $scope.showPasswordSettings = $scope.canEdit;
-    }
-
     $scope.userInfo = User.convertUserInfo(user);
   });
-
-  $scope.enableUser = (user) => {
-    User.enableUser(user);
-  };
-  $scope.disableUser = (user) => {
-    User.disableUser(user);
-  };
 }
 
 export default function init(ngModule) {

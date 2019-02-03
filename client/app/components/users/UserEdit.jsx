@@ -55,10 +55,9 @@ export class UserEdit extends React.Component {
   };
 
   onClickSendPasswordReset = () => {
-    const { user } = this.state;
     this.setState({ sendingPasswordEmail: true });
 
-    User.sendPasswordReset(user).then((passwordResetLink) => {
+    User.sendPasswordReset(this.state.user).then((passwordResetLink) => {
       this.setState({ passwordResetLink });
     }).finally(() => {
       this.setState({ sendingPasswordEmail: false });
@@ -66,10 +65,9 @@ export class UserEdit extends React.Component {
   };
 
   onClickResendInvitation = () => {
-    const { user } = this.state;
     this.setState({ resendingInvitation: true });
 
-    User.resendInvitation(user).finally(() => {
+    User.resendInvitation(this.state.user).finally(() => {
       this.setState({ resendingInvitation: false });
     });
   };
@@ -88,6 +86,18 @@ export class UserEdit extends React.Component {
       onOk: doRegenerate,
       maskClosable: true,
       autoFocusButton: null,
+    });
+  };
+
+  onClickToggleUser = () => {
+    const { user } = this.state;
+    const toggleUser = user.isDisabled ? User.enableUser : User.disableUser;
+
+    this.setState({ togglingUser: true });
+    toggleUser(user).then(({ data }) => {
+      this.setState({ user: User.convertUserInfo(data) });
+    }).finally(() => {
+      this.setState({ togglingUser: false });
     });
   };
 
@@ -177,6 +187,20 @@ export class UserEdit extends React.Component {
     );
   }
 
+  renderToggleUser() {
+    const { user, togglingUser } = this.state;
+
+    return user.isDisabled ? (
+      <Button className="w-100 m-t-10" type="primary" onClick={this.onClickToggleUser} loading={togglingUser}>
+        Enable User
+      </Button>
+    ) : (
+      <Button className="w-100 m-t-10" type="danger" onClick={this.onClickToggleUser} loading={togglingUser}>
+        Disable User
+      </Button>
+    );
+  }
+
   render() {
     const { user } = this.state;
 
@@ -217,6 +241,7 @@ export class UserEdit extends React.Component {
             {currentUser.isAdmin && this.renderPasswordOptions()}
           </Fragment>
         )}
+        {currentUser.isAdmin && this.renderToggleUser()}
       </div>
     );
   }
