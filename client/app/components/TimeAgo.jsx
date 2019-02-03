@@ -35,6 +35,12 @@ export class TimeAgo extends React.PureComponent {
     autoUpdate: true,
   };
 
+  // Initial state, to get rid of React warning
+  state = {
+    title: null,
+    value: null,
+  };
+
   static getDerivedStateFromProps({ date, placeholder }) {
     // if `date` prop is not empty and a valid date/time - convert it to `moment`
     date = !isNil(date) ? moment(date) : null;
@@ -45,12 +51,6 @@ export class TimeAgo extends React.PureComponent {
       title: date ? date.format(clientConfig.dateTimeFormat) : '',
     };
   }
-
-  // Initial state, to get rid of React warning
-  state = {
-    title: null,
-    value: null,
-  };
 
   componentDidMount() {
     autoUpdateList.add(this);
