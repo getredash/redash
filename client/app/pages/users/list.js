@@ -1,12 +1,12 @@
-import { extend } from 'lodash';
 import { policy } from '@/services/policy';
-import ListCtrl from '@/lib/list-ctrl';
+import { buildListRoutes, ListCtrl } from '@/lib/list-ctrl';
 import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
+
 class UsersListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, User) {
-    super($scope, $location, currentUser, clientConfig);
+  constructor($scope, $location, $route, currentUser, clientConfig, User) {
+    super($scope, $location, $route, currentUser, clientConfig);
     this.policy = policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
@@ -43,41 +43,20 @@ export default function init(ngModule) {
     template,
   });
 
-  const route = {
-    template: '<users-list-page></users-list-page>',
-    reloadOnSearch: false,
-  };
+  const routes = [
+    {
+      page: 'all',
+      title: 'All Users',
+      path: '/users',
+    },
+    {
+      page: 'disabled',
+      title: 'Disabled Users',
+      path: '/users/disabled',
+    },
+  ];
 
-  return {
-    '/users': extend(
-      {
-        title: 'Users',
-        resolve: {
-          currentPage: () => 'all',
-          resource(User) {
-            'ngInject';
-
-            return User.query.bind(User);
-          },
-        },
-      },
-      route,
-    ),
-    '/users/disabled': extend(
-      {
-        resolve: {
-          currentPage: () => 'disabled',
-          resource(User) {
-            'ngInject';
-
-            return User.query.bind(User);
-          },
-        },
-        title: 'Disabled Users',
-      },
-      route,
-    ),
-  };
+  return buildListRoutes('user', routes, '<users-list-page></users-list-page>');
 }
 
 init.init = true;

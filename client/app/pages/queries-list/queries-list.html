@@ -1,6 +1,5 @@
 <div class="container">
-  <page-header title="'Queries'"></page-header>
-
+  <page-header title="$ctrl.title"></page-header>
   <div class="row">
     <div class="col-md-3 list-control-t">
       <div class="m-b-10">
@@ -17,10 +16,19 @@
           </span>
           Favorites
         </a>
+
+        <a href="queries/archive" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'archive'}">
+          <span class="btn-archive">
+            <i class="fa fa-archive" aria-hidden="true"></i>
+          </span>
+          Archive
+        </a>
+
         <a href="queries/my" class="list-group-item" ng-if="$ctrl.showMyQueries" ng-class="{active: $ctrl.currentPage == 'my'}">
           <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="13" style="margin-right: 0;"
           /> My Queries
         </a>
+
       </div>
 
       <div ng-if="$ctrl.currentPage != 'my'">
@@ -56,6 +64,7 @@
           <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
         </div>
 
+        <big-message ng-switch-when="archive" message="'Archived queries will be listed here.'" icon="'fa-archive'" />
         <big-message ng-switch-when="favorites" message="'Mark queries as Favorite to list them here.'" icon="'fa-star'" />
         <big-message ng-switch-when="search" message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'"></big-message>
         <no-tagged-objects-found ng-switch-when="tags" object-type="'queries'" tags="$ctrl.selectedTags" />
@@ -132,10 +141,19 @@
           </span>
           Favorites
         </a>
+
+        <a href="queries/archive" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'archive'}">
+          <span class="btn-archive">
+            <i class="fa fa-archive" aria-hidden="true"></i>
+          </span>
+          Archive
+        </a>
+
         <a href="queries/my" class="list-group-item" ng-if="$ctrl.showMyQueries" ng-class="{active: $ctrl.currentPage == 'my'}">
           <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="13" style="margin-right: 0;"
           /> My Queries
         </a>
+
       </div>
 
       <div ng-if="$ctrl.currentPage != 'my'" class="m-b-10">
