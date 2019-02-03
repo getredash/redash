@@ -4,6 +4,7 @@ import { UserShow } from './UserShow';
 
 test('renders correctly', () => {
   const user = {
+    id: 2,
     name: 'John Doe',
     email: 'john@doe.com',
     profileImageUrl: 'http://www.images.com/llama.jpg',
