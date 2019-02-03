@@ -429,12 +429,11 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -471,12 +470,18 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
+      this.queryResult = execute();
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
 
     return this.queryResult;
+  };
+
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    return this.prepareQueryResultExecution(() =>
+      QueryResult.get(this.data_source_id, queryText, this.getParameters().getValues(), maxAge, this.id), maxAge);
   };
 
   QueryService.prototype.getUrl = function getUrl(source, hash) {
