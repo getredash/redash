@@ -483,7 +483,7 @@ function QueryResource(
       QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge), maxAge);
   };
 
-  QueryService.prototype.lagecyGetQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
     return this.prepareQueryResultExecution(() =>
       QueryResult.get(this.data_source_id, queryText, this.getParameters().getValues(), maxAge, this.id), maxAge);
