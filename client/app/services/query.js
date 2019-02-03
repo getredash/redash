@@ -478,7 +478,12 @@ function QueryResource(
     return this.queryResult;
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
+    return this.prepareQueryResultExecution(() =>
+      QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge), maxAge);
+  };
+
+  QueryService.prototype.lagecyGetQueryResult = function getQueryResult(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
     return this.prepareQueryResultExecution(() =>
       QueryResult.get(this.data_source_id, queryText, this.getParameters().getValues(), maxAge, this.id), maxAge);
