@@ -28,35 +28,33 @@ export class UserEdit extends React.Component {
     };
   }
 
-  handleSave = (values, onSuccess, onError) => {
+  onSaveUser = (values, successCallback, errorCallback) => {
     const data = {
       id: this.props.user.id,
       ...values,
     };
 
     User.save(data, (user) => {
-      onSuccess('Saved.');
-      this.setState({
-        user: User.convertUserInfo(user),
-      });
+      successCallback('Saved.');
+      this.setState({ user: User.convertUserInfo(user) });
     }, (error) => {
-      onError(error.data.message || 'Failed saving.');
+      errorCallback(error.data.message || 'Failed saving.');
     });
   };
 
-  handleUpdatePassword = (values, onSuccess, onError) => {
+  onUpdatePassword = (values, successCallback, errorCallback) => {
     if (values.password === values.password_repeat) {
-      this.handleSave(values, onSuccess, onError);
+      this.onSaveUser(values, successCallback, errorCallback);
     } else {
-      onError('Passwords don\'t match!');
+      errorCallback('Passwords don\'t match!');
     }
   }
 
-  openChangePasswordModal = () => {
+  onClickChangePassword = () => {
     this.setState({ changingPassword: true });
   };
 
-  sendPasswordReset = () => {
+  onClickSendPasswordReset = () => {
     const { user } = this.state;
     this.setState({ sendingPasswordEmail: true });
 
@@ -67,7 +65,7 @@ export class UserEdit extends React.Component {
     });
   };
 
-  resendInvitation = () => {
+  onClickResendInvitation = () => {
     const { user } = this.state;
     this.setState({ resendingInvitation: true });
 
@@ -76,11 +74,10 @@ export class UserEdit extends React.Component {
     });
   };
 
-  regenerateApiKey = () => {
+  onClickRegenerateApiKey = () => {
     const doRegenerate = () => {
       User.regenerateApiKey(this.state.user).then((apiKey) => {
-        const { user } = this.state;
-        this.setState({ user: { ...user, apiKey } });
+        this.setState(prevState => ({ user: { ...prevState.user, apiKey } }));
       });
     };
 
@@ -94,7 +91,7 @@ export class UserEdit extends React.Component {
     });
   };
 
-  changePasswordModal() {
+  renderChangePasswordModal() {
     const fields = [
       { name: 'old_password', title: 'Current Password' },
       { name: 'password', title: 'New Password', minLength: 6 },
@@ -109,7 +106,7 @@ export class UserEdit extends React.Component {
         footer={null}
         destroyOnClose
       >
-        <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.handleUpdatePassword} />
+        <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.onUpdatePassword} />
       </Modal>
     );
   }
@@ -119,7 +116,7 @@ export class UserEdit extends React.Component {
 
     const regenerateButton = (
       <Tooltip title="Regenerate API Key">
-        <Icon type="reload" style={{ cursor: 'pointer' }} onClick={this.regenerateApiKey} />
+        <Icon type="reload" style={{ cursor: 'pointer' }} onClick={this.onClickRegenerateApiKey} />
       </Tooltip>
     );
 
@@ -133,6 +130,26 @@ export class UserEdit extends React.Component {
     );
   }
 
+  renderPasswordLinkAlert() {
+    const { user, passwordResetLink } = this.state;
+
+    return (
+      <Alert
+        message={clientConfig.mailSettingsMissing ? (
+          <p>
+            The mail server is not configured, please send the following link
+            to {user.name} to reset their password:
+            <Input.TextArea value={absoluteUrl(passwordResetLink)} readOnly />
+          </p>
+        ) : 'The user should receive a link to reset their password by email soon.'}
+        type="success"
+        className="m-t-20"
+        afterClose={() => { this.setState({ passwordResetLink: null }); }}
+        closable
+      />
+    );
+  }
+
   renderPasswordOptions() {
     const { sendingPasswordEmail, passwordResetLink, resendingInvitation } = this.state;
 
@@ -141,7 +158,7 @@ export class UserEdit extends React.Component {
         {this.state.user.isInvitationPending ? (
           <Button
             className="w-100 m-t-10"
-            onClick={this.resendInvitation}
+            onClick={this.onClickResendInvitation}
             loading={resendingInvitation}
           >
             Resend Invitation
@@ -149,27 +166,13 @@ export class UserEdit extends React.Component {
         ) : (
           <Button
             className="w-100 m-t-10"
-            onClick={this.sendPasswordReset}
+            onClick={this.onClickSendPasswordReset}
             loading={sendingPasswordEmail}
           >
             Send Password Reset Email
           </Button>
         )}
-        {passwordResetLink && (
-          <Alert
-            message={clientConfig.mailSettingsMissing ? (
-              <p>
-                The mail server is not configured, please send the following link
-                to {this.state.user.name} to reset their password:
-                <Input.TextArea value={absoluteUrl(passwordResetLink)} readOnly />
-              </p>
-            ) : 'The user should receive a link to reset their password by email soon.'}
-            type="success"
-            className="m-t-20"
-            afterClose={() => { this.setState({ passwordResetLink: null }); }}
-            closable
-          />
-        )}
+        {passwordResetLink && this.renderPasswordLinkAlert()}
       </Fragment>
     );
   }
@@ -197,20 +200,20 @@ export class UserEdit extends React.Component {
     return (
       <div className="col-md-4 col-md-offset-4">
         <img
-          alt="profile"
+          alt="Profile"
           src={user.profileImageUrl}
           className="profile__image"
           width="40"
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.handleSave} />
+        <DynamicForm fields={formFields} readOnly={user.isDisabled} onSubmit={this.onSaveUser} />
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
             <hr />
-            {this.changePasswordModal()}
-            <Button className="w-100 m-t-10" onClick={this.openChangePasswordModal}>Change Password</Button>
+            {this.renderChangePasswordModal()}
+            <Button className="w-100 m-t-10" onClick={this.onClickChangePassword}>Change Password</Button>
             {currentUser.isAdmin && this.renderPasswordOptions()}
           </Fragment>
         )}
