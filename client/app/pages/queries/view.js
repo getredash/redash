@@ -27,7 +27,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge, selectedQueryText, isDirty) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -124,7 +124,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0, $scope.selectedQueryText, $scope.isDirty);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
