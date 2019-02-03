@@ -65,6 +65,18 @@ function deleteUser(user) {
     });
 }
 
+function convertUserInfo(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    profileImageUrl: user.profile_image_url,
+    apiKey: user.api_key,
+    isDisabled: user.is_disabled,
+    isInvitationPending: user.is_invitation_pending,
+  };
+}
+
 function regenerateApiKey(user) {
   return $http
     .post(`api/users/${user.id}/regenerate_api_key`)
@@ -127,6 +139,7 @@ function UserService($resource) {
   UserResource.enableUser = enableUser;
   UserResource.disableUser = disableUser;
   UserResource.deleteUser = deleteUser;
+  UserResource.convertUserInfo = convertUserInfo;
   UserResource.regenerateApiKey = regenerateApiKey;
   UserResource.sendPasswordReset = sendPasswordReset;
   UserResource.resendInvitation = resendInvitation;

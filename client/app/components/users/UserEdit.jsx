@@ -37,15 +37,7 @@ export class UserEdit extends React.Component {
     User.save(data, (user) => {
       onSuccess('Saved.');
       this.setState({
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          profileImageUrl: user.profile_image_url,
-          apiKey: user.api_key,
-          isDisabled: user.is_disabled,
-          isInvitationPending: user.is_invitation_pending,
-        },
+        user: User.convertUserInfo(user),
       });
     }, (error) => {
       onError(error.data.message || 'Failed saving.');

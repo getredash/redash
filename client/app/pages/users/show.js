@@ -45,15 +45,7 @@ function UserCtrl(
       $scope.showPasswordSettings = $scope.canEdit;
     }
 
-    $scope.userInfo = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      profileImageUrl: user.profile_image_url,
-      apiKey: user.api_key,
-      isDisabled: user.is_disabled,
-      isInvitationPending: user.is_invitation_pending,
-    };
+    $scope.userInfo = User.convertUserInfo(user);
   });
 
   $scope.enableUser = (user) => {
