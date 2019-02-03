@@ -7,4 +7,3 @@ test('renders correctly', () => {
   const tree = component.toJSON();
   expect(tree).toMatchSnapshot();
 });
-

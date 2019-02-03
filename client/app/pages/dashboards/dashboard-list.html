@@ -1,6 +1,5 @@
 <div class="container">
-  <page-header title="'Dashboards'"></page-header>
-
+  <page-header title="$ctrl.title"></page-header>
   <div class="row">
     <div class="col-md-3 list-control-t">
       <div class="m-b-10">
@@ -37,17 +36,22 @@
     </div>
 
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
-      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0 || $ctrl.searchText === undefined)">
-        <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
-          help-link="https://help.redash.io/category/22-dashboards"></empty-state>
+      <div ng-switch="$ctrl.emptyType">
+        <div ng-switch-when="default">
+          <empty-state
+            icon="'zmdi zmdi-view-quilt'"
+            description="'See the big picture'"
+            illustration="'dashboard'"
+            help-link="'https://help.redash.io/category/22-dashboards'"
+            show-dashboard-step="true"
+          ></empty-state>
+        </div>
+
+        <big-message ng-switch-when="favorites" message="'Mark dashboards as Favorite to list them here.'" icon="'fa-star'" />
+        <big-message ng-switch-when="search" message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'"></big-message>
+        <no-tagged-objects-found ng-switch-when="tags" object-type="'dashboards'" tags="$ctrl.selectedTags" />
       </div>
 
-      <big-message ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchTerm === undefined || $ctrl.searchTerm.length == 0) && $ctrl.selectedTags.size === 0"
-        message="'Mark dashboards as Favorite to list them here.'" icon="'fa-star'" />
-
-      <big-message message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'" ng-if="$ctrl.searchTerm.length > 0"></big-message>
-
-      <no-tagged-objects-found object-type="'dashboards'" tags="$ctrl.selectedTags" ng-if="$ctrl.selectedTags.size > 0" />
     </div>
 
     <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-md-9 list-content">

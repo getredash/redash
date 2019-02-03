@@ -79,15 +79,14 @@ export default class TagsControl extends React.Component {
         <a className="label label-tag" role="none" onClick={this.openEditModal}>
           {buttonLabel}
         </a>
-        {this.state.showModal
-          ? <TagsEditorModal
+        {this.state.showModal && (
+          <TagsEditorModal
             tags={tags}
             availableTags={this.availableTags}
             close={this.onTagsChanged}
             dismiss={this.closeEditModal}
           />
-          : null
-        }
+        )}
       </Fragment>
     );
   }
