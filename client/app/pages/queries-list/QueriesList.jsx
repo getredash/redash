@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
-import { FavoritesControl } from '@/components/FavoritesControl';
 import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
@@ -13,13 +12,11 @@ import ItemsListContext from '@/components/items-list/ItemsListContext';
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import Sidebar from '@/components/items-list/components/Sidebar';
-import ItemsTable from '@/components/items-list/components/ItemsTable';
+import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
-import { durationHumanize } from '@/filters';
-import { formatDateTime } from '@/filters/datetime';
 
 import QueriesListEmptyState from './QueriesListEmptyState';
 
@@ -54,76 +51,30 @@ class QueriesList extends React.Component {
   ];
 
   static listColumns = [
-    {
-      width: '33px',
-      className: 'p-r-0',
-      render: (text, item) => (
-        <FavoritesControl item={item} />
-      ),
-    },
-    {
+    Columns.favorites({ className: 'p-r-0' }),
+    Columns.custom.sortable((text, item) => (
+      <React.Fragment>
+        <a className="table-main-title" href={'dashboard/' + item.slug}>{ item.name }</a>
+        <QueryTagsControl
+          className="d-block"
+          tags={item.tags}
+          isDraft={item.is_draft}
+          isArchived={item.is_archived}
+        />
+      </React.Fragment>
+    ), {
       title: 'Name',
       field: 'name',
-      sorter: true,
-      render: (text, item) => (
-        <React.Fragment>
-          <a className="table-main-title" href={'dashboard/' + item.slug}>{ item.name }</a>
-          <QueryTagsControl
-            className="d-block"
-            tags={item.tags}
-            isDraft={item.is_draft}
-            isArchived={item.is_archived}
-          />
-        </React.Fragment>
-      ),
-    },
-    {
-      width: '1%',
-      className: 'p-r-0',
-      render: (text, item) => (
-        <img
-          src={item.user.profile_image_url}
-          className="profile__image_thumb m-r-5"
-          alt={'Created by ' + item.user.name}
-          title={'Created by ' + item.user.name}
-        />
-      ),
-    },
-    {
-      title: 'Created At',
-      field: 'created_at',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: text => formatDateTime(text),
-    },
-    {
-      title: 'Runtime',
-      field: 'runtime',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: text => durationHumanize(text),
-    },
-    {
-      title: 'Last Executed At',
-      field: 'retrieved_at',
-      orderByField: 'executed_at',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: text => formatDateTime(text),
-    },
-    {
-      title: 'Update Schedule',
-      field: 'schedule',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: (text, item) => (
-        <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />
-      ),
-    },
+      width: null,
+    }),
+    Columns.avatar({ field: 'user', className: 'p-l-0 p-r-0' }, name => `Created by ${name}`),
+    Columns.dateTime.sortable({ title: 'Created At', field: 'created_at' }),
+    Columns.duration.sortable({ title: 'Runtime', field: 'runtime' }),
+    Columns.dateTime.sortable({ title: 'Last Executed At', field: 'retrieved_at', orderByField: 'executed_at' }),
+    Columns.custom.sortable(
+      (text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />,
+      { title: 'Update Schedule', field: 'schedule' },
+    ),
   ];
 
   constructor(props) {

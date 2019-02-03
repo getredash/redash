@@ -10,9 +10,8 @@ import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import Sidebar from '@/components/items-list/components/Sidebar';
-import ItemsTable from '@/components/items-list/components/ItemsTable';
+import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
-import { TimeAgo } from '@/components/TimeAgo';
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
@@ -38,65 +37,45 @@ class UsersList extends React.Component {
   ];
 
   static listColumns = [
-    {
+    Columns.custom.sortable((text, user) => (
+      <div className="d-flex align-items-center">
+        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
+        <div>
+          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
+          <div className="text-muted">{user.email}</div>
+          {user.is_invitation_pending && <span className="label label-tag-archived">Invitation Pending</span>}
+        </div>
+      </div>
+    ), {
       title: 'Name',
       field: 'name',
-      sorter: true,
-      render: (text, user) => (
-        <div className="d-flex align-items-center">
-          <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-          <div>
-            <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-            <div className="text-muted">{user.email}</div>
-            {user.is_invitation_pending && <span className="label label-tag-archived">Invitation Pending</span>}
-          </div>
-        </div>
-      ),
-    },
-    {
+      width: null,
+    }),
+    Columns.custom.sortable((text, user) => map(user.groups, group => (
+      <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
+    )), {
       title: 'Groups',
       field: 'groups',
-      sorter: true,
-      render: (text, user) => map(user.groups, group => (
-        <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
-      )),
-    },
-    {
-      title: 'Joined',
-      field: 'created_at',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: (text, user) => <TimeAgo date={user.created_at} />,
-    },
-    {
-      title: 'Last Active At',
-      field: 'active_at',
-      width: '1%',
-      className: 'text-nowrap',
-      sorter: true,
-      render: (text, user) => (user.active_at ? <TimeAgo date={user.active_at} /> : null),
-    },
-    {
-      width: '1%',
-      className: 'text-nowrap',
-      render: (text, user, context) => {
-        if (user.id !== currentUser.id) {
-          if (user.is_invitation_pending) {
-            return (
-              <button type="button" className="btn btn-default" onClick={event => context.deleteUser(event, user)}>Delete</button>
-            );
-          }
-          return user.is_disabled ? (
-            <button type="button" className="btn btn-primary" onClick={event => context.enableUser(event, user)}>Enable</button>
-          ) : (
-            <button type="button" className="btn btn-default" onClick={event => context.disableUser(event, user)}>Disable</button>
+    }),
+    Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at' }),
+    Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at' }),
+    Columns.custom((text, user, context) => {
+      if (user.id !== currentUser.id) {
+        if (user.is_invitation_pending) {
+          return (
+            <button type="button" className="btn btn-default" onClick={event => context.deleteUser(event, user)}>Delete</button>
           );
         }
-        return null;
-      },
+        return user.is_disabled ? (
+          <button type="button" className="btn btn-primary" onClick={event => context.enableUser(event, user)}>Enable</button>
+        ) : (
+          <button type="button" className="btn btn-default" onClick={event => context.disableUser(event, user)}>Disable</button>
+        );
+      }
+      return null;
+    }, {
       isAvailable: () => currentUser.isAdmin,
-    },
+    }),
   ];
 
   constructor(props) {

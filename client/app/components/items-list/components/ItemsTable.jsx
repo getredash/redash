@@ -1,19 +1,86 @@
-import { isFunction, map, extend, omit } from 'lodash';
+import { isFunction, map, extend, omit, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
 import { Paginator } from '@/components/Paginator';
+import { FavoritesControl } from '@/components/FavoritesControl';
+import { TimeAgo } from '@/components/TimeAgo';
+import { durationHumanize } from '@/filters';
+import { formatDateTime } from '@/filters/datetime';
 import ItemsListContext from '../ItemsListContext';
+
+// `this` refers to previous function in the chain (`Columns.***`).
+// Adds `sorter: true` field to column definition
+function sortable(...args) {
+  return extend(this(...args), { sorter: true });
+}
+
+export const Columns = {
+  favorites(overrides) {
+    return extend({
+      width: '1%',
+      render: (text, item) => <FavoritesControl item={item} />,
+    }, overrides);
+  },
+  avatar(overrides, formatTitle) {
+    formatTitle = isFunction(formatTitle) ? formatTitle : identity;
+    return extend({
+      width: '1%',
+      render: (user, item) => (
+        <img
+          src={item.user.profile_image_url}
+          className="profile__image_thumb"
+          alt={formatTitle(user.name, item)}
+          title={formatTitle(user.name, item)}
+        />
+      ),
+    }, overrides);
+  },
+  dateTime(overrides) {
+    return extend({
+      width: '1%',
+      className: 'text-nowrap',
+      render: text => formatDateTime(text),
+    }, overrides);
+  },
+  duration(overrides) {
+    return extend({
+      width: '1%',
+      className: 'text-nowrap',
+      render: text => durationHumanize(text),
+    }, overrides);
+  },
+  timeAgo(overrides) {
+    return extend({
+      width: '1%',
+      className: 'text-nowrap',
+      render: value => <TimeAgo date={value} />,
+    }, overrides);
+  },
+  custom(render, overrides) {
+    return extend({
+      width: '1%',
+      className: 'text-nowrap',
+      render,
+    }, overrides);
+  },
+};
+
+Columns.dateTime.sortable = sortable;
+Columns.duration.sortable = sortable;
+Columns.timeAgo.sortable = sortable;
+Columns.custom.sortable = sortable;
 
 export default class ItemsTable extends React.Component {
   static propTypes = {
     columns: PropTypes.arrayOf(PropTypes.shape({
-      field: PropTypes.string,
-      orderByField: PropTypes.string,
-      render: PropTypes.func,
+      field: PropTypes.string, // data field
+      orderByField: PropTypes.string, // field to order by (defaults to `field`)
+      render: PropTypes.func, // (prop, item, context) => text | node; `prop` is `item[field]`
     })),
-    onRowClick: PropTypes.func,
-    context: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    onRowClick: PropTypes.func, // (event, item) => void
+    // eslint-disable-next-line react/forbid-prop-types
+    context: PropTypes.any, // any value that is passed to each column's `render` function
   };
 
   static defaultProps = {
@@ -33,18 +100,28 @@ export default class ItemsTable extends React.Component {
         columns,
         column => extend(column, { orderByField: column.orderByField || column.field }),
       ),
-      (column, index) => extend(
-        omit(column, ['field', 'orderByField', 'render']),
-        {
-          key: 'column' + index,
-          dataIndex: 'item[' + JSON.stringify(column.field) + ']',
-          defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
-          onHeaderCell: () => ({
-            onClick: () => this.context.toggleSorting(column.orderByField),
-          }),
-          render: (text, row) => (isFunction(column.render) ? column.render(text, row.item, this.props.context) : text),
-        },
-      ),
+      (column, index) => {
+        // Bind click events only to sortable columns
+        const onHeaderCell = column.sorter ? (
+          () => ({ onClick: () => this.context.toggleSorting(column.orderByField) })
+        ) : null;
+
+        // Wrap render function to pass correct arguments
+        const render = isFunction(column.render) ? (
+          (text, row) => column.render(text, row.item, this.props.context)
+        ) : identity;
+
+        return extend(
+          omit(column, ['field', 'orderByField', 'render']),
+          {
+            key: 'column' + index,
+            dataIndex: 'item[' + JSON.stringify(column.field) + ']',
+            defaultSortOrder: column.orderByField === orderByField ? orderByDirection : null,
+            onHeaderCell,
+            render,
+          },
+        );
+      },
     );
   }
 
