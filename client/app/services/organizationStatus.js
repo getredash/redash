@@ -14,4 +14,3 @@ class OrganizationStatus {
 }
 
 export default new OrganizationStatus();
-

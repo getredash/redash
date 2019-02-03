@@ -72,9 +72,9 @@ export class ScheduleDialog extends React.Component {
   }
 
   set newSchedule(newProps) {
-    this.setState({
-      newSchedule: Object.assign(this.state.newSchedule, newProps),
-    });
+    this.setState(prevState => ({
+      newSchedule: Object.assign(prevState.newSchedule, newProps),
+    }));
   }
 
   setTime = (time) => {
