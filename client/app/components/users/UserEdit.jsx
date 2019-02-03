@@ -8,8 +8,7 @@ import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
-import { userPolicy } from '@/services/policy';
-import { clientConfig } from '@/services/auth';
+import { currentUser, clientConfig } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
@@ -124,7 +123,7 @@ export class UserEdit extends React.Component {
     return (
       <DynamicForm
         fields={formFields}
-        readOnly={!userPolicy.canEditBasicInfo(user)}
+        readOnly={user.isDisabled}
         onSubmit={this.onSaveUser}
       />
     );
@@ -250,11 +249,17 @@ export class UserEdit extends React.Component {
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
         {this.renderBasicInfoForm()}
-        {userPolicy.canViewApiKey(user) && this.renderApiKey()}
-        {userPolicy.canChangePassword(user) && this.renderChangePassword()}
-        {userPolicy.canResendInvitation(user) && this.renderResendInvitation()}
-        {userPolicy.canSendPasswordResetEmail(user) && this.renderSendPasswordReset()}
-        {userPolicy.canToggleUser(user) && this.renderToggleUser()}
+        {!user.isDisabled && (
+          <Fragment>
+            {this.renderApiKey()}
+            {this.renderChangePassword()}
+            {currentUser.isAdmin && (
+              user.isInvitationPending ?
+                this.renderResendInvitation() : this.renderSendPasswordReset()
+            )}
+          </Fragment>
+        )}
+        {currentUser.isAdmin && this.renderToggleUser()}
       </div>
     );
   }
