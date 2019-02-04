@@ -14,4 +14,11 @@ describe('Edit Profile', () => {
       cy.getByTestId('ApiKey').should('not.eq', previousApiKey);
     });
   });
+
+  it('takes a screenshot', () => {
+    cy.getByTestId('ApiKey').then(($apiKey) => {
+      $apiKey.val('secret');
+    });
+    cy.percySnapshot('User Profile');
+  });
 });
