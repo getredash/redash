@@ -86,6 +86,8 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
       this.localParameters = null;
       $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
+
+      // this.refresh();
     });
   };
 
