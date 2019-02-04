@@ -1,7 +1,6 @@
 import { debounce, each, values, map, includes, first } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import highlight from '@/lib/highlight';
@@ -15,14 +14,20 @@ import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
 import { Query } from '@/services/query';
+import asUIBModal from '@/hoc/asUIBModal';
 
 const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    onClose: PropTypes.func.isRequired,
-    onAdded: PropTypes.func.isRequired,
+    onClose: PropTypes.func,
+    onConfirm: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onClose: () => {},
+    onConfirm: () => {},
   };
 
   constructor(props) {
@@ -52,6 +57,10 @@ class AddWidgetDialog extends React.Component {
       this.setState({ searchTerm });
       searchQueries(searchTerm);
     };
+  }
+
+  close = () => {
+    this.setState({ showModal: false });
   }
 
   selectQuery(queryId) {
@@ -140,7 +149,7 @@ class AddWidgetDialog extends React.Component {
       .save()
       .then(() => {
         dashboard.widgets.push(widget);
-        this.props.onAdded();
+        this.props.onConfirm();
         this.close();
       })
       .catch(() => {
@@ -149,10 +158,6 @@ class AddWidgetDialog extends React.Component {
       .finally(() => {
         this.setState({ saveInProgress: false });
       });
-  }
-
-  close = () => {
-    this.setState({ showModal: false });
   }
 
   updateParamMappings(parameterMappings) {
@@ -325,8 +330,4 @@ class AddWidgetDialog extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('addWidgetDialog', react2angular(AddWidgetDialog));
-}
-
-init.init = true;
+export default asUIBModal(AddWidgetDialog);

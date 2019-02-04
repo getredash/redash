@@ -2,20 +2,26 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
-import { react2angular } from 'react2angular';
 import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
+import asUIBModal from '@/hoc/asUIBModal';
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    onClose: PropTypes.func.isRequired,
-    onChange: PropTypes.func.isRequired,
+    onClose: PropTypes.func,
+    onConfirm: PropTypes.func,
   };
+
+  static defaultProps = {
+    onClose: () => {},
+    onConfirm: () => {},
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -29,6 +35,10 @@ class EditParameterMappingsDialog extends React.Component {
     };
   }
 
+  close = () => {
+    this.setState({ showModal: false });
+  }
+
   saveWidget() {
     const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const widget = this.props.widget;
@@ -39,7 +49,7 @@ class EditParameterMappingsDialog extends React.Component {
     widget
       .save()
       .then(() => {
-        this.props.onChange();
+        this.props.onConfirm();
         this.close();
       })
       .catch(() => {
@@ -48,10 +58,6 @@ class EditParameterMappingsDialog extends React.Component {
       .finally(() => {
         this.setState({ saveInProgress: false });
       });
-  }
-
-  close = () => {
-    this.setState({ showModal: false });
   }
 
   updateParamMappings(parameterMappings) {
@@ -85,8 +91,4 @@ class EditParameterMappingsDialog extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('editParameterMappingsDialog', react2angular(EditParameterMappingsDialog));
-}
-
-init.init = true;
+export default asUIBModal(EditParameterMappingsDialog);

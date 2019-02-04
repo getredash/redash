@@ -5,6 +5,7 @@ import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
+import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -329,6 +330,14 @@ function DashboardCtrl(
       .result.then(this.onWidgetAdded);
   };
 
+  this.addWidget = () => {
+    AddWidgetDialog
+      .open({
+        dashboard: this.dashboard,
+      })
+      .result.then(this.onWidgetAdded);
+  };
+
   this.onWidgetAdded = () => {
     this.extractGlobalParameters();
     // Save position of newly added widget (but not entire layout)
@@ -336,12 +345,6 @@ function DashboardCtrl(
     if (_.isObject(widget)) {
       return widget.save();
     }
-  };
-
-  this.addWidgetDialogOpened = false;
-
-  this.openAddWidgetDialog = () => {
-    this.addWidgetDialogOpened = true;
   };
 
   this.closeAddWidgetDialog = () => {

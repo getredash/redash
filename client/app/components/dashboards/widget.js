@@ -2,6 +2,7 @@ import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
+import editParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -77,20 +78,14 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
 
-  this.mappingsDialogOpened = false;
-
-  this.openMappingsDialog = () => {
-    this.mappingsDialogOpened = true;
-  };
-
-  this.closeMappingsDialog = () => {
-    this.mappingsDialogOpened = false;
-    $rootScope.$applyAsync();
-  };
-
-  this.onMappingsUpdated = () => {
-    this.localParameters = null;
-    $rootScope.$broadcast('dashboard.update-parameters');
+  this.editParameterMappings = () => {
+    editParameterMappingsDialog.open({
+      dashboard: this.dashboard,
+      widget: this.widget,
+    }).result.then(() => {
+      this.localParameters = null;
+      $rootScope.$broadcast('dashboard.update-parameters');
+    });
   };
 
   this.localParametersDefs = () => {
