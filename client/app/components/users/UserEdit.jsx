@@ -158,7 +158,12 @@ export class UserEdit extends React.Component {
 
     const regenerateButton = (
       <Tooltip title="Regenerate API Key">
-        <Icon type="reload" style={{ cursor: 'pointer' }} onClick={this.onClickRegenerateApiKey} />
+        <Icon
+          type="reload"
+          style={{ cursor: 'pointer' }}
+          data-test="RegenerateApiKey"
+          onClick={this.onClickRegenerateApiKey}
+        />
       </Tooltip>
     );
 
@@ -166,7 +171,7 @@ export class UserEdit extends React.Component {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key">
-          <Input id="apiKey" addonAfter={regenerateButton} value={user.apiKey} readOnly />
+          <Input id="apiKey" addonAfter={regenerateButton} value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
       </Form>
     );

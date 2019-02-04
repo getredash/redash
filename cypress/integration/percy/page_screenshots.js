@@ -6,16 +6,26 @@ const pages = [
   { name: 'Group', url: '/groups/1' },
   { name: 'Create Destination - Types', url: '/destinations/new' },
   { name: 'Organization Settings', url: '/settings/organization' },
-  { name: 'User Profile', url: '/users/me' },
 ];
 
 describe('Percy Page Screenshots', () => {
+  beforeEach(() => {
+    cy.login();
+  });
+
   pages.forEach((page) => {
     it(`takes a screenshot of ${page.name}`, () => {
-      cy.login();
       cy.visit(page.url);
       cy.wait(1000);
       cy.percySnapshot(page.name);
     });
+  });
+
+  it('takes a screenshot of User Profile', () => {
+    cy.visit('/users/me');
+    cy.getByTestId('ApiKey').then(($apiKey) => {
+      $apiKey.val('secret');
+    });
+    cy.percySnapshot('User Profile');
   });
 });
