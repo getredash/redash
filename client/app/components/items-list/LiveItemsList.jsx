@@ -1,4 +1,4 @@
-import { isFunction, isString, isNil, extend, defaultTo, wrap, identity, noop } from 'lodash';
+import { isFunction, isString, isNil, extend, defaultTo, wrap, identity, noop, map } from 'lodash';
 import LivePaginator from '@/lib/pagination/live-paginator';
 import { $location, $route } from '@/services/ng';
 import { clientConfig } from '@/services/auth';
@@ -15,6 +15,14 @@ function prepareOrderByField(orderByField, orderByReverse) {
 }
 
 export default class LiveItemsList {
+  static createFetcher(resource, Model) {
+    return request => resource(request).$promise
+      .then(({ results, count }) => ({
+        count,
+        results: map(results, item => new Model(item)),
+      }));
+  }
+
   // eslint-disable-next-line class-methods-use-this
   getParamsFromUrl() {
     const urlQueryParams = $location.search();

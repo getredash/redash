@@ -124,11 +124,7 @@ class UsersList extends React.Component {
         }
         return request;
       },
-      doRequest: request => resource(request).$promise
-        .then(({ results, count }) => ({
-          count,
-          results: map(results, item => new User(item)),
-        })),
+      doRequest: LiveItemsList.createFetcher(resource, User),
       onChange: ({ state }) => this.setState(state),
     });
     this.state = this.controller.state;

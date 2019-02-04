@@ -1,4 +1,3 @@
-import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -116,11 +115,7 @@ class QueriesList extends React.Component {
     const resource = resources[this.props.currentPage];
 
     this.controller = new LiveItemsList({
-      doRequest: request => resource(request).$promise
-        .then(({ results, count }) => ({
-          count,
-          results: map(results, item => new Query(item)),
-        })),
+      doRequest: LiveItemsList.createFetcher(resource, Query),
       onChange: ({ state }) => this.setState(state),
     });
     this.state = this.controller.state;
