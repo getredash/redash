@@ -5,6 +5,7 @@ import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 
 import { Paginator } from '@/components/Paginator';
+import DynamicComponent from '@/components/DynamicComponent';
 
 import LiveItemsList from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
@@ -159,7 +160,6 @@ class UsersList extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
     if (policy.canCreateUser()) {
-      // TODO: <users-list-extra></users-list-extra>
       return (
         <div className="m-b-10">
           <a
@@ -169,6 +169,7 @@ class UsersList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New User
           </a>
+          <DynamicComponent is="UsersListExtra" />
         </div>
       );
     }
