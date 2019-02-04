@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
+import ModalOpener from '@/hoc/ModalOpener';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
@@ -14,7 +15,6 @@ import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
 import { Query } from '@/services/query';
-import asUIBModal from '@/hoc/asUIBModal';
 
 const { Option, OptGroup } = Select;
 
@@ -330,4 +330,4 @@ class AddWidgetDialog extends React.Component {
   }
 }
 
-export default asUIBModal(AddWidgetDialog);
+export default ModalOpener(AddWidgetDialog);

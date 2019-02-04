@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-const asUIBModal = (WrappedComponent) => {
+const ModalOpener = (WrappedComponent) => {
   const container = document.createElement('div');
 
   const render = (component) => {
@@ -33,4 +33,4 @@ const asUIBModal = (WrappedComponent) => {
   };
 };
 
-export default asUIBModal;
+export default ModalOpener;

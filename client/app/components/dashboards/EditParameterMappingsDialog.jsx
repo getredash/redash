@@ -2,12 +2,12 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
+import ModalOpener from '@/hoc/ModalOpener';
 import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
-import asUIBModal from '@/hoc/asUIBModal';
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
@@ -91,4 +91,4 @@ class EditParameterMappingsDialog extends React.Component {
   }
 }
 
-export default asUIBModal(EditParameterMappingsDialog);
+export default ModalOpener(EditParameterMappingsDialog);
