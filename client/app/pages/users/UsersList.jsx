@@ -79,13 +79,13 @@ class UsersList extends React.Component {
       if (user.id !== currentUser.id) {
         if (user.is_invitation_pending) {
           return (
-            <button type="button" className="btn btn-default" onClick={event => context.deleteUser(event, user)}>Delete</button>
+            <button type="button" className="btn btn-default btn-block" onClick={event => context.deleteUser(event, user)}>Delete</button>
           );
         }
         return user.is_disabled ? (
-          <button type="button" className="btn btn-primary" onClick={event => context.enableUser(event, user)}>Enable</button>
+          <button type="button" className="btn btn-primary btn-block" onClick={event => context.enableUser(event, user)}>Enable</button>
         ) : (
-          <button type="button" className="btn btn-default" onClick={event => context.disableUser(event, user)}>Disable</button>
+          <button type="button" className="btn btn-default btn-block" onClick={event => context.disableUser(event, user)}>Disable</button>
         );
       }
       return null;
@@ -102,10 +102,10 @@ class UsersList extends React.Component {
       (event, user) => {
         event.preventDefault();
         event.stopPropagation();
+        // User service will handle errors, no need to do it here
         action(user).then(() => {
           this.controller.update();
         });
-        // TODO: Error handling - ???
       }
     );
 
