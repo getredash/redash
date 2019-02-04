@@ -141,6 +141,9 @@ class UsersList extends React.Component {
   }
 
   renderSidebar() {
+    if (!policy.canCreateUser()) {
+      return null;
+    }
     return (
       <React.Fragment>
         <Sidebar.SearchInput
@@ -173,7 +176,24 @@ class UsersList extends React.Component {
         </div>
       );
     }
-    return null;
+    return (
+      <div className="row m-b-10">
+        <div className="col-xs-9 p-r-0">
+          <Sidebar.SearchInput
+            value={this.state.searchTerm}
+            showIcon
+            onChange={this.controller.updateSearch}
+          />
+        </div>
+        <div className="col-xs-3">
+          <Sidebar.PageSizeSelect
+            options={this.state.pageSizeOptions}
+            value={this.state.itemsPerPage}
+            onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+          />
+        </div>
+      </div>
+    );
   }
 
   render() {
@@ -183,8 +203,8 @@ class UsersList extends React.Component {
       <React.Fragment>
         {this.renderPageHeader()}
         <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+          {sidebar && <div className="col-md-3 list-control-t">{sidebar}</div>}
+          <div className={sidebar ? 'list-content col-md-9' : 'col-md-12'}>
             {!this.state.isLoaded && <LoadingState className="" />}
             {this.state.isLoaded && this.state.isEmpty && <EmptyState className="" />}
             {
@@ -209,7 +229,7 @@ class UsersList extends React.Component {
               )
             }
           </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
+          {sidebar && <div className="col-md-3 list-control-r-b">{sidebar}</div>}
         </div>
       </React.Fragment>
     );

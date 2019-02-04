@@ -10,11 +10,11 @@ import { TagsList } from '@/components/TagsList';
     SearchInput
  */
 
-export function SearchInput({ placeholder, value, onChange }) {
+export function SearchInput({ placeholder, value, showIcon, onChange }) {
+  const InputControl = showIcon ? Input.Search : Input;
   return (
     <div className="m-b-10">
-      <Input
-        className="form-control"
+      <InputControl
         placeholder={placeholder}
         defaultValue={value}
         onChange={event => onChange(event.target.value)}
@@ -27,11 +27,13 @@ export function SearchInput({ placeholder, value, onChange }) {
 SearchInput.propTypes = {
   placeholder: PropTypes.string,
   value: PropTypes.string.isRequired,
+  showIcon: PropTypes.bool,
   onChange: PropTypes.func.isRequired,
 };
 
 SearchInput.defaultProps = {
   placeholder: 'Search...',
+  showIcon: false,
 };
 
 /*
