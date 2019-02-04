@@ -1,4 +1,4 @@
-import { isFunction, map, extend, omit, identity } from 'lodash';
+import { isFunction, map, filter, extend, omit, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
@@ -77,6 +77,7 @@ export default class ItemsTable extends React.Component {
       field: PropTypes.string, // data field
       orderByField: PropTypes.string, // field to order by (defaults to `field`)
       render: PropTypes.func, // (prop, item, context) => text | node; `prop` is `item[field]`
+      isAvailable: PropTypes.func, // return `true` to show column and `false` to hide; if omitted: show column
     })),
     onRowClick: PropTypes.func, // (event, item) => void
     // eslint-disable-next-line react/forbid-prop-types
@@ -104,7 +105,7 @@ export default class ItemsTable extends React.Component {
 
     return map(
       map(
-        this.props.columns,
+        filter(this.props.columns, column => (isFunction(column.isAvailable) ? column.isAvailable() : true)),
         column => extend(column, { orderByField: column.orderByField || column.field }),
       ),
       (column, index) => {

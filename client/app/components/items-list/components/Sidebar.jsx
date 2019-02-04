@@ -1,4 +1,4 @@
-import { isFunction, isString, defaultTo, filter, map } from 'lodash';
+import { isFunction, isString, filter, map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -43,7 +43,7 @@ SearchInput.defaultProps = {
 export function Menu({ items, selected }) {
   items = filter(
     items,
-    item => (isFunction(item.isAvailable) ? item.isAvailable() : defaultTo(item.isAvailable, true)),
+    item => (isFunction(item.isAvailable) ? item.isAvailable() : true),
   );
   if (items.length === 0) {
     return null;
