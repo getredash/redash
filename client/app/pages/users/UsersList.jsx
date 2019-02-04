@@ -140,43 +140,21 @@ class UsersList extends React.Component {
     this.controller.update();
   }
 
-  renderSidebar() {
-    if (!policy.canCreateUser()) {
-      return null;
-    }
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          value={this.state.searchTerm}
-          onChange={this.controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        <Sidebar.PageSizeSelect
-          options={this.state.pageSizeOptions}
-          value={this.state.itemsPerPage}
-          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  renderPageHeader() {
-    if (policy.canCreateUser()) {
-      return (
-        <div className="m-b-10">
-          <a
-            href="users/new"
-            className={classNames('btn', 'btn-default', 'm-b-10', { disabled: !policy.isCreateUserEnabled() })}
-          >
-            <i className="fa fa-plus m-r-5" />
-            New User
-          </a>
-          <DynamicComponent is="UsersListExtra" />
-        </div>
-      );
-    }
-    return (
+  renderPageHeader(isAdminView) {
+    return isAdminView ? (
+      // Admin
+      <div className="m-b-10">
+        <a
+          href="users/new"
+          className={classNames('btn', 'btn-default', 'm-b-10', { disabled: !policy.isCreateUserEnabled() })}
+        >
+          <i className="fa fa-plus m-r-5" />
+          New User
+        </a>
+        <DynamicComponent is="UsersListExtra" />
+      </div>
+    ) : (
+      // Non-admin
       <div className="row m-b-10">
         <div className="col-xs-9 p-r-0">
           <Sidebar.SearchInput
@@ -196,15 +174,36 @@ class UsersList extends React.Component {
     );
   }
 
+  renderSidebar(isAdminView) {
+    if (!isAdminView) {
+      return null;
+    }
+    return (
+      <React.Fragment>
+        <Sidebar.SearchInput
+          value={this.state.searchTerm}
+          onChange={this.controller.updateSearch}
+        />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <Sidebar.PageSizeSelect
+          options={this.state.pageSizeOptions}
+          value={this.state.itemsPerPage}
+          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+        />
+      </React.Fragment>
+    );
+  }
+
   render() {
-    const sidebar = this.renderSidebar();
+    const isAdminView = policy.canCreateUser();
+    const sidebar = this.renderSidebar(isAdminView);
 
     return (
       <React.Fragment>
-        {this.renderPageHeader()}
+        {this.renderPageHeader(isAdminView)}
         <div className="row">
-          {sidebar && <div className="col-md-3 list-control-t">{sidebar}</div>}
-          <div className={sidebar ? 'list-content col-md-9' : 'col-md-12'}>
+          {isAdminView && <div className="col-md-3 list-control-t">{sidebar}</div>}
+          <div className={isAdminView ? 'list-content col-md-9' : 'col-md-12'}>
             {!this.state.isLoaded && <LoadingState className="" />}
             {this.state.isLoaded && this.state.isEmpty && <EmptyState className="" />}
             {
@@ -229,7 +228,7 @@ class UsersList extends React.Component {
               )
             }
           </div>
-          {sidebar && <div className="col-md-3 list-control-r-b">{sidebar}</div>}
+          {isAdminView && <div className="col-md-3 list-control-r-b">{sidebar}</div>}
         </div>
       </React.Fragment>
     );
