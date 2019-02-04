@@ -347,11 +347,6 @@ function DashboardCtrl(
     }
   };
 
-  this.closeAddWidgetDialog = () => {
-    this.addWidgetDialogOpened = false;
-    $scope.$applyAsync();
-  };
-
   this.removeWidget = (widgetId) => {
     this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
