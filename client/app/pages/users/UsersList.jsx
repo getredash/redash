@@ -20,24 +20,9 @@ import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 class UsersList extends React.Component {
-  static defaultOrderBy = '-created_at';
-
   static propTypes = {
     controller: ControllerType.isRequired,
   };
-
-  static routes = [
-    {
-      path: '/users',
-      title: 'Users',
-      key: 'active',
-    },
-    {
-      path: '/users/disabled',
-      title: 'Disabled Users',
-      key: 'disabled',
-    },
-  ];
 
   static sidebarMenu = [
     {
@@ -93,18 +78,6 @@ class UsersList extends React.Component {
       isAvailable: () => currentUser.isAdmin,
     }),
   ];
-
-  static getRequest(request, { currentPage }) {
-    if (currentPage === 'disabled') {
-      request.disabled = true;
-    }
-    return request;
-  }
-
-  static doRequest = createResourceFetcher(
-    () => User.query.bind(User),
-    item => new User(item),
-  );
 
   constructor(props) {
     super(props);
@@ -235,9 +208,32 @@ export default function init(ngModule) {
     order: 2,
   });
 
-  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList)));
+  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
+    defaultOrderBy: '-created_at',
+    getRequest(request, { currentPage }) {
+      if (currentPage === 'disabled') {
+        request.disabled = true;
+      }
+      return request;
+    },
+    doRequest: createResourceFetcher(
+      () => User.query.bind(User),
+      item => new User(item),
+    ),
+  })));
 
-  return routesToAngularRoutes(UsersList.routes, {
+  return routesToAngularRoutes([
+    {
+      path: '/users',
+      title: 'Users',
+      key: 'active',
+    },
+    {
+      path: '/users/disabled',
+      title: 'Disabled Users',
+      key: 'disabled',
+    },
+  ], {
     template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
     reloadOnSearch: false,
   });

@@ -15,7 +15,7 @@ export const ControllerType = PropTypes.shape({
   isEmpty: PropTypes.bool.isRequired,
 
   // search
-  searchTerm: PropTypes.string.isRequired,
+  searchTerm: PropTypes.string,
   updateSearch: PropTypes.func.isRequired, // (searchTerm: string) => void
 
   // tags
@@ -23,7 +23,7 @@ export const ControllerType = PropTypes.shape({
   updateSelectedTags: PropTypes.func.isRequired, // (selectedTags: array of tags) => void
 
   // sorting
-  orderByField: PropTypes.string.isRequired,
+  orderByField: PropTypes.string,
   orderByReverse: PropTypes.bool.isRequired,
   toggleSorting: PropTypes.func.isRequired, // (orderByField: string) => void
 
@@ -54,7 +54,7 @@ export function createResourceFetcher(getResource, processItem) {
   };
 }
 
-export function wrap(WrappedComponent) {
+export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest }) {
   return class extends React.Component {
     static propTypes = {
       currentPage: PropTypes.string,
@@ -146,7 +146,7 @@ export function wrap(WrappedComponent) {
     getParamsFromUrl() {
       const urlQueryParams = $location.search();
 
-      let orderByField = urlQueryParams.order || WrappedComponent.defaultOrderBy;
+      let orderByField = urlQueryParams.order || defaultOrderBy;
       const orderByReverse = orderByField.startsWith(ORDER_BY_REVERSE);
       if (orderByReverse) {
         orderByField = orderByField.substr(1);
@@ -170,7 +170,7 @@ export function wrap(WrappedComponent) {
         q: isString(controller.searchTerm) && (controller.searchTerm !== '') ? controller.searchTerm : undefined,
         tags: controller.selectedTags,
       };
-      return isFunction(WrappedComponent.getRequest) ? WrappedComponent.getRequest(request, controller) : request;
+      return isFunction(getRequest) ? getRequest(request, controller) : request;
     }
 
     fetchData(paginator) {
@@ -185,7 +185,7 @@ export function wrap(WrappedComponent) {
 
         const controller = this.state;
         const request = this.getRequest(controller);
-        return WrappedComponent.doRequest(request, controller).then((data) => {
+        return doRequest(request, controller).then((data) => {
           paginator.updateRows(data.results, data.count);
           this.setState(prevState => this.getState({
             isLoaded: true,

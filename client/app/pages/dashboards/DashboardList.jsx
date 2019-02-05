@@ -19,24 +19,9 @@ import DashboardListEmptyState from './DashboardListEmptyState';
 import './dashboard-list.css';
 
 class DashboardList extends React.Component {
-  static defaultOrderBy = '-created_at';
-
   static propTypes = {
     controller: ControllerType.isRequired,
   };
-
-  static routes = [
-    {
-      path: '/dashboards',
-      title: 'Dashboards',
-      key: 'all',
-    },
-    {
-      path: '/dashboards/favorites',
-      title: 'Favorite Dashboards',
-      key: 'favorites',
-    },
-  ];
 
   static sidebarMenu = [
     {
@@ -72,14 +57,6 @@ class DashboardList extends React.Component {
     Columns.avatar({ field: 'user', className: 'p-l-0 p-r-0' }, name => `Created by ${name}`),
     Columns.dateTime.sortable({ title: 'Created At', field: 'created_at' }),
   ];
-
-  static doRequest = createResourceFetcher(
-    ({ currentPage }) => ({
-      all: Dashboard.query.bind(Dashboard),
-      favorites: Dashboard.favorites.bind(Dashboard),
-    }[currentPage]),
-    item => new Dashboard(item),
-  );
 
   onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
 
@@ -151,9 +128,29 @@ class DashboardList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageDashboardList', react2angular(liveItemsList(DashboardList)));
+  ngModule.component('pageDashboardList', react2angular(liveItemsList(DashboardList, {
+    defaultOrderBy: '-created_at',
+    doRequest: createResourceFetcher(
+      ({ currentPage }) => ({
+        all: Dashboard.query.bind(Dashboard),
+        favorites: Dashboard.favorites.bind(Dashboard),
+      }[currentPage]),
+      item => new Dashboard(item),
+    ),
+  })));
 
-  return routesToAngularRoutes(DashboardList.routes, {
+  return routesToAngularRoutes([
+    {
+      path: '/dashboards',
+      title: 'Dashboards',
+      key: 'all',
+    },
+    {
+      path: '/dashboards/favorites',
+      title: 'Favorite Dashboards',
+      key: 'favorites',
+    },
+  ], {
     template: '<page-dashboard-list current-page="$resolve.currentPage"></page-dashboard-list>',
     reloadOnSearch: false,
   });

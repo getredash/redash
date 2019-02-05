@@ -21,34 +21,9 @@ import QueriesListEmptyState from './QueriesListEmptyState';
 import './queries-list.css';
 
 class QueriesList extends React.Component {
-  static defaultOrderBy = '-created_at';
-
   static propTypes = {
     controller: ControllerType.isRequired,
   };
-
-  static routes = [
-    {
-      path: '/queries',
-      title: 'Queries',
-      key: 'all',
-    },
-    {
-      path: '/queries/favorites',
-      title: 'Favorite Queries',
-      key: 'favorites',
-    },
-    {
-      path: '/queries/archive',
-      title: 'Archived Queries',
-      key: 'archive',
-    },
-    {
-      path: '/queries/my',
-      title: 'My Queries',
-      key: 'my',
-    },
-  ];
 
   static sidebarMenu = [
     {
@@ -103,16 +78,6 @@ class QueriesList extends React.Component {
       { title: 'Update Schedule', field: 'schedule' },
     ),
   ];
-
-  static doRequest = createResourceFetcher(
-    ({ currentPage }) => ({
-      all: Query.query.bind(Query),
-      my: Query.myQueries.bind(Query),
-      favorites: Query.favorites.bind(Query),
-      archive: Query.archive.bind(Query),
-    }[currentPage]),
-    item => new Query(item),
-  );
 
   onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
 
@@ -184,9 +149,41 @@ class QueriesList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageQueriesList', react2angular(liveItemsList(QueriesList)));
+  ngModule.component('pageQueriesList', react2angular(liveItemsList(QueriesList, {
+    defaultOrderBy: '-created_at',
+    doRequest: createResourceFetcher(
+      ({ currentPage }) => ({
+        all: Query.query.bind(Query),
+        my: Query.myQueries.bind(Query),
+        favorites: Query.favorites.bind(Query),
+        archive: Query.archive.bind(Query),
+      }[currentPage]),
+      item => new Query(item),
+    ),
+  })));
 
-  return routesToAngularRoutes(QueriesList.routes, {
+  return routesToAngularRoutes([
+    {
+      path: '/queries',
+      title: 'Queries',
+      key: 'all',
+    },
+    {
+      path: '/queries/favorites',
+      title: 'Favorite Queries',
+      key: 'favorites',
+    },
+    {
+      path: '/queries/archive',
+      title: 'Archived Queries',
+      key: 'archive',
+    },
+    {
+      path: '/queries/my',
+      title: 'My Queries',
+      key: 'my',
+    },
+  ], {
     template: '<page-queries-list current-page="$resolve.currentPage"></page-queries-list>',
     reloadOnSearch: false,
   });
