@@ -1,49 +1,11 @@
 import { template as templateBuilder } from 'lodash';
 import template from './alert.html';
 
-function AlertCtrl($routeParams, $location, $sce, $http, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert, AlertTemplate) {
   this.alertId = $routeParams.alertId;
   this.hidePreview = false;
-  this.templateHelpMsg = `using template engine "Jinja2".
-  you can build message with latest query result.
-  variable name "rows" is assigned as result rows. "cols" as result columns.`;
-  this.editorOptions = {
-    useWrapMode: true,
-    showPrintMargin: false,
-    advanced: {
-      behavioursEnabled: true,
-      enableBasicAutocompletion: true,
-      enableLiveAutocompletion: true,
-      autoScrollEditorIntoView: true,
-    },
-    onLoad(editor) {
-      editor.$blockScrolling = Infinity;
-    },
-  };
-
-  this.preview = () => {
-    const result = this.queryResult.query_result.data;
-    const url = 'api/alerts/template';
-    $http
-      .post(url, { template: this.alert.template, data: result })
-      .success((res) => {
-        const data = JSON.parse(res);
-        const preview = data.preview;
-        this.alert.preview = $sce.trustAsHtml(preview);
-        const replaced = preview
-          .replace(/"/g, '&quot;')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        this.alert.previewHTML = $sce.trustAsHtml(replaced.replace(/\n|\r/g, '<br>'));
-        if (data.error) {
-          toastr.error('Unable to build description. please confirm your template.', { timeOut: 10000 });
-        }
-      })
-      .error(() => {
-        toastr.error('Failed. unexpected error.');
-      });
-  };
+  this.templateHelpMsg = AlertTemplate.helpMessage;
+  this.editorOptions = AlertTemplate.editorOptions;
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
@@ -113,6 +75,19 @@ function AlertCtrl($routeParams, $location, $sce, $http, toastr, currentUser, Qu
       },
     );
   };
+
+  this.preview = () => AlertTemplate.render(this.alert.template, this.queryResult.query_result.data)
+    .then((data) => {
+      if (data.error) {
+        toastr.error('Unable to build description. please confirm your template.', { timeOut: 10000 });
+        return;
+      }
+      this.alert.preview = data.preview;
+      this.alert.previewHTML = $sce.trustAsHtml(data.preview);
+    })
+    .catch(() => {
+      toastr.error('Failed. unexpected error.');
+    });
 
   this.delete = () => {
     this.alert.$delete(
