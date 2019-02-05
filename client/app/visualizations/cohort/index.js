@@ -119,7 +119,7 @@ function prepareData(rawData, options) {
     total: parseFloat(item[options.totalColumn]),
     value: parseFloat(item[options.valueColumn]),
   }));
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.stage, 10));
+  const sortedData = _.sortBy(rawData, r => r.date + r.stage);
   const initialDate = moment(sortedData[0].date).toDate();
 
   let data;
