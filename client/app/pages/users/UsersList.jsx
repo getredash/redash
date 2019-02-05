@@ -219,16 +219,19 @@ export default function init(ngModule) {
     actions: {
       // `User` will become available later, so use wrappers
       enableUser: (event, user) => {
+        // prevent default click action on table rows
         event.preventDefault();
         event.stopPropagation();
         return User.enableUser(user);
       },
       disableUser: (event, user) => {
+        // prevent default click action on table rows
         event.preventDefault();
         event.stopPropagation();
         return User.disableUser(user);
       },
       deleteUser: (event, user) => {
+        // prevent default click action on table rows
         event.preventDefault();
         event.stopPropagation();
         return User.deleteUser(user);
