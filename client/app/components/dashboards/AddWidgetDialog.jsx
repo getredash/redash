@@ -10,7 +10,7 @@ import {
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
 } from '@/components/ParameterMappingInput';
-import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
+import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
