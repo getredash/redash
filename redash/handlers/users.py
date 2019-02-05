@@ -216,7 +216,8 @@ class UserResource(BaseResource):
             # The user has updated their email or password. This should invalidate all _other_ sessions,
             # forcing them to log in again. Since we don't want to force _this_ session to have to go
             # through login again, we call `login_user` in order to update the session with the new identity details.
-            login_user(user, remember=True)
+            if current_user.id == user.id:
+                login_user(user, remember=True)
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."
