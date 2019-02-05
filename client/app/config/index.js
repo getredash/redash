@@ -101,7 +101,7 @@ function registerVisualizations() {
 }
 
 function registerPages() {
-  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.js$/);
+  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const routesCollection = registerAll(context);
   routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
