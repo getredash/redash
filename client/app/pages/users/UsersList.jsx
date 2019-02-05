@@ -89,9 +89,20 @@ class UsersList extends React.Component {
       title: 'Groups',
       field: 'groups',
     }),
-    Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at', className: 'text-nowrap' }),
-    Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at', className: 'text-nowrap' }),
+    Columns.timeAgo.sortable({
+      title: 'Joined',
+      field: 'created_at',
+      className: 'text-nowrap',
+      width: '1%',
+    }),
+    Columns.timeAgo.sortable({
+      title: 'Last Active At',
+      field: 'active_at',
+      className: 'text-nowrap',
+      width: '1%',
+    }),
     Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
+      width: '1%',
       isAvailable: () => currentUser.isAdmin,
     }),
   ];

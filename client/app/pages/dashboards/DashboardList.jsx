@@ -55,7 +55,12 @@ class DashboardList extends React.Component {
       width: null,
     }),
     Columns.avatar({ field: 'user', className: 'p-l-0 p-r-0' }, name => `Created by ${name}`),
-    Columns.dateTime.sortable({ title: 'Created At', field: 'created_at' }),
+    Columns.dateTime.sortable({
+      title: 'Created At',
+      field: 'created_at',
+      className: 'text-nowrap',
+      width: '1%',
+    }),
   ];
 
   onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);

@@ -36,7 +36,6 @@ export const Columns = {
   },
   dateTime(overrides) {
     return extend({
-      width: '1%',
       render: text => formatDateTime(text),
     }, overrides);
   },
@@ -49,13 +48,11 @@ export const Columns = {
   },
   timeAgo(overrides) {
     return extend({
-      width: '1%',
       render: value => <TimeAgo date={value} />,
     }, overrides);
   },
   custom(render, overrides) {
     return extend({
-      width: '1%',
       render,
     }, overrides);
   },
