@@ -14,6 +14,11 @@
 @import '~antd/lib/radio/style/index';
 @import '~antd/lib/time-picker/style/index';
 @import '~antd/lib/pagination/style/index';
+@import '~antd/lib/table/style/index';
+@import '~antd/lib/popover/style/index';
+@import '~antd/lib/icon/style/index';
+@import '~antd/lib/tag/style/index';
+@import '~antd/lib/grid/style/index';
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -132,6 +137,38 @@
     .@{pagination-prefix-cls}-item-container {
       .@{pagination-prefix-cls}-item-link-icon {
         color: @pagination-color;
+      }
+    }
+  }
+}
+
+// Table
+
+.@{table-prefix-cls} {
+  color: inherit;
+
+  * {
+    transition: none !important;
+  }
+
+  &-thead > tr > th {
+    padding: @table-padding-vertical * 2 @table-padding-horizontal;
+  }
+
+  .@{table-prefix-cls}-column-sorters {
+    &:before,
+    &:hover:before {
+      content: none;
+    }
+  }
+
+  &-thead > tr > th {
+    .@{table-prefix-cls}-column-sorter {
+      &-up,
+      &-down {
+        &.on {
+          color: @table-header-icon-active-color;
+        }
       }
     }
   }

@@ -49,7 +49,7 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
-class Parameter {
+export class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
     this.name = parameter.name;
@@ -78,20 +78,25 @@ class Parameter {
   }
 
   getValue() {
-    const isEmptyValue = isNull(this.value) || isUndefined(this.value) || (this.value === '');
+    return this.constructor.getValue(this);
+  }
+
+  static getValue(param) {
+    const { value, type, useCurrentDateTime } = param;
+    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
     if (isEmptyValue) {
       if (
-        includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type) &&
-        this.useCurrentDateTime
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
+        useCurrentDateTime
       ) {
-        return moment().format(DATETIME_FORMATS[this.type]);
+        return moment().format(DATETIME_FORMATS[type]);
       }
       return null; // normalize empty value
     }
-    if (this.type === 'number') {
-      return normalizeNumericValue(this.value, null); // normalize empty value
+    if (type === 'number') {
+      return normalizeNumericValue(value, null); // normalize empty value
     }
-    return this.value;
+    return value;
   }
 
   setValue(value) {
@@ -135,6 +140,8 @@ class Parameter {
         local.setValue(this.value);
       });
     }
+
+    return this;
   }
 
   get normalizedValue() {
@@ -434,12 +441,11 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -476,12 +482,24 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
+      this.queryResult = execute();
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
 
     return this.queryResult;
+  };
+
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues());
+    return this.prepareQueryResultExecution(execute, maxAge);
+  };
+
+  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    const parameters = this.getParameters().getValues();
+    const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
+    return this.prepareQueryResultExecution(execute, maxAge);
   };
 
   QueryService.prototype.getUrl = function getUrl(source, hash) {
