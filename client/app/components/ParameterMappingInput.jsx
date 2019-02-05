@@ -1,6 +1,6 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, clone, isEmpty } from 'lodash';
+import { extend, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -20,6 +20,8 @@ import { Parameter } from '@/services/query';
 import './ParameterMappingInput.less';
 
 const { Option } = Select;
+
+const HELP_URL = 'https://redash.io/help/user-guide/querying/query-parameters?source={0}';
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
@@ -114,6 +116,22 @@ export class ParameterMappingInput extends React.Component {
     };
   }
 
+  updateSourceType = (type) => {
+    let { mapping: { mapTo } } = this.props;
+    const { existingParamNames } = this.props;
+
+    // if mapped name doesn't already exists
+    // default to first select option
+    if (
+      type === MappingType.DashboardMapToExisting &&
+      !includes(existingParamNames, mapTo)
+    ) {
+      mapTo = existingParamNames[0];
+    }
+
+    this.updateParamMapping({ type, mapTo });
+  }
+
   updateParamMapping = (update) => {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
@@ -125,7 +143,7 @@ export class ParameterMappingInput extends React.Component {
     return (
       <Radio.Group
         value={this.props.mapping.type}
-        onChange={e => this.updateParamMapping({ type: e.target.value })}
+        onChange={e => this.updateSourceType(e.target.value)}
       >
         <Radio className="radio" value={MappingType.DashboardAddNew}>
           New dashboard parameter
@@ -165,28 +183,17 @@ export class ParameterMappingInput extends React.Component {
   renderDashboardMapToExisting() {
     const { mapping, existingParamNames } = this.props;
 
-    // if mapped name doesn't already exists
-    // default to first select option
-    const shouldDefaultFirst = !includes(existingParamNames, mapping.mapTo);
-
     return (
       <Select
         value={mapping.mapTo}
         onChange={mapTo => this.updateParamMapping({ mapTo })}
         dropdownMatchSelectWidth={false}
-        defaultActiveFirstOption={shouldDefaultFirst}
       >
         {map(existingParamNames, name => (
           <Option value={name} key={name}>{ name }</Option>
         ))}
       </Select>
     );
-  }
-
-  renderWidgetLevel() {
-    // eslint-disable-next-line no-use-before-define
-    const value = ParameterMappingListInput.getDefaultValue(this.props.mapping);
-    return <Input disabled value={value} />;
   }
 
   renderStaticValue() {
@@ -207,16 +214,31 @@ export class ParameterMappingInput extends React.Component {
   renderInputBlock() {
     const { mapping } = this.props;
     switch (mapping.type) {
-      case MappingType.DashboardAddNew: return this.renderDashboardAddNew();
-      case MappingType.DashboardMapToExisting: return this.renderDashboardMapToExisting();
-      case MappingType.WidgetLevel: return this.renderWidgetLevel();
-      case MappingType.StaticValue: return this.renderStaticValue();
-      // no default
+      case MappingType.DashboardAddNew:
+        return [
+          'Key',
+          'Enter a new parameter keyword',
+          this.renderDashboardAddNew(),
+        ];
+      case MappingType.DashboardMapToExisting:
+        return [
+          'Key',
+          'Select from a list of existing parameters',
+          this.renderDashboardMapToExisting(),
+        ];
+      case MappingType.StaticValue:
+        return [
+          'Value',
+          null,
+          this.renderStaticValue(),
+        ];
+      default: return [];
     }
   }
 
   render() {
     const { inputError } = this.props;
+    const [label, help, input] = this.renderInputBlock();
 
     return (
       <Form layout="horizontal">
@@ -224,12 +246,13 @@ export class ParameterMappingInput extends React.Component {
           {this.renderMappingTypeSelector()}
         </Form.Item>
         <Form.Item
-          label="Value"
+          style={{ height: 60, visibility: input ? 'visible' : 'hidden' }}
+          label={label}
           {...this.formItemProps}
           validateStatus={inputError ? 'error' : ''}
-          help={inputError || '\u00A0'} // empty space so line doesn't collapse
+          help={inputError || help} // empty space so line doesn't collapse
         >
-          {this.renderInputBlock()}
+          {input}
         </Form.Item>
       </Form>
     );
@@ -281,10 +304,19 @@ class EditMapping extends React.Component {
   get content() {
     const { mapping, inputError } = this.state;
     const { clientConfig, Query } = this.props;
+    const helpUrl = replace(HELP_URL, '{0}', 'edit_mapping');
 
     return (
       <div className="editMapping">
-        <header>Edit Source and Value</header>
+        <header>
+          Edit Source and Value
+          {/* eslint-disable-next-line react/jsx-no-target-blank */}
+          <a href={helpUrl} target="_blank" rel="noopener">
+            <Tooltip title="Learn more about editing query paramaters (opens in a new window)">
+              <Icon type="question-circle" />
+            </Tooltip>
+          </a>
+        </header>
         <ParameterMappingInput
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
@@ -481,7 +513,7 @@ export class ParameterMappingListInput extends React.Component {
       case MappingType.DashboardMapToExisting:
         return (
           <Fragment>
-            Dashboard parameter{' '}
+            Dashboard{' '}
             <Tag className="tag">{mapTo}</Tag>
           </Fragment>
         );
