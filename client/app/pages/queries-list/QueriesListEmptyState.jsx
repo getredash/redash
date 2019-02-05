@@ -24,8 +24,8 @@ export default function QueriesListEmptyState({ page, searchTerm, selectedTags }
     );
     case 'my': return (
       <div className="tiled bg-white p-15">
-        <a href="queries/new" className="btn btn-primary btn-sm">Create your first query</a> to populate My Queries
-        list. Need help? Check out our
+        <a href="queries/new" className="btn btn-primary btn-sm">Create your first query</a>
+        {' '}to populate My Queries list. Need help? Check out our{' '}
         <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
       </div>
     );
