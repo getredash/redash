@@ -1,4 +1,4 @@
-import { map, trim, chain } from 'lodash';
+import { map, trim, uniq } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -7,14 +7,13 @@ import Modal from 'antd/lib/modal';
 export default class TagsEditorModal extends React.Component {
   static propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
-    availableTags: PropTypes.arrayOf(PropTypes.string),
+    getAvailableTags: PropTypes.func.isRequired,
     onConfirm: PropTypes.func,
     onCancel: PropTypes.func,
   };
 
   static defaultProps = {
     tags: [],
-    availableTags: [],
     onConfirm: () => {},
     onCancel: () => {},
   };
@@ -24,16 +23,20 @@ export default class TagsEditorModal extends React.Component {
 
     this.state = {
       isVisible: true,
-      result: chain(this.props.tags).map(trim).uniq().value(),
+      loading: true,
+      availableTags: [],
+      result: uniq(map(this.props.tags, trim)),
       onAfterClose: () => {},
     };
+  }
 
-    this.selectOptions =
-      chain(this.props.availableTags)
-        .map(trim)
-        .uniq()
-        .map(tag => <Select.Option key={tag}>{tag}</Select.Option>)
-        .value();
+  componentDidMount() {
+    this.props.getAvailableTags().then((availableTags) => {
+      this.setState({
+        loading: false,
+        availableTags: uniq(map(availableTags, trim)),
+      });
+    });
   }
 
   onConfirm(result) {
@@ -66,8 +69,10 @@ export default class TagsEditorModal extends React.Component {
           defaultValue={this.state.result}
           onChange={values => this.setState({ result: map(values, trim) })}
           autoFocus
+          disabled={this.state.loading}
+          loading={this.state.loading}
         >
-          {this.selectOptions}
+          {map(this.state.availableTags, tag => <Select.Option key={tag}>{tag}</Select.Option>)}
         </Select>
       </Modal>
     );

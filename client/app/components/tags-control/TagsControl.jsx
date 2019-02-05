@@ -1,4 +1,4 @@
-import { isObject, map, filter, trim, extend } from 'lodash';
+import { map, trim, extend } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -24,23 +24,12 @@ export class TagsControl extends React.Component {
     children: null,
   };
 
-  static Prepend({ children }) {
-    return <React.Fragment>{children}</React.Fragment>;
-  }
-
-  static Append({ children }) {
-    return <React.Fragment>{children}</React.Fragment>;
-  }
-
   state = {
     showModal: false,
-    availableTags: [],
   };
 
   openEditModal = () => {
-    // load available tags every time modal is shown; show modal only when tags loaded
-    this.props.getAvailableTags()
-      .then(availableTags => this.setState({ showModal: true, availableTags }));
+    this.setState({ showModal: true });
   };
 
   closeEditModal = () => {
@@ -64,7 +53,7 @@ export class TagsControl extends React.Component {
         {this.state.showModal && (
           <TagsEditorModal
             tags={tags}
-            availableTags={this.state.availableTags}
+            getAvailableTags={this.props.getAvailableTags}
             onConfirm={this.onTagsChanged}
             onCancel={this.closeEditModal}
           />
@@ -74,14 +63,12 @@ export class TagsControl extends React.Component {
   }
 
   render() {
-    const children = filter(React.Children.toArray(this.props.children), isObject);
     return (
       <div className={'tags-control ' + this.props.className}>
-        {filter(children, child => child.type === this.constructor.Prepend)}
+        {this.props.children}
         {map(this.props.tags, tag => (
           <span className="label label-tag" key={tag} title={tag}>{tag}</span>
         ))}
-        {filter(children, child => child.type === this.constructor.Append)}
         {this.props.canEdit && this.renderEditButton()}
       </div>
     );
@@ -94,21 +81,19 @@ function modelTagsControl({ archivedTooltip }) {
   function ModelTagsControl({ isDraft, isArchived, ...props }) {
     return (
       <TagsControl {...props}>
-        <TagsControl.Prepend>
-          {!isArchived && isDraft && (
-            <span className="label label-tag-unpublished">Unpublished</span>
-          )}
-          {isArchived && (
-            <Tooltip placement="right" title={archivedTooltip}>
-              <span className="label label-tag-archived">Archived</span>
-            </Tooltip>
-          )}
-        </TagsControl.Prepend>
+        {!isArchived && isDraft && (
+          <span className="label label-tag-unpublished">Unpublished</span>
+        )}
+        {isArchived && (
+          <Tooltip placement="right" title={archivedTooltip}>
+            <span className="label label-tag-archived">Archived</span>
+          </Tooltip>
+        )}
       </TagsControl>
     );
   }
 
-  // `extend` needed just for `react2angular`, so remove it when `react2angular` no longer needed
+  // ANGULAR_REMOVE_ME `extend` needed just for `react2angular`, so remove it when `react2angular` no longer needed
   ModelTagsControl.propTypes = extend({
     isDraft: PropTypes.bool,
     isArchived: PropTypes.bool,
