@@ -19,12 +19,23 @@ import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
+function createActionHandler(action, component) {
+  return (event, user) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // User service will handle errors, no need to do it here
+    action(user).then(() => {
+      component.props.controller.update();
+    });
+  };
+}
+
 class UsersList extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
   };
 
-  static sidebarMenu = [
+  sidebarMenu = [
     {
       key: 'active',
       href: 'users',
@@ -37,7 +48,7 @@ class UsersList extends React.Component {
     },
   ];
 
-  static listColumns = [
+  listColumns = [
     Columns.custom.sortable((text, user) => (
       <div className="d-flex align-items-center">
         <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
@@ -60,17 +71,17 @@ class UsersList extends React.Component {
     }),
     Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at' }),
     Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at' }),
-    Columns.custom((text, user, context) => {
+    Columns.custom((text, user) => {
       if (user.id !== currentUser.id) {
         if (user.is_invitation_pending) {
           return (
-            <button type="button" className="btn btn-default btn-block" onClick={event => context.deleteUser(event, user)}>Delete</button>
+            <button type="button" className="btn btn-default btn-block" onClick={event => this.deleteUser(event, user)}>Delete</button>
           );
         }
         return user.is_disabled ? (
-          <button type="button" className="btn btn-primary btn-block" onClick={event => context.enableUser(event, user)}>Enable</button>
+          <button type="button" className="btn btn-primary btn-block" onClick={event => this.enableUser(event, user)}>Enable</button>
         ) : (
-          <button type="button" className="btn btn-default btn-block" onClick={event => context.disableUser(event, user)}>Disable</button>
+          <button type="button" className="btn btn-default btn-block" onClick={event => this.disableUser(event, user)}>Disable</button>
         );
       }
       return null;
@@ -79,26 +90,11 @@ class UsersList extends React.Component {
     }),
   ];
 
-  constructor(props) {
-    super(props);
+  enableUser = createActionHandler(User.enableUser, this);
 
-    const wrapUserAction = action => (
-      (event, user) => {
-        event.preventDefault();
-        event.stopPropagation();
-        // User service will handle errors, no need to do it here
-        action(user).then(() => {
-          this.props.controller.update();
-        });
-      }
-    );
+  disableUser = createActionHandler(User.disableUser, this);
 
-    this.actions = {
-      enableUser: wrapUserAction(User.enableUser),
-      disableUser: wrapUserAction(User.disableUser),
-      deleteUser: wrapUserAction(User.deleteUser),
-    };
-  }
+  deleteUser = createActionHandler(User.deleteUser, this);
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
@@ -148,7 +144,7 @@ class UsersList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
           value={controller.itemsPerPage}
@@ -175,7 +171,7 @@ class UsersList extends React.Component {
                 <div>
                   <ItemsTable
                     items={controller.pageItems}
-                    columns={this.constructor.listColumns}
+                    columns={this.listColumns}
                     onRowClick={this.onTableRowClick}
                     context={this.actions}
                     orderByField={controller.orderByField}

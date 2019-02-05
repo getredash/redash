@@ -23,7 +23,7 @@ class DashboardList extends React.Component {
     controller: ControllerType.isRequired,
   };
 
-  static sidebarMenu = [
+  sidebarMenu = [
     {
       key: 'all',
       href: 'dashboards',
@@ -37,7 +37,7 @@ class DashboardList extends React.Component {
     },
   ];
 
-  static listColumns = [
+  listColumns = [
     Columns.favorites({ className: 'p-r-0' }),
     Columns.custom.sortable((text, item) => (
       <React.Fragment>
@@ -69,7 +69,7 @@ class DashboardList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
         <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
@@ -104,7 +104,7 @@ class DashboardList extends React.Component {
                 <div className="bg-white tiled">
                   <ItemsTable
                     items={controller.pageItems}
-                    columns={this.constructor.listColumns}
+                    columns={this.listColumns}
                     onRowClick={this.onTableRowClick}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}

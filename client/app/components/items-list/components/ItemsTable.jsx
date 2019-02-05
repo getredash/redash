@@ -76,12 +76,10 @@ export default class ItemsTable extends React.Component {
     columns: PropTypes.arrayOf(PropTypes.shape({
       field: PropTypes.string, // data field
       orderByField: PropTypes.string, // field to order by (defaults to `field`)
-      render: PropTypes.func, // (prop, item, context) => text | node; `prop` is `item[field]`
+      render: PropTypes.func, // (prop, item) => text | node; `prop` is `item[field]`
       isAvailable: PropTypes.func, // return `true` to show column and `false` to hide; if omitted: show column
     })),
     onRowClick: PropTypes.func, // (event, item) => void
-    // eslint-disable-next-line react/forbid-prop-types
-    context: PropTypes.any, // any value that is passed to each column's `render` function
 
     orderByField: PropTypes.string,
     orderByReverse: PropTypes.bool,
@@ -92,7 +90,6 @@ export default class ItemsTable extends React.Component {
     items: [],
     columns: [],
     onRowClick: null,
-    context: null,
 
     orderByField: null,
     orderByReverse: false,
@@ -115,9 +112,7 @@ export default class ItemsTable extends React.Component {
         ) : null;
 
         // Wrap render function to pass correct arguments
-        const render = isFunction(column.render) ? (
-          (text, row) => column.render(text, row.item, this.props.context)
-        ) : identity;
+        const render = isFunction(column.render) ? (text, row) => column.render(text, row.item) : identity;
 
         return extend(
           omit(column, ['field', 'orderByField', 'render']),
