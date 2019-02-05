@@ -140,3 +140,35 @@
     }
   }
 }
+
+// Table
+
+.@{table-prefix-cls} {
+  color: inherit;
+
+  * {
+    transition: none !important;
+  }
+
+  &-thead > tr > th {
+    padding: @table-padding-vertical * 2 @table-padding-horizontal;
+  }
+
+  .@{table-prefix-cls}-column-sorters {
+    &:before,
+    &:hover:before {
+      content: none;
+    }
+  }
+
+  &-thead > tr > th {
+    .@{table-prefix-cls}-column-sorter {
+      &-up,
+      &-down {
+        &.on {
+          color: @table-header-icon-active-color;
+        }
+      }
+    }
+  }
+}
