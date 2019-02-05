@@ -1,8 +1,37 @@
-import { bind } from 'lodash';
+import { bind, each } from 'lodash';
+import $ from 'jquery';
 import { LivePaginator } from '@/lib/pagination';
+import { Query } from '@/services/query';
+import { Dashboard } from '@/services/dashboard';
+import { User } from '@/services/user';
 
-export default class ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, defaultOrder = '-created_at') {
+export function buildListRoutes(name, routes, template) {
+  const listRoutes = {};
+  each(routes, (route) => {
+    listRoutes[route.path] = {
+      template,
+      reloadOnSearch: false,
+      title: route.title,
+      resolve: {
+        currentPage: () => route.page,
+        resource: () => {
+          // services that are using the ListCtrl class
+          const listServices = {
+            query: Query,
+            dashboard: Dashboard,
+            user: User,
+          };
+          return listServices[name].query.bind(listServices[name]);
+        },
+      },
+    };
+  });
+  return listRoutes;
+}
+
+export class ListCtrl {
+  constructor($scope, $location, $route, currentUser, clientConfig, defaultOrder = '-created_at') {
+    this.title = $route.current.title; // will make it available as $ctrl.title
     this.searchTerm = $location.search().q || '';
 
     this.page = parseInt($location.search().page || 1, 10);
@@ -32,6 +61,7 @@ export default class ListCtrl {
     this.onTagsUpdate = (tags) => {
       this.selectedTags = tags;
       this.update();
+      $scope.$applyAsync();
     };
 
     this.isInSearchMode = () => this.searchTerm !== undefined && this.searchTerm !== null && this.searchTerm.length > 0;
@@ -61,6 +91,10 @@ export default class ListCtrl {
     });
 
     this.navigateTo = ($event, url) => {
+      // angular handles events before `react2angular` passes them to wrapped components
+      if ($($event.target).parents('favorites-control').length > 0) {
+        return;
+      }
       if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
         // keep default browser behavior
         return;

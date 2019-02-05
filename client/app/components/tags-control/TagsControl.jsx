@@ -1,7 +1,7 @@
 import { map, trim } from 'lodash';
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { $uibModal } from '@/services/ng';
+import TagsEditorModal from './TagsEditorModal';
 
 export default class TagsControl extends React.Component {
   static propTypes = {
@@ -15,27 +15,36 @@ export default class TagsControl extends React.Component {
   static defaultProps = {
     tags: [],
     canEdit: false,
-    getAvailableTags: () => {},
+    getAvailableTags: () => Promise.resolve([]),
     onEdit: () => {},
     className: '',
   };
 
-  editTags() {
-    const { getAvailableTags, onEdit } = this.props; // eslint-disable-line react/prop-types
-    const tags = map(this.props.tags, trim);
+  constructor(props) {
+    super(props);
 
-    getAvailableTags().then((availableTags) => {
-      $uibModal
-        .open({
-          component: 'tagsEditorModal',
-          resolve: {
-            tags: () => tags,
-            availableTags: () => availableTags,
-          },
-        }).result.then((newTags) => {
-          onEdit(newTags);
-        });
-    });
+    this.state = {
+      showModal: false,
+    };
+
+    // get available tags
+    this.props.getAvailableTags()
+      .then((tags) => {
+        this.availableTags = tags;
+      });
+  }
+
+  onTagsChanged = (newTags) => {
+    this.props.onEdit(newTags);
+    this.closeEditModal();
+  }
+
+  openEditModal = () => {
+    this.setState({ showModal: true });
+  }
+
+  closeEditModal = () => {
+    this.setState({ showModal: false });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -55,19 +64,31 @@ export default class TagsControl extends React.Component {
   }
 
   renderEditButton() {
-    if (this.props.canEdit) {
-      return (this.props.tags.length > 0) ? (
-        <a className="label label-tag" role="none" onClick={() => this.editTags()}>
-          <i className="zmdi zmdi-edit" />
-        </a>
-      ) : (
-        <a className="label label-tag" role="none" onClick={() => this.editTags()}>
-          <i className="zmdi zmdi-plus" />
-          Add tag
-        </a>
-      );
+    if (!this.props.canEdit) {
+      return null;
     }
-    return null;
+
+    const tags = map(this.props.tags, trim);
+
+    const buttonLabel = tags.length > 0
+      ? <i className="zmdi zmdi-edit" />
+      : <Fragment><i className="zmdi zmdi-plus" /> Add tag</Fragment>;
+
+    return (
+      <Fragment>
+        <a className="label label-tag" role="none" onClick={this.openEditModal}>
+          {buttonLabel}
+        </a>
+        {this.state.showModal && (
+          <TagsEditorModal
+            tags={tags}
+            availableTags={this.availableTags}
+            close={this.onTagsChanged}
+            dismiss={this.closeEditModal}
+          />
+        )}
+      </Fragment>
+    );
   }
 
   render() {

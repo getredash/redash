@@ -145,6 +145,7 @@ class Parameter {
   get ngModel() {
     return this.normalizedValue;
   }
+
   set ngModel(value) {
     this.setValue(value);
   }
@@ -333,6 +334,11 @@ function QueryResource(
         method: 'get',
         isArray: true,
         url: 'api/queries/recent',
+      },
+      archive: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/archive',
       },
       query: {
         isArray: false,
