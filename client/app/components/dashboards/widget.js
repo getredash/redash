@@ -2,6 +2,7 @@ import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
+import editParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -78,13 +79,9 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
 
   this.editParameterMappings = () => {
-    $uibModal.open({
-      component: 'editParameterMappingsDialog',
-      resolve: {
-        dashboard: this.dashboard,
-        widget: this.widget,
-      },
-      size: 'lg',
+    editParameterMappingsDialog.open({
+      dashboard: this.dashboard,
+      widget: this.widget,
     }).result.then(() => {
       this.localParameters = null;
       $rootScope.$broadcast('dashboard.update-parameters');
