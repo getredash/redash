@@ -115,7 +115,7 @@ function prepareSimpleData(sortedData, options) {
 function prepareData(rawData, options) {
   rawData = _.map(rawData, item => ({
     date: item[options.dateColumn],
-    stage: parseFloat(item[options.stageColumn]),
+    stage: parseInt(item[options.stageColumn], 10),
     total: parseFloat(item[options.totalColumn]),
     value: parseFloat(item[options.valueColumn]),
   }));
