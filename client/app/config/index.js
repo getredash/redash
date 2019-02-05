@@ -16,7 +16,6 @@ import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
-import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
@@ -49,7 +48,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  'angularMoment',
   toastr,
   'ui.ace',
   ngUpload,

@@ -5,6 +5,7 @@ import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
+import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -318,26 +319,32 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = (widgetType) => {
-    const widgetTypes = {
-      textbox: 'addTextboxDialog',
-      widget: 'addWidgetDialog',
-    };
+  this.addTextBox = () => {
     $uibModal
       .open({
-        component: widgetTypes[widgetType],
+        component: 'addTextboxDialog',
         resolve: {
           dashboard: () => this.dashboard,
         },
       })
-      .result.then(() => {
-        this.extractGlobalParameters();
-        // Save position of newly added widget (but not entire layout)
-        const widget = _.last(this.dashboard.widgets);
-        if (_.isObject(widget)) {
-          return widget.save();
-        }
-      });
+      .result.then(this.onWidgetAdded);
+  };
+
+  this.addWidget = () => {
+    AddWidgetDialog
+      .open({
+        dashboard: this.dashboard,
+      })
+      .result.then(this.onWidgetAdded);
+  };
+
+  this.onWidgetAdded = () => {
+    this.extractGlobalParameters();
+    // Save position of newly added widget (but not entire layout)
+    const widget = _.last(this.dashboard.widgets);
+    if (_.isObject(widget)) {
+      return widget.save();
+    }
   };
 
   this.removeWidget = (widgetId) => {

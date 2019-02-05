@@ -1,14 +1,13 @@
 import moment from 'moment';
-import { extend } from 'lodash';
 
-import ListCtrl from '@/lib/list-ctrl';
+import { buildListRoutes, ListCtrl } from '@/lib/list-ctrl';
 import template from './queries-list.html';
 import './queries-list.css';
 
 
 class QueriesListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, clientConfig, Query) {
-    super($scope, $location, currentUser, clientConfig);
+  constructor($scope, $location, $route, currentUser, clientConfig, Query) {
+    super($scope, $location, $route, currentUser, clientConfig);
     this.Type = Query;
     this.showMyQueries = currentUser.hasPermission('create_query');
   }
@@ -32,6 +31,8 @@ class QueriesListCtrl extends ListCtrl {
         this.emptyType = 'favorites';
       } else if (this.currentPage === 'my') {
         this.emptyType = 'my';
+      } else if (this.currentPage === 'archive') {
+        this.emptyType = 'archive';
       } else {
         this.emptyType = 'default';
       }
@@ -46,57 +47,29 @@ export default function init(ngModule) {
     controller: QueriesListCtrl,
   });
 
-  const route = {
-    template: '<page-queries-list></page-queries-list>',
-    reloadOnSearch: false,
-  };
-
-  return {
-    '/queries': extend(
-      {
-        title: 'Queries',
-        resolve: {
-          currentPage: () => 'all',
-          resource(Query) {
-            'ngInject';
-
-            return Query.query.bind(Query);
-          },
-        },
-      },
-      route,
-    ),
-    '/queries/my': extend(
-      {
-        title: 'My Queries',
-        resolve: {
-          currentPage: () => 'my',
-          resource: (Query) => {
-            'ngInject';
-
-            return Query.myQueries.bind(Query);
-          },
-        },
-      },
-      route,
-    ),
-    '/queries/favorites': extend(
-      {
-        title: 'Favorite Queries',
-        resolve: {
-          currentPage: () => 'favorites',
-          resource: (Query) => {
-            'ngInject';
-
-            return Query.favorites.bind(Query);
-          },
-        },
-      },
-      route,
-    ),
-    // TODO: setup redirect?
-    // '/queries/search': _.extend(
-  };
+  const routes = [
+    {
+      page: 'all',
+      title: 'All Queries',
+      path: '/queries',
+    },
+    {
+      page: 'my',
+      title: 'My Queries',
+      path: '/queries/my',
+    },
+    {
+      page: 'favorites',
+      title: 'Favorite Queries',
+      path: '/queries/favorites',
+    },
+    {
+      page: 'archive',
+      title: 'Archived Queries',
+      path: '/queries/archive',
+    },
+  ];
+  return buildListRoutes('query', routes, '<page-queries-list></page-queries-list>');
 }
 
 init.init = true;

@@ -335,6 +335,11 @@ function QueryResource(
         isArray: true,
         url: 'api/queries/recent',
       },
+      archive: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/archive',
+      },
       query: {
         isArray: false,
       },
@@ -429,12 +434,11 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, selectedQueryText) {
+  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const queryText = selectedQueryText || this.query;
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -471,12 +475,24 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, parameters.getValues(), maxAge, this.id);
+      this.queryResult = execute();
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
 
     return this.queryResult;
+  };
+
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues());
+    return this.prepareQueryResultExecution(execute, maxAge);
+  };
+
+  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
+    const queryText = selectedQueryText || this.query;
+    const parameters = this.getParameters().getValues();
+    const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
+    return this.prepareQueryResultExecution(execute, maxAge);
   };
 
   QueryService.prototype.getUrl = function getUrl(source, hash) {
