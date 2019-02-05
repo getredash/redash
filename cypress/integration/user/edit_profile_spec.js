@@ -48,6 +48,17 @@ describe('Edit Profile', () => {
       cy.getByTestId('ChangePassword').click();
     });
 
+    it('updates user password when password is correct', () => {
+      fillChangePasswordAndSave('password', 'newpassword', 'newpassword');
+      cy.contains('Saved.');
+      cy.logout();
+      cy.login(undefined, 'newpassword').its('status').should('eq', 200);
+      cy.visit('/users/me');
+      cy.getByTestId('ChangePassword').click();
+      fillChangePasswordAndSave('newpassword', 'password', 'password');
+      cy.contains('Saved.');
+    });
+
     it('shows an error when current password is wrong', () => {
       fillChangePasswordAndSave('wrongpassword', 'newpassword', 'newpassword');
       cy.contains('Incorrect current password.');
