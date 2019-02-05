@@ -4,54 +4,66 @@ import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 
-const { Option } = Select;
-
 export default class TagsEditorModal extends React.Component {
   static propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
     availableTags: PropTypes.arrayOf(PropTypes.string),
-    close: PropTypes.func,
-    dismiss: PropTypes.func,
+    onConfirm: PropTypes.func,
+    onCancel: PropTypes.func,
   };
 
   static defaultProps = {
     tags: [],
     availableTags: [],
-    close: () => {},
-    dismiss: () => {},
+    onConfirm: () => {},
+    onCancel: () => {},
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
+      isVisible: true,
       result: chain(this.props.tags).map(trim).uniq().value(),
+      onAfterClose: () => {},
     };
 
     this.selectOptions =
       chain(this.props.availableTags)
         .map(trim)
         .uniq()
-        .map(tag => <Option key={tag}>{tag}</Option>)
+        .map(tag => <Select.Option key={tag}>{tag}</Select.Option>)
         .value();
   }
 
-  render() {
-    const { close, dismiss } = this.props;
-    const { result } = this.state;
+  onConfirm(result) {
+    this.setState({
+      isVisible: false,
+      onAfterClose: () => this.props.onConfirm(result),
+    });
+  }
 
+  onCancel() {
+    this.setState({
+      isVisible: false,
+      onAfterClose: () => this.props.onCancel(),
+    });
+  }
+
+  render() {
     return (
       <Modal
-        visible
+        visible={this.state.isVisible}
         title="Add/Edit Tags"
-        onOk={() => close(result)}
-        onCancel={dismiss}
+        onOk={() => this.onConfirm(this.state.result)}
+        onCancel={() => this.onCancel()}
+        afterClose={() => this.state.onAfterClose()}
       >
         <Select
           mode="tags"
           className="w-100"
           placeholder="Add some tags..."
-          defaultValue={result}
+          defaultValue={this.state.result}
           onChange={values => this.setState({ result: map(values, trim) })}
           autoFocus
         >

@@ -3,7 +3,7 @@ import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Paginator } from '@/components/Paginator';
-import { DashboardTagsControl } from '@/components/tags-control/DashboardTagsControl';
+import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
 
 import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
