@@ -127,7 +127,7 @@ export const QueryTagsControl = modelTagsControl({
 });
 
 export const DashboardTagsControl = modelTagsControl({
-  archivedTooltip: 'This dashboard is archived and and won\'t appear in the dashboards list or search results.',
+  archivedTooltip: 'This dashboard is archived and won\'t be listed in dashboards nor search results.',
 });
 
 export default function init(ngModule) {
