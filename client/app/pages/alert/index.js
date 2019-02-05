@@ -1,11 +1,11 @@
 import { template as templateBuilder } from 'lodash';
 import template from './alert.html';
+import AlertTemplate from '../../services/alert-template';
 
-function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert, AlertTemplate) {
+function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
   this.hidePreview = false;
-  this.templateHelpMsg = AlertTemplate.helpMessage;
-  this.editorOptions = AlertTemplate.editorOptions;
+  this.alertTemplate = new AlertTemplate();
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
@@ -76,13 +76,12 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     );
   };
 
-  this.preview = () => AlertTemplate.render(this.alert.template, this.queryResult.query_result.data)
+  this.preview = () => this.alertTemplate.render(this.alert.template, this.queryResult.query_result.data)
     .then((data) => {
       if (data.error) {
         toastr.error('Unable to build description. please confirm your template.', { timeOut: 10000 });
-        return;
       }
-      this.alert.preview = data.preview;
+      this.alert.preview = $sce.trustAsHtml(data.previewEscaped);
       this.alert.previewHTML = $sce.trustAsHtml(data.preview);
     })
     .catch(() => {

@@ -57,9 +57,9 @@
           <div ng-show="$ctrl.selectedQuery">
             <div class="form-group" ng-show="$ctrl.selectedQuery">
               <label>Description Template</label>
-              <i class="fa fa-question-circle" uib-tooltip="{{$ctrl.templateHelpMsg}}"></i>
+              <i class="fa fa-question-circle" uib-tooltip="{{$ctrl.alertTemplate.helpMessage}}"></i>
               <div class="row bg-white p-b-5" ng-if="$ctrl.canEdit" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
-                <div ui-ace="$ctrl.editorOptions" ng-model="$ctrl.alert.template"></div>
+                <div ui-ace="$ctrl.alertTemplate.editorOptions" ng-model="$ctrl.alert.template"></div>
               </div>
             </div>
              <div class="form-group" ng-if="$ctrl.canEdit">
@@ -74,10 +74,10 @@
               </div>
               <div class="panel-body" ng-if="$ctrl.hidePreview == false">
                   <div ng-if="!$ctrl.showAsHTML">
-                    <div ng-bind-html="$ctrl.alert.previewHTML"></div>
+                    <div ng-bind-html="$ctrl.alert.preview"></div>
                   </div>
                   <div ng-if="$ctrl.showAsHTML">
-                    <div ng-bind-html="$ctrl.alert.preview"></div>
+                    <div ng-bind-html="$ctrl.alert.previewHTML"></div>
                   </div>
               </div>
               <div class="panel-footer"></div>
