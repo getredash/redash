@@ -31,7 +31,7 @@ describe('Edit Profile', () => {
 
       cy.getByTestId('RegenerateApiKey').click();
       cy.get('.ant-btn-primary').contains('Regenerate').click({ force: true });
-  
+
       cy.getByTestId('ApiKey').should('not.eq', previousApiKey);
     });
   });
