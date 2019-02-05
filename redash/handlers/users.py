@@ -40,6 +40,18 @@ def invite_user(org, inviter, user):
     send_invite_email(inviter, user, invite_url, org)
 
 
+def bool_or_none(v):
+    if v in (None, True, False):
+        return v
+    v = v.strip().lower()
+    if v in ('yes', 'true', 'on', '1'):
+        return True
+    elif v in ('no', 'false', 'off', '0', 'none'):
+        return False
+    else:
+        return None
+
+
 class UserListResource(BaseResource):
     @require_permission('list_users')
     def get(self):
@@ -66,7 +78,7 @@ class UserListResource(BaseResource):
         if request.args.get('disabled', None) is not None:
             users = models.User.all_disabled(self.current_org)
         else:
-            users = models.User.all(self.current_org)
+            users = models.User.all(self.current_org, bool_or_none(request.args.get('pending', None)))
 
         if search_term:
             users = models.User.search(users, search_term)

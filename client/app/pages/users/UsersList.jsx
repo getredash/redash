@@ -62,6 +62,11 @@ class UsersList extends React.Component {
       title: 'Active Users',
     },
     {
+      key: 'pending',
+      href: 'users/pending',
+      title: 'Invited Users',
+    },
+    {
       key: 'disabled',
       href: 'users/disabled',
       title: 'Disabled Users',
@@ -218,8 +223,21 @@ export default function init(ngModule) {
   ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
     defaultOrderBy: '-created_at',
     getRequest(request, { currentPage }) {
-      if (currentPage === 'disabled') {
-        request.disabled = true;
+      switch (currentPage) {
+        case 'active':
+          // Admin can see sidebar menu, so load active and pending users separately;
+          // for non-admins load both together
+          if (policy.canCreateUser()) {
+            request.pending = false;
+          }
+          break;
+        case 'pending':
+          request.pending = true;
+          break;
+        case 'disabled':
+          request.disabled = true;
+          break;
+        // no default
       }
       return request;
     },
@@ -255,6 +273,11 @@ export default function init(ngModule) {
       path: '/users',
       title: 'Users',
       key: 'active',
+    },
+    {
+      path: '/users/pending',
+      title: 'Invited Users',
+      key: 'pending',
     },
     {
       path: '/users/disabled',
