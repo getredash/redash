@@ -5,25 +5,25 @@ import PropTypes from 'prop-types';
 const componentsRegistry = new Map();
 const activeInstances = new Set();
 
-export function registerComponent(alias, component) {
-  if (isString(alias) && (alias !== '')) {
-    componentsRegistry[alias] = isFunction(component) ? component : null;
-    // Refresh active DynamicComponent instances which use this alias
+export function registerComponent(name, component) {
+  if (isString(name) && (name !== '')) {
+    componentsRegistry[name] = isFunction(component) ? component : null;
+    // Refresh active DynamicComponent instances which use this component
     activeInstances.forEach((dynamicComponent) => {
-      if (dynamicComponent.props.is === alias) {
+      if (dynamicComponent.props.name === name) {
         dynamicComponent.forceUpdate();
       }
     });
   }
 }
 
-export function unregisterComponent(alias) {
-  registerComponent(alias, null);
+export function unregisterComponent(name) {
+  registerComponent(name, null);
 }
 
 export default class DynamicComponent extends React.Component {
   static propTypes = {
-    is: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
     children: PropTypes.node,
   };
 
@@ -40,8 +40,8 @@ export default class DynamicComponent extends React.Component {
   }
 
   render() {
-    const { is, children, ...props } = this.props;
-    const RealComponent = componentsRegistry.get(is);
+    const { name, children, ...props } = this.props;
+    const RealComponent = componentsRegistry.get(name);
     if (!RealComponent) {
       return null;
     }

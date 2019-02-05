@@ -114,7 +114,7 @@ class UsersList extends React.Component {
           <i className="fa fa-plus m-r-5" />
           New User
         </a>
-        <DynamicComponent is="UsersListExtra" />
+        <DynamicComponent name="UsersListExtra" />
       </div>
     ) : (
       // Non-admin

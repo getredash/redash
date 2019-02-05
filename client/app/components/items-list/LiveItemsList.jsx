@@ -1,6 +1,7 @@
 import { isString, isNil, isFunction, map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 import LivePaginator from '@/lib/pagination/live-paginator';
 import { $location, $route } from '@/services/ng';
 import { clientConfig } from '@/services/auth';
@@ -55,7 +56,7 @@ export function createResourceFetcher(getResource, processItem) {
 }
 
 export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest }) {
-  return class extends React.Component {
+  class LiveItemsListWrapper extends React.Component {
     static propTypes = {
       currentPage: PropTypes.string,
       children: PropTypes.node,
@@ -211,5 +212,10 @@ export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest }
       props.controller = this.state;
       return <WrappedComponent {...props}>{ children }</WrappedComponent>;
     }
-  };
+  }
+
+  // Copy static methods from `WrappedComponent`
+  hoistNonReactStatics(LiveItemsListWrapper, WrappedComponent);
+
+  return LiveItemsListWrapper;
 }
