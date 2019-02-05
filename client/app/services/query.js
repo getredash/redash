@@ -479,14 +479,15 @@ function QueryResource(
   };
 
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    return this.prepareQueryResultExecution(() =>
-      QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge), maxAge);
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues());
+    return this.prepareQueryResultExecution(execute, maxAge);
   };
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
-    return this.prepareQueryResultExecution(() =>
-      QueryResult.get(this.data_source_id, queryText, this.getParameters().getValues(), maxAge, this.id), maxAge);
+    const parameters = this.getParameters().getValues();
+    const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
+    return this.prepareQueryResultExecution(execute, maxAge);
   };
 
   QueryService.prototype.getUrl = function getUrl(source, hash) {
