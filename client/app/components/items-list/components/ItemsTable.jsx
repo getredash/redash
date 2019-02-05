@@ -37,7 +37,6 @@ export const Columns = {
   dateTime(overrides) {
     return extend({
       width: '1%',
-      className: 'text-nowrap',
       render: text => formatDateTime(text),
     }, overrides);
   },
@@ -51,14 +50,12 @@ export const Columns = {
   timeAgo(overrides) {
     return extend({
       width: '1%',
-      className: 'text-nowrap',
       render: value => <TimeAgo date={value} />,
     }, overrides);
   },
   custom(render, overrides) {
     return extend({
       width: '1%',
-      className: 'text-nowrap',
       render,
     }, overrides);
   },

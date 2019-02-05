@@ -122,7 +122,7 @@ class QueriesList extends React.Component {
             }
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="bg-white tiled">
+                <div className="bg-white tiled table-responsive">
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}

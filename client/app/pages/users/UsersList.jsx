@@ -89,8 +89,8 @@ class UsersList extends React.Component {
       title: 'Groups',
       field: 'groups',
     }),
-    Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at' }),
-    Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at' }),
+    Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at', className: 'text-nowrap' }),
+    Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at', className: 'text-nowrap' }),
     Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
       isAvailable: () => currentUser.isAdmin,
     }),
@@ -168,7 +168,7 @@ class UsersList extends React.Component {
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div>
+                <div className="table-responsive">
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
