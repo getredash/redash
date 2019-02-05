@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { BigMessage } from '@/components/BigMessage';
-import TagsControl from '@/components/tags-control/TagsControl';
+import { TagsControl } from '@/components/tags-control/TagsControl';
 
 export function NoTaggedObjectsFound({ objectType, tags }) {
   return (
