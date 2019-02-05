@@ -1,12 +1,15 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
 import { Paginator } from '@/components/Paginator';
 import { DashboardTagsControl } from '@/components/tags-control/DashboardTagsControl';
 
-import LiveItemsList from '@/components/items-list/LiveItemsList';
+import {
+  liveItemsList,
+  createResourceFetcher,
+  LiveItemsListControllerType,
+} from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -21,7 +24,7 @@ import './dashboard-list.css';
 
 class DashboardList extends React.Component {
   static propTypes = {
-    currentPage: PropTypes.string.isRequired,
+    controller: LiveItemsListControllerType.isRequired,
   };
 
   static routes = [
@@ -72,42 +75,31 @@ class DashboardList extends React.Component {
     Columns.dateTime.sortable({ title: 'Created At', field: 'created_at' }),
   ];
 
-  constructor(props) {
-    super(props);
-
-    const resources = {
+  static doRequest = createResourceFetcher(
+    ({ currentPage }) => ({
       all: Dashboard.query.bind(Dashboard),
       favorites: Dashboard.favorites.bind(Dashboard),
-    };
-    const resource = resources[this.props.currentPage];
+    }[currentPage]),
+    item => new Dashboard(item),
+  );
 
-    this.controller = new LiveItemsList({
-      doRequest: LiveItemsList.createFetcher(resource, Dashboard),
-      onChange: ({ state }) => this.setState(state),
-    });
-    this.state = this.controller.state;
-
-    this.onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
-  }
-
-  componentDidMount() {
-    this.controller.update();
-  }
+  onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
 
   renderSidebar() {
+    const { controller } = this.props;
     return (
       <React.Fragment>
         <Sidebar.SearchInput
           placeholder="Search Dashboards..."
-          value={this.state.searchTerm}
-          onChange={this.controller.updateSearch}
+          value={controller.searchTerm}
+          onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        <Sidebar.Tags url="api/dashboards/tags" onChange={this.controller.updateSelectedTags} />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
         <Sidebar.PageSizeSelect
-          options={this.state.pageSizeOptions}
-          value={this.state.itemsPerPage}
-          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+          options={controller.pageSizeOptions}
+          value={controller.itemsPerPage}
+          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
         />
       </React.Fragment>
     );
@@ -115,39 +107,39 @@ class DashboardList extends React.Component {
 
   render() {
     const sidebar = this.renderSidebar();
-
+    const { controller } = this.props;
     return (
       <div className="container">
-        <PageHeader title={this.state.title} />
+        <PageHeader title={controller.title} />
         <div className="row">
           <div className="col-md-3 list-control-t">{sidebar}</div>
           <div className="list-content col-md-9">
-            {!this.state.isLoaded && <LoadingState />}
+            {!controller.isLoaded && <LoadingState />}
             {
-              this.state.isLoaded && this.state.isEmpty && (
+              controller.isLoaded && controller.isEmpty && (
                 <DashboardListEmptyState
-                  page={this.props.currentPage}
-                  searchTerm={this.state.searchTerm}
-                  selectedTags={this.state.selectedTags}
+                  page={controller.currentPage}
+                  searchTerm={controller.searchTerm}
+                  selectedTags={controller.selectedTags}
                 />
               )
             }
             {
-              this.state.isLoaded && !this.state.isEmpty && (
+              controller.isLoaded && !controller.isEmpty && (
                 <div className="bg-white tiled">
                   <ItemsTable
-                    items={this.state.pageItems}
+                    items={controller.pageItems}
                     columns={this.constructor.listColumns}
                     onRowClick={this.onTableRowClick}
-                    orderByField={this.state.orderByField}
-                    orderByReverse={this.state.orderByReverse}
-                    toggleSorting={this.controller.toggleSorting}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
-                    totalCount={this.state.totalItemsCount}
-                    itemsPerPage={this.state.itemsPerPage}
-                    page={this.state.page}
-                    onChange={page => this.controller.updatePagination({ page })}
+                    totalCount={controller.totalItemsCount}
+                    itemsPerPage={controller.itemsPerPage}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
                   />
                 </div>
               )
@@ -161,7 +153,7 @@ class DashboardList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageDashboardList', react2angular(DashboardList));
+  ngModule.component('pageDashboardList', react2angular(liveItemsList(DashboardList)));
 
   return routesToAngularRoutes(DashboardList.routes, {
     template: '<page-dashboard-list current-page="$resolve.currentPage"></page-dashboard-list>',

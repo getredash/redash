@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { PageHeader } from '@/components/PageHeader';
@@ -7,7 +6,11 @@ import { Paginator } from '@/components/Paginator';
 import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
-import LiveItemsList from '@/components/items-list/LiveItemsList';
+import {
+  liveItemsList,
+  createResourceFetcher,
+  LiveItemsListControllerType,
+} from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -23,7 +26,7 @@ import './queries-list.css';
 
 class QueriesList extends React.Component {
   static propTypes = {
-    currentPage: PropTypes.string.isRequired,
+    controller: LiveItemsListControllerType.isRequired,
   };
 
   static routes = [
@@ -103,44 +106,33 @@ class QueriesList extends React.Component {
     ),
   ];
 
-  constructor(props) {
-    super(props);
-
-    const resources = {
+  static doRequest = createResourceFetcher(
+    ({ currentPage }) => ({
       all: Query.query.bind(Query),
       my: Query.myQueries.bind(Query),
       favorites: Query.favorites.bind(Query),
       archive: Query.archive.bind(Query),
-    };
-    const resource = resources[this.props.currentPage];
+    }[currentPage]),
+    item => new Query(item),
+  );
 
-    this.controller = new LiveItemsList({
-      doRequest: LiveItemsList.createFetcher(resource, Query),
-      onChange: ({ state }) => this.setState(state),
-    });
-    this.state = this.controller.state;
-
-    this.onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
-  }
-
-  componentDidMount() {
-    this.controller.update();
-  }
+  onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
 
   renderSidebar() {
+    const { controller } = this.props;
     return (
       <React.Fragment>
         <Sidebar.SearchInput
           placeholder="Search Queries..."
-          value={this.state.searchTerm}
-          onChange={this.controller.updateSearch}
+          value={controller.searchTerm}
+          onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
-        <Sidebar.Tags url="api/queries/tags" onChange={this.controller.updateSelectedTags} />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
         <Sidebar.PageSizeSelect
-          options={this.state.pageSizeOptions}
-          value={this.state.itemsPerPage}
-          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+          options={controller.pageSizeOptions}
+          value={controller.itemsPerPage}
+          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
         />
       </React.Fragment>
     );
@@ -148,39 +140,39 @@ class QueriesList extends React.Component {
 
   render() {
     const sidebar = this.renderSidebar();
-
+    const { controller } = this.props;
     return (
       <div className="container">
-        <PageHeader title={this.state.title} />
+        <PageHeader title={controller.title} />
         <div className="row">
           <div className="col-md-3 list-control-t">{sidebar}</div>
           <div className="list-content col-md-9">
-            {!this.state.isLoaded && <LoadingState />}
+            {!controller.isLoaded && <LoadingState />}
             {
-              this.state.isLoaded && this.state.isEmpty && (
+              controller.isLoaded && controller.isEmpty && (
                 <QueriesListEmptyState
-                  page={this.props.currentPage}
-                  searchTerm={this.state.searchTerm}
-                  selectedTags={this.state.selectedTags}
+                  page={controller.currentPage}
+                  searchTerm={controller.searchTerm}
+                  selectedTags={controller.selectedTags}
                 />
               )
             }
             {
-              this.state.isLoaded && !this.state.isEmpty && (
+              controller.isLoaded && !controller.isEmpty && (
                 <div className="bg-white tiled">
                   <ItemsTable
-                    items={this.state.pageItems}
+                    items={controller.pageItems}
                     columns={this.constructor.listColumns}
                     onRowClick={this.onTableRowClick}
-                    orderByField={this.state.orderByField}
-                    orderByReverse={this.state.orderByReverse}
-                    toggleSorting={this.controller.toggleSorting}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
-                    totalCount={this.state.totalItemsCount}
-                    itemsPerPage={this.state.itemsPerPage}
-                    page={this.state.page}
-                    onChange={page => this.controller.updatePagination({ page })}
+                    totalCount={controller.totalItemsCount}
+                    itemsPerPage={controller.itemsPerPage}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
                   />
                 </div>
               )
@@ -194,7 +186,7 @@ class QueriesList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageQueriesList', react2angular(QueriesList));
+  ngModule.component('pageQueriesList', react2angular(liveItemsList(QueriesList)));
 
   return routesToAngularRoutes(QueriesList.routes, {
     template: '<page-queries-list current-page="$resolve.currentPage"></page-queries-list>',

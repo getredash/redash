@@ -1,13 +1,16 @@
 import { map } from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 
-import LiveItemsList from '@/components/items-list/LiveItemsList';
+import {
+  liveItemsList,
+  createResourceFetcher,
+  LiveItemsListControllerType,
+} from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
@@ -22,7 +25,7 @@ import { routesToAngularRoutes } from '@/lib/utils';
 
 class UsersList extends React.Component {
   static propTypes = {
-    currentPage: PropTypes.string.isRequired,
+    controller: LiveItemsListControllerType.isRequired,
   };
 
   static routes = [
@@ -95,6 +98,18 @@ class UsersList extends React.Component {
     }),
   ];
 
+  static getRequest(request, { currentPage }) {
+    if (currentPage === 'disabled') {
+      request.disabled = true;
+    }
+    return request;
+  }
+
+  static doRequest = createResourceFetcher(
+    () => User.query.bind(User),
+    item => new User(item),
+  );
+
   constructor(props) {
     super(props);
 
@@ -104,7 +119,7 @@ class UsersList extends React.Component {
         event.stopPropagation();
         // User service will handle errors, no need to do it here
         action(user).then(() => {
-          this.controller.update();
+          this.props.controller.update();
         });
       }
     );
@@ -114,29 +129,12 @@ class UsersList extends React.Component {
       disableUser: wrapUserAction(User.disableUser),
       deleteUser: wrapUserAction(User.deleteUser),
     };
-
-    const resource = User.query.bind(User);
-
-    this.controller = new LiveItemsList({
-      getRequest: (request) => {
-        if (this.props.currentPage === 'disabled') {
-          request.disabled = true;
-        }
-        return request;
-      },
-      doRequest: LiveItemsList.createFetcher(resource, User),
-      onChange: ({ state }) => this.setState(state),
-    });
-    this.state = this.controller.state;
-
-    this.onTableRowClick = (event, item) => navigateTo('users/' + item.id);
   }
 
-  componentDidMount() {
-    this.controller.update();
-  }
+  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
   renderPageHeader(isAdminView) {
+    const { controller } = this.props;
     return isAdminView ? (
       // Admin
       <div className="m-b-10">
@@ -154,16 +152,16 @@ class UsersList extends React.Component {
       <div className="row m-b-10">
         <div className="col-xs-9 p-r-0">
           <Sidebar.SearchInput
-            value={this.state.searchTerm}
+            value={controller.searchTerm}
             showIcon
-            onChange={this.controller.updateSearch}
+            onChange={controller.updateSearch}
           />
         </div>
         <div className="col-xs-3">
           <Sidebar.PageSizeSelect
-            options={this.state.pageSizeOptions}
-            value={this.state.itemsPerPage}
-            onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+            options={controller.pageSizeOptions}
+            value={controller.itemsPerPage}
+            onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
           />
         </div>
       </div>
@@ -174,17 +172,18 @@ class UsersList extends React.Component {
     if (!isAdminView) {
       return null;
     }
+    const { controller } = this.props;
     return (
       <React.Fragment>
         <Sidebar.SearchInput
-          value={this.state.searchTerm}
-          onChange={this.controller.updateSearch}
+          value={controller.searchTerm}
+          onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={this.props.currentPage} />
+        <Sidebar.Menu items={this.constructor.sidebarMenu} selected={controller.currentPage} />
         <Sidebar.PageSizeSelect
-          options={this.state.pageSizeOptions}
-          value={this.state.itemsPerPage}
-          onChange={itemsPerPage => this.controller.updatePagination({ itemsPerPage })}
+          options={controller.pageSizeOptions}
+          value={controller.itemsPerPage}
+          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
         />
       </React.Fragment>
     );
@@ -193,32 +192,32 @@ class UsersList extends React.Component {
   render() {
     const isAdminView = policy.canCreateUser();
     const sidebar = this.renderSidebar(isAdminView);
-
+    const { controller } = this.props;
     return (
       <React.Fragment>
         {this.renderPageHeader(isAdminView)}
         <div className="row">
           {isAdminView && <div className="col-md-3 list-control-t">{sidebar}</div>}
           <div className={isAdminView ? 'list-content col-md-9' : 'col-md-12'}>
-            {!this.state.isLoaded && <LoadingState className="" />}
-            {this.state.isLoaded && this.state.isEmpty && <EmptyState className="" />}
+            {!controller.isLoaded && <LoadingState className="" />}
+            {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
-              this.state.isLoaded && !this.state.isEmpty && (
+              controller.isLoaded && !controller.isEmpty && (
                 <div>
                   <ItemsTable
-                    items={this.state.pageItems}
+                    items={controller.pageItems}
                     columns={this.constructor.listColumns}
                     onRowClick={this.onTableRowClick}
                     context={this.actions}
-                    orderByField={this.state.orderByField}
-                    orderByReverse={this.state.orderByReverse}
-                    toggleSorting={this.controller.toggleSorting}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
                   />
                   <Paginator
-                    totalCount={this.state.totalItemsCount}
-                    itemsPerPage={this.state.itemsPerPage}
-                    page={this.state.page}
-                    onChange={page => this.controller.updatePagination({ page })}
+                    totalCount={controller.totalItemsCount}
+                    itemsPerPage={controller.itemsPerPage}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
                   />
                 </div>
               )
@@ -240,7 +239,7 @@ export default function init(ngModule) {
     order: 2,
   });
 
-  ngModule.component('pageUsersList', react2angular(UsersList));
+  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList)));
 
   return routesToAngularRoutes(UsersList.routes, {
     template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
