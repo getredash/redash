@@ -308,6 +308,7 @@ class AddWidgetDialog extends React.Component {
         }}
         okText="Add to Dashboard"
         onCancel={this.close}
+        width={700}
       >
         {this.renderQueryInput()}
         {!this.state.selectedQuery && this.renderSearchQueryResults()}
