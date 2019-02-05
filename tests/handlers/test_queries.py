@@ -134,6 +134,7 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], 'Testing')
         self.assertEqual(rv.json['last_modified_by']['id'], user.id)
 
+
 class TestQueryListResourceGet(BaseTestCase):
     def test_returns_queries(self):
         q1 = self.factory.create_query()
@@ -147,8 +148,8 @@ class TestQueryListResourceGet(BaseTestCase):
 
     def test_filters_with_tags(self):
         q1 = self.factory.create_query(tags=[u'test'])
-        q2 = self.factory.create_query()
-        q3 = self.factory.create_query()
+        self.factory.create_query()
+        self.factory.create_query()
 
         rv = self.make_request('get', '/api/queries?tags=test')
         assert len(rv.json['results']) == 1
@@ -157,11 +158,12 @@ class TestQueryListResourceGet(BaseTestCase):
     def test_search_term(self):
         q1 = self.factory.create_query(name="Sales")
         q2 = self.factory.create_query(name="Q1 sales")
-        q3 = self.factory.create_query(name="Ops")
+        self.factory.create_query(name="Ops")
 
         rv = self.make_request('get', '/api/queries?q=sales')
         assert len(rv.json['results']) == 2
         assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id])
+
 
 class TestQueryListResourcePost(BaseTestCase):
     def test_create_query(self):
@@ -183,6 +185,27 @@ class TestQueryListResourcePost(BaseTestCase):
         query = models.Query.query.get(rv.json['id'])
         self.assertEquals(len(list(query.visualizations)), 1)
         self.assertTrue(query.is_draft)
+
+
+class TestQueryArchiveResourceGet(BaseTestCase):
+    def test_returns_queries(self):
+        q1 = self.factory.create_query(is_archived=True)
+        q2 = self.factory.create_query(is_archived=True)
+        self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries/archive')
+
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id])
+
+    def test_search_term(self):
+        q1 = self.factory.create_query(name="Sales", is_archived=True)
+        q2 = self.factory.create_query(name="Q1 sales", is_archived=True)
+        self.factory.create_query(name="Q2 sales")
+
+        rv = self.make_request('get', '/api/queries/archive?q=sales')
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id])
 
 
 class QueryRefreshTest(BaseTestCase):
