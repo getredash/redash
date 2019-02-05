@@ -5,11 +5,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Paginator } from '@/components/Paginator';
 import { DashboardTagsControl } from '@/components/tags-control/DashboardTagsControl';
 
-import {
-  liveItemsList,
-  createResourceFetcher,
-  LiveItemsListControllerType,
-} from '@/components/items-list/LiveItemsList';
+import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -23,8 +19,10 @@ import DashboardListEmptyState from './DashboardListEmptyState';
 import './dashboard-list.css';
 
 class DashboardList extends React.Component {
+  static defaultOrderBy = '-created_at';
+
   static propTypes = {
-    controller: LiveItemsListControllerType.isRequired,
+    controller: ControllerType.isRequired,
   };
 
   static routes = [

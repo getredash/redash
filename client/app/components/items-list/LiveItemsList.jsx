@@ -5,11 +5,9 @@ import LivePaginator from '@/lib/pagination/live-paginator';
 import { $location, $route } from '@/services/ng';
 import { clientConfig } from '@/services/auth';
 
-export const ORDER_SEPARATOR = '-';
+const ORDER_BY_REVERSE = '-';
 
-export const DEFAULT_ORDER = '-created_at';
-
-export const LiveItemsListControllerType = PropTypes.shape({
+export const ControllerType = PropTypes.shape({
   currentPage: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
 
@@ -42,7 +40,7 @@ function prepareOrderByField(orderByField, orderByReverse) {
   if (isNil(orderByField)) {
     return null;
   }
-  return orderByReverse ? ORDER_SEPARATOR + orderByField : orderByField;
+  return orderByReverse ? ORDER_BY_REVERSE + orderByField : orderByField;
 }
 
 export function createResourceFetcher(getResource, processItem) {
@@ -56,7 +54,7 @@ export function createResourceFetcher(getResource, processItem) {
   };
 }
 
-export function liveItemsList(WrappedComponent) {
+export function wrap(WrappedComponent) {
   return class extends React.Component {
     static propTypes = {
       currentPage: PropTypes.string,
@@ -148,8 +146,8 @@ export function liveItemsList(WrappedComponent) {
     getParamsFromUrl() {
       const urlQueryParams = $location.search();
 
-      let orderByField = urlQueryParams.order || DEFAULT_ORDER;
-      const orderByReverse = orderByField.startsWith(ORDER_SEPARATOR);
+      let orderByField = urlQueryParams.order || WrappedComponent.defaultOrderBy;
+      const orderByReverse = orderByField.startsWith(ORDER_BY_REVERSE);
       if (orderByReverse) {
         orderByField = orderByField.substr(1);
       }

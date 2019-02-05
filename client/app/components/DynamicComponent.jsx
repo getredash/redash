@@ -24,10 +24,7 @@ export function unregisterComponent(alias) {
 export default class DynamicComponent extends React.Component {
   static propTypes = {
     is: PropTypes.string.isRequired,
-    children: PropTypes.oneOfType([
-      PropTypes.node,
-      PropTypes.arrayOf(PropTypes.node),
-    ]),
+    children: PropTypes.node,
   };
 
   static defaultProps = {

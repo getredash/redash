@@ -6,11 +6,7 @@ import classNames from 'classnames';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 
-import {
-  liveItemsList,
-  createResourceFetcher,
-  LiveItemsListControllerType,
-} from '@/components/items-list/LiveItemsList';
+import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
@@ -24,8 +20,10 @@ import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 class UsersList extends React.Component {
+  static defaultOrderBy = '-created_at';
+
   static propTypes = {
-    controller: LiveItemsListControllerType.isRequired,
+    controller: ControllerType.isRequired,
   };
 
   static routes = [
@@ -68,7 +66,6 @@ class UsersList extends React.Component {
       title: 'Name',
       field: 'name',
       width: null,
-      className: 'p-l-0',
     }),
     Columns.custom.sortable((text, user) => map(user.groups, group => (
       <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
@@ -93,7 +90,6 @@ class UsersList extends React.Component {
       }
       return null;
     }, {
-      className: 'p-r-0',
       isAvailable: () => currentUser.isAdmin,
     }),
   ];

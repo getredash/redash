@@ -6,11 +6,7 @@ import { Paginator } from '@/components/Paginator';
 import { QueryTagsControl } from '@/components/tags-control/QueryTagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
-import {
-  liveItemsList,
-  createResourceFetcher,
-  LiveItemsListControllerType,
-} from '@/components/items-list/LiveItemsList';
+import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -25,8 +21,10 @@ import QueriesListEmptyState from './QueriesListEmptyState';
 import './queries-list.css';
 
 class QueriesList extends React.Component {
+  static defaultOrderBy = '-created_at';
+
   static propTypes = {
-    controller: LiveItemsListControllerType.isRequired,
+    controller: ControllerType.isRequired,
   };
 
   static routes = [
