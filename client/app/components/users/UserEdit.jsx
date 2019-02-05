@@ -46,7 +46,7 @@ export class UserEdit extends React.Component {
     if (values.password === values.password_repeat) {
       this.onSaveUser(values, successCallback, errorCallback);
     } else {
-      errorCallback('Passwords don\'t match!');
+      errorCallback('Passwords don\'t match.');
     }
   }
 
@@ -148,7 +148,9 @@ export class UserEdit extends React.Component {
         >
           <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.onUpdatePassword} />
         </Modal>
-        <Button className="w-100 m-t-10" onClick={this.onClickChangePassword}>Change Password</Button>
+        <Button className="w-100 m-t-10" onClick={this.onClickChangePassword} data-test="ChangePassword">
+          Change Password
+        </Button>
       </Fragment>
     );
   }
