@@ -1,4 +1,4 @@
-import { isString, isNil, isFunction, map } from 'lodash';
+import { isString, isNil, isFunction, map, each } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -35,6 +35,9 @@ export const ControllerType = PropTypes.shape({
   pageSizeOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
   pageItems: PropTypes.array.isRequired,
   updatePagination: PropTypes.func.isRequired, // ({ page: number, itemsPerPage: number }) => void
+
+  // Additional actions. Each action will update controller when completed successfully; returns `Promise`
+  actions: PropTypes.objectOf(PropTypes.func).isRequired,
 });
 
 function prepareOrderByField(orderByField, orderByReverse) {
@@ -55,7 +58,7 @@ export function createResourceFetcher(getResource, processItem) {
   };
 }
 
-export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest }) {
+export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest, actions }) {
   class LiveItemsListWrapper extends React.Component {
     static propTypes = {
       currentPage: PropTypes.string,
@@ -112,6 +115,24 @@ export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest }
       this.state.update = () => {
         paginator.fetchPage(); // fetch data
       };
+
+      this.state.actions = {};
+      each(actions, (action, name) => {
+        if (isFunction(action)) {
+          this.state.actions[name] = (...args) => {
+            try {
+              // Wrap action's results as a promise (action may be sync/async) and update controller on success
+              return Promise.resolve(action(...args)).then((value) => {
+                this.state.update();
+                return value;
+              });
+            } catch (error) {
+              // Handle a sync actions errors
+              return Promise.reject(error);
+            }
+          };
+        }
+      });
     }
 
     componentDidMount() {

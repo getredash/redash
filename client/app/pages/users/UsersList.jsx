@@ -1,5 +1,6 @@
 import { map } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 
@@ -19,16 +20,35 @@ import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
-function createActionHandler(action, component) {
-  return (event, user) => {
-    event.preventDefault();
-    event.stopPropagation();
-    // User service will handle errors, no need to do it here
-    action(user).then(() => {
-      component.props.controller.update();
-    });
-  };
+function UsersListActions({ user, actions }) {
+  if (user.id === currentUser.id) {
+    return null;
+  }
+  const { enableUser, disableUser, deleteUser } = actions;
+  if (user.is_invitation_pending) {
+    return (
+      <button type="button" className="btn btn-default btn-block" onClick={event => deleteUser(event, user)}>Delete</button>
+    );
+  }
+  return user.is_disabled ? (
+    <button type="button" className="btn btn-primary btn-block" onClick={event => enableUser(event, user)}>Enable</button>
+  ) : (
+    <button type="button" className="btn btn-default btn-block" onClick={event => disableUser(event, user)}>Disable</button>
+  );
 }
+
+UsersListActions.propTypes = {
+  user: PropTypes.shape({
+    id: PropTypes.number,
+    is_invitation_pending: PropTypes.bool,
+    is_disabled: PropTypes.bool,
+  }).isRequired,
+  actions: PropTypes.shape({
+    enableUser: PropTypes.func,
+    disableUser: PropTypes.func,
+    deleteUser: PropTypes.func,
+  }).isRequired,
+};
 
 class UsersList extends React.Component {
   static propTypes = {
@@ -71,30 +91,10 @@ class UsersList extends React.Component {
     }),
     Columns.timeAgo.sortable({ title: 'Joined', field: 'created_at' }),
     Columns.timeAgo.sortable({ title: 'Last Active At', field: 'active_at' }),
-    Columns.custom((text, user) => {
-      if (user.id !== currentUser.id) {
-        if (user.is_invitation_pending) {
-          return (
-            <button type="button" className="btn btn-default btn-block" onClick={event => this.deleteUser(event, user)}>Delete</button>
-          );
-        }
-        return user.is_disabled ? (
-          <button type="button" className="btn btn-primary btn-block" onClick={event => this.enableUser(event, user)}>Enable</button>
-        ) : (
-          <button type="button" className="btn btn-default btn-block" onClick={event => this.disableUser(event, user)}>Disable</button>
-        );
-      }
-      return null;
-    }, {
+    Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
       isAvailable: () => currentUser.isAdmin,
     }),
   ];
-
-  enableUser = createActionHandler(User.enableUser, this);
-
-  disableUser = createActionHandler(User.disableUser, this);
-
-  deleteUser = createActionHandler(User.deleteUser, this);
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
@@ -216,6 +216,24 @@ export default function init(ngModule) {
       () => User.query.bind(User),
       item => new User(item),
     ),
+    actions: {
+      // `User` will become available later, so use wrappers
+      enableUser: (event, user) => {
+        event.preventDefault();
+        event.stopPropagation();
+        return User.enableUser(user);
+      },
+      disableUser: (event, user) => {
+        event.preventDefault();
+        event.stopPropagation();
+        return User.disableUser(user);
+      },
+      deleteUser: (event, user) => {
+        event.preventDefault();
+        event.stopPropagation();
+        return User.deleteUser(user);
+      },
+    },
   })));
 
   return routesToAngularRoutes([
