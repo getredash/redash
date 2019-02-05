@@ -16,6 +16,7 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
+from redash.utils.parameterized_query import ParameterizedQuery
 
 
 # Ordering map for relationships
@@ -411,8 +412,9 @@ class QueryRefreshResource(BaseResource):
         require_access(query.groups, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
+        parameterized_query = ParameterizedQuery(query.query_text)
 
-        return run_query(query.data_source, parameter_values, query.query_text, query.id)
+        return run_query(parameterized_query.apply(parameter_values), query.data_source, query.id)
 
 
 class QueryTagsResource(BaseResource):
