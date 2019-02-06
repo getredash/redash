@@ -39,7 +39,7 @@ jobs:
           name: Copy Test Results
           command: |
             mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
           path: /tmp/test-results
@@ -110,6 +110,10 @@ workflows:
       - backend-unit-tests
       - frontend-unit-tests
       - frontend-e2e-tests
+      - backend-unit-tests:
+           filters:
+             tags:
+               only: /v[0-9]+(\.[0-9\-a-z]+)*/
       - build-tarball:
            requires:
              - backend-unit-tests
