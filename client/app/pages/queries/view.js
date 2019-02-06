@@ -36,8 +36,13 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge, selectedQueryText);
+    if ($scope.isDirty) {
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+    } else {
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    }
   }
+
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -454,11 +459,10 @@ function QueryViewCtrl(
   const allowedIntervals = policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.updateQueryMetadata = changes =>
-    $scope.$apply(() => {
-      $scope.query = Object.assign($scope.query, changes);
-      $scope.saveQuery();
-    });
+  $scope.updateQueryMetadata = changes => $scope.$apply(() => {
+    $scope.query = Object.assign($scope.query, changes);
+    $scope.saveQuery();
+  });
   $scope.showScheduleForm = false;
   $scope.openScheduleForm = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {

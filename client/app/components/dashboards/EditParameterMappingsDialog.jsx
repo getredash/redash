@@ -1,7 +1,8 @@
 import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import Modal from 'antd/lib/modal';
+import ModalOpener from '@/hoc/ModalOpener';
 import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
@@ -10,17 +11,15 @@ import {
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    widget: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    close: PropTypes.func,
-    dismiss: PropTypes.func,
+    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    onClose: PropTypes.func,
+    onConfirm: PropTypes.func,
   };
 
   static defaultProps = {
-    dashboard: null,
-    widget: null,
-    close: () => {},
-    dismiss: () => {},
+    onClose: () => {},
+    onConfirm: () => {},
   };
 
   constructor(props) {
@@ -32,7 +31,12 @@ class EditParameterMappingsDialog extends React.Component {
         props.widget.query.getParametersDefs(),
         map(this.props.dashboard.getParametersDefs(), p => p.name),
       ),
+      showModal: true,
     };
+  }
+
+  close = () => {
+    this.setState({ showModal: false });
   }
 
   saveWidget() {
@@ -45,7 +49,8 @@ class EditParameterMappingsDialog extends React.Component {
     widget
       .save()
       .then(() => {
-        this.props.close();
+        this.props.onConfirm();
+        this.close();
       })
       .catch(() => {
         toastr.error('Widget cannot be updated');
@@ -60,76 +65,26 @@ class EditParameterMappingsDialog extends React.Component {
   }
 
   render() {
-    const existingParams = map(
-      this.props.dashboard.getParametersDefs(),
-      ({ name, type }) => ({ name, type }),
-    );
-
     return (
-      <div>
-        <div className="modal-header">
-          <button
-            type="button"
-            className="close"
-            disabled={this.state.saveInProgress}
-            aria-hidden="true"
-            onClick={this.props.dismiss}
-          >
-            &times;
-          </button>
-          <h4 className="modal-title">Parameters</h4>
-        </div>
-        <div className="modal-body">
-          {
-            (this.state.parameterMappings.length > 0) &&
-            <ParameterMappingListInput
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />
-          }
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-default"
-            disabled={this.state.saveInProgress}
-            onClick={this.props.dismiss}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={this.state.saveInProgress}
-            onClick={() => this.saveWidget()}
-          >
-            Save
-          </button>
-        </div>
-      </div>
+      <Modal
+        visible={this.state.showModal}
+        afterClose={this.props.onClose}
+        title="Parameters"
+        onOk={() => this.saveWidget()}
+        okButtonProps={{ loading: this.state.saveInProgress }}
+        onCancel={this.close}
+        width={700}
+      >
+        {(this.state.parameterMappings.length > 0) && (
+          <ParameterMappingListInput
+            mappings={this.state.parameterMappings}
+            existingParams={this.props.dashboard.getParametersDefs()}
+            onChange={mappings => this.updateParamMappings(mappings)}
+          />
+        )}
+      </Modal>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('editParameterMappingsDialog', {
-    template: `
-      <edit-parameter-mappings-dialog-impl
-        dashboard="$ctrl.resolve.dashboard"
-        widget="$ctrl.resolve.widget"
-        close="$ctrl.close"
-        dismiss="$ctrl.dismiss"
-      ></edit-parameter-mappings-dialog-impl>
-    `,
-    bindings: {
-      resolve: '<',
-      close: '&',
-      dismiss: '&',
-    },
-  });
-  ngModule.component('editParameterMappingsDialogImpl', react2angular(EditParameterMappingsDialog));
-}
-
-init.init = true;
+export default ModalOpener(EditParameterMappingsDialog);
