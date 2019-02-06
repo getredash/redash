@@ -71,7 +71,6 @@ class UserListResource(BaseResource):
         # provides an order by search rank
         return order_results(users, fallback=bool(search_term))
 
-
     @require_permission('list_users')
     def get(self):
         page = request.args.get('page', 1, type=int)
