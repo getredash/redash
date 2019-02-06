@@ -187,14 +187,12 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return cls.get_by_org(org).filter(cls.api_key == api_key).one()
 
     @classmethod
-    def all(cls, org, is_invitation_pending=None):
-        condition = True  # no filter
-        if is_invitation_pending is not None:
-            if is_invitation_pending:
-                condition = cls.is_invitation_pending.is_(True)  # pending
-            else:
-                condition = cls.is_invitation_pending.isnot(True)  # not pending (check for both `false`/`null`)
-        return cls.get_by_org(org).filter(cls.disabled_at.is_(None), condition)
+    def all(cls, org):
+        return cls.get_by_org(org).filter(cls.disabled_at.is_(None))
+
+    @classmethod
+    def all_disabled(cls, org):
+        return cls.get_by_org(org).filter(cls.disabled_at.isnot(None))
 
     @classmethod
     def search(cls, base_query, term):
@@ -204,8 +202,11 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return base_query.filter(search_filter)
 
     @classmethod
-    def all_disabled(cls, org):
-        return cls.get_by_org(org).filter(cls.disabled_at.isnot(None))
+    def pending(cls, base_query, pending):
+        if pending:
+            return base_query.filter(cls.is_invitation_pending.is_(True))
+        else:
+            return base_query.filter(cls.is_invitation_pending.isnot(True))  # check for both `false`/`null`
 
     @classmethod
     def find_by_email(cls, email):
