@@ -231,8 +231,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.form = {
         yAxisColumns: [],
-        seriesList: sortBy(keys(scope.options.seriesOptions), name =>
-          scope.options.seriesOptions[name].zIndex),
+        seriesList: sortBy(keys(scope.options.seriesOptions), name => scope.options.seriesOptions[name].zIndex),
         valuesList: keys(scope.options.valuesOptions),
       };
 
@@ -370,4 +369,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

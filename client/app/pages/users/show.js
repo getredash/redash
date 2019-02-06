@@ -1,5 +1,5 @@
 import { each } from 'lodash';
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import { absoluteUrl } from '@/services/utils';
 import template from './show.html';
 import './settings.less';
@@ -178,4 +178,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
