@@ -172,12 +172,9 @@ body {
   box-shadow: inset 3px 0px 0px @brand-primary;
 }
 
-.table.table-data {
-  > tbody > tr > td {
+.table-data {
+  tbody > tr > td {
     padding-top: 5px !important;
-  }
-
-  tr:hover {
     cursor: pointer;
   }
 
@@ -953,7 +950,7 @@ text.slicetext {
   }
 }
 
-.ui-select-choices-row > span {
+.ui-select-choices-row.disabled > span {
   background-color: inherit !important;
 }
 
