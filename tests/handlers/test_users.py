@@ -74,6 +74,22 @@ class TestUserListResourcePost(BaseTestCase):
 
 
 class TestUserListGet(BaseTestCase):
+    def create_filters_fixtures(self):
+        class PlainObject(object):
+            pass
+
+        result = PlainObject()
+        now = models.db.func.now()
+
+        result.enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None)
+        result.enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False)
+        result.enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True)
+        result.disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None)
+        result.disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False)
+        result.disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True)
+
+        return result
+
     def make_request_and_check_users(self, method, path, expected_users, unexpected_users, *args, **kwargs):
         rv = self.make_request(method, path, *args, **kwargs)
         user_ids = map(lambda u: u['id'], rv.json['results'])
@@ -90,55 +106,52 @@ class TestUserListGet(BaseTestCase):
 
         self.make_request_and_check_users('get', '/api/users', [user1, user2], [user3])
 
-    def test_returns_users_by_filter(self):
-        now = models.db.func.now()
-        user_enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None)
-        user_enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False)
-        user_enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True)
-        user_disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None)
-        user_disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False)
-        user_disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True)
-
-        # get all enabled
+    def test_gets_all_enabled(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users',
-            [user_enabled_active1, user_enabled_active2, user_enabled_pending],
-            [user_disabled_active1, user_disabled_active2, user_disabled_pending]
+            [users.enabled_active1, users.enabled_active2, users.enabled_pending],
+            [users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
-        # get all disabled
+    def test_gets_all_disabled(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users?disabled=true',
-            [user_disabled_active1, user_disabled_active2, user_disabled_pending],
-            [user_enabled_active1, user_enabled_active2, user_enabled_pending]
+            [users.disabled_active1, users.disabled_active2, users.disabled_pending],
+            [users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
 
-        # get all enabled and active
+    def test_gets_all_enabled_and_active(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users?pending=false',
-            [user_enabled_active1, user_enabled_active2],
-            [user_enabled_pending, user_disabled_active1, user_disabled_active2, user_disabled_pending]
+            [users.enabled_active1, users.enabled_active2],
+            [users.enabled_pending, users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
-        # get all enabled and pending
+    def test_gets_all_enabled_and_pending(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users?pending=true',
-            [user_enabled_pending],
-            [user_enabled_active1, user_enabled_active2, user_disabled_active1, user_disabled_active2, user_disabled_pending]
+            [users.enabled_pending],
+            [users.enabled_active1, users.enabled_active2, users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
-        # get all disabled and active
+    def test_gets_all_disabled_and_active(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users?disabled=true&pending=false',
-            [user_disabled_active1, user_disabled_active2],
-            [user_disabled_pending, user_enabled_active1, user_enabled_active2, user_enabled_pending]
+            [users.disabled_active1, users.disabled_active2],
+            [users.disabled_pending, users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
 
-        # get all disabled and pending
+    def test_gets_all_disabled_and_pending(self):
+        users = self.create_filters_fixtures()
         self.make_request_and_check_users(
             'get', '/api/users?disabled=true&pending=true',
-            [user_disabled_pending],
-            [user_disabled_active1, user_disabled_active2, user_enabled_active1, user_enabled_active2, user_enabled_pending]
+            [users.disabled_pending],
+            [users.disabled_active1, users.disabled_active2, users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
 
 
