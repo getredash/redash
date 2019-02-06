@@ -74,17 +74,72 @@ class TestUserListResourcePost(BaseTestCase):
 
 
 class TestUserListGet(BaseTestCase):
+    def make_request_and_check_users(self, method, path, expected_users, unexpected_users, *args, **kwargs):
+        rv = self.make_request(method, path, *args, **kwargs)
+        user_ids = map(lambda u: u['id'], rv.json['results'])
+        for user in expected_users:
+            self.assertIn(user.id, user_ids)
+        for user in unexpected_users:
+            self.assertNotIn(user.id, user_ids)
+
     def test_returns_users_for_given_org_only(self):
         user1 = self.factory.user
         user2 = self.factory.create_user()
         org = self.factory.create_org()
         user3 = self.factory.create_user(org=org)
 
-        rv = self.make_request('get', "/api/users")
-        user_ids = map(lambda u: u['id'], rv.json['results'])
-        self.assertIn(user1.id, user_ids)
-        self.assertIn(user2.id, user_ids)
-        self.assertNotIn(user3.id, user_ids)
+        self.make_request_and_check_users('get', '/api/users', [user1, user2], [user3])
+
+    def test_returns_users_by_filter(self):
+        now = models.db.func.now()
+        user_enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None)
+        user_enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False)
+        user_enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True)
+        user_disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None)
+        user_disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False)
+        user_disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True)
+
+        # get all enabled
+        self.make_request_and_check_users(
+            'get', '/api/users',
+            [user_enabled_active1, user_enabled_active2, user_enabled_pending],
+            [user_disabled_active1, user_disabled_active2, user_disabled_pending]
+        )
+
+        # get all disabled
+        self.make_request_and_check_users(
+            'get', '/api/users?disabled=true',
+            [user_disabled_active1, user_disabled_active2, user_disabled_pending],
+            [user_enabled_active1, user_enabled_active2, user_enabled_pending]
+        )
+
+        # get all enabled and active
+        self.make_request_and_check_users(
+            'get', '/api/users?pending=false',
+            [user_enabled_active1, user_enabled_active2],
+            [user_enabled_pending, user_disabled_active1, user_disabled_active2, user_disabled_pending]
+        )
+
+        # get all enabled and pending
+        self.make_request_and_check_users(
+            'get', '/api/users?pending=true',
+            [user_enabled_pending],
+            [user_enabled_active1, user_enabled_active2, user_disabled_active1, user_disabled_active2, user_disabled_pending]
+        )
+
+        # get all disabled and active
+        self.make_request_and_check_users(
+            'get', '/api/users?disabled=true&pending=false',
+            [user_disabled_active1, user_disabled_active2],
+            [user_disabled_pending, user_enabled_active1, user_enabled_active2, user_enabled_pending]
+        )
+
+        # get all disabled and pending
+        self.make_request_and_check_users(
+            'get', '/api/users?disabled=true&pending=true',
+            [user_disabled_pending],
+            [user_disabled_active1, user_disabled_active2, user_enabled_active1, user_enabled_active2, user_enabled_pending]
+        )
 
 
 class TestUserResourceGet(BaseTestCase):
