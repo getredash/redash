@@ -1,7 +1,9 @@
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;
 
-function DataSource($q, $resource, $http) {
+export let DataSource = null; // eslint-disable-line import/no-mutable-exports
+
+function DataSourceService($q, $resource, $http) {
   function fetchSchema(dataSourceId, refresh = false) {
     const params = {};
 
@@ -43,8 +45,11 @@ function DataSource($q, $resource, $http) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('DataSource', DataSource);
+  ngModule.factory('DataSource', DataSourceService);
+
+  ngModule.run(($injector) => {
+    DataSource = $injector.get('DataSource');
+  });
 }
 
 init.init = true;
-

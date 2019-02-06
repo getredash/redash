@@ -2,7 +2,6 @@ from redash import models
 from tests import BaseTestCase
 from mock import patch
 
-
 class TestUserListResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin(self):
         rv = self.make_request('post', "/api/users")
@@ -17,6 +16,9 @@ class TestUserListResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
         self.assertEqual(rv.status_code, 400)
 
+        rv = self.make_request('post', '/api/users', data={'name': 'User', 'email': 'bademailaddress'}, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
     def test_returns_400_when_using_temporary_email(self):
         admin = self.factory.create_admin()
 
@@ -27,7 +29,6 @@ class TestUserListResourcePost(BaseTestCase):
         test_user['email'] = 'arik@qq.com'
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
-
 
     def test_creates_user(self):
         admin = self.factory.create_admin()
@@ -194,6 +195,15 @@ class TestUserResourcePost(BaseTestCase):
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEquals(previous, current)
 
+    def test_admin_can_delete_user(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user(is_invitation_pending=True)
+
+        rv = self.make_request('delete', "/api/users/{}".format(other_user.id), user=admin_user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.User.query.get(other_user.id), None)
+
 
 class TestUserDisable(BaseTestCase):
     def test_non_admin_cannot_disable_user(self):
@@ -274,12 +284,12 @@ class TestUserDisable(BaseTestCase):
         self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = self.client.post('/login', data={'email': user.email, 'password': 'password'})
+            rv = self.post_request('/login', data={'email': user.email, 'password': 'password'}, org=self.factory.org)
             # login handler should not be called
             login_user_mock.assert_not_called()
-            # check for redirect back to login page
-            self.assertEquals(rv.status_code, 301)
-            self.assertIn('/login', rv.headers.get('Location', None))
+            # check if error is raised
+            self.assertEquals(rv.status_code, 200)
+            self.assertIn('Wrong email or password', rv.data)
 
     def test_disabled_user_should_not_access_api(self):
         # Note: some API does not require user, so check the one which requires
@@ -318,3 +328,47 @@ class TestUserDisable(BaseTestCase):
             rv = self.make_request('post', '/api/users/{}/reset_password'.format(user.id), user=admin_user)
             self.assertEqual(rv.status_code, 404)
             send_password_reset_email_mock.assert_not_called()
+
+
+class TestUserRegenerateApiKey(BaseTestCase):
+    def test_non_admin_cannot_regenerate_other_user_api_key(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+        orig_api_key = other_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        other_user = models.User.query.get(other_user.id)
+        self.assertNotEquals(orig_api_key, other_user.api_key)
+
+    def test_admin_can_regenerate_other_user_api_key(self):
+        user1 = self.factory.create_user()
+        user2 = self.factory.create_user()
+        orig_user2_api_key = user2.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user2.id), user=user1)
+        self.assertEqual(rv.status_code, 403)
+
+        user = models.User.query.get(user2.id)
+        self.assertEquals(orig_user2_api_key, user.api_key)
+
+    def test_admin_can_regenerate_api_key_myself(self):
+        admin_user = self.factory.create_admin()
+        orig_api_key = admin_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(admin_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(admin_user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)
+
+    def test_user_can_regenerate_api_key_myself(self):
+        user = self.factory.create_user()
+        orig_api_key = user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)

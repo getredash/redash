@@ -35,6 +35,10 @@ body {
   }
 }
 
+.word-wrap-break {
+  word-wrap: break-word;
+}
+
 .clearboth {
   clear: both;
 }
@@ -168,16 +172,13 @@ body {
   box-shadow: inset 3px 0px 0px @brand-primary;
 }
 
-.table.table-data {
-  > tbody > tr > td {
+.table-data {
+  tbody > tr > td {
     padding-top: 5px !important;
-  }
-
-  tr:hover {
     cursor: pointer;
   }
 
-  .btn-favourite {
+  .btn-favourite, .btn-archive {
     font-size: 15px;
   }
 }
@@ -190,7 +191,7 @@ body {
   }
 }
 
-.btn-favourite {
+.btn-favourite, .btn-archive {
   color: #d4d4d4;
   transition: all .25s ease-in-out;
 
@@ -203,7 +204,20 @@ body {
   }
 }
 
-.page-header--new .btn-favourite {
+.btn-archive {
+  color: #d4d4d4;
+  transition: all .25s ease-in-out;
+
+  &:hover, &:focus {
+    color: @gray-light;
+  }
+
+  .fa-archive {
+    color: @gray-light;
+  }
+}
+
+.page-header--new .btn-favourite, .page-header--new .btn-archive {
   font-size: 19px;
 }
 
@@ -239,7 +253,7 @@ body {
   }
 }
 
-.navbar li a .btn-favourite .fa {
+.navbar li a .btn-favourite .fa, .navbar li a .btn-archive .fa {
   font-size: 100%;
 }
 
@@ -366,7 +380,7 @@ body {
   padding: 20px;
 }
 
-page-header, .page-header--new {
+.page-header-wrapper, .page-header--new {
   h3 {
     margin: 0.2em 0;
     line-height: 1.3;
@@ -468,7 +482,7 @@ page-header, .page-header--new {
 .label-tag-archived,
 .label-tag {
   margin-right: 3px;
-  display: inline-block;
+  display: inline;
   margin-top: 2px;
   max-width: 24ch;
   .text-overflow();
@@ -706,6 +720,11 @@ page-header, .page-header--new {
   height: 20px;
 }
 
+.user_list__user--invitation-pending {
+    color: fade(@alert-danger-bg, 75%);
+    font-weight: 500;
+}
+
 .btn__new {
   margin-left: 15px;
 }
@@ -806,11 +825,9 @@ page-header, .page-header--new {
 // Forms
 .form-control {
   border-radius: @redash-input-radius;
-  color: #9E9E9E;
 
   &:focus {
     box-shadow: none !important;
-    color: #111;
     border-color: @blue;
   }
 
@@ -933,3 +950,17 @@ text.slicetext {
   }
 }
 
+.ui-select-choices-row.disabled > span {
+  background-color: inherit !important;
+}
+
+.list-group-item.inactive,
+.ui-select-choices-row.disabled {
+  background-color: #eee !important;
+  border-color: transparent;
+  opacity: 0.5;
+  box-shadow: none;
+  color: #333;
+  pointer-events: none;
+  cursor: not-allowed;
+}

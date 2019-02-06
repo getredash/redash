@@ -3,12 +3,12 @@ import debug from 'debug';
 import template from './show.html';
 
 const logger = debug('redash:http');
-const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
-function logAndToastrError(deleteObject, httpResponse, toastr) {
+export const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
+export function logAndToastrError(deleteObject, httpResponse, toastr) {
   logger('Failed to delete ' + deleteObject + ': ', httpResponse.status, httpResponse.statusText, httpResponse.data);
   toastr.error('Failed to delete ' + deleteObject + '.');
 }
-function toastrSuccessAndPath(deleteObject, deletePath, toastr, $location) {
+export function toastrSuccessAndPath(deleteObject, deletePath, toastr, $location) {
   toastr.success(deleteObject + ' deleted successfully.');
   $location.path('/' + deletePath + '/');
 }
@@ -81,9 +81,9 @@ function DataSourceCtrl(
   }
 
   $scope.actions = [
-    { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
+    { name: 'Delete', type: 'danger', callback: deleteDataSource },
     {
-      name: 'Test Connection', class: 'btn-default pull-right', callback: testConnection, disableWhenDirty: true,
+      name: 'Test Connection', pullRight: true, callback: testConnection, disableWhenDirty: true,
     },
   ];
 }
@@ -130,4 +130,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

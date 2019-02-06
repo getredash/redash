@@ -1,11 +1,13 @@
 import { isString } from 'lodash';
-import { $http } from '@/services/http';
+import { $http, $sanitize, toastr } from '@/services/ng';
+
+export let User = null; // eslint-disable-line import/no-mutable-exports
 
 function disableResource(user) {
   return `api/users/${user.id}/disable`;
 }
 
-function enableUser(user, toastr, $sanitize) {
+function enableUser(user) {
   const userName = $sanitize(user.name);
 
   return $http
@@ -25,7 +27,7 @@ function enableUser(user, toastr, $sanitize) {
     });
 }
 
-function disableUser(user, toastr, $sanitize) {
+function disableUser(user) {
   const userName = $sanitize(user.name);
   return $http
     .post(disableResource(user))
@@ -45,7 +47,25 @@ function disableUser(user, toastr, $sanitize) {
     });
 }
 
-function User($resource, $sanitize, toastr) {
+function deleteUser(user) {
+  const userName = $sanitize(user.name);
+  return $http
+    .delete(`api/users/${user.id}`)
+    .then((data) => {
+      toastr.warning(`User <b>${userName}</b> has been deleted.`, { allowHtml: true });
+      return data;
+    })
+    .catch((response) => {
+      const message =
+        response.data && response.data.message
+          ? response.data.message
+          : `Cannot delete user <b>${userName}</b><br>${response.statusText}`;
+
+      toastr.error(message, { allowHtml: true });
+    });
+}
+
+function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
     save: { method: 'POST' },
@@ -57,15 +77,19 @@ function User($resource, $sanitize, toastr) {
 
   const UserResource = $resource('api/users/:id', { id: '@id' }, actions);
 
-  UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
-  UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
+  UserResource.enableUser = enableUser;
+  UserResource.disableUser = disableUser;
+  UserResource.deleteUser = deleteUser;
 
   return UserResource;
 }
 
 export default function init(ngModule) {
-  ngModule.factory('User', User);
+  ngModule.factory('User', UserService);
+
+  ngModule.run(($injector) => {
+    User = $injector.get('User');
+  });
 }
 
 init.init = true;
-
