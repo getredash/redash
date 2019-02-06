@@ -81,22 +81,25 @@ class TestUserListGet(BaseTestCase):
         result = PlainObject()
         now = models.db.func.now()
 
-        result.enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None)
-        result.enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False)
-        result.enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True)
-        result.disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None)
-        result.disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False)
-        result.disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True)
+        result.enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None).id
+        result.enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False).id
+        result.enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True).id
+        result.disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None).id
+        result.disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False).id
+        result.disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True).id
 
         return result
 
-    def make_request_and_check_users(self, method, path, expected_users, unexpected_users, *args, **kwargs):
-        rv = self.make_request(method, path, *args, **kwargs)
-        user_ids = map(lambda u: u['id'], rv.json['results'])
-        for user in expected_users:
-            self.assertIn(user.id, user_ids)
-        for user in unexpected_users:
-            self.assertNotIn(user.id, user_ids)
+    def make_request_and_return_ids(self, *args, **kwargs):
+        rv = self.make_request(*args, **kwargs)
+        return map(lambda u: u['id'], rv.json['results'])
+
+    def assertUsersListMatches(self, actual_ids, expected_ids, unexpected_ids):
+        actual_ids = set(actual_ids)
+        expected_ids = set(expected_ids)
+        unexpected_ids = set(unexpected_ids)
+        self.assertSetEqual(actual_ids.intersection(expected_ids), expected_ids)
+        self.assertSetEqual(actual_ids.intersection(unexpected_ids), set())
 
     def test_returns_users_for_given_org_only(self):
         user1 = self.factory.user
@@ -104,52 +107,59 @@ class TestUserListGet(BaseTestCase):
         org = self.factory.create_org()
         user3 = self.factory.create_user(org=org)
 
-        self.make_request_and_check_users('get', '/api/users', [user1, user2], [user3])
+        user_ids = self.make_request_and_return_ids('get', '/api/users')
+        self.assertUsersListMatches(user_ids, [user1.id, user2.id], [user3.id])
 
     def test_gets_all_enabled(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users',
+        user_ids = self.make_request_and_return_ids('get', '/api/users')
+        self.assertUsersListMatches(
+            user_ids,
             [users.enabled_active1, users.enabled_active2, users.enabled_pending],
             [users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
     def test_gets_all_disabled(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users?disabled=true',
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true')
+        self.assertUsersListMatches(
+            user_ids,
             [users.disabled_active1, users.disabled_active2, users.disabled_pending],
             [users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
 
     def test_gets_all_enabled_and_active(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users?pending=false',
+        user_ids = self.make_request_and_return_ids('get', '/api/users?pending=false')
+        self.assertUsersListMatches(
+            user_ids,
             [users.enabled_active1, users.enabled_active2],
             [users.enabled_pending, users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
     def test_gets_all_enabled_and_pending(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users?pending=true',
+        user_ids = self.make_request_and_return_ids('get', '/api/users?pending=true')
+        self.assertUsersListMatches(
+            user_ids,
             [users.enabled_pending],
             [users.enabled_active1, users.enabled_active2, users.disabled_active1, users.disabled_active2, users.disabled_pending]
         )
 
     def test_gets_all_disabled_and_active(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users?disabled=true&pending=false',
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true&pending=false')
+        self.assertUsersListMatches(
+            user_ids,
             [users.disabled_active1, users.disabled_active2],
             [users.disabled_pending, users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
 
     def test_gets_all_disabled_and_pending(self):
         users = self.create_filters_fixtures()
-        self.make_request_and_check_users(
-            'get', '/api/users?disabled=true&pending=true',
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true&pending=true')
+        self.assertUsersListMatches(
+            user_ids,
             [users.disabled_pending],
             [users.disabled_active1, users.disabled_active2, users.enabled_active1, users.enabled_active2, users.enabled_pending]
         )
