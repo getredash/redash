@@ -192,9 +192,9 @@ class QueryResultResource(BaseResource):
                                query.options.get("parameters", []))
 
         parameterized_query = ParameterizedQuery(query.query_text, parameter_schema)
-        needs_execution_privileges = not parameterized_query.is_safe
+        allow_executing_with_view_only_permissions = parameterized_query.is_safe
 
-        if has_access(query.data_source.groups, self.current_user, needs_execution_privileges):
+        if has_access(query.data_source.groups, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(parameterized_query.apply(parameters), query.data_source, query_id, max_age)
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
