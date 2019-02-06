@@ -70,7 +70,7 @@ class UsersList extends React.Component {
       key: 'disabled',
       href: 'users/disabled',
       title: 'Disabled Users',
-      isAvailable: () => policy.isCreateUserEnabled(),
+      isAvailable: () => policy.canCreateUser(),
     },
   ];
 
@@ -108,7 +108,7 @@ class UsersList extends React.Component {
     }),
     Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
       width: '1%',
-      isAvailable: () => policy.isCreateUserEnabled(),
+      isAvailable: () => policy.canCreateUser(),
     }),
   ];
 
@@ -116,7 +116,7 @@ class UsersList extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
-    if (!policy.isCreateUserEnabled()) {
+    if (!policy.canCreateUser()) {
       return null;
     }
     return (
