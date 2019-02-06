@@ -12,6 +12,7 @@
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "lint": "eslint --config ./client/.eslintrc.js --ext .js --ext .jsx ./client/app",
+    "lint-staged": "eslint --config ./client/.eslintrc.js",
     "test": "TZ=Asia/Jerusalem jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3",
@@ -118,6 +119,7 @@
     "less": "^2.7.3",
     "less-loader": "^4.1.0",
     "less-plugin-autoprefix": "^1.5.1",
+    "lint-staged": "^8.1.3",
     "mini-css-extract-plugin": "^0.4.4",
     "mockdate": "^2.0.2",
     "raw-loader": "^0.5.1",
@@ -152,7 +154,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "echo 'running lint...' && npm run lint && echo 'running tests...' && npm run test"
+      "pre-commit": "lint-staged",
+      "pre-push": "echo 'running tests...' && npm run test"
     }
+  },
+  "lint-staged": {
+    "client/app/**/*.{js,jsx}": ["npm run lint-staged", "git add"]
   }
 }
