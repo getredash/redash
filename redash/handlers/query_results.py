@@ -84,7 +84,10 @@ def run_query(parameterized_query, data_source, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(parameterized_query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(parameterized_query.text, data_source, current_user.id, metadata={
+            "Username": current_user.email,
+            "Query ID": query_id
+        })
         return {'job': job.to_dict()}
 
 
