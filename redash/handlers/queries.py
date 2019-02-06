@@ -414,7 +414,7 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text)
 
-        return run_query(parameterized_query.apply(parameter_values), query.data_source, query.id)
+        return run_query(parameterized_query, parameter_values, query.data_source, query.id)
 
 
 class QueryTagsResource(BaseResource):
