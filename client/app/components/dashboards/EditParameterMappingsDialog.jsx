@@ -2,7 +2,7 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
-import ModalOpener from '@/hoc/ModalOpener';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
@@ -13,13 +13,7 @@ class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    onClose: PropTypes.func,
-    onConfirm: PropTypes.func,
-  };
-
-  static defaultProps = {
-    onClose: () => {},
-    onConfirm: () => {},
+    dialog: DialogPropType.isRequired,
   };
 
   constructor(props) {
@@ -31,12 +25,7 @@ class EditParameterMappingsDialog extends React.Component {
         props.widget.query.getParametersDefs(),
         map(this.props.dashboard.getParametersDefs(), p => p.name),
       ),
-      showModal: true,
     };
-  }
-
-  close = () => {
-    this.setState({ showModal: false });
   }
 
   saveWidget() {
@@ -49,8 +38,7 @@ class EditParameterMappingsDialog extends React.Component {
     widget
       .save()
       .then(() => {
-        this.props.onConfirm();
-        this.close();
+        this.props.dialog.close();
       })
       .catch(() => {
         toastr.error('Widget cannot be updated');
@@ -65,14 +53,13 @@ class EditParameterMappingsDialog extends React.Component {
   }
 
   render() {
+    const { dialog } = this.props;
     return (
       <Modal
-        visible={this.state.showModal}
-        afterClose={this.props.onClose}
+        {...dialog.props}
         title="Parameters"
         onOk={() => this.saveWidget()}
         okButtonProps={{ loading: this.state.saveInProgress }}
-        onCancel={this.close}
         width={700}
       >
         {(this.state.parameterMappings.length > 0) && (
@@ -87,4 +74,4 @@ class EditParameterMappingsDialog extends React.Component {
   }
 }
 
-export default ModalOpener(EditParameterMappingsDialog);
+export default wrapDialog(EditParameterMappingsDialog);

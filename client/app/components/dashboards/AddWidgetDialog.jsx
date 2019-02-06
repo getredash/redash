@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
-import ModalOpener from '@/hoc/ModalOpener';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
@@ -21,13 +21,7 @@ const { Option, OptGroup } = Select;
 class AddWidgetDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    onClose: PropTypes.func,
-    onConfirm: PropTypes.func,
-  };
-
-  static defaultProps = {
-    onClose: () => {},
-    onConfirm: () => {},
+    dialog: DialogPropType.isRequired,
   };
 
   constructor(props) {
@@ -40,14 +34,12 @@ class AddWidgetDialog extends React.Component {
       searchedQueries: [],
       selectedVis: null,
       parameterMappings: [],
-      showModal: false, // show only after recent queries populated to avoid height "jump"
     };
 
     // Don't show draft (unpublished) queries in recent queries.
     Query.recent().$promise.then((items) => {
       this.setState({
         recentQueries: items.filter(item => !item.is_draft),
-        showModal: true,
       });
     });
 
@@ -57,10 +49,6 @@ class AddWidgetDialog extends React.Component {
       this.setState({ searchTerm });
       searchQueries(searchTerm);
     };
-  }
-
-  close = () => {
-    this.setState({ showModal: false });
   }
 
   selectQuery(queryId) {
@@ -149,8 +137,7 @@ class AddWidgetDialog extends React.Component {
       .save()
       .then(() => {
         dashboard.widgets.push(widget);
-        this.props.onConfirm();
-        this.close();
+        this.props.dialog.close();
       })
       .catch(() => {
         toastr.error('Widget can not be added');
@@ -295,11 +282,11 @@ class AddWidgetDialog extends React.Component {
       this.props.dashboard.getParametersDefs(),
       ({ name, type }) => ({ name, type }),
     );
+    const { dialog } = this.props;
 
     return (
       <Modal
-        visible={this.state.showModal}
-        afterClose={this.props.onClose}
+        {...dialog.props}
         title="Add Widget"
         onOk={() => this.saveWidget()}
         okButtonProps={{
@@ -307,7 +294,6 @@ class AddWidgetDialog extends React.Component {
           disabled: !this.state.selectedQuery,
         }}
         okText="Add to Dashboard"
-        onCancel={this.close}
         width={700}
       >
         {this.renderQueryInput()}
@@ -331,4 +317,4 @@ class AddWidgetDialog extends React.Component {
   }
 }
 
-export default ModalOpener(AddWidgetDialog);
+export default wrapDialog(AddWidgetDialog);
