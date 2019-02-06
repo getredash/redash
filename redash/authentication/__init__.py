@@ -245,9 +245,7 @@ def init_app(app):
     login_manager.anonymous_user = models.AnonymousUser
 
     app.secret_key = settings.COOKIE_SECRET
-    if settings.ENFORCE_HTTPS:
-        app.config.update(REMEMBER_COOKIE_SECURE=True, REMEMBER_COOKIE_HTTPONLY=True)
-
+    app.config.update(REMEMBER_COOKIE_SECURE=settings.USE_SECURE_COOKIES, REMEMBER_COOKIE_HTTPONLY=True)
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
     app.register_blueprint(remote_user_auth.blueprint)
