@@ -91,6 +91,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -295,30 +296,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -380,7 +386,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           className=""
           clearIcon={
             <Icon
-              className="ant-time-picker-panel-clear-btn-icon"
+              className="ant-time-picker-clear"
               theme="filled"
               type="close-circle"
             />
@@ -402,7 +408,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
               />
             </span>
@@ -531,7 +536,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                 allowEmpty={false}
                 clearIcon={
                   <Icon
-                    className="ant-time-picker-panel-clear-btn-icon"
+                    className="ant-time-picker-clear"
                     theme="filled"
                     type="close-circle"
                   />
@@ -548,7 +553,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                 minuteStep={5}
                 onAmPmChange={[Function]}
                 onChange={[Function]}
-                onClear={[Function]}
                 onEsc={[Function]}
                 onKeyDown={[Function]}
                 placeholder="Select time"
@@ -602,37 +606,41 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               >
                 <Icon
                   className="ant-time-picker-clock-icon"
-                  theme="outlined"
                   type="clock-circle"
                 >
-                  <i
-                    className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="clock-circle-o"
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="clock-circle"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-clock-circle"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="clock-circle-o"
                       >
-                        <path
-                          d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                          key="svg-clock-circle-svg-0"
-                        />
-                        <path
-                          d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                          key="svg-clock-circle-svg-1"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </span>
@@ -743,6 +751,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -947,30 +956,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -1073,6 +1087,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -1277,30 +1292,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -1362,7 +1382,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           className=""
           clearIcon={
             <Icon
-              className="ant-time-picker-panel-clear-btn-icon"
+              className="ant-time-picker-clear"
               theme="filled"
               type="close-circle"
             />
@@ -1384,7 +1404,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
               />
             </span>
@@ -1513,7 +1532,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 allowEmpty={false}
                 clearIcon={
                   <Icon
-                    className="ant-time-picker-panel-clear-btn-icon"
+                    className="ant-time-picker-clear"
                     theme="filled"
                     type="close-circle"
                   />
@@ -1530,7 +1549,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 minuteStep={5}
                 onAmPmChange={[Function]}
                 onChange={[Function]}
-                onClear={[Function]}
                 onEsc={[Function]}
                 onKeyDown={[Function]}
                 placeholder="Select time"
@@ -1584,37 +1602,41 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               >
                 <Icon
                   className="ant-time-picker-clock-icon"
-                  theme="outlined"
                   type="clock-circle"
                 >
-                  <i
-                    className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="clock-circle-o"
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="clock-circle"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-clock-circle"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="clock-circle-o"
                       >
-                        <path
-                          d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                          key="svg-clock-circle-svg-0"
-                        />
-                        <path
-                          d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                          key="svg-clock-circle-svg-1"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </span>
@@ -1657,7 +1679,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sun"
@@ -1712,7 +1733,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={true}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Mon"
@@ -1767,7 +1787,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Tue"
@@ -1822,7 +1841,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Wed"
@@ -1877,7 +1895,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Thu"
@@ -1932,7 +1949,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Fri"
@@ -1987,7 +2003,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sat"
@@ -2129,6 +2144,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2333,30 +2349,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -2457,6 +2478,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2635,30 +2657,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -2720,7 +2747,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
           className=""
           clearIcon={
             <Icon
-              className="ant-time-picker-panel-clear-btn-icon"
+              className="ant-time-picker-clear"
               theme="filled"
               type="close-circle"
             />
@@ -2742,7 +2769,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
               />
             </span>
@@ -2871,7 +2897,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                 allowEmpty={false}
                 clearIcon={
                   <Icon
-                    className="ant-time-picker-panel-clear-btn-icon"
+                    className="ant-time-picker-clear"
                     theme="filled"
                     type="close-circle"
                   />
@@ -2888,7 +2914,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                 minuteStep={5}
                 onAmPmChange={[Function]}
                 onChange={[Function]}
-                onClear={[Function]}
                 onEsc={[Function]}
                 onKeyDown={[Function]}
                 placeholder="Select time"
@@ -2942,37 +2967,41 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
               >
                 <Icon
                   className="ant-time-picker-clock-icon"
-                  theme="outlined"
                   type="clock-circle"
                 >
-                  <i
-                    className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="clock-circle-o"
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="clock-circle"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-clock-circle"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="clock-circle-o"
                       >
-                        <path
-                          d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                          key="svg-clock-circle-svg-0"
-                        />
-                        <path
-                          d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                          key="svg-clock-circle-svg-1"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </span>
@@ -3483,30 +3512,35 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                   className="ant-calendar-picker-icon"
                   type="calendar"
                 >
-                  <i
-                    className="anticon anticon-calendar ant-calendar-picker-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="calendar-o"
+                    <i
+                      aria-label="icon: calendar"
+                      className="anticon anticon-calendar ant-calendar-picker-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="calendar"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-calendar"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="calendar-o"
                       >
-                        <path
-                          d="M880 184H712v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H384v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H144c-17.7 0-32 14.3-32 32v664c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V216c0-17.7-14.3-32-32-32zm-40 656H184V460h656v380zM184 392V256h128v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h256v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h128v136H184z"
-                          key="svg-calendar-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="calendar"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-calendar"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M880 184H712v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H384v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H144c-17.7 0-32 14.3-32 32v664c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V216c0-17.7-14.3-32-32-32zm-40 656H184V460h656v380zM184 392V256h128v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h256v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h128v136H184z"
+                            key="svg-calendar-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </div>
             </Trigger>
