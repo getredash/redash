@@ -372,10 +372,15 @@ class EditMapping extends React.Component {
 
 class Title extends React.Component {
   static propTypes = {
+    existingParams: PropTypes.arrayOf(PropTypes.object),
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     onChange: PropTypes.func.isRequired,
     getContainerElement: PropTypes.func.isRequired,
-  };
+  }
+
+  static defaultProps = {
+    existingParams: [],
+  }
 
   state = {
     showPopup: false,
@@ -426,15 +431,26 @@ class Title extends React.Component {
     }
 
     // should not be the dashboard source
-    if (IS_DASHBOARD_PARAM_SOURCE in mapping.param) {
-      return false;
-    }
-
-    return true;
+    return !mapping.param[IS_DASHBOARD_PARAM_SOURCE];
   }
 
   get isTypeStatic() {
     return this.props.mapping.type === MappingType.StaticValue;
+  }
+
+  get titleValue() {
+    let { mapping } = this.props;
+    const { existingParams } = this.props;
+
+    // if mapped to dashboard, find source param and return it's title
+    if (this.isTypeMappedToOther) {
+      const source = find(existingParams, { name: mapping.mapTo });
+      if (source) {
+        mapping = source;
+      }
+    }
+
+    return mapping.title || mapping.param.title;
   }
 
   save = () => {
@@ -494,13 +510,12 @@ class Title extends React.Component {
   }
 
   render() {
-    const { mapping, mapping: { param } } = this.props;
+    // static value and mapped types are non-editable hence disabled
     const disabled = this.isTypeMappedToOther || this.isTypeStatic;
-    const title = this.isTypeMappedToOther ? param.title : (mapping.title || param.title);
 
     return (
       <div className={classNames('title', { disabled })}>
-        <span className="text">{title}</span>
+        <span className="text">{this.titleValue}</span>
         {disabled ? this.renderTooltip() : this.renderEditButton()}
       </div>
     );
@@ -510,10 +525,7 @@ class Title extends React.Component {
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
     mappings: PropTypes.arrayOf(PropTypes.object),
-    existingParams: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string,
-      type: PropTypes.string,
-    })),
+    existingParams: PropTypes.arrayOf(PropTypes.object),
     onChange: PropTypes.func,
     clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -621,6 +633,7 @@ export class ParameterMappingListInput extends React.Component {
             key="title"
             render={mapping => (
               <Title
+                existingParams={existingParams}
                 mapping={mapping}
                 onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
                 getContainerElement={() => this.wrapperRef.current}
