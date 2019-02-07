@@ -492,13 +492,12 @@ class Title extends React.Component {
 
   render() {
     const { title, param } = this.props.mapping;
-    const disabled = this.isTypeStatic;
-    const editable = !this.isTypeMappedToOther && !disabled;
+    const disabled = this.isTypeMappedToOther || this.isTypeStatic;
 
     return (
       <div className={classNames('title', { disabled })}>
         <span className="text">{title || param.title}</span>
-        {editable ? this.renderEditButton() : this.renderTooltip()}
+        {disabled ? this.renderTooltip() : this.renderEditButton()}
       </div>
     );
   }
