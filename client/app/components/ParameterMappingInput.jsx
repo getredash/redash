@@ -404,6 +404,7 @@ class Title extends React.Component {
           placeholder={paramTitle}
           onChange={this.onTitleChange}
           onPressEnter={this.save}
+          maxLength={100}
           autoFocus
         />
         <Button size="small" type="dashed" onClick={this.hide}>
