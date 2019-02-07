@@ -154,11 +154,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "echo 'running tests...' && npm run test"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
-    "client/app/**/*.{js,jsx}": "npm run lint:base"
+    "client/app/**/*.{js,jsx}": [
+      "npm run lint:base",
+      "npm run test -- --bail --findRelatedTests"
+    ]
   }
 }
