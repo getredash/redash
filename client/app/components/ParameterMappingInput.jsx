@@ -484,6 +484,7 @@ class Title extends React.Component {
 
     return (
       <Tooltip
+        placement="right"
         title={content}
         getPopupContainer={this.props.getContainerElement}
       >
