@@ -17,6 +17,7 @@ import Tooltip from 'antd/lib/tooltip';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { Parameter } from '@/services/query';
+import { IS_DASHBOARD_PARAM_SOURCE } from '@/services/dashboard';
 
 import './ParameterMappingInput.less';
 
@@ -418,13 +419,13 @@ class Title extends React.Component {
   get isTypeMappedToOther() {
     const { mapping } = this.props;
 
-    // not right type
+    // should be type dashboard
     if (mapping.type !== MappingType.DashboardMapToExisting) {
       return false;
     }
 
-    // not mapped to other param
-    if (mapping.mapTo === mapping.name) {
+    // should not be the dashboard source
+    if (IS_DASHBOARD_PARAM_SOURCE in mapping.param) {
       return false;
     }
 
@@ -491,12 +492,13 @@ class Title extends React.Component {
   }
 
   render() {
-    const { title, param } = this.props.mapping;
+    const { mapping, mapping: { param } } = this.props;
     const disabled = this.isTypeMappedToOther || this.isTypeStatic;
+    const title = this.isTypeMappedToOther ? param.title : (mapping.title || param.title);
 
     return (
       <div className={classNames('title', { disabled })}>
-        <span className="text">{title || param.title}</span>
+        <span className="text">{title}</span>
         {disabled ? this.renderTooltip() : this.renderEditButton()}
       </div>
     );

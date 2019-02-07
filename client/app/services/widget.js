@@ -149,6 +149,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
     }
 
     save() {
+      console.log('here', this);
       const data = pick(this, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
 
       let url = 'api/widgets';
