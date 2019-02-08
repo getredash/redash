@@ -22,36 +22,15 @@ export class UserEdit extends React.Component {
     super(props);
     this.state = {
       user: this.props.user,
-      changingPassword: false,
+      passwordModalIsOpen: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
+      togglingUser: false,
     };
-  }
-
-  onSaveUser = (values, successCallback, errorCallback) => {
-    const data = {
-      id: this.props.user.id,
-      ...values,
-    };
-
-    User.save(data, (user) => {
-      successCallback('Saved.');
-      this.setState({ user: User.convertUserInfo(user) });
-    }, (error) => {
-      errorCallback(error.data.message || 'Failed saving.');
-    });
-  };
-
-  onUpdatePassword = (values, successCallback, errorCallback) => {
-    if (values.password === values.password_repeat) {
-      this.onSaveUser(values, successCallback, errorCallback);
-    } else {
-      errorCallback('Passwords don\'t match.');
-    }
   }
 
   onClickChangePassword = () => {
-    this.setState({ changingPassword: true });
+    this.setState({ passwordModalIsOpen: true });
   };
 
   onClickSendPasswordReset = () => {
@@ -75,7 +54,8 @@ export class UserEdit extends React.Component {
   onClickRegenerateApiKey = () => {
     const doRegenerate = () => {
       User.regenerateApiKey(this.state.user).then((apiKey) => {
-        this.setState(prevState => ({ user: { ...prevState.user, apiKey } }));
+        const { user } = this.state;
+        this.setState({ user: { ...user, apiKey } });
       });
     };
 
@@ -101,6 +81,28 @@ export class UserEdit extends React.Component {
     });
   };
 
+  saveUser = (values, successCallback, errorCallback) => {
+    const data = {
+      id: this.props.user.id,
+      ...values,
+    };
+
+    User.save(data, (user) => {
+      successCallback('Saved.');
+      this.setState({ user: User.convertUserInfo(user) });
+    }, (error = {}) => {
+      errorCallback(error.data && error.data.message || 'Failed saving.');
+    });
+  };
+
+  updatePassword = (values, successCallback, errorCallback) => {
+    if (values.password === values.password_repeat) {
+      this.saveUser(values, successCallback, errorCallback);
+    } else {
+      errorCallback('Passwords don\'t match.');
+    }
+  }
+
   renderBasicInfoForm() {
     const { user } = this.state;
     const formFields = [
@@ -124,7 +126,7 @@ export class UserEdit extends React.Component {
       <DynamicForm
         fields={formFields}
         readOnly={user.isDisabled}
-        onSubmit={this.onSaveUser}
+        onSubmit={this.saveUser}
       />
     );
   }
@@ -140,13 +142,13 @@ export class UserEdit extends React.Component {
       <Fragment>
         <hr />
         <Modal
-          visible={this.state.changingPassword}
+          visible={this.state.passwordModalIsOpen}
           title="Change Password"
-          onCancel={() => { this.setState({ changingPassword: false }); }}
+          onCancel={() => { this.setState({ passwordModalIsOpen: false }); }}
           footer={null}
           destroyOnClose
         >
-          <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.onUpdatePassword} />
+          <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.updatePassword} />
         </Modal>
         <Button className="w-100 m-t-10" onClick={this.onClickChangePassword} data-test="ChangePassword">
           Change Password

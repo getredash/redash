@@ -7,20 +7,19 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
+import { includes } from 'lodash';
 import { react2angular } from 'react2angular';
 import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
-const fieldRules = ({ title, name, type, required, minLength }) => {
-  const fieldLabel = title || helper.toHuman(name);
-
+const fieldRules = ({ type, required, minLength }) => {
   const requiredRule = required;
-  const minLengthRule = minLength && ['text', 'email', 'password'].includes(type);
+  const minLengthRule = minLength && includes(['text', 'email', 'password'], type);
 
   return [
-    requiredRule && { required, message: `${fieldLabel} is required.` },
-    minLengthRule && { min: minLength, message: `${fieldLabel} is too short.` },
+    requiredRule && { required, message: 'This field is required.' },
+    minLengthRule && { min: minLength, message: 'This field is too short.' },
   ].filter(rule => rule);
 };
 
