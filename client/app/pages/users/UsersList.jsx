@@ -27,13 +27,13 @@ function UsersListActions({ user, actions }) {
   const { enableUser, disableUser, deleteUser } = actions;
   if (user.is_invitation_pending) {
     return (
-      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)} htmlType="button">Delete</Button>
+      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
     );
   }
   return user.is_disabled ? (
-    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)} htmlType="button">Enable</Button>
+    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>Enable</Button>
   ) : (
-    <Button className="w-100" onClick={event => disableUser(event, user)} htmlType="button">Disable</Button>
+    <Button className="w-100" onClick={event => disableUser(event, user)}>Disable</Button>
   );
 }
 
@@ -121,7 +121,7 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new" htmlType="button">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
