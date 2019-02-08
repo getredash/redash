@@ -100,6 +100,9 @@ import ReactDOM from 'react-dom';
 
     DialogWrapper.Promise = Promise;
 
+  It could be useful to avoid `unhandledrejection` exception that would fire with native Promises,
+  or when some custom Promise library is used in application.
+
 */
 
 export const DialogPropType = PropTypes.shape({
