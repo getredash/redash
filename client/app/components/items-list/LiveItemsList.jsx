@@ -1,4 +1,4 @@
-import { isString, isNil, isFunction, map, each } from 'lodash';
+import { isString, isNil, isFunction, map, each, debounce } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import hoistNonReactStatics from 'hoist-non-react-statics';
@@ -90,7 +90,7 @@ export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest, 
         paginator.orderBy(orderByField); // fetch data
         savedOrderByField = paginator.orderByField;
       };
-      this.state.updateSearch = (searchTerm) => {
+      this.state.updateSearch = debounce((searchTerm) => {
         // here we update state directly, but later `fetchData` will update it properly
         this.state.searchTerm = searchTerm;
         // in search mode ignore the ordering and use the ranking order
@@ -102,7 +102,7 @@ export function wrap(WrappedComponent, { defaultOrderBy, getRequest, doRequest, 
           paginator.orderByField = null;
         }
         paginator.setPage(1); // fetch data
-      };
+      }, 200);
       this.state.updateSelectedTags = (selectedTags) => {
         // here we update state directly, but later `fetchData` will update it properly
         this.state.selectedTags = selectedTags;
