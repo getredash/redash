@@ -3,7 +3,7 @@ import Paginator from './Paginator';
 import Sorter from './Sorter';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 
-class BasicItemsSource {
+class ItemsSource {
   onBeforeUpdate = null;
 
   onAfterUpdate = null;
@@ -152,7 +152,7 @@ class BasicItemsSource {
   }
 }
 
-export class PlainItemsSource extends BasicItemsSource {
+export class PlainItemsSource extends ItemsSource {
   _items = [];
 
   // eslint-disable-next-line class-methods-use-this
@@ -182,9 +182,6 @@ export class PlainItemsSource extends BasicItemsSource {
       this.update();
     }
   }
-}
-
-export class ItemsSource extends BasicItemsSource {
 }
 
 export class ResourceItemsSource extends PlainItemsSource {
