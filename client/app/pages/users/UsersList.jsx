@@ -2,8 +2,8 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import classNames from 'classnames';
 
+import Button from 'antd/lib/button';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 
@@ -29,13 +29,13 @@ function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   }
   if (user.is_invitation_pending) {
     return (
-      <button type="button" className="btn btn-default btn-block" onClick={event => deleteUser(event, user)}>Delete</button>
+      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
     );
   }
   return user.is_disabled ? (
-    <button type="button" className="btn btn-primary btn-block" onClick={event => enableUser(event, user)}>Enable</button>
+    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>Enable</Button>
   ) : (
-    <button type="button" className="btn btn-default btn-block" onClick={event => disableUser(event, user)}>Disable</button>
+    <Button className="w-100" onClick={event => disableUser(event, user)}>Disable</Button>
   );
 }
 
@@ -151,14 +151,11 @@ class UsersList extends React.Component {
       return null;
     }
     return (
-      <div className="m-b-10">
-        <a
-          href="users/new"
-          className={classNames('btn', 'btn-default', 'm-b-10', { disabled: !policy.isCreateUserEnabled() })}
-        >
+      <div className="m-b-15">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
           <i className="fa fa-plus m-r-5" />
           New User
-        </a>
+        </Button>
         <DynamicComponent name="UsersListExtra" />
       </div>
     );
