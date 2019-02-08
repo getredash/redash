@@ -268,7 +268,7 @@ export class UserEdit extends React.Component {
             )}
           </Fragment>
         )}
-        {currentUser.isAdmin && this.renderToggleUser()}
+        {currentUser.isAdmin && user.id !== currentUser.id && this.renderToggleUser()}
       </div>
     );
   }
