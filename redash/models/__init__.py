@@ -7,6 +7,7 @@ import time
 import pytz
 
 import xlsxwriter
+from operator import itemgetter
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
@@ -66,7 +67,7 @@ scheduled_queries_executions = ScheduledQueriesExecutions()
 
 
 @python_2_unicode_compatible
-class TableMetadata(db.Model):
+class TableMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
     table_exists = Column(db.Boolean, default=True)
@@ -92,7 +93,7 @@ class TableMetadata(db.Model):
         }
 
 @python_2_unicode_compatible
-class ColumnMetadata(db.Model):
+class ColumnMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     table_id = Column(db.Integer, db.ForeignKey("table_metadata.id"))
     column_name = Column(db.String(255))
@@ -191,7 +192,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def delete(self):
         # Delete the relevant metadata about a data source first.
         tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).options(load_only('id'))
-        ColumnMetadata.query.filter(ColumnMetadata.table_id.in_(tables.subquery())).delete(synchronize_session=False)
+        ColumnMetadata.query.filter(
+            ColumnMetadata.table_id.in_(tables.subquery())
+        ).delete(synchronize_session=False)
+
         tables.delete()
 
         Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
@@ -202,24 +206,24 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     def get_schema(self, refresh=False):
         schema = []
-        tables = db.session.query(TableMetadata).filter(TableMetadata.data_source_id == self.id).all()
+        tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).all()
         for table in tables:
             table_info = {
                 'name': table.table_name,
                 'exists': table.table_exists,
                 'hasColumnMetadata': table.column_metadata,
                 'columns': []}
-            columns = db.session.query(ColumnMetadata).filter(ColumnMetadata.table_id==table.id)
+            columns = ColumnMetadata.query.filter(ColumnMetadata.table_id == table.id)
             table_info['columns'] = sorted([{
                 'key': column.id,
                 'name': column.column_name,
                 'type': column.column_type,
                 'exists': column.column_exists,
                 'example': column.column_example
-            } for column in columns], key=lambda column: column['name'])
+            } for column in columns], key=itemgetter('name'))
             schema.append(table_info)
 
-        return sorted(schema, key=lambda table: table['name'])
+        return sorted(schema, key=itemgetter('name'))
 
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
