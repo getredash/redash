@@ -23,6 +23,7 @@ import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 
+import DialogWrapper from '@/components/DialogWrapper';
 import organizationStatus from '@/services/organizationStatus';
 
 import * as filters from '@/filters';
@@ -148,5 +149,9 @@ registerComponents();
 registerPages();
 registerExtensions();
 registerVisualizations(ngModule);
+
+ngModule.run(($q) => {
+  DialogWrapper.Promise = $q;
+});
 
 export default ngModule;

@@ -1,9 +1,10 @@
-import { debounce, each, values, map, includes, first } from 'lodash';
+import { debounce, each, values, map, includes, first, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { BigMessage } from '@/components/BigMessage';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
@@ -30,18 +31,13 @@ class AddWidgetDialog extends React.Component {
       saveInProgress: false,
       selectedQuery: null,
       searchTerm: '',
+      highlightSearchTerm: false,
       recentQueries: [],
-      searchedQueries: [],
+      queries: [],
       selectedVis: null,
       parameterMappings: [],
+      isLoaded: false,
     };
-
-    // Don't show draft (unpublished) queries in recent queries.
-    Query.recent().$promise.then((items) => {
-      this.setState({
-        recentQueries: items.filter(item => !item.is_draft),
-      });
-    });
 
     const searchQueries = debounce(this.searchQueries.bind(this), 200);
     this.onSearchTermChanged = (event) => {
@@ -49,6 +45,19 @@ class AddWidgetDialog extends React.Component {
       this.setState({ searchTerm });
       searchQueries(searchTerm);
     };
+  }
+
+  componentDidMount() {
+    Query.recent().$promise.then((items) => {
+      // Don't show draft (unpublished) queries in recent queries.
+      const results = items.filter(item => !item.is_draft);
+      this.setState({
+        recentQueries: results,
+        queries: results,
+        isLoaded: true,
+        highlightSearchTerm: false,
+      });
+    });
   }
 
   selectQuery(queryId) {
@@ -88,7 +97,11 @@ class AddWidgetDialog extends React.Component {
 
   searchQueries(term) {
     if (!term || term.length === 0) {
-      this.setState({ searchedQueries: [] });
+      this.setState(prevState => ({
+        queries: prevState.recentQueries,
+        isLoaded: true,
+        highlightSearchTerm: false,
+      }));
       return;
     }
 
@@ -98,7 +111,11 @@ class AddWidgetDialog extends React.Component {
       // which results are matching current search term and ignore
       // outdated results.
       if (this.state.searchTerm === term) {
-        this.setState({ searchedQueries: results.results });
+        this.setState({
+          queries: results.results,
+          isLoaded: true,
+          highlightSearchTerm: true,
+        });
       }
     });
   }
@@ -189,38 +206,27 @@ class AddWidgetDialog extends React.Component {
   }
 
   renderSearchQueryResults() {
+    const { isLoaded, queries, highlightSearchTerm, searchTerm } = this.state;
+
+    const highlightSearchResult = highlightSearchTerm ? highlight : identity;
+
     return (
       <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-        {(this.state.searchTerm === '') && (
-          <div>
-            {this.state.recentQueries.length > 0 && (
-              <div className="list-group">
-                {this.state.recentQueries.map(query => (
-                  <a
-                    href="javascript:void(0)"
-                    className="list-group-item"
-                    key={query.id}
-                    onClick={() => this.selectQuery(query.id)}
-                  >
-                    {query.name}
-                    {' '}
-                    <QueryTagsControl tags={query.tags} className="inline-tags-control" />
-                  </a>
-                ))}
-              </div>
-            )}
+        {!isLoaded && (
+          <div className="text-center">
+            <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." />
           </div>
         )}
 
-        {(this.state.searchTerm !== '') && (
+        {isLoaded && (
           <div>
             {
-              (this.state.searchedQueries.length === 0) &&
+              (queries.length === 0) &&
               <div className="text-muted">No results matching search term.</div>
             }
-            {(this.state.searchedQueries.length > 0) && (
+            {(queries.length > 0) && (
               <div className="list-group">
-                {this.state.searchedQueries.map(query => (
+                {queries.map(query => (
                   <a
                     href="javascript:void(0)"
                     className={'list-group-item ' + (query.is_draft ? 'inactive' : '')}
@@ -229,7 +235,7 @@ class AddWidgetDialog extends React.Component {
                   >
                     <div
                       // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
+                      dangerouslySetInnerHTML={{ __html: highlightSearchResult(query.name, searchTerm) }}
                       style={{ display: 'inline-block' }}
                     />
                     {' '}

@@ -100,6 +100,13 @@ export const DialogPropType = PropTypes.shape({
   dismiss: PropTypes.func.isRequired,
 });
 
+// default export of module
+const DialogWrapper = {
+  Promise,
+  DialogPropType,
+  wrap() {},
+};
+
 function openDialog(DialogComponent, props) {
   const dialog = {
     props: {
@@ -153,7 +160,7 @@ function openDialog(DialogComponent, props) {
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
-    result: new Promise((resolve, reject) => {
+    result: new DialogWrapper.Promise((resolve, reject) => {
       dialogResult.resolve = resolve;
       dialogResult.reject = reject;
     }),
@@ -170,3 +177,7 @@ export function wrap(DialogComponent) {
     showModal: props => openDialog(DialogComponent, props),
   };
 }
+
+DialogWrapper.wrap = wrap;
+
+export default DialogWrapper;
