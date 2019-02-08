@@ -1,3 +1,4 @@
+import { isFunction } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -34,7 +35,8 @@ import ReactDOM from 'react-dom';
       .catch(...) // pressed Cancel button or used `dismiss` method; optional argument is a rejection reason.
 
   Also, dialog has `close` and `dismiss` methods that allows to close dialog by caller. Passed arguments
-  will be used to resolve/reject `dialog.result` promise.
+  will be used to resolve/reject `dialog.result` promise. `update` methods allows to pass new properties
+  to dialog.
 
 
   Creating a dialog
@@ -42,7 +44,7 @@ import ReactDOM from 'react-dom';
 
   1. Add imports:
 
-    import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+    import { wrap as wrapDialog, DialogPropType } from 'path/to/DialogWrapper';
 
   2. define a `dialog` property on your component:
 
@@ -86,6 +88,17 @@ import ReactDOM from 'react-dom';
           <Modal {...dialog.props} onOk={() => this.customOkHandler()}>
         );
     }
+
+
+  Settings
+  ========
+
+  You can setup this wrapper to use custom `Promise` library (for example, Bluebird):
+
+    import DialogWrapper from 'path/to/DialogWrapper';
+    import Promise from 'bluebird';
+
+    DialogWrapper.Promise = Promise;
 
 */
 
@@ -160,6 +173,10 @@ function openDialog(DialogComponent, props) {
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
+    update: (newProps) => {
+      props = { ...props, ...newProps };
+      render();
+    },
     result: new DialogWrapper.Promise((resolve, reject) => {
       dialogResult.resolve = resolve;
       dialogResult.reject = reject;
@@ -167,6 +184,12 @@ function openDialog(DialogComponent, props) {
   };
 
   render(); // show it only when all structures initialized to avoid unnecessary re-rendering
+
+  // Some known libraries support
+  // Bluebird: http://bluebirdjs.com/docs/api/suppressunhandledrejections.html
+  if (isFunction(result.result.suppressUnhandledRejections)) {
+    result.result.suppressUnhandledRejections();
+  }
 
   return result;
 }
