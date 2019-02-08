@@ -116,7 +116,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         results = json_loads(results)
         table_samples = {}
 
-        for i, row in enumerate(results['rows']):
+        for row in results['rows']:
             if row['table_schema'] != 'public':
                 table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
             else:

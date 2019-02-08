@@ -85,7 +85,7 @@ class Presto(BaseQueryRunner):
         results = json_loads(results)
         table_samples = {}
 
-        for i, row in enumerate(results['rows']):
+        for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}

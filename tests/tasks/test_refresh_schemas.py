@@ -69,8 +69,8 @@ class TestRefreshSchemas(BaseTestCase):
         }
 
         refresh_schema(self.factory.data_source.id)
-        table_metadata = models.db.session.query(TableMetadata).all()
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        table_metadata = TableMetadata.query.all()
+        column_metadata = ColumnMetadata.query.all()
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
@@ -79,36 +79,36 @@ class TestRefreshSchemas(BaseTestCase):
 
     def test_refresh_schema_deleted_table_marked(self):
         refresh_schema(self.factory.data_source.id)
-        table_metadata = models.db.session.query(TableMetadata).all()
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        table_metadata = TableMetadata.query.all()
+        column_metadata = ColumnMetadata.query.all()
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertEqual(table_metadata[0].to_dict()['table_exists'], True)
+        self.assertTrue(table_metadata[0].to_dict()['table_exists'])
 
         # Table is gone, `table_exists` should be False.
         self.patched_get_schema.return_value = []
 
         refresh_schema(self.factory.data_source.id)
-        table_metadata = models.db.session.query(TableMetadata).all()
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        table_metadata = TableMetadata.query.all()
+        column_metadata = ColumnMetadata.query.all()
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertEqual(table_metadata[0].to_dict()['table_exists'], False)
+        self.assertFalse(table_metadata[0].to_dict()['table_exists'])
 
         # Table is back, `table_exists` should be True again.
         self.patched_get_schema.return_value = self.default_schema_return_value
         refresh_schema(self.factory.data_source.id)
-        table_metadata = models.db.session.query(TableMetadata).all()
-        self.assertEqual(table_metadata[0].to_dict()['table_exists'], True)
+        table_metadata = TableMetadata.query.all()
+        self.assertTrue(table_metadata[0].to_dict()['table_exists'])
 
     def test_refresh_schema_delete_column(self):
         NEW_COLUMN_NAME = 'new_column'
         refresh_schema(self.factory.data_source.id)
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        column_metadata = ColumnMetadata.query.all()
 
-        self.assertEqual(column_metadata[0].to_dict()['column_exists'], True)
+        self.assertTrue(column_metadata[0].to_dict()['column_exists'])
 
         self.patched_get_schema.return_value = [{
             'name': 'table',
@@ -121,17 +121,17 @@ class TestRefreshSchemas(BaseTestCase):
         }]
 
         refresh_schema(self.factory.data_source.id)
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        column_metadata = ColumnMetadata.query.all()
         self.assertEqual(len(column_metadata), 2)
 
-        self.assertEqual(column_metadata[1].to_dict()['column_exists'], False)
-        self.assertEqual(column_metadata[0].to_dict()['column_exists'], True)
+        self.assertFalse(column_metadata[1].to_dict()['column_exists'])
+        self.assertTrue(column_metadata[0].to_dict()['column_exists'])
 
     def test_refresh_schema_update_column(self):
         UPDATED_COLUMN_TYPE = 'varchar'
 
         refresh_schema(self.factory.data_source.id)
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        column_metadata = ColumnMetadata.query.all()
         self.assertEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
 
         updated_schema = copy.deepcopy(self.default_schema_return_value)
@@ -139,6 +139,6 @@ class TestRefreshSchemas(BaseTestCase):
         self.patched_get_schema.return_value = updated_schema
 
         refresh_schema(self.factory.data_source.id)
-        column_metadata = models.db.session.query(ColumnMetadata).all()
+        column_metadata = ColumnMetadata.query.all()
         self.assertNotEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
         self.assertEqual(column_metadata[0].to_dict()['column_type'], UPDATED_COLUMN_TYPE)
