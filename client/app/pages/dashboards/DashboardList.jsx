@@ -5,7 +5,10 @@ import { PageHeader } from '@/components/PageHeader';
 import { Paginator } from '@/components/Paginator';
 import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
+import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
+import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
+import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -133,16 +136,21 @@ class DashboardList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageDashboardList', react2angular(liveItemsList(DashboardList, {
-    defaultOrderBy: '-created_at',
-    doRequest: createResourceFetcher(
-      ({ currentPage }) => ({
-        all: Dashboard.query.bind(Dashboard),
-        favorites: Dashboard.favorites.bind(Dashboard),
-      }[currentPage]),
-      item => new Dashboard(item),
-    ),
-  })));
+  ngModule.component('pageDashboardList', react2angular(itemsList(
+    DashboardList,
+    new ResourceItemsSource({
+      getResource({ currentPage }) {
+        return {
+          all: Dashboard.query.bind(Dashboard),
+          favorites: Dashboard.favorites.bind(Dashboard),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return (item => new Dashboard(item));
+      },
+    }),
+    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
+  )));
 
   return routesToAngularRoutes([
     {
@@ -156,8 +164,13 @@ export default function init(ngModule) {
       key: 'favorites',
     },
   ], {
-    template: '<page-dashboard-list current-page="$resolve.currentPage"></page-dashboard-list>',
     reloadOnSearch: false,
+    template: '<page-dashboard-list current-page="$resolve.currentPage" on-error="handleError"></page-dashboard-list>',
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
   });
 }
 

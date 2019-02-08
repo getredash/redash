@@ -6,7 +6,10 @@ import { Paginator } from '@/components/Paginator';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
+import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
+import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
+import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
@@ -149,18 +152,23 @@ class QueriesList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageQueriesList', react2angular(liveItemsList(QueriesList, {
-    defaultOrderBy: '-created_at',
-    doRequest: createResourceFetcher(
-      ({ currentPage }) => ({
-        all: Query.query.bind(Query),
-        my: Query.myQueries.bind(Query),
-        favorites: Query.favorites.bind(Query),
-        archive: Query.archive.bind(Query),
-      }[currentPage]),
-      item => new Query(item),
-    ),
-  })));
+  ngModule.component('pageQueriesList', react2angular(itemsList(
+    QueriesList,
+    new ResourceItemsSource({
+      getResource({ currentPage }) {
+        return {
+          all: Query.query.bind(Query),
+          my: Query.myQueries.bind(Query),
+          favorites: Query.favorites.bind(Query),
+          archive: Query.archive.bind(Query),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return (item => new Query(item));
+      },
+    }),
+    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
+  )));
 
   return routesToAngularRoutes([
     {
@@ -184,8 +192,13 @@ export default function init(ngModule) {
       key: 'my',
     },
   ], {
-    template: '<page-queries-list current-page="$resolve.currentPage"></page-queries-list>',
     reloadOnSearch: false,
+    template: '<page-queries-list current-page="$resolve.currentPage" on-error="handleError"></page-queries-list>',
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
   });
 }
 
