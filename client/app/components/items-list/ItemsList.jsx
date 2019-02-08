@@ -76,19 +76,17 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
 
       itemsSource.onError = error => this.props.onError(error);
 
-      this.state = this.getState({
-        ...itemsSource.getState(),
-        isLoaded: false,
-      });
-
+      const initialState = this.getState({ ...itemsSource.getState(), isLoaded: false });
       const { updatePagination, toggleSorting, updateSearch, updateSelectedTags, update, handleError } = itemsSource;
-
-      this.state.toggleSorting = toggleSorting;
-      this.state.updateSearch = debounce(updateSearch, 200);
-      this.state.updateSelectedTags = updateSelectedTags;
-      this.state.updatePagination = updatePagination;
-      this.state.update = update;
-      this.state.handleError = handleError;
+      this.state = {
+        ...initialState,
+        toggleSorting, // eslint-disable-line react/no-unused-state
+        updateSearch: debounce(updateSearch, 200), // eslint-disable-line react/no-unused-state
+        updateSelectedTags, // eslint-disable-line react/no-unused-state
+        updatePagination, // eslint-disable-line react/no-unused-state
+        update, // eslint-disable-line react/no-unused-state
+        handleError, // eslint-disable-line react/no-unused-state
+      };
     }
 
     componentDidMount() {
@@ -96,27 +94,18 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    getState({ isLoaded, ...rest }) {
+    getState({ isLoaded, totalCount, pageItems, ...rest }) {
       return {
+        ...rest,
+
         currentPage: this.props.currentPage,
         title: $route.current.title,
 
         isLoaded,
-        isEmpty: !isLoaded || (rest.totalCount === 0),
-
-        searchTerm: rest.searchTerm,
-        selectedTags: rest.selectedTags,
-
-        // sorting
-        orderByField: rest.orderByField,
-        orderByReverse: rest.orderByReverse,
-
-        // pagination
-        page: rest.page,
-        itemsPerPage: rest.itemsPerPage,
-        totalItemsCount: isLoaded ? rest.totalCount : 0,
+        isEmpty: !isLoaded || (totalCount === 0),
+        totalItemsCount: isLoaded ? totalCount : 0,
         pageSizeOptions: clientConfig.pageSizeOptions,
-        pageItems: isLoaded ? rest.pageItems : [],
+        pageItems: isLoaded ? pageItems : [],
       };
     }
 
