@@ -1,9 +1,8 @@
 /* eslint react/no-multi-comp: 0 */
 
-import { extend, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
+import { extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import Select from 'antd/lib/select';
 import Table from 'antd/lib/table';
 import Popover from 'antd/lib/popover';
@@ -89,6 +88,34 @@ export function editableMappingsToParameterMappings(mappings) {
   ));
 }
 
+export function synchronizeWidgetTitles(sourceWidget, widgets) {
+  const affectedWidgets = [];
+
+  const sourceMappings = sourceWidget.options.parameterMappings;
+  each(sourceMappings, (sourceMapping) => {
+    if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
+      each(widgets, (widget) => {
+        const widgetMappings = widget.options.parameterMappings;
+        each(widgetMappings, (widgetMapping) => {
+          // check if mapped to the same dashboard-level parameter
+          if (
+            (widgetMapping.type === ParameterMappingType.DashboardLevel) &&
+            (widgetMapping.mapTo === sourceMapping.mapTo)
+          ) {
+            // dirty check - update only when needed
+            if (widgetMapping.title !== sourceMapping.title) {
+              widgetMapping.title = sourceMapping.title;
+              affectedWidgets.push(widget);
+            }
+          }
+        });
+      });
+    }
+  });
+
+  return affectedWidgets;
+}
+
 export class ParameterMappingInput extends React.Component {
   static propTypes = {
     mapping: PropTypes.object, // eslint-disable-line react/forbid-prop-types
@@ -132,13 +159,13 @@ export class ParameterMappingInput extends React.Component {
     }
 
     this.updateParamMapping({ type, mapTo });
-  }
+  };
 
   updateParamMapping = (update) => {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
     onChange(newMapping);
-  }
+  };
 
   renderMappingTypeSelector() {
     const noExisting = isEmpty(this.props.existingParamNames);
@@ -274,7 +301,7 @@ class EditMapping extends React.Component {
   static defaultProps = {
     clientConfig: null,
     Query: null,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -287,7 +314,7 @@ class EditMapping extends React.Component {
 
   onVisibleChange = (visible) => {
     if (visible) this.show(); else this.hide();
-  }
+  };
 
   onChange = (mapping) => {
     let inputError = null;
@@ -301,7 +328,7 @@ class EditMapping extends React.Component {
     }
 
     this.setState({ mapping, inputError });
-  }
+  };
 
   get content() {
     const { mapping, inputError } = this.state;
@@ -339,18 +366,18 @@ class EditMapping extends React.Component {
   save = () => {
     this.props.onChange(this.props.mapping, this.state.mapping);
     this.hide();
-  }
+  };
 
   show = () => {
     this.setState({
       visible: true,
       mapping: clone(this.props.mapping), // restore original state
     });
-  }
+  };
 
   hide = () => {
     this.setState({ visible: false });
-  }
+  };
 
   render() {
     return (
@@ -376,27 +403,28 @@ class Title extends React.Component {
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     onChange: PropTypes.func.isRequired,
     getContainerElement: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     existingParams: [],
-  }
+  };
 
   state = {
     showPopup: false,
-    title: this.props.mapping.title,
-  }
+    title: this.defaultTitleValue,
+    editingTitle: '', // will be set on editing
+  };
 
   onPopupVisibleChange = (showPopup) => {
-    this.setState({
+    this.setState(({ title }) => ({
       showPopup,
-      title: this.props.mapping.title, // reset title
-    });
-  }
+      editingTitle: title,
+    }));
+  };
 
-  onTitleChange = (event) => {
-    this.setState({ title: event.target.value });
-  }
+  onEditingTitleChange = (event) => {
+    this.setState({ editingTitle: event.target.value });
+  };
 
   get popover() {
     const { param: { title: paramTitle } } = this.props.mapping;
@@ -405,9 +433,9 @@ class Title extends React.Component {
       <div className="editTitle">
         <Input
           size="small"
-          value={this.state.title}
+          value={this.state.editingTitle}
           placeholder={paramTitle}
-          onChange={this.onTitleChange}
+          onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
           autoFocus
@@ -438,7 +466,7 @@ class Title extends React.Component {
     return this.props.mapping.type === MappingType.StaticValue;
   }
 
-  get titleValue() {
+  get defaultTitleValue() {
     let { mapping } = this.props;
     const { existingParams } = this.props;
 
@@ -454,14 +482,18 @@ class Title extends React.Component {
   }
 
   save = () => {
-    const newMapping = extend({}, this.props.mapping, { title: this.state.title });
-    this.props.onChange(newMapping);
-    this.hide();
-  }
+    this.setState(({ editingTitle }) => ({
+      title: editingTitle,
+    }), () => {
+      const newMapping = extend({}, this.props.mapping, { title: this.state.title });
+      this.props.onChange(newMapping);
+      this.hide();
+    });
+  };
 
   hide = () => {
     this.setState({ showPopup: false });
-  }
+  };
 
   renderEditButton() {
     return (
@@ -489,11 +521,6 @@ class Title extends React.Component {
         'Titles for static values don\'t appear in widgets',
         <i className="fa fa-eye-slash" />,
       ];
-    } else if (this.isTypeMappedToOther) { // mapped to other param
-      [content, icon] = [
-        `This title is taken from parameter "${this.props.mapping.mapTo}"`,
-        <i className="fa fa-link" />,
-      ];
     } else {
       return null;
     }
@@ -510,13 +537,10 @@ class Title extends React.Component {
   }
 
   render() {
-    // static value and mapped types are non-editable hence disabled
-    const disabled = this.isTypeMappedToOther || this.isTypeStatic;
-
     return (
-      <div className={classNames('title', { disabled })}>
-        <span className="text">{this.titleValue}</span>
-        {disabled ? this.renderTooltip() : this.renderEditButton()}
+      <div className="title">
+        <span className="text">{this.state.title}</span>
+        {this.renderEditButton()}
       </div>
     );
   }
