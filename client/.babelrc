@@ -1,5 +1,11 @@
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react"],
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": "> 0.5%, last 2 versions, Firefox ESR, ie 11, not dead",
+      "useBuiltIns": "usage"
+    }],
+    "@babel/preset-react"
+  ],
   "plugins": [
     "angularjs-annotate",
     "@babel/plugin-proposal-class-properties",
