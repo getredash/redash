@@ -38,7 +38,7 @@ function disableUser(user) {
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
-    .catch((response) => {
+    .catch((response = {}) => {
       const message =
         response.data && response.data.message
           ? response.data.message
@@ -56,7 +56,7 @@ function deleteUser(user) {
       toastr.warning(`User <b>${userName}</b> has been deleted.`, { allowHtml: true });
       return data;
     })
-    .catch((response) => {
+    .catch((response = {}) => {
       const message =
         response.data && response.data.message
           ? response.data.message
@@ -85,7 +85,7 @@ function regenerateApiKey(user) {
       toastr.success('The API Key has been updated.');
       return data.api_key;
     })
-    .catch((response) => {
+    .catch((response = {}) => {
       const message =
         response.data && response.data.message
           ? response.data.message
@@ -105,7 +105,7 @@ function sendPasswordReset(user) {
       }
       toastr.success('Password reset email sent.');
     })
-    .catch((response) => {
+    .catch((response = {}) => {
       const message =
         response.message
           ? response.message
@@ -121,7 +121,7 @@ function resendInvitation(user) {
     .then(() => {
       toastr.success('Invitation sent.');
     })
-    .catch((response) => {
+    .catch((response = {}) => {
       const message =
         response.message
           ? response.message
