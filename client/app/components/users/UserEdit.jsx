@@ -8,10 +8,11 @@ import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
-import { currentUser, clientConfig } from '@/services/auth';
+import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
+import InputWithCopy from '../InputWithCopy';
 
 export class UserEdit extends React.Component {
   static propTypes = {
@@ -54,8 +55,10 @@ export class UserEdit extends React.Component {
   onClickRegenerateApiKey = () => {
     const doRegenerate = () => {
       User.regenerateApiKey(this.state.user).then((apiKey) => {
-        const { user } = this.state;
-        this.setState({ user: { ...user, apiKey } });
+        if (apiKey) {
+          const { user } = this.state;
+          this.setState({ user: { ...user, apiKey } });
+        }
       });
     };
 
@@ -74,8 +77,10 @@ export class UserEdit extends React.Component {
     const toggleUser = user.isDisabled ? User.enableUser : User.disableUser;
 
     this.setState({ togglingUser: true });
-    toggleUser(user).then(({ data }) => {
-      this.setState({ user: User.convertUserInfo(data) });
+    toggleUser(user).then((data) => {
+      if (data) {
+        this.setState({ user: User.convertUserInfo(data.data) });
+      }
     }).finally(() => {
       this.setState({ togglingUser: false });
     });
@@ -186,14 +191,17 @@ export class UserEdit extends React.Component {
 
     return (
       <Alert
-        message={clientConfig.mailSettingsMissing ? (
-          <p>
-            The mail server is not configured, please send the following link
-            to {user.name} to reset their password:
-            <Input.TextArea value={absoluteUrl(passwordResetLink)} readOnly />
-          </p>
-        ) : 'The user should receive a link to reset their password by email soon.'}
-        type="success"
+        message="Email not sent!"
+        description={(
+          <Fragment>
+            <p>
+              The mail server is not configured, please send the following link
+              to <b>{user.name}</b> to reset their password:
+            </p>
+            <InputWithCopy value={absoluteUrl(passwordResetLink)} readOnly />
+          </Fragment>
+        )}
+        type="warning"
         className="m-t-20"
         afterClose={() => { this.setState({ passwordResetLink: null }); }}
         closable

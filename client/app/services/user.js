@@ -1,5 +1,6 @@
 import { isString } from 'lodash';
 import { $http, $sanitize, toastr } from '@/services/ng';
+import { clientConfig } from '@/services/auth';
 
 export let User = null; // eslint-disable-line import/no-mutable-exports
 
@@ -97,7 +98,13 @@ function regenerateApiKey(user) {
 function sendPasswordReset(user) {
   return $http
     .post(`api/users/${user.id}/reset_password`)
-    .then(({ data }) => data.reset_link)
+    .then(({ data }) => {
+      if (clientConfig.mailSettingsMissing) {
+        toastr.warning('The mail server is not configured.');
+        return data.reset_link;
+      }
+      toastr.success('Password reset email sent.');
+    })
     .catch((response) => {
       const message =
         response.message
