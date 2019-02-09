@@ -3,30 +3,26 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 
-export default class TagsEditorModal extends React.Component {
+class EditTagsDialog extends React.Component {
   static propTypes = {
+    dialog: DialogPropType.isRequired,
     tags: PropTypes.arrayOf(PropTypes.string),
     getAvailableTags: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func,
-    onCancel: PropTypes.func,
   };
 
   static defaultProps = {
     tags: [],
-    onConfirm: () => {},
-    onCancel: () => {},
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      isVisible: true,
       loading: true,
       availableTags: [],
       result: uniq(map(this.props.tags, trim)),
-      onAfterClose: () => {},
     };
   }
 
@@ -39,42 +35,26 @@ export default class TagsEditorModal extends React.Component {
     });
   }
 
-  onConfirm(result) {
-    this.setState({
-      isVisible: false,
-      onAfterClose: () => this.props.onConfirm(result),
-    });
-  }
-
-  onCancel() {
-    this.setState({
-      isVisible: false,
-      onAfterClose: () => this.props.onCancel(),
-    });
-  }
-
   render() {
+    const { dialog } = this.props;
+    const { loading, availableTags, result } = this.state;
     return (
-      <Modal
-        visible={this.state.isVisible}
-        title="Add/Edit Tags"
-        onOk={() => this.onConfirm(this.state.result)}
-        onCancel={() => this.onCancel()}
-        afterClose={() => this.state.onAfterClose()}
-      >
+      <Modal {...dialog.props} onOk={() => dialog.close(result)} title="Add/Edit Tags">
         <Select
           mode="tags"
           className="w-100"
           placeholder="Add some tags..."
-          defaultValue={this.state.result}
+          defaultValue={result}
           onChange={values => this.setState({ result: map(values, trim) })}
           autoFocus
-          disabled={this.state.loading}
-          loading={this.state.loading}
+          disabled={loading}
+          loading={loading}
         >
-          {map(this.state.availableTags, tag => <Select.Option key={tag}>{tag}</Select.Option>)}
+          {map(availableTags, tag => <Select.Option key={tag}>{tag}</Select.Option>)}
         </Select>
       </Modal>
     );
   }
 }
+
+export default wrapDialog(EditTagsDialog);

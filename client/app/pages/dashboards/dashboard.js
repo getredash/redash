@@ -331,11 +331,11 @@ function DashboardCtrl(
   };
 
   this.addWidget = () => {
-    AddWidgetDialog
-      .open({
-        dashboard: this.dashboard,
-      })
-      .result.then(this.onWidgetAdded);
+    AddWidgetDialog.showModal({ dashboard: this.dashboard })
+      .result.then(() => {
+        this.onWidgetAdded();
+        $scope.$applyAsync();
+      });
   };
 
   this.onWidgetAdded = () => {

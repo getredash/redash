@@ -40,7 +40,7 @@ class QueriesList extends React.Component {
     {
       key: 'archive',
       href: 'queries/archive',
-      title: 'Archive',
+      title: 'Archived',
       icon: () => <Sidebar.MenuIcon icon="fa fa-archive" />,
     },
     {
@@ -56,7 +56,7 @@ class QueriesList extends React.Component {
     Columns.favorites({ className: 'p-r-0' }),
     Columns.custom.sortable((text, item) => (
       <React.Fragment>
-        <a className="table-main-title" href={'dashboard/' + item.slug}>{ item.name }</a>
+        <a className="table-main-title" href={'queries/' + item.id}>{ item.name }</a>
         <QueryTagsControl
           className="d-block"
           tags={item.tags}
