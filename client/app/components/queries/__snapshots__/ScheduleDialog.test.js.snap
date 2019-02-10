@@ -8,7 +8,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
     choiceTransitionName="zoom"
     className="input"
     dropdownMatchSelectWidth={false}
-    getPopupContainer={[Function]}
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
@@ -34,7 +33,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
       dropdownMenuStyle={Object {}}
       dropdownRender={[Function]}
       dropdownStyle={Object {}}
-      getPopupContainer={[Function]}
       inputIcon={
         <Icon
           className="ant-select-arrow-icon"
@@ -93,7 +91,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
-        getPopupContainer={[Function]}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -171,7 +168,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={
             Array [
               "click",
@@ -352,7 +348,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
     disabled={false}
     focusOnOpen={true}
     format="HH:mm"
-    getPopupContainer={[Function]}
     hideDisabledOptions={false}
     minuteStep={5}
     onChange={[Function]}
@@ -395,7 +390,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         disabledSeconds={[Function]}
         focusOnOpen={true}
         format="HH:mm"
-        getPopupContainer={[Function]}
         hideDisabledOptions={false}
         id=""
         inputIcon={
@@ -520,7 +514,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={Array []}
           mask={false}
           maskClosable={true}
@@ -654,7 +647,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
     choiceTransitionName="zoom"
     className="input"
     dropdownMatchSelectWidth={false}
-    getPopupContainer={[Function]}
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
@@ -680,7 +672,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
       dropdownMenuStyle={Object {}}
       dropdownRender={[Function]}
       dropdownStyle={Object {}}
-      getPopupContainer={[Function]}
       inputIcon={
         <Icon
           className="ant-select-arrow-icon"
@@ -739,7 +730,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
-        getPopupContainer={[Function]}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -817,7 +807,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={
             Array [
               "click",
@@ -988,7 +977,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
     choiceTransitionName="zoom"
     className="input"
     dropdownMatchSelectWidth={false}
-    getPopupContainer={[Function]}
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
@@ -1014,7 +1002,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
       dropdownMenuStyle={Object {}}
       dropdownRender={[Function]}
       dropdownStyle={Object {}}
-      getPopupContainer={[Function]}
       inputIcon={
         <Icon
           className="ant-select-arrow-icon"
@@ -1073,7 +1060,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
-        getPopupContainer={[Function]}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -1151,7 +1137,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={
             Array [
               "click",
@@ -1332,7 +1317,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
     disabled={false}
     focusOnOpen={true}
     format="HH:mm"
-    getPopupContainer={[Function]}
     hideDisabledOptions={false}
     minuteStep={5}
     onChange={[Function]}
@@ -1375,7 +1359,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         disabledSeconds={[Function]}
         focusOnOpen={true}
         format="HH:mm"
-        getPopupContainer={[Function]}
         hideDisabledOptions={false}
         id=""
         inputIcon={
@@ -1500,7 +1483,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={Array []}
           mask={false}
           maskClosable={true}
@@ -2038,7 +2020,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
     choiceTransitionName="zoom"
     className="input"
     dropdownMatchSelectWidth={false}
-    getPopupContainer={[Function]}
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
@@ -2064,7 +2045,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
       dropdownMenuStyle={Object {}}
       dropdownRender={[Function]}
       dropdownStyle={Object {}}
-      getPopupContainer={[Function]}
       inputIcon={
         <Icon
           className="ant-select-arrow-icon"
@@ -2123,7 +2103,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
-        getPopupContainer={[Function]}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2201,7 +2180,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={
             Array [
               "click",
@@ -2372,7 +2350,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
     choiceTransitionName="zoom"
     className="input"
     dropdownMatchSelectWidth={false}
-    getPopupContainer={[Function]}
     onChange={[Function]}
     showSearch={false}
     transitionName="slide-up"
@@ -2397,7 +2374,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
       dropdownMenuStyle={Object {}}
       dropdownRender={[Function]}
       dropdownStyle={Object {}}
-      getPopupContainer={[Function]}
       inputIcon={
         <Icon
           className="ant-select-arrow-icon"
@@ -2455,7 +2431,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
-        getPopupContainer={[Function]}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2529,7 +2504,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
           focusDelay={0}
           getDocument={[Function]}
           getPopupClassNameFromAlign={[Function]}
-          getPopupContainer={[Function]}
           hideAction={
             Array [
               "click",

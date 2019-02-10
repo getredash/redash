@@ -139,6 +139,11 @@ class QueryResultListResource(BaseResource):
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
+class QueryResultDropdownResource(BaseResource):
+    def get(self, query_id):
+        return dropdown_values(query_id)
+
+
 class QueryResultResource(BaseResource):
     @staticmethod
     def add_cors_headers(headers):
@@ -196,8 +201,7 @@ class QueryResultResource(BaseResource):
         max_age = int(params.get('max_age', 0))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = map(self._convert_queries_to_enums,
-                               query.options.get("parameters", []))
+        parameter_schema = query.options.get("parameters", [])
 
         parameterized_query = ParameterizedQuery(query.query_text, parameter_schema)
         allow_executing_with_view_only_permissions = parameterized_query.is_safe
