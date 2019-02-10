@@ -3,7 +3,7 @@ import logging
 import urlparse
 import urllib
 
-import redis 
+import redis
 from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
@@ -20,6 +20,17 @@ from redash.destinations import import_destinations
 
 
 __version__ = '6.0.0'
+
+
+import os
+if os.environ.get("FLASK_DEBUG"):
+    import ptvsd
+
+    # Allow other computers to attach to ptvsd at this IP address and port.
+    ptvsd.enable_attach(address=('0.0.0.0', 5678))
+
+    # Pause the program until a remote debugger is attached
+    # ptvsd.wait_for_attach()
 
 
 def setup_logging():

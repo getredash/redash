@@ -70,7 +70,7 @@ case "$1" in
     ;;
   dev_server)
     export FLASK_DEBUG=1
-    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    exec /app/manage.py runserver --no-debugger --no-reload -h 0.0.0.0
     ;;
   shell)
     exec /app/manage.py shell
