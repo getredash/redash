@@ -2,8 +2,8 @@ import { map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import classNames from 'classnames';
 
+import Button from 'antd/lib/button';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 
@@ -27,13 +27,13 @@ function UsersListActions({ user, actions }) {
   const { enableUser, disableUser, deleteUser } = actions;
   if (user.is_invitation_pending) {
     return (
-      <button type="button" className="btn btn-default btn-block" onClick={event => deleteUser(event, user)}>Delete</button>
+      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
     );
   }
   return user.is_disabled ? (
-    <button type="button" className="btn btn-primary btn-block" onClick={event => enableUser(event, user)}>Enable</button>
+    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>Enable</Button>
   ) : (
-    <button type="button" className="btn btn-default btn-block" onClick={event => disableUser(event, user)}>Disable</button>
+    <Button className="w-100" onClick={event => disableUser(event, user)}>Disable</Button>
   );
 }
 
@@ -62,9 +62,15 @@ class UsersList extends React.Component {
       title: 'Active Users',
     },
     {
+      key: 'pending',
+      href: 'users/pending',
+      title: 'Pending Invitations',
+    },
+    {
       key: 'disabled',
       href: 'users/disabled',
       title: 'Disabled Users',
+      isAvailable: () => policy.canCreateUser(),
     },
   ];
 
@@ -75,7 +81,6 @@ class UsersList extends React.Component {
         <div>
           <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
           <div className="text-muted">{user.email}</div>
-          {user.is_invitation_pending && <span className="label label-tag-archived">Invitation Pending</span>}
         </div>
       </div>
     ), {
@@ -103,51 +108,29 @@ class UsersList extends React.Component {
     }),
     Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
       width: '1%',
-      isAvailable: () => currentUser.isAdmin,
+      isAvailable: () => policy.canCreateUser(),
     }),
   ];
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
-  renderPageHeader(isAdminView) {
-    const { controller } = this.props;
-    return isAdminView ? (
-      // Admin
-      <div className="m-b-10">
-        <a
-          href="users/new"
-          className={classNames('btn', 'btn-default', 'm-b-10', { disabled: !policy.isCreateUserEnabled() })}
-        >
+  // eslint-disable-next-line class-methods-use-this
+  renderPageHeader() {
+    if (!policy.canCreateUser()) {
+      return null;
+    }
+    return (
+      <div className="m-b-15">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
           <i className="fa fa-plus m-r-5" />
           New User
-        </a>
+        </Button>
         <DynamicComponent name="UsersListExtra" />
-      </div>
-    ) : (
-      // Non-admin
-      <div className="row m-b-10">
-        <div className="col-xs-9 p-r-0">
-          <Sidebar.SearchInput
-            value={controller.searchTerm}
-            showIcon
-            onChange={controller.updateSearch}
-          />
-        </div>
-        <div className="col-xs-3">
-          <Sidebar.PageSizeSelect
-            options={controller.pageSizeOptions}
-            value={controller.itemsPerPage}
-            onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-          />
-        </div>
       </div>
     );
   }
 
-  renderSidebar(isAdminView) {
-    if (!isAdminView) {
-      return null;
-    }
+  renderSidebar() {
     const { controller } = this.props;
     return (
       <React.Fragment>
@@ -166,15 +149,14 @@ class UsersList extends React.Component {
   }
 
   render() {
-    const isAdminView = policy.canCreateUser();
-    const sidebar = this.renderSidebar(isAdminView);
+    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <React.Fragment>
-        {this.renderPageHeader(isAdminView)}
+        {this.renderPageHeader()}
         <div className="row">
-          {isAdminView && <div className="col-md-3 list-control-t">{sidebar}</div>}
-          <div className={isAdminView ? 'list-content col-md-9' : 'col-md-12'}>
+          <div className="col-md-3 list-control-t">{sidebar}</div>
+          <div className="list-content col-md-9">
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
@@ -199,7 +181,7 @@ class UsersList extends React.Component {
               )
             }
           </div>
-          {isAdminView && <div className="col-md-3 list-control-r-b">{sidebar}</div>}
+          <div className="col-md-3 list-control-r-b">{sidebar}</div>
         </div>
       </React.Fragment>
     );
@@ -218,8 +200,17 @@ export default function init(ngModule) {
   ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
     defaultOrderBy: '-created_at',
     getRequest(request, { currentPage }) {
-      if (currentPage === 'disabled') {
-        request.disabled = true;
+      switch (currentPage) {
+        case 'active':
+          request.pending = false;
+          break;
+        case 'pending':
+          request.pending = true;
+          break;
+        case 'disabled':
+          request.disabled = true;
+          break;
+        // no default
       }
       return request;
     },
@@ -255,6 +246,11 @@ export default function init(ngModule) {
       path: '/users',
       title: 'Users',
       key: 'active',
+    },
+    {
+      path: '/users/pending',
+      title: 'Pending Invitations',
+      key: 'pending',
     },
     {
       path: '/users/disabled',

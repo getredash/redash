@@ -1,4 +1,3 @@
-import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
@@ -9,6 +8,7 @@ import Radio from 'antd/lib/radio';
 import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
@@ -19,26 +19,20 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const { Option, OptGroup } = Select;
 
-export class ScheduleDialog extends React.Component {
+class ScheduleDialog extends React.Component {
   static propTypes = {
-    show: PropTypes.bool.isRequired,
     schedule: RefreshScheduleType,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
-    updateQuery: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
+    dialog: DialogPropType.isRequired,
   };
 
   static defaultProps = {
     schedule: RefreshScheduleDefault,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = this.initState;
-    this.modalRef = React.createRef(); // used by <Select>
-  }
+  state = this.getState();
 
-  get initState() {
+  getState() {
     const newSchedule = clone(this.props.schedule || ScheduleDialog.defaultProps.schedule);
     const { time, interval: seconds, day_of_week: day } = newSchedule;
     const { interval } = secondsToInterval(seconds);
@@ -145,7 +139,7 @@ export class ScheduleDialog extends React.Component {
   setUntilToggle = (e) => {
     const date = e.target.value ? moment().format(DATE_FORMAT) : null;
     this.setScheduleUntil(null, date);
-  }
+  };
 
   save() {
     const { newSchedule } = this.state;
@@ -153,43 +147,34 @@ export class ScheduleDialog extends React.Component {
     // save if changed
     if (!isEqual(newSchedule, this.props.schedule)) {
       if (newSchedule.interval) {
-        this.props.updateQuery({ schedule: clone(newSchedule) });
+        this.props.dialog.close(clone(newSchedule));
       } else {
-        this.props.updateQuery({ schedule: null });
+        this.props.dialog.close(null);
       }
     }
-    this.props.onClose();
-  }
-
-  cancel() {
-    // reset changes
-    this.setState(this.initState);
-    this.props.onClose();
+    this.props.dialog.dismiss();
   }
 
   render() {
-    const {
-      interval, minute, hour, seconds, newSchedule: { until },
-    } = this.state;
-    const fixZIndex = { getPopupContainer: () => this.modalRef.current };
-    const selectProps = {
-      ...fixZIndex,
-      className: 'input',
-      dropdownMatchSelectWidth: false,
-    };
+    const { dialog } = this.props;
+    const { interval, minute, hour, seconds, newSchedule: { until } } = this.state;
 
     return (
       <Modal
+        {...dialog.props}
         title="Refresh Schedule"
         className="schedule"
-        visible={this.props.show}
-        onCancel={() => this.cancel()}
         onOk={() => this.save()}
       >
-        <div className="schedule-component" ref={this.modalRef}>
+        <div className="schedule-component">
           <h5>Refresh every</h5>
           <div data-testid="interval">
-            <Select value={seconds} onChange={this.setInterval} {...selectProps}>
+            <Select
+              className="input"
+              value={seconds}
+              onChange={this.setInterval}
+              dropdownMatchSelectWidth={false}
+            >
               <Option value={null} key="never">Never</Option>
               {Object.keys(this.intervals).map(int => (
                 <OptGroup label={capitalize(pluralize(int))} key={int}>
@@ -211,7 +196,6 @@ export class ScheduleDialog extends React.Component {
                 format={HOUR_FORMAT}
                 minuteStep={5}
                 onChange={this.setTime}
-                {...fixZIndex}
               />
             </div>
           </div>
@@ -264,8 +248,4 @@ export class ScheduleDialog extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('scheduleDialog', react2angular(ScheduleDialog));
-}
-
-init.init = true;
+export default wrapDialog(ScheduleDialog);
