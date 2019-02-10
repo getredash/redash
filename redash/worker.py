@@ -55,14 +55,6 @@ celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
                    worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT)
 
-if settings.SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.celery import CeleryIntegration
-
-    sentry_sdk.init(dsn=settings.SENTRY_DSN,
-                    integrations=[CeleryIntegration()],
-                    release=__version__)
-
 
 # Create a new Task base class, that pushes a new Flask app context to allow DB connections if needed.
 TaskBase = celery.Task
