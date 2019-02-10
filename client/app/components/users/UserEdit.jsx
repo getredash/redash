@@ -2,9 +2,6 @@ import React, { Fragment } from 'react';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
-import Icon from 'antd/lib/icon';
-import Input from 'antd/lib/input';
-import Tooltip from 'antd/lib/tooltip';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
@@ -24,17 +21,18 @@ export class UserEdit extends React.Component {
     this.state = {
       user: this.props.user,
       passwordModalIsOpen: false,
+      regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
       togglingUser: false,
     };
   }
 
-  onClickChangePassword = () => {
+  changePassword = () => {
     this.setState({ passwordModalIsOpen: true });
   };
 
-  onClickSendPasswordReset = () => {
+  sendPasswordReset = () => {
     this.setState({ sendingPasswordEmail: true });
 
     User.sendPasswordReset(this.state.user).then((passwordResetLink) => {
@@ -44,7 +42,7 @@ export class UserEdit extends React.Component {
     });
   };
 
-  onClickResendInvitation = () => {
+  resendInvitation = () => {
     this.setState({ resendingInvitation: true });
 
     User.resendInvitation(this.state.user).finally(() => {
@@ -52,13 +50,16 @@ export class UserEdit extends React.Component {
     });
   };
 
-  onClickRegenerateApiKey = () => {
+  regenerateApiKey = () => {
     const doRegenerate = () => {
+      this.setState({ regeneratingApiKey: true });
       User.regenerateApiKey(this.state.user).then((apiKey) => {
         if (apiKey) {
           const { user } = this.state;
           this.setState({ user: { ...user, apiKey } });
         }
+      }).finally(() => {
+        this.setState({ regeneratingApiKey: false });
       });
     };
 
@@ -72,7 +73,7 @@ export class UserEdit extends React.Component {
     });
   };
 
-  onClickToggleUser = () => {
+  toggleUser = () => {
     const { user } = this.state;
     const toggleUser = user.isDisabled ? User.enableUser : User.disableUser;
 
@@ -145,7 +146,6 @@ export class UserEdit extends React.Component {
 
     return (
       <Fragment>
-        <hr />
         <Modal
           visible={this.state.passwordModalIsOpen}
           title="Change Password"
@@ -155,7 +155,7 @@ export class UserEdit extends React.Component {
         >
           <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.updatePassword} />
         </Modal>
-        <Button className="w-100 m-t-10" onClick={this.onClickChangePassword} data-test="ChangePassword">
+        <Button className="w-100 m-t-10" onClick={this.changePassword} data-test="ChangePassword">
           Change Password
         </Button>
       </Fragment>
@@ -163,24 +163,20 @@ export class UserEdit extends React.Component {
   }
 
   renderApiKey() {
-    const { user } = this.state;
-
-    const regenerateButton = (
-      <Tooltip title="Regenerate API Key">
-        <Icon
-          type="reload"
-          style={{ cursor: 'pointer' }}
-          data-test="RegenerateApiKey"
-          onClick={this.onClickRegenerateApiKey}
-        />
-      </Tooltip>
-    );
+    const { user, regeneratingApiKey } = this.state;
 
     return (
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key">
-          <Input id="apiKey" addonAfter={regenerateButton} value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
+          <Button
+            className="w-100 m-t-10"
+            onClick={this.regenerateApiKey}
+            loading={regeneratingApiKey}
+          >
+            Regenerate
+          </Button>
         </Form.Item>
       </Form>
     );
@@ -213,7 +209,7 @@ export class UserEdit extends React.Component {
     return (
       <Button
         className="w-100 m-t-10"
-        onClick={this.onClickResendInvitation}
+        onClick={this.resendInvitation}
         loading={this.state.resendingInvitation}
       >
         Resend Invitation
@@ -228,7 +224,7 @@ export class UserEdit extends React.Component {
       <Fragment>
         <Button
           className="w-100 m-t-10"
-          onClick={this.onClickSendPasswordReset}
+          onClick={this.sendPasswordReset}
           loading={sendingPasswordEmail}
         >
           Send Password Reset Email
@@ -238,15 +234,15 @@ export class UserEdit extends React.Component {
     );
   }
 
-  renderToggleUser() {
+  rendertoggleUser() {
     const { user, togglingUser } = this.state;
 
     return user.isDisabled ? (
-      <Button className="w-100 m-t-10" type="primary" onClick={this.onClickToggleUser} loading={togglingUser}>
+      <Button className="w-100 m-t-10" type="primary" onClick={this.toggleUser} loading={togglingUser}>
         Enable User
       </Button>
     ) : (
-      <Button className="w-100 m-t-10" type="danger" onClick={this.onClickToggleUser} loading={togglingUser}>
+      <Button className="w-100 m-t-10" type="danger" onClick={this.toggleUser} loading={togglingUser}>
         Disable User
       </Button>
     );
@@ -269,6 +265,7 @@ export class UserEdit extends React.Component {
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
+            <h3>Password</h3><hr />
             {this.renderChangePassword()}
             {currentUser.isAdmin && (
               user.isInvitationPending ?
@@ -276,7 +273,8 @@ export class UserEdit extends React.Component {
             )}
           </Fragment>
         )}
-        {currentUser.isAdmin && user.id !== currentUser.id && this.renderToggleUser()}
+        <hr />
+        {currentUser.isAdmin && user.id !== currentUser.id && this.rendertoggleUser()}
       </div>
     );
   }
