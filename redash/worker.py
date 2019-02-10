@@ -8,7 +8,7 @@ from flask import current_app
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
-from redash import __version__, safe_create_app, settings
+from redash import safe_create_app, settings
 from redash.metrics import celery as celery_metrics
 
 celery = Celery('redash',

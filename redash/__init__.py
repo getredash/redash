@@ -91,36 +91,15 @@ class SlugConverter(BaseConverter):
         return value
 
 
-NON_REPORTED_EXCEPTIONS = ['QueryExecutionError']
-
-
-def before_send(event, hint):
-    if 'exc_info' in hint:
-        exc_type, exc_value, tb = hint['exc_info']
-        if any([(e in str(type(exc_value))) for e in NON_REPORTED_EXCEPTIONS]):
-            return None
-
-    return event
-
-
 def create_app(load_admin=True):
     from redash import admin, authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
     from redash.models import db, users
     from redash.metrics.request import provision_app
+    from redash.utils import sentry
 
-    if settings.SENTRY_DSN:
-        import sentry_sdk
-        from sentry_sdk.integrations.flask import FlaskIntegration
-        from sentry_sdk.integrations.celery import CeleryIntegration
-
-        sentry_sdk.init(
-            dsn=settings.SENTRY_DSN,
-            release=__version__,
-            before_send=before_send,
-            integrations=[FlaskIntegration(), CeleryIntegration()]
-        )
+    sentry.init()
 
     app = Flask(__name__,
                 template_folder=settings.STATIC_ASSETS_PATH,
