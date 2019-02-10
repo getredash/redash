@@ -9,7 +9,7 @@ services:
       - postgres
       - redis
     ports:
-      - "3000:3000"
+      - "5678:5678"
       - "5000:5000"
     volumes:
       - ".:/app"
