@@ -10,8 +10,8 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, json_loads, utcnow)
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils.parameterized_query import ParameterizedQuery, dropdown_values
 
 
 def error_response(message):
@@ -131,6 +131,11 @@ class QueryResultListResource(BaseResource):
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
+class QueryResultDropdownResource(BaseResource):
+    def get(self, query_id):
+        return dropdown_values(query_id)
+
+
 class QueryResultResource(BaseResource):
     @staticmethod
     def add_cors_headers(headers):
@@ -188,8 +193,7 @@ class QueryResultResource(BaseResource):
         max_age = int(params.get('max_age', 0))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = map(self._convert_queries_to_enums,
-                               query.options.get("parameters", []))
+        parameter_schema = query.options.get("parameters", [])
 
         if not has_access(query.data_source.groups, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
