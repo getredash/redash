@@ -1,0 +1,9 @@
+# This configuration file is for **development** setup. For production, refer to
+# docker-compose.production.yml.
+version: '3'
+services:
+  server:
+    command: debug_server
+    ports:
+      - "5678:5678"
+      - "5000:5000"

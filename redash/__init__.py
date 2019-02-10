@@ -23,7 +23,7 @@ __version__ = '6.0.0'
 
 
 import os
-if os.environ.get("FLASK_DEBUG"):
+if os.environ.get("REMOTE_DEBUG"):
     import ptvsd
     ptvsd.enable_attach(address=('0.0.0.0', 5678))
 
