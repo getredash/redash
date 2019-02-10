@@ -178,3 +178,21 @@
     }
   }
 }
+
+// styling for short modals (no lines)
+.@{dialog-prefix-cls}.shortModal {
+  .@{dialog-prefix-cls} {
+    &-header, &-footer {
+      border: none;
+      padding: 16px;
+    }
+    &-body {
+      padding: 10px 16px;
+    }
+    &-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
