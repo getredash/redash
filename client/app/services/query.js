@@ -366,6 +366,11 @@ function QueryResource(
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
+      dropdownOptions: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/:id/dropdown',
+      },
       favorites: {
         method: 'get',
         isArray: false,
