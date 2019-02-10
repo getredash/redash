@@ -102,8 +102,13 @@ export class UserEdit extends React.Component {
   };
 
   updatePassword = (values, successCallback, errorCallback) => {
+    const updatePasswordSuccess = (message) => {
+      this.setState({ passwordModalIsOpen: false });
+      successCallback(message);
+    };
+
     if (values.password === values.password_repeat) {
-      this.saveUser(values, successCallback, errorCallback);
+      this.saveUser(values, updatePasswordSuccess, errorCallback);
     } else {
       errorCallback('Passwords don\'t match.');
     }
@@ -117,22 +122,20 @@ export class UserEdit extends React.Component {
         title: 'Name',
         type: 'text',
         initialValue: user.name,
-        required: true,
       },
       {
         name: 'email',
         title: 'Email',
         type: 'email',
         initialValue: user.email,
-        required: true,
       },
-    ];
+    ].map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
 
     return (
       <DynamicForm
         fields={formFields}
-        readOnly={user.isDisabled}
         onSubmit={this.saveUser}
+        hideSubmitButton={user.isDisabled}
       />
     );
   }
@@ -168,16 +171,17 @@ export class UserEdit extends React.Component {
     return (
       <Form layout="vertical">
         <hr />
-        <Form.Item label="API Key">
+        <Form.Item label="API Key" className="m-b-10">
           <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
-          <Button
-            className="w-100 m-t-10"
-            onClick={this.regenerateApiKey}
-            loading={regeneratingApiKey}
-          >
-            Regenerate
-          </Button>
         </Form.Item>
+        <Button
+          className="w-100"
+          onClick={this.regenerateApiKey}
+          loading={regeneratingApiKey}
+          data-test="RegenerateApiKey"
+        >
+          Regenerate
+        </Button>
       </Form>
     );
   }
@@ -265,9 +269,10 @@ export class UserEdit extends React.Component {
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
-            <h3>Password</h3><hr />
-            {this.renderChangePassword()}
-            {currentUser.isAdmin && (
+            <hr />
+            <h5>Password</h5>
+            {user.id === currentUser.id && this.renderChangePassword()}
+            {(currentUser.isAdmin && user.id !== currentUser.id) && (
               user.isInvitationPending ?
                 this.renderResendInvitation() : this.renderSendPasswordReset()
             )}

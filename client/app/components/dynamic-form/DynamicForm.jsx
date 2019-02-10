@@ -28,7 +28,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
-    readOnly: PropTypes.bool,
+    hideSubmitButton: PropTypes.bool,
     saveText: PropTypes.string,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
@@ -38,7 +38,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     fields: [],
     actions: [],
     feedbackIcons: false,
-    readOnly: false,
+    hideSubmitButton: false,
     saveText: 'Save',
     onSubmit: () => {},
   };
@@ -155,9 +155,9 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     return this.props.fields.map((field) => {
       const [firstField] = this.props.fields;
       const FormItem = Form.Item;
-      const { name, title, type } = field;
+      const { name, title, type, readOnly } = field;
       const fieldLabel = title || helper.toHuman(name);
-      const { feedbackIcons, readOnly } = this.props;
+      const { feedbackIcons } = this.props;
 
       const formItemProps = {
         key: name,
@@ -207,8 +207,8 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const { readOnly, saveText } = this.props;
-    const saveButton = !readOnly;
+    const { hideSubmitButton, saveText } = this.props;
+    const saveButton = !hideSubmitButton;
 
     return (
       <Form layout="vertical" onSubmit={this.handleSubmit}>
