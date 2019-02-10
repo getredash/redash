@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Tooltip from 'antd/lib/tooltip';
-import TagsEditorModal from './TagsEditorModal';
+import EditTagsDialog from './EditTagsDialog';
 
 export class TagsControl extends React.Component {
   static propTypes = {
@@ -24,41 +24,18 @@ export class TagsControl extends React.Component {
     children: null,
   };
 
-  state = {
-    showModal: false,
-  };
-
-  openEditModal = () => {
-    this.setState({ showModal: true });
-  };
-
-  closeEditModal = () => {
-    this.setState({ showModal: false });
-  };
-
-  onTagsChanged = (newTags) => {
-    this.props.onEdit(newTags);
-    this.closeEditModal();
+  editTags = (tags, getAvailableTags) => {
+    EditTagsDialog.showModal({ tags, getAvailableTags })
+      .result.then(this.props.onEdit);
   };
 
   renderEditButton() {
     const tags = map(this.props.tags, trim);
-    const buttonLabel = tags.length > 0
-      ? <i className="zmdi zmdi-edit" />
-      : <React.Fragment><i className="zmdi zmdi-plus m-r-5" />Add tag</React.Fragment>;
-
     return (
-      <React.Fragment>
-        <a className="label label-tag" role="none" onClick={this.openEditModal}>{buttonLabel}</a>
-        {this.state.showModal && (
-          <TagsEditorModal
-            tags={tags}
-            getAvailableTags={this.props.getAvailableTags}
-            onConfirm={this.onTagsChanged}
-            onCancel={this.closeEditModal}
-          />
-        )}
-      </React.Fragment>
+      <a className="label label-tag" role="none" onClick={() => this.editTags(tags, this.props.getAvailableTags)}>
+        {(tags.length === 0) && <React.Fragment><i className="zmdi zmdi-plus m-r-5" />Add tag</React.Fragment>}
+        {(tags.length > 0) && <i className="zmdi zmdi-edit" />}
+      </a>
     );
   }
 

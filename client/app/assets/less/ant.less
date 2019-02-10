@@ -47,6 +47,12 @@
   z-index: 1050;
 }
 
+// Button overrides
+
+.@{btn-prefix-cls} {
+  transition-duration: 150ms;
+}
+
 // Fix ant input number showing duplicate arrows
 .ant-input-number-input::-webkit-outer-spin-button,
 .ant-input-number-input::-webkit-inner-spin-button {
@@ -146,7 +152,7 @@
 .@{table-prefix-cls} {
   color: inherit;
 
-  * {
+  tr, th, td {
     transition: none !important;
   }
 

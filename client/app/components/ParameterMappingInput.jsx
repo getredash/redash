@@ -3,6 +3,7 @@
 import { extend, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Select from 'antd/lib/select';
 import Table from 'antd/lib/table';
 import Popover from 'antd/lib/popover';
@@ -16,6 +17,7 @@ import Tooltip from 'antd/lib/tooltip';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { Parameter } from '@/services/query';
+import { IS_DASHBOARD_PARAM_SOURCE } from '@/services/dashboard';
 
 import './ParameterMappingInput.less';
 
@@ -294,7 +296,7 @@ class EditMapping extends React.Component {
       if (isEmpty(mapping.mapTo)) {
         inputError = 'Keyword must have a value';
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
-        inputError = 'Parameter with this name already exists';
+        inputError = 'A parameter with this name already exists';
       }
     }
 
@@ -368,21 +370,26 @@ class EditMapping extends React.Component {
   }
 }
 
-class EditTitle extends React.Component {
+class Title extends React.Component {
   static propTypes = {
+    existingParams: PropTypes.arrayOf(PropTypes.object),
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     onChange: PropTypes.func.isRequired,
     getContainerElement: PropTypes.func.isRequired,
-  };
+  }
+
+  static defaultProps = {
+    existingParams: [],
+  }
 
   state = {
-    visible: false,
+    showPopup: false,
     title: this.props.mapping.title,
   }
 
-  onVisibleChange = (visible) => {
+  onPopupVisibleChange = (showPopup) => {
     this.setState({
-      visible,
+      showPopup,
       title: this.props.mapping.title, // reset title
     });
   }
@@ -402,6 +409,7 @@ class EditTitle extends React.Component {
           placeholder={paramTitle}
           onChange={this.onTitleChange}
           onPressEnter={this.save}
+          maxLength={100}
           autoFocus
         />
         <Button size="small" type="dashed" onClick={this.hide}>
@@ -414,6 +422,37 @@ class EditTitle extends React.Component {
     );
   }
 
+  get isTypeMappedToOther() {
+    const { mapping } = this.props;
+
+    // should be type dashboard
+    if (mapping.type !== MappingType.DashboardMapToExisting) {
+      return false;
+    }
+
+    // should not be the dashboard source
+    return !mapping.param[IS_DASHBOARD_PARAM_SOURCE];
+  }
+
+  get isTypeStatic() {
+    return this.props.mapping.type === MappingType.StaticValue;
+  }
+
+  get titleValue() {
+    let { mapping } = this.props;
+    const { existingParams } = this.props;
+
+    // if mapped to dashboard, find source param and return it's title
+    if (this.isTypeMappedToOther) {
+      const source = find(existingParams, { name: mapping.mapTo });
+      if (source) {
+        mapping = source;
+      }
+    }
+
+    return mapping.title || mapping.param.title;
+  }
+
   save = () => {
     const newMapping = extend({}, this.props.mapping, { title: this.state.title });
     this.props.onChange(newMapping);
@@ -421,17 +460,17 @@ class EditTitle extends React.Component {
   }
 
   hide = () => {
-    this.setState({ visible: false });
+    this.setState({ showPopup: false });
   }
 
-  render() {
+  renderEditButton() {
     return (
       <Popover
         placement="right"
         trigger="click"
         content={this.popover}
-        visible={this.state.visible}
-        onVisibleChange={this.onVisibleChange}
+        visible={this.state.showPopup}
+        onVisibleChange={this.onPopupVisibleChange}
         getPopupContainer={this.props.getContainerElement}
       >
         <Button size="small" type="dashed">
@@ -440,15 +479,53 @@ class EditTitle extends React.Component {
       </Popover>
     );
   }
+
+  renderTooltip() {
+    let content; let icon;
+
+
+    if (this.isTypeStatic) { // static value
+      [content, icon] = [
+        'Titles for static values don\'t appear in widgets',
+        <i className="fa fa-eye-slash" />,
+      ];
+    } else if (this.isTypeMappedToOther) { // mapped to other param
+      [content, icon] = [
+        `This title is taken from parameter "${this.props.mapping.mapTo}"`,
+        <i className="fa fa-link" />,
+      ];
+    } else {
+      return null;
+    }
+
+    return (
+      <Tooltip
+        placement="right"
+        title={content}
+        getPopupContainer={this.props.getContainerElement}
+      >
+        {icon}
+      </Tooltip>
+    );
+  }
+
+  render() {
+    // static value and mapped types are non-editable hence disabled
+    const disabled = this.isTypeMappedToOther || this.isTypeStatic;
+
+    return (
+      <div className={classNames('title', { disabled })}>
+        <span className="text">{this.titleValue}</span>
+        {disabled ? this.renderTooltip() : this.renderEditButton()}
+      </div>
+    );
+  }
 }
 
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
     mappings: PropTypes.arrayOf(PropTypes.object),
-    existingParams: PropTypes.arrayOf(PropTypes.shape({
-      name: PropTypes.string,
-      type: PropTypes.string,
-    })),
+    existingParams: PropTypes.arrayOf(PropTypes.object),
     onChange: PropTypes.func,
     clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -554,19 +631,14 @@ export class ParameterMappingListInput extends React.Component {
             title="Title"
             dataIndex="mapping"
             key="title"
-            render={(mapping) => {
-              const { title, param: { title: paramTitle } } = mapping;
-              return (
-                <Fragment>
-                  {title || paramTitle}{' '}
-                  <EditTitle
-                    mapping={mapping}
-                    onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
-                    getContainerElement={() => this.wrapperRef.current}
-                  />
-                </Fragment>
-              );
-            }}
+            render={mapping => (
+              <Title
+                existingParams={existingParams}
+                mapping={mapping}
+                onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
+                getContainerElement={() => this.wrapperRef.current}
+              />
+            )}
           />
           <Table.Column
             title="Keyword"
