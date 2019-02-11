@@ -153,7 +153,7 @@ class AddWidgetDialog extends React.Component {
 
     const widgetsToSave = [
       widget,
-      ...synchronizeWidgetTitles(widget, dashboard.widgets),
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
     ];
 
     Promise.all(map(widgetsToSave, w => w.save()))

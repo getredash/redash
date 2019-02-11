@@ -39,7 +39,7 @@ class EditParameterMappingsDialog extends React.Component {
 
     const widgetsToSave = [
       widget,
-      ...synchronizeWidgetTitles(widget, this.props.dashboard.widgets),
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets),
     ];
 
     Promise.all(map(widgetsToSave, w => w.save()))

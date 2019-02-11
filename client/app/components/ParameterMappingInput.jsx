@@ -1,8 +1,9 @@
-/* eslint react/no-multi-comp: 0 */
+/* eslint-disable react/no-multi-comp */
 
-import { extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
+import { isString, extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Select from 'antd/lib/select';
 import Table from 'antd/lib/table';
 import Popover from 'antd/lib/popover';
@@ -15,8 +16,8 @@ import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-import { Parameter } from '@/services/query';
-import { IS_DASHBOARD_PARAM_SOURCE } from '@/services/dashboard';
+import { clientConfig } from '@/services/auth';
+import { Query, Parameter } from '@/services/query';
 
 import './ParameterMappingInput.less';
 
@@ -88,10 +89,9 @@ export function editableMappingsToParameterMappings(mappings) {
   ));
 }
 
-export function synchronizeWidgetTitles(sourceWidget, widgets) {
+export function synchronizeWidgetTitles(sourceMappings, widgets) {
   const affectedWidgets = [];
 
-  const sourceMappings = sourceWidget.options.parameterMappings;
   each(sourceMappings, (sourceMapping) => {
     if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
       each(widgets, (widget) => {
@@ -135,15 +135,11 @@ export class ParameterMappingInput extends React.Component {
     inputError: null,
   };
 
-  constructor(props) {
-    super(props);
-
-    this.formItemProps = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 16 },
-      className: 'formItem',
-    };
-  }
+  formItemProps = {
+    labelCol: { span: 5 },
+    wrapperCol: { span: 16 },
+    className: 'form-item',
+  };
 
   updateSourceType = (type) => {
     let { mapping: { mapTo } } = this.props;
@@ -288,19 +284,11 @@ export class ParameterMappingInput extends React.Component {
   }
 }
 
-class EditMapping extends React.Component {
+class MappingEditor extends React.Component {
   static propTypes = {
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     existingParamNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     onChange: PropTypes.func.isRequired,
-    getContainerElement: PropTypes.func.isRequired,
-    clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  };
-
-  static defaultProps = {
-    clientConfig: null,
-    Query: null,
   };
 
   constructor(props) {
@@ -330,13 +318,12 @@ class EditMapping extends React.Component {
     this.setState({ mapping, inputError });
   };
 
-  get content() {
+  getContent() {
     const { mapping, inputError } = this.state;
-    const { clientConfig, Query } = this.props;
     const helpUrl = replace(HELP_URL, '{0}', 'edit_mapping');
 
     return (
-      <div className="editMapping">
+      <div className="parameter-mapping-editor">
         <header>
           Edit Source and Value
           {/* eslint-disable-next-line react/jsx-no-target-blank */}
@@ -350,7 +337,6 @@ class EditMapping extends React.Component {
           mapping={mapping}
           existingParamNames={this.props.existingParamNames}
           onChange={this.onChange}
-          getContainerElement={() => this.wrapperRef.current}
           clientConfig={clientConfig}
           Query={Query}
           inputError={inputError}
@@ -384,10 +370,9 @@ class EditMapping extends React.Component {
       <Popover
         placement="left"
         trigger="click"
-        content={this.content}
+        content={this.getContent()}
         visible={this.state.visible}
         onVisibleChange={this.onVisibleChange}
-        getPopupContainer={this.props.getContainerElement}
       >
         <Button size="small" type="dashed">
           <Icon type="edit" />
@@ -397,12 +382,11 @@ class EditMapping extends React.Component {
   }
 }
 
-class Title extends React.Component {
+class TitleEditor extends React.Component {
   static propTypes = {
     existingParams: PropTypes.arrayOf(PropTypes.object),
     mapping: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     onChange: PropTypes.func.isRequired,
-    getContainerElement: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -411,29 +395,56 @@ class Title extends React.Component {
 
   state = {
     showPopup: false,
-    title: this.defaultTitleValue,
-    editingTitle: '', // will be set on editing
+    title: '', // will be set on editing
   };
 
   onPopupVisibleChange = (showPopup) => {
-    this.setState(({ title }) => ({
+    this.setState({
       showPopup,
-      editingTitle: title,
-    }));
+      title: showPopup ? this.getMappingTitle() : '',
+    });
   };
 
   onEditingTitleChange = (event) => {
-    this.setState({ editingTitle: event.target.value });
+    this.setState({ title: event.target.value });
   };
 
-  get popover() {
+  getMappingTitle() {
+    let { mapping } = this.props;
+
+    if (isString(mapping.title) && (mapping.title !== '')) {
+      return mapping.title;
+    }
+
+    // if mapped to dashboard, find source param and return it's title
+    if (mapping.type === MappingType.DashboardMapToExisting) {
+      const source = find(this.props.existingParams, { name: mapping.mapTo });
+      if (source) {
+        mapping = source;
+      }
+    }
+
+    return mapping.title || mapping.param.title;
+  }
+
+  save = () => {
+    const newMapping = extend({}, this.props.mapping, { title: this.state.title });
+    this.props.onChange(newMapping);
+    this.hide();
+  };
+
+  hide = () => {
+    this.setState({ showPopup: false });
+  };
+
+  renderPopover() {
     const { param: { title: paramTitle } } = this.props.mapping;
 
     return (
-      <div className="editTitle">
+      <div className="parameter-mapping-title-editor">
         <Input
           size="small"
-          value={this.state.editingTitle}
+          value={this.state.title}
           placeholder={paramTitle}
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
@@ -450,60 +461,22 @@ class Title extends React.Component {
     );
   }
 
-  get isTypeMappedToOther() {
-    const { mapping } = this.props;
-
-    // should be type dashboard
-    if (mapping.type !== MappingType.DashboardMapToExisting) {
-      return false;
-    }
-
-    // should not be the dashboard source
-    return !mapping.param[IS_DASHBOARD_PARAM_SOURCE];
-  }
-
-  get isTypeStatic() {
-    return this.props.mapping.type === MappingType.StaticValue;
-  }
-
-  get defaultTitleValue() {
-    let { mapping } = this.props;
-    const { existingParams } = this.props;
-
-    // if mapped to dashboard, find source param and return it's title
-    if (this.isTypeMappedToOther) {
-      const source = find(existingParams, { name: mapping.mapTo });
-      if (source) {
-        mapping = source;
-      }
-    }
-
-    return mapping.title || mapping.param.title;
-  }
-
-  save = () => {
-    this.setState(({ editingTitle }) => ({
-      title: editingTitle,
-    }), () => {
-      const newMapping = extend({}, this.props.mapping, { title: this.state.title });
-      this.props.onChange(newMapping);
-      this.hide();
-    });
-  };
-
-  hide = () => {
-    this.setState({ showPopup: false });
-  };
-
   renderEditButton() {
+    const { mapping } = this.props;
+    if (mapping.type === MappingType.StaticValue) {
+      return (
+        <Tooltip placement="right" title="Titles for static values don't appear in widgets">
+          <i className="fa fa-eye-slash" />
+        </Tooltip>
+      );
+    }
     return (
       <Popover
         placement="right"
         trigger="click"
-        content={this.popover}
+        content={this.renderPopover()}
         visible={this.state.showPopup}
         onVisibleChange={this.onPopupVisibleChange}
-        getPopupContainer={this.props.getContainerElement}
       >
         <Button size="small" type="dashed">
           <Icon type="edit" />
@@ -512,34 +485,14 @@ class Title extends React.Component {
     );
   }
 
-  renderTooltip() {
-    let content; let icon;
-
-
-    if (this.isTypeStatic) { // static value
-      [content, icon] = [
-        'Titles for static values don\'t appear in widgets',
-        <i className="fa fa-eye-slash" />,
-      ];
-    } else {
-      return null;
-    }
-
-    return (
-      <Tooltip
-        placement="right"
-        title={content}
-        getPopupContainer={this.props.getContainerElement}
-      >
-        {icon}
-      </Tooltip>
-    );
-  }
-
   render() {
+    const { mapping } = this.props;
+    // static value are non-editable hence disabled
+    const disabled = mapping.type === MappingType.StaticValue;
+
     return (
-      <div className="title">
-        <span className="text">{this.state.title}</span>
+      <div className={classNames('parameter-mapping-title', { disabled })}>
+        <span className="text">{this.getMappingTitle()}</span>
         {this.renderEditButton()}
       </div>
     );
@@ -551,22 +504,13 @@ export class ParameterMappingListInput extends React.Component {
     mappings: PropTypes.arrayOf(PropTypes.object),
     existingParams: PropTypes.arrayOf(PropTypes.object),
     onChange: PropTypes.func,
-    clientConfig: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    Query: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   };
 
   static defaultProps = {
     mappings: [],
     existingParams: [],
     onChange: () => {},
-    clientConfig: null,
-    Query: null,
   };
-
-  constructor(props) {
-    super(props);
-    this.wrapperRef = React.createRef();
-  }
 
   static getStringValue(value) {
     // null
@@ -640,11 +584,11 @@ export class ParameterMappingListInput extends React.Component {
   }
 
   render() {
-    const { clientConfig, Query, existingParams } = this.props; // eslint-disable-line react/prop-types
+    const { existingParams } = this.props; // eslint-disable-line react/prop-types
     const dataSource = this.props.mappings.map(mapping => ({ mapping }));
 
     return (
-      <div ref={this.wrapperRef} className="paramMappingList">
+      <div className="parameters-mapping-list">
         <Table
           dataSource={dataSource}
           size="middle"
@@ -656,11 +600,10 @@ export class ParameterMappingListInput extends React.Component {
             dataIndex="mapping"
             key="title"
             render={mapping => (
-              <Title
+              <TitleEditor
                 existingParams={existingParams}
                 mapping={mapping}
                 onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
-                getContainerElement={() => this.wrapperRef.current}
               />
             )}
           />
@@ -691,13 +634,10 @@ export class ParameterMappingListInput extends React.Component {
               return (
                 <Fragment>
                   {this.constructor.getSourceTypeLabel(mapping)}{' '}
-                  <EditMapping
+                  <MappingEditor
                     mapping={mapping}
                     existingParamNames={existingParamsNames}
                     onChange={(oldMapping, newMapping) => this.updateParamMapping(oldMapping, newMapping)}
-                    getContainerElement={() => this.wrapperRef.current}
-                    clientConfig={clientConfig}
-                    Query={Query}
                   />
                 </Fragment>
               );
