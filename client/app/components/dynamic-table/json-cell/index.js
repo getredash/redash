@@ -3,7 +3,7 @@ import renderJsonView from './json-view-interactive';
 import template from './template.html';
 
 function parseValue(value, clientConfig) {
-  if (isString(value) && value.length <= clientConfig.maxJsonSize) {
+  if (isString(value) && value.length <= clientConfig.tableCellMaxJSONSize) {
     try {
       return JSON.parse(value);
     } catch (e) {

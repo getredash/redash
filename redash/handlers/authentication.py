@@ -219,7 +219,7 @@ def client_config():
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
         'pageSize': settings.PAGE_SIZE,
         'pageSizeOptions': settings.PAGE_SIZE_OPTIONS,
-        'maxJsonSize': settings.MAX_JSON_SIZE,
+        'tableCellMaxJSONSize': settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 
     client_config.update(defaults)
