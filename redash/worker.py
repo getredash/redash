@@ -8,7 +8,7 @@ from flask import current_app
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
-from redash import __version__, safe_create_app, settings
+from redash import safe_create_app, settings
 from redash.metrics import celery as celery_metrics
 
 celery = Celery('redash',
@@ -54,13 +54,6 @@ celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    result_expires=settings.CELERY_RESULT_EXPIRES,
                    worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
                    worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT)
-
-if settings.SENTRY_DSN:
-    from raven import Client
-    from raven.contrib.celery import register_signal
-
-    client = Client(settings.SENTRY_DSN, release=__version__, install_logging_hook=False)
-    register_signal(client)
 
 
 # Create a new Task base class, that pushes a new Flask app context to allow DB connections if needed.
