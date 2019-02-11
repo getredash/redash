@@ -318,7 +318,23 @@ class MappingEditor extends React.Component {
     this.setState({ mapping, inputError });
   };
 
-  getContent() {
+  save = () => {
+    this.props.onChange(this.props.mapping, this.state.mapping);
+    this.hide();
+  };
+
+  show = () => {
+    this.setState({
+      visible: true,
+      mapping: clone(this.props.mapping), // restore original state
+    });
+  };
+
+  hide = () => {
+    this.setState({ visible: false });
+  };
+
+  renderContent() {
     const { mapping, inputError } = this.state;
     const helpUrl = replace(HELP_URL, '{0}', 'edit_mapping');
 
@@ -349,28 +365,12 @@ class MappingEditor extends React.Component {
     );
   }
 
-  save = () => {
-    this.props.onChange(this.props.mapping, this.state.mapping);
-    this.hide();
-  };
-
-  show = () => {
-    this.setState({
-      visible: true,
-      mapping: clone(this.props.mapping), // restore original state
-    });
-  };
-
-  hide = () => {
-    this.setState({ visible: false });
-  };
-
   render() {
     return (
       <Popover
         placement="left"
         trigger="click"
-        content={this.getContent()}
+        content={this.renderContent()}
         visible={this.state.visible}
         onVisibleChange={this.onVisibleChange}
       >
