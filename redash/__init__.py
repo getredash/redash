@@ -3,7 +3,7 @@ import logging
 import urlparse
 import urllib
 
-import redis 
+import redis
 from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
@@ -97,6 +97,9 @@ def create_app(load_admin=True):
     from redash.handlers import chrome_logger
     from redash.models import db, users
     from redash.metrics.request import provision_app
+    from redash.utils import sentry
+
+    sentry.init()
 
     app = Flask(__name__,
                 template_folder=settings.STATIC_ASSETS_PATH,
@@ -109,19 +112,6 @@ def create_app(load_admin=True):
 
     if settings.ENFORCE_HTTPS:
         SSLify(app, skips=['ping'])
-
-    if settings.SENTRY_DSN:
-        from raven import Client
-        from raven.contrib.flask import Sentry
-        from raven.handlers.logging import SentryHandler
-
-        client = Client(settings.SENTRY_DSN, release=__version__, install_logging_hook=False)
-        sentry = Sentry(app, client=client)
-        sentry.client.release = __version__
-
-        sentry_handler = SentryHandler(client=client)
-        sentry_handler.setLevel(logging.ERROR)
-        logging.getLogger().addHandler(sentry_handler)
 
     # configure our database
     app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI

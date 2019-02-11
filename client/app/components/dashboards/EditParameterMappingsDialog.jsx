@@ -7,6 +7,7 @@ import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
 
 class EditParameterMappingsDialog extends React.Component {
@@ -35,8 +36,13 @@ class EditParameterMappingsDialog extends React.Component {
     this.setState({ saveInProgress: true });
 
     widget.options.parameterMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
-    widget
-      .save()
+
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets),
+    ];
+
+    Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
         this.props.dialog.close();
       })

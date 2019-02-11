@@ -1,7 +1,9 @@
 from unittest import TestCase
+from mock import patch
+from collections import namedtuple
 import pytest
 
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError
+from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 class TestParameterizedQuery(TestCase):
@@ -110,6 +112,31 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEquals("foo baz", query.text)
 
+    @patch('redash.utils.parameterized_query.dropdown_values')
+    def test_raises_on_invalid_query_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": 7})
+
+    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    def test_raises_on_unlisted_query_value_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": "shlomo"})
+
+    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    def test_validates_query_parameters(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "baz"})
+
+        self.assertEquals("foo baz", query.text)
+
     def test_raises_on_invalid_date_range_parameters(self):
         schema = [{"name": "bar", "type": "date-range"}]
         query = ParameterizedQuery("foo", schema)
@@ -131,3 +158,17 @@ class TestParameterizedQuery(TestCase):
 
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
+
+    @patch('redash.utils.parameterized_query._load_result', return_value={
+        "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
+        "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]})
+    def test_dropdown_values_prefers_name_and_value_columns(self, _):
+        values = dropdown_values(1)
+        self.assertEquals(values, [{"name": "John", "value": "John Doe"}])
+
+    @patch('redash.utils.parameterized_query._load_result', return_value={
+        "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
+        "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
+    def test_dropdown_values_compromises_for_first_column(self, _):
+        values = dropdown_values(1)
+        self.assertEquals(values, [{"name": 5, "value": 5}])
