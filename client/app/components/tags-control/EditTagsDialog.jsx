@@ -39,7 +39,12 @@ class EditTagsDialog extends React.Component {
     const { dialog } = this.props;
     const { loading, availableTags, result } = this.state;
     return (
-      <Modal {...dialog.props} onOk={() => dialog.close(result)} title="Add/Edit Tags">
+      <Modal
+        {...dialog.props}
+        onOk={() => dialog.close(result)}
+        title="Add/Edit Tags"
+        className="shortModal"
+      >
         <Select
           mode="tags"
           className="w-100"
