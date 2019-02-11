@@ -19,6 +19,8 @@ depends_on = None
 def upgrade():
     op.create_table(
         'table_metadata',
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('data_source_id', sa.Integer(), nullable=False),
         sa.Column('table_exists', sa.Boolean(), nullable=False),
@@ -31,6 +33,8 @@ def upgrade():
     )
     op.create_table(
         'column_metadata',
+        sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+        sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('table_id', sa.Integer(), nullable=False),
         sa.Column('column_name', sa.String(length=255), nullable=False),
