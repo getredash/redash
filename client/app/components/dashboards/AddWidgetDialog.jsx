@@ -10,6 +10,7 @@ import {
   MappingType,
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 
@@ -150,8 +151,12 @@ class AddWidgetDialog extends React.Component {
     widget.options.position.col = position.col;
     widget.options.position.row = position.row;
 
-    widget
-      .save()
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+    ];
+
+    Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
         dashboard.widgets.push(widget);
         this.props.dialog.close();
@@ -284,10 +289,7 @@ class AddWidgetDialog extends React.Component {
   }
 
   render() {
-    const existingParams = map(
-      this.props.dashboard.getParametersDefs(),
-      ({ name, type }) => ({ name, type }),
-    );
+    const existingParams = this.props.dashboard.getParametersDefs();
     const { dialog } = this.props;
 
     return (
