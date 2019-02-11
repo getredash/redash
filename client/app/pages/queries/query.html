@@ -252,7 +252,7 @@
           </section>
         </div>
       </div>
-      <div class="bottom-controller-container">
+      <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
 
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
