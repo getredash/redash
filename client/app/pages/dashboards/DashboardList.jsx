@@ -77,7 +77,7 @@ class DashboardList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
         <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
@@ -93,7 +93,7 @@ class DashboardList extends React.Component {
     const { controller } = this.props;
     return (
       <div className="container">
-        <PageHeader title={controller.title} />
+        <PageHeader title={controller.params.title} />
         <div className="row">
           <div className="col-md-3 list-control-t">{sidebar}</div>
           <div className="list-content col-md-9">
@@ -101,7 +101,7 @@ class DashboardList extends React.Component {
             {
               controller.isLoaded && controller.isEmpty && (
                 <DashboardListEmptyState
-                  page={controller.currentPage}
+                  page={controller.params.currentPage}
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
@@ -139,7 +139,7 @@ export default function init(ngModule) {
   ngModule.component('pageDashboardList', react2angular(itemsList(
     DashboardList,
     new ResourceItemsSource({
-      getResource({ currentPage }) {
+      getResource({ params: { currentPage } }) {
         return {
           all: Dashboard.query.bind(Dashboard),
           favorites: Dashboard.favorites.bind(Dashboard),
@@ -165,7 +165,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<page-dashboard-list current-page="$resolve.currentPage" on-error="handleError"></page-dashboard-list>',
+    template: '<page-dashboard-list on-error="handleError"></page-dashboard-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

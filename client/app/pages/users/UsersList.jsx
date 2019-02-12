@@ -169,7 +169,7 @@ class UsersList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
           value={controller.itemsPerPage}
@@ -231,7 +231,7 @@ export default function init(ngModule) {
   ngModule.component('pageUsersList', react2angular(itemsList(
     UsersList,
     new ResourceItemsSource({
-      getRequest(request, { currentPage }) {
+      getRequest(request, { params: { currentPage } }) {
         switch (currentPage) {
           case 'active':
             request.pending = false;
@@ -273,8 +273,13 @@ export default function init(ngModule) {
       key: 'disabled',
     },
   ], {
-    template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
+    template: '<settings-screen><page-users-list on-error="handleError"></page-users-list></settings-screen>',
     reloadOnSearch: false,
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
   });
 }
 

@@ -93,7 +93,7 @@ class QueriesList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
         <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
@@ -109,7 +109,7 @@ class QueriesList extends React.Component {
     const { controller } = this.props;
     return (
       <div className="container">
-        <PageHeader title={controller.title} />
+        <PageHeader title={controller.params.title} />
         <div className="row">
           <div className="col-md-3 list-control-t">{sidebar}</div>
           <div className="list-content col-md-9">
@@ -117,7 +117,7 @@ class QueriesList extends React.Component {
             {
               controller.isLoaded && controller.isEmpty && (
                 <QueriesListEmptyState
-                  page={controller.currentPage}
+                  page={controller.params.currentPage}
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
@@ -155,7 +155,7 @@ export default function init(ngModule) {
   ngModule.component('pageQueriesList', react2angular(itemsList(
     QueriesList,
     new ResourceItemsSource({
-      getResource({ currentPage }) {
+      getResource({ params: { currentPage } }) {
         return {
           all: Query.query.bind(Query),
           my: Query.myQueries.bind(Query),
@@ -193,7 +193,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<page-queries-list current-page="$resolve.currentPage" on-error="handleError"></page-queries-list>',
+    template: '<page-queries-list on-error="handleError"></page-queries-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

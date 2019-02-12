@@ -7,8 +7,8 @@ import { clientConfig } from '@/services/auth';
 import { StateStorage } from './classes/StateStorage';
 
 export const ControllerType = PropTypes.shape({
-  currentPage: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
+  // values of props declared by wrapped component, current route's locals (`resolve: { ... }`) and title
+  params: PropTypes.object.isRequired,
 
   isLoaded: PropTypes.bool.isRequired,
   isEmpty: PropTypes.bool.isRequired,
@@ -41,14 +41,12 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
   class ItemsListWrapper extends React.Component {
     static propTypes = {
       ...omit(WrappedComponent.propTypes, ['controller']),
-      currentPage: PropTypes.string,
       onError: PropTypes.func,
       children: PropTypes.node,
     };
 
     static defaultProps = {
       ...omit(WrappedComponent.defaultProps, ['controller']),
-      currentPage: null,
       onError: (error) => {
         // Allow calling chain to roll up, and then throw the error in global context
         setTimeout(() => { throw error; });
@@ -95,11 +93,19 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
 
     // eslint-disable-next-line class-methods-use-this
     getState({ isLoaded, totalCount, pageItems, ...rest }) {
+      const params = {
+        // Add some properties of current route (`$resolve`, title)
+        // ANGULAR_REMOVE_ME Revisit when some React router will be used
+        title: $route.current.title,
+        ...omit($route.current.locals, ['$scope', '$template']),
+
+        // Add to params all props except of own ones
+        ...omit(this.props, ['onError', 'children']),
+      };
       return {
         ...rest,
 
-        currentPage: this.props.currentPage,
-        title: $route.current.title,
+        params,
 
         isLoaded,
         isEmpty: !isLoaded || (totalCount === 0),
@@ -110,7 +116,8 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     }
 
     render() {
-      const { children, ...props } = this.props;
+      // don't pass own props to wrapped component
+      const { children, onError, ...props } = this.props;
       props.controller = this.state;
       return <WrappedComponent {...props}>{ children }</WrappedComponent>;
     }
