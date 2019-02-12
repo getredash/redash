@@ -8,7 +8,7 @@ import { $http, toastr } from '@/services/ng';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
 
-const API_SHARE_URL = 'api/dashboards/{0}/share';
+const API_SHARE_URL = 'api/dashboards/{id}/share';
 const HELP_URL = 'https://redash.io/help/user-guide/dashboards/sharing-dashboards?source=dialog';
 
 class ShareDashboardDialog extends React.Component {
@@ -27,7 +27,7 @@ class ShareDashboardDialog extends React.Component {
     super(props);
     this.state = {
       saving: false,
-      url: replace(API_SHARE_URL, '{0}', props.dashboard.id),
+      apiUrl: replace(API_SHARE_URL, '{id}', props.dashboard.id),
     };
   }
 
@@ -49,7 +49,7 @@ class ShareDashboardDialog extends React.Component {
     this.setState({ saving: true });
 
     $http
-      .post(this.state.url)
+      .post(this.state.apiUrl)
       .success((data) => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
@@ -67,7 +67,7 @@ class ShareDashboardDialog extends React.Component {
     this.setState({ saving: true });
 
     $http
-      .delete(this.state.url)
+      .delete(this.state.apiUrl)
       .success(() => {
         dashboard.publicAccessEnabled = false;
         delete dashboard.public_url;
@@ -106,7 +106,7 @@ class ShareDashboardDialog extends React.Component {
             />
           </Form.Item>
           {dashboard.public_url && (
-            <Form.Item label="Share secret address" {...this.formItemProps}>
+            <Form.Item label="Secret address" {...this.formItemProps}>
               <InputWithCopy value={dashboard.public_url} />
             </Form.Item>
           )}
