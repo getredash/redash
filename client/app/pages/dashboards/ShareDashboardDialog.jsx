@@ -9,6 +9,7 @@ import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
 
 const API_SHARE_URL = 'api/dashboards/{0}/share';
+const HELP_URL = 'https://redash.io/help/user-guide/dashboards/sharing-dashboards?source=dialog';
 
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
@@ -28,6 +29,19 @@ class ShareDashboardDialog extends React.Component {
       saving: false,
       url: replace(API_SHARE_URL, '{0}', props.dashboard.id),
     };
+  }
+
+  static get headerContent() {
+    return (
+      <React.Fragment>
+        Share Dashboard
+        <div className="modal-header-desc">
+          Allow public access to this dashboard with a secret address.{' '}
+          { /* eslint-disable-next-line react/jsx-no-target-blank */}
+          <a href={HELP_URL} target="_blank" rel="noopener">Learn more</a>
+        </div>
+      </React.Fragment>
+    );
   }
 
   enable = () => {
@@ -74,14 +88,13 @@ class ShareDashboardDialog extends React.Component {
     }
   };
 
-
   render() {
     const { dialog, dashboard } = this.props;
 
     return (
       <Modal
         {...dialog.props}
-        title="Share Dashboard"
+        title={this.constructor.headerContent}
         footer={null}
       >
         <Form layout="horizontal">
