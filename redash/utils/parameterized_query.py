@@ -1,7 +1,6 @@
 import pystache
 from functools import partial
 from flask_login import current_user
-from redash.authentication.org_resolving import current_org
 from numbers import Number
 from redash import models
 from redash.utils import mustache_render, json_loads
@@ -19,6 +18,7 @@ def _pluck_name_and_value(default_column, row):
 
 
 def _load_result(query_id):
+    from redash.authentication.org_resolving import current_org
     query = models.Query.get_by_id_and_org(query_id, current_org)
     require_access(query.data_source.groups, current_user, view_only)
     query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
