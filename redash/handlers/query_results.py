@@ -10,8 +10,8 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, json_loads, utcnow)
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
+from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 def error_response(message):
@@ -166,23 +166,6 @@ class QueryResultResource(BaseResource):
             headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
 
         return make_response("", 200, headers)
-
-    def _fetch_rows(self, query_id):
-        query = models.Query.get_by_id_and_org(query_id, self.current_org)
-        require_access(query.data_source.groups, self.current_user, view_only)
-
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
-
-        return json_loads(query_result.data)["rows"]
-
-    def _convert_queries_to_enums(self, definition):
-        if definition["type"] == "query":
-            definition["type"] = "enum"
-
-            rows = self._fetch_rows(definition.pop("queryId"))
-            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows if row]
-
-        return definition
 
     @require_permission('execute_query')
     def post(self, query_id):
