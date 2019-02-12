@@ -229,7 +229,7 @@ class QueryListResource(BaseQueryListResource):
             'object_type': 'query'
         })
 
-        return QuerySerializer(query).serialize()
+        return QuerySerializer(query, with_visualizations=True).serialize()
 
 
 class QueryArchiveResource(BaseQueryListResource):

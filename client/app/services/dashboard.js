@@ -2,8 +2,6 @@ import _ from 'lodash';
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
-export const IS_DASHBOARD_PARAM_SOURCE = 'IS_DASHBOARD_PARAM_SOURCE';
-
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
@@ -167,17 +165,12 @@ function DashboardService($resource, $http, $location, currentUser, Widget, dash
           .forEach((param) => {
             const mapping = mappings[param.name];
             if (mapping.type === Widget.MappingType.DashboardLevel) {
-              // set default
-              param[IS_DASHBOARD_PARAM_SOURCE] = false;
-
               // create global param
               if (!globalParams[mapping.mapTo]) {
                 globalParams[mapping.mapTo] = param.clone();
                 globalParams[mapping.mapTo].name = mapping.mapTo;
                 globalParams[mapping.mapTo].title = mapping.title || param.title;
                 globalParams[mapping.mapTo].locals = [];
-
-                param[IS_DASHBOARD_PARAM_SOURCE] = true;
               }
 
               // add to locals list
