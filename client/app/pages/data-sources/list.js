@@ -1,10 +1,10 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
+import { policy } from '@/services/policy';
 import template from './list.html';
 
-function DataSourcesCtrl($scope, $location, currentUser, Events, DataSource) {
-  Events.record('view', 'page', 'admin/data_sources');
-
-  $scope.dataSources = DataSource.query();
+function DataSourcesCtrl(DataSource) {
+  this.policy = policy;
+  this.dataSources = DataSource.query();
 }
 
 export default function init(ngModule) {
@@ -15,13 +15,17 @@ export default function init(ngModule) {
     order: 1,
   });
 
-  ngModule.controller('DataSourcesCtrl', DataSourcesCtrl);
+  ngModule.component('dsListPage', {
+    controller: DataSourcesCtrl,
+    template,
+  });
 
   return {
     '/data_sources': {
-      template,
-      controller: 'DataSourcesCtrl',
+      template: '<ds-list-page></ds-list-page>',
       title: 'Data Sources',
     },
   };
 }
+
+init.init = true;

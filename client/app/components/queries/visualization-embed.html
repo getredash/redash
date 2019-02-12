@@ -2,8 +2,8 @@
   <div class="embed-heading p-t-10 p-b-10 p-r-15 p-l-15">
     <h3>
       <img ng-src="{{$ctrl.logoUrl}}" style="height: 24px;"/>
+      <visualization-name visualization="$ctrl.visualization"/>
       {{$ctrl.query.name}}
-      <small><visualization-name visualization="$ctrl.visualization"/></small>
 
       <small ng-if="$ctrl.showQueryDescription">
         <div class="text-muted" ng-bind-html="$ctrl.query.description | markdown"></div>

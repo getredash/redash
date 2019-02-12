@@ -1,6 +1,8 @@
 import moment from 'moment/moment';
 import numeral from 'numeral';
-import _ from 'underscore';
+import _ from 'lodash';
+
+numeral.options.scalePercentBy100 = false;
 
 // eslint-disable-next-line
 const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
@@ -75,7 +77,7 @@ export function formatSimpleTemplate(str, data) {
   if (!_.isString(str)) {
     return '';
   }
-  return str.replace(/{{\s*([^\s]+)\s*}}/g, (match, prop) => {
+  return str.replace(/{{\s*([^\s]+?)\s*}}/g, (match, prop) => {
     if (hasOwnProperty.call(data, prop) && !_.isUndefined(data[prop])) {
       return data[prop];
     }

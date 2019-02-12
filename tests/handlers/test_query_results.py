@@ -1,6 +1,7 @@
-import json
 from tests import BaseTestCase
+
 from redash.models import db
+from redash.utils import json_dumps
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -75,6 +76,15 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 400)
         self.assertIn('job', rv.json)
 
+        rv = self.make_request('post', '/api/query_results',
+                               data={'data_source_id': self.factory.data_source.id,
+                                     'query': query,
+                                     'parameters': {'param': 1},
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
         rv = self.make_request('post', '/api/query_results?p_param=1',
                                data={'data_source_id': self.factory.data_source.id,
                                      'query': query,
@@ -118,6 +128,14 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
         self.assertEquals(rv.status_code, 200)
 
+    def test_execute_new_query(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={'parameters': {}})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()
@@ -134,7 +152,7 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request('get', '/api/queries/{}/results.json?api_key={}'.format(query.id, query.api_key), user=False)
         self.assertEquals(rv.status_code, 200)
-    
+
     def test_query_api_key_and_different_query_result(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
@@ -152,6 +170,16 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 403)
 
 
+class TestQueryResultDropdownResource(BaseTestCase):
+    def test_checks_for_access_to_the_query(self):
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
+        query = self.factory.create_query(data_source=ds2)
+
+        rv = self.make_request('get', '/api/queries/{}/dropdown'.format(query.id))
+
+        self.assertEquals(rv.status_code, 403)
+
+
 class TestQueryResultExcelResponse(BaseTestCase):
     def test_renders_excel_file(self):
         query = self.factory.create_query()
@@ -162,7 +190,17 @@ class TestQueryResultExcelResponse(BaseTestCase):
 
     def test_renders_excel_file_when_rows_have_missing_columns(self):
         query = self.factory.create_query()
-        query_result = self.factory.create_query_result(data=json.dumps({'rows': [{'test': 1}, {'test': 2, 'test2': 3}], 'columns': [{'name': 'test'}, {'name': 'test2'}]}))
+        data = {
+            'rows': [
+                {'test': 1},
+                {'test': 2, 'test2': 3},
+            ],
+            'columns': [
+                {'name': 'test'},
+                {'name': 'test2'},
+            ],
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)

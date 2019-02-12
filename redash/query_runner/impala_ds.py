@@ -1,9 +1,7 @@
-import json
 import logging
-import sys
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +74,6 @@ class Impala(BaseSQLQueryRunner):
     def type(cls):
         return "impala"
 
-    def __init__(self, configuration):
-        super(Impala, self).__init__(configuration)
-
     def _get_tables(self, schema_dict):
         schemas_query = "show schemas;"
         tables_query = "show tables in %s;"
@@ -121,7 +116,7 @@ class Impala(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
             cursor.close()
         except DatabaseError as e:

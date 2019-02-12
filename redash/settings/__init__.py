@@ -1,7 +1,8 @@
 import os
 from funcy import distinct, remove
 
-from .helpers import parse_db_url, fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
+from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
+from .organization import DATE_FORMAT
 
 
 def all_settings():
@@ -32,8 +33,12 @@ SQLALCHEMY_ECHO = False
 
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
-CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER)
-CELERY_TASK_RESULT_EXPIRES = int(os.environ.get('REDASH_CELERY_TASK_RESULT_EXPIRES', 3600 * 4))
+CELERY_RESULT_BACKEND = os.environ.get(
+    "REDASH_CELERY_RESULT_BACKEND",
+    os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER))
+CELERY_RESULT_EXPIRES = int(os.environ.get(
+    "REDASH_CELERY_RESULT_EXPIRES",
+    os.environ.get("REDASH_CELERY_TASK_RESULT_EXPIRES", 3600 * 4)))
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
@@ -50,7 +55,7 @@ MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
-GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+GOOGLE_OAUTH_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 
 # Enables the use of an externally-provided and trusted remote user via an HTTP
 # header.  The "user" must be an email address.
@@ -107,8 +112,16 @@ LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 LOG_STDOUT = parse_boolean(os.environ.get('REDASH_LOG_STDOUT', 'false'))
 LOG_PREFIX = os.environ.get('REDASH_LOG_PREFIX', '')
 LOG_FORMAT = os.environ.get('REDASH_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
-CELERYD_LOG_FORMAT = os.environ.get('REDASH_CELERYD_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] %(message)s')
-CELERYD_TASK_LOG_FORMAT = os.environ.get('REDASH_CELERYD_TASK_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] task_name=%(task_name)s taks_id=%(task_id)s %(message)s')
+CELERYD_WORKER_LOG_FORMAT = os.environ.get(
+    "REDASH_CELERYD_WORKER_LOG_FORMAT",
+    os.environ.get('REDASH_CELERYD_LOG_FORMAT',
+                   LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] %(message)s'))
+CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
+    "REDASH_CELERYD_WORKER_TASK_LOG_FORMAT",
+    os.environ.get('REDASH_CELERYD_TASK_LOG_FORMAT',
+                   (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] '
+                    'task_name=%(task_name)s '
+                    'task_id=%(task_id)s %(message)s')))
 
 # Mail settings:
 MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
@@ -153,10 +166,13 @@ default_query_runners = [
     'redash.query_runner.influx_db',
     'redash.query_runner.elasticsearch',
     'redash.query_runner.presto',
+    'redash.query_runner.databricks',
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.clickhouse',
+    'redash.query_runner.yandex_metrica',
+    'redash.query_runner.rockset',
     'redash.query_runner.treasuredata',
     'redash.query_runner.sqlite',
     'redash.query_runner.dynamodb_sql',
@@ -169,7 +185,12 @@ default_query_runners = [
     'redash.query_runner.salesforce',
     'redash.query_runner.query_results',
     'redash.query_runner.prometheus',
-    'redash.query_runner.qubole'
+    'redash.query_runner.qubole',
+    'redash.query_runner.db2',
+    'redash.query_runner.druid',
+    'redash.query_runner.kylin',
+    'redash.query_runner.drill',
+    'redash.query_runner.uptycs',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -186,6 +207,8 @@ default_destinations = [
     'redash.destinations.webhook',
     'redash.destinations.hipchat',
     'redash.destinations.mattermost',
+    'redash.destinations.chatwork',
+    'redash.destinations.pagerduty',
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
@@ -195,22 +218,21 @@ DESTINATIONS = distinct(enabled_destinations + additional_destinations)
 
 EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
 
-# Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
+# Support for Sentry (https://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
-DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 DASHBOARD_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_DASHBOARD_REFRESH_INTERVALS", "60,300,600,1800,3600,43200,86400")))
 QUERY_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_QUERY_REFRESH_INTERVALS", "60, 300, 600, 900, 1800, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 86400, 604800, 1209600, 2592000")))
+PAGE_SIZE = int(os.environ.get('REDASH_PAGE_SIZE', 20))
+PAGE_SIZE_OPTIONS = map(int, array_from_string(os.environ.get("REDASH_PAGE_SIZE_OPTIONS", "5,10,20,50,100")))
 
 # Features:
 VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
-FEATURE_SHOW_PERMISSIONS_CONTROL = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_PERMISSIONS_CONTROL", "false"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false"))
-FEATURE_DUMB_RECENTS = parse_boolean(os.environ.get("REDASH_FEATURE_DUMB_RECENTS", "false"))
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
 
 # BigQuery
@@ -222,3 +244,14 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 # Allow Parameters in Embeds
 # WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
 ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
+
+# kylin
+KYLIN_OFFSET = int(os.environ.get('REDASH_KYLIN_OFFSET', 0))
+KYLIN_LIMIT = int(os.environ.get('REDASH_KYLIN_LIMIT', 50000))
+KYLIN_ACCEPT_PARTIAL = parse_boolean(os.environ.get("REDASH_KYLIN_ACCEPT_PARTIAL", "false"))
+
+# sqlparse
+SQLPARSE_FORMAT_OPTIONS = {
+    'reindent': parse_boolean(os.environ.get('SQLPARSE_FORMAT_REINDENT', 'true')),
+    'keyword_case': os.environ.get('SQLPARSE_FORMAT_KEYWORD_CASE', 'upper'),
+}

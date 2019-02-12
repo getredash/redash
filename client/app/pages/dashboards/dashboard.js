@@ -1,8 +1,11 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import getTags from '@/services/getTags';
+import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
+import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -22,12 +25,12 @@ function getWidgetsWithChangedPositions(widgets) {
 }
 
 function DashboardCtrl(
-  $rootScope,
   $routeParams,
   $location,
   $timeout,
   $q,
   $uibModal,
+  $scope,
   Title,
   AlertDialog,
   Dashboard,
@@ -73,11 +76,20 @@ function DashboardCtrl(
   this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
+  this.isDashboardOwner = false;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
     rate: interval,
+    enabled: true,
   }));
+
+  const allowedIntervals = policy.getDashboardRefreshIntervals();
+  if (_.isArray(allowedIntervals)) {
+    _.each(this.refreshRates, (rate) => {
+      rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
+    });
+  }
 
   this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
@@ -90,35 +102,18 @@ function DashboardCtrl(
   };
 
   this.extractGlobalParameters = () => {
-    let globalParams = {};
-    this.dashboard.widgets.forEach((widget) => {
-      if (widget.getQuery()) {
-        widget
-          .getQuery()
-          .getParametersDefs()
-          .filter(p => p.global)
-          .forEach((param) => {
-            const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          });
-      }
-    });
-    this.globalParameters = _.values(globalParams);
+    this.globalParameters = this.dashboard.getParametersDefs();
   };
 
-  this.onGlobalParametersChange = () => {
-    this.globalParameters.forEach((global) => {
-      global.locals.forEach((local) => {
-        local.value = global.value;
-      });
-    });
-  };
+  $scope.$on('dashboard.update-parameters', () => {
+    this.extractGlobalParameters();
+  });
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map((widget) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      return widget.load(forceRefresh);
+    }));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -168,6 +163,7 @@ function DashboardCtrl(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
         this.dashboard = dashboard;
+        this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
 
@@ -219,9 +215,7 @@ function DashboardCtrl(
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete(() => {
-        $rootScope.$broadcast('reloadDashboards');
-      });
+      this.dashboard.$delete();
     };
 
     const title = 'Archive Dashboard';
@@ -236,6 +230,7 @@ function DashboardCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
+        owner: this.dashboard.user,
       },
     });
   };
@@ -264,25 +259,39 @@ function DashboardCtrl(
     }
   };
 
-  this.saveName = () => {
+  this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
+
+  const updateDashboard = (data) => {
+    _.extend(this.dashboard, data);
+    data = _.extend({}, data, {
+      slug: this.dashboard.id,
+      version: this.dashboard.version,
+    });
     Dashboard.save(
-      { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
+      data,
       (dashboard) => {
-        this.dashboard = dashboard;
-        $rootScope.$broadcast('reloadDashboards');
+        _.extend(this.dashboard, _.pick(dashboard, _.keys(data)));
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          toastr.error('Dashboard update failed: Permission Denied.');
         } else if (error.status === 409) {
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
+            'Please copy/backup your changes and reload this page.',
             { autoDismiss: false },
           );
         }
       },
     );
+  };
+
+  this.saveName = (name) => {
+    updateDashboard({ name });
+  };
+
+  this.saveTags = (tags) => {
+    updateDashboard({ tags });
   };
 
   this.updateDashboardFiltersState = () => {
@@ -310,22 +319,32 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = () => {
+  this.addTextBox = () => {
     $uibModal
       .open({
-        component: 'addWidgetDialog',
+        component: 'addTextboxDialog',
         resolve: {
           dashboard: () => this.dashboard,
         },
       })
+      .result.then(this.onWidgetAdded);
+  };
+
+  this.addWidget = () => {
+    AddWidgetDialog.showModal({ dashboard: this.dashboard })
       .result.then(() => {
-        this.extractGlobalParameters();
-        // Save position of newly added widget (but not entire layout)
-        const widget = _.last(this.dashboard.widgets);
-        if (_.isObject(widget)) {
-          return widget.save();
-        }
+        this.onWidgetAdded();
+        $scope.$applyAsync();
       });
+  };
+
+  this.onWidgetAdded = () => {
+    this.extractGlobalParameters();
+    // Save position of newly added widget (but not entire layout)
+    const widget = _.last(this.dashboard.widgets);
+    if (_.isObject(widget)) {
+      return widget.save();
+    }
   };
 
   this.removeWidget = (widgetId) => {
@@ -364,7 +383,6 @@ function DashboardCtrl(
       (dashboard) => {
         this.saveInProgress = false;
         this.dashboard.version = dashboard.version;
-        $rootScope.$broadcast('reloadDashboards');
       },
     );
   };
@@ -440,3 +458,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

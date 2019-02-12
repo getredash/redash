@@ -1,9 +1,8 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
-function GroupsCtrl($scope, $uibModal, currentUser, Events, Group) {
-  Events.record('view', 'page', 'groups');
+function GroupsCtrl($scope, $uibModal, currentUser, Group) {
   $scope.currentUser = currentUser;
   $scope.groups = new Paginator([], { itemsPerPage: 20 });
   Group.query((groups) => {
@@ -41,3 +40,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

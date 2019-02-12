@@ -1,13 +1,13 @@
-import hashlib
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url
+from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
+                                           send_verify_email,
                                            validate_token)
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
@@ -37,6 +37,12 @@ def render_token_login_page(template, org_slug, token):
         logger.exception("Failed to verify invite token: %s, org=%s", token, org_slug)
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
+
+    if user.details.get('is_invitation_pending') is False:
+        return render_template("error.html",
+                               error_message=("This invitation has already been accepted. "
+                                              "Please try resetting your password instead.")), 400
+
     status_code = 200
     if request.method == 'POST':
         if 'password' not in request.form:
@@ -49,7 +55,7 @@ def render_token_login_page(template, org_slug, token):
             flash('Password length is too short (<6).')
             status_code = 400
         else:
-            # TODO: set active flag
+            user.is_invitation_pending = False
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)
@@ -78,6 +84,24 @@ def reset(token, org_slug=None):
     return render_token_login_page("reset.html", org_slug, token)
 
 
+@routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
+def verify(token, org_slug=None):
+    try:
+        user_id = validate_token(token)
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
+    except (BadSignature, NoResultFound):
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
+        return render_template("error.html",
+                               error_message="Your verification link is invalid. Please ask for a new one."), 400
+
+    user.is_email_verified = True
+    models.db.session.add(user)
+    models.db.session.commit()
+
+    return render_template("verify.html", org_slug=org_slug)
+
+
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
     if not current_org.get_setting('auth_password_login_enabled'):
@@ -97,6 +121,16 @@ def forgot_password(org_slug=None):
     return render_template("forgot.html", submitted=submitted)
 
 
+@routes.route(org_scoped_rule('/verification_email'), methods=['POST'])
+def verification_email(org_slug=None):
+    if not current_user.is_email_verified:
+        send_verify_email(current_user, current_org)
+
+    return json_response({
+        "message": "Please check your email inbox in order to verify your email address."
+    })
+
+
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
 def login(org_slug=None):
@@ -107,8 +141,9 @@ def login(org_slug=None):
     elif current_org == None:
         return redirect('/')
 
-    index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    index_url = url_for('redash.index', org_slug=org_slug)
+    unsafe_next_path = request.args.get('next', index_url)
+    next_path = get_next_path(unsafe_next_path)
     if current_user.is_authenticated:
         return redirect(next_path)
 
@@ -116,7 +151,7 @@ def login(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)
-            if user and user.verify_password(request.form['password']):
+            if user and not user.is_disabled and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -154,34 +189,51 @@ def base_href():
     return base_href
 
 
+def date_format_config():
+    date_format = current_org.get_setting('date_format')
+    date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    return {
+        'dateFormat': date_format,
+        'dateFormatList': list(date_format_list),
+        'dateTimeFormat': "{0} HH:mm".format(date_format),
+    }
+
+
+def number_format_config():
+    return {
+        'integerFormat': current_org.get_setting('integer_format'),
+        'floatFormat': current_org.get_setting('float_format'),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
-            'newVersionAvailable': get_latest_version(),
+            'newVersionAvailable': bool(get_latest_version()),
             'version': __version__
         }
     else:
         client_config = {}
 
-    date_format = current_org.get_setting('date_format')
-
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
+        'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'dateFormat': date_format,
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
+        'pageSize': settings.PAGE_SIZE,
+        'pageSizeOptions': settings.PAGE_SIZE_OPTIONS,
     }
 
     client_config.update(defaults)
     client_config.update({
         'basePath': base_href()
     })
+    client_config.update(date_format_config())
+    client_config.update(number_format_config())
 
     return client_config
 
@@ -209,7 +261,8 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions
+            'permissions': current_user.permissions,
+            'is_email_verified': current_user.is_email_verified
         }
 
     return json_response({

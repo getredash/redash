@@ -1,4 +1,4 @@
-import { isFunction } from 'underscore';
+import { isFunction } from 'lodash';
 
 export default function init(ngModule) {
   ngModule.directive('dynamicTableRow', () => ({
@@ -16,10 +16,15 @@ export default function init(ngModule) {
       $scope.$watch('render', () => {
         if (isFunction($scope.render)) {
           $scope.render($scope, (clonedElement) => {
-            $element.empty().append(clonedElement).append('<td></td>');
+            $element
+              .empty()
+              .append(clonedElement)
+              .append('<td></td>');
           });
         }
       });
     },
   }));
 }
+
+init.init = true;

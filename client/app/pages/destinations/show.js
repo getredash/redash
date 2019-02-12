@@ -1,19 +1,15 @@
-import debug from 'debug';
-import { findWhere } from 'underscore';
+import { find } from 'lodash';
 import template from './show.html';
-
-const logger = debug('redash:http');
+import { deleteConfirm, logAndToastrError, toastrSuccessAndPath } from '../data-sources/show';
 
 function DestinationCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, Events, Destination,
+  currentUser, AlertDialog, Destination,
 ) {
-  Events.record('view', 'page', 'admin/destination');
-
   $scope.destination = $route.current.locals.destination;
   $scope.destinationId = $routeParams.destinationId;
   $scope.types = $route.current.locals.types;
-  $scope.type = findWhere($scope.types, { type: $scope.destination.type });
+  $scope.type = find($scope.types, { type: $scope.destination.type });
   $scope.canChangeType = $scope.destination.id === undefined;
 
   $scope.$watch('destination.id', (id) => {
@@ -32,17 +28,24 @@ function DestinationCtrl(
     $scope.destination = new Destination({ options: {} });
   };
 
-  $scope.delete = () => {
-    Events.record('delete', 'destination', $scope.destination.id);
+  function deleteDestination(callback) {
+    const doDelete = () => {
+      $scope.destination.$delete(() => {
+        toastrSuccessAndPath('Destination', 'destinations', toastr, $location);
+      }, (httpResponse) => {
+        logAndToastrError('destination', httpResponse, toastr);
+      });
+    };
 
-    $scope.destination.$delete(() => {
-      toastr.success('Destination deleted successfully.');
-      $location.path('/destinations/');
-    }, (httpResponse) => {
-      logger('Failed to delete destination: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-      toastr.error('Failed to delete destination.');
-    });
-  };
+    const title = 'Delete Destination';
+    const message = `Are you sure you want to delete the "${$scope.destination.name}" destination?`;
+
+    AlertDialog.open(title, message, deleteConfirm).then(doDelete, callback);
+  }
+
+  $scope.actions = [
+    { name: 'Delete', type: 'danger', callback: deleteDestination },
+  ];
 }
 
 export default function init(ngModule) {
@@ -85,3 +88,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

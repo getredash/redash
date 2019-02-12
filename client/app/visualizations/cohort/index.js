@@ -1,5 +1,5 @@
 /* global Cornelius */
-import _ from 'underscore';
+import _ from 'lodash';
 import moment from 'moment';
 import 'cornelius/src/cornelius';
 import 'cornelius/src/cornelius.css';
@@ -43,7 +43,7 @@ function groupData(sortedData) {
 function prepareDiagonalData(sortedData, options) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
-  const firstStage = _.min(_.pluck(sortedData, 'stage'));
+  const firstStage = _.min(_.map(sortedData, i => i.stage));
   const stageCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
   let lastStage = firstStage + stageCount;
 
@@ -83,7 +83,7 @@ function prepareDiagonalData(sortedData, options) {
 function prepareSimpleData(sortedData, options) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
-  const stages = _.pluck(sortedData, 'stage');
+  const stages = _.map(sortedData, i => i.stage);
   const firstStage = _.min(stages);
   const lastStage = _.max(stages);
 
@@ -115,17 +115,21 @@ function prepareSimpleData(sortedData, options) {
 function prepareData(rawData, options) {
   rawData = _.map(rawData, item => ({
     date: item[options.dateColumn],
-    stage: item[options.stageColumn],
-    total: item[options.totalColumn],
-    value: item[options.valueColumn],
+    stage: parseInt(item[options.stageColumn], 10),
+    total: parseFloat(item[options.totalColumn]),
+    value: parseFloat(item[options.valueColumn]),
   }));
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.stage, 10));
+  const sortedData = _.sortBy(rawData, r => r.date + r.stage);
   const initialDate = moment(sortedData[0].date).toDate();
 
   let data;
   switch (options.mode) {
-    case 'simple': data = prepareSimpleData(sortedData, options); break;
-    default: data = prepareDiagonalData(sortedData, options); break;
+    case 'simple':
+      data = prepareSimpleData(sortedData, options);
+      break;
+    default:
+      data = prepareDiagonalData(sortedData, options);
+      break;
   }
 
   return { data, initialDate };
@@ -150,20 +154,17 @@ function cohortRenderer() {
           return;
         }
 
-        const columnNames = _.pluck($scope.queryResult.getColumns(), 'name');
+        const columnNames = _.map($scope.queryResult.getColumns(), i => i.name);
         if (
-          !_.contains(columnNames, $scope.options.dateColumn) ||
-          !_.contains(columnNames, $scope.options.stageColumn) ||
-          !_.contains(columnNames, $scope.options.totalColumn) ||
-          !_.contains(columnNames, $scope.options.valueColumn)
+          !_.includes(columnNames, $scope.options.dateColumn) ||
+          !_.includes(columnNames, $scope.options.stageColumn) ||
+          !_.includes(columnNames, $scope.options.totalColumn) ||
+          !_.includes(columnNames, $scope.options.valueColumn)
         ) {
           return;
         }
 
-        const { data, initialDate } = prepareData(
-          $scope.queryResult.getData(),
-          $scope.options,
-        );
+        const { data, initialDate } = prepareData($scope.queryResult.getData(), $scope.options);
 
         Cornelius.draw({
           initialDate,
@@ -199,7 +200,7 @@ function cohortEditor() {
 
       function refreshColumns() {
         $scope.columns = $scope.queryResult.getColumns();
-        $scope.columnNames = _.pluck($scope.columns, 'name');
+        $scope.columnNames = _.map($scope.columns, i => i.name);
       }
 
       refreshColumns();
@@ -234,3 +235,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

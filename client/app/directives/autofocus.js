@@ -11,3 +11,5 @@ function autofocus($timeout) {
 export default function init(ngModule) {
   ngModule.directive('autofocus', autofocus);
 }
+
+init.init = true;

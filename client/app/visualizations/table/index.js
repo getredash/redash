@@ -1,11 +1,11 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import { getColumnCleanName } from '@/services/query-result';
 import { createFormatter } from '@/lib/value-format';
 import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25];
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DISPLAY_AS_OPTIONS = [
   { name: 'Text', value: 'string' },
@@ -18,7 +18,7 @@ const DISPLAY_AS_OPTIONS = [
 ];
 
 const DEFAULT_OPTIONS = {
-  itemsPerPage: 15,
+  itemsPerPage: 25,
   autoHeight: true,
   defaultRows: 14,
   defaultColumns: 3,
@@ -55,8 +55,8 @@ function getDefaultColumnsOptions(columns) {
 
 function getDefaultFormatOptions(column, clientConfig) {
   const dateTimeFormat = {
-    date: clientConfig.dateFormat || 'DD/MM/YY',
-    datetime: clientConfig.dateTimeFormat || 'DD/MM/YY HH:mm',
+    date: clientConfig.dateFormat || 'DD/MM/YYYY',
+    datetime: clientConfig.dateTimeFormat || 'DD/MM/YYYY HH:mm',
   };
   const numberFormat = {
     integer: clientConfig.integerFormat || '0,0',
@@ -104,12 +104,12 @@ function getColumnsOptions(columns, visualizationColumns) {
   const options = getDefaultColumnsOptions(columns);
 
   if ((wereColumnsReordered(columns, visualizationColumns))) {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       (col, index) => [col.name, _.extend({}, col, { order: index })],
     ));
   } else {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       col => [col.name, _.omit(col, 'order')],
     ));
@@ -121,7 +121,7 @@ function getColumnsOptions(columns, visualizationColumns) {
 }
 
 function getColumnsToDisplay(columns, options, clientConfig) {
-  columns = _.object(_.map(columns, col => [col.name, col]));
+  columns = _.fromPairs(_.map(columns, col => [col.name, col]));
   let result = _.map(options, col => _.extend(
     getDefaultFormatOptions(col, clientConfig),
     col,
@@ -231,3 +231,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;
