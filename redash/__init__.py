@@ -22,6 +22,12 @@ from redash.destinations import import_destinations
 __version__ = '6.0.0'
 
 
+import os
+if os.environ.get("REMOTE_DEBUG"):
+    import ptvsd
+    ptvsd.enable_attach(address=('0.0.0.0', 5678))
+
+
 def setup_logging():
     handler = logging.StreamHandler(sys.stdout if settings.LOG_STDOUT else sys.stderr)
     formatter = logging.Formatter(settings.LOG_FORMAT)
