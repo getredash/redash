@@ -28,8 +28,8 @@ class ShareDashboardDialog extends React.Component {
     super(props);
     this.state = {
       saving: false,
-      apiUrl: replace(API_SHARE_URL, '{id}', props.dashboard.id),
     };
+    this.apiUrl = replace(API_SHARE_URL, '{id}', props.dashboard.id);
   }
 
   static get headerContent() {
@@ -52,7 +52,7 @@ class ShareDashboardDialog extends React.Component {
     this.setState({ saving: true });
 
     $http
-      .post(this.state.apiUrl)
+      .post(this.apiUrl)
       .success((data) => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
@@ -70,7 +70,7 @@ class ShareDashboardDialog extends React.Component {
     this.setState({ saving: true });
 
     $http
-      .delete(this.state.apiUrl)
+      .delete(this.apiUrl)
       .success(() => {
         dashboard.publicAccessEnabled = false;
         delete dashboard.public_url;
