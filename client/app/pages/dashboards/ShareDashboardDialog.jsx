@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Switch from 'antd/lib/switch';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
+import Tooltip from 'antd/lib/tooltip';
 import { $http, toastr } from '@/services/ng';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
@@ -37,8 +38,10 @@ class ShareDashboardDialog extends React.Component {
         Share Dashboard
         <div className="modal-header-desc">
           Allow public access to this dashboard with a secret address.{' '}
-          { /* eslint-disable-next-line react/jsx-no-target-blank */}
-          <a href={HELP_URL} target="_blank" rel="noopener">Learn more</a>
+          <Tooltip title="Guide: Sharing and Embedding Dashboards">
+            { /* eslint-disable-next-line react/jsx-no-target-blank */}
+            <a href={HELP_URL} target="_blank" rel="noopener">Learn more</a>
+          </Tooltip>
         </div>
       </React.Fragment>
     );
