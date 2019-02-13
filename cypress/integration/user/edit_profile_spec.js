@@ -5,9 +5,9 @@ function fillProfileDataAndSave(name, email) {
 }
 
 function fillChangePasswordAndSave(currentPassword, newPassword, repeatPassword) {
-  cy.getByTestId('Current Password').type(currentPassword);
-  cy.getByTestId('New Password').type(newPassword);
-  cy.getByTestId('Repeat New Password').type(`${repeatPassword}{enter}`);
+  cy.getByTestId('CurrentPassword').type(currentPassword);
+  cy.getByTestId('NewPassword').type(newPassword);
+  cy.getByTestId('RepeatPassword').type(`${repeatPassword}{enter}`);
 }
 
 describe('Edit Profile', () => {

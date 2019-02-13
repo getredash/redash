@@ -9,6 +9,7 @@ import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
+import ChangePasswordDialog from './ChangePasswordDialog';
 import InputWithCopy from '../InputWithCopy';
 
 export class UserEdit extends React.Component {
@@ -20,7 +21,6 @@ export class UserEdit extends React.Component {
     super(props);
     this.state = {
       user: this.props.user,
-      passwordModalIsOpen: false,
       regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
@@ -29,7 +29,7 @@ export class UserEdit extends React.Component {
   }
 
   changePassword = () => {
-    this.setState({ passwordModalIsOpen: true });
+    ChangePasswordDialog.showModal({ user: this.props.user });
   };
 
   sendPasswordReset = () => {
@@ -101,19 +101,6 @@ export class UserEdit extends React.Component {
     });
   };
 
-  updatePassword = (values, successCallback, errorCallback) => {
-    const updatePasswordSuccess = (message) => {
-      this.setState({ passwordModalIsOpen: false });
-      successCallback(message);
-    };
-
-    if (values.password === values.password_repeat) {
-      this.saveUser(values, updatePasswordSuccess, errorCallback);
-    } else {
-      errorCallback('Passwords don\'t match.');
-    }
-  }
-
   renderBasicInfoForm() {
     const { user } = this.state;
     const formFields = [
@@ -137,31 +124,6 @@ export class UserEdit extends React.Component {
         onSubmit={this.saveUser}
         hideSubmitButton={user.isDisabled}
       />
-    );
-  }
-
-  renderChangePassword() {
-    const fields = [
-      { name: 'old_password', title: 'Current Password' },
-      { name: 'password', title: 'New Password', minLength: 6 },
-      { name: 'password_repeat', title: 'Repeat New Password' },
-    ].map(field => ({ ...field, type: 'password', required: true }));
-
-    return (
-      <Fragment>
-        <Modal
-          visible={this.state.passwordModalIsOpen}
-          title="Change Password"
-          onCancel={() => { this.setState({ passwordModalIsOpen: false }); }}
-          footer={null}
-          destroyOnClose
-        >
-          <DynamicForm fields={fields} saveText="Update Password" onSubmit={this.updatePassword} />
-        </Modal>
-        <Button className="w-100 m-t-10" onClick={this.changePassword} data-test="ChangePassword">
-          Change Password
-        </Button>
-      </Fragment>
     );
   }
 
@@ -271,7 +233,11 @@ export class UserEdit extends React.Component {
             {this.renderApiKey()}
             <hr />
             <h5>Password</h5>
-            {user.id === currentUser.id && this.renderChangePassword()}
+            {user.id === currentUser.id && (
+              <Button className="w-100 m-t-10" onClick={this.changePassword} data-test="ChangePassword">
+                Change Password
+              </Button>
+            )}
             {(currentUser.isAdmin && user.id !== currentUser.id) && (
               user.isInvitationPending ?
                 this.renderResendInvitation() : this.renderSendPasswordReset()
