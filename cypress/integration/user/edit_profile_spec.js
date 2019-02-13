@@ -63,10 +63,5 @@ describe('Edit Profile', () => {
       fillChangePasswordAndSave('wrongpassword', 'newpassword', 'newpassword');
       cy.contains('Incorrect current password.');
     });
-
-    it('shows an error when new password does not match repeat password', () => {
-      fillChangePasswordAndSave('password', 'newpassword', 'differentpassword');
-      cy.contains('Passwords don\'t match.');
-    });
   });
 });
