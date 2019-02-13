@@ -9,6 +9,10 @@ const TYPES = {
     'querying/query-parameters#Value-Source-Options',
     'Value Source Options',
   ],
+  SHARE_DASHBOARD: [
+    'dashboards/sharing-dashboards',
+    'Sharing and Embedding Dashboards',
+  ],
 };
 
 export default class HelpTrigger extends React.PureComponent {
