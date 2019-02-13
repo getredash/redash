@@ -3,7 +3,7 @@ import Paginator from './Paginator';
 import Sorter from './Sorter';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 
-class ItemsSource {
+export class ItemsSource {
   onBeforeUpdate = null;
 
   onAfterUpdate = null;
@@ -26,9 +26,23 @@ class ItemsSource {
     return Promise.resolve();
   }
 
-  // eslint-disable-next-line no-unused-vars
   _changed(changes) {
-    this.update();
+    if (this._isPlainList) {
+      if (changes.tags || changes.sorting) {
+        // For plain lists we need to reload items from server only if tags or search changes.
+        return this.update();
+      }
+      // Sorting and pagination could be updated using previously fetched items.
+      return this._beforeUpdate().then(() => {
+        if (changes.sorting) {
+          this._allitems = this._sorter.sort(this._allitems);
+        }
+        this._pageItems = this._paginator.getItemsForPage(this._allitems);
+        return this._afterUpdate();
+      });
+    }
+    // Server-side pagination - always do request
+    return this.update();
   }
 
   _getRequest() {
@@ -41,14 +55,25 @@ class ItemsSource {
     }, this.getCallbackContext());
   }
 
-  // eslint-disable-next-line class-methods-use-this
   _processResults(data) {
+    if (this._isPlainList) {
+      return {
+        results: data,
+        count: data.length,
+      };
+    }
     return data;
   }
 
   _updateResults(items, totalCount) {
-    this._pageItems = items;
-    this._paginator.setTotalCount(totalCount);
+    if (this._isPlainList) {
+      this._allItems = this._sorter.sort(items);
+      this._pageItems = this._paginator.getItemsForPage(this._allItems);
+      this._paginator.setTotalCount(totalCount);
+    } else {
+      this._pageItems = items;
+      this._paginator.setTotalCount(totalCount);
+    }
   }
 
   _doRequest(request) {
@@ -69,7 +94,7 @@ class ItemsSource {
     ));
   }
 
-  constructor({ getRequest, doRequest, ...defaultState }) {
+  constructor({ getRequest, doRequest, isPlainList = false, ...defaultState }) {
     if (!isFunction(getRequest)) {
       getRequest = identity;
     }
@@ -79,6 +104,9 @@ class ItemsSource {
 
     this.setState(defaultState);
     this._pageItems = [];
+
+    this._isPlainList = isPlainList;
+    this._allItems = null; // used when `isPlainList === true`
   }
 
   getState() {
@@ -152,96 +180,29 @@ class ItemsSource {
   }
 }
 
-export class PlainItemsSource extends ItemsSource {
-  _items = [];
-
-  // eslint-disable-next-line class-methods-use-this
+export class ResourceItemsSource extends ItemsSource {
   _processResults(data) {
-    return {
-      results: data,
-      count: data.length,
-    };
-  }
-
-  _updateResults(items, totalCount) {
-    this._items = this._sorter.sort(items);
-    this._pageItems = this._paginator.getItemsForPage(this._items);
-    this._paginator.setTotalCount(totalCount);
-  }
-
-  _changed({ sorting, pagination: { page } }) {
-    if (sorting || page) {
-      this._beforeUpdate().then(() => {
-        if (sorting) {
-          this._items = this._sorter.sort(this._items);
-        }
-        this._pageItems = this._paginator.getItemsForPage(this._items);
-        this._afterUpdate();
-      });
-    } else {
-      this.update();
-    }
-  }
-}
-
-export class ResourceItemsSource extends PlainItemsSource {
-  static _processPlainList(results, processItem, context) {
-    return map(results, item => processItem(item, context));
-  }
-
-  static _processPaginatedList({ results, count }, processItem, context) {
+    const { results, count } = super._processResults(data);
+    const processItem = this._getItemProcessor();
+    const context = this.getCallbackContext();
     return {
       results: map(results, item => processItem(item, context)),
       count,
     };
   }
 
-  static _createResourceFetcher(getResource, getItemProcessor, processResults) {
-    getItemProcessor = isFunction(getItemProcessor) ? getItemProcessor : () => identity;
-
-    return (request, context) => {
-      const resource = getResource(context);
-
-      let processItem = getItemProcessor(context);
-      processItem = isFunction(processItem) ? processItem : item => item;
-
-      return resource(request).$promise.then(data => processResults(data, processItem, context));
-    };
-  }
-
-  _processResults(data) {
-    if (this._isPlainList) {
-      return super._processResults(data); // from PlainItemsSource
-    }
-    return data; // same as in ItemsSource
-  }
-
-  _updateResults(items, totalCount) {
-    if (this._isPlainList) {
-      super._updateResults(items, totalCount); // from PlainItemsSource
-    } else {
-      // same as in ItemsSource
-      this._pageItems = items;
-      this._paginator.setTotalCount(totalCount);
-    }
-  }
-
-  _changed(changes) {
-    if (this._isPlainList) {
-      super._changed(changes); // from PlainItemsSource
-    } else {
-      this.update(); // same as in ItemsSource
-    }
-  }
-
-  constructor({ getResource, getItemProcessor, isPlainList = false, ...rest }) {
-    const processResult = isPlainList ?
-      ResourceItemsSource._processPlainList :
-      ResourceItemsSource._processPaginatedList;
+  constructor({ getResource, getItemProcessor, ...rest }) {
     super({
       ...rest,
-      doRequest: ResourceItemsSource._createResourceFetcher(getResource, getItemProcessor, processResult),
+      doRequest: (request, context) => {
+        const resource = getResource(context);
+        return resource(request).$promise;
+      },
     });
-    this._isPlainList = isPlainList;
+
+    this._getItemProcessor = () => {
+      const processItem = isFunction(getItemProcessor) ? getItemProcessor(this.getCallbackContext()) : null;
+      return isFunction(processItem) ? processItem : identity;
+    };
   }
 }
