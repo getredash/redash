@@ -3,7 +3,7 @@
 
   <div ng-show="selectedTab == 'profile'">
     <div class="row">
-      <user-show ng-if="!(currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-show>
+      <user-show ng-if="userInfo && !(currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-show>
       <user-edit ng-if="userInfo && (currentUser.isAdmin || currentUser.id == user.id)" user="userInfo"></user-edit>
     </div>
   </div>
