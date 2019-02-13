@@ -13,15 +13,11 @@ const hidden = find(
   ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'],
   prop => prop in document,
 );
-const visibilityChange = find(
-  ['visibilitychange', 'webkitvisibilitychange', 'mozvisibilitychange', 'msvisibilitychange'],
-  prop => prop in document,
-);
 
 class NotificationsService {
-  constructor() {
-    this.pageVisible = false;
-    this.monitorVisibility();
+  // eslint-disable-next-line class-methods-use-this
+  get pageVisible() {
+    return !document[hidden];
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -33,18 +29,6 @@ class NotificationsService {
         }
       });
     }
-  }
-
-  monitorVisibility() {
-    this.pageVisible = !document[hidden];
-    let documentHidden = document[hidden];
-
-    document.addEventListener(visibilityChange, () => {
-      if (documentHidden !== document[hidden]) {
-        this.pageVisible = !document[hidden];
-        documentHidden = document[hidden];
-      }
-    });
   }
 
   showNotification(title, content) {

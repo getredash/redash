@@ -400,7 +400,7 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query_result.query;
       if (!ranSelectedQuery) {
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
@@ -445,6 +445,9 @@ function QueryViewCtrl(
       $scope.saveQuery().then((query) => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
+        // TODO: we don't really need this. Just need to assign query to $scope.query
+        // and maybe a few more small changes. Not worth handling this now, but also
+        // we shouldn't copy this bizzare method to the React codebase.
         $location.path(query.getSourceLink()).hash('add');
       });
     } else {
