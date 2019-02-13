@@ -1,9 +1,11 @@
 import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
+import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
-import shareDashboardTemplate from './share-dashboard.html';
+import ShareDashboardDialog from './ShareDashboardDialog';
+import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -36,7 +38,6 @@ function DashboardCtrl(
   clientConfig,
   Events,
   toastr,
-  Policy,
 ) {
   this.saveInProgress = false;
 
@@ -83,7 +84,7 @@ function DashboardCtrl(
     enabled: true,
   }));
 
-  const allowedIntervals = Policy.getDashboardRefreshIntervals();
+  const allowedIntervals = policy.getDashboardRefreshIntervals();
   if (_.isArray(allowedIntervals)) {
     _.each(this.refreshRates, (rate) => {
       rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
@@ -318,26 +319,32 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = (widgetType) => {
-    const widgetTypes = {
-      textbox: 'addTextboxDialog',
-      widget: 'addWidgetDialog',
-    };
+  this.addTextBox = () => {
     $uibModal
       .open({
-        component: widgetTypes[widgetType],
+        component: 'addTextboxDialog',
         resolve: {
           dashboard: () => this.dashboard,
         },
       })
+      .result.then(this.onWidgetAdded);
+  };
+
+  this.addWidget = () => {
+    AddWidgetDialog.showModal({ dashboard: this.dashboard })
       .result.then(() => {
-        this.extractGlobalParameters();
-        // Save position of newly added widget (but not entire layout)
-        const widget = _.last(this.dashboard.widgets);
-        if (_.isObject(widget)) {
-          return widget.save();
-        }
+        this.onWidgetAdded();
+        $scope.$applyAsync();
       });
+  };
+
+  this.onWidgetAdded = () => {
+    this.extractGlobalParameters();
+    // Save position of newly added widget (but not entire layout)
+    const widget = _.last(this.dashboard.widgets);
+    if (_.isObject(widget)) {
+      return widget.save();
+    }
   };
 
   this.removeWidget = (widgetId) => {
@@ -385,60 +392,11 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    $uibModal.open({
-      component: 'shareDashboard',
-      resolve: {
-        dashboard: this.dashboard,
-      },
-    });
+    ShareDashboardDialog.showModal({ dashboard: this.dashboard });
   };
 }
 
-const ShareDashboardComponent = {
-  template: shareDashboardTemplate,
-  bindings: {
-    resolve: '<',
-    close: '&',
-    dismiss: '&',
-  },
-  controller($http) {
-    'ngInject';
-
-    this.dashboard = this.resolve.dashboard;
-
-    this.toggleSharing = () => {
-      const url = `api/dashboards/${this.dashboard.id}/share`;
-
-      if (!this.dashboard.publicAccessEnabled) {
-        // disable
-        $http
-          .delete(url)
-          .success(() => {
-            this.dashboard.publicAccessEnabled = false;
-            delete this.dashboard.public_url;
-          })
-          .error(() => {
-            this.dashboard.publicAccessEnabled = true;
-            // TODO: show message
-          });
-      } else {
-        $http
-          .post(url)
-          .success((data) => {
-            this.dashboard.publicAccessEnabled = true;
-            this.dashboard.public_url = data.public_url;
-          })
-          .error(() => {
-            this.dashboard.publicAccessEnabled = false;
-            // TODO: show message
-          });
-      }
-    };
-  },
-};
-
 export default function init(ngModule) {
-  ngModule.component('shareDashboard', ShareDashboardComponent);
   ngModule.component('dashboardPage', {
     template,
     controller: DashboardCtrl,
@@ -453,4 +411,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

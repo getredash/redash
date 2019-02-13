@@ -3,6 +3,8 @@ import { debounce } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import { toastr } from '@/services/ng';
+import { Widget } from '@/services/widget';
 
 class AddTextboxDialog extends React.Component {
   static propTypes = {
@@ -26,8 +28,9 @@ class AddTextboxDialog extends React.Component {
     };
 
     const updatePreview = debounce(() => {
+      const text = this.state.text;
       this.setState({
-        preview: markdown.toHTML(this.state.text),
+        preview: markdown.toHTML(text),
       });
     }, 100);
 
@@ -38,8 +41,6 @@ class AddTextboxDialog extends React.Component {
   }
 
   saveWidget() {
-    const Widget = this.props.Widget; // eslint-disable-line react/prop-types
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const dashboard = this.props.dashboard;
 
     this.setState({ saveInProgress: true });
@@ -148,7 +149,7 @@ export default function init(ngModule) {
       dismiss: '&',
     },
   });
-  ngModule.component('addTextboxDialogImpl', react2angular(AddTextboxDialog, null, ['toastr', 'Widget']));
+  ngModule.component('addTextboxDialogImpl', react2angular(AddTextboxDialog));
 }
 
 init.init = true;

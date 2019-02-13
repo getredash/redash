@@ -74,17 +74,95 @@ class TestUserListResourcePost(BaseTestCase):
 
 
 class TestUserListGet(BaseTestCase):
+    def create_filters_fixtures(self):
+        class PlainObject(object):
+            pass
+
+        result = PlainObject()
+        now = models.db.func.now()
+
+        result.enabled_active1 = self.factory.create_user(disabled_at=None, is_invitation_pending=None).id
+        result.enabled_active2 = self.factory.create_user(disabled_at=None, is_invitation_pending=False).id
+        result.enabled_pending = self.factory.create_user(disabled_at=None, is_invitation_pending=True).id
+        result.disabled_active1 = self.factory.create_user(disabled_at=now, is_invitation_pending=None).id
+        result.disabled_active2 = self.factory.create_user(disabled_at=now, is_invitation_pending=False).id
+        result.disabled_pending = self.factory.create_user(disabled_at=now, is_invitation_pending=True).id
+
+        return result
+
+    def make_request_and_return_ids(self, *args, **kwargs):
+        rv = self.make_request(*args, **kwargs)
+        return map(lambda u: u['id'], rv.json['results'])
+
+    def assertUsersListMatches(self, actual_ids, expected_ids, unexpected_ids):
+        actual_ids = set(actual_ids)
+        expected_ids = set(expected_ids)
+        unexpected_ids = set(unexpected_ids)
+        self.assertSetEqual(actual_ids.intersection(expected_ids), expected_ids)
+        self.assertSetEqual(actual_ids.intersection(unexpected_ids), set())
+
     def test_returns_users_for_given_org_only(self):
         user1 = self.factory.user
         user2 = self.factory.create_user()
         org = self.factory.create_org()
         user3 = self.factory.create_user(org=org)
 
-        rv = self.make_request('get', "/api/users")
-        user_ids = map(lambda u: u['id'], rv.json['results'])
-        self.assertIn(user1.id, user_ids)
-        self.assertIn(user2.id, user_ids)
-        self.assertNotIn(user3.id, user_ids)
+        user_ids = self.make_request_and_return_ids('get', '/api/users')
+        self.assertUsersListMatches(user_ids, [user1.id, user2.id], [user3.id])
+
+    def test_gets_all_enabled(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.enabled_active1, users.enabled_active2, users.enabled_pending],
+            [users.disabled_active1, users.disabled_active2, users.disabled_pending]
+        )
+
+    def test_gets_all_disabled(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.disabled_active1, users.disabled_active2, users.disabled_pending],
+            [users.enabled_active1, users.enabled_active2, users.enabled_pending]
+        )
+
+    def test_gets_all_enabled_and_active(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users?pending=false')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.enabled_active1, users.enabled_active2],
+            [users.enabled_pending, users.disabled_active1, users.disabled_active2, users.disabled_pending]
+        )
+
+    def test_gets_all_enabled_and_pending(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users?pending=true')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.enabled_pending],
+            [users.enabled_active1, users.enabled_active2, users.disabled_active1, users.disabled_active2, users.disabled_pending]
+        )
+
+    def test_gets_all_disabled_and_active(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true&pending=false')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.disabled_active1, users.disabled_active2],
+            [users.disabled_pending, users.enabled_active1, users.enabled_active2, users.enabled_pending]
+        )
+
+    def test_gets_all_disabled_and_pending(self):
+        users = self.create_filters_fixtures()
+        user_ids = self.make_request_and_return_ids('get', '/api/users?disabled=true&pending=true')
+        self.assertUsersListMatches(
+            user_ids,
+            [users.disabled_pending],
+            [users.disabled_active1, users.disabled_active2, users.enabled_active1, users.enabled_active2, users.enabled_pending]
+        )
 
 
 class TestUserResourceGet(BaseTestCase):
@@ -328,3 +406,47 @@ class TestUserDisable(BaseTestCase):
             rv = self.make_request('post', '/api/users/{}/reset_password'.format(user.id), user=admin_user)
             self.assertEqual(rv.status_code, 404)
             send_password_reset_email_mock.assert_not_called()
+
+
+class TestUserRegenerateApiKey(BaseTestCase):
+    def test_non_admin_cannot_regenerate_other_user_api_key(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+        orig_api_key = other_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        other_user = models.User.query.get(other_user.id)
+        self.assertNotEquals(orig_api_key, other_user.api_key)
+
+    def test_admin_can_regenerate_other_user_api_key(self):
+        user1 = self.factory.create_user()
+        user2 = self.factory.create_user()
+        orig_user2_api_key = user2.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user2.id), user=user1)
+        self.assertEqual(rv.status_code, 403)
+
+        user = models.User.query.get(user2.id)
+        self.assertEquals(orig_user2_api_key, user.api_key)
+
+    def test_admin_can_regenerate_api_key_myself(self):
+        admin_user = self.factory.create_admin()
+        orig_api_key = admin_user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(admin_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(admin_user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)
+
+    def test_user_can_regenerate_api_key_myself(self):
+        user = self.factory.create_user()
+        orig_api_key = user.api_key
+
+        rv = self.make_request('post', "/api/users/{}/regenerate_api_key".format(user.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        user = models.User.query.get(user.id)
+        self.assertNotEquals(orig_api_key, user.api_key)

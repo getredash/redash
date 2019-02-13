@@ -1,28 +1,29 @@
-import { debounce, each, values, map, includes, first } from 'lodash';
+import { debounce, each, values, map, includes, first, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import Modal from 'antd/lib/modal';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { BigMessage } from '@/components/BigMessage';
 import highlight from '@/lib/highlight';
 import {
   MappingType,
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
+import { QueryTagsControl } from '@/components/tags-control/TagsControl';
+
+import { toastr } from '@/services/ng';
+import { Widget } from '@/services/widget';
+import { Query } from '@/services/query';
 
 const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    close: PropTypes.func,
-    dismiss: PropTypes.func,
-  };
-
-  static defaultProps = {
-    dashboard: null,
-    close: () => {},
-    dismiss: () => {},
+    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    dialog: DialogPropType.isRequired,
   };
 
   constructor(props) {
@@ -31,19 +32,13 @@ class AddWidgetDialog extends React.Component {
       saveInProgress: false,
       selectedQuery: null,
       searchTerm: '',
+      highlightSearchTerm: false,
       recentQueries: [],
-      searchedQueries: [],
+      queries: [],
       selectedVis: null,
       parameterMappings: [],
+      isLoaded: false,
     };
-
-    // Don't show draft (unpublished) queries
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
-    Query.recent().$promise.then((items) => {
-      this.setState({
-        recentQueries: items.filter(item => !item.is_draft),
-      });
-    });
 
     const searchQueries = debounce(this.searchQueries.bind(this), 200);
     this.onSearchTermChanged = (event) => {
@@ -51,6 +46,19 @@ class AddWidgetDialog extends React.Component {
       this.setState({ searchTerm });
       searchQueries(searchTerm);
     };
+  }
+
+  componentDidMount() {
+    Query.recent().$promise.then((items) => {
+      // Don't show draft (unpublished) queries in recent queries.
+      const results = items.filter(item => !item.is_draft);
+      this.setState({
+        recentQueries: results,
+        queries: results,
+        isLoaded: true,
+        highlightSearchTerm: false,
+      });
+    });
   }
 
   selectQuery(queryId) {
@@ -62,7 +70,6 @@ class AddWidgetDialog extends React.Component {
     });
 
     if (queryId) {
-      const Query = this.props.Query; // eslint-disable-line react/prop-types
       Query.get({ id: queryId }, (query) => {
         if (query) {
           const existingParamNames = map(
@@ -91,18 +98,25 @@ class AddWidgetDialog extends React.Component {
 
   searchQueries(term) {
     if (!term || term.length === 0) {
-      this.setState({ searchedQueries: [] });
+      this.setState(prevState => ({
+        queries: prevState.recentQueries,
+        isLoaded: true,
+        highlightSearchTerm: false,
+      }));
       return;
     }
 
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
     Query.query({ q: term }, (results) => {
       // If user will type too quick - it's possible that there will be
       // several requests running simultaneously. So we need to check
       // which results are matching current search term and ignore
       // outdated results.
       if (this.state.searchTerm === term) {
-        this.setState({ searchedQueries: results.results });
+        this.setState({
+          queries: results.results,
+          isLoaded: true,
+          highlightSearchTerm: true,
+        });
       }
     });
   }
@@ -117,8 +131,6 @@ class AddWidgetDialog extends React.Component {
   }
 
   saveWidget() {
-    const Widget = this.props.Widget; // eslint-disable-line react/prop-types
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const dashboard = this.props.dashboard;
 
     this.setState({ saveInProgress: true });
@@ -139,11 +151,15 @@ class AddWidgetDialog extends React.Component {
     widget.options.position.col = position.col;
     widget.options.position.row = position.row;
 
-    widget
-      .save()
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+    ];
+
+    Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
         dashboard.widgets.push(widget);
-        this.props.close();
+        this.props.dialog.close();
       })
       .catch(() => {
         toastr.error('Widget can not be added');
@@ -160,15 +176,16 @@ class AddWidgetDialog extends React.Component {
   renderQueryInput() {
     return (
       <div className="form-group">
-        {!this.state.selectedQuery && <input
-          type="text"
-          placeholder="Search a query by name"
-          className="form-control"
-          value={this.state.searchTerm}
-          onChange={this.onSearchTermChanged}
-        />}
-        {
-          this.state.selectedQuery &&
+        {!this.state.selectedQuery && (
+          <input
+            type="text"
+            placeholder="Search a query by name"
+            className="form-control"
+            value={this.state.searchTerm}
+            onChange={this.onSearchTermChanged}
+          />
+        )}
+        {this.state.selectedQuery && (
           <div className="p-relative">
             <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
             <a
@@ -188,59 +205,52 @@ class AddWidgetDialog extends React.Component {
               <i className="text-muted fa fa-times" />
             </a>
           </div>
-        }
+        )}
       </div>
     );
   }
 
   renderSearchQueryResults() {
+    const { isLoaded, queries, highlightSearchTerm, searchTerm } = this.state;
+
+    const highlightSearchResult = highlightSearchTerm ? highlight : identity;
+
     return (
       <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-        {
-          (this.state.searchTerm === '') &&
+        {!isLoaded && (
+          <div className="text-center">
+            <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." />
+          </div>
+        )}
+
+        {isLoaded && (
           <div>
             {
-              this.state.recentQueries.length > 0 &&
+              (queries.length === 0) &&
+              <div className="text-muted">No results matching search term.</div>
+            }
+            {(queries.length > 0) && (
               <div className="list-group">
-                {this.state.recentQueries.map(query => (
+                {queries.map(query => (
                   <a
                     href="javascript:void(0)"
-                    className="list-group-item"
+                    className={'list-group-item ' + (query.is_draft ? 'inactive' : '')}
                     key={query.id}
                     onClick={() => this.selectQuery(query.id)}
                   >
-                    {query.name}
+                    <div
+                      // eslint-disable-next-line react/no-danger
+                      dangerouslySetInnerHTML={{ __html: highlightSearchResult(query.name, searchTerm) }}
+                      style={{ display: 'inline-block' }}
+                    />
+                    {' '}
+                    <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control" />
                   </a>
                 ))}
               </div>
-            }
+            )}
           </div>
-        }
-
-        {
-          (this.state.searchTerm !== '') &&
-          <div>
-            {
-              (this.state.searchedQueries.length === 0) &&
-              <div className="text-muted">No results matching search term.</div>
-            }
-            {
-              (this.state.searchedQueries.length > 0) &&
-              <div className="list-group">
-                {this.state.searchedQueries.map(query => (
-                  <a
-                    href="javascript:void(0)"
-                    className="list-group-item"
-                    key={query.id}
-                    onClick={() => this.selectQuery(query.id)}
-                    // eslint-disable-next-line react/no-danger
-                    dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
-                  />
-                ))}
-              </div>
-            }
-          </div>
-        }
+        )}
       </div>
     );
   }
@@ -257,8 +267,9 @@ class AddWidgetDialog extends React.Component {
     return (
       <div>
         <div className="form-group">
-          <label>Choose Visualization</label>
+          <label htmlFor="choose-visualization">Choose Visualization</label>
           <Select
+            id="choose-visualization"
             className="w-100"
             defaultValue={first(this.state.selectedQuery.visualizations).id}
             onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
@@ -278,88 +289,40 @@ class AddWidgetDialog extends React.Component {
   }
 
   render() {
-    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
-    const Query = this.props.Query; // eslint-disable-line react/prop-types
-
-    const existingParamNames = map(
-      this.props.dashboard.getParametersDefs(),
-      param => param.name,
-    );
+    const existingParams = this.props.dashboard.getParametersDefs();
+    const { dialog } = this.props;
 
     return (
-      <div>
-        <div className="modal-header">
-          <button
-            type="button"
-            className="close"
-            disabled={this.state.saveInProgress}
-            aria-hidden="true"
-            onClick={this.props.dismiss}
-          >
-            &times;
-          </button>
-          <h4 className="modal-title">Add Widget</h4>
-        </div>
-        <div className="modal-body">
-          {this.renderQueryInput()}
-          {!this.state.selectedQuery && this.renderSearchQueryResults()}
-          {this.state.selectedQuery && this.renderVisualizationInput()}
+      <Modal
+        {...dialog.props}
+        title="Add Widget"
+        onOk={() => this.saveWidget()}
+        okButtonProps={{
+          loading: this.state.saveInProgress,
+          disabled: !this.state.selectedQuery,
+        }}
+        okText="Add to Dashboard"
+        width={700}
+      >
+        {this.renderQueryInput()}
+        {!this.state.selectedQuery && this.renderSearchQueryResults()}
+        {this.state.selectedQuery && this.renderVisualizationInput()}
 
-          {
-            (this.state.parameterMappings.length > 0) && [
-              <label key="parameters-title">Parameters</label>,
-              <ParameterMappingListInput
-                key="parameters-list"
-                mappings={this.state.parameterMappings}
-                existingParamNames={existingParamNames}
-                onChange={mappings => this.updateParamMappings(mappings)}
-                clientConfig={clientConfig}
-                Query={Query}
-              />,
-            ]
-          }
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-default"
-            disabled={this.state.saveInProgress}
-            onClick={this.props.dismiss}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={this.state.saveInProgress}
-            onClick={() => this.saveWidget()}
-          >
-            Add to Dashboard
-          </button>
-        </div>
-      </div>
+        {
+          (this.state.parameterMappings.length > 0) && [
+            <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
+            <ParameterMappingListInput
+              key="parameters-list"
+              id="parameter-mappings"
+              mappings={this.state.parameterMappings}
+              existingParams={existingParams}
+              onChange={mappings => this.updateParamMappings(mappings)}
+            />,
+          ]
+        }
+      </Modal>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('addWidgetDialog', {
-    template: `
-      <add-widget-dialog-impl 
-        dashboard="$ctrl.resolve.dashboard"
-        close="$ctrl.close"
-        dismiss="$ctrl.dismiss"
-      ></add-widget-dialog-impl>
-    `,
-    bindings: {
-      resolve: '<',
-      close: '&',
-      dismiss: '&',
-    },
-  });
-  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog, null, [
-    'toastr', 'Widget', 'Query', 'clientConfig']));
-}
-
-init.init = true;
+export default wrapDialog(AddWidgetDialog);
