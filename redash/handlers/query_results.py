@@ -268,6 +268,23 @@ class QueryResultResource(BaseResource):
 
                 self.record_event(event)
 
+            elif isinstance(self.current_user, models.users.User):
+                
+                event = {
+                    'user_id': self.current_user.id,
+                    'org_id': self.current_org.id,
+                    'action': 'get_result',
+                }
+
+                if query_id:
+                    event['object_type'] = 'query'
+                    event['object_id'] = query_id
+                else:
+                    event['object_type'] = 'query_result'
+                    event['object_id'] = query_result_id
+
+                self.record_event(event)
+
             if filetype == 'json':
                 response = self.make_json_response(query_result)
             elif filetype == 'xlsx':
