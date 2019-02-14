@@ -38,7 +38,6 @@ services:
       PERCY_BRANCH: ${CIRCLE_BRANCH}
       PERCY_COMMIT: ${CIRCLE_SHA1}
       PERCY_PULL_REQUEST: ${CIRCLE_PR_NUMBER}
-      REPOSITORY_URL: ${CIRCLE_REPOSITORY_URL}
   redis:
     image: redis:3.0-alpine
     restart: unless-stopped

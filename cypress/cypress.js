@@ -33,9 +33,9 @@ function stopServer() {
 }
 
 function runCypressCI() {
-  const { PERCY_TOKEN_ENCODED, REPOSITORY_URL } = process.env
+  const { PERCY_TOKEN_ENCODED, CIRCLE_REPOSITORY_URL } = process.env;
 
-  if (PERCY_TOKEN_ENCODED && REPOSITORY_URL && REPOSITORY_URL.includes('getredash/redash')) {
+  if (PERCY_TOKEN_ENCODED && CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
     process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
   }
   execSync(
