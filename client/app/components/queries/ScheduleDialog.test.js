@@ -1,10 +1,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { ScheduleDialog } from './ScheduleDialog';
+import ScheduleDialog from './ScheduleDialog';
 import RefreshScheduleDefault from '../proptypes';
 
 const defaultProps = {
-  show: true,
   schedule: RefreshScheduleDefault,
   refreshOptions: [
     60, 300, 600, // 1, 5 ,10 mins
@@ -12,18 +11,42 @@ const defaultProps = {
     86400, 172800, 518400, // 1, 2, 6 days
     604800, 1209600, // 1, 2, 4 weeks
   ],
-  updateQuery: () => {},
-  onClose: () => {},
+  dialog: {
+    props: {
+      visible: true,
+      onOk: () => {},
+      onCancel: () => {},
+      afterClose: () => {},
+    },
+    close: () => {},
+    dismiss: () => {},
+  },
 };
 
-function getWrapper(schedule = {}, props = {}) {
-  props = Object.assign(
-    {},
-    defaultProps,
-    props,
-    { schedule: Object.assign({}, RefreshScheduleDefault, schedule) },
-  );
-  return [mount(<ScheduleDialog {...props} />), props];
+function getWrapper(schedule = {}, { onConfirm, onCancel, ...props } = {}) {
+  onConfirm = onConfirm || (() => {});
+  onCancel = onCancel || (() => {});
+
+  props = {
+    ...defaultProps,
+    ...props,
+    schedule: {
+      ...RefreshScheduleDefault,
+      ...schedule,
+    },
+    dialog: {
+      props: {
+        visible: true,
+        onOk: onConfirm,
+        onCancel,
+        afterClose: () => {},
+      },
+      close: onConfirm,
+      dismiss: onCancel,
+    },
+  };
+
+  return [mount(<ScheduleDialog.Component {...props} />), props];
 }
 
 function findByTestID(wrapper, id) {
@@ -134,7 +157,7 @@ describe('ScheduleDialog', () => {
   describe('Modal Confirm/Cancel feature', () => {
     const confirmCb = jest.fn().mockName('confirmCb');
     const closeCb = jest.fn().mockName('closeCb');
-    const initProps = { updateQuery: confirmCb, onClose: closeCb };
+    const initProps = { onConfirm: confirmCb, onCancel: closeCb };
 
     beforeEach(() => {
       jest.clearAllMocks();

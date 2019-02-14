@@ -1,8 +1,9 @@
-import { isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import Input from 'antd/lib/input';
+import InputNumber from 'antd/lib/input-number';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -31,99 +32,69 @@ export class ParameterValueInput extends React.Component {
   };
 
   renderDateTimeWithSecondsInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeRangeWithSecondsInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
         withSeconds
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateTimeRangeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
 
   renderDateRangeInput() {
-    const {
-      value,
-      onSelect,
-      clientConfig, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect } = this.props;
     return (
       <DateRangeInput
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        clientConfig={clientConfig}
       />
     );
   }
@@ -146,30 +117,34 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const {
-      value,
-      onSelect,
-      queryId,
-      Query, // eslint-disable-line react/prop-types
-    } = this.props;
+    const { value, onSelect, queryId } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
         value={value}
         queryId={queryId}
         onSelect={onSelect}
-        Query={Query}
+      />
+    );
+  }
+
+  renderNumberInput() {
+    const { value, onSelect, className } = this.props;
+    return (
+      <InputNumber
+        className={'form-control ' + className}
+        defaultValue={!isNaN(value) && value || 0}
+        onChange={onSelect}
       />
     );
   }
 
   renderTextInput() {
-    const { value, onSelect, type } = this.props;
+    const { value, onSelect, className } = this.props;
     return (
-      <input
-        type={type}
-        className={'form-control ' + this.props.className}
-        value={isNull(value) || isUndefined(value) ? '' : value}
+      <Input
+        className={'form-control ' + className}
+        defaultValue={value || ''}
         onChange={event => onSelect(event.target.value)}
       />
     );
@@ -186,6 +161,7 @@ export class ParameterValueInput extends React.Component {
       case 'date-range': return this.renderDateRangeInput();
       case 'enum': return this.renderEnumInput();
       case 'query': return this.renderQueryBasedInput();
+      case 'number': return this.renderNumberInput();
       default: return this.renderTextInput();
     }
   }
@@ -194,12 +170,12 @@ export class ParameterValueInput extends React.Component {
 export default function init(ngModule) {
   ngModule.component('parameterValueInput', {
     template: `
-      <parameter-value-input-impl 
-        type="$ctrl.param.type"       
-        value="$ctrl.param.normalizedValue"       
-        enum-options="$ctrl.param.enumOptions"       
+      <parameter-value-input-impl
+        type="$ctrl.param.type"
+        value="$ctrl.param.normalizedValue"
+        enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
-        on-select="$ctrl.setValue"       
+        on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
     bindings: {
@@ -212,10 +188,7 @@ export default function init(ngModule) {
       };
     },
   });
-  ngModule.component(
-    'parameterValueInputImpl',
-    react2angular(ParameterValueInput, null, ['clientConfig', 'Query']),
-  );
+  ngModule.component('parameterValueInputImpl', react2angular(ParameterValueInput));
 }
 
 init.init = true;

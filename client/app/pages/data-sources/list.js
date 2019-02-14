@@ -1,8 +1,9 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
+import { policy } from '@/services/policy';
 import template from './list.html';
 
-function DataSourcesCtrl(Policy, DataSource) {
-  this.policy = Policy;
+function DataSourcesCtrl(DataSource) {
+  this.policy = policy;
   this.dataSources = DataSource.query();
 }
 
@@ -28,4 +29,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

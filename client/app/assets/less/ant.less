@@ -1,33 +1,31 @@
-@import '~antd/lib/style/core/iconfont.less';
-@import '~antd/lib/style/core/motion.less';
-@import '~antd/lib/input/style/index.less';
-@import '~antd/lib/input-number/style/index.less';
-@import '~antd/lib/date-picker/style/index.less';
-@import '~antd/lib/modal/style/index.less';
-@import '~antd/lib/tooltip/style/index.less';
-@import '~antd/lib/select/style/index.less';
-@import '~antd/lib/checkbox/style/index.less';
-@import '~antd/lib/upload/style/index.less';
-@import '~antd/lib/form/style/index.less';
-@import '~antd/lib/button/style/index.less';
-@import '~antd/lib/radio/style/index.less';
-@import '~antd/lib/time-picker/style/index.less';
+@import '~antd/lib/style/core/iconfont';
+@import '~antd/lib/style/core/motion';
+@import '~antd/lib/alert/style/index';
+@import '~antd/lib/input/style/index';
+@import '~antd/lib/input-number/style/index';
+@import '~antd/lib/date-picker/style/index';
+@import '~antd/lib/modal/style/index';
+@import '~antd/lib/tooltip/style/index';
+@import '~antd/lib/select/style/index';
+@import '~antd/lib/checkbox/style/index';
+@import '~antd/lib/upload/style/index';
+@import '~antd/lib/form/style/index';
+@import '~antd/lib/button/style/index';
+@import '~antd/lib/radio/style/index';
+@import '~antd/lib/time-picker/style/index';
+@import '~antd/lib/pagination/style/index';
+@import '~antd/lib/table/style/index';
+@import '~antd/lib/popover/style/index';
+@import '~antd/lib/icon/style/index';
+@import '~antd/lib/tag/style/index';
+@import '~antd/lib/grid/style/index';
+@import '~antd/lib/switch/style/index';
+@import 'inc/ant-variables';
 
-// Overwritting Ant Design defaults to fit into Redash current style
-@redash-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-
-@font-family-no-number  : @redash-font;
-@font-family            : @redash-font;
-@code-family            : @redash-font;
-@font-size-base         : 13px;
-@text-color             : #767676;
-
-@input-height-base      : 35px;
-@input-color            : #9E9E9E;
-@border-radius-base     : 2px;
-@border-color-base      : #e8e8e8;
-
-@primary-color          : #2196F3;
+// Remove bold in labels for Ant checkboxes and radio buttons
+.ant-checkbox-wrapper, .ant-radio-wrapper {
+  font-weight: normal;
+}
 
 // Fix for disabled button styles inside Tooltip component.
 // Tooltip wraps disabled buttons with `<span>` and moves all styles
@@ -51,9 +49,160 @@
   z-index: 1050;
 }
 
+// Button overrides
+
+.@{btn-prefix-cls} {
+  transition-duration: 150ms;
+}
+
 // Fix ant input number showing duplicate arrows
 .ant-input-number-input::-webkit-outer-spin-button,
 .ant-input-number-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+// Pagination overrides (based on existing Bootstrap overrides)
+.@{pagination-prefix-cls} {
+  display: inline-block;
+  margin-top: 18px;
+  margin-bottom: 18px;
+  vertical-align: top;
+
+  &-item {
+    background-color: @pagination-bg;
+    border-color: transparent;
+    color: @pagination-color;
+    font-size: 14px;
+    margin-right: 5px;
+
+    a {
+      color: inherit;
+    }
+
+    &:focus,
+    &:hover {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+      a {
+        color: inherit;
+      }
+    }
+
+    &-active {
+      &,
+      &:hover,
+      &:focus {
+        background-color: @pagination-active-bg;
+        color: @pagination-active-color;
+        border-color: transparent;
+        pointer-events: none;
+        cursor: default;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
+  }
+
+  &-disabled {
+    &,
+    &:hover,
+    &:focus {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  &-prev,
+  &-next {
+    .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-bg;
+      border-color: transparent;
+      color: @pagination-color;
+      line-height: @pagination-item-size - 2px;
+    }
+
+    &:focus .@{pagination-prefix-cls}-item-link,
+    &:hover .@{pagination-prefix-cls}-item-link {
+      background-color: @pagination-hover-bg;
+      border-color: transparent;
+      color: @pagination-hover-color;
+    }
+  }
+
+  &-prev,
+  &-jump-prev,
+  &-jump-next {
+    margin-right: 5px;
+  }
+
+  &-jump-prev,
+  &-jump-next {
+    .@{pagination-prefix-cls}-item-container {
+      .@{pagination-prefix-cls}-item-link-icon {
+        color: @pagination-color;
+      }
+    }
+  }
+}
+
+// Table
+
+.@{table-prefix-cls} {
+  color: inherit;
+
+  tr, th, td {
+    transition: none !important;
+  }
+
+  &-thead > tr > th {
+    padding: @table-padding-vertical * 2 @table-padding-horizontal;
+  }
+
+  .@{table-prefix-cls}-column-sorters {
+    &:before,
+    &:hover:before {
+      content: none;
+    }
+  }
+
+  &-thead > tr > th {
+    .@{table-prefix-cls}-column-sorter {
+      &-up,
+      &-down {
+        &.on {
+          color: @table-header-icon-active-color;
+        }
+      }
+    }
+  }
+}
+
+// styling for short modals (no lines)
+.@{dialog-prefix-cls}.shortModal {
+  .@{dialog-prefix-cls} {
+    &-header, &-footer {
+      border: none;
+      padding: 16px;
+    }
+    &-body {
+      padding: 10px 16px;
+    }
+    &-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
+
+// description in modal header
+.modal-header-desc {
+  font-size: @font-size-base;
+  color: @text-color-secondary;
+  font-weight: normal;
+  margin-top: 4px;
 }
