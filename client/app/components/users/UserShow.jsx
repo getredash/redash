@@ -1,9 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import { react2angular } from 'react2angular';
+import { UserProfile } from '../proptypes';
 
-export const UserShow = ({ name, email, profileImageUrl }) => (
+export const UserShow = ({ user: { name, email, profileImageUrl } }) => (
   <div className="col-md-4 col-md-offset-4 profile__container">
     <img
       alt="profile"
@@ -26,9 +25,7 @@ export const UserShow = ({ name, email, profileImageUrl }) => (
 );
 
 UserShow.propTypes = {
-  name: PropTypes.string.isRequired,
-  email: PropTypes.string.isRequired,
-  profileImageUrl: PropTypes.string.isRequired,
+  user: UserProfile.isRequired,
 };
 
 export default function init(ngModule) {
