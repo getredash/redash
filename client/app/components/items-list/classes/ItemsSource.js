@@ -1,7 +1,8 @@
-import { isFunction, isString, identity, map } from 'lodash';
+import { isFunction, identity, map } from 'lodash';
 import Paginator from './Paginator';
 import Sorter from './Sorter';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import { PlainListFetcher, PaginatedListFetcher } from './ItemsFetcher';
 
 export class ItemsSource {
   onBeforeUpdate = null;
@@ -26,62 +27,20 @@ export class ItemsSource {
     return Promise.resolve();
   }
 
+  // changes: object with flags or null (full refresh requested)
   _changed(changes) {
-    if (this._isPlainList) {
-      if (changes.tags || changes.sorting) {
-        // For plain lists we need to reload items from server only if tags or search changes.
-        return this.update();
-      }
-      // Sorting and pagination could be updated using previously fetched items.
-      return this._beforeUpdate().then(() => {
-        if (changes.sorting) {
-          this._allitems = this._sorter.sort(this._allitems);
-        }
-        this._pageItems = this._paginator.getItemsForPage(this._allitems);
-        return this._afterUpdate();
-      });
-    }
-    // Server-side pagination - always do request
-    return this.update();
-  }
-
-  _getRequest() {
-    return this._originalGetRequest({
-      page: this._paginator.page,
-      page_size: this._paginator.itemsPerPage,
-      order: this._sorter.compiled,
-      q: isString(this._searchTerm) && (this._searchTerm !== '') ? this._searchTerm : undefined,
-      tags: this._selectedTags,
-    }, this.getCallbackContext());
-  }
-
-  _processResults(data) {
-    if (this._isPlainList) {
-      return {
-        results: data,
-        count: data.length,
-      };
-    }
-    return data;
-  }
-
-  _updateResults(items, totalCount) {
-    if (this._isPlainList) {
-      this._allItems = this._sorter.sort(items);
-      this._pageItems = this._paginator.getItemsForPage(this._allItems);
-      this._paginator.setTotalCount(totalCount);
-    } else {
-      this._pageItems = items;
-      this._paginator.setTotalCount(totalCount);
-    }
-  }
-
-  _doRequest(request) {
+    const state = {
+      paginator: this._paginator,
+      sorter: this._sorter,
+      searchTerm: this._searchTerm,
+      selectedTags: this._selectedTags,
+    };
+    const context = this.getCallbackContext();
     return this._beforeUpdate().then(() => (
-      this._originalDoRequest(request, this.getCallbackContext())
-        .then((data) => {
-          const { results, count } = this._processResults(data);
-          this._updateResults(results, count);
+      this._fetcher.fetch(changes, state, context)
+        .then(({ results, count }) => {
+          this._pageItems = results;
+          this._paginator.setTotalCount(count);
           return this._afterUpdate();
         })
         .catch((error) => {
@@ -94,19 +53,17 @@ export class ItemsSource {
     ));
   }
 
-  constructor({ getRequest, doRequest, isPlainList = false, ...defaultState }) {
+  constructor({ getRequest, doRequest, processResults, isPlainList = false, ...defaultState }) {
     if (!isFunction(getRequest)) {
       getRequest = identity;
     }
 
-    this._originalGetRequest = getRequest;
-    this._originalDoRequest = doRequest;
+    this._fetcher = isPlainList ?
+      new PlainListFetcher({ getRequest, doRequest, processResults }) :
+      new PaginatedListFetcher({ getRequest, doRequest, processResults });
 
     this.setState(defaultState);
     this._pageItems = [];
-
-    this._isPlainList = isPlainList;
-    this._allItems = null; // used when `isPlainList === true`
   }
 
   getState() {
@@ -171,7 +128,7 @@ export class ItemsSource {
     this._changed({ tags: true, pagination: { page: true } });
   };
 
-  update = () => this._doRequest(this._getRequest());
+  update = () => this._changed();
 
   handleError(error) {
     if (isFunction(this.onError)) {
@@ -181,28 +138,19 @@ export class ItemsSource {
 }
 
 export class ResourceItemsSource extends ItemsSource {
-  _processResults(data) {
-    const { results, count } = super._processResults(data);
-    const processItem = this._getItemProcessor();
-    const context = this.getCallbackContext();
-    return {
-      results: map(results, item => processItem(item, context)),
-      count,
-    };
-  }
-
   constructor({ getResource, getItemProcessor, ...rest }) {
+    getItemProcessor = isFunction(getItemProcessor) ? getItemProcessor : () => null;
     super({
       ...rest,
       doRequest: (request, context) => {
         const resource = getResource(context);
         return resource(request).$promise;
       },
+      processResults: (results, context) => {
+        let processItem = getItemProcessor(context);
+        processItem = isFunction(processItem) ? processItem : identity;
+        return map(results, item => processItem(item, context));
+      },
     });
-
-    this._getItemProcessor = () => {
-      const processItem = isFunction(getItemProcessor) ? getItemProcessor(this.getCallbackContext()) : null;
-      return isFunction(processItem) ? processItem : identity;
-    };
   }
 }
