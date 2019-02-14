@@ -66,7 +66,12 @@ export class Parameter {
     this.setValue(parameter.value);
 
     // Used for URL serialization
-    this.urlPrefix = 'p_';
+    Object.defineProperty(this, 'urlPrefix', {
+      configurable: true,
+      enumerable: false, // don't save it
+      writable: true,
+      value: 'p_',
+    });
   }
 
   clone() {

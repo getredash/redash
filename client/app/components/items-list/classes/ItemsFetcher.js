@@ -49,7 +49,7 @@ export class PlainListFetcher extends ItemsFetcher {
   fetch(changes, state, context) {
     // For plain lists we need to reload items from server only if tags or search changes.
     if (isNil(changes) || changes.tags || changes.sorting) {
-      return super.update(changes, state, context);
+      return super.fetch(changes, state, context);
     }
     // Sorting and pagination could be updated using previously fetched items.
     const { paginator, sorter } = state;
