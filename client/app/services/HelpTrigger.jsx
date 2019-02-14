@@ -10,10 +10,6 @@ import './HelpTrigger.less';
 
 const DOMAIN = 'https://redash.io';
 const HELP_PATH = '/help/user-guide/';
-const MESSAGES = {
-  HELP_DRAWER_READY: 'drawer_ready',
-  HELP_DRAWER_REQUEST: 'drawer_request',
-};
 const IFRAME_TIMEOUT = 5000;
 const TYPES = {
   VALUE_SOURCE_OPTIONS: [
@@ -33,7 +29,7 @@ export default class HelpTrigger extends React.PureComponent {
 
   iframeRef = null
 
-  iframeLoadingTimeout = null;
+  iframeLoadingTimeout = null
 
   constructor(props) {
     super(props);
@@ -47,7 +43,7 @@ export default class HelpTrigger extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    this.removeIframeListeners();
+    clearTimeout(this.iframeLoadingTimeout);
   }
 
   get helpUrl() {
@@ -56,50 +52,21 @@ export default class HelpTrigger extends React.PureComponent {
   }
 
   onIframeLoaded = () => {
-    const { contentWindow } = this.iframeRef.current;
-    contentWindow.postMessage(MESSAGES.HELP_DRAWER_REQUEST, DOMAIN);
+    this.setState({ loading: false });
+    clearTimeout(this.iframeLoadingTimeout);
   }
 
   onIframeError = () => {
     this.setState({ error: true, loading: false });
   }
 
-  onIframeReady = () => {
-    this.setState({ loading: false });
-    this.removeIframeListeners();
-  }
-
-  onPostMessageReceived = (event) => {
-    if (event.origin === DOMAIN && event.data === MESSAGES.HELP_DRAWER_READY) {
-      this.onIframeReady();
-    }
-  }
-
   openDrawer = () => {
     this.setState({ visible: true, loading: true, error: false });
-    setTimeout(this.onDrawerOpened, 300); // to prevent animation jank
-  }
-
-  closeDrawer = () => {
-    this.setState({ visible: false });
-    this.removeIframeListeners();
-  }
-
-  onDrawerOpened = () => {
-    this.addIframeListeners();
-    this.iframeRef.current.src = this.helpUrl;
-  }
-
-  addIframeListeners = () => {
-    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
-    this.iframeRef.current.addEventListener('load', this.onIframeLoaded);
-    this.iframeLoadingTimeout = setTimeout(this.onIframeError, IFRAME_TIMEOUT);
-  }
-
-  removeIframeListeners = () => {
-    window.removeEventListener('message', this.onPostMessageReceived);
-    this.iframeRef.current.removeEventListener('load', this.onIframeLoaded);
-    window.clearTimeout(this.iframeLoadingTimeout);
+    // wait for drawer animation to complete so there's no animation jank
+    setTimeout(() => {
+      this.iframeRef.current.src = this.helpUrl;
+      this.iframeLoadingTimeout = setTimeout(this.onIframeError, IFRAME_TIMEOUT); // safety
+    }, 300);
   }
 
   render() {
@@ -114,7 +81,7 @@ export default class HelpTrigger extends React.PureComponent {
         </Tooltip>
         <Drawer
           placement="right"
-          onClose={this.closeDrawer}
+          onClose={() => this.setState({ visible: false })}
           visible={this.state.visible}
           className="help-drawer"
           destroyOnClose
@@ -127,6 +94,7 @@ export default class HelpTrigger extends React.PureComponent {
               title="Redash Help"
               src="about:blank"
               className={cx({ ready: !this.state.loading })}
+              onLoad={this.onIframeLoaded}
             />
           )}
 
