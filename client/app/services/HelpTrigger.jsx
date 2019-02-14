@@ -47,7 +47,7 @@ export default class HelpTrigger extends React.PureComponent {
   }
 
   componentWillUnmount() {
-    this.onDrawerClosed();
+    this.removeIframeListeners();
   }
 
   get helpUrl() {
