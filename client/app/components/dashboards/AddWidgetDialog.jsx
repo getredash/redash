@@ -3,6 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
+import Steps from 'antd/lib/steps';
+import Button from 'antd/lib/button';
+import Icon from 'antd/lib/icon';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { BigMessage } from '@/components/BigMessage';
 import highlight from '@/lib/highlight';
@@ -26,8 +29,11 @@ class AddWidgetDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
+  steps = []
+
   constructor(props) {
     super(props);
+
     this.state = {
       saveInProgress: false,
       selectedQuery: null,
@@ -38,6 +44,7 @@ class AddWidgetDialog extends React.Component {
       selectedVis: null,
       parameterMappings: [],
       isLoaded: false,
+      currStepIdx: 0,
     };
 
     const searchQueries = debounce(this.searchQueries.bind(this), 200);
@@ -46,6 +53,19 @@ class AddWidgetDialog extends React.Component {
       this.setState({ searchTerm });
       searchQueries(searchTerm);
     };
+
+    this.steps = [{
+      id: 'query',
+      title: 'Select Query',
+      allowNext: () => this.state.selectedQuery,
+    }, {
+      id: 'visualization',
+      title: 'Select Visualization',
+    }, {
+      id: 'params',
+      title: 'Review Parameters',
+      active: () => this.state.parameterMappings.length > 0,
+    }];
   }
 
   componentDidMount() {
@@ -76,9 +96,10 @@ class AddWidgetDialog extends React.Component {
             this.props.dashboard.getParametersDefs(),
             param => param.name,
           );
+          const params = query.getParametersDefs();
           this.setState({
             selectedQuery: query,
-            parameterMappings: map(query.getParametersDefs(), param => ({
+            parameterMappings: map(params, param => ({
               name: param.name,
               type: includes(existingParamNames, param.name)
                 ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew,
@@ -265,61 +286,125 @@ class AddWidgetDialog extends React.Component {
     }
     visualizationGroups = values(visualizationGroups);
     return (
-      <div>
-        <div className="form-group">
-          <label htmlFor="choose-visualization">Choose Visualization</label>
-          <Select
-            id="choose-visualization"
-            className="w-100"
-            defaultValue={first(this.state.selectedQuery.visualizations).id}
-            onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
-            dropdownClassName="ant-dropdown-in-bootstrap-modal"
-          >
-            {visualizationGroups.map(visualizations => (
-              <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
-                {visualizations.map(visualization => (
-                  <Option value={visualization.id} key={visualization.id}>{visualization.name}</Option>
-                ))}
-              </OptGroup>
-            ))}
-          </Select>
+      <React.Fragment>
+        <Select
+          id="choose-visualization"
+          className="w-100"
+          defaultValue={first(this.state.selectedQuery.visualizations).id}
+          onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
+          dropdownClassName="ant-dropdown-in-bootstrap-modal"
+        >
+          {visualizationGroups.map(visualizations => (
+            <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
+              {visualizations.map(visualization => (
+                <Option value={visualization.id} key={visualization.id}>{visualization.name}</Option>
+              ))}
+            </OptGroup>
+          ))}
+        </Select>
+        <div style={{ textAlign: 'center', marginTop: 140 }}>
+          - VISUALIZATION HERE SOON -
         </div>
-      </div>
+      </React.Fragment>
+    );
+  }
+
+  renderStepContent(currStep) {
+    switch (currStep.id) {
+      case 'query':
+        return (
+          <React.Fragment>
+            {this.renderQueryInput()}
+            {this.renderSearchQueryResults()}
+          </React.Fragment>
+        );
+      case 'visualization':
+        return this.renderVisualizationInput();
+      case 'params':
+        return (
+          <ParameterMappingListInput
+            key="parameters-list"
+            id="parameter-mappings"
+            mappings={this.state.parameterMappings}
+            existingParams={this.props.dashboard.getParametersDefs()}
+            onChange={mappings => this.updateParamMappings(mappings)}
+          />
+        );
+      // no default
+    }
+  }
+
+  renderPrevButton() {
+    const { currStepIdx } = this.state;
+    if (currStepIdx === 0) {
+      return null;
+    }
+
+    return (
+      <Button
+        key="prev"
+        onClick={() => this.setState({ currStepIdx: currStepIdx - 1 })}
+      >
+        Previous
+      </Button>
+    );
+  }
+
+  renderNextOrDoneButton(steps) {
+    const { currStepIdx } = this.state;
+    const next = () => this.setState({ currStepIdx: currStepIdx + 1 });
+
+    // next
+    if (currStepIdx < steps.length - 1) {
+      return (
+        <Button
+          key="next"
+          type="primary"
+          onClick={next}
+          disabled={steps[currStepIdx].allowNext ? !steps[currStepIdx].allowNext() : false}
+        >
+          Next
+        </Button>
+      );
+    }
+
+    // done
+    return (
+      <Button
+        key="done"
+        type="primary"
+        onClick={() => this.saveWidget()}
+        loading={this.state.saveInProgress}
+      >
+        Add to Dashboard
+      </Button>
     );
   }
 
   render() {
-    const existingParams = this.props.dashboard.getParametersDefs();
     const { dialog } = this.props;
+    const { currStepIdx } = this.state;
+    const currStep = this.steps[currStepIdx];
+
+    // filter by active()
+    const steps = this.steps.filter(step => (step.active ? step.active() : true));
 
     return (
       <Modal
         {...dialog.props}
         title="Add Widget"
-        onOk={() => this.saveWidget()}
-        okButtonProps={{
-          loading: this.state.saveInProgress,
-          disabled: !this.state.selectedQuery,
-        }}
-        okText="Add to Dashboard"
-        width={700}
+        footer={[this.renderPrevButton(), this.renderNextOrDoneButton(steps)]}
+        width={800}
       >
-        {this.renderQueryInput()}
-        {!this.state.selectedQuery && this.renderSearchQueryResults()}
-        {this.state.selectedQuery && this.renderVisualizationInput()}
-
-        {
-          (this.state.parameterMappings.length > 0) && [
-            <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
-            <ParameterMappingListInput
-              key="parameters-list"
-              id="parameter-mappings"
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />,
-          ]
-        }
+        <Steps current={currStepIdx + (this.state.saveInProgress ? 1 : 0)} progressDot>
+          {steps.map(({ title }) => (
+            <Steps.Step key={title} title={title} />
+          ))}
+          <Steps.Step key="done" title="Done" icon={<Icon type="smile-o" />} />
+        </Steps>
+        <div className="step-content" style={{ minHeight: 331, marginTop: 35, overlfowY: scroll }}>
+          {this.renderStepContent(currStep)}
+        </div>
       </Modal>
     );
   }
