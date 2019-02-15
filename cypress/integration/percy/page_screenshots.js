@@ -2,37 +2,37 @@ const pages = [
   {
     name: 'Create Data Source - Types',
     url: '/data_sources/new',
-    resources: [ '/api/data_sources/types' ],
+    resources: ['/api/data_sources/types'],
   },
   {
     name: 'Edit Data Source - PostgreSQL',
     url: '/data_sources/1',
-    resources: [ '/api/data_sources/1' ],
+    resources: ['/api/data_sources/1', '/api/data_sources/types'],
   },
   {
     name: 'Users',
     url: '/users',
-    resources: [ '/api/users**' ],
+    resources: ['/api/users**'],
   },
   {
     name: 'Groups',
     url: '/groups',
-    resources: [ '/api/groups' ],
+    resources: ['/api/groups'],
   },
   {
     name: 'Group',
     url: '/groups/1',
-    resources: [ '/api/groups/1' ],
+    resources: ['/api/groups/1'],
   },
   {
     name: 'Create Destination - Types',
     url: '/destinations/new',
-    resources: [ '/api/destinations/types' ],
+    resources: ['/api/destinations/types'],
   },
   {
     name: 'Organization Settings',
     url: '/settings/organization',
-    resources: [ '/api/settings/organization' ],
+    resources: ['/api/settings/organization'],
   },
 ];
 
@@ -46,7 +46,7 @@ describe('Percy Page Screenshots', () => {
 
       cy.login();
       cy.visit(page.url);
-      
+
       page.resources.forEach((resource) => {
         cy.wait(`@${resource}`);
       });
