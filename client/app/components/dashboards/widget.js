@@ -82,12 +82,15 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
     EditParameterMappingsDialog.showModal({
       dashboard: this.dashboard,
       widget: this.widget,
-    }).result.then(() => {
+    }).result.then((valuesChanged) => {
       this.localParameters = null;
+
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        setTimeout(() => this.refresh(), 0); // must tick for refresh to work
+      }
       $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
-
-      // this.refresh();
     });
   };
 

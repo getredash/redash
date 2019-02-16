@@ -17,16 +17,30 @@ class EditParameterMappingsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
+  originalParamValuesSig = null
+
   constructor(props) {
     super(props);
+
+    const parameterMappings = parameterMappingsToEditableMappings(
+      props.widget.options.parameterMappings,
+      props.widget.query.getParametersDefs(),
+      map(this.props.dashboard.getParametersDefs(), p => p.name),
+    );
+
+    this.originalParamValuesSig = this.constructor.getParamValuesSignature(parameterMappings);
+
     this.state = {
       saveInProgress: false,
-      parameterMappings: parameterMappingsToEditableMappings(
-        props.widget.options.parameterMappings,
-        props.widget.query.getParametersDefs(),
-        map(this.props.dashboard.getParametersDefs(), p => p.name),
-      ),
+      parameterMappings,
     };
+  }
+
+  static getParamValuesSignature(mappings) {
+    const s = JSON.stringify;
+    return mappings
+      .map(m => (m.type === 'static-value' ? s(m.value) : s(m.param.value)))
+      .join();
   }
 
   saveWidget() {
@@ -44,7 +58,9 @@ class EditParameterMappingsDialog extends React.Component {
 
     Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
-        this.props.dialog.close();
+        const paramValuesSig = this.constructor.getParamValuesSignature(this.state.parameterMappings);
+        const valuesChanged = this.originalParamValuesSig !== paramValuesSig;
+        this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
         toastr.error('Widget cannot be updated');
