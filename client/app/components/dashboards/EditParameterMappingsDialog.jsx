@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
+  MappingType,
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
@@ -39,7 +40,7 @@ class EditParameterMappingsDialog extends React.Component {
   static getParamValuesSignature(mappings) {
     const s = JSON.stringify;
     return mappings
-      .map(m => (m.type === 'static-value' ? s(m.value) : s(m.param.value)))
+      .map(m => (m.type === MappingType.StaticValue ? s(m.value) : s(m.param.value)))
       .join();
   }
 
