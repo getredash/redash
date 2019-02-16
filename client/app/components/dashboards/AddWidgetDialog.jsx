@@ -1,10 +1,11 @@
-import { debounce, each, values, map, includes, first, identity } from 'lodash';
+import { debounce, each, map, includes, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import Steps from 'antd/lib/steps';
 import Button from 'antd/lib/button';
+import Radio from 'antd/lib/radio';
+import Layout from 'antd/lib/layout';
 import Icon from 'antd/lib/icon';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { BigMessage } from '@/components/BigMessage';
@@ -20,8 +21,6 @@ import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
 import { Query } from '@/services/query';
-
-const { Option, OptGroup } = Select;
 
 class AddWidgetDialog extends React.Component {
   static propTypes = {
@@ -59,12 +58,12 @@ class AddWidgetDialog extends React.Component {
       title: 'Select Query',
       allowNext: () => this.state.selectedQuery,
     }, {
-      id: 'visualization',
-      title: 'Select Visualization',
-    }, {
       id: 'params',
       title: 'Review Parameters',
       active: () => this.state.parameterMappings.length > 0,
+    }, {
+      id: 'visualization',
+      title: 'Select Visualization',
     }];
   }
 
@@ -277,35 +276,31 @@ class AddWidgetDialog extends React.Component {
   }
 
   renderVisualizationInput() {
-    let visualizationGroups = {};
-    if (this.state.selectedQuery) {
-      each(this.state.selectedQuery.visualizations, (vis) => {
-        visualizationGroups[vis.type] = visualizationGroups[vis.type] || [];
-        visualizationGroups[vis.type].push(vis);
-      });
-    }
-    visualizationGroups = values(visualizationGroups);
+    const radioStyle = {
+      display: 'block',
+      height: '30px',
+      lineHeight: '30px',
+    };
+    const { selectedQuery } = this.state;
     return (
-      <React.Fragment>
-        <Select
-          id="choose-visualization"
-          className="w-100"
-          defaultValue={first(this.state.selectedQuery.visualizations).id}
-          onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
-          dropdownClassName="ant-dropdown-in-bootstrap-modal"
-        >
-          {visualizationGroups.map(visualizations => (
-            <OptGroup label={visualizations[0].type} key={visualizations[0].type}>
-              {visualizations.map(visualization => (
-                <Option value={visualization.id} key={visualization.id}>{visualization.name}</Option>
-              ))}
-            </OptGroup>
-          ))}
-        </Select>
-        <div style={{ textAlign: 'center', marginTop: 140 }}>
-          - VISUALIZATION HERE SOON -
-        </div>
-      </React.Fragment>
+      <Layout style={{ position: 'relative' }}>
+        <Button type="dashed" size="small" style={{ position: 'absolute', bottom: 0, left: 0, zIndex: 1 }}>
+          <Icon type="plus" /> New Visualization
+        </Button>
+        <Layout.Sider width={200} theme="light">
+          <Radio.Group
+            onChange={e => this.selectVisualization(selectedQuery, e.target.value)}
+            defaultValue={this.state.selectedVis.id}
+          >
+            {selectedQuery.visualizations.map(({ id, name }) => (
+              <Radio style={radioStyle} value={id} key={id}>{name}</Radio>
+            ))}
+          </Radio.Group>
+        </Layout.Sider>
+        <Layout.Content style={{ display: 'flex', height: 331, alignItems: 'center', justifyContent: 'center' }}>
+          - Visualization {this.state.selectedVis.name} placeholder -
+        </Layout.Content>
+      </Layout>
     );
   }
 
@@ -352,16 +347,16 @@ class AddWidgetDialog extends React.Component {
 
   renderNextOrDoneButton(steps) {
     const { currStepIdx } = this.state;
-    const next = () => this.setState({ currStepIdx: currStepIdx + 1 });
 
     // next
     if (currStepIdx < steps.length - 1) {
+      const { allowNext } = steps[currStepIdx];
       return (
         <Button
           key="next"
           type="primary"
-          onClick={next}
-          disabled={steps[currStepIdx].allowNext ? !steps[currStepIdx].allowNext() : false}
+          onClick={() => this.setState({ currStepIdx: currStepIdx + 1 })}
+          disabled={allowNext ? !allowNext() : false}
         >
           Next
         </Button>
@@ -384,10 +379,10 @@ class AddWidgetDialog extends React.Component {
   render() {
     const { dialog } = this.props;
     const { currStepIdx } = this.state;
-    const currStep = this.steps[currStepIdx];
 
     // filter by active()
     const steps = this.steps.filter(step => (step.active ? step.active() : true));
+    const currStep = steps[currStepIdx];
 
     return (
       <Modal
@@ -400,9 +395,9 @@ class AddWidgetDialog extends React.Component {
           {steps.map(({ title }) => (
             <Steps.Step key={title} title={title} />
           ))}
-          <Steps.Step key="done" title="Done" icon={<Icon type="smile-o" />} />
+          <Steps.Step key="done" title="Done" />
         </Steps>
-        <div className="step-content" style={{ minHeight: 331, marginTop: 35, overlfowY: scroll }}>
+        <div className="step-content" style={{ minHeight: 331, marginTop: 35, overlfowY: 'scroll' }}>
           {this.renderStepContent(currStep)}
         </div>
       </Modal>
