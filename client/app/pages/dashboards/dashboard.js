@@ -392,7 +392,16 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    ShareDashboardDialog.showModal({ dashboard: this.dashboard });
+    // check if any of the wigets have query parameters
+    const hasQueryParams = _.some(
+      this.dashboard.widgets,
+      w => !_.isEmpty(w.getQuery() && w.getQuery().getParametersDefs()),
+    );
+
+    ShareDashboardDialog.showModal({
+      dashboard: this.dashboard,
+      hasQueryParams,
+    });
   };
 }
 
