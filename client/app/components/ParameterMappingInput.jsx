@@ -1,6 +1,6 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty, replace } from 'lodash';
+import { isString, extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -18,12 +18,11 @@ import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { clientConfig } from '@/services/auth';
 import { Query, Parameter } from '@/services/query';
+import HelpTrigger from '@/services/HelpTrigger';
 
 import './ParameterMappingInput.less';
 
 const { Option } = Select;
-
-const HELP_URL = 'https://redash.io/help/user-guide/querying/query-parameters?source={0}';
 
 export const MappingType = {
   DashboardAddNew: 'dashboard-add-new',
@@ -336,18 +335,11 @@ class MappingEditor extends React.Component {
 
   renderContent() {
     const { mapping, inputError } = this.state;
-    const helpUrl = replace(HELP_URL, '{0}', 'edit_mapping');
 
     return (
       <div className="parameter-mapping-editor">
         <header>
-          Edit Source and Value
-          {/* eslint-disable-next-line react/jsx-no-target-blank */}
-          <a href={helpUrl} target="_blank" rel="noopener">
-            <Tooltip title="Learn more about editing query paramaters (opens in a new window)">
-              <Icon type="question-circle" />
-            </Tooltip>
-          </a>
+          Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
         </header>
         <ParameterMappingInput
           mapping={mapping}

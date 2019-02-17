@@ -1,5 +1,6 @@
 @import '~antd/lib/style/core/iconfont';
 @import '~antd/lib/style/core/motion';
+@import '~antd/lib/alert/style/index';
 @import '~antd/lib/input/style/index';
 @import '~antd/lib/input-number/style/index';
 @import '~antd/lib/date-picker/style/index';
@@ -18,6 +19,8 @@
 @import '~antd/lib/icon/style/index';
 @import '~antd/lib/tag/style/index';
 @import '~antd/lib/grid/style/index';
+@import '~antd/lib/switch/style/index';
+@import '~antd/lib/drawer/style/index';
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -195,4 +198,16 @@
       line-height: 46px;
     }
   }
+}
+
+// description in modal header
+.modal-header-desc {
+  font-size: @font-size-base;
+  color: @text-color-secondary;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.ant-popover {
+  z-index: 1000; // make sure it doesn't cover drawer
 }
