@@ -204,7 +204,7 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ('email', 'name', 'password', 'old_password', 'groups'))
+        params = project(req, ('email', 'name', 'password', 'old_password', 'group_ids'))
 
         if 'password' in params and 'old_password' not in params:
             abort(403, message="Must provide current password to update password.")
@@ -216,7 +216,7 @@ class UserResource(BaseResource):
             user.hash_password(params.pop('password'))
             params.pop('old_password')
 
-        if 'groups' in params and not self.current_user.has_permission('admin'):
+        if 'group_ids' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
 
         if 'email' in params:
