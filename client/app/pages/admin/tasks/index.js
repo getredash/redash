@@ -17,7 +17,7 @@ import { Columns } from '@/components/items-list/components/ItemsTable';
 
 function parseTasks(tasks) {
   const queues = {};
-  const queryTasks = [];
+  const queries = [];
   const otherTasks = [];
 
   const counters = { active: 0, reserved: 0, waiting: 0 };
@@ -26,19 +26,23 @@ function parseTasks(tasks) {
     queues[task.queue] = queues[task.queue] || { name: task.queue, active: 0, reserved: 0, waiting: 0 };
     queues[task.queue][task.state] += 1;
 
-    task.enqueue_time = moment(task.enqueue_time * 1000.0);
-    task.start_time = moment(task.start_time * 1000.0);
+    if (task.enqueue_time) {
+      task.enqueue_time = moment(task.enqueue_time * 1000.0);
+    }
+    if (task.start_time) {
+      task.start_time = moment(task.start_time * 1000.0);
+    }
 
     counters[task.state] += 1;
 
     if (task.task_name === 'redash.tasks.execute_query') {
-      queryTasks.push(task);
+      queries.push(task);
     } else {
       otherTasks.push(task);
     }
   });
 
-  return { queues: values(queues), queryTasks, otherTasks, counters };
+  return { queues: values(queues), queries, otherTasks, counters };
 }
 
 function QueuesTable({ loading, queues }) {
