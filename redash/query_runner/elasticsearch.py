@@ -228,15 +228,17 @@ class BaseElasticSearch(BaseQueryRunner):
 
             return None
 
-        def get_column_name_and_value(column_name, value):
-            if isinstance(value, list) and len(value) == 1:
-                return column_name, value[0]
-
-            if isinstance(value, dict) and len(value) == 1:  # unpack nested fields
-                (nth_level_name, nth_level_value), = value.items()
-                return get_column_name_and_value(column_name + '.' + nth_level_name, nth_level_value)
-
-            return column_name, value
+        def get_flatten_results(dd, separator='.', prefix=''):
+            ''' Generic function to flatten dicts in Python'''
+            if isinstance(dd, dict):
+                return {prefix + separator + k if prefix else k: v
+                        for kk, vv in dd.items()
+                        for k, v in get_flatten_results(vv, separator, kk).items()
+                        }
+            elif isinstance(dd, list) and len(dd) == 1:
+                return {prefix: dd[0]}
+            else:
+                return {prefix: dd}
 
         result_columns_index = {c["name"]: c for c in result_columns}
 
@@ -274,10 +276,11 @@ class BaseElasticSearch(BaseQueryRunner):
                     if result_fields and column not in result_fields_index:
                         continue
 
-                    full_column_name, value = get_column_name_and_value(column, h[fields_parameter_name][column])
+                    unested_results = get_flatten_results({column: h[fields_parameter_name][column]})
 
-                    add_column_if_needed(mappings, full_column_name, full_column_name, result_columns, result_columns_index)
-                    row[full_column_name] = value
+                    for column_name, value in unested_results.items():
+                        add_column_if_needed(mappings, column_name, column_name, result_columns, result_columns_index)
+                        row[column_name] = value
 
                 result_rows.append(row)
         else:
