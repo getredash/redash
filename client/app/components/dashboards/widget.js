@@ -52,7 +52,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -87,7 +87,7 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
 
       // refresh widget if any parameter value has been updated
       if (valuesChanged) {
-        setTimeout(() => this.refresh(), 0); // must tick for refresh to work
+        $timeout(() => this.refresh());
       }
       $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
