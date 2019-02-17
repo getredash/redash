@@ -228,6 +228,16 @@ class BaseElasticSearch(BaseQueryRunner):
 
             return None
 
+        def get_column_name_and_value(column_name, value):
+            if isinstance(value, list) and len(value) == 1:
+                return column_name, value[0]
+
+            if isinstance(value, dict) and len(value) == 1:  # unpack nested fields
+                (nth_level_name, nth_level_value), = value.items()
+                return get_column_name_and_value(column_name + '.' + nth_level_name, nth_level_value)
+
+            return column_name, value
+
         result_columns_index = {c["name"]: c for c in result_columns}
 
         result_fields_index = {}
@@ -259,15 +269,15 @@ class BaseElasticSearch(BaseQueryRunner):
             for h in raw_result["hits"]["hits"]:
                 row = {}
 
-                column_name = "_source" if "_source" in h else "fields"
-                for column in h[column_name]:
+                fields_parameter_name = "_source" if "_source" in h else "fields"
+                for column in h[fields_parameter_name]:
                     if result_fields and column not in result_fields_index:
                         continue
 
-                    add_column_if_needed(mappings, column, column, result_columns, result_columns_index)
+                    full_column_name, value = get_column_name_and_value(column, h[fields_parameter_name][column])
 
-                    value = h[column_name][column]
-                    row[column] = value[0] if isinstance(value, list) and len(value) == 1 else value
+                    add_column_if_needed(mappings, full_column_name, full_column_name, result_columns, result_columns_index)
+                    row[full_column_name] = value
 
                 result_rows.append(row)
         else:
