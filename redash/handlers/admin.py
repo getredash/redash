@@ -8,7 +8,7 @@ from redash.handlers.base import json_response, record_event
 from redash.permissions import require_super_admin
 from redash.serializers import QuerySerializer
 from redash.utils import json_loads
-from redash.monitor import waiting_tasks, active_tasks, reserved_tasks
+from redash.monitor import celery_tasks
 
 
 @routes.route('/api/admin/queries/outdated', methods=['GET'])
@@ -44,13 +44,11 @@ def outdated_queries():
 def queries_tasks():
     record_event(current_org, current_user._get_current_object(), {
         'action': 'list',
-        'object_id': 'admin/tasks',
         'object_type': 'celery_tasks'
     })
 
     response = {
-        'waiting': waiting_tasks() + reserved_tasks(),
-        'in_progress': active_tasks(),
+        'tasks': celery_tasks(),
     }
 
     return json_response(response)

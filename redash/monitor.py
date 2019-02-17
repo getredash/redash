@@ -23,28 +23,19 @@ def get_object_counts():
 
 
 def get_queues():
-    queues = {}
-    for ds in models.DataSource.query:
-        for queue in (ds.queue_name, ds.scheduled_queue_name):
-            queues.setdefault(queue, set())
-            queues[queue].add(ds.name)
+    query = models.db.session.execute(
+        'select distinct queue_name from data_sources union all select distinct scheduled_queue_name from data_sources')
 
-    return queues
+    return ['celery'] + [row[0] for row in query]
 
 
 def get_queues_status():
-    queues = get_queues()
+    queues = {}
 
-    for queue, sources in queues.iteritems():
+    for queue in get_queues():
         queues[queue] = {
-            'data_sources': ', '.join(sources),
             'size': redis_connection.llen(queue)
         }
-
-    queues['celery'] = {
-        'size': redis_connection.llen('celery'),
-        'data_sources': ''
-    }
 
     return queues
 
@@ -77,76 +68,68 @@ def get_status():
     return status
 
 
-def parse_task(task, state):
-    return {
-        'type': task['name'],
-        'state': state,
-        'worker': task['hostname'],
-        'queue': task['delivery_info']['routing_key'],
-        'task_id': task['id'],
-        'started_at': task.get('time_start')
-    }
+def get_waiting_in_queue(queue_name):
+    jobs = []
+    for raw in redis_connection.lrange(queue_name, 0, -1):
+        job = json.loads(raw)
+        try:
+            args = json.loads(job['headers']['argsrepr'])
+            if args.get('query_id') == 'adhoc':
+                args['query_id'] = None
+        except ValueError:
+            args = {}
 
-def parse_execute_query_task(task, state):
-    args = ast.literal_eval(task['args'])
-    data_source_id = args[1]
-    query_id = args[2].get('Query ID')
-    user = args[2].get('Username')
-    if query_id == 'adhoc':
-        query_id = None
-    
-    parsed = parse_task(task, state)
+        job_row = {
+            'state': 'waiting_in_queue',
+            'task_name': job['headers']['task'],
+            'worker': None,
+            'worker_pid': None,
+            'start_time': None,
+            'task_id': job['headers']['id'],
+            'queue': job['properties']['delivery_info']['routing_key']
+        }
 
-    parsed.update({
-        'data_source_id': data_source_id,
-        'query_id': query_id,
-        'username': user,
-    })
+        job_row.update(args)
+        jobs.append(job_row)
 
-    return parsed
+    return jobs
 
 
-def parse_control_tasks_list(tasks, tasks_state):
-    query_tasks = []
+def parse_tasks(task_lists, state):
+    rows = []
 
-    if tasks is None:
-        return query_tasks
+    for task in itertools.chain(*task_lists.values()):
+        task_row = {
+            'state': state,
+            'task_name': task['name'],
+            'worker': task['hostname'],
+            'queue': task['delivery_info']['routing_key'],
+            'task_id': task['id'],
+            'worker_pid': task['worker_pid'],
+            'start_time': task['time_start'],
+        }
 
-    for task in itertools.chain(*tasks.values()):
         if task['name'] == 'redash.tasks.execute_query':
-            query_tasks.append(parse_execute_query_task(task, tasks_state))
-        else:
-            query_tasks.append(parse_task(task, tasks_state))
+            try:
+                args = json.loads(task['args'])
+            except ValueError:
+                args = {}
+
+            if args.get('query_id') == 'adhoc':
+                args['query_id'] = None
+
+            task_row.update(args)
+
+        rows.append(task_row)
+
+    return rows
 
 
-    return query_tasks
+def celery_tasks():
+    tasks = parse_tasks(celery.control.inspect().active(), 'active')
+    tasks += parse_tasks(celery.control.inspect().reserved(), 'reserved')
 
-
-def waiting_tasks():
-    query_tasks = []
     for queue_name in get_queues():
-        for raw in redis_connection.lrange(queue_name, 0, -1):
-            job = json.loads(raw)
-            job['body'] = json.loads(base64.b64decode(job['body']))
+        tasks += get_waiting_in_queue(queue_name)
 
-            query, data_source_id, metadata, user_id, scheduled_query_id = job['body'][0]
-
-            query_tasks.append({
-                'state': 'waiting',
-                'worker': None,
-                'queue': queue_name,
-                'task_id': job['headers']['id'],
-                'data_source_id': data_source_id,
-                'query_id': metadata.get('Query ID'),
-                'username': metadata.get('Username'),
-            })
-    
-    return query_tasks
-
-
-def active_tasks():
-    return parse_control_tasks_list(celery.control.inspect().active(), 'active')
-
-
-def reserved_tasks():
-    return parse_control_tasks_list(celery.control.inspect().reserved(), 'reserved')
+    return tasks
