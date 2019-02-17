@@ -23,7 +23,7 @@
       </div>
       <div class="form-group">
         <label>Type</label>
-        <select ng-model="$ctrl.parameter.type" class="form-control">
+        <select ng-model="$ctrl.parameter.type" class="form-control" ng-change="$ctrl.updateType()">
           <option value="text">Text</option>
           <option value="number">Number</option>
           <option value="enum">Dropdown List</option>

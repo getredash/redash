@@ -13,7 +13,7 @@ const ParameterSettingsComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller($sce, Query) {
+  controller($sce, $rootScope, Query) {
     'ngInject';
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
@@ -43,6 +43,10 @@ const ParameterSettingsComponent = {
       if (this.shouldGenerateTitle) {
         this.parameter.title = humanize(this.parameter.name);
       }
+    };
+
+    this.updateType = () => {
+      $rootScope.$emit('isDirty', true);
     };
   },
 };

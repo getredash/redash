@@ -100,6 +100,10 @@ function QuerySourceCtrl(
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = newQueryText !== queryText;
   });
+
+  $rootScope.$on('isDirty', (_, value) => {
+    $scope.isDirty = value;
+  });
 }
 
 export default function init(ngModule) {
