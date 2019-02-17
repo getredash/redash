@@ -109,7 +109,7 @@ export default class HelpTrigger extends React.PureComponent {
               Something went wrong.<br />
               {/* eslint-disable-next-line react/jsx-no-target-blank */}
               <a href={this.helpUrl + '?s=help_error'} target="_blank" rel="noopener">Click here</a>{' '}
-              to open the document in a new window.
+              to open the page in a new window.
             </BigMessage>
           )}
         </Drawer>
