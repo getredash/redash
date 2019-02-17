@@ -22,5 +22,6 @@ def init():
             dsn=settings.SENTRY_DSN,
             release=__version__,
             before_send=before_send,
+            send_default_pii=True,
             integrations=[FlaskIntegration(), CeleryIntegration()]
         )

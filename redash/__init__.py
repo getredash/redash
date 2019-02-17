@@ -19,7 +19,13 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '6.0.0'
+__version__ = '7.0.0-beta'
+
+
+import os
+if os.environ.get("REMOTE_DEBUG"):
+    import ptvsd
+    ptvsd.enable_attach(address=('0.0.0.0', 5678))
 
 
 def setup_logging():

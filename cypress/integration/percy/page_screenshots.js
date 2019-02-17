@@ -6,7 +6,6 @@ const pages = [
   { name: 'Group', url: '/groups/1' },
   { name: 'Create Destination - Types', url: '/destinations/new' },
   { name: 'Organization Settings', url: '/settings/organization' },
-  { name: 'User Profile', url: '/users/me' },
 ];
 
 describe('Percy Page Screenshots', () => {
