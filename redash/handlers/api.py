@@ -9,8 +9,8 @@ from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscr
 from redash.handlers.dashboards import DashboardListResource, DashboardResource, DashboardShareResource, PublicDashboardResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
 from redash.handlers.events import EventsResource
-from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
-from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
+from redash.handlers.queries import QueryArchiveResource, QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
+from redash.handlers.query_results import QueryResultListResource, QueryResultDropdownResource, QueryResultResource, JobResource
 from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource, UserDisableResource, UserRegenerateApiKeyResource
 from redash.handlers.visualizations import VisualizationListResource
 from redash.handlers.visualizations import VisualizationResource
@@ -69,16 +69,17 @@ api.add_org_resource(GroupDataSourceResource, '/api/groups/<group_id>/data_sourc
 
 api.add_org_resource(EventsResource, '/api/events', endpoint='events')
 
-api.add_org_resource(QueryFavoriteListResource, '/api/queries/favorites', endpoint='query_fovorites')
-api.add_org_resource(QueryFavoriteResource, '/api/queries/<query_id>/favorite', endpoint='query_fovorite')
-api.add_org_resource(DashboardFavoriteListResource, '/api/dashboards/favorites', endpoint='dashboard_fovorites')
-api.add_org_resource(DashboardFavoriteResource, '/api/dashboards/<object_id>/favorite', endpoint='dashboard_fovorite')
+api.add_org_resource(QueryFavoriteListResource, '/api/queries/favorites', endpoint='query_favorites')
+api.add_org_resource(QueryFavoriteResource, '/api/queries/<query_id>/favorite', endpoint='query_favorite')
+api.add_org_resource(DashboardFavoriteListResource, '/api/dashboards/favorites', endpoint='dashboard_favorites')
+api.add_org_resource(DashboardFavoriteResource, '/api/dashboards/<object_id>/favorite', endpoint='dashboard_favorite')
 
 api.add_org_resource(QueryTagsResource, '/api/queries/tags', endpoint='query_tags')
 api.add_org_resource(DashboardTagsResource, '/api/dashboards/tags', endpoint='dashboard_tags')
 
 api.add_org_resource(QuerySearchResource, '/api/queries/search', endpoint='queries_search')
 api.add_org_resource(QueryRecentResource, '/api/queries/recent', endpoint='recent_queries')
+api.add_org_resource(QueryArchiveResource, '/api/queries/archive', endpoint='queries_archive')
 api.add_org_resource(QueryListResource, '/api/queries', endpoint='queries')
 api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries')
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
@@ -89,6 +90,7 @@ api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_
 api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
+api.add_org_resource(QueryResultDropdownResource, '/api/queries/<query_id>/dropdown', endpoint='query_result_dropdown')
 api.add_org_resource(QueryResultResource,
                      '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',

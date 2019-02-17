@@ -135,8 +135,7 @@
                 <span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
             </td>
             <td class="p-t-15 text-right">
-              <schedule-dialog show="showScheduleForm" schedule="query.schedule" refresh-options="refreshOptions" update-query="updateQueryMetadata" on-close="closeScheduleForm"></schedule-dialog>
-              <schedule-phrase ng-click="openScheduleForm()" is-link="true" schedule="query.schedule" is-new="query.isNew()" />
+              <schedule-phrase ng-click="editSchedule()" is-link="true" schedule="query.schedule" is-new="query.isNew()" />
             </td>
           </tr>
         </table>
@@ -185,7 +184,7 @@
 
             <div>
               <span class="query-metadata__property">Refresh schedule:</span>
-              <schedule-phrase ng-click="openScheduleForm()" is-link="true" schedule="query.schedule" is-new="query.isNew()" />
+              <schedule-phrase ng-click="editSchedule()" is-link="true" schedule="query.schedule" is-new="query.isNew()" />
             </div>
           </div>
 
@@ -253,7 +252,7 @@
           </section>
         </div>
       </div>
-      <div class="bottom-controller-container">
+      <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
 
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>

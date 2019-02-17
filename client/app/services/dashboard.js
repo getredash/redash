@@ -165,12 +165,15 @@ function DashboardService($resource, $http, $location, currentUser, Widget, dash
           .forEach((param) => {
             const mapping = mappings[param.name];
             if (mapping.type === Widget.MappingType.DashboardLevel) {
+              // create global param
               if (!globalParams[mapping.mapTo]) {
                 globalParams[mapping.mapTo] = param.clone();
                 globalParams[mapping.mapTo].name = mapping.mapTo;
                 globalParams[mapping.mapTo].title = mapping.title || param.title;
                 globalParams[mapping.mapTo].locals = [];
               }
+
+              // add to locals list
               globalParams[mapping.mapTo].locals.push(param);
             }
           });

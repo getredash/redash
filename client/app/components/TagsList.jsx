@@ -52,7 +52,7 @@ export class TagsList extends React.Component {
     }
     this.forceUpdate();
 
-    this.props.onUpdate(this.state.selectedTags);
+    this.props.onUpdate([...this.state.selectedTags]);
   }
 
   render() {
@@ -63,6 +63,7 @@ export class TagsList extends React.Component {
           {map(allTags, tag => (
             <a
               key={tag.name}
+              href="javascript:void(0)"
               className={classNames('list-group-item', 'max-character', { active: selectedTags.has(tag.name) })}
               onClick={event => this.toggleTag(event, tag.name)}
             >

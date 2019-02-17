@@ -3,6 +3,7 @@ import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source'
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
 import Notifications from '@/services/notifications';
+import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -36,8 +37,13 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge, selectedQueryText);
+    if ($scope.isDirty) {
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+    } else {
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    }
   }
+
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -394,7 +400,7 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query_result.query;
       if (!ranSelectedQuery) {
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
@@ -439,6 +445,9 @@ function QueryViewCtrl(
       $scope.saveQuery().then((query) => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
+        // TODO: we don't really need this. Just need to assign query to $scope.query
+        // and maybe a few more small changes. Not worth handling this now, but also
+        // we shouldn't copy this bizzare method to the React codebase.
         $location.path(query.getSourceLink()).hash('add');
       });
     } else {
@@ -454,16 +463,18 @@ function QueryViewCtrl(
   const allowedIntervals = policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.updateQueryMetadata = changes => $scope.$apply(() => {
-    $scope.query = Object.assign($scope.query, changes);
-    $scope.saveQuery();
-  });
   $scope.showScheduleForm = false;
-  $scope.openScheduleForm = () => {
+  $scope.editSchedule = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
-    $scope.showScheduleForm = true;
+    ScheduleDialog.showModal({
+      schedule: $scope.query.schedule,
+      refreshOptions: $scope.refreshOptions,
+    }).result.then((schedule) => {
+      $scope.query.schedule = schedule;
+      $scope.saveQuery();
+    });
   };
   $scope.closeScheduleForm = () => {
     $scope.$apply(() => {
