@@ -1,6 +1,16 @@
 <div class="container">
-  <empty-state title="Welcome to Redash 👋" description="Connect to any data source, easily visualize and share your data"
-    show-dashboard-step="true" show-invite-step="true" onboarding-mode="true" illustration="dashboard" help-link="https://redash.io/help/user-guide/getting-started"></empty-state>
+  <div ng-if="!$ctrl.isEmailVerified" class="alert alert-warning">
+      We have sent an email with a confirmation link to your email address. Please follow the link to verify your email address. <a ng-click="$ctrl.verifyEmail()">Resend email</a>.
+  </div>
+  <empty-state
+    title="'Welcome to Redash 👋'"
+    description="'Connect to any data source, easily visualize and share your data'"
+    illustration="'dashboard'"
+    help-link="'https://redash.io/help/user-guide/getting-started'"
+    show-dashboard-step="true"
+    show-invite-step="true"
+    onboarding-mode="true"
+  ></empty-state>
 
   <home-extra></home-extra>
 

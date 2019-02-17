@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 
-import pystache
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
@@ -12,7 +11,7 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow
+from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
@@ -131,9 +130,21 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id)
+                argsrepr = json_dumps({
+                    'org_id': data_source.org_id,
+                    'data_source_id': data_source.id,
+                    'enqueue_time': time.time(),
+                    'scheduled': scheduled_query_id is not None,
+                    'query_id': metadata.get('Query ID'),
+                    'user_id': user_id
+                })
+
+                result = execute_query.apply_async(args=args,
+                                                   argsrepr=argsrepr,
                                                    queue=queue_name,
                                                    time_limit=time_limit)
+
                 job = QueryTask(async_result=result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(_job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
@@ -161,7 +172,7 @@ def refresh_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.info("Skipping refresh of %s because org is disabled.", query.id)
+                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
@@ -170,7 +181,7 @@ def refresh_queries():
                 if query.options and len(query.options.get('parameters', [])) > 0:
                     query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
-                    query_text = pystache.render(query.query_text, query_params)
+                    query_text = mustache_render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
 

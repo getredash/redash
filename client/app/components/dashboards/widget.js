@@ -1,9 +1,10 @@
+import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
+import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
 import './widget-dialog.less';
-import './add-widget-dialog.less';
 
 const WidgetDialog = {
   template: widgetDialogTemplate,
@@ -51,7 +52,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -75,12 +76,25 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
     });
   };
 
+  this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
+
+  this.editParameterMappings = () => {
+    EditParameterMappingsDialog.showModal({
+      dashboard: this.dashboard,
+      widget: this.widget,
+    }).result.then(() => {
+      this.localParameters = null;
+      $scope.$applyAsync();
+      $rootScope.$broadcast('dashboard.update-parameters');
+    });
+  };
+
   this.localParametersDefs = () => {
     if (!this.localParameters) {
-      this.localParameters = this.widget
-        .getQuery()
-        .getParametersDefs()
-        .filter(p => !p.global);
+      this.localParameters = filter(
+        this.widget.getParametersDefs(),
+        param => !this.widget.isStaticParam(param),
+      );
     }
     return this.localParameters;
   };
@@ -135,3 +149,5 @@ export default function init(ngModule) {
     },
   });
 }
+
+init.init = true;

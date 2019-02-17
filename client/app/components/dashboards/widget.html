@@ -8,16 +8,25 @@
             <a ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
           </div>
         </div>
-        <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public" uib-dropdown>
+        <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public"
+          uib-dropdown dropdown-append-to-body="true"
+        >
           <div class="actions">
             <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more-vert"></i></a>
           </div>
 
-          <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
+          <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
             <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'csv')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'csv')}}" target="_self">Download as CSV File</a></li>
             <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'xlsx')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
-            <li><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
-            <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
+
+            <li ng-if="$ctrl.canViewQuery || ($ctrl.dashboard.canEdit() && $ctrl.hasParameters())" class="divider"></li>
+            <li ng-if="$ctrl.canViewQuery"><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}">View Query</a></li>
+            <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()">
+              <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()"><a ng-click="$ctrl.editParameterMappings()">Edit Parameters</a></li>
+            </li>
+
+            <li ng-if="$ctrl.dashboard.canEdit()" class="divider"></li>
+            <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
           </ul>
         </div>
         <div class="th-title">

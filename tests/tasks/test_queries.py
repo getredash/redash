@@ -9,6 +9,7 @@ from redash import redis_connection, models
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks.queries import QueryExecutionError, enqueue_query, execute_query
 
+
 FakeResult = namedtuple('FakeResult', 'id')
 
 
@@ -58,7 +59,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         cm = mock.patch("celery.app.task.Context.delivery_info",
                         {'routing_key': 'test'})
-        q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             result_id = execute_query(
@@ -76,7 +77,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         cm = mock.patch("celery.app.task.Context.delivery_info",
                         {'routing_key': 'test'})
-        q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
             with self.assertRaises(QueryExecutionError):
@@ -96,7 +97,7 @@ class QueryExecutorTests(BaseTestCase):
         """
         cm = mock.patch("celery.app.task.Context.delivery_info",
                         {'routing_key': 'test'})
-        q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.side_effect = ValueError("broken")
             with self.assertRaises(QueryExecutionError):

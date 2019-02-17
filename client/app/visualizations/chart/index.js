@@ -231,8 +231,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.form = {
         yAxisColumns: [],
-        seriesList: sortBy(keys(scope.options.seriesOptions), name =>
-          scope.options.seriesOptions[name].zIndex),
+        seriesList: sortBy(keys(scope.options.seriesOptions), name => scope.options.seriesOptions[name].zIndex),
         valuesList: keys(scope.options.valuesOptions),
       };
 
@@ -332,13 +331,13 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.templateHint = `
         <div class="p-b-5">Use special names to access additional properties:</div>
         <div><code>{{ @@name }}</code> series name;</div>
-        <div><code>{{ @@x }}</code> x-value;</div>       
+        <div><code>{{ @@x }}</code> x-value;</div>
         <div><code>{{ @@y }}</code> y-value;</div>
         <div><code>{{ @@yPercent }}</code> relative y-value;</div>
-        <div><code>{{ @@yError }}</code> y deviation;</div>       
-        <div><code>{{ @@size }}</code> bubble size;</div>       
-        <div class="p-t-5">Also, all query result columns can be referenced using 
-          <code class="text-nowrap">{{ column_name }}</code> syntax.</div>       
+        <div><code>{{ @@yError }}</code> y deviation;</div>
+        <div><code>{{ @@size }}</code> bubble size;</div>
+        <div class="p-t-5">Also, all query result columns can be referenced using
+          <code class="text-nowrap">{{ column_name }}</code> syntax.</div>
       `;
     },
   };
@@ -368,3 +367,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

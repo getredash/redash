@@ -2,7 +2,7 @@ import ngModule from '@/config';
 
 ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConfig) => {
   $compileProvider.debugInfoEnabled(false);
-  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|data|tel|sms|mailto):/);
   $locationProvider.html5Mode(true);
   uiSelectConfig.theme = 'bootstrap';
 
@@ -13,8 +13,7 @@ ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConf
 });
 
 // Update ui-select's template to use Font-Awesome instead of glyphicon.
-// eslint-disable-next-line no-unused-vars
-ngModule.run(($templateCache, OfflineListener) => {
+ngModule.run(($templateCache) => {
   const templateName = 'bootstrap/match.tpl.html';
   let template = $templateCache.get(templateName);
   template = template.replace('glyphicon glyphicon-remove', 'fa fa-remove');

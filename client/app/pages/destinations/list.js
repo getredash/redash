@@ -1,4 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
 function DestinationsCtrl($scope, $location, toastr, currentUser, Destination) {
@@ -23,3 +23,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

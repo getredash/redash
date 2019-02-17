@@ -24,3 +24,5 @@ function compareTo() {
 export default function init(ngModule) {
   ngModule.directive('compareTo', compareTo);
 }
+
+init.init = true;

@@ -1,4 +1,6 @@
 import logging
+
+from dateutil import parser
 import requests
 
 from redash import settings
@@ -20,7 +22,8 @@ __all__ = [
     'SUPPORTED_COLUMN_TYPES',
     'register',
     'get_query_runner',
-    'import_query_runners'
+    'import_query_runners',
+    'guess_type'
 ]
 
 # Valid types of columns returned in results:
@@ -146,6 +149,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
 class BaseHTTPQueryRunner(BaseQueryRunner):
     response_error = "Endpoint returned unexpected status code"
     requires_authentication = False
+    requires_url = True
     url_title = 'URL base path'
     username_title = 'HTTP Basic Auth Username'
     password_title = 'HTTP Basic Auth Password'
@@ -168,9 +172,16 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
                     'title': cls.password_title,
                 },
             },
-            'required': ['url'],
-            'secret': ['password']
+            'secret': ['password'],
+            'order': ['url', 'username', 'password']
         }
+
+        if cls.requires_url or cls.requires_authentication:
+            schema['required'] = []
+
+        if cls.requires_url:
+            schema['required'] += ['url']
+
         if cls.requires_authentication:
             schema['required'] += ['username', 'password']
         return schema
@@ -185,7 +196,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
         else:
             return None
 
-    def get_response(self, url, auth=None, **kwargs):
+    def get_response(self, url, auth=None, http_method='get', **kwargs):
         # Get authentication values if not given
         if auth is None:
             auth = self.get_auth()
@@ -195,7 +206,7 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
         error = None
         response = None
         try:
-            response = requests.get(url, auth=auth, **kwargs)
+            response = requests.request(http_method, url, auth=auth, **kwargs)
             # Raise a requests HTTP exception with the appropriate reason
             # for 4xx and 5xx response status codes which is later caught
             # and passed back.
@@ -258,3 +269,31 @@ def get_configuration_schema_for_query_runner_type(query_runner_type):
 def import_query_runners(query_runner_imports):
     for runner_import in query_runner_imports:
         __import__(runner_import)
+
+
+def guess_type(string_value):
+    if string_value == '' or string_value is None:
+        return TYPE_STRING
+
+    try:
+        int(string_value)
+        return TYPE_INTEGER
+    except (ValueError, OverflowError):
+        pass
+
+    try:
+        float(string_value)
+        return TYPE_FLOAT
+    except (ValueError, OverflowError):
+        pass
+
+    if unicode(string_value).lower() in ('true', 'false'):
+        return TYPE_BOOLEAN
+
+    try:
+        parser.parse(string_value)
+        return TYPE_DATETIME
+    except (ValueError, OverflowError):
+        pass
+
+    return TYPE_STRING
