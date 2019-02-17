@@ -1,29 +1,34 @@
-@import '~antd/lib/style/core/iconfont';
-@import '~antd/lib/style/core/motion';
-@import '~antd/lib/alert/style/index';
-@import '~antd/lib/input/style/index';
-@import '~antd/lib/input-number/style/index';
-@import '~antd/lib/date-picker/style/index';
-@import '~antd/lib/modal/style/index';
-@import '~antd/lib/tooltip/style/index';
-@import '~antd/lib/select/style/index';
-@import '~antd/lib/checkbox/style/index';
-@import '~antd/lib/upload/style/index';
-@import '~antd/lib/form/style/index';
-@import '~antd/lib/button/style/index';
-@import '~antd/lib/radio/style/index';
-@import '~antd/lib/time-picker/style/index';
-@import '~antd/lib/pagination/style/index';
-@import '~antd/lib/table/style/index';
-@import '~antd/lib/popover/style/index';
-@import '~antd/lib/icon/style/index';
-@import '~antd/lib/tag/style/index';
-@import '~antd/lib/grid/style/index';
-@import '~antd/lib/switch/style/index';
-@import 'inc/ant-variables';
+@import "~antd/lib/style/core/iconfont";
+@import "~antd/lib/style/core/motion";
+@import "~antd/lib/alert/style/index";
+@import "~antd/lib/input/style/index";
+@import "~antd/lib/input-number/style/index";
+@import "~antd/lib/date-picker/style/index";
+@import "~antd/lib/modal/style/index";
+@import "~antd/lib/tooltip/style/index";
+@import "~antd/lib/select/style/index";
+@import "~antd/lib/checkbox/style/index";
+@import "~antd/lib/upload/style/index";
+@import "~antd/lib/form/style/index";
+@import "~antd/lib/button/style/index";
+@import "~antd/lib/radio/style/index";
+@import "~antd/lib/time-picker/style/index";
+@import "~antd/lib/pagination/style/index";
+@import "~antd/lib/table/style/index";
+@import "~antd/lib/popover/style/index";
+@import "~antd/lib/icon/style/index";
+@import "~antd/lib/tag/style/index";
+@import "~antd/lib/grid/style/index";
+@import "~antd/lib/switch/style/index";
+@import "~antd/lib/badge/style/index";
+@import "~antd/lib/card/style/index";
+@import "~antd/lib/spin/style/index";
+@import "~antd/lib/tabs/style/index";
+@import "inc/ant-variables";
 
 // Remove bold in labels for Ant checkboxes and radio buttons
-.ant-checkbox-wrapper, .ant-radio-wrapper {
+.ant-checkbox-wrapper,
+.ant-radio-wrapper {
   font-weight: normal;
 }
 
@@ -154,7 +159,9 @@
 .@{table-prefix-cls} {
   color: inherit;
 
-  tr, th, td {
+  tr,
+  th,
+  td {
     transition: none !important;
   }
 
@@ -184,7 +191,8 @@
 // styling for short modals (no lines)
 .@{dialog-prefix-cls}.shortModal {
   .@{dialog-prefix-cls} {
-    &-header, &-footer {
+    &-header,
+    &-footer {
       border: none;
       padding: 16px;
     }
