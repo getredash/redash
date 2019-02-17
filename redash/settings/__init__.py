@@ -15,6 +15,7 @@ def all_settings():
 
     return settings
 
+
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
 
@@ -165,6 +166,7 @@ default_query_runners = [
     'redash.query_runner.url',
     'redash.query_runner.influx_db',
     'redash.query_runner.elasticsearch',
+    'redash.query_runner.amazon_elasticsearch',
     'redash.query_runner.presto',
     'redash.query_runner.databricks',
     'redash.query_runner.hive_ds',
