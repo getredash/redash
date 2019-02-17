@@ -922,7 +922,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     visualization_id = Column(db.Integer, db.ForeignKey('visualizations.id'), nullable=True)
-    visualization = db.relationship(Visualization, backref='widgets')
+    visualization = db.relationship(Visualization, backref=backref('widgets', cascade='delete'))
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
     options = Column(db.Text)
