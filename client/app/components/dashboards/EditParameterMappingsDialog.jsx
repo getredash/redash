@@ -1,30 +1,45 @@
-import { map } from 'lodash';
+import { isMatch, map, find, sortBy } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import Modal from 'antd/lib/modal';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
+import { ParameterMappingType } from '@/services/widget';
+
+export function getParamValuesSnapshot(mappings, dashboardParameters) {
+  return map(
+    sortBy(mappings, m => m.name),
+    (m) => {
+      let param;
+      switch (m.type) {
+        case ParameterMappingType.StaticValue:
+          return [m.name, m.value];
+        case ParameterMappingType.WidgetLevel:
+          return [m.name, m.param.value];
+        case ParameterMappingType.DashboardLevel:
+          param = find(dashboardParameters, p => p.name === m.mapTo);
+          return [m.name, param ? param.value : null];
+        // no default
+      }
+    },
+  );
+}
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    widget: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-    close: PropTypes.func,
-    dismiss: PropTypes.func,
-  };
-
-  static defaultProps = {
-    dashboard: null,
-    widget: null,
-    close: () => {},
-    dismiss: () => {},
+    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    dialog: DialogPropType.isRequired,
   };
 
   constructor(props) {
     super(props);
+
     this.state = {
       saveInProgress: false,
       parameterMappings: parameterMappingsToEditableMappings(
@@ -41,11 +56,24 @@ class EditParameterMappingsDialog extends React.Component {
 
     this.setState({ saveInProgress: true });
 
-    widget.options.parameterMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
-    widget
-      .save()
+    const prevMappings = widget.options.parameterMappings;
+    const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
+    widget.options.parameterMappings = newMappings;
+
+    const dashboardParameters = this.props.dashboard.getParametersDefs();
+    const valuesChanged = !isMatch(
+      getParamValuesSnapshot(prevMappings, dashboardParameters),
+      getParamValuesSnapshot(newMappings, dashboardParameters),
+    );
+
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets),
+    ];
+
+    Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
-        this.props.close();
+        this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
         toastr.error('Widget cannot be updated');
@@ -60,75 +88,25 @@ class EditParameterMappingsDialog extends React.Component {
   }
 
   render() {
-    const existingParams = map(
-      this.props.dashboard.getParametersDefs(),
-      ({ name, type }) => ({ name, type }),
-    );
-
+    const { dialog } = this.props;
     return (
-      <div>
-        <div className="modal-header">
-          <button
-            type="button"
-            className="close"
-            disabled={this.state.saveInProgress}
-            aria-hidden="true"
-            onClick={this.props.dismiss}
-          >
-            &times;
-          </button>
-          <h4 className="modal-title">Parameters</h4>
-        </div>
-        <div className="modal-body">
-          {(this.state.parameterMappings.length > 0) && (
-            <ParameterMappingListInput
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />
-          )}
-        </div>
-
-        <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-default"
-            disabled={this.state.saveInProgress}
-            onClick={this.props.dismiss}
-          >
-            Close
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={this.state.saveInProgress}
-            onClick={() => this.saveWidget()}
-          >
-            Save
-          </button>
-        </div>
-      </div>
+      <Modal
+        {...dialog.props}
+        title="Parameters"
+        onOk={() => this.saveWidget()}
+        okButtonProps={{ loading: this.state.saveInProgress }}
+        width={700}
+      >
+        {(this.state.parameterMappings.length > 0) && (
+          <ParameterMappingListInput
+            mappings={this.state.parameterMappings}
+            existingParams={this.props.dashboard.getParametersDefs()}
+            onChange={mappings => this.updateParamMappings(mappings)}
+          />
+        )}
+      </Modal>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('editParameterMappingsDialog', {
-    template: `
-      <edit-parameter-mappings-dialog-impl
-        dashboard="$ctrl.resolve.dashboard"
-        widget="$ctrl.resolve.widget"
-        close="$ctrl.close"
-        dismiss="$ctrl.dismiss"
-      ></edit-parameter-mappings-dialog-impl>
-    `,
-    bindings: {
-      resolve: '<',
-      close: '&',
-      dismiss: '&',
-    },
-  });
-  ngModule.component('editParameterMappingsDialogImpl', react2angular(EditParameterMappingsDialog));
-}
-
-init.init = true;
+export default wrapDialog(EditParameterMappingsDialog);

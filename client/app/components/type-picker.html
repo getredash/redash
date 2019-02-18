@@ -10,7 +10,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-12 database-source" data-test="DatabaseSource">
+        <div class="col-lg-12 database-source" data-test="TypePicker">
             <div class="visual-card" ng-repeat="type in $ctrl.types | filter:$ctrl.filter:strict" ng-click="$ctrl.onTypeSelect(type)">
             <img ng-src="{{$ctrl.imgRoot}}/{{type.type}}.png" alt="{{type.name}}">
             <h3>{{type.name}}</h3>

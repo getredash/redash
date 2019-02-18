@@ -11,6 +11,7 @@ import 'brace/ext/language_tools';
 import 'brace/mode/json';
 import 'brace/mode/python';
 import 'brace/mode/sql';
+import 'brace/mode/yaml';
 import 'brace/theme/textmate';
 import 'brace/ext/searchbox';
 
@@ -40,6 +41,7 @@ function defineDummySnippets(mode) {
 defineDummySnippets('python');
 defineDummySnippets('sql');
 defineDummySnippets('json');
+defineDummySnippets('yaml');
 
 class QueryEditor extends React.Component {
   static propTypes = {
@@ -213,6 +215,12 @@ class QueryEditor extends React.Component {
   toggleAutocomplete = (state) => {
     this.setState({ autocompleteQuery: state });
     localOptions.set('liveAutocomplete', state);
+  };
+
+  componentDidUpdate = () => {
+    // ANGULAR_REMOVE_ME  Work-around for a resizing issue, see https://github.com/getredash/redash/issues/3353
+    const { editor } = this.refEditor.current;
+    editor.resize();
   };
 
   render() {

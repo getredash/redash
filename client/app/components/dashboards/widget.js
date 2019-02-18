@@ -2,6 +2,7 @@ import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
+import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -51,7 +52,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -78,15 +79,17 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
 
   this.editParameterMappings = () => {
-    $uibModal.open({
-      component: 'editParameterMappingsDialog',
-      resolve: {
-        dashboard: this.dashboard,
-        widget: this.widget,
-      },
-      size: 'lg',
-    }).result.then(() => {
+    EditParameterMappingsDialog.showModal({
+      dashboard: this.dashboard,
+      widget: this.widget,
+    }).result.then((valuesChanged) => {
       this.localParameters = null;
+
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        $timeout(() => this.refresh());
+      }
+      $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
     });
   };

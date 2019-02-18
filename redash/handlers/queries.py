@@ -102,7 +102,76 @@ class QueryRecentResource(BaseResource):
         return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
-class QueryListResource(BaseResource):
+class BaseQueryListResource(BaseResource):
+
+    def get_queries(self, search_term):
+        if search_term:
+            results = models.Query.search(
+                search_term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=True,
+            )
+        else:
+            results = models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=True,
+            )
+        return filter_by_tags(results, models.Query.tags)
+
+    @require_permission('view_query')
+    def get(self):
+        """
+        Retrieve a list of queries.
+
+        :qparam number page_size: Number of queries to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
+
+        Responds with an array of :ref:`query <query-response-label>` objects.
+        """
+        # See if we want to do full-text search or just regular queries
+        search_term = request.args.get('q', '')
+
+        queries = self.get_queries(search_term)
+
+        results = filter_by_tags(queries, models.Query.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=bool(search_term))
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+
+        response = paginate(
+            ordered_results,
+            page=page,
+            page_size=page_size,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False
+        )
+
+        if search_term:
+            self.record_event({
+                'action': 'search',
+                'object_type': 'query',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'query',
+            })
+
+        return response
+
+
+class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
     def post(self):
         """
@@ -159,69 +228,27 @@ class QueryListResource(BaseResource):
             'object_type': 'query'
         })
 
-        return QuerySerializer(query).serialize()
+        return QuerySerializer(query, with_visualizations=True).serialize()
 
-    @require_permission('view_query')
-    def get(self):
-        """
-        Retrieve a list of queries.
 
-        :qparam number page_size: Number of queries to return per page
-        :qparam number page: Page number to retrieve
-        :qparam number order: Name of column to order by
-        :qparam number q: Full text search term
+class QueryArchiveResource(BaseQueryListResource):
 
-        Responds with an array of :ref:`query <query-response-label>` objects.
-        """
-        # See if we want to do full-text search or just regular queries
-        search_term = request.args.get('q', '')
-
+    def get_queries(self, search_term):
         if search_term:
-            results = models.Query.search(
+            return models.Query.search(
                 search_term,
                 self.current_user.group_ids,
                 self.current_user.id,
-                include_drafts=True,
+                include_drafts=False,
+                include_archived=True,
             )
         else:
-            results = models.Query.all_queries(
+            return models.Query.all_queries(
                 self.current_user.group_ids,
                 self.current_user.id,
-                drafts=True,
+                include_drafts=False,
+                include_archived=True,
             )
-
-        results = filter_by_tags(results, models.Query.tags)
-
-        # order results according to passed order parameter,
-        # special-casing search queries where the database
-        # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
-
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-
-        response = paginate(
-            ordered_results,
-            page=page,
-            page_size=page_size,
-            serializer=QuerySerializer,
-            with_stats=True,
-            with_last_modified_by=False
-        )
-
-        if search_term:
-            self.record_event({
-                'action': 'search',
-                'object_type': 'query',
-                'term': search_term,
-            })
-        else:
-            self.record_event({
-                'action': 'list',
-                'object_type': 'query',
-            })
-
-        return response
 
 
 class MyQueriesResource(BaseResource):

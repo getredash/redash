@@ -1,5 +1,6 @@
 @import '~antd/lib/style/core/iconfont';
 @import '~antd/lib/style/core/motion';
+@import '~antd/lib/alert/style/index';
 @import '~antd/lib/input/style/index';
 @import '~antd/lib/input-number/style/index';
 @import '~antd/lib/date-picker/style/index';
@@ -13,6 +14,13 @@
 @import '~antd/lib/radio/style/index';
 @import '~antd/lib/time-picker/style/index';
 @import '~antd/lib/pagination/style/index';
+@import '~antd/lib/table/style/index';
+@import '~antd/lib/popover/style/index';
+@import '~antd/lib/icon/style/index';
+@import '~antd/lib/tag/style/index';
+@import '~antd/lib/grid/style/index';
+@import '~antd/lib/switch/style/index';
+@import '~antd/lib/drawer/style/index';
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -40,6 +48,12 @@
 // Fix for Ant dropdowns when they are used in Boootstrap modals
 .ant-dropdown-in-bootstrap-modal {
   z-index: 1050;
+}
+
+// Button overrides
+
+.@{btn-prefix-cls} {
+  transition-duration: 150ms;
 }
 
 // Fix ant input number showing duplicate arrows
@@ -134,4 +148,66 @@
       }
     }
   }
+}
+
+// Table
+
+.@{table-prefix-cls} {
+  color: inherit;
+
+  tr, th, td {
+    transition: none !important;
+  }
+
+  &-thead > tr > th {
+    padding: @table-padding-vertical * 2 @table-padding-horizontal;
+  }
+
+  .@{table-prefix-cls}-column-sorters {
+    &:before,
+    &:hover:before {
+      content: none;
+    }
+  }
+
+  &-thead > tr > th {
+    .@{table-prefix-cls}-column-sorter {
+      &-up,
+      &-down {
+        &.on {
+          color: @table-header-icon-active-color;
+        }
+      }
+    }
+  }
+}
+
+// styling for short modals (no lines)
+.@{dialog-prefix-cls}.shortModal {
+  .@{dialog-prefix-cls} {
+    &-header, &-footer {
+      border: none;
+      padding: 16px;
+    }
+    &-body {
+      padding: 10px 16px;
+    }
+    &-close-x {
+      width: 46px;
+      height: 46px;
+      line-height: 46px;
+    }
+  }
+}
+
+// description in modal header
+.modal-header-desc {
+  font-size: @font-size-base;
+  color: @text-color-secondary;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.ant-popover {
+  z-index: 1000; // make sure it doesn't cover drawer
 }
