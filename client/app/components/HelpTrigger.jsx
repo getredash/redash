@@ -1,4 +1,3 @@
-
 import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
