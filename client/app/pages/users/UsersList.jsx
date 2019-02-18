@@ -77,7 +77,7 @@ class UsersList extends React.Component {
   listColumns = [
     Columns.custom.sortable((text, user) => (
       <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
+        <img src={user.profile_image_url} height="32" className="profile__image--settings m-r-5" alt={user.name} />
         <div>
           <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
           <div className="text-muted">{user.email}</div>

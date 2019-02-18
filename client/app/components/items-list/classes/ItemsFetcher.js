@@ -40,6 +40,7 @@ export class PlainListFetcher extends ItemsFetcher {
   _processResults(data, { paginator, sorter }, context) {
     this._allItems = this._originalProcessResults(data, context);
     this._allItems = sorter.sort(this._allItems);
+    paginator.setTotalCount(this._allItems.length);
     return {
       results: paginator.getItemsForPage(this._allItems),
       count: this._allItems.length,
