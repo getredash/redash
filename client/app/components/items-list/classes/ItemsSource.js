@@ -45,7 +45,7 @@ export class ItemsSource {
         })
         .catch((error) => {
           // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-          if (error.status && error.statusText && error.data) {
+          if (error.status && error.data) {
             error = new PromiseRejectionError(error.data.message);
           }
           this.handleError(error);
