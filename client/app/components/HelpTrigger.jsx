@@ -85,11 +85,11 @@ export class HelpTrigger extends React.Component {
 
     return (
       <React.Fragment>
-        <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
-          <Tooltip title={tooltip}>
+        <Tooltip title={tooltip}>
+          <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
             <i className="fa fa-question-circle" />
-          </Tooltip>
-        </a>
+          </a>
+        </Tooltip>
         <Drawer
           placement="right"
           onClose={() => this.setState({ visible: false })}
