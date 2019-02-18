@@ -1,31 +1,41 @@
+
+import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
-import Icon from 'antd/lib/icon';
 import Drawer from 'antd/lib/drawer';
 import { BigMessage } from '@/components/BigMessage';
 
 import './HelpTrigger.less';
 
 const DOMAIN = 'https://redash.io';
-const HELP_PATH = '/help/user-guide/';
+const HELP_PATH = '/help';
 const IFRAME_TIMEOUT = 5000;
 const TYPES = {
+  HOME: [
+    '',
+    'Redash Knowledge Base',
+  ],
   VALUE_SOURCE_OPTIONS: [
-    'querying/query-parameters#Value-Source-Options',
-    'Value Source Options',
+    '/user-guide/querying/query-parameters#Value-Source-Options',
+    'Guide: Value Source Options',
   ],
   SHARE_DASHBOARD: [
-    'dashboards/sharing-dashboards',
-    'Sharing and Embedding Dashboards',
+    '/user-guide/dashboards/sharing-dashboards',
+    'Guide: Sharing and Embedding Dashboards',
   ],
 };
 
-export default class HelpTrigger extends React.PureComponent {
+export class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
+    className: PropTypes.string,
   }
+
+  static defaultProps = {
+    className: null,
+  };
 
   iframeRef = null
 
@@ -71,14 +81,15 @@ export default class HelpTrigger extends React.PureComponent {
 
   render() {
     const [, tooltip] = TYPES[this.props.type];
+    const className = cx('help-trigger', this.props.className);
 
     return (
       <React.Fragment>
-        <Tooltip title={`Guide: ${tooltip}`}>
-          <a href="javascript: void(0)" onClick={this.openDrawer}>
-            <Icon type="question-circle" />
-          </a>
-        </Tooltip>
+        <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
+          <Tooltip title={tooltip}>
+            <i className="fa fa-question-circle" />
+          </Tooltip>
+        </a>
         <Drawer
           placement="right"
           onClose={() => this.setState({ visible: false })}
@@ -117,3 +128,9 @@ export default class HelpTrigger extends React.PureComponent {
     );
   }
 }
+
+export default function init(ngModule) {
+  ngModule.component('helpTrigger', react2angular(HelpTrigger));
+}
+
+init.init = true;
