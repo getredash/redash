@@ -14,7 +14,7 @@ const IFRAME_TIMEOUT = 5000;
 const TYPES = {
   HOME: [
     '',
-    'Redash Knowledge Base',
+    'Help',
   ],
   VALUE_SOURCE_OPTIONS: [
     '/user-guide/querying/query-parameters#Value-Source-Options',
