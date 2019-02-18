@@ -1,5 +1,5 @@
-import { map } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Divider from 'antd/lib/divider';
@@ -19,6 +19,7 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+import SelectItemsDialog from '@/components/SelectItemsDialog';
 
 import { $http, $rootScope, $location, toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
@@ -28,7 +29,27 @@ import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
-import AddMemberDialog from './components/AddMemberDialog';
+function UserCard({ user, children }) {
+  return (
+    <div className="w-100 d-flex align-items-center">
+      <img src={user.profile_image_url} height="32" className="profile__image--settings m-r-5" alt={user.name} />
+      <div className="flex-fill">
+        <div>{user.name}</div>
+        <div className="text-muted">{user.email}</div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+UserCard.propTypes = {
+  user: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  children: PropTypes.node,
+};
+UserCard.defaultProps = {
+  user: null,
+  children: null,
+};
 
 class GroupDetails extends React.Component {
   static propTypes = {
@@ -206,14 +227,35 @@ class GroupDetails extends React.Component {
   };
 
   addMember() {
-    AddMemberDialog.showModal({
-      group: this.state.group,
-    }).result.then(
-      users => Promise.all(map(
-        users,
-        user => $http.post(`api/groups/${this.props.controller.params.groupId}/members`, { user_id: user.id }),
-      )),
-    ).then(() => {
+    SelectItemsDialog.showModal({
+      title: 'Add Members',
+      searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
+      renderItem: (item, isSelected) => (
+        <UserCard condensed user={item}>
+          {isSelected && (
+            <Icon
+              className="m-l-10 m-r-10"
+              type="check-circle"
+              theme="twoTone"
+              twoToneColor="#52c41a"
+              style={{ fontSize: '20px' }}
+            />
+          )}
+        </UserCard>
+      ),
+    }).result.then((results) => {
+      console.log(results);
+      this.props.controller.update();
+    });
+  }
+
+  addDataSources() {
+    SelectItemsDialog.showModal({
+      title: 'Add Data Sources',
+      searchItems: searchTerm => DataSource.query({ q: searchTerm }).$promise,
+      renderItem: item => item.name,
+    }).result.then((results) => {
+      console.log(results);
       this.props.controller.update();
     });
   }
@@ -233,7 +275,7 @@ class GroupDetails extends React.Component {
           <Button className="w-100 m-t-5" onClick={() => this.addMember()}>Add Members</Button>
         )}
         {canAddDashboards && (controller.params.currentPage === 'datasources') && (
-          <Button className="w-100 m-t-5">Add Data Sources</Button>
+          <Button className="w-100 m-t-5" onClick={() => this.addDataSources()}>Add Data Sources</Button>
         )}
         {canRemove && (
           <React.Fragment>
