@@ -15,6 +15,7 @@ def all_settings():
 
     return settings
 
+
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
 
@@ -107,6 +108,7 @@ STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH",
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
+SECRET_KEY = os.environ.get('REDASH_SECRET_KEY', COOKIE_SECRET)
 
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 LOG_STDOUT = parse_boolean(os.environ.get('REDASH_LOG_STDOUT', 'false'))
@@ -165,6 +167,7 @@ default_query_runners = [
     'redash.query_runner.url',
     'redash.query_runner.influx_db',
     'redash.query_runner.elasticsearch',
+    'redash.query_runner.amazon_elasticsearch',
     'redash.query_runner.presto',
     'redash.query_runner.databricks',
     'redash.query_runner.hive_ds',

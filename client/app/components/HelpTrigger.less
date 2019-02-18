@@ -1,0 +1,25 @@
+.help-trigger {
+  font-size: 15px;
+}
+
+.help-drawer {
+  .ant-drawer-body {
+    padding: 0;
+    height: 100%; // to allow iframe full dimensions
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  iframe {
+    width: 0;
+    visibility: hidden;
+  }
+
+  iframe.ready {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    visibility: visible;
+  }
+}
