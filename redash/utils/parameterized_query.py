@@ -12,8 +12,8 @@ from dateutil.parser import parse
 
 def _pluck_name_and_value(default_column, row):
     row = {k.lower(): v for k, v in row.items()}
-    name_column = "name" if "name" in row.keys() else default_column
-    value_column = "value" if "value" in row.keys() else default_column
+    name_column = "name" if "name" in row.keys() else default_column.lower()
+    value_column = "value" if "value" in row.keys() else default_column.lower()
 
     return {"name": row[name_column], "value": row[value_column]}
 

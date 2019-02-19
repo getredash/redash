@@ -172,3 +172,10 @@ class TestParameterizedQuery(TestCase):
     def test_dropdown_values_compromises_for_first_column(self, _):
         values = dropdown_values(1)
         self.assertEquals(values, [{"name": 5, "value": 5}])
+
+    @patch('redash.utils.parameterized_query._load_result', return_value={
+        "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
+        "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}]})
+    def test_dropdown_supports_upper_cased_values(self, _):
+        values = dropdown_values(1)
+        self.assertEquals(values, [{"name": 5, "value": 5}])
