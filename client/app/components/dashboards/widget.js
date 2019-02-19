@@ -52,7 +52,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -82,8 +82,13 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
     EditParameterMappingsDialog.showModal({
       dashboard: this.dashboard,
       widget: this.widget,
-    }).result.then(() => {
+    }).result.then((valuesChanged) => {
       this.localParameters = null;
+
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        $timeout(() => this.refresh());
+      }
       $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
     });

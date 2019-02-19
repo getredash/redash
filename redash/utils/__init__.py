@@ -82,7 +82,7 @@ class JSONEncoder(simplejson.JSONEncoder):
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
             result = str(o)
         # See "Date Time String Format" in the ECMA-262 specification.
-        if isinstance(o, datetime.datetime):
+        elif isinstance(o, datetime.datetime):
             result = o.isoformat()
             if o.microsecond:
                 result = result[:23] + result[26:]
