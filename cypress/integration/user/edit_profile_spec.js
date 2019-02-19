@@ -37,6 +37,7 @@ describe('Edit Profile', () => {
   });
 
   it('takes a screenshot', () => {
+    cy.getByTestId('Groups').contains('admin');
     cy.getByTestId('ApiKey').then(($apiKey) => {
       $apiKey.val('secret');
     });

@@ -4,7 +4,9 @@ import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
+import { includes, reject, isNull } from 'lodash';
 import { User } from '@/services/user';
+import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
@@ -21,11 +23,16 @@ export class UserEdit extends React.Component {
     super(props);
     this.state = {
       user: this.props.user,
+      groups: [],
       regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
       togglingUser: false,
     };
+
+    Group.query((groups) => {
+      this.setState({ groups: groups.map(({ id, name }) => ({ value: id, title: name })) });
+    });
   }
 
   changePassword = () => {
@@ -101,22 +108,34 @@ export class UserEdit extends React.Component {
     });
   };
 
-  renderBasicInfoForm() {
+  renderUserInfoForm() {
     const { user } = this.state;
-    const formFields = [
+
+    const formFields = reject([
       {
         name: 'name',
         title: 'Name',
         type: 'text',
         initialValue: user.name,
+        required: true,
       },
       {
         name: 'email',
         title: 'Email',
         type: 'email',
         initialValue: user.email,
+        required: true,
       },
-    ].map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
+      (currentUser.isAdmin && currentUser.id !== user.id) ? {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'select',
+        mode: 'multiple',
+        options: this.state.groups,
+        initialValue: this.state.groups.filter(group => includes(user.groupIds, group.value))
+          .map(group => group.value),
+      } : null,
+    ], isNull).map(field => ({ ...field, readOnly: user.isDisabled }));
 
     return (
       <DynamicForm
@@ -227,7 +246,7 @@ export class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        {this.renderBasicInfoForm()}
+        {this.renderUserInfoForm()}
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
