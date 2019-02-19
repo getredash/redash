@@ -8,9 +8,7 @@ from six import text_type
 
 from redash import models
 from redash.permissions import has_access, not_view_only
-from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
-                                 TYPE_INTEGER, TYPE_STRING, BaseQueryRunner,
-                                 register)
+from redash.query_runner import guess_type, TYPE_STRING, BaseQueryRunner, register
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -22,28 +20,6 @@ class PermissionError(Exception):
 
 class CreateTableError(Exception):
     pass
-
-
-def _guess_type(value):
-    if value == '' or value is None:
-        return TYPE_STRING
-
-    if isinstance(value, numbers.Integral):
-        return TYPE_INTEGER
-
-    if isinstance(value, float):
-        return TYPE_FLOAT
-
-    if text_type(value).lower() in ('true', 'false'):
-        return TYPE_BOOLEAN
-
-    try:
-        parser.parse(value)
-        return TYPE_DATETIME
-    except (ValueError, OverflowError):
-        pass
-
-    return TYPE_STRING
 
 
 def extract_query_ids(query):
@@ -164,7 +140,7 @@ class Results(BaseQueryRunner):
 
                 for i, row in enumerate(cursor):
                     for j, col in enumerate(row):
-                        guess = _guess_type(col)
+                        guess = guess_type(col)
 
                         if columns[j]['type'] is None:
                             columns[j]['type'] = guess

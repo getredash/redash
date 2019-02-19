@@ -2,10 +2,8 @@ import { isUndefined, isString } from 'lodash';
 import renderJsonView from './json-view-interactive';
 import template from './template.html';
 
-const MAX_JSON_SIZE = 50000;
-
-function parseValue(value) {
-  if (isString(value) && value.length <= MAX_JSON_SIZE) {
+function parseValue(value, clientConfig) {
+  if (isString(value) && value.length <= clientConfig.tableCellMaxJSONSize) {
     try {
       return JSON.parse(value);
     } catch (e) {
@@ -14,8 +12,8 @@ function parseValue(value) {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.directive('dynamicTableJsonCell', () => ({
+function DynamicTableJsonCell(clientConfig) {
+  return {
     template,
     restrict: 'E',
     replace: true,
@@ -30,13 +28,17 @@ export default function init(ngModule) {
       $scope.parsedValue = null;
 
       $scope.$watch('value', () => {
-        $scope.parsedValue = parseValue($scope.value);
+        $scope.parsedValue = parseValue($scope.value, clientConfig);
         $scope.isValid = !isUndefined($scope.parsedValue);
         container.empty();
         renderJsonView(container, $scope.parsedValue);
       });
     },
-  }));
+  };
+}
+
+export default function init(ngModule) {
+  ngModule.directive('dynamicTableJsonCell', DynamicTableJsonCell);
 }
 
 init.init = true;

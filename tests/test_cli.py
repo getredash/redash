@@ -217,8 +217,8 @@ class GroupCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_group(name='test', permissions=['list_dashboards'])
-        self.factory.create_group(name='Agroup', permissions=['list_dashboards'])
-        self.factory.create_group(name='Bgroup', permissions=['list_dashboards'])
+        self.factory.create_group(name='agroup', permissions=['list_dashboards'])
+        self.factory.create_group(name='bgroup', permissions=['list_dashboards'])
 
         self.factory.create_user(name='Fred Foobar',
                          email=u'foobar@example.com',
@@ -230,25 +230,25 @@ class GroupCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         output = """
+        Id: 1
+        Name: admin
+        Type: builtin
+        Organization: default
+        Permissions: [admin,super_admin]
+        Users: 
+        --------------------
         Id: 4
-        Name: Agroup
+        Name: agroup
         Type: regular
         Organization: default
         Permissions: [list_dashboards]
         Users: 
         --------------------
         Id: 5
-        Name: Bgroup
+        Name: bgroup
         Type: regular
         Organization: default
         Permissions: [list_dashboards]
-        Users: 
-        --------------------
-        Id: 1
-        Name: admin
-        Type: builtin
-        Organization: default
-        Permissions: [admin,super_admin]
         Users: 
         --------------------
         Id: 2

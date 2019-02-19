@@ -11,7 +11,8 @@ td-client==0.8.0
 pymssql==2.1.3
 dql==0.5.24
 dynamo3==0.4.7
-botocore==1.10.2
+boto3==1.9.85
+botocore==1.12.85
 sasl>=0.1.3
 thrift>=0.8.0
 thrift_sasl>=0.1.0
@@ -24,6 +25,7 @@ pymapd>=0.2.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.4
+requests-aws4auth==0.9
 # certifi is needed to support MongoDB and SSL:
 certifi
 # We don't install snowflake connector by default, as it's causing conflicts with

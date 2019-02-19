@@ -237,25 +237,24 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
             }
           });
 
-          this.filteredData = this.query_result.data.rows.filter(row =>
-            filters.reduce((memo, filter) => {
-              if (!isArray(filter.current)) {
-                filter.current = [filter.current];
-              }
+          this.filteredData = this.query_result.data.rows.filter(row => filters.reduce((memo, filter) => {
+            if (!isArray(filter.current)) {
+              filter.current = [filter.current];
+            }
 
-              return (
-                memo &&
-                some(filter.current, (v) => {
-                  const value = row[filter.name];
-                  if (moment.isMoment(value)) {
-                    return value.isSame(v);
-                  }
-                  // We compare with either the value or the String representation of the value,
-                  // because Select2 casts true/false to "true"/"false".
-                  return v === value || String(value) === v;
-                })
-              );
-            }, true));
+            return (
+              memo &&
+              some(filter.current, (v) => {
+                const value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                }
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return v === value || String(value) === v;
+              })
+            );
+          }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
         }
@@ -532,10 +531,40 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
-    static get(dataSourceId, query, maxAge, queryId) {
+    static getByQueryId(id, parameters, maxAge) {
       const queryResult = new QueryResult();
 
-      const params = { data_source_id: dataSourceId, query, max_age: maxAge };
+      $resource('api/queries/:id/results', { id: '@id' }, { post: { method: 'POST' } }).post(
+        {
+          id,
+          parameters,
+          max_age: maxAge,
+        },
+        (response) => {
+          queryResult.update(response);
+
+          if ('job' in response) {
+            queryResult.refreshStatus(id);
+          }
+        },
+        (error) => {
+          handleErrorResponse(queryResult, error);
+        },
+      );
+
+      return queryResult;
+    }
+
+    static get(dataSourceId, query, parameters, maxAge, queryId) {
+      const queryResult = new QueryResult();
+
+      const params = {
+        data_source_id: dataSourceId,
+        parameters,
+        query,
+        max_age: maxAge,
+      };
+
       if (queryId !== undefined) {
         params.query_id = queryId;
       }

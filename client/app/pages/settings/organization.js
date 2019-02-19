@@ -1,4 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
 import template from './organization.html';
 
 function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
@@ -26,8 +26,8 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
   this.dateFormatList = clientConfig.dateFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
 
-  this.disablePasswordLoginToggle = () =>
-    (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
+  // eslint-disable-next-line max-len
+  this.disablePasswordLoginToggle = () => (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
 }
 
 export default function init(ngModule) {
@@ -52,4 +52,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
