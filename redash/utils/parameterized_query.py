@@ -96,10 +96,13 @@ class ParameterizedQuery(object):
         return self
 
     def _valid(self, name, value):
+        if not self.schema:
+            return True
+
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return True
+            return False
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
