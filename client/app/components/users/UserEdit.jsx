@@ -24,6 +24,7 @@ export class UserEdit extends React.Component {
     this.state = {
       user: this.props.user,
       groups: [],
+      loadingGroups: true,
       regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
@@ -31,7 +32,10 @@ export class UserEdit extends React.Component {
     };
 
     Group.query((groups) => {
-      this.setState({ groups: groups.map(({ id, name }) => ({ value: id, title: name })) });
+      this.setState({
+        groups: groups.map(({ id, name }) => ({ value: id, title: name })),
+        loadingGroups: false,
+      });
     });
   }
 
@@ -117,14 +121,12 @@ export class UserEdit extends React.Component {
         title: 'Name',
         type: 'text',
         initialValue: user.name,
-        required: true,
       },
       {
         name: 'email',
         title: 'Email',
         type: 'email',
         initialValue: user.email,
-        required: true,
       },
       (currentUser.isAdmin && currentUser.id !== user.id) ? {
         name: 'group_ids',
@@ -134,8 +136,10 @@ export class UserEdit extends React.Component {
         options: this.state.groups,
         initialValue: this.state.groups.filter(group => includes(user.groupIds, group.value))
           .map(group => group.value),
+        loading: this.state.loadingGroups,
+        placeholder: this.state.loadingGroups ? 'Loading...' : '',
       } : null,
-    ], isNull).map(field => ({ ...field, readOnly: user.isDisabled }));
+    ], isNull).map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
 
     return (
       <DynamicForm

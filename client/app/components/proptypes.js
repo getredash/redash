@@ -47,6 +47,7 @@ export const Field = PropTypes.shape({
   readOnly: PropTypes.bool,
   minLength: PropTypes.number,
   placeholder: PropTypes.string,
+  loading: PropTypes.bool,
 });
 
 export const Action = PropTypes.shape({
