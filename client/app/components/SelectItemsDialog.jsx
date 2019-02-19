@@ -13,6 +13,7 @@ class SelectItemsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
     dialogTitle: PropTypes.string,
     inputPlaceholder: PropTypes.string,
+    selectedItemsTitle: PropTypes.string,
     searchItems: PropTypes.func.isRequired, // (searchTerm: string): Promise<Items[]> if `searchTerm === ''` load all
     itemKey: PropTypes.func, // (item) => string|number - return key of item (by default `id`)
     renderItem: PropTypes.func, // (item) => node
@@ -22,6 +23,7 @@ class SelectItemsDialog extends React.Component {
   static defaultProps = {
     dialogTitle: 'Add Items',
     inputPlaceholder: 'Search...',
+    selectedItemsTitle: 'Selected items',
     itemKey: item => item.id,
     renderItem: () => '',
     save: items => items,
@@ -89,19 +91,29 @@ class SelectItemsDialog extends React.Component {
     });
   }
 
-  renderSlot(item) {
+  renderSlot(item, isInSelectedList) {
     const { itemKey, renderItem } = this.props;
     const key = itemKey(item);
     const isSelected = this.selectedIds.has(key);
+
+    const searchListAddon = isSelected ? (
+      <i className="fa fa-check m-r-10" />
+    ) : (
+      <i className="fa fa-angle-double-right m-r-10" />
+    );
+
+    const selectedListAddon = <i className="fa fa-remove m-r-10" />;
+
+    const addons = isInSelectedList ? selectedListAddon : searchListAddon;
+
+    const onClick = () => this.toggleItem(item);
     return (
-      <List.Item onClick={() => this.toggleItem(item)}>
-        {renderItem(item, isSelected)}
-      </List.Item>
+      <List.Item className="p-0">{renderItem(item, isSelected, addons, onClick)}</List.Item>
     );
   }
 
   render() {
-    const { dialog, dialogTitle, inputPlaceholder } = this.props;
+    const { dialog, dialogTitle, inputPlaceholder, selectedItemsTitle } = this.props;
     const { loading, saveInProgress, items, selected } = this.state;
     const hasResults = items.length > 0;
     return (
@@ -125,7 +137,7 @@ class SelectItemsDialog extends React.Component {
             />
           </div>
           <div className="col-xs-6">
-            <h5 className="m-t-10">Selected users</h5>
+            <h5 className="m-t-10">{selectedItemsTitle}</h5>
           </div>
         </div>
 
@@ -143,7 +155,7 @@ class SelectItemsDialog extends React.Component {
                   <List
                     size="small"
                     dataSource={items}
-                    renderItem={item => this.renderSlot(item, true)}
+                    renderItem={item => this.renderSlot(item, false)}
                   />
                 )}
               </div>
@@ -155,7 +167,7 @@ class SelectItemsDialog extends React.Component {
                 <List
                   size="small"
                   dataSource={selected}
-                  renderItem={item => this.renderSlot(item, false)}
+                  renderItem={item => this.renderSlot(item, true)}
                 />
               )}
             </div>

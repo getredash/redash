@@ -1,4 +1,4 @@
-import { filter } from 'lodash';
+import { isBoolean, filter, some } from 'lodash';
 import React from 'react';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
@@ -7,6 +7,7 @@ import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 import Icon from 'antd/lib/icon';
 import Modal from 'antd/lib/modal';
+import Tooltip from 'antd/lib/tooltip';
 
 import { EditInPlace } from '@/components/EditInPlace';
 import { Paginator } from '@/components/Paginator';
@@ -200,20 +201,28 @@ class GroupDetails extends React.Component {
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Members',
       inputPlaceholder: 'Search users...',
+      selectedItemsTitle: 'Users to be added',
       searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
-      renderItem: (item, isSelected) => (
-        <UserPreviewCard user={item}>
-          {isSelected && (
-            <Icon
-              className="m-l-10 m-r-10"
-              type="check-circle"
-              theme="twoTone"
-              twoToneColor="#52c41a"
-              style={{ fontSize: '20px' }}
-            />
-          )}
-        </UserPreviewCard>
-      ),
+      renderItem: (item, isSelected, addons, onClick) => {
+        const groupId = parseInt(this.props.controller.params.groupId, 10);
+        const alreadyInGroup = some(item.groups, g => g.id === groupId);
+
+        onClick = alreadyInGroup ? null : onClick;
+        addons = alreadyInGroup ? (
+          <Tooltip title="Already in this group"><i className="fa fa-question-circle m-r-10" /></Tooltip>
+        ) : addons;
+        const className = alreadyInGroup ? '' : 'clickable';
+
+        return (
+          <UserPreviewCard
+            className={'p-t-10 p-b-10 ' + className}
+            user={item}
+            onClick={onClick}
+          >
+            {addons}
+          </UserPreviewCard>
+        );
+      },
     }).result.then((results) => {
       console.log(results);
       this.props.controller.update();
@@ -221,27 +230,35 @@ class GroupDetails extends React.Component {
   }
 
   addDataSources() {
-    const allDataSources = DataSource.query().$promise;
+    const allDataSources = DataSource.query({ extended: true }).$promise;
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Data Sources',
       inputPlaceholder: 'Search data sources...',
+      selectedItemsTitle: 'Data sources to be added',
       searchItems: (searchTerm) => {
         searchTerm = searchTerm.toLowerCase();
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
       },
-      renderItem: (item, isSelected) => (
-        <DataSourcePreviewCard dataSource={item}>
-          {isSelected && (
-            <Icon
-              className="m-l-10 m-r-10"
-              type="check-circle"
-              theme="twoTone"
-              twoToneColor="#52c41a"
-              style={{ fontSize: '20px' }}
-            />
-          )}
-        </DataSourcePreviewCard>
-      ),
+      renderItem: (item, isSelected, addons, onClick) => {
+        const groupId = parseInt(this.props.controller.params.groupId, 10);
+        const alreadyInGroup = isBoolean(item.groups[groupId]);
+
+        onClick = alreadyInGroup ? null : onClick;
+        addons = alreadyInGroup ? (
+          <Tooltip title="Already in this group"><i className="fa fa-question-circle m-r-10" /></Tooltip>
+        ) : addons;
+        const className = alreadyInGroup ? '' : 'clickable';
+
+        return (
+          <DataSourcePreviewCard
+            className={'p-t-10 p-b-10 ' + className}
+            dataSource={item}
+            onClick={onClick}
+          >
+            {addons}
+          </DataSourcePreviewCard>
+        );
+      },
     }).result.then((results) => {
       console.log(results);
       this.props.controller.update();
