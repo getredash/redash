@@ -78,6 +78,7 @@ def init_celery_flask_app(**kwargs):
     app.app_context().push()
 
 
+# Commented until https://github.com/getredash/redash/issues/3466 is implemented.
 # Hook for extensions to add periodic tasks.
 # @celery.on_after_configure.connect
 # def add_periodic_tasks(sender, **kwargs):
