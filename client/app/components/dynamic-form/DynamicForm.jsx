@@ -7,6 +7,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
+import Select from 'antd/lib/select';
 import { includes } from 'lodash';
 import { react2angular } from 'react2angular';
 import { toastr } from '@/services/ng';
@@ -130,6 +131,25 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     return getFieldDecorator(name, fileOptions)(upload);
   }
 
+  renderSelect(field, props) {
+    const { getFieldDecorator } = this.props.form;
+    const { name, options, mode, initialValue, readOnly } = field;
+    const { Option } = Select;
+
+    const decoratorOptions = {
+      rules: fieldRules(field),
+      initialValue,
+    };
+
+    return getFieldDecorator(name, decoratorOptions)(
+      <Select {...props} mode={mode}>
+        {options && options.map(({ value, title }) => (
+          <Option key={`${value}`} value={value} disabled={readOnly}>{ title || value }</Option>
+        ))}
+      </Select>,
+    );
+  }
+
   renderField(field, props) {
     const { getFieldDecorator } = this.props.form;
     const { name, type, initialValue } = field;
@@ -145,6 +165,8 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       return getFieldDecorator(name, options)(<Checkbox {...props}>{fieldLabel}</Checkbox>);
     } else if (type === 'file') {
       return this.renderUpload(field, props);
+    } else if (type === 'select') {
+      return this.renderSelect(field, props);
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
     }
