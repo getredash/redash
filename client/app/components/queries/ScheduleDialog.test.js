@@ -6,10 +6,17 @@ import RefreshScheduleDefault from '../proptypes';
 const defaultProps = {
   schedule: RefreshScheduleDefault,
   refreshOptions: [
-    60, 300, 600, // 1, 5 ,10 mins
-    3600, 36000, 82800, // 1, 10, 23 hours
-    86400, 172800, 518400, // 1, 2, 6 days
-    604800, 1209600, // 1, 2, 4 weeks
+    60,
+    300,
+    600, // 1, 5 ,10 mins
+    3600,
+    36000,
+    82800, // 1, 10, 23 hours
+    86400,
+    172800,
+    518400, // 1, 2, 6 days
+    604800,
+    1209600, // 1, 2, 4 weeks
   ],
   dialog: {
     props: {
@@ -126,6 +133,14 @@ describe('ScheduleDialog', () => {
         expect(el).toMatchSnapshot();
       });
     });
+
+    describe('Supports 30 days interval with no time value', () => {
+      test('Time is none', () => {
+        const [wrapper] = getWrapper({ interval: 30 * 24 * 3600 });
+        const el = findByTestID(wrapper, 'time');
+        expect(el).toMatchSnapshot();
+      });
+    });
   });
 
   describe('Adheres to user permissions', () => {
@@ -139,11 +154,12 @@ describe('ScheduleDialog', () => {
         .simulate('click');
 
       // get dropdown menu items
-      const options = mount(wrapper
-        .find('Trigger')
-        .instance()
-        .getComponent())
-        .find('MenuItem');
+      const options = mount(
+        wrapper
+          .find('Trigger')
+          .instance()
+          .getComponent(),
+      ).find('MenuItem');
 
       const texts = options.map(node => node.text());
       const expected = ['Never', '1 minute', '5 minutes', '1 hour', '2 hours'];

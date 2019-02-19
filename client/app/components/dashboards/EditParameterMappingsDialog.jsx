@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { isMatch, map, find, sortBy } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
@@ -9,6 +9,26 @@ import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
+import { ParameterMappingType } from '@/services/widget';
+
+export function getParamValuesSnapshot(mappings, dashboardParameters) {
+  return map(
+    sortBy(mappings, m => m.name),
+    (m) => {
+      let param;
+      switch (m.type) {
+        case ParameterMappingType.StaticValue:
+          return [m.name, m.value];
+        case ParameterMappingType.WidgetLevel:
+          return [m.name, m.param.value];
+        case ParameterMappingType.DashboardLevel:
+          param = find(dashboardParameters, p => p.name === m.mapTo);
+          return [m.name, param ? param.value : null];
+        // no default
+      }
+    },
+  );
+}
 
 class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
@@ -19,6 +39,7 @@ class EditParameterMappingsDialog extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       saveInProgress: false,
       parameterMappings: parameterMappingsToEditableMappings(
@@ -35,7 +56,15 @@ class EditParameterMappingsDialog extends React.Component {
 
     this.setState({ saveInProgress: true });
 
-    widget.options.parameterMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
+    const prevMappings = widget.options.parameterMappings;
+    const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
+    widget.options.parameterMappings = newMappings;
+
+    const dashboardParameters = this.props.dashboard.getParametersDefs();
+    const valuesChanged = !isMatch(
+      getParamValuesSnapshot(prevMappings, dashboardParameters),
+      getParamValuesSnapshot(newMappings, dashboardParameters),
+    );
 
     const widgetsToSave = [
       widget,
@@ -44,7 +73,7 @@ class EditParameterMappingsDialog extends React.Component {
 
     Promise.all(map(widgetsToSave, w => w.save()))
       .then(() => {
-        this.props.dialog.close();
+        this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
         toastr.error('Widget cannot be updated');
