@@ -41,8 +41,8 @@ function DataSourceCtrl(
   });
 
   $scope.setType = (type) => {
-    $scope.type = type;
-    $scope.dataSource.type = type.type;
+    $scope.type = find($scope.types, { type });
+    $scope.dataSource.type = type;
   };
 
   $scope.resetType = () => {

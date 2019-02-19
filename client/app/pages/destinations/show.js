@@ -19,8 +19,8 @@ function DestinationCtrl(
   });
 
   $scope.setType = (type) => {
-    $scope.type = type;
-    $scope.destination.type = type.type;
+    $scope.type = find($scope.types, { type });
+    $scope.destination.type = type;
   };
 
   $scope.resetType = () => {
