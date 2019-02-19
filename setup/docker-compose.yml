@@ -30,7 +30,7 @@ services:
     <<: *redash-service
     command: worker
     environment:
-      QUEUES: "queries"
+      QUEUES: "queries,schemas"
       WORKERS_COUNT: 2
   redis:
     image: redis:3.0-alpine
