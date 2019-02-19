@@ -56,12 +56,12 @@ function QueuesTable({ loading, queues }) {
       dataIndex: 'active',
     },
     {
-      title: 'Waiting',
-      dataIndex: 'waiting',
-    },
-    {
       title: 'Reserved',
       dataIndex: 'reserved',
+    },
+    {
+      title: 'Waiting',
+      dataIndex: 'waiting',
     },
   ];
   return <Table columns={columns} rowKey={name} dataSource={queues} loading={loading} />;
@@ -179,13 +179,13 @@ class AdminCeleryStatus extends React.Component {
     return (
       <div className="p-5">
         <Row gutter={16}>
-          <Col span={4}>
+          <Col span={2}>
             <CounterCard title="Active" value={this.state.counters.active} loading={this.state.loading} />
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <CounterCard title="Reserved" value={this.state.counters.reserved} loading={this.state.loading} />
           </Col>
-          <Col span={4}>
+          <Col span={2}>
             <CounterCard title="Waiting" value={this.state.counters.waiting} loading={this.state.loading} />
           </Col>
         </Row>
