@@ -11,7 +11,8 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 class SelectItemsDialog extends React.Component {
   static propTypes = {
     dialog: DialogPropType.isRequired,
-    title: PropTypes.string, // dialog title
+    dialogTitle: PropTypes.string,
+    inputPlaceholder: PropTypes.string,
     searchItems: PropTypes.func.isRequired, // (searchTerm: string): Promise<Items[]> if `searchTerm === ''` load all
     itemKey: PropTypes.func, // (item) => string|number - return key of item (by default `id`)
     renderItem: PropTypes.func, // (item) => node
@@ -19,7 +20,8 @@ class SelectItemsDialog extends React.Component {
   };
 
   static defaultProps = {
-    title: 'Add Items',
+    dialogTitle: 'Add Items',
+    inputPlaceholder: 'Search...',
     itemKey: item => item.id,
     renderItem: () => '',
     save: items => items,
@@ -36,7 +38,7 @@ class SelectItemsDialog extends React.Component {
   };
 
   // eslint-disable-next-line react/sort-comp
-  loadItems = (searchTerm) => {
+  loadItems = (searchTerm = '') => {
     this.setState({ searchTerm, loading: true }, () => {
       this.props.searchItems(searchTerm)
         .then((items) => {
@@ -99,14 +101,14 @@ class SelectItemsDialog extends React.Component {
   }
 
   render() {
-    const { dialog, title } = this.props;
+    const { dialog, dialogTitle, inputPlaceholder } = this.props;
     const { loading, saveInProgress, items, selected } = this.state;
     const hasResults = items.length > 0;
     return (
       <Modal
         {...dialog.props}
         width="80%"
-        title={title}
+        title={dialogTitle}
         okText="Save"
         okButtonProps={{
           loading: saveInProgress,
@@ -118,7 +120,7 @@ class SelectItemsDialog extends React.Component {
             <Input.Search
               defaultValue={this.state.searchTerm}
               onChange={event => this.search(event.target.value)}
-              placeholder="Search users..."
+              placeholder={inputPlaceholder}
               autoFocus
             />
           </div>

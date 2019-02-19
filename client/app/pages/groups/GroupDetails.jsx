@@ -1,5 +1,5 @@
+import { filter } from 'lodash';
 import React from 'react';
-import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Divider from 'antd/lib/divider';
@@ -20,6 +20,7 @@ import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 import SelectItemsDialog from '@/components/SelectItemsDialog';
+import { UserPreviewCard, DataSourcePreviewCard } from '@/components/PreviewCard';
 
 import { $http, $rootScope, $location, toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
@@ -28,28 +29,6 @@ import { User } from '@/services/user';
 import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
-
-function UserCard({ user, children }) {
-  return (
-    <div className="w-100 d-flex align-items-center">
-      <img src={user.profile_image_url} height="32" className="profile__image--settings m-r-5" alt={user.name} />
-      <div className="flex-fill">
-        <div>{user.name}</div>
-        <div className="text-muted">{user.email}</div>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-UserCard.propTypes = {
-  user: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  children: PropTypes.node,
-};
-UserCard.defaultProps = {
-  user: null,
-  children: null,
-};
 
 class GroupDetails extends React.Component {
   static propTypes = {
@@ -71,13 +50,7 @@ class GroupDetails extends React.Component {
 
   usersListColumns = [
     Columns.custom((text, user) => (
-      <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-        <div>
-          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-          <div className="text-muted">{user.email}</div>
-        </div>
-      </div>
+      <UserPreviewCard user={user} withLink />
     ), {
       title: 'Name',
       field: 'name',
@@ -97,10 +70,7 @@ class GroupDetails extends React.Component {
 
   datasourcesListColumns = [
     Columns.custom((text, datasource) => (
-      <div className="d-flex align-items-center">
-        <img src={`/static/images/db-logos/${datasource.type}.png`} height="32px" className="m-r-5" alt={datasource.name} />
-        <a href={'data_sources/' + datasource.id}>{datasource.name}</a>
-      </div>
+      <DataSourcePreviewCard dataSource={datasource} withLink />
     ), {
       title: 'Name',
       field: 'name',
@@ -228,10 +198,11 @@ class GroupDetails extends React.Component {
 
   addMember() {
     SelectItemsDialog.showModal({
-      title: 'Add Members',
+      dialogTitle: 'Add Members',
+      inputPlaceholder: 'Search users...',
       searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
       renderItem: (item, isSelected) => (
-        <UserCard condensed user={item}>
+        <UserPreviewCard user={item}>
           {isSelected && (
             <Icon
               className="m-l-10 m-r-10"
@@ -241,7 +212,7 @@ class GroupDetails extends React.Component {
               style={{ fontSize: '20px' }}
             />
           )}
-        </UserCard>
+        </UserPreviewCard>
       ),
     }).result.then((results) => {
       console.log(results);
@@ -250,10 +221,27 @@ class GroupDetails extends React.Component {
   }
 
   addDataSources() {
+    const allDataSources = DataSource.query().$promise;
     SelectItemsDialog.showModal({
-      title: 'Add Data Sources',
-      searchItems: searchTerm => DataSource.query({ q: searchTerm }).$promise,
-      renderItem: item => item.name,
+      dialogTitle: 'Add Data Sources',
+      inputPlaceholder: 'Search data sources...',
+      searchItems: (searchTerm) => {
+        searchTerm = searchTerm.toLowerCase();
+        return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
+      },
+      renderItem: (item, isSelected) => (
+        <DataSourcePreviewCard dataSource={item}>
+          {isSelected && (
+            <Icon
+              className="m-l-10 m-r-10"
+              type="check-circle"
+              theme="twoTone"
+              twoToneColor="#52c41a"
+              style={{ fontSize: '20px' }}
+            />
+          )}
+        </DataSourcePreviewCard>
+      ),
     }).result.then((results) => {
       console.log(results);
       this.props.controller.update();
