@@ -26,10 +26,14 @@ export default function DetailsPageSidebar({
         onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
       />
       {canAddMembers && (
-        <Button className="w-100 m-t-5" onClick={onAddMembersClick}>Add Members</Button>
+        <Button className="w-100 m-t-5" type="primary" onClick={onAddMembersClick}>
+          <i className="fa fa-plus m-r-5" />Add Members
+        </Button>
       )}
       {canAddDataSources && (
-        <Button className="w-100 m-t-5" onClick={onAddDataSourcesClick}>Add Data Sources</Button>
+        <Button className="w-100 m-t-5" type="primary" onClick={onAddDataSourcesClick}>
+          <i className="fa fa-plus m-r-5" />Add Data Sources
+        </Button>
       )}
       {canRemove && (
         <React.Fragment>
