@@ -277,10 +277,10 @@ class TestUserResourcePost(BaseTestCase):
         admin_user = self.factory.create_admin()
         other_user = self.factory.create_user(group_ids=[1])
 
-        rv = self.make_request('post', "/api/users/{}".format(other_user.id), data={"group_ids": []}, user=admin_user)
+        rv = self.make_request('post', "/api/users/{}".format(other_user.id), data={"group_ids": [1, 2]}, user=admin_user)
 
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(models.User.query.get(other_user.id).group_ids, [])
+        self.assertEqual(models.User.query.get(other_user.id).group_ids, [1,2])
 
     def test_admin_can_delete_user(self):
         admin_user = self.factory.create_admin()
