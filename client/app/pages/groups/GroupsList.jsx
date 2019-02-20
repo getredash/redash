@@ -102,7 +102,7 @@ class GroupsList extends React.Component {
     const { controller } = this.props;
 
     return (
-      <React.Fragment>
+      <div data-test="GroupList">
         {currentUser.isAdmin && (
           <div className="m-b-15">
             <Button type="primary" onClick={this.createGroup}>
@@ -136,7 +136,7 @@ class GroupsList extends React.Component {
             </div>
           )
         }
-      </React.Fragment>
+      </div>
     );
   }
 }

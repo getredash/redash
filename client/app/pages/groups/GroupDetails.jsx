@@ -311,7 +311,7 @@ class GroupDetails extends React.Component {
     }[controller.params.currentPage];
 
     return (
-      <div className="row">
+      <div className="row" data-test="Group">
         {group && (
           <h3 className="col-xs-12 m-t-0 m-b-15">
             <EditInPlace
