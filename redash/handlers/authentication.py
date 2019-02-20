@@ -124,7 +124,7 @@ def forgot_password(org_slug=None):
     return render_template("forgot.html", submitted=submitted)
 
 
-@routes.route(org_scoped_rule('/verification_email'), methods=['POST'])
+@routes.route(org_scoped_rule('/verification_email/'), methods=['POST'])
 def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
