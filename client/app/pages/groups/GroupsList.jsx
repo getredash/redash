@@ -2,10 +2,8 @@ import React from 'react';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
-import Modal from 'antd/lib/modal';
 import Tooltip from 'antd/lib/tooltip';
 import { Paginator } from '@/components/Paginator';
-import CreateGroupDialog from '@/components/groups/CreateGroupDialog';
 
 import { wrap as liveItemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -15,9 +13,11 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
+import CreateGroupDialog from '@/components/groups/CreateGroupDialog';
+import DeleteGroupButton from '@/components/groups/DeleteGroupButton';
+
 import { Group } from '@/services/group';
 import settingsMenu from '@/services/settingsMenu';
-import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
@@ -49,14 +49,14 @@ class GroupsList extends React.Component {
     Columns.custom((text, group) => {
       const canRemove = group.type !== 'builtin';
       const button = (
-        <Button
+        <DeleteGroupButton
           className="w-100"
-          type="danger"
           disabled={!canRemove}
-          onClick={event => this.deleteGroup(event, group)}
+          group={group}
+          onClick={() => this.props.controller.update()}
         >
           Delete
-        </Button>
+        </DeleteGroupButton>
       );
       return canRemove ? button : (
         <Tooltip placement="top" title="Cannot delete built-in group" mouseLeaveDelay={0}>{button}</Tooltip>
@@ -73,26 +73,6 @@ class GroupsList extends React.Component {
       group: new Group(),
     }).result.then((group) => {
       group.$save().then(newGroup => navigateTo(`/groups/${newGroup.id}`));
-    });
-  };
-
-  deleteGroup = (event, group) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-
-    Modal.confirm({
-      title: 'Delete Group',
-      content: 'Are you sure you want to delete this group?',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk: () => {
-        group.$delete(() => {
-          toastr.success('Group deleted successfully.');
-          this.props.controller.update();
-        });
-      },
     });
   };
 
