@@ -3,7 +3,6 @@ import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
-import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
 
@@ -22,7 +21,7 @@ class DestinationsList extends React.Component {
       name: destination.name,
       type: destination.type,
       imgSrc: `${IMG_ROOT}/${destination.type}.png`,
-      onClick: () => navigateTo(`data_sources/${destination.id}`),
+      onClick: () => navigateTo(`destinations/${destination.id}`),
     }));
 
     return (<TypePicker types={types} />);
@@ -32,7 +31,7 @@ class DestinationsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
-          <Button type="primary" href="destinations/new" disabled={!policy.isCreateDataSourceEnabled()}>
+          <Button type="primary" href="destinations/new">
             <i className="fa fa-plus m-r-5" />
             New Destination
           </Button>
