@@ -45,7 +45,7 @@ class GroupDetails extends React.Component {
     {
       key: 'datasources',
       href: `groups/${this.props.controller.params.groupId}/data_sources`,
-      title: 'Datasources',
+      title: 'Data Sources',
     },
   ];
 
@@ -390,7 +390,7 @@ export default function init(ngModule) {
     },
     {
       path: '/groups/:groupId/data_sources',
-      title: 'Group Datasources',
+      title: 'Group Data Sources',
       key: 'datasources',
     },
   ], {
