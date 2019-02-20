@@ -99,7 +99,10 @@ def verify(token, org_slug=None):
     models.db.session.add(user)
     models.db.session.commit()
 
-    return render_template("verify.html", org_slug=org_slug)
+    template_context = { "org_slug": org_slug } if settings.MULTI_ORG else {}
+    next_url = url_for('redash.index', **template_context)
+
+    return render_template("verify.html", next_url=next_url)
 
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
@@ -121,7 +124,7 @@ def forgot_password(org_slug=None):
     return render_template("forgot.html", submitted=submitted)
 
 
-@routes.route(org_scoped_rule('/verification_email'), methods=['POST'])
+@routes.route(org_scoped_rule('/verification_email/'), methods=['POST'])
 def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
