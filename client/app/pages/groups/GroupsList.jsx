@@ -5,6 +5,7 @@ import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
 import Tooltip from 'antd/lib/tooltip';
 import { Paginator } from '@/components/Paginator';
+import CreateGroupDialog from '@/components/groups/CreateGroupDialog';
 
 import { wrap as liveItemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -20,8 +21,6 @@ import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
-
-import CreateGroupDialog from './components/CreateGroupDialog';
 
 class GroupsList extends React.Component {
   static propTypes = {
