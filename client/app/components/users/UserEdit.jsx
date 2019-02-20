@@ -4,7 +4,7 @@ import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
 import { react2angular } from 'react2angular';
-import { includes, reject, isNull } from 'lodash';
+import { includes } from 'lodash';
 import { User } from '@/services/user';
 import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
@@ -100,8 +100,9 @@ export class UserEdit extends React.Component {
 
   saveUser = (values, successCallback, errorCallback) => {
     const data = {
-      id: this.props.user.id,
       ...values,
+      id: this.props.user.id,
+      group_ids: currentUser.isAdmin && currentUser.id !== this.props.user.id ? values.group_ids : undefined,
     };
 
     User.save(data, (user) => {
@@ -113,9 +114,9 @@ export class UserEdit extends React.Component {
   };
 
   renderUserInfoForm() {
-    const { user } = this.state;
+    const { user, groups, loadingGroups } = this.state;
 
-    const formFields = reject([
+    const formFields = [
       {
         name: 'name',
         title: 'Name',
@@ -128,18 +129,19 @@ export class UserEdit extends React.Component {
         type: 'email',
         initialValue: user.email,
       },
-      (currentUser.isAdmin && currentUser.id !== user.id) ? {
+      {
         name: 'group_ids',
         title: 'Groups',
         type: 'select',
         mode: 'multiple',
-        options: this.state.groups,
-        initialValue: this.state.groups.filter(group => includes(user.groupIds, group.value))
-          .map(group => group.value),
-        loading: this.state.loadingGroups,
-        placeholder: this.state.loadingGroups ? 'Loading...' : '',
-      } : null,
-    ], isNull).map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
+        options: groups,
+        initialValue: groups.filter(group => includes(user.groupIds, group.value)).map(group => group.value),
+        loading: loadingGroups,
+        placeholder: loadingGroups ? 'Loading...' : '',
+        readOnly: user.isDisabled || currentUser.id === user.id,
+        required: currentUser.id !== user.id,
+      },
+    ].map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
 
     return (
       <DynamicForm
