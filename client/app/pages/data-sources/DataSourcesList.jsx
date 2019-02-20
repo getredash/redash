@@ -7,8 +7,6 @@ import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
 
-const IMG_ROOT = '/static/images/db-logos';
-
 class DataSourcesList extends React.Component {
   constructor(props) {
     super(props);
@@ -21,7 +19,7 @@ class DataSourcesList extends React.Component {
     const types = dataSources.map(dataSource => ({
       name: dataSource.name,
       type: dataSource.type,
-      imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
+      imgSrc: `${DataSource.IMG_ROOT}/${dataSource.type}.png`,
       onClick: () => navigateTo(`data_sources/${dataSource.id}`),
     }));
 

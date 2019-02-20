@@ -92,7 +92,7 @@ export default function init(ngModule) {
   ngModule.controller('DataSourceCtrl', DataSourceCtrl);
 
   return {
-    '/data_sources/new': {
+    '/data_sources/previous-new': {
       template,
       controller: 'DataSourceCtrl',
       title: 'Datasources',
