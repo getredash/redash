@@ -132,6 +132,7 @@ class SelectItemsDialog extends React.Component {
         okText="Save"
         okButtonProps={{
           loading: saveInProgress,
+          disabled: selected.length === 0,
         }}
         onOk={() => this.save()}
       >
@@ -151,7 +152,7 @@ class SelectItemsDialog extends React.Component {
 
         <div className="row">
           <div className="col-xs-6">
-            {loading && <LoadingState />}
+            {loading && <LoadingState className="" />}
             {!loading && !hasResults && (
               <div className="d-flex justify-content-center align-items-center text-muted" style={{ height: '150px' }}>
                 Search results will appear here

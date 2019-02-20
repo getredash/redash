@@ -132,7 +132,7 @@ class GroupDataSources extends React.Component {
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Data Sources',
       inputPlaceholder: 'Search data sources...',
-      selectedItemsTitle: 'Data sources to be added',
+      selectedItemsTitle: 'New Data Sources',
       searchItems: (searchTerm) => {
         searchTerm = searchTerm.toLowerCase();
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
@@ -146,7 +146,7 @@ class GroupDataSources extends React.Component {
             </DataSourcePreviewCard>
           ),
           isDisabled: alreadyInGroup,
-          className: isSelected ? 'selected' : '',
+          className: isSelected || alreadyInGroup ? 'selected' : '',
         };
       },
       renderStagedItem: (item, { isSelected }) => ({

@@ -91,7 +91,7 @@ class GroupMembers extends React.Component {
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Members',
       inputPlaceholder: 'Search users...',
-      selectedItemsTitle: 'Users to be added',
+      selectedItemsTitle: 'New Members',
       searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = some(item.groups, g => g.id === this.groupId);
@@ -102,7 +102,7 @@ class GroupMembers extends React.Component {
             </UserPreviewCard>
           ),
           isDisabled: alreadyInGroup,
-          className: isSelected ? 'selected' : '',
+          className: isSelected || alreadyInGroup ? 'selected' : '',
         };
       },
       renderStagedItem: (item, { isSelected }) => ({
