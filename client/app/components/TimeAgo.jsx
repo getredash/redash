@@ -68,7 +68,7 @@ export class TimeAgo extends React.PureComponent {
   }
 
   render() {
-    return <span title={this.state.title}>{this.state.value}</span>;
+    return <span title={this.state.title} data-test="TimeAgo">{this.state.value}</span>;
   }
 }
 
