@@ -12,8 +12,8 @@ from dateutil.parser import parse
 
 def _pluck_name_and_value(default_column, row):
     row = {k.lower(): v for k, v in row.items()}
-    name_column = "name" if "name" in row.keys() else default_column
-    value_column = "value" if "value" in row.keys() else default_column
+    name_column = "name" if "name" in row.keys() else default_column.lower()
+    value_column = "value" if "value" in row.keys() else default_column.lower()
 
     return {"name": row[name_column], "value": row[value_column]}
 
@@ -96,10 +96,13 @@ class ParameterizedQuery(object):
         return self
 
     def _valid(self, name, value):
+        if not self.schema:
+            return True
+
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return True
+            return False
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
@@ -130,5 +133,5 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        message = u"The following parameter values are incompatible with their type definitions: {}".format(", ".join(parameters))
+        message = u"The following parameter values are incompatible with their definitions: {}".format(", ".join(parameters))
         super(InvalidParameterError, self).__init__(message)

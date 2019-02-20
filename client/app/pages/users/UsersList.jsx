@@ -7,7 +7,10 @@ import Button from 'antd/lib/button';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
+import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
+import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
+import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
@@ -20,11 +23,10 @@ import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
-function UsersListActions({ user, actions }) {
+function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
     return null;
   }
-  const { enableUser, disableUser, deleteUser } = actions;
   if (user.is_invitation_pending) {
     return (
       <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
@@ -43,11 +45,9 @@ UsersListActions.propTypes = {
     is_invitation_pending: PropTypes.bool,
     is_disabled: PropTypes.bool,
   }).isRequired,
-  actions: PropTypes.shape({
-    enableUser: PropTypes.func,
-    disableUser: PropTypes.func,
-    deleteUser: PropTypes.func,
-  }).isRequired,
+  enableUser: PropTypes.func.isRequired,
+  disableUser: PropTypes.func.isRequired,
+  deleteUser: PropTypes.func.isRequired,
 };
 
 class UsersList extends React.Component {
@@ -106,13 +106,44 @@ class UsersList extends React.Component {
       className: 'text-nowrap',
       width: '1%',
     }),
-    Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
+    Columns.custom((text, user) => (
+      <UsersListActions
+        user={user}
+        enableUser={this.enableUser}
+        disableUser={this.disableUser}
+        deleteUser={this.deleteUser}
+      />
+    ), {
       width: '1%',
       isAvailable: () => policy.canCreateUser(),
     }),
   ];
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+
+  enableUser = (event, user) => {
+    // prevent default click action on table rows
+    event.preventDefault();
+    event.stopPropagation();
+    return User.enableUser(user)
+      .then(() => this.props.controller.update());
+  };
+
+  disableUser = (event, user) => {
+    // prevent default click action on table rows
+    event.preventDefault();
+    event.stopPropagation();
+    return User.disableUser(user)
+      .then(() => this.props.controller.update());
+  };
+
+  deleteUser = (event, user) => {
+    // prevent default click action on table rows
+    event.preventDefault();
+    event.stopPropagation();
+    return User.deleteUser(user)
+      .then(() => this.props.controller.update());
+  };
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -138,7 +169,7 @@ class UsersList extends React.Component {
           value={controller.searchTerm}
           onChange={controller.updateSearch}
         />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
+        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
         <Sidebar.PageSizeSelect
           options={controller.pageSizeOptions}
           value={controller.itemsPerPage}
@@ -197,49 +228,33 @@ export default function init(ngModule) {
     order: 2,
   });
 
-  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
-    defaultOrderBy: '-created_at',
-    getRequest(request, { currentPage }) {
-      switch (currentPage) {
-        case 'active':
-          request.pending = false;
-          break;
-        case 'pending':
-          request.pending = true;
-          break;
-        case 'disabled':
-          request.disabled = true;
-          break;
-        // no default
-      }
-      return request;
-    },
-    doRequest: createResourceFetcher(
-      () => User.query.bind(User),
-      item => new User(item),
-    ),
-    actions: {
-      // `User` will become available later, so use wrappers
-      enableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.enableUser(user);
+  ngModule.component('pageUsersList', react2angular(itemsList(
+    UsersList,
+    new ResourceItemsSource({
+      getRequest(request, { params: { currentPage } }) {
+        switch (currentPage) {
+          case 'active':
+            request.pending = false;
+            break;
+          case 'pending':
+            request.pending = true;
+            break;
+          case 'disabled':
+            request.disabled = true;
+            break;
+          // no default
+        }
+        return request;
       },
-      disableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.disableUser(user);
+      getResource() {
+        return User.query.bind(User);
       },
-      deleteUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.deleteUser(user);
+      getItemProcessor() {
+        return (item => new User(item));
       },
-    },
-  })));
+    }),
+    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
+  )));
 
   return routesToAngularRoutes([
     {
@@ -258,8 +273,13 @@ export default function init(ngModule) {
       key: 'disabled',
     },
   ], {
-    template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
+    template: '<settings-screen><page-users-list on-error="handleError"></page-users-list></settings-screen>',
     reloadOnSearch: false,
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
   });
 }
 
