@@ -4,22 +4,20 @@ import List from 'antd/lib/list';
 import { includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { react2angular } from 'react2angular';
 import { Type } from './proptypes';
 
 const { Search } = Input;
 const { Meta } = Card;
 
-export class TypePicker extends React.Component {
+export default class TypePicker extends React.Component {
   static propTypes = {
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     types: PropTypes.arrayOf(Type),
-    onSelect: PropTypes.func,
   };
 
   static defaultProps = {
+    title: null,
     types: [],
-    onSelect: () => {},
   };
 
   constructor(props) {
@@ -27,22 +25,22 @@ export class TypePicker extends React.Component {
     this.state = { searchText: '' };
   }
 
+  // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
-    const { onSelect } = this.props;
-
     return (
       <List.Item>
         <Card
-          headStyle={{ textAlign: 'center' }}
           bodyStyle={{ minHeight: '80px' }}
           cover={(
-            <img
-              alt={item.name}
-              style={{ margin: 'auto', width: '64px', height: '64px' }}
-              src={item.imgSrc}
-            />
+            <div className="m-t-10">
+              <img
+                alt={item.name}
+                style={{ margin: 'auto', width: '64px', height: '64px' }}
+                src={item.imgSrc}
+              />
+            </div>
           )}
-          onClick={() => onSelect(item.type)}
+          onClick={item.onClick}
           hoverable
         >
           <Meta description={item.name} />
@@ -59,8 +57,8 @@ export class TypePicker extends React.Component {
       includes(type.name.toLowerCase(), searchText.toLowerCase()));
 
     return (
-      <div className="text-center">
-        <h3>{title}</h3>
+      <div className="text-center" data-test="TypePicker">
+        {title && <h3>{title}</h3>}
         <Search
           className="m-b-20"
           placeholder="Search..."
@@ -78,27 +76,3 @@ export class TypePicker extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('typePicker', react2angular((props) => {
-    const {
-      title,
-      types,
-      imgRoot,
-      onTypeSelect,
-    } = props;
-
-    const typePickerProps = {
-      title,
-      types: types.map(type => ({
-        ...type,
-        imgSrc: `${imgRoot}/${type.type}.png`,
-      })),
-      onSelect: onTypeSelect,
-    };
-
-    return (<TypePicker {...typePickerProps} />);
-  }, ['title', 'types', 'imgRoot', 'onTypeSelect']));
-}
-
-init.init = true;

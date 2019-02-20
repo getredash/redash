@@ -67,6 +67,7 @@ export const Type = PropTypes.shape({
   type: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   imgSrc: PropTypes.string.isRequired,
+  onClick: PropTypes.func,
 });
 
 function checkMoment(isRequired, props, propName, componentName) {
