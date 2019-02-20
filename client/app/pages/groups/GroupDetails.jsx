@@ -1,4 +1,4 @@
-import { isBoolean, filter, some } from 'lodash';
+import { isBoolean, filter, some, map } from 'lodash';
 import React from 'react';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
@@ -223,8 +223,12 @@ class GroupDetails extends React.Component {
           </UserPreviewCard>
         );
       },
-    }).result.then((results) => {
-      console.log(results);
+      save: (items) => {
+        const groupId = this.props.controller.params.groupId;
+        const promises = map(items, u => $http.post(`api/groups/${groupId}/members`, { user_id: u.id }));
+        return Promise.all(promises);
+      },
+    }).result.then(() => {
       this.props.controller.update();
     });
   }
@@ -259,8 +263,12 @@ class GroupDetails extends React.Component {
           </DataSourcePreviewCard>
         );
       },
-    }).result.then((results) => {
-      console.log(results);
+      save: (items) => {
+        const groupId = this.props.controller.params.groupId;
+        const promises = map(items, ds => $http.post(`api/groups/${groupId}/data_sources`, { data_source_id: ds.id }));
+        return Promise.all(promises);
+      },
+    }).result.then(() => {
       this.props.controller.update();
     });
   }
