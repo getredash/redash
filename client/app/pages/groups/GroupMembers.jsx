@@ -45,6 +45,7 @@ class GroupMembers extends React.Component {
       key: 'datasources',
       href: `groups/${this.groupId}/data_sources`,
       title: 'Data Sources',
+      isAvailable: () => currentUser.isAdmin,
     },
   ];
 
@@ -128,7 +129,7 @@ class GroupMembers extends React.Component {
         controller={controller}
         group={this.group}
         items={this.sidebarMenu}
-        canAddMembers
+        canAddMembers={currentUser.isAdmin}
         onAddMembersClick={this.addMembers}
         onGroupDeleted={() => navigateTo('/groups', true)}
       />

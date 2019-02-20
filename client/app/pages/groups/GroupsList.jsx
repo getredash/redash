@@ -40,7 +40,9 @@ class GroupsList extends React.Component {
     Columns.custom((text, group) => (
       <Button.Group>
         <Button href={`groups/${group.id}`} onClick={e => e.stopPropagation()}>Members</Button>
-        <Button href={`groups/${group.id}/data_sources`} onClick={e => e.stopPropagation()}>Data Sources</Button>
+        {currentUser.isAdmin && (
+          <Button href={`groups/${group.id}/data_sources`} onClick={e => e.stopPropagation()}>Data Sources</Button>
+        )}
       </Button.Group>
     ), {
       width: '1%',
