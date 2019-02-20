@@ -142,7 +142,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
     };
 
     return getFieldDecorator(name, decoratorOptions)(
-      <Select {...props} loading={loading || false} mode={mode}>
+      <Select {...props} optionFilterProp="children" loading={loading || false} mode={mode}>
         {options && options.map(({ value, title }) => (
           <Option key={`${value}`} value={value} disabled={readOnly}>{ title || value }</Option>
         ))}
