@@ -1,6 +1,7 @@
 import { filter, debounce } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
 import List from 'antd/lib/list';
@@ -16,7 +17,15 @@ class SelectItemsDialog extends React.Component {
     selectedItemsTitle: PropTypes.string,
     searchItems: PropTypes.func.isRequired, // (searchTerm: string): Promise<Items[]> if `searchTerm === ''` load all
     itemKey: PropTypes.func, // (item) => string|number - return key of item (by default `id`)
-    renderItem: PropTypes.func, // (item) => node
+    // left list
+    // (item, { isSelected }) => {
+    //   content: node, // item contents
+    //   className: string = '', // additional class for item wrapper
+    //   isDisabled: bool = false, // is item clickable or disabled
+    // }
+    renderItem: PropTypes.func,
+    // right list; args/results save as for `renderItem`. if not specified - `renderItem` will be used
+    renderStagedItem: PropTypes.func,
     save: PropTypes.func, // (selectedItems[]) => Promise<any>
   };
 
@@ -26,6 +35,7 @@ class SelectItemsDialog extends React.Component {
     selectedItemsTitle: 'Selected items',
     itemKey: item => item.id,
     renderItem: () => '',
+    renderStagedItem: null, // use `renderItem` by default
     save: items => items,
   };
 
@@ -91,24 +101,22 @@ class SelectItemsDialog extends React.Component {
     });
   }
 
-  renderSlot(item, isInSelectedList) {
-    const { itemKey, renderItem } = this.props;
+  renderSlot(item, isStagedList) {
+    const { itemKey, renderItem, renderStagedItem } = this.props;
     const key = itemKey(item);
     const isSelected = this.selectedIds.has(key);
 
-    const searchListAddon = isSelected ? (
-      <i className="fa fa-check m-r-10" />
-    ) : (
-      <i className="fa fa-angle-double-right m-r-10" />
-    );
+    const render = isStagedList ? (renderStagedItem || renderItem) : renderItem;
 
-    const selectedListAddon = <i className="fa fa-remove m-r-10" />;
+    const { content, className, isDisabled } = render(item, { isSelected });
 
-    const addons = isInSelectedList ? selectedListAddon : searchListAddon;
-
-    const onClick = () => this.toggleItem(item);
     return (
-      <List.Item className="p-0">{renderItem(item, isSelected, addons, onClick)}</List.Item>
+      <List.Item
+        className={classNames('p-l-10', 'p-r-10', { clickable: !isDisabled }, className)}
+        onClick={isDisabled ? null : () => this.toggleItem(item)}
+      >
+        {content}
+      </List.Item>
     );
   }
 

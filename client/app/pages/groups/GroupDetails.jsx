@@ -31,6 +31,16 @@ import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
+function renderAddon(isSelected, isStaged, alreadyInGroup) {
+  if (isStaged) {
+    return <i className="fa fa-remove" />;
+  }
+  if (alreadyInGroup) {
+    return <Tooltip title="Already in this group"><i className="fa fa-question-circle" /></Tooltip>;
+  }
+  return isSelected ? <i className="fa fa-check" /> : <i className="fa fa-angle-double-right" />;
+}
+
 class GroupDetails extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
@@ -203,26 +213,27 @@ class GroupDetails extends React.Component {
       inputPlaceholder: 'Search users...',
       selectedItemsTitle: 'Users to be added',
       searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
-      renderItem: (item, isSelected, addons, onClick) => {
+      renderItem: (item, { isSelected }) => {
         const groupId = parseInt(this.props.controller.params.groupId, 10);
         const alreadyInGroup = some(item.groups, g => g.id === groupId);
 
-        onClick = alreadyInGroup ? null : onClick;
-        addons = alreadyInGroup ? (
-          <Tooltip title="Already in this group"><i className="fa fa-question-circle m-r-10" /></Tooltip>
-        ) : addons;
-        const className = alreadyInGroup ? '' : 'clickable';
-
-        return (
-          <UserPreviewCard
-            className={'p-t-10 p-b-10 ' + className}
-            user={item}
-            onClick={onClick}
-          >
-            {addons}
-          </UserPreviewCard>
-        );
+        return {
+          content: (
+            <UserPreviewCard user={item}>
+              {renderAddon(isSelected, false, alreadyInGroup)}
+            </UserPreviewCard>
+          ),
+          isDisabled: alreadyInGroup,
+          className: isSelected ? 'selected' : '',
+        };
       },
+      renderStagedItem: (item, { isSelected }) => ({
+        content: (
+          <UserPreviewCard user={item}>
+            {renderAddon(isSelected, true, false)}
+          </UserPreviewCard>
+        ),
+      }),
       save: (items) => {
         const groupId = this.props.controller.params.groupId;
         const promises = map(items, u => $http.post(`api/groups/${groupId}/members`, { user_id: u.id }));
@@ -243,26 +254,27 @@ class GroupDetails extends React.Component {
         searchTerm = searchTerm.toLowerCase();
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
       },
-      renderItem: (item, isSelected, addons, onClick) => {
+      renderItem: (item, { isSelected }) => {
         const groupId = parseInt(this.props.controller.params.groupId, 10);
         const alreadyInGroup = isBoolean(item.groups[groupId]);
 
-        onClick = alreadyInGroup ? null : onClick;
-        addons = alreadyInGroup ? (
-          <Tooltip title="Already in this group"><i className="fa fa-question-circle m-r-10" /></Tooltip>
-        ) : addons;
-        const className = alreadyInGroup ? '' : 'clickable';
-
-        return (
-          <DataSourcePreviewCard
-            className={'p-t-10 p-b-10 ' + className}
-            dataSource={item}
-            onClick={onClick}
-          >
-            {addons}
-          </DataSourcePreviewCard>
-        );
+        return {
+          content: (
+            <DataSourcePreviewCard dataSource={item}>
+              {renderAddon(isSelected, false, alreadyInGroup)}
+            </DataSourcePreviewCard>
+          ),
+          isDisabled: alreadyInGroup,
+          className: isSelected ? 'selected' : '',
+        };
       },
+      renderStagedItem: (item, { isSelected }) => ({
+        content: (
+          <DataSourcePreviewCard dataSource={item}>
+            {renderAddon(isSelected, true, false)}
+          </DataSourcePreviewCard>
+        ),
+      }),
       save: (items) => {
         const groupId = this.props.controller.params.groupId;
         const promises = map(items, ds => $http.post(`api/groups/${groupId}/data_sources`, { data_source_id: ds.id }));
