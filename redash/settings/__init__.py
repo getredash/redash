@@ -82,7 +82,8 @@ FRAME_OPTIONS_ALLOW_FROM = os.environ.get(
 # Whether and how to send Strict-Transport-Security response headers.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
 # for more information.
-HSTS_ENABLED = parse_boolean(os.environ.get("REDASH_HSTS_ENABLED", "false"))
+HSTS_ENABLED = parse_boolean(
+    os.environ.get("REDASH_HSTS_ENABLED") or str(ENFORCE_HTTPS))
 HSTS_PRELOAD = parse_boolean(os.environ.get("REDASH_HSTS_PRELOAD", "false"))
 HSTS_MAX_AGE = int(
     os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
