@@ -30,7 +30,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries,celery"
+      QUEUES: "queries,scheduled_queries,celery,schemas"
       WORKERS_COUNT: 2
     restart: always
   redis:
