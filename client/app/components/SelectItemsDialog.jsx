@@ -151,7 +151,7 @@ class SelectItemsDialog extends React.Component {
           </div>
         </div>
 
-        <div className="d-flex align-items-stretch" style={{ height: '50vh' }}>
+        <div className="d-flex align-items-stretch" style={{ minHeight: '30vh', maxHeight: '50vh' }}>
           <div className="w-50 m-r-10 scrollbox">
             {loading && <LoadingState className="" />}
             {!loading && !hasResults && (

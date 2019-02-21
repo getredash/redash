@@ -10,7 +10,6 @@ import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource
 import { StateStorage } from '@/components/items-list/classes/StateStorage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
-import EmptyState from '@/components/items-list/components/EmptyState';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 import SelectItemsDialog from '@/components/SelectItemsDialog';
 import { UserPreviewCard } from '@/components/PreviewCard';
@@ -145,7 +144,17 @@ class GroupMembers extends React.Component {
         <div className="col-md-3 list-control-t">{sidebar}</div>
         <div className="list-content col-md-9">
           {!controller.isLoaded && <LoadingState className="" />}
-          {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
+          {controller.isLoaded && controller.isEmpty && (
+            <div className="text-center">
+              There are no members in this group yet.
+              {currentUser.isAdmin && (
+                <div className="m-t-5">
+                  <a href="javascript:void(0)" onClick={this.addMembers}>Click here</a>
+                  {' '} to add members.
+                </div>
+              )}
+            </div>
+          )}
           {
             controller.isLoaded && !controller.isEmpty && (
               <div className="table-responsive">
