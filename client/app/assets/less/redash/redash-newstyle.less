@@ -971,3 +971,28 @@ text.slicetext {
   pointer-events: none;
   cursor: not-allowed;
 }
+
+// Scrollbars
+
+body {
+  @size: 12px;
+
+  ::-webkit-scrollbar {
+    width: @size;
+  }
+
+  ::-webkit-scrollbar:horizontal {
+    height: @size;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: none;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: @size / 2;
+    background: transparent;
+    box-shadow: inset 0 0 @size * 5 @gray;
+  }
+}
