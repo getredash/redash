@@ -55,7 +55,7 @@ class GroupsList extends React.Component {
           className="w-100"
           disabled={!canRemove}
           group={group}
-          onClick={() => this.props.controller.update()}
+          onClick={() => this.props.controller.updatePagination({ page: 1 })}
         >
           Delete
         </DeleteGroupButton>
