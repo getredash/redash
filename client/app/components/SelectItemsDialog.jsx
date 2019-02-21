@@ -1,4 +1,4 @@
-import { filter, debounce } from 'lodash';
+import { filter, debounce, find } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -9,6 +9,7 @@ import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { BigMessage } from '@/components/BigMessage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
+import { toastr } from '@/services/ng';
 
 class SelectItemsDialog extends React.Component {
   static propTypes = {
@@ -39,8 +40,6 @@ class SelectItemsDialog extends React.Component {
     renderStagedItem: null, // use `renderItem` by default
     save: items => items,
   };
-
-  selectedIds = new Set();
 
   state = {
     searchTerm: '',
@@ -74,15 +73,18 @@ class SelectItemsDialog extends React.Component {
     this.loadItems();
   }
 
-  toggleItem(item) {
+  isSelected(item) {
     const key = this.props.itemKey(item);
-    if (this.selectedIds.has(key)) {
-      this.selectedIds.delete(key);
+    return !!find(this.state.selected, i => this.props.itemKey(i) === key);
+  }
+
+  toggleItem(item) {
+    if (this.isSelected(item)) {
+      const key = this.props.itemKey(item);
       this.setState(({ selected }) => ({
         selected: filter(selected, i => this.props.itemKey(i) !== key),
       }));
     } else {
-      this.selectedIds.add(key);
       this.setState(({ selected }) => ({
         selected: [...selected, item],
       }));
@@ -98,15 +100,14 @@ class SelectItemsDialog extends React.Component {
         })
         .catch(() => {
           this.setState({ saveInProgress: false });
+          toastr.error('Failed to save some of selected items.');
         });
     });
   }
 
   renderItem(item, isStagedList) {
-    const { itemKey, renderItem, renderStagedItem } = this.props;
-    const key = itemKey(item);
-    const isSelected = this.selectedIds.has(key);
-
+    const { renderItem, renderStagedItem } = this.props;
+    const isSelected = this.isSelected(item);
     const render = isStagedList ? (renderStagedItem || renderItem) : renderItem;
 
     const { content, className, isDisabled } = render(item, { isSelected });

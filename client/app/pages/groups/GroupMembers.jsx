@@ -18,12 +18,12 @@ import GroupName from '@/components/groups/GroupName';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 
-import { $http } from '@/services/ng';
+import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -72,6 +72,17 @@ class GroupMembers extends React.Component {
     }),
   ];
 
+  removeGroupMember = cancelEvent((user) => {
+    Group.removeMember({ id: this.groupId, userId: user.id }).$promise
+      .then(() => {
+        this.props.controller.updatePagination({ page: 1 });
+        this.props.controller.update();
+      })
+      .catch(() => {
+        toastr.error('Failed to remove member from group.');
+      });
+  });
+
   componentDidMount() {
     Group.get({ id: this.groupId }).$promise.then((group) => {
       this.group = group;
@@ -80,16 +91,6 @@ class GroupMembers extends React.Component {
   }
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
-
-  removeGroupMember = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-
-    $http.delete(`api/groups/${this.group.id}/members/${user.id}`).success(() => {
-      this.props.controller.update();
-    });
-  };
 
   addMembers = () => {
     SelectItemsDialog.showModal({
@@ -117,10 +118,10 @@ class GroupMembers extends React.Component {
         ),
       }),
       save: (items) => {
-        const promises = map(items, u => $http.post(`api/groups/${this.groupId}/members`, { user_id: u.id }));
+        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }).$promise);
         return Promise.all(promises);
       },
-    }).result.then(() => {
+    }).result.finally(() => {
       this.props.controller.update();
     });
   };

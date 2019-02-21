@@ -55,7 +55,7 @@ class GroupsList extends React.Component {
           className="w-100"
           disabled={!canRemove}
           group={group}
-          onClick={() => this.props.controller.updatePagination({ page: 1 })}
+          onClick={() => this.onGroupDeleted()}
         >
           Delete
         </DeleteGroupButton>
@@ -71,14 +71,17 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal({
-      group: new Group(),
-    }).result.then((group) => {
+    CreateGroupDialog.showModal().result.then((group) => {
       group.$save().then(newGroup => navigateTo(`/groups/${newGroup.id}`));
     });
   };
 
   onTableRowClick = (event, item) => navigateTo('groups/' + item.id);
+
+  onGroupDeleted = () => {
+    this.props.controller.updatePagination({ page: 1 });
+    this.props.controller.update();
+  };
 
   render() {
     const { controller } = this.props;

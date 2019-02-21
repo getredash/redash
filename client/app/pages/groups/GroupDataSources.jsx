@@ -21,12 +21,12 @@ import GroupName from '@/components/groups/GroupName';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 
-import { $http } from '@/services/ng';
+import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -70,14 +70,9 @@ class GroupDataSources extends React.Component {
         </Menu>
       );
 
-      const cancelEvent = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-      };
-
       return (
         <Dropdown trigger={['click']} overlay={menu}>
-          <Button className="w-100" onClick={cancelEvent}>
+          <Button className="w-100" onClick={cancelEvent()}>
             {datasource.view_only ? 'View Only' : 'Full Access'} <Icon type="down" />
           </Button>
         </Dropdown>
@@ -95,6 +90,17 @@ class GroupDataSources extends React.Component {
     }),
   ];
 
+  removeGroupDataSource = cancelEvent((datasource) => {
+    Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id }).$promise
+      .then(() => {
+        this.props.controller.updatePagination({ page: 1 });
+        this.props.controller.update();
+      })
+      .catch(() => {
+        toastr.error('Failed to remove data source from group.');
+      });
+  });
+
   componentDidMount() {
     Group.get({ id: this.groupId }).$promise.then((group) => {
       this.group = group;
@@ -104,28 +110,18 @@ class GroupDataSources extends React.Component {
 
   onTableRowClick = (event, item) => navigateTo('data_sources/' + item.id);
 
-  removeGroupDataSource = (event, datasource) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-
-    $http.delete(`api/groups/${this.group.id}/data_sources/${datasource.id}`).success(() => {
-      this.props.controller.update();
-    });
-  };
-
-  setDataSourcePermissions = (event, datasource, permission) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-
+  setDataSourcePermissions = cancelEvent((datasource, permission) => {
     const viewOnly = permission !== 'full';
 
-    $http.post(`api/groups/${this.group.id}/data_sources/${datasource.id}`, { view_only: viewOnly }).success(() => {
-      datasource.view_only = viewOnly;
-      this.forceUpdate();
-    });
-  };
+    Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly }).$promise
+      .then(() => {
+        datasource.view_only = viewOnly;
+        this.forceUpdate();
+      })
+      .catch(() => {
+        toastr.error('Failed change data source permissions.');
+      });
+  });
 
   addDataSources = () => {
     const allDataSources = DataSource.query({ extended: true }).$promise;
@@ -157,10 +153,10 @@ class GroupDataSources extends React.Component {
         ),
       }),
       save: (items) => {
-        const promises = map(items, ds => $http.post(`api/groups/${this.groupId}/data_sources`, { data_source_id: ds.id }));
+        const promises = map(items, ds => Group.addDataSource({ id: this.groupId, data_source_id: ds.id }).$promise);
         return Promise.all(promises);
       },
-    }).result.then(() => {
+    }).result.finally(() => {
       this.props.controller.update();
     });
   };
