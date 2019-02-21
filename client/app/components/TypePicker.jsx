@@ -30,7 +30,7 @@ export default class TypePicker extends React.Component {
     return (
       <List.Item>
         <Card
-          bodyStyle={{ minHeight: '80px' }}
+          bodyStyle={{ height: '80px' }}
           cover={(
             <div className="m-t-10">
               <img
@@ -43,7 +43,7 @@ export default class TypePicker extends React.Component {
           onClick={item.onClick}
           hoverable
         >
-          <Meta description={item.name} />
+          <Meta title={(<p style={{ fontSize: '13px', maxHeight: '80px', whiteSpace: 'normal' }}>{item.name}</p>)} />
         </Card>
       </List.Item>
     );
