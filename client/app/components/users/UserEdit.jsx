@@ -1,14 +1,16 @@
 import React, { Fragment } from 'react';
+import { react2angular } from 'react2angular';
+import { includes, reject, isNull } from 'lodash';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
-import { react2angular } from 'react2angular';
-import { includes } from 'lodash';
+import Tag from 'antd/lib/tag';
 import { User } from '@/services/user';
 import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
+import navigateTo from '@/services/navigateTo';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
@@ -100,9 +102,8 @@ export class UserEdit extends React.Component {
 
   saveUser = (values, successCallback, errorCallback) => {
     const data = {
-      ...values,
       id: this.props.user.id,
-      group_ids: currentUser.isAdmin && currentUser.id !== this.props.user.id ? values.group_ids : undefined,
+      ...values,
     };
 
     User.save(data, (user) => {
@@ -116,7 +117,7 @@ export class UserEdit extends React.Component {
   renderUserInfoForm() {
     const { user, groups, loadingGroups } = this.state;
 
-    const formFields = [
+    const formFields = reject([
       {
         name: 'name',
         title: 'Name',
@@ -129,7 +130,7 @@ export class UserEdit extends React.Component {
         type: 'email',
         initialValue: user.email,
       },
-      {
+      (!user.isDisabled && currentUser.id !== user.id) ? {
         name: 'group_ids',
         title: 'Groups',
         type: 'select',
@@ -138,10 +139,8 @@ export class UserEdit extends React.Component {
         initialValue: groups.filter(group => includes(user.groupIds, group.value)).map(group => group.value),
         loading: loadingGroups,
         placeholder: loadingGroups ? 'Loading...' : '',
-        readOnly: user.isDisabled || currentUser.id === user.id,
-        required: currentUser.id !== user.id,
-      },
-    ].map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
+      } : null,
+    ], isNull).map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
 
     return (
       <DynamicForm
@@ -149,6 +148,24 @@ export class UserEdit extends React.Component {
         onSubmit={this.saveUser}
         hideSubmitButton={user.isDisabled}
       />
+    );
+  }
+
+  renderUserGroups() {
+    const { user, groups, loadingGroups } = this.state;
+
+    return (
+      <Fragment>
+        <hr />
+        <h5>Groups</h5>
+        {loadingGroups ? 'Loading...' : (
+          <div data-test="Groups">
+            {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
+              <Tag className="m-t-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>{group.title}</Tag>
+            )))}
+          </div>
+        )}
+      </Fragment>
     );
   }
 
@@ -253,6 +270,7 @@ export class UserEdit extends React.Component {
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
         {this.renderUserInfoForm()}
+        {(user.isDisabled || user.id === currentUser.id) && this.renderUserGroups()}
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
