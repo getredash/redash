@@ -1,4 +1,4 @@
-import { isBoolean, filter, map } from 'lodash';
+import { filter, map, includes } from 'lodash';
 import React from 'react';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
@@ -124,7 +124,7 @@ class GroupDataSources extends React.Component {
   });
 
   addDataSources = () => {
-    const allDataSources = DataSource.query({ extended: true }).$promise;
+    const allDataSources = DataSource.query({ include_groups: true }).$promise;
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Data Sources',
       inputPlaceholder: 'Search data sources...',
@@ -134,7 +134,7 @@ class GroupDataSources extends React.Component {
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
-        const alreadyInGroup = isBoolean((item.groups || {})[this.groupId]);
+        const alreadyInGroup = includes(item.groups, this.groupId);
         return {
           content: (
             <DataSourcePreviewCard dataSource={item}>
