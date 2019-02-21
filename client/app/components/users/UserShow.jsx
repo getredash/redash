@@ -25,9 +25,11 @@ export class UserShow extends React.Component {
     const { groups } = this.state;
 
     return (
-      <div className="m-t-5">
+      <div>
         {groups.filter(group => includes(groupIds, group.id)).map((group => (
-          <Tag key={group.id} onClick={() => navigateTo(`groups/${group.id}`)}>{group.name}</Tag>
+          <Tag className="m-t-5 m-r-5" key={group.id} onClick={() => navigateTo(`groups/${group.id}`)}>
+            {group.name}
+          </Tag>
         )))}
       </div>
     );

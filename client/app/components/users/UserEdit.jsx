@@ -161,7 +161,9 @@ export class UserEdit extends React.Component {
         {loadingGroups ? 'Loading...' : (
           <div data-test="Groups">
             {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
-              <Tag className="m-t-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>{group.title}</Tag>
+              <Tag className="m-t-5 m-r-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>
+                {group.title}
+              </Tag>
             )))}
           </div>
         )}
