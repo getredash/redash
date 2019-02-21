@@ -6,8 +6,6 @@ import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
 
-const IMG_ROOT = '/static/images/destinations';
-
 class DestinationsList extends React.Component {
   constructor(props) {
     super(props);
@@ -20,7 +18,7 @@ class DestinationsList extends React.Component {
     const types = destinations.map(destination => ({
       name: destination.name,
       type: destination.type,
-      imgSrc: `${IMG_ROOT}/${destination.type}.png`,
+      imgSrc: `${Destination.IMG_ROOT}/${destination.type}.png`,
       onClick: () => navigateTo(`destinations/${destination.id}`),
     }));
 
@@ -33,7 +31,7 @@ class DestinationsList extends React.Component {
         <div className="m-b-15">
           <Button type="primary" href="destinations/new">
             <i className="fa fa-plus m-r-5" />
-            New Destination
+            New Alert Destination
           </Button>
           {this.renderDestinations()}
         </div>

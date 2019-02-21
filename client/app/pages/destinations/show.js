@@ -12,22 +12,6 @@ function DestinationCtrl(
   $scope.type = find($scope.types, { type: $scope.destination.type });
   $scope.canChangeType = $scope.destination.id === undefined;
 
-  $scope.$watch('destination.id', (id) => {
-    if (id !== $scope.destinationId && id !== undefined) {
-      $location.path(`/destinations/${id}`).replace();
-    }
-  });
-
-  $scope.setType = (type) => {
-    $scope.type = find($scope.types, { type });
-    $scope.destination.type = type;
-  };
-
-  $scope.resetType = () => {
-    $scope.type = undefined;
-    $scope.destination = new Destination({ options: {} });
-  };
-
   function deleteDestination(callback) {
     const doDelete = () => {
       $scope.destination.$delete(() => {
@@ -52,23 +36,6 @@ export default function init(ngModule) {
   ngModule.controller('DestinationCtrl', DestinationCtrl);
 
   return {
-    '/destinations/new': {
-      template,
-      controller: 'DestinationCtrl',
-      title: 'Destinations',
-      resolve: {
-        destination: (Destination) => {
-          'ngInject';
-
-          return new Destination({ options: {} });
-        },
-        types: ($http) => {
-          'ngInject';
-
-          return $http.get('api/destinations/types').then(response => response.data);
-        },
-      },
-    },
     '/destinations/:destinationId': {
       template,
       controller: 'DestinationCtrl',

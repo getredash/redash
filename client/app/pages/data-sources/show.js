@@ -34,22 +34,6 @@ function DataSourceCtrl(
     results: 'https://redash.io/help/user-guide/querying/query-results-data-source',
   };
 
-  $scope.$watch('dataSource.id', (id) => {
-    if (id !== $scope.dataSourceId && id !== undefined) {
-      $location.path(`/data_sources/${id}`).replace();
-    }
-  });
-
-  $scope.setType = (type) => {
-    $scope.type = find($scope.types, { type });
-    $scope.dataSource.type = type;
-  };
-
-  $scope.resetType = () => {
-    $scope.type = undefined;
-    $scope.dataSource = new DataSource({ options: {} });
-  };
-
   function deleteDataSource(callback) {
     const doDelete = () => {
       $scope.dataSource.$delete(() => {
@@ -92,23 +76,6 @@ export default function init(ngModule) {
   ngModule.controller('DataSourceCtrl', DataSourceCtrl);
 
   return {
-    '/data_sources/previous-new': {
-      template,
-      controller: 'DataSourceCtrl',
-      title: 'Datasources',
-      resolve: {
-        dataSource: (DataSource) => {
-          'ngInject';
-
-          return new DataSource({ options: {} });
-        },
-        types: ($http) => {
-          'ngInject';
-
-          return $http.get('api/data_sources/types').then(response => response.data);
-        },
-      },
-    },
     '/data_sources/:dataSourceId': {
       template,
       controller: 'DataSourceCtrl',

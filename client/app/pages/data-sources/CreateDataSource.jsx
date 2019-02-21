@@ -36,7 +36,7 @@ class CreateDataSource extends React.Component {
   }
 
   scrollToTop = () => {
-    window.scrollTo({ top: this.topRef.current.offsetTop, behavior: 'smooth' });
+    window.scrollTo(0, this.topRef.current.offsetTop);
   }
 
   selectType = (selectedType) => {
@@ -73,8 +73,8 @@ class CreateDataSource extends React.Component {
       helper.updateTargetWithValues(dataSource, values);
       dataSource.$save(
         (data) => {
-          this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`data_sources/${data.id}`));
           onSuccess('Saved.');
+          this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`data_sources/${data.id}`));
           this.scrollToTop();
         },
         (error) => {
@@ -137,7 +137,7 @@ export default function init(ngModule) {
 
   return {
     '/data_sources/new': {
-      template: '<settings-screen><page-create-data-source></page-data-source></settings-screen>',
+      template: '<settings-screen><page-create-data-source></page-create-data-source></settings-screen>',
       title: 'Data Sources',
     },
   };
