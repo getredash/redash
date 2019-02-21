@@ -194,7 +194,11 @@ class QueryResultResource(BaseResource):
         """
         params = request.get_json(force=True)
         parameters = params.get('parameters', {})
-        max_age = int(params.get('max_age', 0))
+        max_age = params.get('max_age', -1)
+        # max_age might have the value of None, in which case calling int(None) will fail
+        if max_age is None:
+            max_age = -1
+        max_age = int(max_age)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         parameter_schema = query.options.get("parameters", [])
