@@ -75,7 +75,7 @@ SESSION_COOKIE_HTTPONLY = parse_boolean(
 # on the specific deployment.
 # See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
 # for more information.
-FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", None)
+FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", "deny")
 FRAME_OPTIONS_ALLOW_FROM = os.environ.get(
     "REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
 
@@ -99,7 +99,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # individual CSP directives, e.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'"
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none';"
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")

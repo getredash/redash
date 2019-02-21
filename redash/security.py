@@ -1,8 +1,23 @@
+import functools
 from flask_talisman import talisman
 
 from redash import settings
 
+
 talisman = talisman.Talisman()
+
+
+def csp_allows_embeding(fn):
+
+    @functools.wraps(fn)
+    def decorated(*args, **kwargs):
+        return fn(*args, **kwargs)
+
+    embedable_csp = talisman.content_security_policy + "frame-ancestors *;"
+    return talisman(
+        content_security_policy=embedable_csp,
+        frame_options=None,
+    )(decorated)
 
 
 def init_app(app):
