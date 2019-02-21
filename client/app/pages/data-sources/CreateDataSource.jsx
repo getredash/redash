@@ -3,11 +3,18 @@ import Steps from 'antd/lib/steps';
 import { find } from 'lodash';
 import { react2angular } from 'react2angular';
 import { DataSource } from '@/services/data-source';
+import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
 import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 const { Step } = Steps;
+
+const StepEnum = {
+  SELECT_TYPE: 0,
+  CONFIGURE_IT: 1,
+  DONE: 2,
+};
 
 const HELP_LINKS = {
   athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
@@ -23,9 +30,15 @@ const HELP_LINKS = {
 class CreateDataSource extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { dataSourceTypes: [], selectedType: null };
+    this.state = { dataSourceTypes: [], selectedType: null, currentStep: StepEnum.SELECT_TYPE };
     DataSource.types(dataSourceTypes => this.setState({ dataSourceTypes }));
   }
+
+  resetType = () => {
+    if (this.state.currentStep === StepEnum.CONFIGURE_IT) {
+      this.setState({ selectedType: null, currentStep: StepEnum.SELECT_TYPE });
+    }
+  };
 
   renderTypes() {
     const { dataSourceTypes } = this.state;
@@ -33,7 +46,7 @@ class CreateDataSource extends React.Component {
       name: dataSourceType.name,
       type: dataSourceType.type,
       imgSrc: `${DataSource.IMG_ROOT}/${dataSourceType.type}.png`,
-      onClick: () => this.setState({ selectedType: dataSourceType.type }),
+      onClick: () => this.setState({ selectedType: dataSourceType.type, currentStep: StepEnum.CONFIGURE_IT }),
     }));
 
     return (<TypePicker types={types} />);
@@ -42,8 +55,25 @@ class CreateDataSource extends React.Component {
   renderForm() {
     const { dataSourceTypes, selectedType } = this.state;
     const type = find(dataSourceTypes, { type: selectedType });
-    const dataSource = new DataSource({ options: {} });
+    const dataSource = new DataSource({ options: {}, type: selectedType });
     const fields = helper.getFields(type.configuration_schema, dataSource);
+
+    const onSubmit = (values, onSuccess, onError) => {
+      helper.updateTargetWithValues(dataSource, values);
+      dataSource.$save(
+        (data) => {
+          this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`data_sources/${data.id}`));
+          onSuccess('Saved.');
+        },
+        (error) => {
+          if (error.status === 400 && 'message' in error.data) {
+            onError(error.data.message);
+          } else {
+            onError('Failed saving.');
+          }
+        },
+      );
+    };
 
     return (
       <div>
@@ -62,15 +92,14 @@ class CreateDataSource extends React.Component {
           )}
         </div>
         <div className="col-md-4 col-md-offset-4">
-          <DynamicForm fields={fields} feedbackIcons />
+          <DynamicForm fields={fields} onSubmit={onSubmit} feedbackIcons />
         </div>
       </div>
     );
   }
 
   render() {
-    const { selectedType } = this.state;
-    const currentStep = selectedType ? 1 : 0;
+    const { selectedType, currentStep } = this.state;
 
     return (
       <div className="row">
@@ -78,8 +107,8 @@ class CreateDataSource extends React.Component {
         <Steps className="p-20" current={currentStep}>
           <Step
             title="Select the Type"
-            style={currentStep > 0 ? { cursor: 'pointer' } : null}
-            onClick={() => this.setState({ selectedType: null })}
+            style={currentStep === StepEnum.CONFIGURE_IT ? { cursor: 'pointer' } : {}}
+            onClick={this.resetType}
           />
           <Step title="Configure it" />
           <Step title="Done" />
