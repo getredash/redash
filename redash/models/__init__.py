@@ -92,6 +92,7 @@ class TableMetadata(TimestampMixin, db.Model):
             'sample_query': self.sample_query,
         }
 
+
 @python_2_unicode_compatible
 class ColumnMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
@@ -115,6 +116,7 @@ class ColumnMetadata(TimestampMixin, db.Model):
             'column_example': self.column_example,
             'column_exists': self.column_exists,
         }
+
 
 @python_2_unicode_compatible
 @generic_repr('id', 'name', 'type', 'org_id', 'created_at')
