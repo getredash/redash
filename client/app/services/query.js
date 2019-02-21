@@ -501,7 +501,7 @@ function QueryResource(
   };
 
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues());
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 
