@@ -103,32 +103,33 @@ export class HelpTrigger extends React.Component {
           destroyOnClose
           width={400}
         >
+          <div className="drawer-wrapper">
+            {/* iframe */}
+            {!this.state.error && (
+              <iframe
+                ref={this.iframeRef}
+                title="Redash Help"
+                src="about:blank"
+                className={cx({ ready: !this.state.loading })}
+                onLoad={this.onIframeLoaded}
+              />
+            )}
 
-          {/* iframe */}
-          {!this.state.error && (
-            <iframe
-              ref={this.iframeRef}
-              title="Redash Help"
-              src="about:blank"
-              className={cx({ ready: !this.state.loading })}
-              onLoad={this.onIframeLoaded}
-            />
-          )}
+            {/* loading indicator */}
+            {this.state.loading && (
+              <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
+            )}
 
-          {/* loading indicator */}
-          {this.state.loading && (
-            <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
-          )}
-
-          {/* error message */}
-          {this.state.error && (
-            <BigMessage icon="fa-exclamation-circle" className="help-message">
-              Something went wrong.<br />
-              {/* eslint-disable-next-line react/jsx-no-target-blank */}
-              <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
-              to open the page in a new window.
-            </BigMessage>
-          )}
+            {/* error message */}
+            {this.state.error && (
+              <BigMessage icon="fa-exclamation-circle" className="help-message">
+                Something went wrong.<br />
+                {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
+                to open the page in a new window.
+              </BigMessage>
+            )}
+          </div>
 
           {/* extra content */}
           <DynamicComponent
