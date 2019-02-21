@@ -1,4 +1,4 @@
-import { some, map } from 'lodash';
+import { includes, map } from 'lodash';
 import React from 'react';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
@@ -93,13 +93,14 @@ class GroupMembers extends React.Component {
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
   addMembers = () => {
+    const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Members',
       inputPlaceholder: 'Search users...',
       selectedItemsTitle: 'New Members',
       searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
-        const alreadyInGroup = some(item.groups, g => g.id === this.groupId);
+        const alreadyInGroup = includes(alreadyAddedUsers, item.id);
         return {
           content: (
             <UserPreviewCard user={item}>

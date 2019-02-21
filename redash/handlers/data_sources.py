@@ -84,15 +84,13 @@ class DataSourceListResource(BaseResource):
         else:
             data_sources = models.DataSource.all(self.current_org, group_ids=self.current_user.group_ids)
 
-        include_groups = request.args.get('include_groups', None) is not None
-
         response = {}
         for ds in data_sources:
             if ds.id in response:
                 continue
 
             try:
-                d = ds.to_dict(include_groups=include_groups)
+                d = ds.to_dict()
                 d['view_only'] = all(project(ds.groups, self.current_user.group_ids).values())
                 response[ds.id] = d
             except AttributeError:

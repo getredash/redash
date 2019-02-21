@@ -86,7 +86,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def __eq__(self, other):
         return self.id == other.id
 
-    def to_dict(self, all=False, with_permissions_for=None, include_groups=False):
+    def to_dict(self, all=False, with_permissions_for=None):
         d = {
             'id': self.id,
             'name': self.name,
@@ -108,9 +108,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
                 DataSourceGroup.group == with_permissions_for,
                 DataSourceGroup.data_source == self).one()[0]
-
-        if include_groups:
-            d['groups'] = [g.group_id for g in self.data_source_groups]
 
         return d
 

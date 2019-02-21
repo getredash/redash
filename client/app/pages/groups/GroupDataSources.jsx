@@ -124,7 +124,8 @@ class GroupDataSources extends React.Component {
   });
 
   addDataSources = () => {
-    const allDataSources = DataSource.query({ include_groups: true }).$promise;
+    const allDataSources = DataSource.query().$promise;
+    const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: 'Add Data Sources',
       inputPlaceholder: 'Search data sources...',
@@ -134,7 +135,7 @@ class GroupDataSources extends React.Component {
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
-        const alreadyInGroup = includes(item.groups, this.groupId);
+        const alreadyInGroup = includes(alreadyAddedDataSources, item.id);
         return {
           content: (
             <DataSourcePreviewCard dataSource={item}>
