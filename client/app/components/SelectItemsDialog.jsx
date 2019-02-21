@@ -113,7 +113,7 @@ class SelectItemsDialog extends React.Component {
 
     return (
       <List.Item
-        className={classNames('p-l-10', 'p-r-10', { clickable: !isDisabled }, className)}
+        className={classNames('p-l-10', 'p-r-10', { clickable: !isDisabled, disabled: isDisabled }, className)}
         onClick={isDisabled ? null : () => this.toggleItem(item)}
       >
         {content}

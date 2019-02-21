@@ -199,6 +199,14 @@
     &.selected {
       background-color: #F6F8F9;
     }
+
+    &.disabled {
+      background-color: fade(#F6F8F9, 40%);
+
+      & > * {
+        opacity: 0.4;
+      }
+    }
   }
 }
 
