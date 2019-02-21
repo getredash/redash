@@ -8,7 +8,7 @@ import Alert from 'antd/lib/alert';
 import { $http, toastr } from '@/services/ng';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
-import HelpTrigger from '@/services/HelpTrigger';
+import { HelpTrigger } from '@/components/HelpTrigger';
 
 const API_SHARE_URL = 'api/dashboards/{id}/share';
 
