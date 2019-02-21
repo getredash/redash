@@ -6,6 +6,7 @@ import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
 import List from 'antd/lib/list';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { BigMessage } from '@/components/BigMessage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
 
@@ -101,7 +102,7 @@ class SelectItemsDialog extends React.Component {
     });
   }
 
-  renderSlot(item, isStagedList) {
+  renderItem(item, isStagedList) {
     const { itemKey, renderItem, renderStagedItem } = this.props;
     const key = itemKey(item);
     const isSelected = this.selectedIds.has(key);
@@ -136,8 +137,8 @@ class SelectItemsDialog extends React.Component {
         }}
         onOk={() => this.save()}
       >
-        <div className="row m-b-10">
-          <div className="col-xs-6">
+        <div className="d-flex align-items-center m-b-10">
+          <div className="w-50 m-r-10">
             <Input.Search
               defaultValue={this.state.searchTerm}
               onChange={event => this.search(event.target.value)}
@@ -145,41 +146,33 @@ class SelectItemsDialog extends React.Component {
               autoFocus
             />
           </div>
-          <div className="col-xs-6">
-            <h5 className="m-t-10">{selectedItemsTitle}</h5>
+          <div className="w-50 m-l-10">
+            <h5 className="m-0">{selectedItemsTitle}</h5>
           </div>
         </div>
 
-        <div className="row">
-          <div className="col-xs-6">
+        <div className="d-flex align-items-stretch" style={{ height: '50vh' }}>
+          <div className="w-50 m-r-10 scrollbox">
             {loading && <LoadingState className="" />}
             {!loading && !hasResults && (
-              <div className="d-flex justify-content-center align-items-center text-muted" style={{ height: '150px' }}>
-                Search results will appear here
-              </div>
+              <BigMessage icon="fa-search" message="No items match your search." className="" />
             )}
             {!loading && hasResults && (
-              <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-                {(items.length > 0) && (
-                  <List
-                    size="small"
-                    dataSource={items}
-                    renderItem={item => this.renderSlot(item, false)}
-                  />
-                )}
-              </div>
+              <List
+                size="small"
+                dataSource={items}
+                renderItem={item => this.renderItem(item, false)}
+              />
             )}
           </div>
-          <div className="col-xs-6">
-            <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-              {(selected.length > 0) && (
-                <List
-                  size="small"
-                  dataSource={selected}
-                  renderItem={item => this.renderSlot(item, true)}
-                />
-              )}
-            </div>
+          <div className="w-50 m-l-10 scrollbox">
+            {(selected.length > 0) && (
+              <List
+                size="small"
+                dataSource={selected}
+                renderItem={item => this.renderItem(item, true)}
+              />
+            )}
           </div>
         </div>
       </Modal>

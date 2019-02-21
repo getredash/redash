@@ -58,6 +58,10 @@ class GroupMembers extends React.Component {
       width: null,
     }),
     Columns.custom((text, user) => {
+      if (!this.group) {
+        return null;
+      }
+
       // cannot remove self from built-in groups
       if ((this.group.type === 'builtin') && (currentUser.id === user.id)) {
         return null;
