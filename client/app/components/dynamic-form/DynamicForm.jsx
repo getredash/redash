@@ -167,6 +167,8 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       return this.renderUpload(field, props);
     } else if (type === 'select') {
       return this.renderSelect(field, props);
+    } else if (type === 'content') {
+      return field.content;
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
     }

@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { react2angular } from 'react2angular';
-import { includes, reject, isNull } from 'lodash';
+import { includes } from 'lodash';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
@@ -117,7 +117,7 @@ export class UserEdit extends React.Component {
   renderUserInfoForm() {
     const { user, groups, loadingGroups } = this.state;
 
-    const formFields = reject([
+    const formFields = [
       {
         name: 'name',
         title: 'Name',
@@ -139,8 +139,13 @@ export class UserEdit extends React.Component {
         initialValue: groups.filter(group => includes(user.groupIds, group.value)).map(group => group.value),
         loading: loadingGroups,
         placeholder: loadingGroups ? 'Loading...' : '',
-      } : null,
-    ], isNull).map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
+      } : {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'content',
+        content: this.renderUserGroups(),
+      },
+    ].map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
 
     return (
       <DynamicForm
@@ -154,20 +159,14 @@ export class UserEdit extends React.Component {
   renderUserGroups() {
     const { user, groups, loadingGroups } = this.state;
 
-    return (
-      <Fragment>
-        <hr />
-        <h5>Groups</h5>
-        {loadingGroups ? 'Loading...' : (
-          <div data-test="Groups">
-            {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
-              <Tag className="m-t-5 m-r-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>
-                {group.title}
-              </Tag>
-            )))}
-          </div>
-        )}
-      </Fragment>
+    return loadingGroups ? 'Loading...' : (
+      <div data-test="Groups">
+        {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
+          <Tag className="m-b-5 m-r-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>
+            {group.title}
+          </Tag>
+        )))}
+      </div>
     );
   }
 
@@ -272,7 +271,6 @@ export class UserEdit extends React.Component {
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
         {this.renderUserInfoForm()}
-        {(user.isDisabled || user.id === currentUser.id) && this.renderUserGroups()}
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}

@@ -34,7 +34,16 @@ export const RefreshScheduleDefault = {
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
-  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox', 'file', 'select']).isRequired,
+  type: PropTypes.oneOf([
+    'text',
+    'email',
+    'password',
+    'number',
+    'checkbox',
+    'file',
+    'select',
+    'content',
+  ]).isRequired,
   initialValue: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
@@ -42,6 +51,7 @@ export const Field = PropTypes.shape({
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.arrayOf(PropTypes.number),
   ]),
+  content: PropTypes.node,
   mode: PropTypes.string,
   required: PropTypes.bool,
   readOnly: PropTypes.bool,
