@@ -975,8 +975,17 @@ text.slicetext {
 // Scrollbars
 
 body {
-  @size: 12px;
+  @size: 10px;
 
+  // Firefox
+  @-moz-document url-prefix() {
+    * {
+      scrollbar-color: @gray transparent;
+      scrollbar-width: thin;
+    }
+  }
+
+  // Webkit-based
   ::-webkit-scrollbar {
     width: @size;
   }
@@ -990,9 +999,8 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: @size / 2;
+    border: 1px solid transparent; // 1px padding around thumb
     background: transparent;
-    box-shadow: inset 0 0 @size * 5 @gray;
+    box-shadow: inset 0 0 @size * 5 @gray; // thumb background
   }
 }
