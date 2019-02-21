@@ -32,11 +32,22 @@ class CreateDataSource extends React.Component {
     super(props);
     this.state = { dataSourceTypes: [], selectedType: null, currentStep: StepEnum.SELECT_TYPE };
     DataSource.types(dataSourceTypes => this.setState({ dataSourceTypes }));
+    this.topRef = React.createRef();
   }
+
+  scrollToTop = () => {
+    window.scrollTo({ top: this.topRef.current.offsetTop, behavior: 'smooth' });
+  }
+
+  selectType = (selectedType) => {
+    this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
+    this.scrollToTop();
+  };
 
   resetType = () => {
     if (this.state.currentStep === StepEnum.CONFIGURE_IT) {
       this.setState({ selectedType: null, currentStep: StepEnum.SELECT_TYPE });
+      this.scrollToTop();
     }
   };
 
@@ -46,7 +57,7 @@ class CreateDataSource extends React.Component {
       name: dataSourceType.name,
       type: dataSourceType.type,
       imgSrc: `${DataSource.IMG_ROOT}/${dataSourceType.type}.png`,
-      onClick: () => this.setState({ selectedType: dataSourceType.type, currentStep: StepEnum.CONFIGURE_IT }),
+      onClick: () => this.selectType(dataSourceType.type),
     }));
 
     return (<TypePicker types={types} />);
@@ -64,6 +75,7 @@ class CreateDataSource extends React.Component {
         (data) => {
           this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`data_sources/${data.id}`));
           onSuccess('Saved.');
+          this.scrollToTop();
         },
         (error) => {
           if (error.status === 400 && 'message' in error.data) {
@@ -99,10 +111,10 @@ class CreateDataSource extends React.Component {
   }
 
   render() {
-    const { selectedType, currentStep } = this.state;
+    const { currentStep } = this.state;
 
     return (
-      <div className="row">
+      <div className="row" ref={this.topRef}>
         <h3 className="text-center">New Data Source</h3>
         <Steps className="p-20" current={currentStep}>
           <Step
@@ -113,7 +125,8 @@ class CreateDataSource extends React.Component {
           <Step title="Configure it" />
           <Step title="Done" />
         </Steps>
-        {selectedType ? this.renderForm() : this.renderTypes()}
+        {currentStep === StepEnum.SELECT_TYPE && this.renderTypes()}
+        {currentStep === StepEnum.CONFIGURE_IT && this.renderForm()}
       </div>
     );
   }
