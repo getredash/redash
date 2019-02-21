@@ -175,46 +175,48 @@ class GroupDataSources extends React.Component {
     );
 
     return (
-      <div className="row" data-test="Group">
-        <GroupName className="col-xs-12 m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
-        <div className="col-md-3 list-control-t">{sidebar}</div>
-        <div className="list-content col-md-9">
-          {!controller.isLoaded && <LoadingState className="" />}
-          {controller.isLoaded && controller.isEmpty && (
-            <div className="text-center">
-              There are no data sources in this group yet.
-              {currentUser.isAdmin && (
-                <div className="m-t-5">
-                  <a href="javascript:void(0)" onClick={this.addDataSources}>Click here</a>
-                  {' '} to add data sources.
-                </div>
-              )}
-            </div>
-          )}
-          {
-            controller.isLoaded && !controller.isEmpty && (
-              <div className="table-responsive">
-                <ItemsTable
-                  items={controller.pageItems}
-                  columns={this.listColumns}
-                  showHeader={false}
-                  onRowClick={this.onTableRowClick}
-                  context={this.actions}
-                  orderByField={controller.orderByField}
-                  orderByReverse={controller.orderByReverse}
-                  toggleSorting={controller.toggleSorting}
-                />
-                <Paginator
-                  totalCount={controller.totalItemsCount}
-                  itemsPerPage={controller.itemsPerPage}
-                  page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
-                />
+      <div data-test="Group">
+        <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
+        <div className="row">
+          <div className="col-md-3 list-control-t">{sidebar}</div>
+          <div className="list-content col-md-9">
+            {!controller.isLoaded && <LoadingState className="" />}
+            {controller.isLoaded && controller.isEmpty && (
+              <div className="text-center">
+                There are no data sources in this group yet.
+                {currentUser.isAdmin && (
+                  <div className="m-t-5">
+                    <a href="javascript:void(0)" onClick={this.addDataSources}>Click here</a>
+                    {' '} to add data sources.
+                  </div>
+                )}
               </div>
-            )
-          }
+            )}
+            {
+              controller.isLoaded && !controller.isEmpty && (
+                <div className="table-responsive">
+                  <ItemsTable
+                    items={controller.pageItems}
+                    columns={this.listColumns}
+                    showHeader={false}
+                    onRowClick={this.onTableRowClick}
+                    context={this.actions}
+                    orderByField={controller.orderByField}
+                    orderByReverse={controller.orderByReverse}
+                    toggleSorting={controller.toggleSorting}
+                  />
+                  <Paginator
+                    totalCount={controller.totalItemsCount}
+                    itemsPerPage={controller.itemsPerPage}
+                    page={controller.page}
+                    onChange={page => controller.updatePagination({ page })}
+                  />
+                </div>
+              )
+            }
+          </div>
+          <div className="col-md-3 list-control-r-b">{sidebar}</div>
         </div>
-        <div className="col-md-3 list-control-r-b">{sidebar}</div>
       </div>
     );
   }
