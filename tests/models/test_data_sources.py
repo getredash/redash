@@ -14,8 +14,8 @@ class DataSourceTest(BaseTestCase):
         column_metadata = self.factory.create_column_metadata(
             table_id=table_metadata.id,
             org_id=data_source.org_id,
-            column_type='boolean',
-            column_example=True
+            type='boolean',
+            example=True
         )
 
         return_value = [{

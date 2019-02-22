@@ -71,9 +71,9 @@ class TableMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id", ondelete="CASCADE"))
-    table_exists = Column(db.Boolean, default=True)
-    table_name = Column(db.String(255))
-    table_description = Column(db.String(4096), nullable=True)
+    exists = Column(db.Boolean, default=True)
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
     column_metadata = Column(db.Boolean, default=False)
     sample_query = Column("sample_query", db.Text, nullable=True)
 
@@ -87,9 +87,9 @@ class TableMetadata(TimestampMixin, db.Model):
             'id': self.id,
             'org_id': self.org_id,
             'data_source_id': self.data_source_id,
-            'table_exists': self.table_exists,
-            'table_name': self.table_name,
-            'table_description': self.table_description,
+            'exists': self.exists,
+            'name': self.name,
+            'description': self.description,
             'column_metadata': self.column_metadata,
             'sample_query': self.sample_query,
         }
@@ -100,10 +100,10 @@ class ColumnMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     table_id = Column(db.Integer, db.ForeignKey("table_metadata.id", ondelete="CASCADE"))
-    column_name = Column(db.String(255))
-    column_type = Column(db.String(255), nullable=True)
-    column_example = Column(db.String(4096), nullable=True)
-    column_exists = Column(db.Boolean, default=True)
+    name = Column(db.String(255))
+    type = Column(db.String(255), nullable=True)
+    example = Column(db.String(4096), nullable=True)
+    exists = Column(db.Boolean, default=True)
 
     __tablename__ = 'column_metadata'
 
@@ -115,10 +115,10 @@ class ColumnMetadata(TimestampMixin, db.Model):
             'id': self.id,
             'org_id': self.org_id,
             'table_id': self.table_id,
-            'column_name': self.column_name,
-            'column_type': self.column_type,
-            'column_example': self.column_example,
-            'column_exists': self.column_exists,
+            'name': self.name,
+            'type': self.type,
+            'example': self.example,
+            'exists': self.exists,
         }
 
 
@@ -207,17 +207,17 @@ class DataSource(BelongsToOrgMixin, db.Model):
         tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).all()
         for table in tables:
             table_info = {
-                'name': table.table_name,
-                'exists': table.table_exists,
+                'name': table.name,
+                'exists': table.exists,
                 'hasColumnMetadata': table.column_metadata,
                 'columns': []}
             columns = ColumnMetadata.query.filter(ColumnMetadata.table_id == table.id)
             table_info['columns'] = sorted([{
                 'key': column.id,
-                'name': column.column_name,
-                'type': column.column_type,
-                'exists': column.column_exists,
-                'example': column.column_example
+                'name': column.name,
+                'type': column.type,
+                'exists': column.exists,
+                'example': column.example
             } for column in columns], key=itemgetter('name'))
             schema.append(table_info)
 
