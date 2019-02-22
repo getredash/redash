@@ -17,6 +17,8 @@ import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
+import Layout from '@/components/layouts/ContentWithSidebar';
+
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
@@ -156,33 +158,25 @@ class UsersList extends React.Component {
     );
   }
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <React.Fragment>
         {this.renderPageHeader()}
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.PageSizeSelect
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
@@ -206,9 +200,8 @@ class UsersList extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </React.Fragment>
     );
   }

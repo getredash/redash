@@ -20,6 +20,7 @@ import { DataSourcePreviewCard } from '@/components/PreviewCard';
 import GroupName from '@/components/groups/GroupName';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
+import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
@@ -164,23 +165,21 @@ class GroupDataSources extends React.Component {
 
   render() {
     const { controller } = this.props;
-    const sidebar = (
-      <Sidebar
-        controller={controller}
-        group={this.group}
-        items={this.sidebarMenu}
-        canAddDataSources={currentUser.isAdmin}
-        onAddDataSourcesClick={this.addDataSources}
-        onGroupDeleted={() => navigateTo('/groups', true)}
-      />
-    );
-
     return (
       <div data-test="Group">
         <GroupName className="d-block m-t-0 m-b-15" group={this.group} onChange={() => this.forceUpdate()} />
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout>
+          <Layout.Sidebar>
+            <Sidebar
+              controller={controller}
+              group={this.group}
+              items={this.sidebarMenu}
+              canAddDataSources={currentUser.isAdmin}
+              onAddDataSourcesClick={this.addDataSources}
+              onGroupDeleted={() => navigateTo('/groups', true)}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
@@ -215,9 +214,8 @@ class GroupDataSources extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </div>
     );
   }
