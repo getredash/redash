@@ -19,7 +19,7 @@ class RedashSQLAlchemy(SQLAlchemy):
         if settings.SQLALCHEMY_DISABLE_POOL:
             options['poolclass'] = NullPool
             # Remove options NullPool does not support:
-            options.pop('max_overflow')
+            options.pop('max_overflow', None)
 
 
 db = RedashSQLAlchemy(session_options={
