@@ -38,7 +38,7 @@ export default function DetailsPageSidebar({
       {canRemove && (
         <React.Fragment>
           <Divider dashed className="m-t-10 m-b-10" />
-          <DeleteGroupButton className="w-100 m-b-15" group={group} onClick={onGroupDeleted}>Delete Group</DeleteGroupButton>
+          <DeleteGroupButton className="w-100" group={group} onClick={onGroupDeleted}>Delete Group</DeleteGroupButton>
         </React.Fragment>
       )}
     </React.Fragment>
