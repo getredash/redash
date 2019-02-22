@@ -3,7 +3,6 @@ import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { Group } from '@/services/group';
-import { cancelEvent } from '@/lib/utils';
 
 class CreateGroupDialog extends React.Component {
   static propTypes = {
@@ -24,15 +23,14 @@ class CreateGroupDialog extends React.Component {
     const { dialog } = this.props;
     return (
       <Modal {...dialog.props} title="Create a New Group" okText="Create" onOk={() => this.save()}>
-        <form onSubmit={cancelEvent(this.save)}>
-          <Input
-            className="form-control"
-            defaultValue={this.state.name}
-            onChange={event => this.setState({ name: event.target.value })}
-            placeholder="Group Name"
-            autoFocus
-          />
-        </form>
+        <Input
+          className="form-control"
+          defaultValue={this.state.name}
+          onChange={event => this.setState({ name: event.target.value })}
+          onPressEnter={() => this.save()}
+          placeholder="Group Name"
+          autoFocus
+        />
       </Modal>
     );
   }
