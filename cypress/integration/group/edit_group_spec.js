@@ -6,7 +6,7 @@ describe('Edit Group', () => {
 
   it('renders the page and takes a screenshot', () => {
     cy.getByTestId('Group').within(() => {
-      cy.get('h2').should('contain', 'admin');
+      cy.get('h3').should('contain', 'admin');
       cy.get('td').should('contain', 'Example Admin');
     });
 
