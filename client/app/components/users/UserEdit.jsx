@@ -32,7 +32,9 @@ export class UserEdit extends React.Component {
       resendingInvitation: false,
       togglingUser: false,
     };
+  }
 
+  componentDidMount() {
     Group.query((groups) => {
       this.setState({
         groups: groups.map(({ id, name }) => ({ value: id, title: name })),

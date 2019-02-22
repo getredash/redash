@@ -14,7 +14,9 @@ export class UserShow extends React.Component {
   constructor(props) {
     super(props);
     this.state = { groups: [], loadingGroups: true };
+  }
 
+  componentDidMount() {
     Group.query((groups) => {
       this.setState({ groups, loadingGroups: false });
     });
