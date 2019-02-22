@@ -69,6 +69,7 @@ scheduled_queries_executions = ScheduledQueriesExecutions()
 @python_2_unicode_compatible
 class TableMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id", ondelete="CASCADE"))
     table_exists = Column(db.Boolean, default=True)
     table_name = Column(db.String(255))
@@ -84,6 +85,7 @@ class TableMetadata(TimestampMixin, db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'org_id': self.org_id,
             'data_source_id': self.data_source_id,
             'table_exists': self.table_exists,
             'table_name': self.table_name,
@@ -96,6 +98,7 @@ class TableMetadata(TimestampMixin, db.Model):
 @python_2_unicode_compatible
 class ColumnMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     table_id = Column(db.Integer, db.ForeignKey("table_metadata.id", ondelete="CASCADE"))
     column_name = Column(db.String(255))
     column_type = Column(db.String(255), nullable=True)
@@ -110,6 +113,7 @@ class ColumnMetadata(TimestampMixin, db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'org_id': self.org_id,
             'table_id': self.table_id,
             'column_name': self.column_name,
             'column_type': self.column_type,

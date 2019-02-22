@@ -17,6 +17,7 @@ class TestRefreshSchemas(BaseTestCase):
         self.COLUMN_EXAMPLE = 'some text for column value'
         self.EXPECTED_COLUMN_METADATA = {
             'id': 1,
+            'org_id': 1,
             'table_id': 1,
             'column_name': self.COLUMN_NAME,
             'column_type': self.COLUMN_TYPE,
@@ -60,6 +61,7 @@ class TestRefreshSchemas(BaseTestCase):
     def test_refresh_schema_creates_tables(self):
         EXPECTED_TABLE_METADATA = {
             'id': 1,
+            'org_id': 1,
             'table_exists': True,
             'table_name': 'table',
             'sample_query': None,

@@ -22,6 +22,7 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('org_id', sa.Integer(), nullable=False),
         sa.Column('data_source_id', sa.Integer(), nullable=False),
         sa.Column('table_exists', sa.Boolean(), nullable=False),
         sa.Column('table_name', sa.String(length=255), nullable=False),
@@ -29,6 +30,7 @@ def upgrade():
         sa.Column('column_metadata', sa.Boolean(), nullable=False),
         sa.Column('sample_query', sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(['data_source_id'], ['data_sources.id'], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(['org_id'], ['organizations.id']),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_table(
@@ -36,12 +38,14 @@ def upgrade():
         sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
         sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('org_id', sa.Integer(), nullable=False),
         sa.Column('table_id', sa.Integer(), nullable=False),
         sa.Column('column_name', sa.String(length=255), nullable=False),
         sa.Column('column_type', sa.String(length=255), nullable=True),
         sa.Column('column_example', sa.String(length=4096), nullable=True),
         sa.Column('column_exists', sa.Boolean(), nullable=False),
         sa.ForeignKeyConstraint(['table_id'], ['table_metadata.id'], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(['org_id'], ['organizations.id']),
         sa.PrimaryKeyConstraint('id')
     )
 

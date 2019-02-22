@@ -256,6 +256,7 @@ def refresh_schema(data_source_id):
             else:
                 metadata = 'metadata' in table
                 persisted_table = TableMetadata(
+                    org_id=ds.org_id,
                     table_name=table_name,
                     data_source_id=ds.id,
                     column_metadata=metadata
@@ -267,6 +268,7 @@ def refresh_schema(data_source_id):
             for i, column in enumerate(table['columns']):
                 existing_columns.add(column)
                 column_metadata = {
+                    'org_id': ds.org_id,
                     'table_id': persisted_table.id,
                     'column_name': column,
                     'column_type': None,
