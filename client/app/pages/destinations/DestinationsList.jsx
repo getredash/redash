@@ -10,6 +10,9 @@ class DestinationsList extends React.Component {
   constructor(props) {
     super(props);
     this.state = { destinations: [] };
+  }
+
+  componentDidMount() {
     Destination.query(destinations => this.setState({ destinations }));
   }
 

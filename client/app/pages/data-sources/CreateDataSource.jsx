@@ -31,8 +31,11 @@ class CreateDataSource extends React.Component {
   constructor(props) {
     super(props);
     this.state = { dataSourceTypes: [], selectedType: null, currentStep: StepEnum.SELECT_TYPE };
-    DataSource.types(dataSourceTypes => this.setState({ dataSourceTypes }));
     this.topRef = React.createRef();
+  }
+
+  componentDidMount() {
+    DataSource.types(dataSourceTypes => this.setState({ dataSourceTypes }));
   }
 
   scrollToTop = () => {

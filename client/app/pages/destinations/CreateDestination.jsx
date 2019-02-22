@@ -20,8 +20,11 @@ class CreateDestination extends React.Component {
   constructor(props) {
     super(props);
     this.state = { destinationTypes: [], selectedType: null, currentStep: StepEnum.SELECT_TYPE };
-    Destination.types(destinationTypes => this.setState({ destinationTypes }));
     this.topRef = React.createRef();
+  }
+
+  componentDidMount() {
+    Destination.types(destinationTypes => this.setState({ destinationTypes }));
   }
 
   scrollToTop = () => {

@@ -11,6 +11,9 @@ class DataSourcesList extends React.Component {
   constructor(props) {
     super(props);
     this.state = { dataSources: [] };
+  }
+
+  componentDidMount() {
     DataSource.query(dataSources => this.setState({ dataSources }));
   }
 
