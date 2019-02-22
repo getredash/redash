@@ -5,12 +5,13 @@ import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
 import Drawer from 'antd/lib/drawer';
 import { BigMessage } from '@/components/BigMessage';
+import DynamicComponent from '@/components/DynamicComponent';
 
 import './HelpTrigger.less';
 
 const DOMAIN = 'https://redash.io';
 const HELP_PATH = '/help';
-const IFRAME_TIMEOUT = 5000;
+const IFRAME_TIMEOUT = 20000;
 const TYPES = {
   HOME: [
     '',
@@ -49,15 +50,20 @@ export class HelpTrigger extends React.Component {
     visible: false,
     loading: false,
     error: false,
-  }
+  };
 
   componentWillUnmount() {
     clearTimeout(this.iframeLoadingTimeout);
   }
 
-  get helpUrl() {
-    const [pagePath] = TYPES[this.props.type];
-    return DOMAIN + HELP_PATH + pagePath;
+  loadIframe = (url) => {
+    clearTimeout(this.iframeLoadingTimeout);
+    this.setState({ loading: true, error: false });
+
+    this.iframeRef.current.src = url;
+    this.iframeLoadingTimeout = setTimeout(() => {
+      this.setState({ error: url, loading: false });
+    }, IFRAME_TIMEOUT); // safety
   }
 
   onIframeLoaded = () => {
@@ -65,17 +71,17 @@ export class HelpTrigger extends React.Component {
     clearTimeout(this.iframeLoadingTimeout);
   }
 
-  onIframeError = () => {
-    this.setState({ error: true, loading: false });
+  openDrawer = () => {
+    this.setState({ visible: true });
+    const [pagePath] = TYPES[this.props.type];
+    const url = DOMAIN + HELP_PATH + pagePath;
+
+    // wait for drawer animation to complete so there's no animation jank
+    setTimeout(() => this.loadIframe(url), 300);
   }
 
-  openDrawer = () => {
-    this.setState({ visible: true, loading: true, error: false });
-    // wait for drawer animation to complete so there's no animation jank
-    setTimeout(() => {
-      this.iframeRef.current.src = this.helpUrl;
-      this.iframeLoadingTimeout = setTimeout(this.onIframeError, IFRAME_TIMEOUT); // safety
-    }, 300);
+  closeDrawer = () => {
+    this.setState({ visible: false });
   }
 
   render() {
@@ -91,37 +97,46 @@ export class HelpTrigger extends React.Component {
         </Tooltip>
         <Drawer
           placement="right"
-          onClose={() => this.setState({ visible: false })}
+          onClose={this.closeDrawer}
           visible={this.state.visible}
           className="help-drawer"
           destroyOnClose
-          width={450}
+          width={400}
         >
-          {/* iframe */}
-          {!this.state.error && (
-            <iframe
-              ref={this.iframeRef}
-              title="Redash Help"
-              src="about:blank"
-              className={cx({ ready: !this.state.loading })}
-              onLoad={this.onIframeLoaded}
-            />
-          )}
+          <div className="drawer-wrapper">
+            {/* iframe */}
+            {!this.state.error && (
+              <iframe
+                ref={this.iframeRef}
+                title="Redash Help"
+                src="about:blank"
+                className={cx({ ready: !this.state.loading })}
+                onLoad={this.onIframeLoaded}
+              />
+            )}
 
-          {/* loading indicator */}
-          {this.state.loading && (
-            <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
-          )}
+            {/* loading indicator */}
+            {this.state.loading && (
+              <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
+            )}
 
-          {/* error message */}
-          {this.state.error && (
-            <BigMessage icon="fa-exclamation-circle" className="help-message">
-              Something went wrong.<br />
-              {/* eslint-disable-next-line react/jsx-no-target-blank */}
-              <a href={this.helpUrl + '?s=help_error'} target="_blank" rel="noopener">Click here</a>{' '}
-              to open the page in a new window.
-            </BigMessage>
-          )}
+            {/* error message */}
+            {this.state.error && (
+              <BigMessage icon="fa-exclamation-circle" className="help-message">
+                Something went wrong.<br />
+                {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
+                to open the page in a new window.
+              </BigMessage>
+            )}
+          </div>
+
+          {/* extra content */}
+          <DynamicComponent
+            name="HelpDrawerExtraContent"
+            onLeave={this.closeDrawer}
+            openPageUrl={this.loadIframe}
+          />
         </Drawer>
       </React.Fragment>
     );
