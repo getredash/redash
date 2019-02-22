@@ -6,6 +6,7 @@ import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
+import { UserPreviewCard } from '@/components/PreviewCard';
 
 import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -76,13 +77,7 @@ class UsersList extends React.Component {
 
   listColumns = [
     Columns.custom.sortable((text, user) => (
-      <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-        <div>
-          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-          <div className="text-muted">{user.email}</div>
-        </div>
-      </div>
+      <UserPreviewCard user={user} withLink />
     ), {
       title: 'Name',
       field: 'name',
