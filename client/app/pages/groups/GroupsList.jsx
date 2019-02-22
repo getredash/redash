@@ -2,7 +2,6 @@ import React from 'react';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
-import Tooltip from 'antd/lib/tooltip';
 import { Paginator } from '@/components/Paginator';
 
 import { wrap as liveItemsList, ControllerType } from '@/components/items-list/ItemsList';
@@ -50,18 +49,16 @@ class GroupsList extends React.Component {
     }),
     Columns.custom((text, group) => {
       const canRemove = group.type !== 'builtin';
-      const button = (
+      return (
         <DeleteGroupButton
           className="w-100"
           disabled={!canRemove}
           group={group}
+          title={canRemove ? null : 'Cannot delete built-in group'}
           onClick={() => this.onGroupDeleted()}
         >
           Delete
         </DeleteGroupButton>
-      );
-      return canRemove ? button : (
-        <Tooltip placement="top" title="Cannot delete built-in group" mouseLeaveDelay={0}>{button}</Tooltip>
       );
     }, {
       width: '1%',
