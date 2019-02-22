@@ -28,7 +28,7 @@ def upgrade():
         sa.Column('table_description', sa.String(length=4096), nullable=True),
         sa.Column('column_metadata', sa.Boolean(), nullable=False),
         sa.Column('sample_query', sa.Text(), nullable=True),
-        sa.ForeignKeyConstraint(['data_source_id'], ['data_sources.id'], ),
+        sa.ForeignKeyConstraint(['data_source_id'], ['data_sources.id'], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_table(
@@ -41,7 +41,7 @@ def upgrade():
         sa.Column('column_type', sa.String(length=255), nullable=True),
         sa.Column('column_example', sa.String(length=4096), nullable=True),
         sa.Column('column_exists', sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(['table_id'], ['table_metadata.id'], ),
+        sa.ForeignKeyConstraint(['table_id'], ['table_metadata.id'], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint('id')
     )
 

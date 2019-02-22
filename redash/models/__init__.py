@@ -69,7 +69,7 @@ scheduled_queries_executions = ScheduledQueriesExecutions()
 @python_2_unicode_compatible
 class TableMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id", ondelete="CASCADE"))
     table_exists = Column(db.Boolean, default=True)
     table_name = Column(db.String(255))
     table_description = Column(db.String(4096), nullable=True)
@@ -96,7 +96,7 @@ class TableMetadata(TimestampMixin, db.Model):
 @python_2_unicode_compatible
 class ColumnMetadata(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    table_id = Column(db.Integer, db.ForeignKey("table_metadata.id"))
+    table_id = Column(db.Integer, db.ForeignKey("table_metadata.id", ondelete="CASCADE"))
     column_name = Column(db.String(255))
     column_type = Column(db.String(255), nullable=True)
     column_example = Column(db.String(4096), nullable=True)
@@ -192,14 +192,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.id == _id).one()
 
     def delete(self):
-        # Delete the relevant metadata about a data source first.
-        tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).options(load_only('id'))
-        ColumnMetadata.query.filter(
-            ColumnMetadata.table_id.in_(tables.subquery())
-        ).delete(synchronize_session=False)
-
-        tables.delete()
-
         Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
