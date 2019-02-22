@@ -5,8 +5,7 @@ import { react2angular } from 'react2angular';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
-import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
-import helper from '@/components/dynamic-form/dynamicFormHelper';
+import EditDestinationForm from '@/components/destinations/EditDestinationForm';
 
 const { Step } = Steps;
 
@@ -57,38 +56,17 @@ class CreateDestination extends React.Component {
 
   renderForm() {
     const { destinationTypes, selectedType } = this.state;
-    const type = find(destinationTypes, { type: selectedType });
-    const destination = new Destination({ options: {}, type: selectedType });
-    const fields = helper.getFields(type.configuration_schema, destination);
-
-    const onSubmit = (values, onSuccess, onError) => {
-      helper.updateTargetWithValues(destination, values);
-      destination.$save(
-        (data) => {
-          onSuccess('Saved.');
-          this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`destinations/${data.id}`));
-          this.scrollToTop();
-        },
-        (error) => {
-          if (error.status === 400 && 'message' in error.data) {
-            onError(error.data.message);
-          } else {
-            onError('Failed saving.');
-          }
-        },
-      );
+    const formProps = {
+      destination: new Destination({ options: {}, type: selectedType }),
+      type: find(destinationTypes, { type: selectedType }),
+      onSuccess: (data) => {
+        this.setState({ currentStep: StepEnum.DONE }, () => navigateTo(`destinations/${data.id}`));
+        this.scrollToTop();
+      },
     };
 
     return (
-      <div>
-        <div className="col-sm-offset-4 col-sm-4 text-center">
-          <img src={`${Destination.IMG_ROOT}/${selectedType}.png`} alt={type.name} width="64" />
-          <h3>{type.name}</h3>
-        </div>
-        <div className="col-md-4 col-md-offset-4">
-          <DynamicForm fields={fields} onSubmit={onSubmit} feedbackIcons />
-        </div>
-      </div>
+      <EditDestinationForm {...formProps} />
     );
   }
 
