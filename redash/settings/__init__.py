@@ -96,7 +96,8 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # for more information.
 # Overriding this value via an environment variables requires setting it
 # as a string in the general CSP format of a semicolon separated list of
-# individual CSP directives, e.g.:
+# individual CSP directives, see https://github.com/GoogleCloudPlatform/flask-talisman#example-7
+# for more information. E.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
     "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none';"
