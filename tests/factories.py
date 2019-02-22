@@ -81,12 +81,12 @@ query_factory = ModelFactory(redash.models.Query,
 
 table_metadata_factory = ModelFactory(redash.models.TableMetadata,
                                       data_source_id=1,
-                                      table_exists=True,
-                                      table_name='table')
+                                      exists=True,
+                                      name='table')
 
 column_metadata_factory = ModelFactory(redash.models.ColumnMetadata,
                                        table_id=1,
-                                       column_name='column')
+                                       name='column')
 
 query_with_params_factory = ModelFactory(redash.models.Query,
                              name='New Query with Params',

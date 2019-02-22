@@ -245,19 +245,19 @@ def refresh_schema(data_source_id):
 
             # Assume that there will only exist 1 table with a given name for a given data source so we use first()
             persisted_table = TableMetadata.query.filter(
-                TableMetadata.table_name == table_name,
+                TableMetadata.name == table_name,
                 TableMetadata.data_source_id == ds.id,
             ).first()
 
             if persisted_table:
                 TableMetadata.query.filter(
                     TableMetadata.id == persisted_table.id,
-                ).update({"table_exists": True})
+                ).update({"exists": True})
             else:
                 metadata = 'metadata' in table
                 persisted_table = TableMetadata(
                     org_id=ds.org_id,
-                    table_name=table_name,
+                    name=table_name,
                     data_source_id=ds.id,
                     column_metadata=metadata
                 )
@@ -270,23 +270,23 @@ def refresh_schema(data_source_id):
                 column_metadata = {
                     'org_id': ds.org_id,
                     'table_id': persisted_table.id,
-                    'column_name': column,
-                    'column_type': None,
-                    'column_example': None,
-                    'column_exists': True
+                    'name': column,
+                    'type': None,
+                    'example': None,
+                    'exists': True
                 }
                 if 'metadata' in table:
-                    column_metadata['column_type'] = table['metadata'][i]['type']
+                    column_metadata['type'] = table['metadata'][i]['type']
 
                     # Note: the query example can be quite large, so we limit its size.
                     column_example = str(table['metadata'][i]['sample'])
-                    column_metadata['column_example'] = column_example
+                    column_metadata['example'] = column_example
                     if column_example and len(column_example) > 4000:
-                        column_metadata['column_example'] = u'{}...'.format(column_example[:4000])
+                        column_metadata['example'] = u'{}...'.format(column_example[:4000])
 
                 # If the column exists, update it, otherwise create a new one.
                 persisted_column = ColumnMetadata.query.filter(
-                     ColumnMetadata.column_name == column,
+                     ColumnMetadata.name == column,
                      ColumnMetadata.table_id == persisted_table.id,
                 ).options(load_only('id')).first()
                 if persisted_column:
@@ -300,16 +300,16 @@ def refresh_schema(data_source_id):
             existing_columns_list = tuple(existing_columns)
             ColumnMetadata.query.filter(
                 ColumnMetadata.table_id == persisted_table.id,
-                ~ColumnMetadata.column_name.in_(existing_columns_list),
+                ~ColumnMetadata.name.in_(existing_columns_list),
             ).update({
-                "column_exists": False
+                "exists": False
             }, synchronize_session='fetch')
 
-        # If a table did not exist in the get_schema() response above, set the 'table_exists' flag to false.
+        # If a table did not exist in the get_schema() response above, set the 'exists' flag to false.
         existing_tables_list = tuple(existing_tables)
         tables_to_update = TableMetadata.query.filter(
-             ~TableMetadata.table_name.in_(existing_tables_list)
-         ).update({"table_exists": False}, synchronize_session='fetch')
+             ~TableMetadata.name.in_(existing_tables_list)
+         ).update({"exists": False}, synchronize_session='fetch')
 
         models.db.session.commit()
 

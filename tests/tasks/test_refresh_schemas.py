@@ -19,10 +19,10 @@ class TestRefreshSchemas(BaseTestCase):
             'id': 1,
             'org_id': 1,
             'table_id': 1,
-            'column_name': self.COLUMN_NAME,
-            'column_type': self.COLUMN_TYPE,
-            'column_example': self.COLUMN_EXAMPLE,
-            'column_exists': True,
+            'name': self.COLUMN_NAME,
+            'type': self.COLUMN_TYPE,
+            'example': self.COLUMN_EXAMPLE,
+            'exists': True,
         }
 
         get_schema_patcher = patch('redash.query_runner.pg.PostgreSQL.get_schema')
@@ -62,10 +62,10 @@ class TestRefreshSchemas(BaseTestCase):
         EXPECTED_TABLE_METADATA = {
             'id': 1,
             'org_id': 1,
-            'table_exists': True,
-            'table_name': 'table',
+            'exists': True,
+            'name': 'table',
             'sample_query': None,
-            'table_description': None,
+            'description': None,
             'column_metadata': True,
             'data_source_id': 1
         }
@@ -86,9 +86,9 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertTrue(table_metadata[0].to_dict()['table_exists'])
+        self.assertTrue(table_metadata[0].to_dict()['exists'])
 
-        # Table is gone, `table_exists` should be False.
+        # Table is gone, `exists` should be False.
         self.patched_get_schema.return_value = []
 
         refresh_schema(self.factory.data_source.id)
@@ -97,20 +97,20 @@ class TestRefreshSchemas(BaseTestCase):
 
         self.assertEqual(len(table_metadata), 1)
         self.assertEqual(len(column_metadata), 1)
-        self.assertFalse(table_metadata[0].to_dict()['table_exists'])
+        self.assertFalse(table_metadata[0].to_dict()['exists'])
 
-        # Table is back, `table_exists` should be True again.
+        # Table is back, `exists` should be True again.
         self.patched_get_schema.return_value = self.default_schema_return_value
         refresh_schema(self.factory.data_source.id)
         table_metadata = TableMetadata.query.all()
-        self.assertTrue(table_metadata[0].to_dict()['table_exists'])
+        self.assertTrue(table_metadata[0].to_dict()['exists'])
 
     def test_refresh_schema_delete_column(self):
         NEW_COLUMN_NAME = 'new_column'
         refresh_schema(self.factory.data_source.id)
         column_metadata = ColumnMetadata.query.all()
 
-        self.assertTrue(column_metadata[0].to_dict()['column_exists'])
+        self.assertTrue(column_metadata[0].to_dict()['exists'])
 
         self.patched_get_schema.return_value = [{
             'name': 'table',
@@ -126,8 +126,8 @@ class TestRefreshSchemas(BaseTestCase):
         column_metadata = ColumnMetadata.query.all()
         self.assertEqual(len(column_metadata), 2)
 
-        self.assertFalse(column_metadata[1].to_dict()['column_exists'])
-        self.assertTrue(column_metadata[0].to_dict()['column_exists'])
+        self.assertFalse(column_metadata[1].to_dict()['exists'])
+        self.assertTrue(column_metadata[0].to_dict()['exists'])
 
     def test_refresh_schema_update_column(self):
         UPDATED_COLUMN_TYPE = 'varchar'
@@ -143,4 +143,4 @@ class TestRefreshSchemas(BaseTestCase):
         refresh_schema(self.factory.data_source.id)
         column_metadata = ColumnMetadata.query.all()
         self.assertNotEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
-        self.assertEqual(column_metadata[0].to_dict()['column_type'], UPDATED_COLUMN_TYPE)
+        self.assertEqual(column_metadata[0].to_dict()['type'], UPDATED_COLUMN_TYPE)
