@@ -38,8 +38,9 @@ export class ItemsSource {
     const context = this.getCallbackContext();
     return this._beforeUpdate().then(() => (
       this._fetcher.fetch(changes, state, context)
-        .then(({ results, count }) => {
+        .then(({ results, count, allResults }) => {
           this._pageItems = results;
+          this._allItems = allResults || null;
           this._paginator.setTotalCount(count);
           return this._afterUpdate();
         })
@@ -76,6 +77,7 @@ export class ItemsSource {
       selectedTags: this._selectedTags,
       totalCount: this._paginator.totalCount,
       pageItems: this._pageItems,
+      allItems: this._allItems,
     };
   }
 

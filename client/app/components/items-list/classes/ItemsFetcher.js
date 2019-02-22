@@ -43,6 +43,7 @@ export class PlainListFetcher extends ItemsFetcher {
     return {
       results: paginator.getItemsForPage(this._allItems),
       count: this._allItems.length,
+      allResults: this._allItems,
     };
   }
 
@@ -59,6 +60,7 @@ export class PlainListFetcher extends ItemsFetcher {
     return Promise.resolve({
       results: paginator.getItemsForPage(this._allItems),
       count: this._allItems.length,
+      allResults: this._allItems,
     });
   }
 }
