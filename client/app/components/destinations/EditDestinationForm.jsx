@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Destination } from '@/services/destination';
-import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
+import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 export default function EditDestinationForm({ destination, type, onSuccess, ...props }) {

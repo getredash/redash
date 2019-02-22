@@ -8,7 +8,6 @@ import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
 import { includes } from 'lodash';
-import { react2angular } from 'react2angular';
 import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
@@ -23,7 +22,7 @@ const fieldRules = ({ type, required, minLength }) => {
   ].filter(rule => rule);
 };
 
-export const DynamicForm = Form.create()(class DynamicForm extends React.Component {
+class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
@@ -218,36 +217,6 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       </Form>
     );
   }
-});
-
-export default function init(ngModule) {
-  ngModule.component('dynamicForm', react2angular((props) => {
-    const fields = helper.getFields(props.type.configuration_schema, props.target);
-
-    const onSubmit = (values, onSuccess, onError) => {
-      helper.updateTargetWithValues(props.target, values);
-      props.target.$save(
-        () => {
-          onSuccess('Saved.');
-        },
-        (error) => {
-          if (error.status === 400 && 'message' in error.data) {
-            onError(error.data.message);
-          } else {
-            onError('Failed saving.');
-          }
-        },
-      );
-    };
-
-    const updatedProps = {
-      fields,
-      actions: props.target.id ? props.actions : [],
-      feedbackIcons: true,
-      onSubmit,
-    };
-    return (<DynamicForm {...updatedProps} />);
-  }, ['target', 'type', 'actions']));
 }
 
-init.init = true;
+export default Form.create()(DynamicForm);

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { DataSource } from '@/services/data-source';
-import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
+import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 const HELP_LINKS = {
@@ -37,7 +37,7 @@ export default function EditDataSourceForm({ dataSource, type, onSuccess, ...pro
   };
 
   return (
-    <div>
+    <div data-test="DataSource">
       <div className="col-sm-offset-4 col-sm-4 text-center">
         <img src={`${DataSource.IMG_ROOT}/${selectedType}.png`} alt={type.name} width="64" />
         <h3>{type.name}</h3>
