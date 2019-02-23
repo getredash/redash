@@ -11,12 +11,10 @@ const { Meta } = Card;
 
 export default class TypePicker extends React.Component {
   static propTypes = {
-    title: PropTypes.string,
     types: PropTypes.arrayOf(Type),
   };
 
   static defaultProps = {
-    title: null,
     types: [],
   };
 
@@ -27,10 +25,17 @@ export default class TypePicker extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
+    const titleStyle = {
+      fontSize: '13px',
+      maxHeight: '50px',
+      whiteSpace: 'normal',
+      textOverflow: 'ellipsis',
+    };
+
     return (
       <List.Item>
         <Card
-          bodyStyle={{ height: '80px' }}
+          bodyStyle={{ height: '80px', padding: '15px' }}
           cover={(
             <div className="m-t-10">
               <img
@@ -43,14 +48,14 @@ export default class TypePicker extends React.Component {
           onClick={item.onClick}
           hoverable
         >
-          <Meta title={(<p style={{ fontSize: '13px', maxHeight: '80px', whiteSpace: 'normal' }}>{item.name}</p>)} />
+          <Meta title={(<p style={titleStyle}>{item.name}</p>)} />
         </Card>
       </List.Item>
     );
   }
 
   render() {
-    const { title, types } = this.props;
+    const { types } = this.props;
     const { searchText } = this.state;
 
     const filteredTypes = types.filter(type => isEmpty(searchText) ||
@@ -58,7 +63,6 @@ export default class TypePicker extends React.Component {
 
     return (
       <div className="text-center" data-test="TypePicker">
-        {title && <h3>{title}</h3>}
         <Search
           className="m-b-20"
           placeholder="Search..."
