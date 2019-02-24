@@ -69,7 +69,7 @@ export default function init(ngModule) {
   return {
     '/destinations/:destinationId': {
       template: '<settings-screen><page-edit-destination></page-edit-destination></settings-screen>',
-      title: 'Destinations',
+      title: 'Alert Destinations',
     },
   };
 }

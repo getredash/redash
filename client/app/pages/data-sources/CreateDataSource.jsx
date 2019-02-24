@@ -77,11 +77,13 @@ class CreateDataSource extends React.Component {
       <div className="row" ref={this.topRef}>
         <h3 className="text-center">New Data Source</h3>
         <Steps className="p-20" current={currentStep}>
-          <Step
-            title="Select the Type"
-            style={currentStep === StepEnum.CONFIGURE_IT ? { cursor: 'pointer' } : {}}
-            onClick={this.resetType}
-          />
+          {currentStep === StepEnum.CONFIGURE_IT ? (
+            <Step
+              title={<a>Select the Type</a>}
+              style={{ cursor: 'pointer' }}
+              onClick={this.resetType}
+            />
+          ) : (<Step title="Select the Type" />)}
           <Step title="Configure it" />
           <Step title="Done" />
         </Steps>

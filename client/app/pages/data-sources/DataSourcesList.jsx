@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
+import { isEmpty } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { DataSource } from '@/services/data-source';
 import { policy } from '@/services/policy';
@@ -27,19 +28,32 @@ class DataSourcesList extends React.Component {
       onClick: () => navigateTo(`data_sources/${dataSource.id}`),
     }));
 
-    return (<TypePicker types={types} />);
+    return isEmpty(dataSources) ? (
+      <div className="text-center">
+        There are no data sources yet.
+        <div className="m-t-5">
+          <a href="data_sources/new">Click here</a> to add one.
+        </div>
+      </div>
+    ) : (<TypePicker types={types} />);
   }
 
   render() {
+    const newDataSourceProps = {
+      type: 'primary',
+      href: policy.isCreateDataSourceEnabled() ? 'data_sources/new' : null,
+      disabled: !policy.isCreateDataSourceEnabled(),
+    };
+
     return (
       <div>
         <div className="m-b-15">
-          <Button type="primary" href="data_sources/new" disabled={!policy.isCreateDataSourceEnabled()}>
+          <Button {...newDataSourceProps}>
             <i className="fa fa-plus m-r-5" />
             New Data Source
           </Button>
-          {this.state.loading ? <LoadingState /> : this.renderDataSources()}
         </div>
+        {this.state.loading ? <LoadingState /> : this.renderDataSources()}
       </div>
     );
   }

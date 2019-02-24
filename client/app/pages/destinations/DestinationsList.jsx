@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
+import { isEmpty } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
@@ -26,7 +27,14 @@ class DestinationsList extends React.Component {
       onClick: () => navigateTo(`destinations/${destination.id}`),
     }));
 
-    return (<TypePicker types={types} />);
+    return isEmpty(destinations) ? (
+      <div className="text-center">
+        There are no alert destinations yet.
+        <div className="m-t-5">
+          <a href="destinations/new">Click here</a> to add one.
+        </div>
+      </div>
+    ) : (<TypePicker types={types} />);
   }
 
   render() {
@@ -37,8 +45,8 @@ class DestinationsList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
           </Button>
-          {this.state.loading ? <LoadingState /> : this.renderDestinations()}
         </div>
+        {this.state.loading ? <LoadingState /> : this.renderDestinations()}
       </div>
     );
   }
@@ -57,7 +65,7 @@ export default function init(ngModule) {
   return {
     '/destinations': {
       template: '<settings-screen><page-destinations-list></page-destinations-list></settings-screen>',
-      title: 'Destinations',
+      title: 'Alert Destinations',
     },
   };
 }
