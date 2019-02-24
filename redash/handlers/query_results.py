@@ -52,8 +52,8 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                              query_hash, query.text, data,
-                                                                              run_time, utcnow())
+                                                                          query_hash, query.text, data,
+                                                                          run_time, utcnow())
         models.db.session.commit()
         return query_result
     except Exception as e:
@@ -114,7 +114,11 @@ class QueryResultListResource(BaseResource):
         params = request.get_json(force=True)
 
         query = params['query']
-        max_age = int(params.get('max_age', -1))
+        max_age = params.get('max_age', -1)
+        # max_age might have the value of None, in which case calling int(None) will fail
+        if max_age is None:
+            max_age = -1
+        max_age = int(max_age)
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
@@ -181,7 +185,11 @@ class QueryResultResource(BaseResource):
         """
         params = request.get_json(force=True)
         parameters = params.get('parameters', {})
-        max_age = int(params.get('max_age', 0))
+        max_age = params.get('max_age', -1)
+        # max_age might have the value of None, in which case calling int(None) will fail
+        if max_age is None:
+            max_age = -1
+        max_age = int(max_age)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         parameter_schema = query.options.get("parameters", [])

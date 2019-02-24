@@ -24,7 +24,7 @@ services:
     <<: *redash-service
     command: worker
     environment:
-      QUEUES: "scheduled_queries"
+      QUEUES: "scheduled_queries,schemas"
       WORKERS_COUNT: 1
   adhoc_worker:
     <<: *redash-service

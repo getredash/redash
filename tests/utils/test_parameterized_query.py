@@ -45,6 +45,13 @@ class TestParameterizedQuery(TestCase):
         })
         self.assertEqual(set([]), query.missing_params)
 
+    def test_raises_on_parameters_not_in_schema(self):
+        schema = [{"name": "bar", "type": "text"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"qux": 7})
+
     def test_raises_on_invalid_text_parameters(self):
         schema = [{"name": "bar", "type": "text"}]
         query = ParameterizedQuery("foo", schema)
@@ -188,5 +195,12 @@ class TestParameterizedQuery(TestCase):
         "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
     def test_dropdown_values_compromises_for_first_column(self, _):
+        values = dropdown_values(1)
+        self.assertEquals(values, [{"name": 5, "value": 5}])
+
+    @patch('redash.utils.parameterized_query._load_result', return_value={
+        "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
+        "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}]})
+    def test_dropdown_supports_upper_cased_columns(self, _):
         values = dropdown_values(1)
         self.assertEquals(values, [{"name": 5, "value": 5}])

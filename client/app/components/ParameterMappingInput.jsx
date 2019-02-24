@@ -18,7 +18,7 @@ import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { clientConfig } from '@/services/auth';
 import { Query, Parameter } from '@/services/query';
-import HelpTrigger from '@/services/HelpTrigger';
+import { HelpTrigger } from '@/components/HelpTrigger';
 
 import './ParameterMappingInput.less';
 
