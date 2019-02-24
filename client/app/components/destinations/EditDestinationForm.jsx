@@ -24,7 +24,7 @@ export default function EditDestinationForm({ destination, type, onSuccess, ...p
   };
 
   return (
-    <div>
+    <div className="row">
       <div className="text-center">
         <img src={`${Destination.IMG_ROOT}/${selectedType}.png`} alt={type.name} width="64" />
         <h3>{type.name}</h3>

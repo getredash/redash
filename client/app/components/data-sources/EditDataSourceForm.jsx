@@ -35,7 +35,7 @@ export default function EditDataSourceForm({ dataSource, type, onSuccess, ...pro
   };
 
   return (
-    <div data-test="DataSource">
+    <div className="row" data-test="DataSource">
       <div className="col-sm-offset-4 col-sm-4 text-center">
         <img src={`${DataSource.IMG_ROOT}/${selectedType}.png`} alt={type.name} width="64" />
         <h3>{type.name}</h3>

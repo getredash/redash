@@ -26,30 +26,15 @@ export default class TypePicker extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
-    const titleStyle = {
-      fontSize: '13px',
-      maxHeight: '50px',
-      whiteSpace: 'normal',
-      textOverflow: 'ellipsis',
-    };
-
     return (
-      <List.Item>
+      <List.Item className="type-picker__item">
         <Card
-          bodyStyle={{ height: '80px', padding: '15px' }}
-          cover={(
-            <div className="m-t-10">
-              <img
-                alt={item.name}
-                style={{ margin: 'auto', width: '64px', height: '64px' }}
-                src={item.imgSrc}
-              />
-            </div>
-          )}
+          size="small"
+          cover={(<div><img alt={item.name} src={item.imgSrc} /></div>)}
           onClick={item.onClick}
           hoverable
         >
-          <Meta title={(<p style={titleStyle}>{item.name}</p>)} />
+          <Meta title={(<h3>{item.name}</h3>)} />
         </Card>
       </List.Item>
     );
@@ -63,7 +48,7 @@ export default class TypePicker extends React.Component {
       includes(type.name.toLowerCase(), searchText.toLowerCase()));
 
     return (
-      <div className="text-center" data-test="TypePicker">
+      <div className="type-picker" data-test="TypePicker">
         <div className="row p-10">
           <div className="col-md-4 col-md-offset-4">
             <Search
@@ -76,7 +61,7 @@ export default class TypePicker extends React.Component {
         {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
           <List
             className="p-10"
-            grid={{ gutter: 12, xs: 1, sm: 3, lg: 4, xl: 6 }}
+            grid={{ gutter: 12, column: 6, xs: 1, sm: 3, lg: 4, xl: 6 }}
             dataSource={filteredTypes}
             renderItem={item => this.renderListItem(item)}
           />
