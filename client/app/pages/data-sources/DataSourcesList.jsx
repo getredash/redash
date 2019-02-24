@@ -6,15 +6,16 @@ import { DataSource } from '@/services/data-source';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
+import LoadingState from '@/components/items-list/components/LoadingState';
 
 class DataSourcesList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { dataSources: [] };
+    this.state = { dataSources: [], loading: true };
   }
 
   componentDidMount() {
-    DataSource.query(dataSources => this.setState({ dataSources }));
+    DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
   }
 
   renderDataSources() {
@@ -37,7 +38,7 @@ class DataSourcesList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New Data Source
           </Button>
-          {this.renderDataSources()}
+          {this.state.loading ? <LoadingState /> : this.renderDataSources()}
         </div>
       </div>
     );

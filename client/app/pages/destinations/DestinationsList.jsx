@@ -5,15 +5,16 @@ import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/TypePicker';
+import LoadingState from '@/components/items-list/components/LoadingState';
 
 class DestinationsList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { destinations: [] };
+    this.state = { destinations: [], loading: true };
   }
 
   componentDidMount() {
-    Destination.query(destinations => this.setState({ destinations }));
+    Destination.query(destinations => this.setState({ destinations, loading: false }));
   }
 
   renderDestinations() {
@@ -36,7 +37,7 @@ class DestinationsList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
           </Button>
-          {this.renderDestinations()}
+          {this.state.loading ? <LoadingState /> : this.renderDestinations()}
         </div>
       </div>
     );

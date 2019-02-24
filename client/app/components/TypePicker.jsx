@@ -5,6 +5,7 @@ import { includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Type } from './proptypes';
+import EmptyState from '@/components/items-list/components/EmptyState';
 
 const { Search } = Input;
 const { Meta } = Card;
@@ -70,12 +71,14 @@ export default class TypePicker extends React.Component {
           style={{ maxWidth: 300 }}
           autoFocus
         />
-        <List
-          className="p-20"
-          grid={{ gutter: 12, xs: 1, sm: 3, lg: 4, xl: 6 }}
-          dataSource={filteredTypes}
-          renderItem={item => this.renderListItem(item)}
-        />
+        {isEmpty(filteredTypes) ? (<EmptyState />) : (
+          <List
+            className="p-20"
+            grid={{ gutter: 12, xs: 1, sm: 3, lg: 4, xl: 6 }}
+            dataSource={filteredTypes}
+            renderItem={item => this.renderListItem(item)}
+          />
+        )}
       </div>
     );
   }
