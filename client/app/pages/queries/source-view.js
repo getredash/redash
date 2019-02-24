@@ -1,5 +1,6 @@
 import { map, defer } from 'lodash';
 import template from './query.html';
+import EditParameterSettingsDialog from '@/components/EditParameterSettingsDialog';
 
 function QuerySourceCtrl(
   Events,
@@ -73,19 +74,15 @@ function QuerySourceCtrl(
   };
 
   $scope.addNewParameter = () => {
-    $uibModal
-      .open({
-        component: 'parameterSettings',
-        resolve: {
-          parameter: {
-            title: '',
-            name: '',
-            type: 'text',
-            value: null,
-            global: false,
-          },
-          existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
+    EditParameterSettingsDialog
+      .showModal({
+        parameter: {
+          title: null,
+          name: '',
+          type: 'text',
+          value: null,
         },
+        existingParams: map($scope.query.getParameters().get(), p => p.name),
       })
       .result.then((param) => {
         param = $scope.query.getParameters().add(param);
