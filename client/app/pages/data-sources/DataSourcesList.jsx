@@ -53,7 +53,7 @@ class DataSourcesList extends React.Component {
             New Data Source
           </Button>
         </div>
-        {this.state.loading ? <LoadingState /> : this.renderDataSources()}
+        {this.state.loading ? <LoadingState className="" /> : this.renderDataSources()}
       </div>
     );
   }

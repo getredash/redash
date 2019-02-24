@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import { Destination } from '@/services/destination';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
@@ -16,11 +17,8 @@ export default function EditDestinationForm({ destination, type, onSuccess, ...p
         onSuccess(data);
       },
       (error) => {
-        if (error.status === 400 && 'message' in error.data) {
-          errorCallback(error.data.message);
-        } else {
-          errorCallback('Failed saving.');
-        }
+        const message = get(error, 'data.message', 'Failed saving.');
+        errorCallback(message);
       },
     );
   };

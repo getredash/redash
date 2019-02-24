@@ -4,8 +4,8 @@ import List from 'antd/lib/list';
 import { includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { Type } from './proptypes';
 import EmptyState from '@/components/items-list/components/EmptyState';
+import { Type } from './proptypes';
 
 const { Search } = Input;
 const { Meta } = Card;
@@ -64,16 +64,18 @@ export default class TypePicker extends React.Component {
 
     return (
       <div className="text-center" data-test="TypePicker">
-        <Search
-          className="m-b-20"
-          placeholder="Search..."
-          onChange={e => this.setState({ searchText: e.target.value })}
-          style={{ maxWidth: 300 }}
-          autoFocus
-        />
-        {isEmpty(filteredTypes) ? (<EmptyState />) : (
+        <div className="row p-10">
+          <div className="col-md-4 col-md-offset-4">
+            <Search
+              placeholder="Search..."
+              onChange={e => this.setState({ searchText: e.target.value })}
+              autoFocus
+            />
+          </div>
+        </div>
+        {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
           <List
-            className="p-20"
+            className="p-10"
             grid={{ gutter: 12, xs: 1, sm: 3, lg: 4, xl: 6 }}
             dataSource={filteredTypes}
             renderItem={item => this.renderListItem(item)}

@@ -74,7 +74,7 @@ class CreateDestination extends React.Component {
     const { currentStep } = this.state;
 
     return (
-      <div className="row" ref={this.topRef}>
+      <div ref={this.topRef}>
         <h3 className="text-center">New Alert Destination</h3>
         <Steps className="p-20" current={currentStep}>
           {currentStep === StepEnum.CONFIGURE_IT ? (

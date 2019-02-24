@@ -46,7 +46,7 @@ class DestinationsList extends React.Component {
             New Alert Destination
           </Button>
         </div>
-        {this.state.loading ? <LoadingState /> : this.renderDestinations()}
+        {this.state.loading ? <LoadingState className="" /> : this.renderDestinations()}
       </div>
     );
   }
