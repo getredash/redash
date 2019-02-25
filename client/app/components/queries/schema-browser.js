@@ -33,8 +33,6 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     return this.schema === undefined || this.schema.length === 0;
   };
 
-  this.itemExists = item => item.exists;
-
   this.itemSelected = ($event, hierarchy) => {
     $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));
     $event.preventDefault();

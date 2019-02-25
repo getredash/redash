@@ -206,6 +206,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
         schema = []
         tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).all()
         for table in tables:
+            if not table.exists:
+                continue
+
             table_info = {
                 'name': table.name,
                 'exists': table.exists,
@@ -218,7 +221,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 'type': column.type,
                 'exists': column.exists,
                 'example': column.example
-            } for column in columns], key=itemgetter('name'))
+            } for column in columns if column.exists == True], key=itemgetter('name'))
             schema.append(table_info)
 
         return sorted(schema, key=itemgetter('name'))
