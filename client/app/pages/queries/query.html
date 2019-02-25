@@ -239,8 +239,7 @@
                     </li>
                   </ul>
                   <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
-                    <filters filters="filters"></filters>
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                    <visualization-renderer visualization="defaultVis" query-result="queryResult"></visualization-renderer>
                   </div>
 
                   <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">

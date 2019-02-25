@@ -1,9 +1,10 @@
 import moment from 'moment';
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
+import { registeredVisualizations } from '@/visualizations';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
-function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
+function calculatePositionOptions(dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
   const visualizationOptions = {
@@ -16,9 +17,9 @@ function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
     maxSizeY: dashboardGridOptions.maxSizeY,
   };
 
-  const visualization = widget.visualization ? Visualization.visualizations[widget.visualization.type] : null;
+  const visualization = widget.visualization ? registeredVisualizations[widget.visualization.type] : null;
   if (isObject(visualization)) {
-    const options = extend({}, visualization.defaultOptions);
+    const options = extend({}, visualization.getOptions({}, { columns: [], rows: [] }));
 
     if (Object.prototype.hasOwnProperty.call(options, 'autoHeight')) {
       visualizationOptions.autoHeight = options.autoHeight;
@@ -69,7 +70,7 @@ export const ParameterMappingType = {
   StaticValue: 'static-value',
 };
 
-function WidgetFactory($http, $location, Query, Visualization, dashboardGridOptions) {
+function WidgetFactory($http, $location, Query, dashboardGridOptions) {
   class WidgetService {
     static MappingType = ParameterMappingType;
 
@@ -79,7 +80,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
         this[k] = v;
       });
 
-      const visualizationOptions = calculatePositionOptions(Visualization, dashboardGridOptions, this);
+      const visualizationOptions = calculatePositionOptions(dashboardGridOptions, this);
 
       this.options = this.options || {};
       this.options.position = extend(

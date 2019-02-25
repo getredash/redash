@@ -2,6 +2,7 @@ import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
+import { collectDashboardFilters } from '@/services/dashboard';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
@@ -77,6 +78,7 @@ function DashboardCtrl(
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
   this.isDashboardOwner = false;
+  this.filters = [];
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
@@ -116,38 +118,10 @@ function DashboardCtrl(
     }));
 
     $q.all(queryResultPromises).then((queryResults) => {
-      const filters = {};
-      queryResults.forEach((queryResult) => {
-        const queryFilters = queryResult.getFilters();
-        queryFilters.forEach((queryFilter) => {
-          const hasQueryStringValue = _.has($location.search(), queryFilter.name);
-
-          if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
-            // If dashboard filters not enabled, or no query string value given,
-            // skip filters linking.
-            return;
-          }
-
-          if (hasQueryStringValue) {
-            queryFilter.current = $location.search()[queryFilter.name];
-          }
-
-          if (!_.has(filters, queryFilter.name)) {
-            const filter = _.extend({}, queryFilter);
-            filters[filter.name] = filter;
-            filters[filter.name].originFilters = [];
-          }
-
-          // TODO: merge values.
-          filters[queryFilter.name].originFilters.push(queryFilter);
-        });
-      });
-
-      this.filters = _.values(filters);
-      this.filtersOnChange = (filter) => {
-        _.each(filter.originFilters, (originFilter) => {
-          originFilter.current = filter.current;
-        });
+      this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());
+      this.filtersOnChange = (allFilters) => {
+        this.filters = allFilters;
+        $scope.$applyAsync();
       };
     });
   };

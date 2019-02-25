@@ -1,12 +1,9 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniqBy, values, some, each, isArray, isNumber, isString, includes, forOwn } from 'lodash';
+import { sortBy, uniqBy, values, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
-
-const ALL_VALUES = '*';
-const NONE_VALUES = '-';
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -82,8 +79,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       this.job = {};
       this.query_result = {};
       this.status = 'waiting';
-      this.filters = undefined;
-      this.filterFreeze = undefined;
 
       this.updatedAt = moment();
 
@@ -96,12 +91,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     update(props) {
-      Object.assign(this, props);
+      extend(this, props);
 
       if ('query_result' in props) {
         this.status = 'done';
-        this.filters = undefined;
-        this.filterFreeze = undefined;
 
         const columnTypes = {};
 
@@ -208,59 +201,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     getData() {
-      if (!this.query_result.data) {
-        return null;
-      }
-
-      function filterValues(filters) {
-        if (!filters) {
-          return null;
-        }
-
-        return filters.reduce((str, filter) => str + filter.current, '');
-      }
-
-      const filters = this.getFilters();
-      const filterFreeze = filterValues(filters);
-
-      if (this.filterFreeze !== filterFreeze) {
-        this.filterFreeze = filterFreeze;
-
-        if (filters) {
-          filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
-            }
-
-            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
-              filter.current = [];
-            }
-          });
-
-          this.filteredData = this.query_result.data.rows.filter(row => filters.reduce((memo, filter) => {
-            if (!isArray(filter.current)) {
-              filter.current = [filter.current];
-            }
-
-            return (
-              memo &&
-              some(filter.current, (v) => {
-                const value = row[filter.name];
-                if (moment.isMoment(value)) {
-                  return value.isSame(v);
-                }
-                // We compare with either the value or the String representation of the value,
-                // because Select2 casts true/false to "true"/"false".
-                return v === value || String(value) === v;
-              })
-            );
-          }, true));
-        } else {
-          this.filteredData = this.query_result.data.rows;
-        }
-      }
-
-      return this.filteredData;
+      return this.query_result.data ? this.query_result.data.rows : null;
     }
 
     isEmpty() {
@@ -373,16 +314,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     getFilters() {
-      if (!this.filters) {
-        this.prepareFilters();
-      }
-
-      return this.filters;
-    }
-
-    prepareFilters() {
       if (!this.getColumns()) {
-        return;
+        return [];
       }
 
       const filters = [];
@@ -417,13 +350,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       });
 
       filters.forEach((filter) => {
-        if (filter.multiple) {
-          filter.values.unshift(ALL_VALUES);
-          filter.values.unshift(NONE_VALUES);
-        }
-      });
-
-      filters.forEach((filter) => {
         filter.values = uniqBy(filter.values, (v) => {
           if (moment.isMoment(v)) {
             return v.unix();
@@ -432,7 +358,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         });
       });
 
-      this.filters = filters;
+      return filters;
     }
 
     toPromise() {

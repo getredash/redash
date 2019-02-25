@@ -4,6 +4,8 @@ import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
 import Notifications from '@/services/notifications';
 import ScheduleDialog from '@/components/queries/ScheduleDialog';
+import { Visualization } from '@/visualizations';
+import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -25,7 +27,6 @@ function QueryViewCtrl(
   currentUser,
   Query,
   DataSource,
-  Visualization,
 ) {
   function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
@@ -137,6 +138,14 @@ function QueryViewCtrl(
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
+
+  $scope.defaultVis = {
+    type: 'TABLE',
+    name: 'Table',
+    options: {
+      itemsPerPage: 50,
+    },
+  };
 
   const shortcuts = {
     'mod+enter': $scope.executeQuery,
@@ -426,18 +435,14 @@ function QueryViewCtrl(
   }
 
   $scope.openVisualizationEditor = (visId) => {
-    const visualization = getVisualization(visId);
-
     function openModal() {
-      $uibModal.open({
-        windowClass: 'modal-xl',
-        component: 'editVisualizationDialog',
-        resolve: {
-          query: $scope.query,
-          visualization,
-          queryResult: $scope.queryResult,
-          onNewSuccess: () => $scope.setVisualizationTab,
-        },
+      EditVisualizationDialog.showModal({
+        query: $scope.query,
+        visualization: getVisualization(visId),
+        queryResult: $scope.queryResult,
+      }).result.then((visualization) => {
+        $scope.setVisualizationTab(visualization);
+        $scope.$applyAsync();
       });
     }
 

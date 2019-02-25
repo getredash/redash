@@ -95,4 +95,4 @@ export default function init(ngModule) {
   ngModule.component('editVisualizationDialog', EditVisualizationDialog);
 }
 
-init.init = true;
+// init.init = true;
