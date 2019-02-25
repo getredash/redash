@@ -31,7 +31,10 @@ types_map = {
     'TIMESTAMP': TYPE_DATETIME,
 }
 
+
 def transform_cell(field_type, cell_value):
+    if cell_value is None:
+        return None
     if field_type == 'INTEGER':
         return int(cell_value)
     elif field_type == 'FLOAT':
@@ -40,6 +43,8 @@ def transform_cell(field_type, cell_value):
         return cell_value.lower() == "true"
     elif field_type == 'TIMESTAMP':
         return datetime.datetime.fromtimestamp(float(cell_value))
+    return cell_value
+
 
 def transform_row(row, fields):
     row_data = {}
