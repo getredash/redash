@@ -7,6 +7,8 @@ from redash.utils.configuration import ConfigurationContainer
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
         data_source = self.factory.create_data_source()
+
+        # Create an existing table with a non-existing column
         table_metadata = self.factory.create_table_metadata(
             data_source_id=data_source.id,
             org_id=data_source.org_id
@@ -15,20 +17,29 @@ class DataSourceTest(BaseTestCase):
             table_id=table_metadata.id,
             org_id=data_source.org_id,
             type='boolean',
-            example=True
+            example=True,
+            exists=False
+        )
+
+        # Create a non-existing table with an existing column
+        table_metadata = self.factory.create_table_metadata(
+            data_source_id=data_source.id,
+            org_id=data_source.org_id,
+            name='table_doesnt_exist',
+            exists=False
+        )
+        column_metadata = self.factory.create_column_metadata(
+            table_id=table_metadata.id,
+            org_id=data_source.org_id,
+            type='boolean',
+            example=True,
         )
 
         return_value = [{
             'name': 'table',
             'hasColumnMetadata': False,
             'exists': True,
-            'columns': [{
-                'key': 1,
-                'name': 'column',
-                'type': 'boolean',
-                'exists': True,
-                'example': True
-            }]
+            'columns': []
         }]
         schema = data_source.get_schema()
         self.assertEqual(return_value, schema)
