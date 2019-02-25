@@ -8,7 +8,7 @@ from flask import current_app
 from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
-from redash import safe_create_app, settings
+from redash import create_app, settings
 from redash.metrics import celery as celery_metrics
 
 celery = Celery('redash',
@@ -74,14 +74,15 @@ celery.Task = ContextTask
 # Create Flask app after forking a new worker, to make sure no resources are shared between processes.
 @worker_process_init.connect
 def init_celery_flask_app(**kwargs):
-    app = safe_create_app()
+    app = create_app()
     app.app_context().push()
 
 
+# Commented until https://github.com/getredash/redash/issues/3466 is implemented.
 # Hook for extensions to add periodic tasks.
-@celery.on_after_configure.connect
-def add_periodic_tasks(sender, **kwargs):
-    app = safe_create_app()
-    periodic_tasks = getattr(app, 'periodic_tasks', {})
-    for params in periodic_tasks.values():
-        sender.add_periodic_task(**params)
+# @celery.on_after_configure.connect
+# def add_periodic_tasks(sender, **kwargs):
+#     app = safe_create_app()
+#     periodic_tasks = getattr(app, 'periodic_tasks', {})
+#     for params in periodic_tasks.values():
+#         sender.add_periodic_task(**params)
