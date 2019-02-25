@@ -110,7 +110,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
-            "number": lambda value: isinstance(value, Number),
+            "number": lambda value: isinstance(value, Number) or value.replace('.','',1).isdigit(),
             "enum": lambda value: value in definition["enumOptions"],
             "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
