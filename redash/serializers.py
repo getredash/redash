@@ -101,7 +101,7 @@ def serialize_query(query, with_stats=False, with_visualizations=False, with_use
         'options': query.options,
         'version': query.version,
         'tags': query.tags or [],
-        'is_safe': ParameterizedQuery(query.query_text, query.parameter_schema).is_safe,
+        'is_safe': query.parameterized.is_safe,
     }
 
     if with_user:
