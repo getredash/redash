@@ -57,6 +57,10 @@ class Presto(BaseQueryRunner):
                 'username': {
                     'type': 'string'
                 },
+                'samples': {
+                    'type': 'boolean',
+                    'title': 'Show Data Samples'
+                },
             },
             'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
             'required': ['host']
@@ -83,19 +87,16 @@ class Presto(BaseQueryRunner):
             raise Exception("Failed getting schema.")
 
         results = json_loads(results)
-        table_samples = {}
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}
-                table_samples[table_name] = self._get_table_sample(table_name)
 
             schema[table_name]['columns'].append(row['column_name'])
             schema[table_name]['metadata'].append({
                 "name": row['column_name'],
                 "type": row['column_type'],
-                "sample": table_samples[table_name].get(row['column_name'], None)
             })
 
         return schema.values()

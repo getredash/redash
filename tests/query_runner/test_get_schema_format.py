@@ -39,7 +39,6 @@ class TestBaseQueryRunner(TestCase):
             'metadata': [{
                 'name': 'created_date',
                 'type': 'varchar',
-                'sample': '2017-10-26'
             }],
             'name': 'default.table_name'
         }]

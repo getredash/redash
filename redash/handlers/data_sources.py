@@ -53,6 +53,9 @@ class DataSourceResource(BaseResource):
         data_source.name = req['name']
         models.db.session.add(data_source)
 
+        # Refresh the stored schemas when a data source is updated
+        refresh_schemas.apply_async(queue="schemas")
+
         try:
             models.db.session.commit()
         except IntegrityError as e:

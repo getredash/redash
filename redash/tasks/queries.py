@@ -231,6 +231,32 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
+@celery.task(name="redash.tasks.get_table_sample_data")
+def get_table_sample_data(data_source_id, table, table_id):
+    ds = models.DataSource.get_by_id(data_source_id)
+    sample = ds.query_runner.get_table_sample(table['name'])
+    if not sample:
+        return
+
+    # If a column exists, add a sample to it.
+    for i, column in enumerate(table['columns']):
+        persisted_column = ColumnMetadata.query.filter(
+            ColumnMetadata.name == column,
+            ColumnMetadata.table_id == table_id,
+        ).options(load_only('id')).first()
+
+        if persisted_column:
+            column_example = str(sample.get(column, None))
+            if column_example and len(column_example) > 4000:
+                column_example = u'{}...'.format(column_example[:4000])
+
+            ColumnMetadata.query.filter(
+                ColumnMetadata.id == persisted_column.id,
+            ).update({
+                'example': column_example,
+            })
+    models.db.session.commit()
+
 @celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
@@ -278,12 +304,6 @@ def refresh_schema(data_source_id):
                 if 'metadata' in table:
                     column_metadata['type'] = table['metadata'][i]['type']
 
-                    # Note: the query example can be quite large, so we limit its size.
-                    column_example = str(table['metadata'][i]['sample'])
-                    column_metadata['example'] = column_example
-                    if column_example and len(column_example) > 4000:
-                        column_metadata['example'] = u'{}...'.format(column_example[:4000])
-
                 # If the column exists, update it, otherwise create a new one.
                 persisted_column = ColumnMetadata.query.filter(
                      ColumnMetadata.name == column,
@@ -295,6 +315,12 @@ def refresh_schema(data_source_id):
                     ).update(column_metadata)
                 else:
                     models.db.session.add(ColumnMetadata(**column_metadata))
+            models.db.session.commit()
+
+            get_table_sample_data.apply_async(
+                args=(data_source_id, table, persisted_table.id),
+                queue="schemas"
+            )
 
             # If a column did not exist, set the 'column_exists' flag to false.
             existing_columns_list = tuple(existing_columns)
