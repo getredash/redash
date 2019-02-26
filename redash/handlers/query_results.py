@@ -189,7 +189,7 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_permission('execute_query')
+    @require_permission('view_query')
     def post(self, query_id):
         """
         Execute a saved query.
