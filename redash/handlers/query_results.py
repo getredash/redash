@@ -192,9 +192,8 @@ class QueryResultResource(BaseResource):
         max_age = int(max_age)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = query.options.get("parameters", [])
 
-        parameterized_query = ParameterizedQuery(query.query_text, parameter_schema)
+        parameterized_query = ParameterizedQuery(query.query_text, query.parameter_schema)
         allow_executing_with_view_only_permissions = parameterized_query.is_safe
 
         if has_access(query.data_source.groups, self.current_user, allow_executing_with_view_only_permissions):

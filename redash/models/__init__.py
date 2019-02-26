@@ -667,6 +667,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
+    @property
+    def parameter_schema(self):
+        return self.options.get("parameters", [])
+
 
 @listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
