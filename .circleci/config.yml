@@ -58,7 +58,7 @@ jobs:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.cypress.yml
       COMPOSE_PROJECT_NAME: cypress
-      PERCY_TOKEN_ENCODED: MWM3OGUzNzk4ZWQ2NTE4YTBhMDAwZDNiNWE1Nzc4ZjEzZjYyMzY1MjE0NjY0NDRiOGE5ODc5ZGYzYTU4ZmE4NQ==
+      PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
     docker:
       - image: circleci/node:8
     steps:

@@ -22,6 +22,10 @@
 @import '~antd/lib/switch/style/index';
 @import '~antd/lib/empty/style/index';
 @import '~antd/lib/drawer/style/index';
+@import '~antd/lib/divider/style/index';
+@import '~antd/lib/dropdown/style/index';
+@import '~antd/lib/menu/style/index';
+@import '~antd/lib/list/style/index';
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -52,7 +56,6 @@
 }
 
 // Button overrides
-
 .@{btn-prefix-cls} {
   transition-duration: 150ms;
 }
@@ -178,6 +181,31 @@
         &.on {
           color: @table-header-icon-active-color;
         }
+      }
+    }
+  }
+
+  // Custom styles
+
+  &-headerless &-tbody > tr:first-child > td {
+    border-top: @border-width-base @border-style-base @border-color-split;
+  }
+}
+
+// List
+
+.@{list-prefix-cls} {
+  &-item {
+    // custom rule
+    &.selected {
+      background-color: #F6F8F9;
+    }
+
+    &.disabled {
+      background-color: fade(#F6F8F9, 40%);
+
+      & > * {
+        opacity: 0.4;
       }
     }
   }

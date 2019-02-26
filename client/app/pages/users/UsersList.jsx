@@ -6,6 +6,7 @@ import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
+import { UserPreviewCard } from '@/components/PreviewCard';
 
 import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -15,6 +16,8 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+
+import Layout from '@/components/layouts/ContentWithSidebar';
 
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
@@ -76,13 +79,7 @@ class UsersList extends React.Component {
 
   listColumns = [
     Columns.custom.sortable((text, user) => (
-      <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-        <div>
-          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-          <div className="text-muted">{user.email}</div>
-        </div>
-      </div>
+      <UserPreviewCard user={user} withLink />
     ), {
       title: 'Name',
       field: 'name',
@@ -161,33 +158,25 @@ class UsersList extends React.Component {
     );
   }
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <React.Fragment>
         {this.renderPageHeader()}
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.PageSizeSelect
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
@@ -211,9 +200,8 @@ class UsersList extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </React.Fragment>
     );
   }
