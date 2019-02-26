@@ -12,6 +12,10 @@
   </div>
 
   <div class="col-md-12 query__vis">
+    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.getParametersDefs().length > 0">
+      <parameters parameters="$ctrl.query.getParametersDefs()"></parameters>
+    </div>
+
     <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
     </visualization-renderer>
   </div>
