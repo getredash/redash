@@ -55,7 +55,11 @@ class Mysql(BaseSQLQueryRunner):
                 'port': {
                     'type': 'number',
                     'default': 3306,
-                }
+                },
+                'samples': {
+                    'type': 'boolean',
+                    'title': 'Show Data Samples'
+                },
             },
             "order": ['host', 'port', 'user', 'passwd', 'db'],
             'required': ['db'],
@@ -113,7 +117,6 @@ class Mysql(BaseSQLQueryRunner):
             raise Exception("Failed getting schema.")
 
         results = json_loads(results)
-        table_samples = {}
 
         for i, row in enumerate(results['rows']):
             if row['table_schema'] != self.configuration['db']:
@@ -123,13 +126,11 @@ class Mysql(BaseSQLQueryRunner):
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}
-                table_samples[table_name] = self._get_table_sample(table_name)
 
             schema[table_name]['columns'].append(row['column_name'])
             schema[table_name]['metadata'].append({
                 "name": row['column_name'],
                 "type": row['column_type'],
-                "sample": table_samples[table_name].get(row['column_name'], None)
             })
 
         return schema.values()

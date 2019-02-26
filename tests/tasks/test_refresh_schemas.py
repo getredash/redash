@@ -4,7 +4,7 @@ from mock import patch
 from tests import BaseTestCase
 
 from redash import models
-from redash.tasks import refresh_schemas, refresh_schema
+from redash.tasks import refresh_schemas, refresh_schema, get_table_sample_data
 from redash.models import TableMetadata, ColumnMetadata
 
 
@@ -34,10 +34,15 @@ class TestRefreshSchemas(BaseTestCase):
             'metadata': [{
                 'name': self.COLUMN_NAME,
                 'type': self.COLUMN_TYPE,
-                'sample': self.COLUMN_EXAMPLE
             }]
         }]
         self.patched_get_schema.return_value = self.default_schema_return_value
+
+
+        get_table_sample_patcher = patch('redash.query_runner.BaseQueryRunner.get_table_sample')
+        patched_get_table_sample = get_table_sample_patcher.start()
+        self.addCleanup(get_table_sample_patcher.stop)
+        patched_get_table_sample.return_value = {self.COLUMN_NAME: self.COLUMN_EXAMPLE}
 
     def test_calls_refresh_of_all_data_sources(self):
         self.factory.data_source  # trigger creation
@@ -71,6 +76,12 @@ class TestRefreshSchemas(BaseTestCase):
         }
 
         refresh_schema(self.factory.data_source.id)
+        get_table_sample_data(
+            self.factory.data_source.id, {
+                "name": 'table',
+                "columns": [self.COLUMN_NAME]
+            }, 1
+        )
         table_metadata = TableMetadata.query.all()
         column_metadata = ColumnMetadata.query.all()
 
@@ -118,7 +129,6 @@ class TestRefreshSchemas(BaseTestCase):
             'metadata': [{
                 'name': NEW_COLUMN_NAME,
                 'type': self.COLUMN_TYPE,
-                'sample': self.COLUMN_EXAMPLE
             }]
         }]
 
@@ -133,6 +143,12 @@ class TestRefreshSchemas(BaseTestCase):
         UPDATED_COLUMN_TYPE = 'varchar'
 
         refresh_schema(self.factory.data_source.id)
+        get_table_sample_data(
+            self.factory.data_source.id, {
+                "name": 'table',
+                "columns": [self.COLUMN_NAME]
+            }, 1
+        )
         column_metadata = ColumnMetadata.query.all()
         self.assertEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
 
