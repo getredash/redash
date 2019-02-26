@@ -67,6 +67,17 @@ def _parameter_names(parameter_values):
     return names
 
 
+def _is_number(string):
+    if isinstance(string, Number):
+        return True
+    else:
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
+
+
 def _is_date(string):
     try:
         parse(string)
@@ -110,7 +121,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
-            "number": lambda value: isinstance(value, Number) or value.replace('.','',1).isdigit(),
+            "number": _is_number,
             "enum": lambda value: value in definition["enumOptions"],
             "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
