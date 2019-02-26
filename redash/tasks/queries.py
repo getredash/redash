@@ -493,10 +493,13 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures = 0
                 models.db.session.add(self.scheduled_query)
-            query_result, updated_query_ids = models.QueryResult.store_result(
-                self.data_source.org_id, self.data_source,
-                self.query_hash, self.query, data,
-                run_time, utcnow())
+            try:
+                query_result, updated_query_ids = models.QueryResult.store_result(
+                    self.data_source.org_id, self.data_source,
+                    self.query_hash, self.query, data,
+                    run_time, utcnow())
+            except DBAPIError as e:
+                raise e.orig
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress('checking_alerts')
             for query_id in updated_query_ids:
