@@ -158,16 +158,10 @@ class DataSourceSchemaResource(BaseResource):
         refresh = request.args.get('refresh') is not None
 
         response = {}
-
         try:
-            response['schema'] = data_source.get_schema(refresh)
-
-            # If the TableMetadata table has no information about this data source,
-            # this might be due to a fresh migration to these new tables.
-            # They will likely only populate at the next refresh (30 min intervals)
-            # So let's refresh them now to get them sooner.
-            if len(response['schema']) == 0:
-                refresh_schemas.apply_async(queue="schemas")
+            if refresh:
+                refresh_schemas.apply(queue="schemas")
+            response['schema'] = data_source.get_schema()
         except NotSupported:
             response['error'] = {
                 'code': 1,

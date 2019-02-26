@@ -202,7 +202,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.commit()
         return res
 
-    def get_schema(self, refresh=False):
+    def get_schema(self):
         schema = []
         tables = TableMetadata.query.filter(TableMetadata.data_source_id == self.id).all()
         for table in tables:
