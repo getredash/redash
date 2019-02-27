@@ -115,17 +115,12 @@ export default class AdminCeleryStatus extends React.Component {
   render() {
     const commonColumns = [
       {
-        title: 'Worker',
-        children: [
-          {
-            title: 'Name',
-            dataIndex: 'worker',
-          },
-          {
-            title: 'PID',
-            dataIndex: 'worker_pid',
-          },
-        ],
+        title: 'Worker Name',
+        dataIndex: 'worker',
+      },
+      {
+        title: 'PID',
+        dataIndex: 'worker_pid',
       },
       {
         title: 'Queue',
@@ -155,29 +150,24 @@ export default class AdminCeleryStatus extends React.Component {
     const queryColumns = commonColumns.concat([
       Columns.timeAgo({ title: 'Enqueue Time', dataIndex: 'enqueue_time' }),
       {
-        title: 'Query',
-        children: [
-          {
-            title: 'Query ID',
-            dataIndex: 'query_id',
-          },
-          {
-            title: 'Org ID',
-            dataIndex: 'org_id',
-          },
-          {
-            title: 'Data Source ID',
-            dataIndex: 'data_source_id',
-          },
-          {
-            title: 'User ID',
-            dataIndex: 'user_id',
-          },
-          {
-            title: 'Scheduled',
-            dataIndex: 'scheduled',
-          },
-        ],
+        title: 'Query ID',
+        dataIndex: 'query_id',
+      },
+      {
+        title: 'Org ID',
+        dataIndex: 'org_id',
+      },
+      {
+        title: 'Data Source ID',
+        dataIndex: 'data_source_id',
+      },
+      {
+        title: 'User ID',
+        dataIndex: 'user_id',
+      },
+      {
+        title: 'Scheduled',
+        dataIndex: 'scheduled',
       },
     ]);
 
@@ -191,13 +181,13 @@ export default class AdminCeleryStatus extends React.Component {
     return (
       <div className="p-5">
         <Row gutter={16}>
-          <Col span={3}>
+          <Col span={4}>
             <CounterCard title="Active Tasks" value={this.state.counters.active} loading={this.state.loading} />
           </Col>
-          <Col span={3}>
+          <Col span={4}>
             <CounterCard title="Reserved Tasks" value={this.state.counters.reserved} loading={this.state.loading} />
           </Col>
-          <Col span={3}>
+          <Col span={4}>
             <CounterCard title="Waiting Tasks" value={this.state.counters.waiting} loading={this.state.loading} />
           </Col>
         </Row>
