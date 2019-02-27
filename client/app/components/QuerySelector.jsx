@@ -147,9 +147,15 @@ export function QuerySelector(props) {
         filterOption={false}
         defaultActiveFirstOption={false}
       >
-        {searchResults && searchResults.map(q => (
-          <Option value={q.id} key={q.id}>{q.name}</Option>
-        ))}
+        {searchResults && searchResults.map((q) => {
+          const disabled = q.is_draft;
+          return (
+            <Option value={q.id} key={q.id} disabled={disabled}>
+              {q.name}{' '}
+              <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className={cx('inline-tags-control', { disabled })} />
+            </Option>
+          );
+        })}
       </Select>
     );
   }
