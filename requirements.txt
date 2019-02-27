@@ -32,7 +32,7 @@ SQLAlchemy==1.2.12
 SQLAlchemy-Searchable==0.10.6
 # We need to pin the version of pyparsing, as newer versions break SQLAlchemy-Searchable-10.0.6 (newer versions no longer depend on it)
 pyparsing==2.3.0
-SQLAlchemy-Utils>=0.29.0
+SQLAlchemy-Utils==0.33.11
 sqlparse==0.2.4
 statsd==2.1.2
 gunicorn==19.7.1

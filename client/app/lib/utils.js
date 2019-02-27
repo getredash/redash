@@ -1,6 +1,4 @@
-import { each, extend } from 'lodash';
-
-/* eslint-disable import/prefer-default-export */
+import { isFunction, each, extend } from 'lodash';
 
 export function routesToAngularRoutes(routes, template) {
   const result = {};
@@ -15,4 +13,19 @@ export function routesToAngularRoutes(routes, template) {
     }, template);
   });
   return result;
+}
+
+function doCancelEvent(event) {
+  event.stopPropagation();
+  event.preventDefault();
+}
+
+export function cancelEvent(handler) {
+  if (isFunction(handler)) {
+    return (event, ...rest) => {
+      doCancelEvent(event);
+      return handler(...rest);
+    };
+  }
+  return doCancelEvent;
 }

@@ -136,6 +136,20 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
 
+    def test_prevents_execution_of_unsafe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 403)
+
+    def test_allows_execution_of_safe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "number"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 200)
+
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()

@@ -1,6 +1,7 @@
 import debug from 'debug';
 
 import logoUrl from '@/assets/images/redash_icon_small.png';
+import frontendVersion from '@/version.json';
 import template from './app-header.html';
 import './app-header.css';
 
@@ -15,6 +16,10 @@ function controller($rootScope, $location, $route, $uibModal, Auth, currentUser,
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
+
+  this.frontendVersion = frontendVersion;
+  this.backendVersion = clientConfig.version;
+  this.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
 
   this.reload = () => {
     logger('Reloading dashboards and queries.');
