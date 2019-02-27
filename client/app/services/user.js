@@ -134,6 +134,7 @@ function resendInvitation(user) {
 function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
+    create: { method: 'POST' },
     save: { method: 'POST' },
     query: { method: 'GET', isArray: false },
     delete: { method: 'DELETE' },
