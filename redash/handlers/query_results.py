@@ -95,7 +95,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         else:
             id = current_user.id
             name = current_user.email
-            
+
         job = enqueue_query(query.text, data_source, id, metadata={
             "Username": name,
             "Query ID": query_id
@@ -208,8 +208,13 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
-        params = request.values
-        parameters = params.get('parameters', collect_parameters_from_request(params))
+        if request.is_json:
+            params = request.get_json(force=True)
+            parameter_values = params.get('parameters')
+        else:
+            params = request.args
+            parameter_values = collect_parameters_from_request(params)
+
         max_age = params.get('max_age', -1)
         # max_age might have the value of None, in which case calling int(None) will fail
         if max_age is None:
