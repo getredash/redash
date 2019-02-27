@@ -6,10 +6,15 @@ import { Paginator } from '@/components/Paginator';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
+import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
+import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
+import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+
 import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+
+import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
@@ -81,40 +86,32 @@ class QueriesList extends React.Component {
 
   onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          placeholder="Search Queries..."
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
-        <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <div className="container">
-        <PageHeader title={controller.title} />
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <PageHeader title={controller.params.title} />
+        <Layout className="m-l-15 m-r-15">
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              placeholder="Search Queries..."
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
+            <Sidebar.PageSizeSelect
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState />}
             {
               controller.isLoaded && controller.isEmpty && (
                 <QueriesListEmptyState
-                  page={controller.currentPage}
+                  page={controller.params.currentPage}
                   searchTerm={controller.searchTerm}
                   selectedTags={controller.selectedTags}
                 />
@@ -140,27 +137,31 @@ class QueriesList extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </div>
     );
   }
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageQueriesList', react2angular(liveItemsList(QueriesList, {
-    defaultOrderBy: '-created_at',
-    doRequest: createResourceFetcher(
-      ({ currentPage }) => ({
-        all: Query.query.bind(Query),
-        my: Query.myQueries.bind(Query),
-        favorites: Query.favorites.bind(Query),
-        archive: Query.archive.bind(Query),
-      }[currentPage]),
-      item => new Query(item),
-    ),
-  })));
+  ngModule.component('pageQueriesList', react2angular(itemsList(
+    QueriesList,
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Query.query.bind(Query),
+          my: Query.myQueries.bind(Query),
+          favorites: Query.favorites.bind(Query),
+          archive: Query.archive.bind(Query),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return (item => new Query(item));
+      },
+    }),
+    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
+  )));
 
   return routesToAngularRoutes([
     {
@@ -184,8 +185,13 @@ export default function init(ngModule) {
       key: 'my',
     },
   ], {
-    template: '<page-queries-list current-page="$resolve.currentPage"></page-queries-list>',
     reloadOnSearch: false,
+    template: '<page-queries-list on-error="handleError"></page-queries-list>',
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
   });
 }
 

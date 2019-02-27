@@ -202,6 +202,12 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"name": "New Name"})
         self.assertEqual(rv.status_code, 200)
 
+    def test_marks_email_as_not_verified_when_changed(self):
+        user = self.factory.user
+        user.is_email_verified = True
+        rv = self.make_request('post', "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
+        self.assertFalse(user.is_email_verified)
+
     def test_returns_200_for_admin_changing_other_user(self):
         admin = self.factory.create_admin()
 

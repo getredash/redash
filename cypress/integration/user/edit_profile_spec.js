@@ -36,10 +36,11 @@ describe('Edit Profile', () => {
     });
   });
 
-  it('takes a screenshot', () => {
+  it('renders the page and takes a screenshot', () => {
     cy.getByTestId('ApiKey').then(($apiKey) => {
       $apiKey.val('secret');
     });
+
     cy.percySnapshot('User Profile');
   });
 
