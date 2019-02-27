@@ -6,8 +6,8 @@ const componentsRegistry = new Map();
 const activeInstances = new Set();
 
 export function registerComponent(name, component) {
-  if (isString(name) && (name !== '')) {
-    componentsRegistry[name] = isFunction(component) ? component : null;
+  if (isString(name) && name !== '') {
+    componentsRegistry.set(name, isFunction(component) ? component : null);
     // Refresh active DynamicComponent instances which use this component
     activeInstances.forEach((dynamicComponent) => {
       if (dynamicComponent.props.name === name) {

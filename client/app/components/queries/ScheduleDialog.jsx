@@ -73,7 +73,9 @@ class ScheduleDialog extends React.Component {
 
   setTime = (time) => {
     this.newSchedule = {
-      time: moment(time).utc().format(HOUR_FORMAT),
+      time: moment(time)
+        .utc()
+        .format(HOUR_FORMAT),
     };
   };
 
@@ -107,18 +109,14 @@ class ScheduleDialog extends React.Component {
 
     newSchedule.interval = newSeconds;
 
-    const [hour, minute] = newSchedule.time ?
-      localizeTime(newSchedule.time).split(':')
-      : [null, null];
+    const [hour, minute] = newSchedule.time ? localizeTime(newSchedule.time).split(':') : [null, null];
 
     this.setState({
       interval: newInterval,
       seconds: newSeconds,
       hour,
       minute,
-      dayOfWeek: newSchedule.day_of_week
-        ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(newSchedule.day_of_week)]
-        : null,
+      dayOfWeek: newSchedule.day_of_week ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(newSchedule.day_of_week)] : null,
     });
 
     this.newSchedule = newSchedule;
@@ -157,29 +155,29 @@ class ScheduleDialog extends React.Component {
 
   render() {
     const { dialog } = this.props;
-    const { interval, minute, hour, seconds, newSchedule: { until } } = this.state;
+    const {
+      interval,
+      minute,
+      hour,
+      seconds,
+      newSchedule: { until },
+    } = this.state;
 
     return (
-      <Modal
-        {...dialog.props}
-        title="Refresh Schedule"
-        className="schedule"
-        onOk={() => this.save()}
-      >
+      <Modal {...dialog.props} title="Refresh Schedule" className="schedule" onOk={() => this.save()}>
         <div className="schedule-component">
           <h5>Refresh every</h5>
           <div data-testid="interval">
-            <Select
-              className="input"
-              value={seconds}
-              onChange={this.setInterval}
-              dropdownMatchSelectWidth={false}
-            >
-              <Option value={null} key="never">Never</Option>
+            <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
+              <Option value={null} key="never">
+                Never
+              </Option>
               {Object.keys(this.intervals).map(int => (
                 <OptGroup label={capitalize(pluralize(int))} key={int}>
                   {this.intervals[int].map(([cnt, secs]) => (
-                    <Option value={secs} key={cnt}>{durationHumanize(secs)}</Option>
+                    <Option value={secs} key={cnt}>
+                      {durationHumanize(secs)}
+                    </Option>
                   ))}
                 </OptGroup>
               ))}
@@ -192,7 +190,13 @@ class ScheduleDialog extends React.Component {
             <div data-testid="time">
               <TimePicker
                 allowEmpty={false}
-                defaultValue={moment().hour(hour).minute(minute)}
+                defaultValue={
+                  hour
+                    ? moment()
+                      .hour(hour)
+                      .minute(minute)
+                    : null
+                }
                 format={HOUR_FORMAT}
                 minuteStep={5}
                 onChange={this.setTime}
@@ -204,11 +208,7 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On day</h5>
             <div data-testid="weekday">
-              <Radio.Group
-                size="medium"
-                defaultValue={this.state.dayOfWeek}
-                onChange={this.setWeekday}
-              >
+              <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
                 {WEEKDAYS_SHORT.map(day => (
                   <Radio.Button value={day} key={day} className="input">
                     {day[0]}
@@ -222,11 +222,7 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>Ends</h5>
             <div className="ends" data-testid="ends">
-              <Radio.Group
-                size="medium"
-                value={!!until}
-                onChange={this.setUntilToggle}
-              >
+              <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
                 <Radio value={false}>Never</Radio>
                 <Radio value>On</Radio>
               </Radio.Group>
