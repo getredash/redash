@@ -33,10 +33,15 @@ function stopServer() {
 }
 
 function runCypressCI() {
-  if (process.env.PERCY_TOKEN_ENCODED) {
-    process.env.PERCY_TOKEN = atob(`${process.env.PERCY_TOKEN_ENCODED}`);
+  const { PERCY_TOKEN_ENCODED, CIRCLE_REPOSITORY_URL } = process.env;
+
+  if (PERCY_TOKEN_ENCODED && CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
+    process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
   }
-  execSync('docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser chrome', { stdio: 'inherit' });
+  execSync(
+    'docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser chrome',
+    { stdio: 'inherit' },
+  );
 }
 
 const command = process.argv[2] || 'all';

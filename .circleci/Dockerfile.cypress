@@ -3,7 +3,7 @@ FROM cypress/browsers:chrome67
 ENV APP /usr/src/app
 WORKDIR $APP
 
-RUN npm install --no-save cypress @percy/cypress > /dev/null
+RUN npm install --no-save puppeteer@1.10.0 cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2 > /dev/null
 
 COPY cypress $APP/cypress
 COPY cypress.json $APP/cypress.json

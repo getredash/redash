@@ -2,13 +2,9 @@ import cStringIO
 import csv
 import datetime
 import calendar
-import functools
-import hashlib
-import itertools
 import logging
 import time
 import pytz
-from functools import reduce
 
 import xlsxwriter
 from six import python_2_unicode_compatible, text_type
@@ -22,8 +18,9 @@ from sqlalchemy import func
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.models import generic_repr
+from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
 
-from redash import redis_connection, utils
+from redash import redis_connection, utils, settings
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
@@ -31,12 +28,13 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
+from redash.utils.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
 from .changes import ChangeTrackingMixin, Change  # noqa
 from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
-from .types import Configuration, MutableDict, MutableList, PseudoJSON
+from .types import EncryptedConfiguration, Configuration, MutableDict, MutableList, PseudoJSON
 from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User)  # noqa
 
 logger = logging.getLogger(__name__)
@@ -76,7 +74,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(ConfigurationContainer.as_mutable(Configuration))
+    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.SECRET_KEY, FernetEngine)))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -466,7 +464,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, group_ids, user_id=None, drafts=False):
+    def all_queries(cls, group_ids, user_id=None, include_drafts=False, include_archived=False):
         query_ids = (
             db.session
             .query(distinct(cls.id))
@@ -474,10 +472,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 DataSourceGroup,
                 Query.data_source_id == DataSourceGroup.data_source_id
             )
-            .filter(Query.is_archived == False)
+            .filter(Query.is_archived.is_(include_archived))
             .filter(DataSourceGroup.group_id.in_(group_ids))
         )
-        q = (
+        queries = (
             cls
             .query
             .options(
@@ -503,19 +501,19 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .order_by(Query.created_at.desc())
         )
 
-        if not drafts:
-            q = q.filter(
+        if not include_drafts:
+            queries = queries.filter(
                 or_(
-                    Query.is_draft == False,
+                    Query.is_draft.is_(False),
                     Query.user_id == user_id
                 )
             )
-        return q
+        return queries
 
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
-            base_query = cls.all_queries(user.group_ids, user.id, drafts=True)
+            base_query = cls.all_queries(user.group_ids, user.id, include_drafts=True)
         return base_query.join((
             Favorite,
             and_(
@@ -529,7 +527,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         queries = cls.all_queries(
             group_ids=user.group_ids,
             user_id=user.id,
-            drafts=include_drafts,
+            include_drafts=include_drafts,
         )
 
         tag_column = func.unnest(cls.tags).label('tag')
@@ -550,22 +548,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = (Query.query
-                        .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                        .filter(Query.schedule.isnot(None))
-                        .order_by(Query.id))
-        
+        queries = (
+            Query.query
+            .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
+            .filter(Query.schedule.isnot(None))
+            .order_by(Query.id)
+        )
+
         now = utils.utcnow()
         outdated_queries = {}
         scheduled_queries_executions.refresh()
 
         for query in queries:
-            schedule_until = pytz.utc.localize(datetime.datetime.strptime(
-                query.schedule['until'], '%Y-%m-%d')) if query.schedule['until'] else None
-            if (query.schedule['interval'] == None or (
-                    schedule_until != None and (
-                    schedule_until <= now))):
+            if query.schedule['interval'] is None:
                 continue
+
+            if query.schedule['until'] is not None:
+                schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule['until'], '%Y-%m-%d'))
+
+                if schedule_until <= now:
+                    continue
 
             if query.latest_query_data:
                 retrieved_at = query.latest_query_data.retrieved_at
@@ -582,8 +584,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, user_id=None, include_drafts=False, limit=None):
-        all_queries = cls.all_queries(group_ids, user_id=user_id, drafts=include_drafts)
+    def search(cls, term, group_ids, user_id=None, include_drafts=False,
+               limit=None, include_archived=False):
+        all_queries = cls.all_queries(
+            group_ids,
+            user_id=user_id,
+            include_drafts=include_drafts,
+            include_archived=include_archived,
+        )
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
 
@@ -659,6 +667,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+    @property
+    def parameterized(self):
+        return ParameterizedQuery(self.query_text, self.options.get("parameters", []))
 
 
 @listens_for(Query.query_text, 'set')
@@ -916,7 +928,7 @@ class Visualization(TimestampMixin, BelongsToOrgMixin, db.Model):
 class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     visualization_id = Column(db.Integer, db.ForeignKey('visualizations.id'), nullable=True)
-    visualization = db.relationship(Visualization, backref='widgets')
+    visualization = db.relationship(Visualization, backref=backref('widgets', cascade='delete'))
     text = Column(db.Text, nullable=True)
     width = Column(db.Integer)
     options = Column(db.Text)
