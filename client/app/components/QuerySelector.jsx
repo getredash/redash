@@ -9,6 +9,12 @@ import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 
 const SEARCH_DEBOUNCE_DURATION = 200;
 
+class StaleSearchError extends Error {
+  constructor() {
+    super('stale search');
+  }
+}
+
 function search(term) {
   // get recent
   if (!term) {
@@ -33,7 +39,7 @@ export function QuerySelector(props) {
   let isStaleSearch = false;
   const debouncedSearch = debounce(_search, SEARCH_DEBOUNCE_DURATION);
   const placeholder = 'Search a query by name';
-  const clearIcon = <i className="fa fa-times" onClick={() => setSelectedQuery(null)} />;
+  const clearIcon = <i className="fa fa-times" onClick={() => selectQuery(null)} />;
   const spinIcon = <i className={cx('fa fa-spinner fa-pulse', { hidden: !searching })} />;
 
   // set selected from prop
@@ -59,34 +65,39 @@ export function QuerySelector(props) {
     };
   }, [searchTerm]);
 
-  // on query selected/cleared
-  useEffect(() => {
-    setSearchTerm(selectedQuery ? null : ''); // empty string forces recent fetch
-    props.onChange(selectedQuery);
-  }, [selectedQuery]);
-
   function _search(term) {
     setSearching(true);
     search(term)
       .then(rejectStale)
-      .then(setSearchResults)
-      .finally(() => {
+      .then((results) => {
+        setSearchResults(results);
         setSearching(false);
+      })
+      .catch((err) => {
+        if (!(err instanceof StaleSearchError)) {
+          setSearching(false);
+        }
       });
   }
 
   function rejectStale(results) {
     return isStaleSearch
-      ? Promise.reject(new Error('stale'))
+      ? Promise.reject(new StaleSearchError())
       : Promise.resolve(results);
   }
 
   function selectQuery(queryId) {
-    const query = find(searchResults, { id: queryId });
-    if (!query) { // shouldn't happen
-      toastr.error('Something went wrong.. Couldn\'t select query');
+    let query = null;
+    if (queryId) {
+      query = find(searchResults, { id: queryId });
+      if (!query) { // shouldn't happen
+        toastr.error('Something went wrong... Couldn\'t select query');
+      }
     }
+
+    setSearchTerm(query ? null : ''); // empty string triggers recent fetch
     setSelectedQuery(query);
+    props.onChange(query);
   }
 
   function renderResults() {
