@@ -179,14 +179,14 @@ class AdminCeleryStatus extends React.Component {
     return (
       <div className="p-5">
         <Row gutter={16}>
-          <Col span={2}>
-            <CounterCard title="Active" value={this.state.counters.active} loading={this.state.loading} />
+          <Col span={3}>
+            <CounterCard title="Active Tasks" value={this.state.counters.active} loading={this.state.loading} />
           </Col>
-          <Col span={2}>
-            <CounterCard title="Reserved" value={this.state.counters.reserved} loading={this.state.loading} />
+          <Col span={3}>
+            <CounterCard title="Reserved Tasks" value={this.state.counters.reserved} loading={this.state.loading} />
           </Col>
-          <Col span={2}>
-            <CounterCard title="Waiting" value={this.state.counters.waiting} loading={this.state.loading} />
+          <Col span={3}>
+            <CounterCard title="Waiting Tasks" value={this.state.counters.waiting} loading={this.state.loading} />
           </Col>
         </Row>
         <Row>
@@ -231,7 +231,7 @@ export default function init(ngModule) {
   return {
     '/admin/queries/tasks': {
       template: '<tasks-page></tasks-page>',
-      title: 'Running Queries',
+      title: 'Celery Status',
     },
   };
 }
