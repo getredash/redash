@@ -13,7 +13,7 @@ from redash.permissions import require_permission, require_admin_or_owner, is_ad
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404, paginate, order_results as _order_results
 
-from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
+from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email, send_verify_email
 from redash.settings import parse_boolean
 
 
@@ -224,6 +224,9 @@ class UserResource(BaseResource):
 
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
+
+            user.is_email_verified = False
+            send_verify_email(user, self.current_org)
 
         try:
             self.update_model(user, params)
