@@ -1,6 +1,7 @@
 import logging
 import signal
 import time
+import datetime
 
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
@@ -9,8 +10,8 @@ from celery.utils.log import get_task_logger
 from six import text_type
 from sqlalchemy.orm import load_only
 
-from redash import models, redis_connection, settings, statsd_client
-from redash.models import TableMetadata, ColumnMetadata
+from redash import models, redis_connection, settings, statsd_client, utils
+from redash.models import TableMetadata, ColumnMetadata, db
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
@@ -257,11 +258,33 @@ def get_table_sample_data(data_source_id, table, table_id):
             })
     models.db.session.commit()
 
+def cleanup_data_in_table(table_model):
+    removed_metadata = table_model.query.filter(
+        table_model.exists == False,
+    ).options(load_only('updated_at'))
+
+    for removed_metadata_row in removed_metadata:
+        is_old_data = (
+            utils.utcnow() - removed_metadata_row.updated_at
+        ) > datetime.timedelta(days=settings.SCHEMA_METADATA_TTL_DAYS)
+
+        table_model.query.filter(
+            table_model.id == removed_metadata_row.id,
+        ).delete()
+
+    db.session.commit()
+
+@celery.task(name="redash.tasks.cleanup_schema_metadata")
+def cleanup_schema_metadata():
+    cleanup_data_in_table(TableMetadata)
+    cleanup_data_in_table(ColumnMetadata)
+
 @celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
     start_time = time.time()
+
     try:
         existing_tables = set()
         schema = ds.query_runner.get_schema(get_stats=True)
@@ -325,17 +348,24 @@ def refresh_schema(data_source_id):
             # If a column did not exist, set the 'column_exists' flag to false.
             existing_columns_list = tuple(existing_columns)
             ColumnMetadata.query.filter(
+                ColumnMetadata.exists == True,
                 ColumnMetadata.table_id == persisted_table.id,
                 ~ColumnMetadata.name.in_(existing_columns_list),
             ).update({
-                "exists": False
+                "exists": False,
+                "updated_at": db.func.now()
             }, synchronize_session='fetch')
 
         # If a table did not exist in the get_schema() response above, set the 'exists' flag to false.
         existing_tables_list = tuple(existing_tables)
         tables_to_update = TableMetadata.query.filter(
+            TableMetadata.exists == True,
+            TableMetadata.data_source_id == ds.id,
              ~TableMetadata.name.in_(existing_tables_list)
-         ).update({"exists": False}, synchronize_session='fetch')
+         ).update({
+            "exists": False,
+            "updated_at": db.func.now()
+        }, synchronize_session='fetch')
 
         models.db.session.commit()
 
