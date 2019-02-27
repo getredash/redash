@@ -18,7 +18,8 @@ function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
   });
 
   this.verifyEmail = () => {
-    $http.post('/verification_email/').success(({ message }) => {
+    const slug = currentUser.org_slug ? `/${currentUser.org_slug}` : '';
+    $http.post(`${slug}/verification_email/`).success(({ message }) => {
       toastr.success(message);
     });
   };

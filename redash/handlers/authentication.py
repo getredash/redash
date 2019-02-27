@@ -266,7 +266,8 @@ def session(org_slug=None):
             'email': current_user.email,
             'groups': current_user.group_ids,
             'permissions': current_user.permissions,
-            'is_email_verified': current_user.is_email_verified
+            'is_email_verified': current_user.is_email_verified,
+            'org_slug': current_user.org.slug if settings.MULTI_ORG else None,
         }
 
     return json_response({
