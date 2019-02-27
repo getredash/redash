@@ -225,12 +225,16 @@ class UserResource(BaseResource):
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
 
+        email_changed = 'email' in params and params['email'] != user.email
+        if email_changed:
             user.is_email_verified = False
-            send_verify_email(user, self.current_org)
 
         try:
             self.update_model(user, params)
             models.db.session.commit()
+
+            if email_changed:
+                send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,
             # forcing them to log in again. Since we don't want to force _this_ session to have to go
