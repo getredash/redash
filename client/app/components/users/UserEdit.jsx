@@ -3,7 +3,6 @@ import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
-import { react2angular } from 'react2angular';
 import { User } from '@/services/user';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
@@ -12,7 +11,7 @@ import { DynamicForm } from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import InputWithCopy from '../InputWithCopy';
 
-export class UserEdit extends React.Component {
+export default class UserEdit extends React.Component {
   static propTypes = {
     user: UserProfile.isRequired,
   };
@@ -250,9 +249,3 @@ export class UserEdit extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('userEdit', react2angular(UserEdit));
-}
-
-init.init = true;
