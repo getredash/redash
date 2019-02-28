@@ -1,4 +1,4 @@
-import { isString, sortBy } from 'lodash';
+import { isString, sortBy, startsWith } from 'lodash';
 
 const ORDER_BY_REVERSE = '-';
 
@@ -11,7 +11,7 @@ export function compile(field, reverse) {
 
 export function parse(compiled) {
   compiled = isString(compiled) ? compiled : '';
-  const reverse = compiled.startsWith(ORDER_BY_REVERSE);
+  const reverse = startsWith(compiled, ORDER_BY_REVERSE);
   if (reverse) {
     compiled = compiled.substring(1);
   }

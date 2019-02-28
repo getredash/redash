@@ -1,4 +1,4 @@
-import { isFunction, extend, omit, sortBy } from 'lodash';
+import { isFunction, extend, omit, sortBy, startsWith } from 'lodash';
 
 class SettingsMenuItem {
   constructor(menuItem) {
@@ -13,7 +13,7 @@ class SettingsMenuItem {
   }
 
   isActive(path) {
-    return path.startsWith(this.pathPrefix);
+    return startsWith(path, this.pathPrefix);
   }
 }
 
