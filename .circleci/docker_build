@@ -1,6 +1,6 @@
 #!/bin/bash
 VERSION=$(jq -r .version package.json)
-VERSION_TAG=$version.b$CIRCLE_BUILD_NUM
+VERSION_TAG=$VERSION.b$CIRCLE_BUILD_NUM
 
 docker login -u $DOCKER_USER -p $DOCKER_PASS
 
