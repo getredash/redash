@@ -636,11 +636,6 @@ body {
   background: #fff;
   margin-bottom: 10px;
 
-  a.navbar-brand {
-    padding: 4px 0px 0px 0px;
-    margin-left: -3px !important;
-  }
-
   .btn-group.open .dropdown-toggle {
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -653,8 +648,13 @@ body {
 
 .navbar-link-ANGULAR_REMOVE_ME {
   line-height: 18px;
-  padding: 16px 15px;
+  padding: 10px 15px;
   display: block;
+
+  @media (min-width: 768px) {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
 }
 
 .navbar-link-ANGULAR_REMOVE_ME,
@@ -664,13 +664,6 @@ body {
 
   &:active, &:hover, &:focus {
     color: #000;
-  }
-
-  @media (max-width: 880px) {
-    & {
-      padding-left: 10px;
-      padding-right: 10px;
-    }
   }
 }
 
@@ -732,11 +725,10 @@ body {
 
 .navbar-brand {
   position: absolute;
-  left: 49%;
-  margin-left: -50px !important;
+  left: 50%;
+  margin-left: -25px !important; // center
   display: block;
   zoom: 0.9;
-  margin-top: 3px;
 }
 
 .va-top {
@@ -856,6 +848,7 @@ text.slicetext {
 
   .navbar-brand {
     left: 2%;
+    margin-left: 0 !important;
   }
 
   //Fix navbar collapse
@@ -896,13 +889,28 @@ text.slicetext {
   }
 }
 
-@media (min-width: 768px) and (max-width: 850px) {
-  .menu-search {
-    width: 175px;
+@media (min-width: 768px) {
+  @media (max-width: 880px) {
+    .navbar-link-ANGULAR_REMOVE_ME,
+    .navbar-default .navbar-nav > li > a,
+    .navbar-form {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+
+    a.navbar-brand {
+      margin-left: -15px !important;
+    }
   }
 
-  a.navbar-brand {
-    display: none !important;
+  @media (max-width: 810px) {
+    .menu-search {
+      width: 175px;
+    }
+
+    a.navbar-brand {
+      margin-left: 13px !important;
+    }
   }
 }
 
