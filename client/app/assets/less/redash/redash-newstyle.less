@@ -651,6 +651,12 @@ body {
   }
 }
 
+.navbar-link-ANGULAR_REMOVE_ME {
+  line-height: 18px;
+  padding: 16px 15px;
+  display: block;
+}
+
 .navbar-link-ANGULAR_REMOVE_ME,
 .navbar-default .navbar-nav > li > a {
   color: #000;
@@ -658,6 +664,13 @@ body {
 
   &:active, &:hover, &:focus {
     color: #000;
+  }
+
+  @media (max-width: 880px) {
+    & {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
   }
 }
 
@@ -669,12 +682,6 @@ body {
   //background-color: fade(@redash-gray, 10%);
   //text-decoration: underline;
   //border-radius: 0;
-}
-
-.navbar-link-ANGULAR_REMOVE_ME {
-  line-height: 18px;
-  padding: 16px 15px;
-  display: block;
 }
 
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
