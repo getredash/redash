@@ -1,9 +1,14 @@
 import d3 from 'd3';
-import angular from 'angular';
 import cloud from 'd3-cloud';
 import { each } from 'lodash';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import editorTemplate from './word-cloud-editor.html';
+
+const DEFAULT_OPTIONS = {
+  defaultRows: 8,
+};
 
 function findWordFrequencies(data, columnName) {
   const wordsHash = {};
@@ -22,93 +27,96 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
-function wordCloudRenderer() {
-  return {
-    restrict: 'E',
-    link($scope, elem) {
-      function reloadCloud() {
-        if (!angular.isDefined($scope.queryResult)) return;
+const WordCloudRenderer = {
+  restrict: 'E',
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  controller($scope, $element) {
+    const update = () => {
+      const data = this.data.rows;
+      const options = this.options;
 
-        const data = $scope.queryResult.getData();
-        let wordsHash = {};
-
-        if ($scope.visualization.options.column) {
-          wordsHash = findWordFrequencies(data, $scope.visualization.options.column);
-        }
-
-        const wordList = [];
-        each(wordsHash, (v, key) => {
-          wordList.push({ text: key, size: 10 + Math.pow(v, 2) });
-        });
-
-        const fill = d3.scale.category20();
-        const layout = cloud()
-          .size([500, 500])
-          .words(wordList)
-          .padding(5)
-          .rotate(() => Math.floor(Math.random() * 2) * 90)
-          .font('Impact')
-          .fontSize(d => d.size);
-
-        function draw(words) {
-          d3.select(elem[0].parentNode)
-            .select('svg')
-            .remove();
-
-          d3.select(elem[0].parentNode)
-            .append('svg')
-            .attr('width', layout.size()[0])
-            .attr('height', layout.size()[1])
-            .append('g')
-            .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
-            .selectAll('text')
-            .data(words)
-            .enter()
-            .append('text')
-            .style('font-size', d => `${d.size}px`)
-            .style('font-family', 'Impact')
-            .style('fill', (d, i) => fill(i))
-            .attr('text-anchor', 'middle')
-            .attr('transform', d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
-            .text(d => d.text);
-        }
-
-        layout.on('end', draw);
-
-        layout.start();
+      let wordsHash = {};
+      if (options.column) {
+        wordsHash = findWordFrequencies(data, options.column);
       }
 
-      $scope.$watch('queryResult && queryResult.getData()', reloadCloud);
-      $scope.$watch('visualization.options.column', reloadCloud);
-    },
-  };
-}
+      const wordList = [];
+      each(wordsHash, (v, key) => {
+        wordList.push({ text: key, size: 10 + Math.pow(v, 2) });
+      });
 
-function wordCloudEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
+      const fill = d3.scale.category20();
+      const layout = cloud()
+        .size([500, 500])
+        .words(wordList)
+        .padding(5)
+        .rotate(() => Math.floor(Math.random() * 2) * 90)
+        .font('Impact')
+        .fontSize(d => d.size);
+
+      function draw(words) {
+        d3.select($element[0].parentNode)
+          .select('svg')
+          .remove();
+
+        d3.select($element[0].parentNode)
+          .append('svg')
+          .attr('width', layout.size()[0])
+          .attr('height', layout.size()[1])
+          .append('g')
+          .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
+          .selectAll('text')
+          .data(words)
+          .enter()
+          .append('text')
+          .style('font-size', d => `${d.size}px`)
+          .style('font-family', 'Impact')
+          .style('fill', (d, i) => fill(i))
+          .attr('text-anchor', 'middle')
+          .attr('transform', d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
+          .text(d => d.text);
+      }
+
+      layout.on('end', draw);
+
+      layout.start();
+    };
+
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const WordCloudEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
 
 export default function init(ngModule) {
-  ngModule.directive('wordCloudEditor', wordCloudEditor);
-  ngModule.directive('wordCloudRenderer', wordCloudRenderer);
+  ngModule.component('wordCloudRenderer', WordCloudRenderer);
+  ngModule.component('wordCloudEditor', WordCloudEditor);
 
-  const defaultOptions = {
-    defaultRows: 8,
-  };
-
-  ngModule.config((VisualizationProvider) => {
-    VisualizationProvider.registerVisualization({
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'WORD_CLOUD',
       name: 'Word Cloud',
-      renderTemplate:
-        '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
-      editorTemplate: '<word-cloud-editor></word-cloud-editor>',
-      defaultOptions,
+      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      Renderer: angular2react('wordCloudRenderer', WordCloudRenderer, $injector),
+      Editor: angular2react('wordCloudEditor', WordCloudEditor, $injector),
     });
   });
 }
 
-// init.init = true;
+init.init = true;
