@@ -117,7 +117,7 @@ export default function init(ngModule) {
         return (item => new Alert(item));
       },
     }),
-    new StateStorage({ orderByField: 'name', itemsPerPage: 20 }),
+    new StateStorage({ orderByField: 'created_at', orderByReverse: true, itemsPerPage: 20 }),
   )));
   return routesToAngularRoutes([
     {
