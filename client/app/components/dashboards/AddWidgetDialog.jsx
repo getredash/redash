@@ -1,18 +1,16 @@
-import { debounce, each, values, map, includes, first, identity } from 'lodash';
+import { each, values, map, includes, first } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { BigMessage } from '@/components/BigMessage';
-import highlight from '@/lib/highlight';
 import {
   MappingType,
   ParameterMappingListInput,
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
-import { QueryTagsControl } from '@/components/tags-control/TagsControl';
+import { QuerySelector } from '@/components/QuerySelector';
 
 import { toastr } from '@/services/ng';
 import { Widget } from '@/services/widget';
@@ -26,42 +24,14 @@ class AddWidgetDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      saveInProgress: false,
-      selectedQuery: null,
-      searchTerm: '',
-      highlightSearchTerm: false,
-      recentQueries: [],
-      queries: [],
-      selectedVis: null,
-      parameterMappings: [],
-      isLoaded: false,
-    };
+  state = {
+    saveInProgress: false,
+    selectedQuery: null,
+    selectedVis: null,
+    parameterMappings: [],
+  };
 
-    const searchQueries = debounce(this.searchQueries.bind(this), 200);
-    this.onSearchTermChanged = (event) => {
-      const searchTerm = event.target.value;
-      this.setState({ searchTerm });
-      searchQueries(searchTerm);
-    };
-  }
-
-  componentDidMount() {
-    Query.recent().$promise.then((items) => {
-      // Don't show draft (unpublished) queries in recent queries.
-      const results = items.filter(item => !item.is_draft);
-      this.setState({
-        recentQueries: results,
-        queries: results,
-        isLoaded: true,
-        highlightSearchTerm: false,
-      });
-    });
-  }
-
-  selectQuery(queryId) {
+  selectQuery(selectedQuery) {
     // Clear previously selected query (if any)
     this.setState({
       selectedQuery: null,
@@ -69,8 +39,8 @@ class AddWidgetDialog extends React.Component {
       parameterMappings: [],
     });
 
-    if (queryId) {
-      Query.get({ id: queryId }, (query) => {
+    if (selectedQuery) {
+      Query.get({ id: selectedQuery.id }, (query) => {
         if (query) {
           const existingParamNames = map(
             this.props.dashboard.getParametersDefs(),
@@ -94,31 +64,6 @@ class AddWidgetDialog extends React.Component {
         }
       });
     }
-  }
-
-  searchQueries(term) {
-    if (!term || term.length === 0) {
-      this.setState(prevState => ({
-        queries: prevState.recentQueries,
-        isLoaded: true,
-        highlightSearchTerm: false,
-      }));
-      return;
-    }
-
-    Query.query({ q: term }, (results) => {
-      // If user will type too quick - it's possible that there will be
-      // several requests running simultaneously. So we need to check
-      // which results are matching current search term and ignore
-      // outdated results.
-      if (this.state.searchTerm === term) {
-        this.setState({
-          queries: results.results,
-          isLoaded: true,
-          highlightSearchTerm: true,
-        });
-      }
-    });
   }
 
   selectVisualization(query, visualizationId) {
@@ -173,88 +118,6 @@ class AddWidgetDialog extends React.Component {
     this.setState({ parameterMappings });
   }
 
-  renderQueryInput() {
-    return (
-      <div className="form-group">
-        {!this.state.selectedQuery && (
-          <input
-            type="text"
-            placeholder="Search a query by name"
-            className="form-control"
-            value={this.state.searchTerm}
-            onChange={this.onSearchTermChanged}
-          />
-        )}
-        {this.state.selectedQuery && (
-          <div className="p-relative">
-            <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
-            <a
-              href="javascript:void(0)"
-              onClick={() => this.selectQuery(null)}
-              className="d-flex align-items-center justify-content-center"
-              style={{
-                position: 'absolute',
-                right: '1px',
-                top: '1px',
-                bottom: '1px',
-                width: '30px',
-                background: '#fff',
-                borderRadius: '3px',
-              }}
-            >
-              <i className="text-muted fa fa-times" />
-            </a>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  renderSearchQueryResults() {
-    const { isLoaded, queries, highlightSearchTerm, searchTerm } = this.state;
-
-    const highlightSearchResult = highlightSearchTerm ? highlight : identity;
-
-    return (
-      <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-        {!isLoaded && (
-          <div className="text-center">
-            <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." />
-          </div>
-        )}
-
-        {isLoaded && (
-          <div>
-            {
-              (queries.length === 0) &&
-              <div className="text-muted">No results matching search term.</div>
-            }
-            {(queries.length > 0) && (
-              <div className="list-group">
-                {queries.map(query => (
-                  <a
-                    href="javascript:void(0)"
-                    className={'list-group-item ' + (query.is_draft ? 'inactive' : '')}
-                    key={query.id}
-                    onClick={() => this.selectQuery(query.id)}
-                  >
-                    <div
-                      // eslint-disable-next-line react/no-danger
-                      dangerouslySetInnerHTML={{ __html: highlightSearchResult(query.name, searchTerm) }}
-                      style={{ display: 'inline-block' }}
-                    />
-                    {' '}
-                    <QueryTagsControl isDraft={query.is_draft} tags={query.tags} className="inline-tags-control" />
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   renderVisualizationInput() {
     let visualizationGroups = {};
     if (this.state.selectedQuery) {
@@ -304,8 +167,7 @@ class AddWidgetDialog extends React.Component {
         okText="Add to Dashboard"
         width={700}
       >
-        {this.renderQueryInput()}
-        {!this.state.selectedQuery && this.renderSearchQueryResults()}
+        <QuerySelector onChange={query => this.selectQuery(query)} />
         {this.state.selectedQuery && this.renderVisualizationInput()}
 
         {
