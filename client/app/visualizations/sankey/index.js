@@ -1,9 +1,15 @@
 import angular from 'angular';
 import _ from 'lodash';
 import d3 from 'd3';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import d3sankey from '@/lib/visualizations/d3sankey';
 import editorTemplate from './sankey-editor.html';
+
+const DEFAULT_OPTIONS = {
+  defaultRows: 7,
+};
 
 function getConnectedNodes(node) {
   // source link = this node is the source, I need the targets
@@ -227,61 +233,67 @@ function createSankey(element, data) {
     .attr('text-anchor', 'start');
 }
 
-function sankeyRenderer() {
-  return {
-    restrict: 'E',
-    template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
-    link(scope, element) {
-      const container = element[0].querySelector('.sankey-visualization-container');
+const SankeyRenderer = {
+  template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  controller($scope, $element) {
+    const container = $element[0].querySelector('.sankey-visualization-container');
 
-      function refreshData() {
-        const queryData = scope.queryResult.getData();
-        if (queryData) {
-          // do the render logic.
-          angular.element(container).empty();
-          createSankey(container, queryData);
-        }
+    const update = () => {
+      if (this.data) {
+        // do the render logic.
+        angular.element(container).empty();
+        createSankey(container, this.data.rows);
       }
-
-      scope.handleResize = _.debounce(refreshData, 50);
-      scope.$watch('queryResult && queryResult.getData()', refreshData);
-      scope.$watch('visualization.options.height', (oldValue, newValue) => {
-        if (oldValue !== newValue) {
-          refreshData();
-        }
-      });
-    },
-  };
-}
-
-function sankeyEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
-
-export default function init(ngModule) {
-  ngModule.directive('sankeyRenderer', sankeyRenderer);
-  ngModule.directive('sankeyEditor', sankeyEditor);
-
-  ngModule.config((VisualizationProvider) => {
-    const renderTemplate =
-      '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
-
-    const editTemplate = '<sankey-editor></sankey-editor>';
-    const defaultOptions = {
-      defaultRows: 7,
     };
 
-    VisualizationProvider.registerVisualization({
+    $scope.handleResize = _.debounce(update, 50);
+
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const SankeyEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
+
+export default function init(ngModule) {
+  ngModule.component('sankeyRenderer', SankeyRenderer);
+  ngModule.component('sankeyEditor', SankeyEditor);
+
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'SANKEY',
       name: 'Sankey',
-      renderTemplate,
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      Renderer: angular2react('sankeyRenderer', SankeyRenderer, $injector),
+      Editor: angular2react('sankeyEditor', SankeyEditor, $injector),
     });
   });
+
+  // ngModule.config((VisualizationProvider) => {
+  // VisualizationProvider.registerVisualization({
+  //   type: 'SANKEY',
+  //   name: 'Sankey',
+  //   renderTemplate: '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>',
+  //   editorTemplate: '<sankey-editor></sankey-editor>',
+  //   defaultOptions,
+  // });
+  // });
 }
 
-// init.init = true;
+init.init = true;
