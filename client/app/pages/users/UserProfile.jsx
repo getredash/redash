@@ -6,8 +6,9 @@ import UserEdit from '@/components/users/UserEdit';
 import UserShow from '@/components/users/UserShow';
 import LoadingState from '@/components/items-list/components/LoadingState';
 
-import { $route } from '@/services/ng';
 import { User } from '@/services/user';
+import settingsMenu from '@/services/settingsMenu';
+import { $route } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { routesToAngularRoutes } from '@/lib/utils';
 import './settings.less';
@@ -19,7 +20,7 @@ class UserProfile extends React.Component {
   }
 
   componentDidMount() {
-    const { userId } = $route.current.params;
+    const userId = $route.current.params.userId || currentUser.id;
     User.get({ id: userId }, user => this.setState({ user: User.convertUserInfo(user) }));
   }
 
@@ -37,9 +38,20 @@ class UserProfile extends React.Component {
 }
 
 export default function init(ngModule) {
+  settingsMenu.add({
+    title: 'Account',
+    path: 'users/me',
+    order: 7,
+  });
+
   ngModule.component('pageUserProfile', react2angular(UserProfile));
 
   return routesToAngularRoutes([
+    {
+      path: '/users/me',
+      title: 'Account',
+      key: 'users',
+    },
     {
       path: '/users/:userId',
       title: 'Users',
