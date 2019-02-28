@@ -109,21 +109,23 @@ workflows:
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-tarball:
-           requires:
-             - backend-unit-tests
-           filters:
-             tags:
-               only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - /release\/.*/
       - build-docker-image:
-           requires:
-             - backend-unit-tests
-           filters:
-             branches:
-               only:
-                 - master
-                 - preview-build
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - preview-build
+                - /release\/.*/
