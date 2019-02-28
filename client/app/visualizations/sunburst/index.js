@@ -1,59 +1,60 @@
 import { debounce } from 'lodash';
 import Sunburst from '@/lib/visualizations/sunburst';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
+
 import editorTemplate from './sunburst-sequence-editor.html';
 
-function sunburstSequenceRenderer() {
-  return {
-    restrict: 'E',
-    template: '<div class="sunburst-visualization-container" resize-event="handleResize()"></div>',
-    link(scope, element) {
-      const container = element[0].querySelector('.sunburst-visualization-container');
-      let sunburst = new Sunburst(scope, container);
+const DEFAULT_OPTIONS = {
+  defaultRows: 7,
+};
 
-      function resize() {
-        sunburst.remove();
-        sunburst = new Sunburst(scope, container);
-      }
+const SunburstSequenceRenderer = {
+  template: '<div class="sunburst-visualization-container" resize-event="handleResize()"></div>',
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  controller($scope, $element) {
+    const container = $element[0].querySelector('.sunburst-visualization-container');
+    let sunburst = new Sunburst($scope, container);
 
-      scope.handleResize = debounce(resize, 50);
+    function update() {
+      sunburst.remove();
+      sunburst = new Sunburst($scope, container);
+    }
 
-      scope.$watch('visualization.options.height', (oldValue, newValue) => {
-        if (oldValue !== newValue) {
-          resize();
-        }
-      });
-    },
-  };
-}
+    $scope.handleResize = debounce(update, 50);
+  },
+};
 
-function sunburstSequenceEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
+const SunburstSequenceEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
 
 export default function init(ngModule) {
-  ngModule.directive('sunburstSequenceRenderer', sunburstSequenceRenderer);
-  ngModule.directive('sunburstSequenceEditor', sunburstSequenceEditor);
+  ngModule.component('sunburstSequenceRenderer', SunburstSequenceRenderer);
+  ngModule.component('sunburstSequenceEditor', SunburstSequenceEditor);
 
-  ngModule.config((VisualizationProvider) => {
-    const renderTemplate =
-      '<sunburst-sequence-renderer options="visualization.options" query-result="queryResult"></sunburst-sequence-renderer>';
-
-    const editTemplate = '<sunburst-sequence-editor></sunburst-sequence-editor>';
-    const defaultOptions = {
-      defaultRows: 7,
-    };
-
-    VisualizationProvider.registerVisualization({
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'SUNBURST_SEQUENCE',
       name: 'Sunburst Sequence',
-      renderTemplate,
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      Renderer: angular2react('sunburstSequenceRenderer', SunburstSequenceRenderer, $injector),
+      Editor: angular2react('sunburstSequenceEditor', SunburstSequenceEditor, $injector),
     });
   });
 }
 
-// init.init = true;
+init.init = true;

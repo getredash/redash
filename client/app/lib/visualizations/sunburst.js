@@ -366,15 +366,14 @@ function Sunburst(scope, element) {
   }
 
   function refreshData() {
-    const queryData = scope.queryResult.getData();
-    if (queryData) {
-      render(queryData);
+    if (scope.$ctrl.data) {
+      render(scope.$ctrl.data.rows);
     }
   }
 
   refreshData();
-  this.watches.push(scope.$watch('visualization.options', refreshData, true));
-  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refreshData));
+  this.watches.push(scope.$watch('$ctrl.data', refreshData));
+  this.watches.push(scope.$watch('$ctrl.options', refreshData, true));
 }
 
 Sunburst.prototype.remove = function remove() {
