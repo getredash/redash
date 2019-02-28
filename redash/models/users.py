@@ -191,6 +191,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return cls.get_by_org(org).filter(cls.disabled_at.is_(None))
 
     @classmethod
+    def all_disabled(cls, org):
+        return cls.get_by_org(org).filter(cls.disabled_at.isnot(None))
+
+    @classmethod
     def search(cls, base_query, term):
         term = u'%{}%'.format(term)
         search_filter = or_(cls.name.ilike(term), cls.email.like(term))
@@ -198,8 +202,11 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return base_query.filter(search_filter)
 
     @classmethod
-    def all_disabled(cls, org):
-        return cls.get_by_org(org).filter(cls.disabled_at.isnot(None))
+    def pending(cls, base_query, pending):
+        if pending:
+            return base_query.filter(cls.is_invitation_pending.is_(True))
+        else:
+            return base_query.filter(cls.is_invitation_pending.isnot(True))  # check for both `false`/`null`
 
     @classmethod
     def find_by_email(cls, email):

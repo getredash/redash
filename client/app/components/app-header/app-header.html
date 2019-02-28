@@ -79,6 +79,9 @@
 
       <!-- Profile -->
       <ul class="nav navbar-nav navbar-right">
+        <li>
+          <help-trigger type="'HOME'" class-name="'navbar-link-ANGULAR_REMOVE_ME'"></help-trigger>
+        </li>
         <li ng-show="$ctrl.currentUser.isAdmin">
           <a href="data_sources" title="Settings"><i class="fa fa-sliders" aria-hidden="true"></i></a>
         </li>
@@ -112,7 +115,7 @@
               <a href="destinations" title="Settings">Alert Destinations</a>
             </li>
 
-            <li  ng-if="$ctrl.currentUser.hasPermission('super_admin')" class="divider"></li>
+            <li ng-if="$ctrl.currentUser.hasPermission('super_admin')" class="divider"></li>
 
             <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
 
@@ -120,6 +123,19 @@
 
             <li>
               <a ng-click="$ctrl.logout()">Log out</a>
+            </li>
+
+            <li class="divider"></li>
+            <li class="dropdown-menu__version">
+              Version: {{$ctrl.backendVersion}}
+              <span ng-if="$ctrl.frontendVersion !== $ctrl.backendVersion">
+                ({{$ctrl.frontendVersion.substring(0, 8)}})
+              </span>
+              <span class="update-available" ng-if="$ctrl.currentUser.hasPermission('super_admin') && $ctrl.newVersionAvailable">
+                <a href="https://version.redash.io/" target="_blank">
+                  <i class="fa fa-arrow-circle-down"></i>
+                </a>
+              </span>
             </li>
           </ul>
         </li>

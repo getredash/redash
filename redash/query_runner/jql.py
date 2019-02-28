@@ -24,6 +24,8 @@ class ResultSet(object):
     def to_json(self):
         return json_dumps({'rows': self.rows, 'columns': self.columns.values()})
 
+    def merge(self, set):
+        self.rows = self.rows + set.rows
 
 def parse_issue(issue, field_mapping):
     result = OrderedDict()
@@ -179,6 +181,19 @@ class JiraJQL(BaseHTTPQueryRunner):
                 results = parse_count(data)
             else:
                 results = parse_issues(data, field_mapping)
+                index = data['startAt'] + data['maxResults']
+
+                while data['total'] > index:
+                    query['startAt'] = index
+                    response, error = self.get_response(jql_url, params=query)
+                    if error is not None:
+                        return None, error
+
+                    data = response.json()
+                    index = data['startAt'] + data['maxResults']
+
+                    addl_results = parse_issues(data, field_mapping)
+                    results.merge(addl_results)
 
             return results.to_json(), None
         except KeyboardInterrupt:

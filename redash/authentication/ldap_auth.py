@@ -7,7 +7,7 @@ from flask import flash, redirect, render_template, request, url_for, Blueprint
 from flask_login import current_user, login_required, login_user, logout_user
 
 try:
-    from ldap3 import Server, Connection, SIMPLE
+    from ldap3 import Server, Connection, SIMPLE, ANONYMOUS, NTLM
     from ldap3.core.exceptions import LDAPBindError
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
@@ -60,7 +60,7 @@ def login(org_slug=None):
 
 
 def auth_ldap_user(username, password):
-    server = Server(settings.LDAP_HOST_URL)
+    server = Server(settings.LDAP_HOST_URL, use_ssl=settings.LDAP_SSL)
     bind_dn = settings.LDAP_BIND_DN
     bind_dn_password = settings.LDAP_BIND_DN_PASSWORD
     if settings.LDAP_BIND_DN_DYNAMIC:
@@ -68,7 +68,7 @@ def auth_ldap_user(username, password):
         bind_dn_password = password
 
     try:
-        conn = Connection(server, bind_dn, password=bind_dn_password, authentication=SIMPLE, auto_bind=True)
+        conn = Connection(server, bind_dn, password=bind_dn_password, authentication=settings.LDAP_AUTH_METHOD, auto_bind=True)
     except LDAPBindError:
         return None
 

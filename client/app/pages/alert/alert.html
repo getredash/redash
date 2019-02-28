@@ -1,7 +1,5 @@
 <div class="container">
-
-  <page-header title='{{$ctrl.alert.name || $ctrl.getDefaultName() || "New Alert" }}'>
-  </page-header>
+  <page-header title="$ctrl.alert.name || $ctrl.getDefaultName() || 'New Alert'"></page-header>
 
   <email-settings-warning function="'alert emails'"></email-settings-warning>
 
@@ -15,8 +13,10 @@
               <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
               <ui-select-choices repeat="q in $ctrl.queries"
                                  refresh="$ctrl.searchQueries($select.search)"
-                                 refresh-delay="0">
-                <div ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>
+                                 refresh-delay="0"
+                                 ui-disable-choice="q.is_draft">
+                <div style="display: inline-block" ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>
+                <query-tags-control tags="q.tags" is-draft="q.is_draft" class="inline-tags-control" />
               </ui-select-choices>
             </ui-select>
           </div>

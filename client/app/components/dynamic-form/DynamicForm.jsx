@@ -7,16 +7,29 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
+import { includes } from 'lodash';
 import { react2angular } from 'react2angular';
-import { toastr } from '@/services/toastr';
+import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
-export class DynamicForm extends React.Component {
+const fieldRules = ({ type, required, minLength }) => {
+  const requiredRule = required;
+  const minLengthRule = minLength && includes(['text', 'email', 'password'], type);
+
+  return [
+    requiredRule && { required, message: 'This field is required.' },
+    minLengthRule && { min: minLength, message: 'This field is too short.' },
+  ].filter(rule => rule);
+};
+
+export const DynamicForm = Form.create()(class DynamicForm extends React.Component {
   static propTypes = {
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
+    hideSubmitButton: PropTypes.bool,
+    saveText: PropTypes.string,
     onSubmit: PropTypes.func,
     form: AntdForm.isRequired,
   };
@@ -25,6 +38,8 @@ export class DynamicForm extends React.Component {
     fields: [],
     actions: [],
     feedbackIcons: false,
+    hideSubmitButton: false,
+    saveText: 'Save',
     onSubmit: () => {},
   };
 
@@ -47,13 +62,13 @@ export class DynamicForm extends React.Component {
   }
 
   setActionInProgress = (actionName, inProgress) => {
-    this.setState({
+    this.setState(prevState => ({
       inProgressActions: {
-        ...this.state.inProgressActions,
+        ...prevState.inProgressActions,
         [actionName]: inProgress,
       },
-    });
-  }
+    }));
+  };
 
   handleSubmit = (e) => {
     this.setState({ isSubmitting: true });
@@ -96,11 +111,10 @@ export class DynamicForm extends React.Component {
 
   renderUpload(field, props) {
     const { getFieldDecorator, getFieldValue } = this.props.form;
-    const { name, initialValue, required } = field;
-    const fieldLabel = field.title || helper.toHuman(name);
+    const { name, initialValue } = field;
 
     const fileOptions = {
-      rules: [{ required, message: `${fieldLabel} is required.` }],
+      rules: fieldRules(field),
       initialValue,
       getValueFromEvent: this.base64File.bind(this, name),
     };
@@ -122,7 +136,7 @@ export class DynamicForm extends React.Component {
     const fieldLabel = field.title || helper.toHuman(name);
 
     const options = {
-      rules: [{ required: field.required, message: `${fieldLabel} is required.` }],
+      rules: fieldRules(field),
       valuePropName: type === 'checkbox' ? 'checked' : 'value',
       initialValue,
     };
@@ -139,23 +153,25 @@ export class DynamicForm extends React.Component {
 
   renderFields() {
     return this.props.fields.map((field) => {
-      const [firstItem] = this.props.fields;
+      const [firstField] = this.props.fields;
       const FormItem = Form.Item;
-      const { name, title, type } = field;
+      const { name, title, type, readOnly } = field;
       const fieldLabel = title || helper.toHuman(name);
+      const { feedbackIcons } = this.props;
 
       const formItemProps = {
         key: name,
         className: 'm-b-10',
-        hasFeedback: type !== 'checkbox' && type !== 'file' && this.props.feedbackIcons,
+        hasFeedback: type !== 'checkbox' && type !== 'file' && feedbackIcons,
         label: type === 'checkbox' ? '' : fieldLabel,
       };
 
       const fieldProps = {
-        autoFocus: (firstItem === field),
+        autoFocus: (firstField === field),
         className: 'w-100',
         name,
         type,
+        readOnly,
         placeholder: field.placeholder,
         'data-test': fieldLabel,
       };
@@ -174,7 +190,7 @@ export class DynamicForm extends React.Component {
         htmlType: 'button',
         className: action.pullRight ? 'pull-right m-t-10' : 'm-t-10',
         type: action.type,
-        disabled: inProgress || (isFieldsTouched() && action.disableWhenDirty),
+        disabled: (isFieldsTouched() && action.disableWhenDirty),
         loading: inProgress,
         onClick: this.handleAction,
       };
@@ -191,22 +207,21 @@ export class DynamicForm extends React.Component {
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
+    const { hideSubmitButton, saveText } = this.props;
+    const saveButton = !hideSubmitButton;
 
     return (
       <Form layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
-        <Button {...submitProps}>
-          Save
-        </Button>
+        {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
       </Form>
     );
   }
-}
+});
 
 export default function init(ngModule) {
   ngModule.component('dynamicForm', react2angular((props) => {
-    const UpdatedDynamicForm = Form.create()(DynamicForm);
     const fields = helper.getFields(props.type.configuration_schema, props.target);
 
     const onSubmit = (values, onSuccess, onError) => {
@@ -231,7 +246,7 @@ export default function init(ngModule) {
       feedbackIcons: true,
       onSubmit,
     };
-    return (<UpdatedDynamicForm {...updatedProps} />);
+    return (<DynamicForm {...updatedProps} />);
   }, ['target', 'type', 'actions']));
 }
 
