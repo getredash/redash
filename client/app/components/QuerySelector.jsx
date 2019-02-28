@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { react2angular } from 'react2angular';
 import { debounce, find } from 'lodash';
 import Input from 'antd/lib/input';
+import Select from 'antd/lib/select';
 import { Query } from '@/services/query';
 import { toastr } from '@/services/ng';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 
 const SEARCH_DEBOUNCE_DURATION = 200;
+const { Option } = Select;
 
 class StaleSearchError extends Error {
   constructor() {
@@ -127,6 +130,36 @@ export function QuerySelector(props) {
     return <Input value={selectedQuery && selectedQuery.name} placeholder={placeholder} disabled />;
   }
 
+  if (props.type === 'select') {
+    const suffixIcon = selectedQuery ? clearIcon : null;
+    const value = selectedQuery ? selectedQuery.name : searchTerm;
+
+    return (
+      <Select
+        showSearch
+        dropdownMatchSelectWidth={false}
+        placeholder={placeholder}
+        value={value || undefined} // undefined for the placeholder to show
+        onSearch={setSearchTerm}
+        onChange={selectQuery}
+        suffixIcon={searching ? spinIcon : suffixIcon}
+        notFoundContent={null}
+        filterOption={false}
+        defaultActiveFirstOption={false}
+      >
+        {searchResults && searchResults.map((q) => {
+          const disabled = q.is_draft;
+          return (
+            <Option value={q.id} key={q.id} disabled={disabled}>
+              {q.name}{' '}
+              <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className={cx('inline-tags-control', { disabled })} />
+            </Option>
+          );
+        })}
+      </Select>
+    );
+  }
+
   return (
     <React.Fragment>
       {selectedQuery ? (
@@ -149,12 +182,18 @@ export function QuerySelector(props) {
 QuerySelector.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectedQuery: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  type: PropTypes.oneOf(['select', 'default']),
   disabled: PropTypes.bool,
 };
 
 QuerySelector.defaultProps = {
   selectedQuery: null,
+  type: 'default',
   disabled: false,
 };
 
-export default QuerySelector;
+export default function init(ngModule) {
+  ngModule.component('querySelector', react2angular(QuerySelector));
+}
+
+init.init = true;
