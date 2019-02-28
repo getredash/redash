@@ -11,6 +11,8 @@ function ParametersDirective($location) {
       syncValues: '=?',
       editable: '=?',
       changed: '&onChange',
+      saveQuery: '=',
+      queryIsDirty: '=?',
     },
     template,
     link(scope) {
@@ -36,7 +38,14 @@ function ParametersDirective($location) {
         EditParameterSettingsDialog
           .showModal({ parameter })
           .result.then((updated) => {
+            // update parameters
             scope.parameters[index] = extend(parameter, updated);
+
+            // save if already dirty
+            // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
+            if (!scope.queryIsDirty) {
+              scope.saveQuery();
+            }
           });
       };
     },
