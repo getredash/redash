@@ -54,7 +54,7 @@ export function registerVisualization(config) {
 }
 
 export function getDefaultVisualization() {
-  return find(registeredVisualizations, visualization => !visualization.name.match(/Deprecated/));
+  return find(registeredVisualizations, visualization => !visualization.isDeprecated);
 }
 
 export function newVisualization(type = null) {
