@@ -1,105 +1,105 @@
+import { merge, omit } from 'lodash';
 import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import editorTemplate from './pivottable-editor.html';
 import './pivot.less';
 
-function pivotTableRenderer() {
-  return {
-    restrict: 'E',
-    scope: {
-      queryResult: '=',
-      visualization: '=',
-    },
-    template: '',
-    replace: false,
-    link($scope, element) {
-      function removeControls() {
-        const hideControls = $scope.visualization.options.controls && $scope.visualization.options.controls.enabled;
+const DEFAULT_OPTIONS = {
+  defaultRows: 10,
+  defaultColumns: 3,
+  minColumns: 2,
+};
 
-        element[0].querySelectorAll('.pvtAxisContainer, .pvtRenderer, .pvtVals').forEach((control) => {
-          if (hideControls) {
-            control.style.display = 'none';
-          } else {
-            control.style.display = '';
+const PivotTableRenderer = {
+  template: `
+    <div class="pivot-table-renderer" ng-class="{'hide-controls': $ctrl.options.controls.enabled}"></div>
+  `,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope, $element) {
+    const update = () => {
+      // We need to give the pivot table its own copy of the data, because it changes
+      // it which interferes with other visualizations.
+      const data = angular.copy(this.data.rows);
+      const options = {
+        renderers: $.pivotUtilities.renderers,
+        onRefresh: (config) => {
+          if (this.onOptionsChange) {
+            config = omit(config, [
+              // delete some values which are functions
+              'aggregators',
+              'renderers',
+              'onRefresh',
+              // delete some bulky de
+              'localeStrings',
+            ]);
+            this.onOptionsChange(config);
           }
-        });
-      }
+        },
+        ...this.options,
+      };
 
-      function updatePivot() {
-        $scope.$watch('queryResult && queryResult.getData()', (data) => {
-          if (!data) {
-            return;
-          }
-
-          if ($scope.queryResult.getData() !== null) {
-            // We need to give the pivot table its own copy of the data, because it changes
-            // it which interferes with other visualizations.
-            data = angular.copy($scope.queryResult.getData());
-            const options = {
-              renderers: $.pivotUtilities.renderers,
-              onRefresh(config) {
-                const configCopy = Object.assign({}, config);
-                // delete some values which are functions
-                delete configCopy.aggregators;
-                delete configCopy.renderers;
-                delete configCopy.onRefresh;
-                // delete some bulky default values
-                delete configCopy.rendererOptions;
-                delete configCopy.localeStrings;
-
-                if ($scope.visualization) {
-                  $scope.visualization.options = configCopy;
-                }
-              },
-            };
-
-            if ($scope.visualization) {
-              Object.assign(options, $scope.visualization.options);
-            }
-
-            $(element).pivotUI(data, options, true);
-            removeControls();
-          }
-        });
-      }
-
-      $scope.$watch('queryResult && queryResult.getData()', updatePivot);
-      $scope.$watch('visualization.options.controls.enabled', removeControls);
-    },
-  };
-}
-
-function pivotTableEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
-
-export default function init(ngModule) {
-  ngModule.directive('pivotTableRenderer', pivotTableRenderer);
-  ngModule.directive('pivotTableEditor', pivotTableEditor);
-
-  ngModule.config((VisualizationProvider) => {
-    const editTemplate = '<pivot-table-editor></pivot-table-editor>';
-    const defaultOptions = {
-      defaultRows: 10,
-      defaultColumns: 3,
-      minColumns: 2,
+      $('.pivot-table-renderer', $element).pivotUI(data, options, true);
     };
 
-    VisualizationProvider.registerVisualization({
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const PivotTableEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
+
+export default function init(ngModule) {
+  ngModule.component('pivotTableRenderer', PivotTableRenderer);
+  ngModule.component('pivotTableEditor', PivotTableEditor);
+
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'PIVOT',
       name: 'Pivot Table',
-      renderTemplate:
-        '<pivot-table-renderer visualization="visualization" query-result="queryResult"></pivot-table-renderer>',
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => merge({}, DEFAULT_OPTIONS, options),
+      Renderer: angular2react('pivotTableRenderer', PivotTableRenderer, $injector),
+      Editor: angular2react('pivotTableEditor', PivotTableEditor, $injector),
     });
   });
+
+  // ngModule.config((VisualizationProvider) => {
+  //   const editTemplate = '<pivot-table-editor></pivot-table-editor>';
+  //   const defaultOptions = {
+  //     defaultRows: 10,
+  //     defaultColumns: 3,
+  //     minColumns: 2,
+  //   };
+  //
+  //   VisualizationProvider.registerVisualization({
+  //     type: 'PIVOT',
+  //     name: 'Pivot Table',
+  //     renderTemplate:
+  //       '<pivot-table-renderer visualization="visualization" query-result="queryResult"></pivot-table-renderer>',
+  //     editorTemplate: editTemplate,
+  //     defaultOptions,
+  //   });
+  // });
 }
 
-// init.init = true;
+init.init = true;

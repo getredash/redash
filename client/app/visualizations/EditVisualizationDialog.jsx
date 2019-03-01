@@ -200,7 +200,12 @@ class EditVisualizationDialog extends React.Component {
           </div>
           <div className="col-md-7">
             <label htmlFor="visualization-preview" className="invisible">Preview</label>
-            <Renderer data={data} options={previewOptions} visualizationName={name} />
+            <Renderer
+              data={data}
+              options={previewOptions}
+              visualizationName={name}
+              onOptionsChange={this.setVisualizationOptions}
+            />
           </div>
         </div>
       </Modal>
