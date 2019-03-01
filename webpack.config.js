@@ -28,6 +28,7 @@ const config = {
   mode: isProduction ? "production" : "development",
   entry: {
     app: [
+      "@babel/polyfill",
       "./client/app/index.js",
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"

@@ -33,6 +33,7 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
+    "@babel/polyfill": "^7.2.5",
     "@types/prop-types": "^15.5.2",
     "@types/react": "^16.3.13",
     "@types/react-dom": "^16.0.5",
