@@ -25,7 +25,7 @@ pymapd>=0.2.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.4
-requests-aws4auth==0.9
+requests_aws_sign==0.1.4
 # certifi is needed to support MongoDB and SSL:
 certifi
 # We don't install snowflake connector by default, as it's causing conflicts with
