@@ -28,8 +28,6 @@ class AlertsList extends React.Component {
     controller: ControllerType.isRequired,
   };
 
-  onTableRowClick = (event, item) => navigateTo('alerts/' + item.id);
-
   listColumns = [
     Columns.custom.sortable((text, alert) => (
       <div>
@@ -58,6 +56,8 @@ class AlertsList extends React.Component {
       className: 'text-nowrap',
       width: '1%' }),
   ];
+
+  onTableRowClick = (event, item) => navigateTo('alerts/' + item.id);
 
   render() {
     const { controller } = this.props;
