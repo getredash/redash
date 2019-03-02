@@ -90,11 +90,23 @@ class Impala(BaseSQLQueryRunner):
 
         return schema_dict.values()
 
+    def _connect_to_impala(self):
+        params = self.configuration.to_dict().copy()
+        params['user'] = params.pop('ldap_user', None)
+        params['password'] = params.pop('ldap_password', None)
+
+        # The auth_mechanism should be 'PLAIN' instead of 'LDAP'
+        # if the Impalad enables LDAP auth.
+        # Check https://github.com/cloudera/impyla/issues/290 for more details.
+        if params.pop('use_ldap', False):
+            params['auth_mechanism'] = 'PLAIN'
+        return connect(**params)
+
     def run_query(self, query, user):
 
         connection = None
         try:
-            connection = connect(**self.configuration.to_dict())
+            connection = self._connect_to_impala()
 
             cursor = connection.cursor()
 
