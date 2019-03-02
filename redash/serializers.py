@@ -10,6 +10,7 @@ from flask_login import current_user
 from redash import models
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
+from redash.utils.parameterized_query import ParameterizedQuery
 
 
 def public_widget(widget):
@@ -100,6 +101,7 @@ def serialize_query(query, with_stats=False, with_visualizations=False, with_use
         'options': query.options,
         'version': query.version,
         'tags': query.tags or [],
+        'is_safe': query.parameterized.is_safe,
     }
 
     if with_user:

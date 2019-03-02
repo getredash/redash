@@ -18,6 +18,7 @@ module.exports = {
     'no-param-reassign': 0,
     'no-mixed-operators': 0,
     'no-underscore-dangle': 0,
+    "no-use-before-define": ["error", "nofunc"],
     "prefer-destructuring": "off",
     "prefer-template": "off",
     "no-restricted-properties": "off",

@@ -158,7 +158,7 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+  $scope.canExecuteQuery = () => $scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only);
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
