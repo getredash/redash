@@ -14,6 +14,8 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
+import Layout from '@/components/layouts/ContentWithSidebar';
+
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
@@ -84,35 +86,27 @@ class QueriesList extends React.Component {
 
   onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          placeholder="Search Queries..."
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-        <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <div className="container">
         <PageHeader title={controller.params.title} />
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout className="m-l-15 m-r-15">
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              placeholder="Search Queries..."
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
+            <Sidebar.PageSizeSelect
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState />}
             {
               controller.isLoaded && controller.isEmpty && (
@@ -143,9 +137,8 @@ class QueriesList extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </div>
     );
   }
