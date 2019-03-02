@@ -139,6 +139,29 @@ class ScheduleDialog extends React.Component {
     this.setScheduleUntil(null, date);
   };
 
+  getTimeSelector = () => {
+    const { hour, minute, newSchedule: { time: utc } } = this.state;
+    const value = hour ? moment().hour(hour).minute(minute) : null;
+    const showUTC = value && !value.isUTC();
+
+    return (
+      <React.Fragment>
+        <TimePicker
+          allowEmpty={false}
+          defaultValue={value}
+          format={HOUR_FORMAT}
+          minuteStep={5}
+          onChange={this.setTime}
+        />
+        {showUTC && (
+          <span className="utc">
+            ({ utc } UTC)
+          </span>
+        )}
+      </React.Fragment>
+    );
+  }
+
   save() {
     const { newSchedule } = this.state;
 
@@ -157,8 +180,6 @@ class ScheduleDialog extends React.Component {
     const { dialog } = this.props;
     const {
       interval,
-      minute,
-      hour,
       seconds,
       newSchedule: { until },
     } = this.state;
@@ -188,19 +209,7 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On time</h5>
             <div data-testid="time">
-              <TimePicker
-                allowEmpty={false}
-                defaultValue={
-                  hour
-                    ? moment()
-                      .hour(hour)
-                      .minute(minute)
-                    : null
-                }
-                format={HOUR_FORMAT}
-                minuteStep={5}
-                onChange={this.setTime}
-              />
+              {this.getTimeSelector()}
             </div>
           </div>
         ) : null}
