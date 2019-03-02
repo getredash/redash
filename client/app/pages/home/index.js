@@ -18,7 +18,7 @@ function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
   });
 
   this.verifyEmail = () => {
-    $http.post('/verification_email/').success(({ message }) => {
+    $http.post('verification_email/').success(({ message }) => {
       toastr.success(message);
     });
   };

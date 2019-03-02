@@ -3,9 +3,10 @@ import logging
 import select
 
 import psycopg2
+from psycopg2.extras import Range
 
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,26 @@ types_map = {
     1009: TYPE_STRING,
     2951: TYPE_STRING
 }
+
+
+class PostgreSQLJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Range):
+            # From: https://github.com/psycopg/psycopg2/pull/779
+            if o._bounds is None:
+                return ''
+
+            items = [
+                o._bounds[0],
+                str(o._lower),
+                ', ',
+                str(o._upper),
+                o._bounds[1]
+            ]
+
+            return ''.join(items)
+
+        return super(PostgreSQLJSONEncoder, self).default(o)
 
 
 def _wait(conn, timeout=None):
@@ -165,7 +186,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json_dumps(data, ignore_nan=True)
+                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None

@@ -556,7 +556,7 @@ export function prepareLayout(element, seriesList, options, data) {
           y: yPosition + cellHeight - 0.015,
           xanchor: 'center',
           yanchor: 'top',
-          text: series.name,
+          text: options.seriesOptions[series.name].name || series.name,
           showarrow: false,
         };
       }));
