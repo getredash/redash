@@ -5,7 +5,9 @@ import { includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import EmptyState from '@/components/items-list/components/EmptyState';
-import { Type } from './proptypes';
+import { Type } from '../proptypes';
+
+import './TypePicker.css';
 
 const { Search } = Input;
 const { Meta } = Card;

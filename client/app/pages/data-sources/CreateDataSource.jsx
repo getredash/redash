@@ -4,7 +4,7 @@ import { find } from 'lodash';
 import { react2angular } from 'react2angular';
 import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
-import TypePicker from '@/components/TypePicker';
+import TypePicker from '@/components/type-picker/TypePicker';
 import EditDataSourceForm from '@/components/data-sources/EditDataSourceForm';
 
 const { Step } = Steps;

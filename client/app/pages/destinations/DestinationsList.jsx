@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
-import TypePicker from '@/components/TypePicker';
+import TypePicker from '@/components/type-picker/TypePicker';
 import LoadingState from '@/components/items-list/components/LoadingState';
 
 class DestinationsList extends React.Component {

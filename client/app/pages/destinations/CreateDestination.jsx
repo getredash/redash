@@ -4,7 +4,7 @@ import { find } from 'lodash';
 import { react2angular } from 'react2angular';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
-import TypePicker from '@/components/TypePicker';
+import TypePicker from '@/components/type-picker/TypePicker';
 import EditDestinationForm from '@/components/destinations/EditDestinationForm';
 
 const { Step } = Steps;

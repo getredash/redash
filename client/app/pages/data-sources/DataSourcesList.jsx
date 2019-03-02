@@ -6,7 +6,7 @@ import settingsMenu from '@/services/settingsMenu';
 import { DataSource } from '@/services/data-source';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
-import TypePicker from '@/components/TypePicker';
+import TypePicker from '@/components/type-picker/TypePicker';
 import LoadingState from '@/components/items-list/components/LoadingState';
 
 class DataSourcesList extends React.Component {
