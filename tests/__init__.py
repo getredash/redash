@@ -26,7 +26,7 @@ logging.getLogger("metrics").setLevel("ERROR")
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.id
+        sess['user_id'] = user.get_id()
 
 
 @contextmanager

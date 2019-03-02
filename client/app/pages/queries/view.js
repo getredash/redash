@@ -1,6 +1,9 @@
-import { pick, some, find, minBy, isObject, map } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
+import { policy } from '@/services/policy';
+import Notifications from '@/services/notifications';
+import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -16,7 +19,6 @@ function QueryViewCtrl(
   KeyboardShortcuts,
   Title,
   AlertDialog,
-  Notifications,
   clientConfig,
   toastr,
   $uibModal,
@@ -25,7 +27,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -35,8 +37,13 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    if ($scope.isDirty) {
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+    } else {
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    }
   }
+
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -104,6 +111,10 @@ function QueryViewCtrl(
     getSchema();
   }
 
+  $scope.updateSelectedQuery = (selectedQueryText) => {
+    $scope.selectedQueryText = selectedQueryText;
+  };
+
   $scope.executeQuery = () => {
     if (!$scope.canExecuteQuery()) {
       return;
@@ -113,7 +124,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
@@ -146,7 +157,7 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+  $scope.canExecuteQuery = () => $scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only);
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
@@ -183,8 +194,8 @@ function QueryViewCtrl(
 
     $window.open('', tabName);
     Query.fork({ id: $scope.query.id }, (newQuery) => {
-      const url = newQuery.getSourceLink();
-      $window.open(url, tabName);
+      const queryUrl = newQuery.getUrl(true);
+      $window.open(queryUrl, tabName);
     });
   };
 
@@ -229,6 +240,15 @@ function QueryViewCtrl(
       customOptions,
     );
 
+    if (options.force) {
+      delete request.version;
+    }
+
+    function overwrite() {
+      options.force = true;
+      $scope.saveQuery(options, data);
+    }
+
     return Query.save(
       request,
       (updatedQuery) => {
@@ -237,11 +257,20 @@ function QueryViewCtrl(
       },
       (error) => {
         if (error.status === 409) {
-          toastr.error(
-            'It seems like the query has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
-          );
+          const errorMessage = 'It seems like the query has been modified by another user.';
+
+          if ($scope.isQueryOwner) {
+            const title = 'Overwrite Query';
+            const message = errorMessage + '<br>Are you sure you want to overwrite the query with your version?';
+            const confirm = { class: 'btn-warning', title: 'Overwrite' };
+
+            AlertDialog.open(title, message, confirm).then(overwrite);
+          } else {
+            toastr.error(
+              errorMessage + ' Please copy/backup your changes and reload this page.',
+              { autoDismiss: false },
+            );
+          }
         } else {
           toastr.error(options.errorMessage);
         }
@@ -371,8 +400,11 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      $scope.query.latest_query_data_id = $scope.queryResult.getId();
-      $scope.query.queryResult = $scope.queryResult;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query_result.query;
+      if (!ranSelectedQuery) {
+        $scope.query.latest_query_data_id = $scope.queryResult.getId();
+        $scope.query.queryResult = $scope.queryResult;
+      }
 
       Notifications.showNotification('Redash', `${$scope.query.name} updated.`);
     } else if (status === 'failed') {
@@ -413,6 +445,9 @@ function QueryViewCtrl(
       $scope.saveQuery().then((query) => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
+        // TODO: we don't really need this. Just need to assign query to $scope.query
+        // and maybe a few more small changes. Not worth handling this now, but also
+        // we shouldn't copy this bizzare method to the React codebase.
         $location.path(query.getSourceLink()).hash('add');
       });
     } else {
@@ -424,19 +459,26 @@ function QueryViewCtrl(
     $location.hash(null);
     $scope.openVisualizationEditor();
   }
+  const intervals = clientConfig.queryRefreshIntervals;
+  const allowedIntervals = policy.getQueryRefreshIntervals();
+  $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.openScheduleForm = () => {
+  $scope.showScheduleForm = false;
+  $scope.editSchedule = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
-
-    $uibModal.open({
-      component: 'scheduleDialog',
-      size: 'sm',
-      resolve: {
-        query: $scope.query,
-        saveQuery: () => $scope.saveQuery,
-      },
+    ScheduleDialog.showModal({
+      schedule: $scope.query.schedule,
+      refreshOptions: $scope.refreshOptions,
+    }).result.then((schedule) => {
+      $scope.query.schedule = schedule;
+      $scope.saveQuery();
+    });
+  };
+  $scope.closeScheduleForm = () => {
+    $scope.$apply(() => {
+      $scope.showScheduleForm = false;
     });
   };
 
@@ -508,4 +550,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

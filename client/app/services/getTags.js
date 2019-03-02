@@ -1,4 +1,4 @@
-import { $http } from '@/services/http';
+import { $http } from '@/services/ng';
 
 function processTags(data) {
   return data.tags || [];

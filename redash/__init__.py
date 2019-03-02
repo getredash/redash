@@ -2,8 +2,9 @@ import sys
 import logging
 import urlparse
 import urllib
+
 import redis
-from flask import Flask
+from flask import Flask, current_app
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter
@@ -18,7 +19,13 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '6.0.0-beta'
+__version__ = '7.0.0-beta'
+
+
+import os
+if os.environ.get("REMOTE_DEBUG"):
+    import ptvsd
+    ptvsd.enable_attach(address=('0.0.0.0', 5678))
 
 
 def setup_logging():
@@ -47,7 +54,7 @@ def create_redis_connection():
         else:
             db = 0
 
-        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
+        client = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
     else:
         if redis_url.path:
             redis_db = redis_url.path[1]
@@ -55,13 +62,14 @@ def create_redis_connection():
             redis_db = 0
         # Redis passwords might be quoted with special characters
         redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
+        client = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
 
-    return r
+    return client
 
 
 setup_logging()
 redis_connection = create_redis_connection()
+
 mail = Mail()
 migrate = Migrate()
 mail.init_mail(settings.all_settings())
@@ -90,13 +98,14 @@ class SlugConverter(BaseConverter):
 
 
 def create_app(load_admin=True):
-    from redash import extensions, handlers
+    from redash import admin, authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
-    from redash.admin import init_admin
-    from redash.models import db
-    from redash.authentication import setup_authentication
+    from redash.models import db, users
     from redash.metrics.request import provision_app
+    from redash.utils import sentry
+
+    sentry.init()
 
     app = Flask(__name__,
                 template_folder=settings.STATIC_ASSETS_PATH,
@@ -110,19 +119,6 @@ def create_app(load_admin=True):
     if settings.ENFORCE_HTTPS:
         SSLify(app, skips=['ping'])
 
-    if settings.SENTRY_DSN:
-        from raven import Client
-        from raven.contrib.flask import Sentry
-        from raven.handlers.logging import SentryHandler
-
-        client = Client(settings.SENTRY_DSN, release=__version__, install_logging_hook=False)
-        sentry = Sentry(app, client=client)
-        sentry.client.release = __version__
-
-        sentry_handler = SentryHandler(client=client)
-        sentry_handler.setLevel(logging.ERROR)
-        logging.getLogger().addHandler(sentry_handler)
-
     # configure our database
     app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
     app.config.update(settings.all_settings())
@@ -131,13 +127,14 @@ def create_app(load_admin=True):
     db.init_app(app)
     migrate.init_app(app, db)
     if load_admin:
-        init_admin(app)
+        admin.init_admin(app)
     mail.init_app(app)
-    setup_authentication(app)
+    authentication.init_app(app)
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
     extensions.init_extensions(app)
     chrome_logger.init_app(app)
+    users.init_app(app)
 
     return app
