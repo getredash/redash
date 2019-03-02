@@ -15,6 +15,7 @@ from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
 from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email, send_verify_email
 from redash.settings import parse_boolean
+from redash import settings
 
 
 # Ordering map for relationships
@@ -39,6 +40,7 @@ order_results = partial(
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
     send_invite_email(inviter, user, invite_url, org)
+    return invite_url
 
 
 class UserListResource(BaseResource):
@@ -138,9 +140,15 @@ class UserListResource(BaseResource):
 
         should_send_invitation = 'no_invite' not in request.args
         if should_send_invitation:
-            invite_user(self.current_org, self.current_user, user)
+            invite_url = invite_user(self.current_org, self.current_user, user)
+        else:
+            invite_url = invite_link_for_user(user)
 
-        return user.to_dict()
+        d = user.to_dict()
+        if settings.MAIL_DEFAULT_SENDER is None:
+            d['invite_link'] = invite_url
+
+        return d
 
 
 class UserInviteResource(BaseResource):
