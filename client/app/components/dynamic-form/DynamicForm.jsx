@@ -16,10 +16,12 @@ import helper from './dynamicFormHelper';
 const fieldRules = ({ type, required, minLength }) => {
   const requiredRule = required;
   const minLengthRule = minLength && includes(['text', 'email', 'password'], type);
+  const emailTypeRule = type === 'email';
 
   return [
     requiredRule && { required, message: 'This field is required.' },
     minLengthRule && { min: minLength, message: 'This field is too short.' },
+    emailTypeRule && { type: 'email', message: 'This field must be a valid email.' },
   ].filter(rule => rule);
 };
 
