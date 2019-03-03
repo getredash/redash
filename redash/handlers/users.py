@@ -15,6 +15,7 @@ from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
 from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email, send_verify_email
 from redash.settings import parse_boolean
+from redash import settings
 
 
 # Ordering map for relationships
@@ -36,9 +37,17 @@ order_results = partial(
 )
 
 
-def invite_user(org, inviter, user):
+def invite_user(org, inviter, user, send_email=True):
+    email_configured = settings.MAIL_DEFAULT_SENDER is not None
+    d = user.to_dict()
+
     invite_url = invite_link_for_user(user)
-    send_invite_email(inviter, user, invite_url, org)
+    if email_configured and send_email:
+        send_invite_email(inviter, user, invite_url, org)
+    else:
+        d['invite_link'] = invite_url
+
+    return d
 
 
 class UserListResource(BaseResource):
@@ -137,19 +146,14 @@ class UserListResource(BaseResource):
         })
 
         should_send_invitation = 'no_invite' not in request.args
-        if should_send_invitation:
-            invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
 
 
 class UserInviteResource(BaseResource):
     @require_admin
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        invite_url = invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user)
 
 
 class UserResetPasswordResource(BaseResource):

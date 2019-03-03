@@ -37,6 +37,13 @@ class CreateUser extends React.Component {
       { name: 'email', title: 'Email', type: 'email' },
     ].map(field => ({ required: true, readOnly: !!user, ...field }));
 
+    const message = user && user.invite_link ? (
+      <div>
+        <span>The user has been created. You can use the following link to invite them:</span>
+        <textarea className="form-control m-t-10" rows="3" readOnly>{user.invite_link}</textarea>
+      </div>
+    ) : <span>The user has been created and should receive an invite email soon.</span>;
+
     return (
       <div className="row">
         <EmailSettingsWarning featureName="invite emails" />
@@ -50,7 +57,7 @@ class CreateUser extends React.Component {
           />
           {user && (
             <Alert
-              message="The user has been created and should receive an invite email soon."
+              message={message}
               type="success"
               className="m-t-20"
             />
