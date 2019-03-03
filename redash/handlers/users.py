@@ -37,12 +37,12 @@ order_results = partial(
 )
 
 
-def invite_user(org, inviter, user, send_email=True):
+def invite_user(org, inviter, user):
     email_configured = settings.MAIL_DEFAULT_SENDER is not None
     d = user.to_dict()
 
     invite_url = invite_link_for_user(user)
-    if email_configured and send_email:
+    if email_configured:
         send_invite_email(inviter, user, invite_url, org)
     else:
         d['invite_link'] = invite_url
@@ -145,8 +145,11 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        should_send_invitation = 'no_invite' not in request.args
-        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
+        should_invite = 'no_invite' not in request.args
+        if should_invite:
+            return invite_user(self.current_org, self.current_user, user)
+        else:
+            return user.to_dict()
 
 
 class UserInviteResource(BaseResource):
