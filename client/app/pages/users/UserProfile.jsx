@@ -25,7 +25,7 @@ class UserProfile extends React.Component {
 
   render() {
     const { user } = this.state;
-    const canEdit = (currentUser.isAdmin || currentUser.id === user.id);
+    const canEdit = user && (currentUser.isAdmin || currentUser.id === user.id);
     const UserComponent = canEdit ? UserEdit : UserShow;
     return (
       <React.Fragment>
