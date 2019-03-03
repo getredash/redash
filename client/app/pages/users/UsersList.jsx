@@ -119,15 +119,19 @@ class UsersList extends React.Component {
 
   componentDidMount() {
     if ($location.path() === '/users/new') {
-      this.createUser();
+      this.showCreateUserDialog();
     }
   }
 
-  createUser = () => {
+  showCreateUserDialog = () => {
     if (policy.isCreateUserEnabled()) {
       CreateUserDialog.showModal().result.then((success) => {
         if (success) {
           this.props.controller.update();
+        }
+      }).finally(() => {
+        if ($location.path() === '/users/new') {
+          navigateTo('users');
         }
       });
     }
@@ -166,7 +170,7 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.createUser}>
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
