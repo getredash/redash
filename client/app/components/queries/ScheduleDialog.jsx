@@ -19,7 +19,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const { Option, OptGroup } = Select;
 
-function TimeEditor(props) {
+export function TimeEditor(props) {
   const [time, setTime] = useState(props.defaultValue);
   const showUtc = time && !time.isUTC();
 
@@ -38,7 +38,7 @@ function TimeEditor(props) {
         onChange={onChange}
       />
       {showUtc && (
-        <span className="utc">
+        <span className="utc" data-testid="utc">
           ({ moment.utc(time).format(HOUR_FORMAT) } UTC)
         </span>
       )}
