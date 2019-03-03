@@ -72,7 +72,7 @@ class EditDataSource extends React.Component {
     };
 
     return (
-      <div className="row">
+      <div>
         {(dataSource && type) && <EditDataSourceForm {...formProps} />}
       </div>
     );

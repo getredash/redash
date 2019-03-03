@@ -50,7 +50,7 @@ export default function EditDataSourceForm({ dataSource, type, onSuccess, ...pro
           </p>
         )}
       </div>
-      <div className="col-md-4 col-md-offset-4">
+      <div className="col-md-4 col-md-offset-4 m-b-10">
         <DynamicForm {...props} fields={fields} onSubmit={handleSubmit} feedbackIcons />
       </div>
     </div>

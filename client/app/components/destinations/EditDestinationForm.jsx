@@ -29,7 +29,7 @@ export default function EditDestinationForm({ destination, type, onSuccess, ...p
         <img src={`${Destination.IMG_ROOT}/${selectedType}.png`} alt={type.name} width="64" />
         <h3>{type.name}</h3>
       </div>
-      <div className="col-md-4 col-md-offset-4">
+      <div className="col-md-4 col-md-offset-4 m-b-10">
         <DynamicForm {...props} fields={fields} onSubmit={handleSubmit} feedbackIcons />
       </div>
     </div>

@@ -56,7 +56,7 @@ class EditDestination extends React.Component {
     };
 
     return (
-      <div className="row">
+      <div>
         {(destination && type) && <EditDestinationForm {...formProps} />}
       </div>
     );
