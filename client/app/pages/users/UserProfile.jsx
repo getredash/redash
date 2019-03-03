@@ -28,10 +28,12 @@ class UserProfile extends React.Component {
     const canEdit = (currentUser.isAdmin || currentUser.id === user.id);
     const UserComponent = canEdit ? UserEdit : UserShow;
     return (
-      <div className="row">
+      <React.Fragment>
         <EmailSettingsWarning featureName="invite emails" />
-        {user ? <UserComponent user={user} /> : <LoadingState className="" />}
-      </div>
+        <div className="row">
+          {user ? <UserComponent user={user} /> : <LoadingState className="" />}
+        </div>
+      </React.Fragment>
     );
   }
 }

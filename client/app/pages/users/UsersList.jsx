@@ -125,7 +125,11 @@ class UsersList extends React.Component {
 
   createUser = () => {
     if (policy.isCreateUserEnabled()) {
-      CreateUserDialog.showModal();
+      CreateUserDialog.showModal().result.then((success) => {
+        if (success) {
+          this.props.controller.update();
+        }
+      });
     }
   }
 
