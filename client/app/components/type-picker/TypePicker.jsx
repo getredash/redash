@@ -15,10 +15,12 @@ const { Meta } = Card;
 export default class TypePicker extends React.Component {
   static propTypes = {
     types: PropTypes.arrayOf(Type),
+    hideSearch: PropTypes.bool,
   };
 
   static defaultProps = {
     types: [],
+    hideSearch: false,
   };
 
   constructor(props) {
@@ -43,7 +45,7 @@ export default class TypePicker extends React.Component {
   }
 
   render() {
-    const { types } = this.props;
+    const { types, hideSearch } = this.props;
     const { searchText } = this.state;
 
     const filteredTypes = types.filter(type => isEmpty(searchText) ||
@@ -51,15 +53,17 @@ export default class TypePicker extends React.Component {
 
     return (
       <div className="type-picker" data-test="TypePicker">
-        <div className="row p-10">
-          <div className="col-md-4 col-md-offset-4">
-            <Search
-              placeholder="Search..."
-              onChange={e => this.setState({ searchText: e.target.value })}
-              autoFocus
-            />
+        {!hideSearch && (
+          <div className="row p-10">
+            <div className="col-md-4 col-md-offset-4">
+              <Search
+                placeholder="Search..."
+                onChange={e => this.setState({ searchText: e.target.value })}
+                autoFocus
+              />
+            </div>
           </div>
-        </div>
+        )}
         {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
           <List
             className="p-10"

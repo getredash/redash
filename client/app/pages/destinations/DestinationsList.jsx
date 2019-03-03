@@ -34,7 +34,7 @@ class DestinationsList extends React.Component {
           <a href="destinations/new">Click here</a> to add one.
         </div>
       </div>
-    ) : (<TypePicker types={types} />);
+    ) : (<TypePicker types={types} hideSearch />);
   }
 
   render() {

@@ -35,7 +35,7 @@ class DataSourcesList extends React.Component {
           <a href="data_sources/new">Click here</a> to add one.
         </div>
       </div>
-    ) : (<TypePicker types={types} />);
+    ) : (<TypePicker types={types} hideSearch />);
   }
 
   render() {
