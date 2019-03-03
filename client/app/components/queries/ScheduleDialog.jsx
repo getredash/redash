@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import DatePicker from 'antd/lib/date-picker';
@@ -9,7 +9,7 @@ import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
+import { RefreshScheduleType, RefreshScheduleDefault, Moment } from '../proptypes';
 
 import './ScheduleDialog.css';
 
@@ -18,6 +18,42 @@ const WEEKDAYS_FULL = moment.weekdays();
 const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
 const { Option, OptGroup } = Select;
+
+function TimeEditor(props) {
+  const [time, setTime] = useState(props.defaultValue);
+  const showUtc = time && !time.isUTC();
+
+  function onChange(newTime) {
+    setTime(newTime);
+    props.onChange(newTime);
+  }
+
+  return (
+    <React.Fragment>
+      <TimePicker
+        allowEmpty={false}
+        value={time}
+        format={HOUR_FORMAT}
+        minuteStep={5}
+        onChange={onChange}
+      />
+      {showUtc && (
+        <span className="utc">
+          ({ moment.utc(time).format(HOUR_FORMAT) } UTC)
+        </span>
+      )}
+    </React.Fragment>
+  );
+}
+
+TimeEditor.propTypes = {
+  defaultValue: Moment,
+  onChange: PropTypes.func.isRequired,
+};
+
+TimeEditor.defaultProps = {
+  defaultValue: null,
+};
 
 class ScheduleDialog extends React.Component {
   static propTypes = {
@@ -139,29 +175,6 @@ class ScheduleDialog extends React.Component {
     this.setScheduleUntil(null, date);
   };
 
-  getTimeSelector = () => {
-    const { hour, minute, newSchedule: { time: utc } } = this.state;
-    const value = hour ? moment().hour(hour).minute(minute) : null;
-    const showUTC = value && !value.isUTC();
-
-    return (
-      <React.Fragment>
-        <TimePicker
-          allowEmpty={false}
-          defaultValue={value}
-          format={HOUR_FORMAT}
-          minuteStep={5}
-          onChange={this.setTime}
-        />
-        {showUTC && (
-          <span className="utc">
-            ({ utc } UTC)
-          </span>
-        )}
-      </React.Fragment>
-    );
-  }
-
   save() {
     const { newSchedule } = this.state;
 
@@ -180,6 +193,8 @@ class ScheduleDialog extends React.Component {
     const { dialog } = this.props;
     const {
       interval,
+      minute,
+      hour,
       seconds,
       newSchedule: { until },
     } = this.state;
@@ -209,7 +224,10 @@ class ScheduleDialog extends React.Component {
           <div className="schedule-component">
             <h5>On time</h5>
             <div data-testid="time">
-              {this.getTimeSelector()}
+              <TimeEditor
+                defaultValue={hour ? moment().hour(hour).minute(minute) : null}
+                onChange={this.setTime}
+              />
             </div>
           </div>
         ) : null}
