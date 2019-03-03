@@ -37,10 +37,17 @@ order_results = partial(
 )
 
 
-def invite_user(org, inviter, user):
+def invite_user(org, inviter, user, send_email=True):
+    email_configured = settings.MAIL_DEFAULT_SENDER is not None
+    d = user.to_dict()
+
     invite_url = invite_link_for_user(user)
-    send_invite_email(inviter, user, invite_url, org)
-    return invite_url
+    if email_configured and send_email:
+        send_invite_email(inviter, user, invite_url, org)
+    else:
+        d['invite_link'] = invite_url
+
+    return d
 
 
 class UserListResource(BaseResource):
@@ -139,25 +146,14 @@ class UserListResource(BaseResource):
         })
 
         should_send_invitation = 'no_invite' not in request.args
-        if should_send_invitation:
-            invite_url = invite_user(self.current_org, self.current_user, user)
-        else:
-            invite_url = invite_link_for_user(user)
-
-        d = user.to_dict()
-        if settings.MAIL_DEFAULT_SENDER is None:
-            d['invite_link'] = invite_url
-
-        return d
+        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
 
 
 class UserInviteResource(BaseResource):
     @require_admin
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        invite_url = invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user)
 
 
 class UserResetPasswordResource(BaseResource):
