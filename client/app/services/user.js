@@ -118,7 +118,11 @@ function sendPasswordReset(user) {
 function resendInvitation(user) {
   return $http
     .post(`api/users/${user.id}/invite`)
-    .then(() => {
+    .then(({ data }) => {
+      if (clientConfig.mailSettingsMissing) {
+        toastr.warning('The mail server is not configured.');
+        return data.invite_link;
+      }
       toastr.success('Invitation sent.');
     })
     .catch((response = {}) => {

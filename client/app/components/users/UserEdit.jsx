@@ -34,8 +34,8 @@ export default class UserEdit extends React.Component {
   sendPasswordReset = () => {
     this.setState({ sendingPasswordEmail: true });
 
-    User.sendPasswordReset(this.state.user).then((passwordResetLink) => {
-      this.setState({ passwordResetLink });
+    User.sendPasswordReset(this.state.user).then((passwordLink) => {
+      this.setState({ passwordLink });
     }).finally(() => {
       this.setState({ sendingPasswordEmail: false });
     });
@@ -44,7 +44,9 @@ export default class UserEdit extends React.Component {
   resendInvitation = () => {
     this.setState({ resendingInvitation: true });
 
-    User.resendInvitation(this.state.user).finally(() => {
+    User.resendInvitation(this.state.user).then((passwordLink) => {
+      this.setState({ passwordLink });
+    }).finally(() => {
       this.setState({ resendingInvitation: false });
     });
   };
@@ -148,7 +150,7 @@ export default class UserEdit extends React.Component {
   }
 
   renderPasswordLinkAlert() {
-    const { user, passwordResetLink } = this.state;
+    const { user, passwordLink } = this.state;
 
     return (
       <Alert
@@ -157,14 +159,14 @@ export default class UserEdit extends React.Component {
           <Fragment>
             <p>
               The mail server is not configured, please send the following link
-              to <b>{user.name}</b> to reset their password:
+              to <b>{user.name}</b>:
             </p>
-            <InputWithCopy value={absoluteUrl(passwordResetLink)} readOnly />
+            <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
           </Fragment>
         )}
         type="warning"
         className="m-t-20"
-        afterClose={() => { this.setState({ passwordResetLink: null }); }}
+        afterClose={() => { this.setState({ passwordLink: null }); }}
         closable
       />
     );
@@ -183,7 +185,7 @@ export default class UserEdit extends React.Component {
   }
 
   renderSendPasswordReset() {
-    const { sendingPasswordEmail, passwordResetLink } = this.state;
+    const { sendingPasswordEmail } = this.state;
 
     return (
       <Fragment>
@@ -194,7 +196,6 @@ export default class UserEdit extends React.Component {
         >
           Send Password Reset Email
         </Button>
-        {passwordResetLink && this.renderPasswordLinkAlert()}
       </Fragment>
     );
   }
@@ -214,7 +215,7 @@ export default class UserEdit extends React.Component {
   }
 
   render() {
-    const { user } = this.state;
+    const { user, passwordLink } = this.state;
 
     return (
       <div className="col-md-4 col-md-offset-4">
@@ -238,8 +239,11 @@ export default class UserEdit extends React.Component {
               </Button>
             )}
             {(currentUser.isAdmin && user.id !== currentUser.id) && (
-              user.isInvitationPending ?
-                this.renderResendInvitation() : this.renderSendPasswordReset()
+              <Fragment>
+                {user.isInvitationPending ?
+                  this.renderResendInvitation() : this.renderSendPasswordReset()}
+                {passwordLink && this.renderPasswordLinkAlert()}
+              </Fragment>
             )}
           </Fragment>
         )}
