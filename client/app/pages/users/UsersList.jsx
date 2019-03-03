@@ -18,13 +18,14 @@ import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import Layout from '@/components/layouts/ContentWithSidebar';
+import CreateUserDialog from '@/components/users/CreateUserDialog';
 
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import { $location } from '@/services/ng';
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
@@ -116,6 +117,18 @@ class UsersList extends React.Component {
     }),
   ];
 
+  componentDidMount() {
+    if ($location.path() === '/users/new') {
+      this.createUser();
+    }
+  }
+
+  createUser = () => {
+    if (policy.isCreateUserEnabled()) {
+      CreateUserDialog.showModal();
+    }
+  }
+
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 
   enableUser = (event, user) => {
@@ -149,7 +162,7 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.createUser}>
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
@@ -243,32 +256,6 @@ export default function init(ngModule) {
     }),
     new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
   )));
-
-  return routesToAngularRoutes([
-    {
-      path: '/users',
-      title: 'Users',
-      key: 'active',
-    },
-    {
-      path: '/users/pending',
-      title: 'Pending Invitations',
-      key: 'pending',
-    },
-    {
-      path: '/users/disabled',
-      title: 'Disabled Users',
-      key: 'disabled',
-    },
-  ], {
-    template: '<settings-screen><page-users-list on-error="handleError"></page-users-list></settings-screen>',
-    reloadOnSearch: false,
-    controller($scope, $exceptionHandler) {
-      'ngInject';
-
-      $scope.handleError = $exceptionHandler;
-    },
-  });
 }
 
 init.init = true;

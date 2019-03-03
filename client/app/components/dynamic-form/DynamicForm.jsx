@@ -167,6 +167,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       };
 
       const fieldProps = {
+        ...field.props,
         autoFocus: (firstField === field),
         className: 'w-100',
         name,

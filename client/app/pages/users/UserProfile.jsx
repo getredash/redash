@@ -10,7 +10,6 @@ import { User } from '@/services/user';
 import settingsMenu from '@/services/settingsMenu';
 import { $route } from '@/services/ng';
 import { currentUser } from '@/services/auth';
-import { routesToAngularRoutes } from '@/lib/utils';
 import './settings.less';
 
 class UserProfile extends React.Component {
@@ -45,27 +44,6 @@ export default function init(ngModule) {
   });
 
   ngModule.component('pageUserProfile', react2angular(UserProfile));
-
-  return routesToAngularRoutes([
-    {
-      path: '/users/me',
-      title: 'Account',
-      key: 'users',
-    },
-    {
-      path: '/users/:userId',
-      title: 'Users',
-      key: 'users',
-    },
-  ], {
-    reloadOnSearch: false,
-    template: '<settings-screen><page-user-profile on-error="handleError"></page-user-profile></settings-screen>',
-    controller($scope, $exceptionHandler) {
-      'ngInject';
-
-      $scope.handleError = $exceptionHandler;
-    },
-  });
 }
 
 init.init = true;
