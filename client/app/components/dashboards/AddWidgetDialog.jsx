@@ -84,7 +84,7 @@ class AddWidgetDialog extends React.Component {
         this.props.dialog.close();
       })
       .catch(() => {
-        toastr.error('Widget can not be added');
+        toastr.error('Widget could not be added');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
