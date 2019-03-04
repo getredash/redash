@@ -144,7 +144,7 @@ class UsersList extends React.Component {
     if (!(error instanceof Error)) {
       error = new Error(get(error, 'data.message', 'Failed saving.'));
     }
-    throw error;
+    return Promise.reject(error);
   });
 
   showCreateUserDialog = () => {
