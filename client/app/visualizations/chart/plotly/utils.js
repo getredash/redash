@@ -565,6 +565,8 @@ export function prepareLayout(element, seriesList, options, data) {
     if (options.globalSeriesType === 'box') {
       result.boxmode = 'group';
       result.boxgroupgap = 0.50;
+    } else if (options.globalSeriesType === 'scatter') {
+      result.hovermode = 'closest';
     }
 
     result.xaxis = {
@@ -635,14 +637,15 @@ function updateSeriesText(seriesList, options) {
     series.text = [];
     series.hover = [];
     const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
-    xValues.forEach((x) => {
+    xValues.forEach((x, i) => {
       const text = {
         '@@name': series.name,
         // '@@x' is already in `item.$raw`
       };
       const item = series.sourceData.get(x);
+      const yVal = series.y ? series.y[i] : item.y;
       if (item) {
-        text['@@y'] = includes(['bubble', 'scatter'], seriesOptions.type) ? item.y : series.formatNumber(item.y);
+        text['@@y'] = includes(['bubble', 'scatter'], seriesOptions.type) ? yVal : series.formatNumber(item.y);
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
         }
