@@ -82,7 +82,7 @@ class AddTextboxDialog extends React.Component {
               rel="noopener noreferrer"
               href="https://www.markdownguide.org/cheat-sheet/#basic-syntax"
             >
-              <Tooltip title="Markdown guide opens in new window">markdown</Tooltip>
+              <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
             </a>.
           </small>
           {this.state.text && (
