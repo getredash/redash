@@ -1,6 +1,6 @@
 <div class="container">
   <div ng-if="$ctrl.messages.includes('using-deprecated-embed-feature')" class="alert alert-warning">
-      You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code> in <code>redash/settings/__init__.py</code>. This setting is now deprecated and supported by default. Please turn this setting off.
+      You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code> in <code>redash/settings/__init__.py</code>. This setting is now deprecated and supported by default and can be turned off. <a href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337" target="_blank">Read more</a>.
   </div>
   <div ng-if="$ctrl.messages.includes('email-not-verified')" class="alert alert-warning">
       We have sent an email with a confirmation link to your email address. Please follow the link to verify your email address. <a ng-click="$ctrl.verifyEmail()">Resend email</a>.
