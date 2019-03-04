@@ -11,6 +11,8 @@ import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
+import AddTextboxDialog from '@/components/dashboards/AddTextboxDialog';
+
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -325,25 +327,40 @@ function DashboardCtrl(
   };
 
   this.showAddTextboxDialog = () => {
-    $uibModal
-      .open({
-        component: 'addTextboxDialog',
-        resolve: {
-          dashboard: () => this.dashboard,
-        },
-      })
-      .result.then(this.onWidgetAdded);
+    AddTextboxDialog.showModal({
+      dashboard: this.dashboard,
+      onConfirm: this.addTextbox,
+    });
+  };
+
+  this.addTextbox = (text) => {
+    const widget = new Widget({
+      dashboard_id: this.dashboard.id,
+      options: {
+        isHidden: false,
+        position: {},
+      },
+      text,
+      visualization: null,
+      visualization_id: null,
+    });
+
+    const position = this.dashboard.calculateNewWidgetPosition(widget);
+    widget.options.position.col = position.col;
+    widget.options.position.row = position.row;
+
+    return widget.save()
+      .then(() => {
+        this.dashboard.widgets.push(widget);
+        this.onWidgetAdded();
+      });
   };
 
   this.showAddWidgetDialog = () => {
     AddWidgetDialog.showModal({
       dashboard: this.dashboard,
       onConfirm: this.addWidget,
-    })
-      .result.then(() => {
-        this.onWidgetAdded();
-        $scope.$applyAsync();
-      });
+    });
   };
 
   this.addWidget = (selectedVis, parameterMappings) => {
@@ -371,6 +388,7 @@ function DashboardCtrl(
     return Promise.all(widgetsToSave.map(w => w.save()))
       .then(() => {
         this.dashboard.widgets.push(widget);
+        this.onWidgetAdded();
       });
   };
 
@@ -381,6 +399,7 @@ function DashboardCtrl(
     if (_.isObject(widget)) {
       return widget.save();
     }
+    $scope.$applyAsync();
   };
 
   this.removeWidget = (widgetId) => {
