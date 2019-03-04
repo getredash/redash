@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { UserShow } from './UserShow';
+import UserShow from './UserShow';
 
 test('renders correctly', () => {
   const user = {
