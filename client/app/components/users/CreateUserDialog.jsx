@@ -1,5 +1,6 @@
 import React from 'react';
 import Modal from 'antd/lib/modal';
+import Alert from 'antd/lib/alert';
 import { get } from 'lodash';
 import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
@@ -16,7 +17,7 @@ class CreateUserDialog extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { savingUser: false };
+    this.state = { savingUser: false, errorMessage: null };
     this.form = React.createRef();
   }
 
@@ -44,16 +45,15 @@ class CreateUserDialog extends React.Component {
           }
           this.props.dialog.close({ success: true });
         }, (error) => {
-          const message = get(error, 'data.message', 'Failed saving.');
-          toastr.error(message);
-          this.setState({ savingUser: false });
+          const errorMessage = get(error, 'data.message', 'Failed saving.');
+          this.setState({ savingUser: false, errorMessage });
         });
       }
     });
   };
 
   render() {
-    const { savingUser } = this.state;
+    const { savingUser, errorMessage } = this.state;
     const formFields = [
       { name: 'name', title: 'Name', type: 'text' },
       { name: 'email', title: 'Email', type: 'email' },
@@ -68,6 +68,7 @@ class CreateUserDialog extends React.Component {
         onOk={() => this.createUser()}
       >
         <DynamicForm fields={formFields} ref={this.form} hideSubmitButton />
+        {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
       </Modal>
     );
   }
