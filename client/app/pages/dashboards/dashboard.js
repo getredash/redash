@@ -2,6 +2,11 @@ import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
+import { Widget } from '@/services/widget';
+import {
+  editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
+} from '@/components/ParameterMappingInput';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
@@ -319,7 +324,7 @@ function DashboardCtrl(
     );
   };
 
-  this.addTextBox = () => {
+  this.showAddTextboxDialog = () => {
     $uibModal
       .open({
         component: 'addTextboxDialog',
@@ -330,11 +335,42 @@ function DashboardCtrl(
       .result.then(this.onWidgetAdded);
   };
 
-  this.addWidget = () => {
-    AddWidgetDialog.showModal({ dashboard: this.dashboard })
+  this.showAddWidgetDialog = () => {
+    AddWidgetDialog.showModal({
+      dashboard: this.dashboard,
+      onConfirm: this.addWidget,
+    })
       .result.then(() => {
         this.onWidgetAdded();
         $scope.$applyAsync();
+      });
+  };
+
+  this.addWidget = (selectedVis, parameterMappings) => {
+    const widget = new Widget({
+      visualization_id: selectedVis && selectedVis.id,
+      dashboard_id: this.dashboard.id,
+      options: {
+        isHidden: false,
+        position: {},
+        parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+      },
+      visualization: selectedVis,
+      text: '',
+    });
+
+    const position = this.dashboard.calculateNewWidgetPosition(widget);
+    widget.options.position.col = position.col;
+    widget.options.position.row = position.row;
+
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.dashboard.widgets),
+    ];
+
+    return Promise.all(widgetsToSave.map(w => w.save()))
+      .then(() => {
+        this.dashboard.widgets.push(widget);
       });
   };
 
