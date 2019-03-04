@@ -1,12 +1,14 @@
-import { map } from 'lodash';
+import { map, get } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
+import Modal from 'antd/lib/modal';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 import { UserPreviewCard } from '@/components/PreviewCard';
+import InputWithCopy from '@/components/InputWithCopy';
 
 import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -25,7 +27,8 @@ import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { $location } from '@/services/ng';
+import { $location, toastr } from '@/services/ng';
+import { absoluteUrl } from '@/services/utils';
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
@@ -123,9 +126,28 @@ class UsersList extends React.Component {
     }
   }
 
+  createUser = values => new Promise((resolve, reject) => {
+    User.create(values, (user) => {
+      toastr.success('Saved.');
+      if (user.invite_link) {
+        Modal.warning({ title: 'Email not sent!',
+          content: (
+            <React.Fragment>
+              <p>
+                The mail server is not configured, please send the following link
+                to <b>{user.name}</b>:
+              </p>
+              <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+            </React.Fragment>
+          ) });
+      }
+      resolve();
+    }, error => reject(get(error, 'data.message', 'Failed saving.')));
+  });
+
   showCreateUserDialog = () => {
     if (policy.isCreateUserEnabled()) {
-      CreateUserDialog.showModal().result.then((success) => {
+      CreateUserDialog.showModal({ onCreate: this.createUser }).result.then((success) => {
         if (success) {
           this.props.controller.update();
         }

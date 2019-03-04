@@ -1,18 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Alert from 'antd/lib/alert';
-import { get } from 'lodash';
 import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import recordEvent from '@/services/recordEvent';
-import { toastr } from '@/services/ng';
-import { absoluteUrl } from '@/services/utils';
-import { User } from '@/services/user';
-import InputWithCopy from '../InputWithCopy';
 
 class CreateUserDialog extends React.Component {
   static propTypes = {
     dialog: DialogPropType.isRequired,
+    onCreate: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -29,23 +26,9 @@ class CreateUserDialog extends React.Component {
     this.form.current.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.setState({ savingUser: true });
-        User.create(values, (user) => {
-          toastr.success('Saved.');
-          if (user.invite_link) {
-            Modal.warning({ title: 'Email not sent!',
-              content: (
-                <React.Fragment>
-                  <p>
-                    The mail server is not configured, please send the following link
-                    to <b>{user.name}</b>:
-                  </p>
-                  <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
-                </React.Fragment>
-              ) });
-          }
-          this.props.dialog.close({ success: true });
-        }, (error) => {
-          const errorMessage = get(error, 'data.message', 'Failed saving.');
+        this.props.onCreate(values).then(() => {
+          this.props.dialog.close();
+        }).catch((errorMessage) => {
           this.setState({ savingUser: false, errorMessage });
         });
       }
