@@ -137,7 +137,8 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     'enqueue_time': time.time(),
                     'scheduled': scheduled_query_id is not None,
                     'query_id': metadata.get('Query ID'),
-                    'user_id': user_id
+                    'user_id': user_id,
+                    'is_api_key': is_api_key
                 })
 
                 result = execute_query.apply_async(args=args,

@@ -43,15 +43,8 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        if current_user.is_api_user:
-            user_id = None
-            name = repr(current_user)
-        else:
-            user_id = current_user.id
-            name = current_user.email
-
-        job = enqueue_query(query.text, data_source, user_id, metadata={
-            "Username": name,
+        job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
+            "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
             "Query ID": query_id
         })
         return {'job': job.to_dict()}
