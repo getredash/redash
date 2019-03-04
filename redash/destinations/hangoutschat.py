@@ -1,10 +1,8 @@
 import logging
 import requests
-from requests.auth import HTTPBasicAuth
 
 from redash.destinations import *
 from redash.utils import json_dumps
-from redash.serializers import serialize_alert
 
 # Implements a Hangouts Chat card as per the specification https://developers.google.com/hangouts/chat/
 class HangoutsChat(BaseDestination):
@@ -89,6 +87,5 @@ class HangoutsChat(BaseDestination):
                 logging.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("webhook send ERROR.")
-
 
 register(HangoutsChat)
