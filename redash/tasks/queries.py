@@ -94,7 +94,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True, signal='SIGINT')
 
 
-def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}):
+def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -130,14 +130,15 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                args = (query, data_source.id, metadata, user_id, scheduled_query_id)
+                args = (query, data_source.id, metadata, user_id, is_api_key, scheduled_query_id)
                 argsrepr = json_dumps({
                     'org_id': data_source.org_id,
                     'data_source_id': data_source.id,
                     'enqueue_time': time.time(),
                     'scheduled': scheduled_query_id is not None,
                     'query_id': metadata.get('Query ID'),
-                    'user_id': user_id
+                    'user_id': user_id,
+                    'is_api_key': is_api_key
                 })
 
                 result = execute_query.apply_async(args=args,
@@ -278,20 +279,30 @@ class QueryExecutionError(Exception):
     pass
 
 
+def _resolve_user(user_id, is_api_key):
+    if user_id is not None:
+        if is_api_key:
+            api_key = user_id
+            q = models.Query.query.filter(models.Query.api_key == api_key).one()
+            return models.ApiUser(api_key, q.org, q.groups)
+        else:
+            return models.User.query.get(user_id)
+    else:
+        return None
+
+
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
-    def __init__(self, task, query, data_source_id, user_id, metadata,
+    def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        if user_id is not None:
-            self.user = models.User.query.get(user_id)
-        else:
-            self.user = None
+        self.user = _resolve_user(user_id, is_api_key)
+
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
@@ -380,11 +391,11 @@ class QueryExecutor(object):
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
 @celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
-def execute_query(self, query, data_source_id, metadata, user_id=None,
+def execute_query(self, query, data_source_id, metadata, user_id=None, is_api_key=False,
                   scheduled_query_id=None):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
-    return QueryExecutor(self, query, data_source_id, user_id, metadata,
+    return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
                          scheduled_query).run()
