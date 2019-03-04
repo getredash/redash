@@ -242,6 +242,17 @@ def client_config():
 
     return client_config
 
+def messages():
+    messages = []
+
+    if not current_user.is_email_verified:
+        messages.append('email-not-verified')
+
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+        messages.append('using-deprecated-embed-feature')
+
+    return messages
+
 
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
@@ -266,12 +277,12 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions,
-            'is_email_verified': current_user.is_email_verified
+            'permissions': current_user.permissions
         }
 
     return json_response({
         'user': user,
+        'messages': messages(),
         'org_slug': current_org.slug,
         'client_config': client_config()
     })

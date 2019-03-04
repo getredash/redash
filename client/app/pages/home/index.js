@@ -1,12 +1,12 @@
 import template from './home.html';
 
-function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages, toastr) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;
   this.noQueries = false;
 
-  this.isEmailVerified = currentUser.is_email_verified;
+  this.messages = messages;
 
   Dashboard.favorites().$promise.then((data) => {
     this.favoriteDashboards = data.results;
