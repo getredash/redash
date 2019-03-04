@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniqBy, values, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
+import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -33,18 +33,6 @@ export function getColumnCleanName(column) {
 
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-}
-
-function addPointToSeries(point, seriesCollection, seriesName) {
-  if (seriesCollection[seriesName] === undefined) {
-    seriesCollection[seriesName] = {
-      name: seriesName,
-      type: 'column',
-      data: [],
-    };
-  }
-
-  seriesCollection[seriesName].data.push(point);
 }
 
 function QueryResultService($resource, $timeout, $q, QueryResultError) {
@@ -206,87 +194,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 
     isEmpty() {
       return this.getData() === null || this.getData().length === 0;
-    }
-
-    getChartData(mapping) {
-      const series = {};
-
-      this.getData().forEach((row) => {
-        let point = { $raw: row };
-        let seriesName;
-        let xValue = 0;
-        const yValues = {};
-        let eValue = null;
-        let sizeValue = null;
-        let zValue = null;
-
-        forOwn(row, (v, definition) => {
-          definition = '' + definition;
-          const definitionParts = definition.split('::') || definition.split('__');
-          const name = definitionParts[0];
-          const type = mapping ? mapping[definition] : definitionParts[1];
-          let value = v;
-
-          if (type === 'unused') {
-            return;
-          }
-
-          if (type === 'x') {
-            xValue = value;
-            point[type] = value;
-          }
-          if (type === 'y') {
-            if (value == null) {
-              value = 0;
-            }
-            yValues[name] = value;
-            point[type] = value;
-          }
-          if (type === 'yError') {
-            eValue = value;
-            point[type] = value;
-          }
-
-          if (type === 'series') {
-            seriesName = String(value);
-          }
-
-          if (type === 'size') {
-            point[type] = value;
-            sizeValue = value;
-          }
-
-          if (type === 'zVal') {
-            point[type] = value;
-            zValue = value;
-          }
-
-          if (type === 'multiFilter' || type === 'multi-filter') {
-            seriesName = String(value);
-          }
-        });
-
-        if (seriesName === undefined) {
-          each(yValues, (yValue, ySeriesName) => {
-            point = { x: xValue, y: yValue, $raw: point.$raw };
-            if (eValue !== null) {
-              point.yError = eValue;
-            }
-
-            if (sizeValue !== null) {
-              point.size = sizeValue;
-            }
-
-            if (zValue !== null) {
-              point.zVal = zValue;
-            }
-            addPointToSeries(point, series, ySeriesName);
-          });
-        } else {
-          addPointToSeries(point, series, seriesName);
-        }
-      });
-      return sortBy(values(series), 'name');
     }
 
     getColumns() {

@@ -4,7 +4,8 @@ import angular from 'angular';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
-import { ColorPalette, normalizeValue } from '@/visualizations/chart/plotly/utils';
+import { normalizeValue } from '@/visualizations/chart/plotly/utils';
+import ColorPalette from '@/visualizations/ColorPalette';
 import editorTemplate from './funnel-editor.html';
 import './funnel.less';
 

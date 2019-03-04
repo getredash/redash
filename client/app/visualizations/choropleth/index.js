@@ -6,8 +6,7 @@ import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
-
-import { ColorPalette } from '@/visualizations/chart/plotly/utils';
+import ColorPalette from '@/visualizations/ColorPalette';
 
 import {
   AdditionalColors,
