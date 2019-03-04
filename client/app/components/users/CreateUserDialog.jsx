@@ -28,8 +28,8 @@ class CreateUserDialog extends React.Component {
         this.setState({ savingUser: true });
         this.props.onCreate(values).then(() => {
           this.props.dialog.close();
-        }).catch((errorMessage) => {
-          this.setState({ savingUser: false, errorMessage });
+        }).catch((error) => {
+          this.setState({ savingUser: false, errorMessage: error.message });
         });
       }
     });

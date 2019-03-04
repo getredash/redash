@@ -126,23 +126,25 @@ class UsersList extends React.Component {
     }
   }
 
-  createUser = values => new Promise((resolve, reject) => {
-    User.create(values, (user) => {
-      toastr.success('Saved.');
-      if (user.invite_link) {
-        Modal.warning({ title: 'Email not sent!',
-          content: (
-            <React.Fragment>
-              <p>
-                The mail server is not configured, please send the following link
-                to <b>{user.name}</b>:
-              </p>
-              <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
-            </React.Fragment>
-          ) });
-      }
-      resolve();
-    }, error => reject(get(error, 'data.message', 'Failed saving.')));
+  createUser = values => User.create(values).$promise.then((user) => {
+    toastr.success('Saved.');
+    if (user.invite_link) {
+      Modal.warning({ title: 'Email not sent!',
+        content: (
+          <React.Fragment>
+            <p>
+              The mail server is not configured, please send the following link
+              to <b>{user.name}</b>:
+            </p>
+            <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+          </React.Fragment>
+        ) });
+    }
+  }).catch((error) => {
+    if (!(error instanceof Error)) {
+      error = new Error(get(error, 'data.message', 'Failed saving.'));
+    }
+    throw error;
   });
 
   showCreateUserDialog = () => {
