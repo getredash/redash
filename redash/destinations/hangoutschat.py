@@ -28,11 +28,6 @@ class HangoutsChat(BaseDestination):
     def icon(cls):
         return 'fa-bolt'
 
-    def dump(self, obj):
-        for attr in dir(obj):
-            if hasattr(obj, attr):
-                logging.error("obj.%s = %s" % (attr, getattr(obj, attr)))
-
     def notify(self, alert, query, user, new_state, app, host, options):
         try:
             if new_state == "triggered":
