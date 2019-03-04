@@ -24,7 +24,7 @@ psycopg2==2.7.3.2
 python-dateutil==2.7.5
 pytz==2016.7
 PyYAML==3.12
-redis==3.0.1
+redis==3.2.0
 requests==2.21.0
 six==1.11.0
 SQLAlchemy==1.2.12
