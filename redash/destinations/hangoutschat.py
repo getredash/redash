@@ -4,9 +4,8 @@ import requests
 from redash.destinations import *
 from redash.utils import json_dumps
 
-# Implements a Hangouts Chat card as per the specification https://developers.google.com/hangouts/chat/
-class HangoutsChat(BaseDestination):
 
+class HangoutsChat(BaseDestination):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -59,7 +58,7 @@ class HangoutsChat(BaseDestination):
             if options.get("icon_url"):
                 data["cards"][0]["header"]["imageUrl"] = options.get("icon_url")
 
-            # Hangouts Chat will create a blank card if an invalid URL (no hostname) is posted. Only add this if host was provided.
+            # Hangouts Chat will create a blank card if an invalid URL (no hostname) is posted.
             if host:
                 data["cards"][0]["sections"][0]["widgets"].append({
                     "buttons": [
@@ -82,5 +81,6 @@ class HangoutsChat(BaseDestination):
                 logging.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("webhook send ERROR.")
+
 
 register(HangoutsChat)
