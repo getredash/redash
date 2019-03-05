@@ -1,6 +1,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import ScheduleDialog from './ScheduleDialog';
+import moment from 'moment';
+import ScheduleDialog, { TimeEditor } from './ScheduleDialog';
 import RefreshScheduleDefault from '../proptypes';
 
 const defaultProps = {
@@ -94,6 +95,57 @@ describe('ScheduleDialog', () => {
       test('Sets to correct time', () => {
         const el = findByTestID(wrapper, 'time');
         expect(el).toMatchSnapshot();
+      });
+    });
+
+    describe('TimeEditor', () => {
+      const defaultValue = moment().hour(5).minute(25); // 05:25
+
+      test('UTC set correctly on init', () => {
+        const editor = mount(<TimeEditor defaultValue={defaultValue} onChange={() => {}} />);
+        const utc = findByTestID(editor, 'utc');
+
+        // expect utc to be 2h below initial time
+        expect(utc.text()).toBe('(03:25 UTC)');
+      });
+
+      test('UTC time should not render', () => {
+        const utcValue = moment.utc(defaultValue);
+        const editor = mount(<TimeEditor defaultValue={utcValue} onChange={() => {}} />);
+        const utc = findByTestID(editor, 'utc');
+
+        // expect utc to not render
+        expect(utc.exists()).toBeFalsy();
+      });
+
+      test('onChange correct result', () => {
+        const onChangeCb = jest.fn(time => time.format('HH:mm'));
+        const editor = mount(<TimeEditor onChange={onChangeCb} />);
+
+        // click TimePicker
+        editor.find('.ant-time-picker-input').simulate('click');
+
+        // select hour "07"
+        const hourSelector = editor.find('.ant-time-picker-panel-select').at(0);
+        hourSelector
+          .find('li')
+          .at(7)
+          .simulate('click');
+
+        // select minute "30"
+        const minuteSelector = editor.find('.ant-time-picker-panel-select').at(1);
+        minuteSelector
+          .find('li')
+          .at(6)
+          .simulate('click');
+
+        // expect utc to be 2h below initial time
+        const utc = findByTestID(editor, 'utc');
+        expect(utc.text()).toBe('(05:30 UTC)');
+
+        // expect 07:30 from onChange
+        const onChangeResult = onChangeCb.mock.results[1].value;
+        expect(onChangeResult).toBe('07:30');
       });
     });
 
