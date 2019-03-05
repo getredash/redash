@@ -153,10 +153,7 @@ function Funnel(scope, element) {
     if (!options.autoSort) {
       colToCheck.push(options.sortKeyCol.colName);
     }
-    if (difference(colToCheck, colNames).length > 0) {
-      return true;
-    }
-    return false;
+    return difference(colToCheck, colNames).length > 0;
   }
 
   function refresh() {

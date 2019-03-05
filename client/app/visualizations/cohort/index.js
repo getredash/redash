@@ -219,18 +219,6 @@ export default function init(ngModule) {
       Editor: angular2react('cohortEditor', CohortEditor, $injector),
     });
   });
-
-  // ngModule.config((VisualizationProvider) => {
-  //   const editTemplate = '<cohort-editor></cohort-editor>';
-  //
-  //   VisualizationProvider.registerVisualization({
-  //     type: 'COHORT',
-  //     name: 'Cohort',
-  //   renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>',
-  //     editorTemplate: editTemplate,
-  //     defaultOptions: DEFAULT_OPTIONS,
-  //   });
-  // });
 }
 
 init.init = true;

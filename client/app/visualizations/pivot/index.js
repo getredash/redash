@@ -82,24 +82,6 @@ export default function init(ngModule) {
       Editor: angular2react('pivotTableEditor', PivotTableEditor, $injector),
     });
   });
-
-  // ngModule.config((VisualizationProvider) => {
-  //   const editTemplate = '<pivot-table-editor></pivot-table-editor>';
-  //   const defaultOptions = {
-  //     defaultRows: 10,
-  //     defaultColumns: 3,
-  //     minColumns: 2,
-  //   };
-  //
-  //   VisualizationProvider.registerVisualization({
-  //     type: 'PIVOT',
-  //     name: 'Pivot Table',
-  //     renderTemplate:
-  //       '<pivot-table-renderer visualization="visualization" query-result="queryResult"></pivot-table-renderer>',
-  //     editorTemplate: editTemplate,
-  //     defaultOptions,
-  //   });
-  // });
 }
 
 init.init = true;

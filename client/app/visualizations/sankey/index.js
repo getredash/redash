@@ -5,7 +5,8 @@ import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
 import d3sankey from '@/lib/visualizations/d3sankey';
-import editorTemplate from './sankey-editor.html';
+
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   defaultRows: 7,
@@ -257,23 +258,8 @@ const SankeyRenderer = {
   },
 };
 
-const SankeyEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('sankeyRenderer', SankeyRenderer);
-  ngModule.component('sankeyEditor', SankeyEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -281,19 +267,9 @@ export default function init(ngModule) {
       name: 'Sankey',
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('sankeyRenderer', SankeyRenderer, $injector),
-      Editor: angular2react('sankeyEditor', SankeyEditor, $injector),
+      Editor,
     });
   });
-
-  // ngModule.config((VisualizationProvider) => {
-  // VisualizationProvider.registerVisualization({
-  //   type: 'SANKEY',
-  //   name: 'Sankey',
-  //   renderTemplate: '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>',
-  //   editorTemplate: '<sankey-editor></sankey-editor>',
-  //   defaultOptions,
-  // });
-  // });
 }
 
 init.init = true;

@@ -3,7 +3,7 @@ import Sunburst from '@/lib/visualizations/sunburst';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
-import editorTemplate from './sunburst-sequence-editor.html';
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   defaultRows: 7,
@@ -28,23 +28,8 @@ const SunburstSequenceRenderer = {
   },
 };
 
-const SunburstSequenceEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('sunburstSequenceRenderer', SunburstSequenceRenderer);
-  ngModule.component('sunburstSequenceEditor', SunburstSequenceEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -52,7 +37,7 @@ export default function init(ngModule) {
       name: 'Sunburst Sequence',
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('sunburstSequenceRenderer', SunburstSequenceRenderer, $injector),
-      Editor: angular2react('sunburstSequenceEditor', SunburstSequenceEditor, $injector),
+      Editor,
     });
   });
 }
