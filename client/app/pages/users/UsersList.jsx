@@ -27,7 +27,7 @@ import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { $location, toastr } from '@/services/ng';
+import { toastr } from '@/services/ng';
 import { absoluteUrl } from '@/services/utils';
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
@@ -121,7 +121,7 @@ class UsersList extends React.Component {
   ];
 
   componentDidMount() {
-    if ($location.path() === '/users/new') {
+    if (this.props.controller.params.isNewUserPage) {
       this.showCreateUserDialog();
     }
   }
@@ -154,12 +154,12 @@ class UsersList extends React.Component {
           this.props.controller.update();
         }
       }).finally(() => {
-        if ($location.path() === '/users/new') {
+        if (this.props.controller.params.isNewUserPage) {
           navigateTo('users');
         }
       });
     }
-  }
+  };
 
   onTableRowClick = (event, item) => navigateTo('users/' + item.id);
 

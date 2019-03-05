@@ -12,6 +12,7 @@ export default function init() {
       path: '/users/new',
       title: 'Users',
       key: 'active',
+      isNewUserPage: true,
     },
     {
       path: '/users/pending',
