@@ -60,7 +60,7 @@ function NameInput({ name, type, onChange, existingNames, setValidation }) {
       validateStatus={validateStatus}
       {...formItemProps}
     >
-      <Input onChange={e => onChange(e.target.value)} />
+      <Input onChange={e => onChange(e.target.value)} autoFocus />
     </Form.Item>
   );
 }
