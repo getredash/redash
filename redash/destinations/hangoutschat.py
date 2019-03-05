@@ -9,10 +9,11 @@ class HangoutsChat(BaseDestination):
     @classmethod
     def name(cls):
         return "Google Hangouts Chat"
-    
+
     @classmethod
     def type(cls):
         return "hangouts_chat"
+
     @classmethod
     def configuration_schema(cls):
         return {
