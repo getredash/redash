@@ -1,4 +1,4 @@
-import { isArray, map, find, includes, every, some } from 'lodash';
+import { isArray, map, includes, every, some } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -29,9 +29,8 @@ function createFilterChangeHandler(filters, onChange) {
     if (filter.multiple && includes(value, NONE_VALUES)) {
       value = [];
     }
-    const allFilters = map(filters, f => (f.name === filter.name ? { ...filter, current: value } : f));
-    const changedFilter = find(allFilters, f => f.name === filter.name);
-    onChange(allFilters, changedFilter);
+    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: value } : f));
+    onChange(filters);
   };
 }
 
