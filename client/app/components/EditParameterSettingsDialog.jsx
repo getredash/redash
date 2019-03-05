@@ -1,4 +1,5 @@
-import { includes, words, capitalize, clone, isNull } from 'lodash';
+
+import { includes, startsWith, words, capitalize, clone, isNull } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
@@ -18,8 +19,16 @@ function getDefaultTitle(text) {
   return capitalize(words(text).join(' ')); // humanize
 }
 
-function NameInput({ name, onChange, existingNames, setValidation }) {
-  let helpText = `This is what will be added to your query editor {{ ${name} }}`;
+function isTypeDate(type) {
+  return startsWith('date', type) && !isTypeDateRange(type);
+}
+
+function isTypeDateRange(type) {
+  return startsWith('date-range', type);
+}
+
+function NameInput({ name, type, onChange, existingNames, setValidation }) {
+  let helpText = '';
   let validateStatus = '';
 
   if (!name) {
@@ -30,6 +39,16 @@ function NameInput({ name, onChange, existingNames, setValidation }) {
     setValidation(false);
     validateStatus = 'error';
   } else {
+    if (isTypeDateRange(type)) {
+      helpText = (
+        <React.Fragment>
+          Appears in query as {' '}
+          <code style={{ display: 'inline-block', color: 'inherit' }}>
+            {`{{${name}.start}} {{${name}.end}}`}
+          </code>
+        </React.Fragment>
+      );
+    }
     setValidation(true);
   }
 
@@ -51,6 +70,7 @@ NameInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   existingNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   setValidation: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
 };
 
 function EditParameterSettingsDialog(props) {
@@ -107,6 +127,7 @@ function EditParameterSettingsDialog(props) {
       onOk={onConfirm}
       okText={isNew ? 'Add Parameter' : null}
       okButtonProps={{ disabled: !isFulfilled() }}
+      width={600}
     >
       <Form layout="horizontal">
         {isNew && (
@@ -115,6 +136,7 @@ function EditParameterSettingsDialog(props) {
             onChange={name => setParam({ ...param, name })}
             setValidation={setIsNameValid}
             existingNames={props.existingParams}
+            type={param.type}
           />
         )}
         <Form.Item label="Title" {...formItemProps}>
@@ -143,7 +165,7 @@ function EditParameterSettingsDialog(props) {
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
         </Form.Item>
-        {includes(['date', 'datetime-local', 'datetime-with-seconds'], param.type) && (
+        {isTypeDate(param.type) && (
           <Form.Item label=" " colon={false} {...formItemProps}>
             <Checkbox
               defaultChecked={param.useCurrentDateTime}
