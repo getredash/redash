@@ -39,8 +39,10 @@ class HangoutsChat(BaseDestination):
         try:
             if new_state == "triggered":
                 message = "<b><font color=\"#c0392b\">Triggered</font></b>"
-            else:
+            elif new_state == "ok":
                 message = "<font color=\"#27ae60\">Went back to normal</font>"
+            else:
+                message = "Unable to determine status. Check Query and Alert configuration."
 
             data = {
                 "cards": [
