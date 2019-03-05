@@ -1,14 +1,10 @@
-import { isArray } from 'lodash';
+import { map, find } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { Filters, FiltersType, filterData } from '@/components/Filters';
 import { createPromiseHandler } from '@/lib/utils';
 import { registeredVisualizations, VisualizationType } from './index';
-
-function chooseFilters(globalFilters, localFilters) {
-  return isArray(globalFilters) && (globalFilters.length > 0) ? globalFilters : localFilters;
-}
 
 export class VisualizationRenderer extends React.Component {
   static propTypes = {
@@ -24,7 +20,7 @@ export class VisualizationRenderer extends React.Component {
   state = {
     allRows: [], // eslint-disable-line
     data: { columns: [], rows: [] },
-    filters: this.props.filters, // use global filters by default, if available
+    filters: [],
   };
 
   handleQueryResult = createPromiseHandler(
@@ -37,17 +33,14 @@ export class VisualizationRenderer extends React.Component {
         allRows: rows, // eslint-disable-line
         data: { columns, rows },
       });
-      this.applyFilters(
-        // If global filters available, use them, otherwise get new local filters from query
-        chooseFilters(this.props.filters, queryResult.getFilters()),
-      );
+      this.applyFilters(queryResult.getFilters());
     },
   );
 
   componentDidUpdate(prevProps) {
     if (this.props.filters !== prevProps.filters) {
-      // When global filters changed - apply them instead of local
-      this.applyFilters(this.props.filters);
+      // When global filters changed - apply corresponding values to local filters
+      this.applyFilters(this.state.filters, true);
     }
   }
 
@@ -55,7 +48,25 @@ export class VisualizationRenderer extends React.Component {
     this.handleQueryResult.cancel();
   }
 
-  applyFilters = (filters) => {
+  applyFilters(filters, applyGlobals = false) {
+    // tiny optimization - to avoid unnecessary updates
+    if ((this.state.filters.length === 0) && (filters.length === 0)) {
+      return;
+    }
+
+    if (applyGlobals) {
+      filters = map(filters, (localFilter) => {
+        const globalFilter = find(this.props.filters, f => f.name === localFilter.name);
+        if (globalFilter) {
+          return {
+            ...localFilter,
+            current: globalFilter.current,
+          };
+        }
+        return localFilter;
+      });
+    }
+
     this.setState(({ allRows, data }) => ({
       filters,
       data: {
@@ -63,7 +74,7 @@ export class VisualizationRenderer extends React.Component {
         rows: filterData(allRows, filters),
       },
     }));
-  };
+  }
 
   render() {
     const { visualization, queryResult } = this.props;
@@ -75,7 +86,7 @@ export class VisualizationRenderer extends React.Component {
 
     return (
       <React.Fragment>
-        <Filters filters={filters} onChange={this.applyFilters} />
+        <Filters filters={filters} onChange={newFilters => this.applyFilters(newFilters)} />
         <Renderer options={options} data={data} visualizationName={visualization.name} />
       </React.Fragment>
     );
