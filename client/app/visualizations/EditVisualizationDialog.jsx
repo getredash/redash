@@ -15,7 +15,7 @@ import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
-import { cleanAngularProps } from '@/lib/utils';
+import { cleanAngularProps, createPromiseHandler } from '@/lib/utils';
 
 class EditVisualizationDialog extends React.Component {
   static propTypes = {
@@ -29,38 +29,55 @@ class EditVisualizationDialog extends React.Component {
     visualization: null,
   };
 
+  handleQueryResult = createPromiseHandler(
+    queryResult => queryResult.toPromise(),
+    () => {
+      this.setState(({ isNew, type }) => {
+        const config = registeredVisualizations[type];
+
+        const { queryResult, visualization } = this.props;
+        const data = {
+          columns: queryResult ? queryResult.getColumns() : [],
+          rows: queryResult ? queryResult.getData() : [],
+        };
+
+        const options = config.getOptions(isNew ? {} : visualization.options, data);
+
+        this._originalOptions = cloneDeep(options);
+
+        return { isLoading: false, data, options };
+      });
+    },
+  );
+
   constructor(props) {
     super(props);
 
-    const { visualization, queryResult } = this.props;
+    const { visualization } = this.props;
 
     const isNew = !visualization;
 
     const config = isNew ? getDefaultVisualization()
       : registeredVisualizations[visualization.type];
 
-    // it's safe to use queryResult right here because while query is running -
-    // all UI to access this dialog is hidden/disabled
-    const data = {
-      columns: queryResult.getColumns(),
-      rows: queryResult.getData(),
-    };
-
-    const options = config.getOptions(isNew ? {} : visualization.options, data);
-
     this.state = {
+      isLoading: true,
+
       isNew, // eslint-disable-line
-      data,
+      data: { columns: [], rows: [] },
+      options: {},
 
       type: config.type,
       canChangeType: isNew, // cannot change type when editing existing visualization
       name: isNew ? config.name : visualization.name,
       nameChanged: false,
-      originalOptions: cloneDeep(options),
-      options,
 
       saveInProgress: false,
     };
+  }
+
+  componentWillUnmount() {
+    this.handleQueryResult.cancel();
   }
 
   setVisualizationType(type) {
@@ -88,9 +105,9 @@ class EditVisualizationDialog extends React.Component {
   };
 
   dismiss() {
-    const { nameChanged, options, originalOptions } = this.state;
+    const { nameChanged, options } = this.state;
 
-    const optionsChanged = !isEqual(cleanAngularProps(options), originalOptions);
+    const optionsChanged = !isEqual(cleanAngularProps(options), this._originalOptions);
     if (nameChanged || optionsChanged) {
       Modal.confirm({
         title: 'Visualization Editor',
@@ -110,10 +127,7 @@ class EditVisualizationDialog extends React.Component {
     const { query } = this.props;
     const { type, name, options } = this.state;
 
-    const visualization = {
-      ...extend({}, this.props.visualization),
-      ...newVisualization(type),
-    };
+    const visualization = extend({}, newVisualization(type), this.props.visualization);
 
     visualization.name = name;
     visualization.options = options;
@@ -147,6 +161,12 @@ class EditVisualizationDialog extends React.Component {
   }
 
   render() {
+    this.handleQueryResult(this.props.queryResult);
+
+    if (this.state.isLoading) {
+      return null;
+    }
+
     const { dialog } = this.props;
     const { type, name, data, options, canChangeType, saveInProgress } = this.state;
 
