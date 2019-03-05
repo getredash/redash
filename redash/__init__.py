@@ -138,11 +138,3 @@ def create_app(load_admin=True):
     users.init_app(app)
 
     return app
-
-
-def safe_create_app():
-    """Return current_app or create a new one."""
-    if current_app:
-        return current_app
-
-    return create_app()

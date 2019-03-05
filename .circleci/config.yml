@@ -58,7 +58,7 @@ jobs:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.cypress.yml
       COMPOSE_PROJECT_NAME: cypress
-      PERCY_TOKEN_ENCODED: MWM3OGUzNzk4ZWQ2NTE4YTBhMDAwZDNiNWE1Nzc4ZjEzZjYyMzY1MjE0NjY0NDRiOGE5ODc5ZGYzYTU4ZmE4NQ==
+      PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
     docker:
       - image: circleci/node:8
     steps:
@@ -96,9 +96,7 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: .circleci/update_version
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -t redash/redash:$(.circleci/docker_tag) .
-      - run: docker push redash/redash:$(.circleci/docker_tag)
+      - run: .circleci/docker_build
 workflows:
   version: 2
   build:
@@ -109,21 +107,23 @@ workflows:
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-tarball:
-           requires:
-             - backend-unit-tests
-           filters:
-             tags:
-               only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - /release\/.*/
       - build-docker-image:
-           requires:
-             - backend-unit-tests
-           filters:
-             branches:
-               only:
-                 - master
-                 - preview-build
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - preview-image
+                - /release\/.*/

@@ -13,7 +13,7 @@
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "lint": "npm run lint:base  -- --ext .js --ext .jsx ./client/app",
     "lint:base": "eslint --config ./client/.eslintrc.js",
-    "test": "TZ=Asia/Jerusalem jest",
+    "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2",
     "cypress": "node cypress/cypress.js"
@@ -77,9 +77,9 @@
     "pivottable": "^2.15.0",
     "plotly.js": "1.41.3",
     "prop-types": "^15.6.1",
-    "react": "^16.3.2",
+    "react": "^16.8.3",
     "react-ace": "^6.1.0",
-    "react-dom": "^16.3.2",
+    "react-dom": "^16.8.3",
     "react2angular": "^3.2.1",
     "ui-select": "^0.19.8",
     "underscore.string": "^3.3.4"
