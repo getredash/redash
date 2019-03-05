@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
 import Checkbox from 'antd/lib/checkbox';
+import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import Divider from 'antd/lib/divider';
@@ -109,7 +110,7 @@ function EditParameterSettingsDialog(props) {
     return true;
   }
 
-  function onConfirm() {
+  function onConfirm(e) {
     // update title to default
     if (!param.title) {
       // forced to do this cause param won't update in time for save
@@ -118,18 +119,24 @@ function EditParameterSettingsDialog(props) {
     }
 
     props.dialog.close(param);
+
+    e.preventDefault(); // stops form redirect
   }
 
   return (
     <Modal
       {...props.dialog.props}
       title={isNew ? 'Add Parameter' : param.name}
-      onOk={onConfirm}
-      okText={isNew ? 'Add Parameter' : null}
-      okButtonProps={{ disabled: !isFulfilled() }}
       width={600}
+      footer={[(
+        <Button key="cancel" onClick={props.dialog.dismiss}>Cancel</Button>
+      ), (
+        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm">
+          {isNew ? 'Add Parameter' : 'OK'}
+        </Button>
+      )]}
     >
-      <Form layout="horizontal">
+      <Form layout="horizontal" onSubmit={onConfirm} id="paramForm">
         {isNew && (
           <NameInput
             name={param.name}
