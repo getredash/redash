@@ -353,7 +353,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           ],
         }
       }
-      allowEmpty={false}
+      allowClear={false}
       disabled={false}
       focusOnOpen={true}
       format="HH:mm"
@@ -1349,7 +1349,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           ],
         }
       }
-      allowEmpty={false}
+      allowClear={false}
       disabled={false}
       focusOnOpen={true}
       format="HH:mm"
@@ -2714,7 +2714,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
           ],
         }
       }
-      allowEmpty={false}
+      allowClear={false}
       disabled={false}
       focusOnOpen={true}
       format="HH:mm"
