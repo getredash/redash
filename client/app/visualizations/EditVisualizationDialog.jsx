@@ -5,9 +5,13 @@ import Modal from 'antd/lib/modal';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { Visualization, registeredVisualizations, getDefaultVisualization, newVisualization } from './index';
+import {
+  VisualizationType, registeredVisualizations,
+  getDefaultVisualization, newVisualization,
+} from './index';
 
 import { toastr } from '@/services/ng';
+import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
@@ -17,7 +21,7 @@ class EditVisualizationDialog extends React.Component {
   static propTypes = {
     dialog: DialogPropType.isRequired,
     query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    visualization: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    visualization: VisualizationType,
     queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   };
 

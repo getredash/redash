@@ -2,9 +2,10 @@ import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'l
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
+import { Visualization } from '@/services/visualization';
 import Notifications from '@/services/notifications';
 import ScheduleDialog from '@/components/queries/ScheduleDialog';
-import { Visualization } from '@/visualizations';
+import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import template from './query.html';
 
@@ -139,13 +140,7 @@ function QueryViewCtrl(
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
-  $scope.defaultVis = {
-    type: 'TABLE',
-    name: 'Table',
-    options: {
-      itemsPerPage: 50,
-    },
-  };
+  $scope.defaultVis = newVisualization('TABLE', { itemsPerPage: 50 });
 
   const shortcuts = {
     'mod+enter': $scope.executeQuery,

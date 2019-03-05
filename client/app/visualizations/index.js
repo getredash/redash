@@ -1,12 +1,46 @@
 import { find } from 'lodash';
 import PropTypes from 'prop-types';
 
-export let Visualization = null; // eslint-disable-line import/no-mutable-exports
+/* --------------------------------------------------------
+  Types
+-----------------------------------------------------------*/
+
+const VisualizationOptions = PropTypes.object; // eslint-disable-line react/forbid-prop-types
+
+const Data = PropTypes.shape({
+  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+});
+
+export const VisualizationType = PropTypes.shape({
+  type: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  options: VisualizationOptions.isRequired, // eslint-disable-line react/forbid-prop-types
+});
+
+// For each visualization's renderer
+export const RendererPropTypes = {
+  visualizationName: PropTypes.string,
+  data: Data.isRequired,
+  options: VisualizationOptions.isRequired,
+  onOptionsChange: PropTypes.func, // (newOptions) => void
+};
+
+// For each visualization's editor
+export const EditorPropTypes = {
+  visualizationName: PropTypes.string,
+  data: Data.isRequired,
+  options: VisualizationOptions.isRequired,
+  onOptionsChange: PropTypes.func.isRequired, // (newOptions) => void
+};
+
+/* --------------------------------------------------------
+  Visualizations registry
+-----------------------------------------------------------*/
 
 export const registeredVisualizations = {};
 
-// for `registerVisualization`
-export const VisualizationConfig = PropTypes.shape({
+const VisualizationConfig = PropTypes.shape({
   type: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   getOptions: PropTypes.func.isRequired, // (existingOptions: object, data: { columns[], rows[] }) => object
@@ -15,35 +49,14 @@ export const VisualizationConfig = PropTypes.shape({
   Editor: PropTypes.func,
 });
 
-export const VisualizationType = PropTypes.shape({
-  type: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  options: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-});
-
-// For each visualization's renderer
-export const RendererPropTypes = {
-  visualizationName: PropTypes.string,
-  data: PropTypes.shape({
-    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
-    rows: PropTypes.arrayOf(PropTypes.object).isRequired,
-  }).isRequired,
-  options: PropTypes.object.isRequired,
-  onOptionsChange: PropTypes.func,
-};
-
-// For each visualization's editor
-export const EditorPropTypes = {
-  visualizationName: PropTypes.string,
-  data: PropTypes.shape({
-    columns: PropTypes.arrayOf(PropTypes.object).isRequired,
-    rows: PropTypes.arrayOf(PropTypes.object).isRequired,
-  }).isRequired,
-  options: PropTypes.object.isRequired,
-  onOptionsChange: PropTypes.func,
-};
+function validateVisualizationConfig(config) {
+  const typeSpecs = { config: VisualizationConfig };
+  const values = { config };
+  PropTypes.checkPropTypes(typeSpecs, values, 'prop', 'registerVisualization');
+}
 
 export function registerVisualization(config) {
+  validateVisualizationConfig(config);
   config = { ...config }; // clone
 
   if (registeredVisualizations[config.type]) {
@@ -53,24 +66,20 @@ export function registerVisualization(config) {
   registeredVisualizations[config.type] = config;
 }
 
+/* --------------------------------------------------------
+  Helpers
+-----------------------------------------------------------*/
+
 export function getDefaultVisualization() {
   return find(registeredVisualizations, visualization => !visualization.isDeprecated);
 }
 
-export function newVisualization(type = null) {
+export function newVisualization(type = null, options = {}) {
   const visualization = type ? registeredVisualizations[type] : getDefaultVisualization();
   return {
     type: visualization.type,
     name: visualization.name,
     description: '',
-    options: {},
+    options,
   };
 }
-
-export default function init(ngModule) {
-  ngModule.run(($resource) => {
-    Visualization = $resource('api/visualizations/:id', { id: '@id' });
-  });
-}
-
-init.init = true;
