@@ -52,7 +52,9 @@ const PivotTableRenderer = {
     };
 
     $scope.$watch('$ctrl.data', update);
-    $scope.$watch('$ctrl.options', update, true);
+    // `options.controls.enabled` is not related to pivot renderer, it's handled by `ng-if`,
+    // so re-render only if other options changed
+    $scope.$watch(() => omit(this.options, 'controls'), update, true);
   },
 };
 

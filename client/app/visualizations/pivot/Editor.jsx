@@ -16,7 +16,7 @@ export default function Editor({ options, onOptionsChange }) {
             <span className="m-r-10">Hide Pivot Controls</span>
             <Switch
               id="pivot-show-controls"
-              defaultChecked={options.controls.enabled}
+              checked={options.controls.enabled}
               onChange={enabled => updateOptions({ controls: { enabled } })}
             />
           </label>
