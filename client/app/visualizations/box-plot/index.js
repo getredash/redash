@@ -3,7 +3,8 @@ import d3 from 'd3';
 import { angular2react } from 'angular2react';
 import box from '@/lib/visualizations/d3box';
 import { registerVisualization } from '@/visualizations';
-import editorTemplate from './box-plot-editor.html';
+
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   defaultRows: 8,
@@ -11,12 +12,14 @@ const DEFAULT_OPTIONS = {
 };
 
 const BoxPlotRenderer = {
-  template: '<div></div>',
+  template: '<div resize-event="handleResize()"></div>',
   bindings: {
     data: '<',
     options: '<',
   },
   controller($scope, $element) {
+    const container = $element[0].querySelector('div');
+
     function calcIqr(k) {
       return (d) => {
         const q1 = d.quartiles[0];
@@ -36,7 +39,7 @@ const BoxPlotRenderer = {
 
     const update = () => {
       const data = this.data.rows;
-      const parentWidth = d3.select($element[0].parentNode).node().getBoundingClientRect().width;
+      const parentWidth = container.offsetWidth;
       const margin = {
         top: 10, right: 50, bottom: 40, left: 50, inner: 25,
       };
@@ -106,24 +109,24 @@ const BoxPlotRenderer = {
         return xscale(columns[i]) + (xscale(columns[1]) - margin.inner) / 2.0;
       }
 
-      d3.select($element[0]).selectAll('svg').remove();
+      d3.select(container).selectAll('*').remove();
 
-      const plot = d3.select($element[0])
-        .append('svg')
+      const svg = d3.select(container).append('svg')
         .attr('width', parentWidth)
-        .attr('height', height + margin.bottom + margin.top)
-        .append('g')
+        .attr('height', height + margin.bottom + margin.top);
+
+      const plot = svg.append('g')
         .attr('width', parentWidth - margin.left - margin.right)
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
-      d3.select('svg').append('text')
+      svg.append('text')
         .attr('class', 'box')
         .attr('x', parentWidth / 2.0)
         .attr('text-anchor', 'middle')
         .attr('y', height + margin.bottom)
         .text(xAxisLabel);
 
-      d3.select('svg').append('text')
+      svg.append('text')
         .attr('class', 'box')
         .attr('transform', `translate(10,${(height + margin.top + margin.bottom) / 2.0})rotate(-90)`)
         .attr('text-anchor', 'middle')
@@ -160,28 +163,15 @@ const BoxPlotRenderer = {
         .call(chart);
     };
 
+    $scope.handleResize = update;
+
     $scope.$watch('$ctrl.data', update);
     $scope.$watch('$ctrl.options', update, true);
   },
 };
 
-const BoxPlotEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('boxplotRenderer', BoxPlotRenderer);
-  ngModule.component('boxplotEditor', BoxPlotEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -190,7 +180,7 @@ export default function init(ngModule) {
       isDeprecated: true,
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('boxplotRenderer', BoxPlotRenderer, $injector),
-      Editor: angular2react('boxplotEditor', BoxPlotEditor, $injector),
+      Editor,
     });
   });
 }

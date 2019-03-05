@@ -4,7 +4,7 @@ import { each } from 'lodash';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
-import editorTemplate from './word-cloud-editor.html';
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   defaultRows: 8,
@@ -90,23 +90,8 @@ const WordCloudRenderer = {
   },
 };
 
-const WordCloudEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('wordCloudRenderer', WordCloudRenderer);
-  ngModule.component('wordCloudEditor', WordCloudEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -114,7 +99,7 @@ export default function init(ngModule) {
       name: 'Word Cloud',
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('wordCloudRenderer', WordCloudRenderer, $injector),
-      Editor: angular2react('wordCloudEditor', WordCloudEditor, $injector),
+      Editor,
     });
   });
 }
