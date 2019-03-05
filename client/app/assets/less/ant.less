@@ -247,3 +247,34 @@
 .ant-popover {
   z-index: 1000; // make sure it doesn't cover drawer
 }
+
+// schema browser table expand icon override
+.schema-container {
+  .schema-browser-title-item .copy-arrow {
+    display: none;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    cursor: pointer;
+
+    svg {
+      transform: scale(0.6);
+    }
+  }
+  .table-open {
+    display: none;
+
+    .copyArrow {
+      top: 2px;
+    }
+  }
+  .schema-table-expanded .table-open {
+    display: block;
+  }
+  .table-name:hover,
+  .table-open:hover {
+    .copy-arrow {
+      display: block;
+    }
+  }
+}

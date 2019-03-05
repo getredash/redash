@@ -15,7 +15,6 @@ import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
-import vsRepeat from 'angular-vs-repeat';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
@@ -53,7 +52,6 @@ const requirements = [
   'ui.ace',
   ngUpload,
   'angularResizable',
-  vsRepeat,
   'ui.sortable',
 ];
 
