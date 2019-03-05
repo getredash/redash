@@ -6,8 +6,9 @@ import 'pivottable/dist/pivot.css';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
-import editorTemplate from './pivottable-editor.html';
 import './pivot.less';
+
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   defaultRows: 10,
@@ -55,23 +56,8 @@ const PivotTableRenderer = {
   },
 };
 
-const PivotTableEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('pivotTableRenderer', PivotTableRenderer);
-  ngModule.component('pivotTableEditor', PivotTableEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -79,7 +65,7 @@ export default function init(ngModule) {
       name: 'Pivot Table',
       getOptions: options => merge({}, DEFAULT_OPTIONS, options),
       Renderer: angular2react('pivotTableRenderer', PivotTableRenderer, $injector),
-      Editor: angular2react('pivotTableEditor', PivotTableEditor, $injector),
+      Editor,
     });
   });
 }
