@@ -5,17 +5,6 @@ import { DataSource } from '@/services/data-source';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
-const HELP_LINKS = {
-  athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
-  bigquery: 'https://redash.io/help/data-sources/bigquery-setup',
-  url: 'https://redash.io/help/data-sources/querying-urls',
-  mongodb: 'https://redash.io/help/data-sources/mongodb-setup',
-  google_spreadsheets: 'https://redash.io/help/data-sources/querying-a-google-spreadsheet',
-  google_analytics: 'https://redash.io/help/data-sources/google-analytics-setup',
-  axibasetsd: 'https://redash.io/help/data-sources/axibase-time-series-database',
-  results: 'https://redash.io/help/user-guide/querying/query-results-data-source',
-};
-
 export default function EditDataSourceForm({ dataSource, type, onSuccess, ...props }) {
   const selectedType = type.type;
   const fields = helper.getFields(type.configuration_schema, dataSource);
@@ -41,10 +30,10 @@ export default function EditDataSourceForm({ dataSource, type, onSuccess, ...pro
         <h3>{type.name}</h3>
       </div>
       <div className="col-sm-4">
-        {HELP_LINKS[selectedType] && (
+        {DataSource.HELP_LINKS[selectedType] && (
           <p className="needhelp text-right text-center-xs">
             {/* eslint-disable-next-line react/jsx-no-target-blank */}
-            <a href={HELP_LINKS[selectedType]} target="_blank" rel="noopener">
+            <a href={DataSource.HELP_LINKS[selectedType]} target="_blank" rel="noopener">
               Help <span className="hidden-xs">setting up {type.name}</span> <i className="fa fa-external-link" aria-hidden="true" />
             </a>
           </p>

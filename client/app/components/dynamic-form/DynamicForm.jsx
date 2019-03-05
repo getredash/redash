@@ -24,6 +24,7 @@ const fieldRules = ({ type, required, minLength }) => {
 
 class DynamicForm extends React.Component {
   static propTypes = {
+    id: PropTypes.string,
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
@@ -34,6 +35,7 @@ class DynamicForm extends React.Component {
   };
 
   static defaultProps = {
+    id: null,
     fields: [],
     actions: [],
     feedbackIcons: false,
@@ -206,11 +208,11 @@ class DynamicForm extends React.Component {
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const { hideSubmitButton, saveText } = this.props;
+    const { id, hideSubmitButton, saveText } = this.props;
     const saveButton = !hideSubmitButton;
 
     return (
-      <Form layout="vertical" onSubmit={this.handleSubmit}>
+      <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}

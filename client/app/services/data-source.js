@@ -5,6 +5,17 @@ export let DataSource = null; // eslint-disable-line import/no-mutable-exports
 
 const IMG_ROOT = '/static/images/db-logos';
 
+const HELP_LINKS = {
+  athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
+  bigquery: 'https://redash.io/help/data-sources/bigquery-setup',
+  url: 'https://redash.io/help/data-sources/querying-urls',
+  mongodb: 'https://redash.io/help/data-sources/mongodb-setup',
+  google_spreadsheets: 'https://redash.io/help/data-sources/querying-a-google-spreadsheet',
+  google_analytics: 'https://redash.io/help/data-sources/google-analytics-setup',
+  axibasetsd: 'https://redash.io/help/data-sources/axibase-time-series-database',
+  results: 'https://redash.io/help/user-guide/querying/query-results-data-source',
+};
+
 function DataSourceService($q, $resource, $http) {
   function fetchSchema(dataSourceId, refresh = false) {
     const params = {};
@@ -19,6 +30,7 @@ function DataSourceService($q, $resource, $http) {
   const actions = {
     get: { method: 'GET', cache: false, isArray: false },
     query: { method: 'GET', cache: false, isArray: true },
+    save: { method: 'POST' },
     types: {
       method: 'GET',
       cache: false,
@@ -36,6 +48,7 @@ function DataSourceService($q, $resource, $http) {
   const DataSourceResource = $resource('api/data_sources/:id', { id: '@id' }, actions);
 
   DataSourceResource.IMG_ROOT = IMG_ROOT;
+  DataSourceResource.HELP_LINKS = HELP_LINKS;
 
   DataSourceResource.prototype.getSchema = function getSchema(refresh = false) {
     if (this._schema === undefined || refresh) {

@@ -57,7 +57,7 @@ function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
   }
 }
 
-function getFields(configurationSchema, target = {}) {
+function getFields(configurationSchema, target = { options: {} }) {
   normalizeSchema(configurationSchema);
   setDefaultValueForCheckboxes(configurationSchema, target.options);
 

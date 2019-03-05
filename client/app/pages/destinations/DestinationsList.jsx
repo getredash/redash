@@ -1,22 +1,49 @@
 import React from 'react';
 import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import TypePicker from '@/components/type-picker/TypePicker';
 import LoadingState from '@/components/items-list/components/LoadingState';
+import CreateSourceDialog from '@/components/CreateSourceDialog';
+import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 class DestinationsList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { destinations: [], loading: true };
+    this.state = { destinationTypes: [], destinations: [], loading: true };
   }
 
   componentDidMount() {
     Destination.query(destinations => this.setState({ destinations, loading: false }));
+    Destination.types(destinationTypes => this.setState({ destinationTypes }));
   }
+
+  createDestination = (selectedType, values) => {
+    const target = { options: {}, type: selectedType };
+    helper.updateTargetWithValues(target, values);
+
+    return Destination.save(target).$promise.then(() => {
+      this.setState({ loading: true });
+      Destination.query(destinations => this.setState({ destinations, loading: false }));
+    }).catch((error) => {
+      if (!(error instanceof Error)) {
+        error = new Error(get(error, 'data.message', 'Failed saving.'));
+      }
+      return Promise.reject(error);
+    });
+  };
+
+  showCreateSourceDialog = () => {
+    CreateSourceDialog.showModal({
+      types: this.state.destinationTypes,
+      sourceType: 'Alert Destination',
+      imageFolder: Destination.IMG_ROOT,
+      onCreate: this.createDestination,
+    });
+  };
 
   renderDestinations() {
     const { destinations } = this.state;
@@ -41,7 +68,7 @@ class DestinationsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
-          <Button type="primary" href="destinations/new">
+          <Button type="primary" onClick={this.showCreateSourceDialog}>
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
           </Button>
