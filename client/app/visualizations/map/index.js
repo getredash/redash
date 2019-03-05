@@ -131,14 +131,24 @@ const MapRenderer = {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
-    const getBounds = () => {
+    let mapMoveLock = false;
+
+    const onMapMoveStart = () => {
+      mapMoveLock = true;
+    };
+
+    const onMapMoveEnd = () => {
       this.options.bounds = map.getBounds();
       if (this.onOptionsChange) {
         this.onOptionsChange(this.options);
       }
     };
 
-    const setBounds = () => {
+    const updateBounds = ({ disableAnimation = false } = {}) => {
+      if (mapMoveLock) {
+        return;
+      }
+
       const b = this.options.bounds;
 
       if (b) {
@@ -149,19 +159,23 @@ const MapRenderer = {
         if (allMarkers.length > 0) {
           // eslint-disable-next-line new-cap
           const group = new L.featureGroup(allMarkers);
-          map.fitBounds(group.getBounds());
+          const options = disableAnimation ? {
+            animate: false,
+            duration: 0,
+          } : null;
+          map.fitBounds(group.getBounds(), options);
         }
       }
     };
 
-    map.on('focus', () => { map.on('moveend', getBounds); });
-    map.on('blur', () => { map.off('moveend', getBounds); });
-
-    const resize = () => {
-      if (!map) return;
-      map.invalidateSize(false);
-      setBounds();
-    };
+    map.on('focus', () => {
+      map.on('movestart', onMapMoveStart);
+      map.on('moveend', onMapMoveEnd);
+    });
+    map.on('blur', () => {
+      map.off('movestart', onMapMoveStart);
+      map.off('moveend', onMapMoveEnd);
+    });
 
     const removeLayer = (layer) => {
       if (layer) {
@@ -266,14 +280,19 @@ const MapRenderer = {
           addLayer(k, v);
         });
 
-        setBounds();
+        updateBounds({ disableAnimation: true });
       }
     };
 
-    $scope.handleResize = resize;
+    $scope.handleResize = () => {
+      if (!map) return;
+      map.invalidateSize(false);
+      updateBounds({ disableAnimation: true });
+    };
 
     $scope.$watch('$ctrl.data', render);
-    $scope.$watch('$ctrl.options', render, true);
+    $scope.$watch(() => _.omit(this.options, 'bounds'), render, true);
+    $scope.$watch('$ctrl.options.bounds', updateBounds, true);
   },
 };
 

@@ -79,23 +79,30 @@ const ChoroplethRenderer = {
     let countriesData = null;
     let map = null;
     let choropleth = null;
-    let updateBoundsLock = false;
+    let mapMoveLock = false;
 
-    const getBounds = () => {
-      if (!updateBoundsLock) {
-        const bounds = map.getBounds();
-        this.options.bounds = [
-          [bounds._southWest.lat, bounds._southWest.lng],
-          [bounds._northEast.lat, bounds._northEast.lng],
-        ];
-        if (this.onOptionsChange) {
-          this.onOptionsChange(this.options);
-        }
-        $scope.$applyAsync();
-      }
+    const onMapMoveStart = () => {
+      mapMoveLock = true;
     };
 
-    const setBounds = ({ disableAnimation = false } = {}) => {
+    const onMapMoveEnd = () => {
+      const bounds = map.getBounds();
+      this.options.bounds = [
+        [bounds._southWest.lat, bounds._southWest.lng],
+        [bounds._northEast.lat, bounds._northEast.lng],
+      ];
+      if (this.onOptionsChange) {
+        this.onOptionsChange(this.options);
+      }
+      $scope.$applyAsync(() => {
+        mapMoveLock = false;
+      });
+    };
+
+    const updateBounds = ({ disableAnimation = false } = {}) => {
+      if (mapMoveLock) {
+        return;
+      }
       if (map && choropleth) {
         const bounds = this.options.bounds || choropleth.getBounds();
         const options = disableAnimation ? {
@@ -190,10 +197,16 @@ const ChoroplethRenderer = {
         fullscreenControl: true,
       });
 
-      map.on('focus', () => { map.on('moveend', getBounds); });
-      map.on('blur', () => { map.off('moveend', getBounds); });
+      map.on('focus', () => {
+        map.on('movestart', onMapMoveStart);
+        map.on('moveend', onMapMoveEnd);
+      });
+      map.on('blur', () => {
+        map.off('movestart', onMapMoveStart);
+        map.off('moveend', onMapMoveEnd);
+      });
 
-      setBounds({ disableAnimation: true });
+      updateBounds({ disableAnimation: true });
     };
 
     loadCountriesData($http, countriesDataUrl).then((data) => {
@@ -206,19 +219,13 @@ const ChoroplethRenderer = {
     $scope.handleResize = _.debounce(() => {
       if (map) {
         map.invalidateSize(false);
-        setBounds({ disableAnimation: true });
+        updateBounds({ disableAnimation: true });
       }
     }, 50);
 
     $scope.$watch('$ctrl.data', render);
     $scope.$watch(() => _.omit(this.options, 'bounds'), render, true);
-    $scope.$watch('$ctrl.options.bounds', () => {
-      // Prevent infinite digest loop
-      const savedLock = updateBoundsLock;
-      updateBoundsLock = true;
-      setBounds();
-      updateBoundsLock = savedLock;
-    }, true);
+    $scope.$watch('$ctrl.options.bounds', updateBounds, true);
   },
 };
 
