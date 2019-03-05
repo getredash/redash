@@ -9,7 +9,11 @@ export function ColorBox({ color }) {
 }
 
 ColorBox.propTypes = {
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
+};
+
+ColorBox.defaultProps = {
+  color: 'transparent',
 };
 
 export default function init(ngModule) {
