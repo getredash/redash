@@ -25,7 +25,7 @@ function isTypeDate(type) {
 }
 
 function isTypeDateRange(type) {
-  return startsWith('date-range', type);
+  return /-range/.test(type);
 }
 
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
