@@ -97,8 +97,8 @@ class SlugConverter(BaseConverter):
         return value
 
 
-def create_app(load_admin=True):
-    from redash import admin, authentication, extensions, handlers
+def create_app():
+    from redash import authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
     from redash.models import db, users
@@ -126,8 +126,6 @@ def create_app(load_admin=True):
     provision_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    if load_admin:
-        admin.init_admin(app)
     mail.init_app(app)
     authentication.init_app(app)
     limiter.init_app(app)
