@@ -107,7 +107,8 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
 class QueryResultDropdownResource(BaseResource):
-    def get(self, query_id):
+    def get(self, query_id, dropdown_query_id):
+        abort(403)
         return dropdown_values(query_id)
 
 
