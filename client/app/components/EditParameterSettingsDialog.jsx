@@ -21,7 +21,7 @@ function getDefaultTitle(text) {
 }
 
 function isTypeDate(type) {
-  return startsWith('date', type) && !isTypeDateRange(type);
+  return startsWith(type, 'date') && !isTypeDateRange(type);
 }
 
 function isTypeDateRange(type) {
