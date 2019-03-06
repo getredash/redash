@@ -7,13 +7,11 @@ import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
   MappingType,
   ParameterMappingListInput,
-  editableMappingsToParameterMappings,
-  synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
 import { QuerySelector } from '@/components/QuerySelector';
 
 import { toastr } from '@/services/ng';
-import { Widget } from '@/services/widget';
+
 import { Query } from '@/services/query';
 
 const { Option, OptGroup } = Select;
@@ -22,6 +20,7 @@ class AddWidgetDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     dialog: DialogPropType.isRequired,
+    onConfirm: PropTypes.func.isRequired,
   };
 
   state = {
@@ -76,38 +75,16 @@ class AddWidgetDialog extends React.Component {
   }
 
   saveWidget() {
-    const dashboard = this.props.dashboard;
+    const { selectedVis, parameterMappings } = this.state;
 
     this.setState({ saveInProgress: true });
 
-    const widget = new Widget({
-      visualization_id: this.state.selectedVis && this.state.selectedVis.id,
-      dashboard_id: dashboard.id,
-      options: {
-        isHidden: false,
-        position: {},
-        parameterMappings: editableMappingsToParameterMappings(this.state.parameterMappings),
-      },
-      visualization: this.state.selectedVis,
-      text: '',
-    });
-
-    const position = dashboard.calculateNewWidgetPosition(widget);
-    widget.options.position.col = position.col;
-    widget.options.position.row = position.row;
-
-    const widgetsToSave = [
-      widget,
-      ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
-    ];
-
-    Promise.all(map(widgetsToSave, w => w.save()))
+    this.props.onConfirm(selectedVis, parameterMappings)
       .then(() => {
-        dashboard.widgets.push(widget);
         this.props.dialog.close();
       })
       .catch(() => {
-        toastr.error('Widget can not be added');
+        toastr.error('Widget could not be added');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });

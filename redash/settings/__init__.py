@@ -47,6 +47,7 @@ QUERY_RESULTS_CLEANUP_COUNT = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_C
 QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7"))
 
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
+SCHEMAS_REFRESH_QUEUE = os.environ.get("REDASH_SCHEMAS_REFRESH_QUEUE", "celery")
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
@@ -216,6 +217,7 @@ default_destinations = [
     'redash.destinations.mattermost',
     'redash.destinations.chatwork',
     'redash.destinations.pagerduty',
+    'redash.destinations.hangoutschat'
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
