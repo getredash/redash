@@ -116,6 +116,7 @@ class UsersList extends React.Component {
       />
     ), {
       width: '1%',
+      fixed: 'right',
       isAvailable: () => policy.canCreateUser(),
     }),
   ];
@@ -226,7 +227,7 @@ class UsersList extends React.Component {
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
+                <React.Fragment>
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
@@ -242,7 +243,7 @@ class UsersList extends React.Component {
                     page={controller.page}
                     onChange={page => controller.updatePagination({ page })}
                   />
-                </div>
+                </React.Fragment>
               )
             }
           </Layout.Content>

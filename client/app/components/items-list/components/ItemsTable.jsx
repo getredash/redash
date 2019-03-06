@@ -149,6 +149,7 @@ export default class ItemsTable extends React.Component {
         dataSource={rows}
         rowKey={row => row.key}
         pagination={false}
+        scroll={{ x: true }}
         onRow={onTableRow}
       />
     );

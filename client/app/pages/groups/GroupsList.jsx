@@ -45,6 +45,7 @@ class GroupsList extends React.Component {
       </Button.Group>
     ), {
       width: '1%',
+      fixed: 'right',
       className: 'text-nowrap',
     }),
     Columns.custom((text, group) => {
@@ -62,6 +63,7 @@ class GroupsList extends React.Component {
       );
     }, {
       width: '1%',
+      fixed: 'right',
       className: 'text-nowrap p-l-0',
       isAvailable: () => currentUser.isAdmin,
     }),
@@ -98,23 +100,25 @@ class GroupsList extends React.Component {
         {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
         {
           controller.isLoaded && !controller.isEmpty && (
-            <div className="table-responsive">
-              <ItemsTable
-                items={controller.pageItems}
-                columns={this.listColumns}
-                showHeader={false}
-                onRowClick={this.onTableRowClick}
-                context={this.actions}
-                orderByField={controller.orderByField}
-                orderByReverse={controller.orderByReverse}
-                toggleSorting={controller.toggleSorting}
-              />
-              <Paginator
-                totalCount={controller.totalItemsCount}
-                itemsPerPage={controller.itemsPerPage}
-                page={controller.page}
-                onChange={page => controller.updatePagination({ page })}
-              />
+            <div className="d-flex">
+              <div className="w-100">
+                <ItemsTable
+                  items={controller.pageItems}
+                  columns={this.listColumns}
+                  showHeader={false}
+                  onRowClick={this.onTableRowClick}
+                  context={this.actions}
+                  orderByField={controller.orderByField}
+                  orderByReverse={controller.orderByReverse}
+                  toggleSorting={controller.toggleSorting}
+                />
+                <Paginator
+                  totalCount={controller.totalItemsCount}
+                  itemsPerPage={controller.itemsPerPage}
+                  page={controller.page}
+                  onChange={page => controller.updatePagination({ page })}
+                />
+              </div>
             </div>
           )
         }

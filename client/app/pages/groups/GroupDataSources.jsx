@@ -80,6 +80,7 @@ class GroupDataSources extends React.Component {
       );
     }, {
       width: '1%',
+      fixed: 'right',
       className: 'p-r-0',
       isAvailable: () => currentUser.isAdmin,
     }),
@@ -87,6 +88,7 @@ class GroupDataSources extends React.Component {
       <Button className="w-100" type="danger" onClick={event => this.removeGroupDataSource(event, datasource)}>Remove</Button>
     ), {
       width: '1%',
+      fixed: 'right',
       isAvailable: () => currentUser.isAdmin,
     }),
   ];
@@ -194,7 +196,7 @@ class GroupDataSources extends React.Component {
             )}
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
+                <React.Fragment>
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
@@ -211,7 +213,7 @@ class GroupDataSources extends React.Component {
                     page={controller.page}
                     onChange={page => controller.updatePagination({ page })}
                   />
-                </div>
+                </React.Fragment>
               )
             }
           </Layout.Content>
