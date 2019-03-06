@@ -101,7 +101,7 @@ class CreateSourceDialog extends React.Component {
     const type = find(types, { type: selectedType });
     const fields = helper.getFields(type.configuration_schema);
     return (
-      <div className="scrollbox p-5 m-t-10" style={{ maxHeight: '50vh' }}>
+      <div className="p-5 m-t-10">
         <div className="text-center">
           <img src={`${imageFolder}/${selectedType}.png`} alt={type.name} width="48" />
           <h4 className="di-block">{type.name}</h4>
