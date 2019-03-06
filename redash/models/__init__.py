@@ -670,8 +670,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return func.lower(cls.name)
 
     @property
+    def parameters(self):
+        return self.options.get("parameters", [])
+
+    @property
     def parameterized(self):
-        return ParameterizedQuery(self.query_text, self.options.get("parameters", []))
+        return ParameterizedQuery(self.query_text, self.parameters)
 
 
 @listens_for(Query.query_text, 'set')
