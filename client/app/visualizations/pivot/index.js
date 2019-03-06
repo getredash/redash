@@ -11,6 +11,9 @@ import './pivot.less';
 import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
+  controls: {
+    enabled: false, // `false` means "show controls" o_O
+  },
   defaultRows: 10,
   defaultColumns: 3,
   minColumns: 2,

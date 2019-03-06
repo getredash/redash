@@ -283,17 +283,18 @@ function Sunburst(scope, element) {
       values = _.map(grouped, (value) => {
         const sorted = _.sortBy(value, 'stage');
         return {
-          size: value[0].value,
+          size: value[0].value || 0,
           sequence: value[0].sequence,
           nodes: _.map(sorted, i => i.node),
         };
       });
     } else {
+      // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
       const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
       const keys = _.sortBy(_.filter(_.keys(raw[0]), validKey), _.identity);
 
       values = _.map(raw, (row, sequence) => ({
-        size: row.value,
+        size: row.value || 0,
         sequence,
         nodes: _.compact(_.map(keys, key => row[key])),
       }));

@@ -30,12 +30,13 @@ function graph(data) {
   const links = {};
   const nodes = [];
 
+  // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
   const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
   const keys = _.sortBy(_.filter(_.keys(data[0]), validKey), _.identity);
 
   function normalizeName(name) {
-    if (name) {
-      return name;
+    if (!_.isNil(name)) {
+      return '' + name;
     }
 
     return 'Exit';
@@ -47,8 +48,7 @@ function graph(data) {
     let node = nodesDict[key];
     if (!node) {
       node = { name };
-      const id = nodes.push(node) - 1;
-      node.id = id;
+      node.id = nodes.push(node) - 1;
       nodesDict[key] = node;
     }
     return node;
@@ -76,10 +76,10 @@ function graph(data) {
   }
 
   data.forEach((row) => {
-    addLink(row[keys[0]], row[keys[1]], row.value, 1);
-    addLink(row[keys[1]], row[keys[2]], row.value, 2);
-    addLink(row[keys[2]], row[keys[3]], row.value, 3);
-    addLink(row[keys[3]], row[keys[4]], row.value, 4);
+    addLink(row[keys[0]], row[keys[1]], row.value || 0, 1);
+    addLink(row[keys[1]], row[keys[2]], row.value || 0, 2);
+    addLink(row[keys[2]], row[keys[3]], row.value || 0, 3);
+    addLink(row[keys[3]], row[keys[4]], row.value || 0, 4);
   });
 
   return { nodes, links: _.values(links) };
@@ -189,12 +189,7 @@ function createSankey(element, data) {
         if (d === currentNode) {
           return false;
         }
-
-        if (_.includes(nodes, d.id)) {
-          return false;
-        }
-
-        return true;
+        return !_.includes(nodes, d.id);
       })
       .style('opacity', 0.2);
     link
@@ -234,6 +229,11 @@ function createSankey(element, data) {
     .attr('text-anchor', 'start');
 }
 
+function isDataValid(data) {
+  // data should contain column named 'value', otherwise no reason to render anything at all
+  return _.find(data.columns, c => c.name === 'value');
+}
+
 const SankeyRenderer = {
   template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
   bindings: {
@@ -247,7 +247,9 @@ const SankeyRenderer = {
       if (this.data) {
         // do the render logic.
         angular.element(container).empty();
-        createSankey(container, this.data.rows);
+        if (isDataValid(this.data)) {
+          createSankey(container, this.data.rows);
+        }
       }
     };
 
