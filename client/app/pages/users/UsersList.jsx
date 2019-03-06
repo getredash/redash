@@ -90,7 +90,14 @@ class UsersList extends React.Component {
       width: null,
     }),
     Columns.custom.sortable((text, user) => map(user.groups, group => (
-      <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
+      <a
+        key={'group' + group.id}
+        className="label label-tag"
+        href={'groups/' + group.id}
+        onClick={event => event.stopPropagation()}
+      >
+        {group.name}
+      </a>
     )), {
       title: 'Groups',
       field: 'groups',
