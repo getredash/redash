@@ -13,8 +13,6 @@ const DEFAULT_OPTIONS = {
   stringDecimal: 0,
   stringDecChar: '.',
   stringThouSep: ',',
-  defaultColumns: 2,
-  defaultRows: 5,
 };
 
 // TODO: Need to review this function, it does not properly handle edge cases.
@@ -158,6 +156,9 @@ export default function init(ngModule) {
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('counterRenderer', CounterRenderer, $injector),
       Editor: angular2react('counterEditor', CounterEditor, $injector),
+
+      defaultColumns: 2,
+      defaultRows: 5,
     });
   });
 }

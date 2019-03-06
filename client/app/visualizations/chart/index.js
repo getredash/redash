@@ -26,11 +26,6 @@ const DEFAULT_OPTIONS = {
   percentFormat: '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
-
-  defaultColumns: 3,
-  defaultRows: 8,
-  minColumns: 1,
-  minRows: 5,
 };
 
 function initEditorForm(options, columns) {
@@ -316,6 +311,11 @@ export default function init(ngModule) {
       }, options),
       Renderer: angular2react('chartRenderer', ChartRenderer, $injector),
       Editor: angular2react('chartEditor', ChartEditor, $injector),
+
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 1,
+      minRows: 5,
     });
   });
 }

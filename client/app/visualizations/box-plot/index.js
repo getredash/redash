@@ -6,11 +6,6 @@ import { registerVisualization } from '@/visualizations';
 
 import Editor from './Editor';
 
-const DEFAULT_OPTIONS = {
-  defaultRows: 8,
-  minRows: 5,
-};
-
 const BoxPlotRenderer = {
   template: '<div resize-event="handleResize()"></div>',
   bindings: {
@@ -178,9 +173,12 @@ export default function init(ngModule) {
       type: 'BOXPLOT',
       name: 'Boxplot (Deprecated)',
       isDeprecated: true,
-      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      getOptions: options => ({ ...options }),
       Renderer: angular2react('boxplotRenderer', BoxPlotRenderer, $injector),
       Editor,
+
+      defaultRows: 8,
+      minRows: 5,
     });
   });
 }

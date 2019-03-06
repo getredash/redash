@@ -5,10 +5,6 @@ import { registerVisualization } from '@/visualizations';
 
 import Editor from './Editor';
 
-const DEFAULT_OPTIONS = {
-  defaultRows: 7,
-};
-
 const SunburstSequenceRenderer = {
   template: '<div class="sunburst-visualization-container" resize-event="handleResize()"></div>',
   bindings: {
@@ -35,9 +31,11 @@ export default function init(ngModule) {
     registerVisualization({
       type: 'SUNBURST_SEQUENCE',
       name: 'Sunburst Sequence',
-      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      getOptions: options => ({ ...options }),
       Renderer: angular2react('sunburstSequenceRenderer', SunburstSequenceRenderer, $injector),
       Editor,
+
+      defaultRows: 7,
     });
   });
 }

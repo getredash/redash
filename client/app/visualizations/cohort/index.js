@@ -21,9 +21,6 @@ const DEFAULT_OPTIONS = {
   stageColumn: 'day_number',
   totalColumn: 'total',
   valueColumn: 'value',
-
-  autoHeight: true,
-  defaultRows: 8,
 };
 
 function groupData(sortedData) {
@@ -217,6 +214,9 @@ export default function init(ngModule) {
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('cohortRenderer', CohortRenderer, $injector),
       Editor: angular2react('cohortEditor', CohortEditor, $injector),
+
+      autoHeight: true,
+      defaultRows: 8,
     });
   });
 }

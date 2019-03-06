@@ -28,10 +28,6 @@ import countriesDataUrl from './countries.geo.json';
 export const ChoroplethPalette = _.extend({}, AdditionalColors, ColorPalette);
 
 const DEFAULT_OPTIONS = {
-  defaultColumns: 3,
-  defaultRows: 8,
-  minColumns: 2,
-
   countryCodeColumn: '',
   countryCodeType: 'iso_a3',
   valueColumn: '',
@@ -306,6 +302,10 @@ export default function init(ngModule) {
       getOptions: options => _.merge({}, DEFAULT_OPTIONS, options),
       Renderer: angular2react('choroplethRenderer', ChoroplethRenderer, $injector),
       Editor: angular2react('choroplethEditor', ChoroplethEditor, $injector),
+
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
     });
   });
 }

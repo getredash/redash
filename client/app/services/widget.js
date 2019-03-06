@@ -17,45 +17,43 @@ function calculatePositionOptions(dashboardGridOptions, widget) {
     maxSizeY: dashboardGridOptions.maxSizeY,
   };
 
-  const visualization = widget.visualization ? registeredVisualizations[widget.visualization.type] : null;
-  if (isObject(visualization)) {
-    const options = extend({}, visualization.getOptions({}, { columns: [], rows: [] }));
-
-    if (Object.prototype.hasOwnProperty.call(options, 'autoHeight')) {
-      visualizationOptions.autoHeight = options.autoHeight;
+  const config = widget.visualization ? registeredVisualizations[widget.visualization.type] : null;
+  if (isObject(config)) {
+    if (Object.prototype.hasOwnProperty.call(config, 'autoHeight')) {
+      visualizationOptions.autoHeight = config.autoHeight;
     }
 
     // Width constraints
-    const minColumns = parseInt(options.minColumns, 10);
+    const minColumns = parseInt(config.minColumns, 10);
     if (isFinite(minColumns) && minColumns >= 0) {
       visualizationOptions.minSizeX = minColumns;
     }
-    const maxColumns = parseInt(options.maxColumns, 10);
+    const maxColumns = parseInt(config.maxColumns, 10);
     if (isFinite(maxColumns) && maxColumns >= 0) {
       visualizationOptions.maxSizeX = Math.min(maxColumns, dashboardGridOptions.columns);
     }
 
     // Height constraints
     // `minRows` is preferred, but it should be kept for backward compatibility
-    const height = parseInt(options.height, 10);
+    const height = parseInt(config.height, 10);
     if (isFinite(height)) {
       visualizationOptions.minSizeY = Math.ceil(height / dashboardGridOptions.rowHeight);
     }
-    const minRows = parseInt(options.minRows, 10);
+    const minRows = parseInt(config.minRows, 10);
     if (isFinite(minRows)) {
       visualizationOptions.minSizeY = minRows;
     }
-    const maxRows = parseInt(options.maxRows, 10);
+    const maxRows = parseInt(config.maxRows, 10);
     if (isFinite(maxRows) && maxRows >= 0) {
       visualizationOptions.maxSizeY = maxRows;
     }
 
     // Default dimensions
-    const defaultWidth = parseInt(options.defaultColumns, 10);
+    const defaultWidth = parseInt(config.defaultColumns, 10);
     if (isFinite(defaultWidth) && defaultWidth > 0) {
       visualizationOptions.sizeX = defaultWidth;
     }
-    const defaultHeight = parseInt(options.defaultRows, 10);
+    const defaultHeight = parseInt(config.defaultRows, 10);
     if (isFinite(defaultHeight) && defaultHeight > 0) {
       visualizationOptions.sizeY = defaultHeight;
     }

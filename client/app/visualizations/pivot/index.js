@@ -14,9 +14,6 @@ const DEFAULT_OPTIONS = {
   controls: {
     enabled: false, // `false` means "show controls" o_O
   },
-  defaultRows: 10,
-  defaultColumns: 3,
-  minColumns: 2,
 };
 
 const PivotTableRenderer = {
@@ -71,6 +68,10 @@ export default function init(ngModule) {
       getOptions: options => merge({}, DEFAULT_OPTIONS, options),
       Renderer: angular2react('pivotTableRenderer', PivotTableRenderer, $injector),
       Editor,
+
+      defaultRows: 10,
+      defaultColumns: 3,
+      minColumns: 2,
     });
   });
 }

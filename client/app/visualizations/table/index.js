@@ -22,10 +22,6 @@ const DISPLAY_AS_OPTIONS = [
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
-  autoHeight: true,
-  defaultRows: 14,
-  defaultColumns: 3,
-  minColumns: 2,
 };
 
 function getColumnContentAlignment(type) {
@@ -206,6 +202,11 @@ export default function init(ngModule) {
       },
       Renderer: angular2react('gridRenderer', GridRenderer, $injector),
       Editor: angular2react('gridEditor', GridEditor, $injector),
+
+      autoHeight: true,
+      defaultRows: 14,
+      defaultColumns: 3,
+      minColumns: 2,
     });
   });
 }

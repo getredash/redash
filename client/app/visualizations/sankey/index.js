@@ -8,10 +8,6 @@ import d3sankey from '@/lib/visualizations/d3sankey';
 
 import Editor from './Editor';
 
-const DEFAULT_OPTIONS = {
-  defaultRows: 7,
-};
-
 function getConnectedNodes(node) {
   // source link = this node is the source, I need the targets
   const nodes = [];
@@ -267,9 +263,11 @@ export default function init(ngModule) {
     registerVisualization({
       type: 'SANKEY',
       name: 'Sankey',
-      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      getOptions: options => ({ ...options }),
       Renderer: angular2react('sankeyRenderer', SankeyRenderer, $injector),
       Editor,
+
+      defaultRows: 7,
     });
   });
 }

@@ -6,10 +6,6 @@ import { registerVisualization } from '@/visualizations';
 
 import Editor from './Editor';
 
-const DEFAULT_OPTIONS = {
-  defaultRows: 8,
-};
-
 function findWordFrequencies(data, columnName) {
   const wordsHash = {};
 
@@ -97,9 +93,11 @@ export default function init(ngModule) {
     registerVisualization({
       type: 'WORD_CLOUD',
       name: 'Word Cloud',
-      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      getOptions: options => ({ ...options }),
       Renderer: angular2react('wordCloudRenderer', WordCloudRenderer, $injector),
       Editor,
+
+      defaultRows: 8,
     });
   });
 }

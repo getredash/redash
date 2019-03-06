@@ -77,9 +77,6 @@ const MAP_TILES = [
 ];
 
 const DEFAULT_OPTIONS = {
-  defaultColumns: 3,
-  defaultRows: 8,
-  minColumns: 2,
   classify: 'none',
   clusterMarkers: true,
 };
@@ -334,6 +331,10 @@ export default function init(ngModule) {
       getOptions: options => _.merge({}, DEFAULT_OPTIONS, options),
       Renderer: angular2react('mapRenderer', MapRenderer, $injector),
       Editor: angular2react('mapEditor', MapEditor, $injector),
+
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
     });
   });
 }

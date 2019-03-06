@@ -14,7 +14,6 @@ const DEFAULT_OPTIONS = {
   valueCol: { colName: '', displayAs: 'Value' },
   sortKeyCol: { colName: '' },
   autoSort: true,
-  defaultRows: 10,
 };
 
 function normalizePercentage(num) {
@@ -228,6 +227,8 @@ export default function init(ngModule) {
       getOptions: options => merge({}, DEFAULT_OPTIONS, options),
       Renderer: angular2react('funnelRenderer', FunnelRenderer, $injector),
       Editor: angular2react('funnelEditor', FunnelEditor, $injector),
+
+      defaultRows: 10,
     });
   });
 }

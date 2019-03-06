@@ -47,6 +47,15 @@ const VisualizationConfig = PropTypes.shape({
   isDeprecated: PropTypes.bool,
   Renderer: PropTypes.func.isRequired,
   Editor: PropTypes.func,
+
+  // other config options
+  autoHeight: PropTypes.bool,
+  defaultRows: PropTypes.number,
+  defaultColumns: PropTypes.number,
+  minRows: PropTypes.number,
+  maxRows: PropTypes.number,
+  minColumns: PropTypes.number,
+  maxColumns: PropTypes.number,
 });
 
 function validateVisualizationConfig(config) {
