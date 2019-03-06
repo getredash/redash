@@ -18,7 +18,7 @@ import DeleteGroupButton from '@/components/groups/DeleteGroupButton';
 import { Group } from '@/services/group';
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
-import navigateTo from '@/services/navigateTo';
+import navigateTo, { handleNavigationEvent } from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 class GroupsList extends React.Component {
@@ -73,7 +73,7 @@ class GroupsList extends React.Component {
     });
   };
 
-  onTableRowClick = (event, item) => navigateTo('groups/' + item.id);
+  onTableRowClick = (event, item) => handleNavigationEvent(event, 'groups/' + item.id);
 
   onGroupDeleted = () => {
     this.props.controller.updatePagination({ page: 1 });

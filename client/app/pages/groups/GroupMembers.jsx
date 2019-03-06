@@ -23,7 +23,7 @@ import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
-import navigateTo from '@/services/navigateTo';
+import navigateTo, { handleNavigationEvent } from '@/services/navigateTo';
 import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
 
 class GroupMembers extends React.Component {
@@ -91,7 +91,7 @@ class GroupMembers extends React.Component {
     });
   }
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  onTableRowClick = (event, item) => handleNavigationEvent(event, 'users/' + item.id);
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);

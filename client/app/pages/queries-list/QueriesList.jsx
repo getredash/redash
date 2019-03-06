@@ -18,7 +18,7 @@ import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
-import navigateTo from '@/services/navigateTo';
+import { handleNavigationEvent } from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import QueriesListEmptyState from './QueriesListEmptyState';
@@ -84,7 +84,7 @@ class QueriesList extends React.Component {
     ),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
+  onTableRowClick = (event, item) => handleNavigationEvent(event, 'queries/' + item.id);
 
   render() {
     const { controller } = this.props;

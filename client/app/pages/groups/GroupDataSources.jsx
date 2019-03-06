@@ -26,7 +26,7 @@ import { toastr } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { DataSource } from '@/services/data-source';
-import navigateTo from '@/services/navigateTo';
+import navigateTo, { handleNavigationEvent } from '@/services/navigateTo';
 import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
 
 class GroupDataSources extends React.Component {
@@ -109,7 +109,7 @@ class GroupDataSources extends React.Component {
     });
   }
 
-  onTableRowClick = (event, item) => navigateTo('data_sources/' + item.id);
+  onTableRowClick = (event, item) => handleNavigationEvent(event, 'data_sources/' + item.id);
 
   setDataSourcePermissions = cancelEvent((datasource, permission) => {
     const viewOnly = permission !== 'full';

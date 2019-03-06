@@ -26,7 +26,7 @@ import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
-import navigateTo from '@/services/navigateTo';
+import navigateTo, { handleNavigationEvent } from '@/services/navigateTo';
 import { toastr } from '@/services/ng';
 import { absoluteUrl } from '@/services/utils';
 
@@ -168,7 +168,7 @@ class UsersList extends React.Component {
     }
   };
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  onTableRowClick = (event, item) => handleNavigationEvent(event, 'users/' + item.id);
 
   enableUser = (event, user) => {
     // prevent default click action on table rows
