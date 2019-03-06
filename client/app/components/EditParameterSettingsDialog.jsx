@@ -1,9 +1,11 @@
-import { includes, words, capitalize, clone, isNull } from 'lodash';
+
+import { includes, startsWith, words, capitalize, clone, isNull } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
 import Checkbox from 'antd/lib/checkbox';
+import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import Divider from 'antd/lib/divider';
@@ -18,8 +20,16 @@ function getDefaultTitle(text) {
   return capitalize(words(text).join(' ')); // humanize
 }
 
-function NameInput({ name, onChange, existingNames, setValidation }) {
-  let helpText = `This is what will be added to your query editor {{ ${name} }}`;
+function isTypeDate(type) {
+  return startsWith(type, 'date') && !isTypeDateRange(type);
+}
+
+function isTypeDateRange(type) {
+  return /-range/.test(type);
+}
+
+function NameInput({ name, type, onChange, existingNames, setValidation }) {
+  let helpText = '';
   let validateStatus = '';
 
   if (!name) {
@@ -30,6 +40,16 @@ function NameInput({ name, onChange, existingNames, setValidation }) {
     setValidation(false);
     validateStatus = 'error';
   } else {
+    if (isTypeDateRange(type)) {
+      helpText = (
+        <React.Fragment>
+          Appears in query as {' '}
+          <code style={{ display: 'inline-block', color: 'inherit' }}>
+            {`{{${name}.start}} {{${name}.end}}`}
+          </code>
+        </React.Fragment>
+      );
+    }
     setValidation(true);
   }
 
@@ -41,7 +61,7 @@ function NameInput({ name, onChange, existingNames, setValidation }) {
       validateStatus={validateStatus}
       {...formItemProps}
     >
-      <Input onChange={e => onChange(e.target.value)} />
+      <Input onChange={e => onChange(e.target.value)} autoFocus />
     </Form.Item>
   );
 }
@@ -51,6 +71,7 @@ NameInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   existingNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   setValidation: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
 };
 
 function EditParameterSettingsDialog(props) {
@@ -89,7 +110,7 @@ function EditParameterSettingsDialog(props) {
     return true;
   }
 
-  function onConfirm() {
+  function onConfirm(e) {
     // update title to default
     if (!param.title) {
       // forced to do this cause param won't update in time for save
@@ -98,23 +119,31 @@ function EditParameterSettingsDialog(props) {
     }
 
     props.dialog.close(param);
+
+    e.preventDefault(); // stops form redirect
   }
 
   return (
     <Modal
       {...props.dialog.props}
       title={isNew ? 'Add Parameter' : param.name}
-      onOk={onConfirm}
-      okText={isNew ? 'Add Parameter' : null}
-      okButtonProps={{ disabled: !isFulfilled() }}
+      width={600}
+      footer={[(
+        <Button key="cancel" onClick={props.dialog.dismiss}>Cancel</Button>
+      ), (
+        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm">
+          {isNew ? 'Add Parameter' : 'OK'}
+        </Button>
+      )]}
     >
-      <Form layout="horizontal">
+      <Form layout="horizontal" onSubmit={onConfirm} id="paramForm">
         {isNew && (
           <NameInput
             name={param.name}
             onChange={name => setParam({ ...param, name })}
             setValidation={setIsNameValid}
             existingNames={props.existingParams}
+            type={param.type}
           />
         )}
         <Form.Item label="Title" {...formItemProps}>
@@ -143,7 +172,7 @@ function EditParameterSettingsDialog(props) {
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
         </Form.Item>
-        {includes(['date', 'datetime-local', 'datetime-with-seconds'], param.type) && (
+        {isTypeDate(param.type) && (
           <Form.Item label=" " colon={false} {...formItemProps}>
             <Checkbox
               defaultChecked={param.useCurrentDateTime}
