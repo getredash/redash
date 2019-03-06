@@ -185,13 +185,14 @@ class TestQueryResultAPI(BaseTestCase):
 
 
 class TestQueryResultDropdownResource(BaseTestCase):
-    def test_checks_for_access_to_the_query(self):
-        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
-        query = self.factory.create_query(data_source=ds2)
+    def test_prevents_access_if_query_isnt_associated_with_parent(self):
+        query = self.factory.create_query()
+        unrelated_dropdown_query = self.factory.create_query()
 
-        rv = self.make_request('get', '/api/queries/{}/dropdown'.format(query.id))
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
 
         self.assertEquals(rv.status_code, 403)
+
 
 class TestQueryDropdownsResource(BaseTestCase):
     def test_prevents_access_if_query_isnt_associated_with_parent(self):
@@ -237,6 +238,7 @@ class TestQueryDropdownsResource(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
 
         self.assertEquals(rv.status_code, 403)
+
 
 class TestQueryResultExcelResponse(BaseTestCase):
     def test_renders_excel_file(self):
