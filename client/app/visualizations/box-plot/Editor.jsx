@@ -14,27 +14,23 @@ export default function Editor({ options, onOptionsChange }) {
   };
 
   return (
-    <div className="form-horizontal">
-      <div className="form-group d-flex align-items-center">
-        <label className="col-lg-6" htmlFor="box-plot-x-axis-label">X Axis Label</label>
-        <div className="col-lg-6">
-          <Input
-            id="box-plot-x-axis-label"
-            value={options.xAxisLabel}
-            onChange={event => onXAxisLabelChanged(event.target.value)}
-          />
-        </div>
+    <div>
+      <div className="form-group">
+        <label className="control-label" htmlFor="box-plot-x-axis-label">X Axis Label</label>
+        <Input
+          id="box-plot-x-axis-label"
+          value={options.xAxisLabel}
+          onChange={event => onXAxisLabelChanged(event.target.value)}
+        />
       </div>
 
-      <div className="form-group d-flex align-items-center">
-        <label className="col-lg-6" htmlFor="box-plot-y-axis-label">Y Axis Label</label>
-        <div className="col-lg-6">
-          <Input
-            id="box-plot-y-axis-label"
-            value={options.yAxisLabel}
-            onChange={event => onYAxisLabelChanged(event.target.value)}
-          />
-        </div>
+      <div className="form-group">
+        <label className="control-label" htmlFor="box-plot-y-axis-label">Y Axis Label</label>
+        <Input
+          id="box-plot-y-axis-label"
+          value={options.yAxisLabel}
+          onChange={event => onYAxisLabelChanged(event.target.value)}
+        />
       </div>
     </div>
   );

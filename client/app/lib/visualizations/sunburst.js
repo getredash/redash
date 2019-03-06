@@ -334,6 +334,7 @@ function Sunburst(scope, element) {
         let childNode = _.find(children, child => child.name === nodeName);
 
         if (isLeaf && childNode) {
+          childNode.children = childNode.children || [];
           childNode.children.push({
             name: exitNode,
             size,
