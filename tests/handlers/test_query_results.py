@@ -188,9 +188,9 @@ class TestQueryResultDropdownResource(BaseTestCase):
     def test_checks_for_access_to_the_query(self):
         ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         query = self.factory.create_query(data_source=ds2)
-    
+
         rv = self.make_request('get', '/api/queries/{}/dropdown'.format(query.id))
-    
+
         self.assertEquals(rv.status_code, 403)
 
 class TestQueryDropdownsResource(BaseTestCase):
