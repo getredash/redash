@@ -125,6 +125,7 @@ export class ParameterValueInput extends React.Component {
         className={this.props.className}
         parameter={parameter}
         value={value}
+        parentQueryId={parentQueryId}
         queryId={queryId}
         onSelect={onSelect}
       />
