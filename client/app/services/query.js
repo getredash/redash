@@ -50,7 +50,7 @@ function isDateRangeParameter(paramType) {
 }
 
 export class Parameter {
-  constructor(parameter) {
+  constructor(parameter, parentQueryId) {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
@@ -58,6 +58,7 @@ export class Parameter {
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+    this.parentQueryId = parentQueryId;
 
     // Used for meta-parameters (i.e. dashboard-level params)
     this.locals = [];
@@ -250,7 +251,8 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    const parameters = this.query.options.parameters;
+    this.query.options.parameters = parameters.filter(parameterExists).map(p => new Parameter(p, this.query.id));
   }
 
   initFromQueryString(query) {
@@ -375,6 +377,11 @@ function QueryResource(
         method: 'get',
         isArray: true,
         url: 'api/queries/:id/dropdown',
+      },
+      dropdownsOptions: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
       },
       favorites: {
         method: 'get',

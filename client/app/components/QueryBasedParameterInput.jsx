@@ -10,6 +10,7 @@ const { Option } = Select;
 export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    parentQueryId: PropTypes.number,
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -18,6 +19,7 @@ export class QueryBasedParameterInput extends React.Component {
   static defaultProps = {
     value: null,
     queryId: null,
+    parentQueryId: null,
     onSelect: () => {},
     className: '',
   };
@@ -44,7 +46,7 @@ export class QueryBasedParameterInput extends React.Component {
   _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
       this.setState({ loading: true });
-      Query.dropdownOptions({ id: queryId }, (options) => {
+      const resolve = (options) => {
         if (this.props.queryId === queryId) {
           this.setState({ options, loading: false });
 
@@ -53,7 +55,13 @@ export class QueryBasedParameterInput extends React.Component {
             this.props.onSelect(options[0].value);
           }
         }
-      });
+      };
+
+      if (this.props.parentQueryId) {
+        Query.dropdownsOptions({ queryId: this.props.parentQueryId, dropdownQueryId: queryId }, resolve);
+      } else {
+        Query.dropdownOptions({ id: queryId }, resolve);
+      }
     }
   }
 

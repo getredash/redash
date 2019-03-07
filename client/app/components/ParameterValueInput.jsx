@@ -18,6 +18,7 @@ export class ParameterValueInput extends React.Component {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
+    parentQueryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -27,6 +28,7 @@ export class ParameterValueInput extends React.Component {
     value: null,
     enumOptions: '',
     queryId: null,
+    parentQueryId: null,
     onSelect: () => {},
     className: '',
   };
@@ -117,11 +119,12 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { value, onSelect, queryId } = this.props;
+    const { value, onSelect, queryId, parentQueryId } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
         value={value}
+        parentQueryId={parentQueryId}
         queryId={queryId}
         onSelect={onSelect}
       />
@@ -175,6 +178,7 @@ export default function init(ngModule) {
         value="$ctrl.param.normalizedValue"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
+        parent-query-id="$ctrl.param.parentQueryId"
         on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
