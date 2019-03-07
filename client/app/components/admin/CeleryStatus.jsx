@@ -43,24 +43,8 @@ function parseTasks(tasks) {
 }
 
 function QueuesTable({ loading, queues }) {
-  const columns = [
-    {
-      title: 'Name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'Active',
-      dataIndex: 'active',
-    },
-    {
-      title: 'Reserved',
-      dataIndex: 'reserved',
-    },
-    {
-      title: 'Waiting',
-      dataIndex: 'waiting',
-    },
-  ];
+  const columns = ['Name', 'Active', 'Reserved', 'Waiting'].map(c => ({ title: c, dataIndex: c.toLowerCase() }));
+
   return <Table columns={columns} rowKey="name" dataSource={queues} loading={loading} />;
 }
 
