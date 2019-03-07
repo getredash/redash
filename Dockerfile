@@ -1,4 +1,6 @@
-FROM node:10 as frontend-builder
+FROM node:10-alpine as frontend-builder
+
+RUN apk add --no-cache git
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
