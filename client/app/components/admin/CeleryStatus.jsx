@@ -8,6 +8,7 @@ import Card from 'antd/lib/card';
 import Spin from 'antd/lib/spin';
 import Badge from 'antd/lib/badge';
 import Tabs from 'antd/lib/tabs';
+import Alert from 'antd/lib/alert';
 import moment from 'moment';
 import values from 'lodash/values';
 import { Columns } from '@/components/items-list/components/ItemsTable';
@@ -77,6 +78,7 @@ CounterCard.defaultProps = {
 export default class AdminCeleryStatus extends React.Component {
   state = {
     loading: true,
+    error: false,
     counters: {},
     queries: [],
     otherTasks: [],
@@ -90,10 +92,15 @@ export default class AdminCeleryStatus extends React.Component {
 
   fetch() {
     // TODO: handle error
-    $http.get('/api/admin/queries/tasks').then(({ data }) => {
-      const { queues, queries, otherTasks, counters } = parseTasks(data.tasks);
-      this.setState({ loading: false, queries, otherTasks, queues, counters });
-    });
+    $http
+      .get('/api/admin/queries/tasks')
+      .then(({ data }) => {
+        const { queues, queries, otherTasks, counters } = parseTasks(data.tasks);
+        this.setState({ loading: false, queries, otherTasks, queues, counters });
+      })
+      .catch(() => {
+        this.setState({ loading: false, error: true });
+      });
   }
 
   render() {
@@ -161,6 +168,14 @@ export default class AdminCeleryStatus extends React.Component {
         dataIndex: 'task_name',
       },
     ]);
+
+    if (this.state.error) {
+      return (
+        <div className="p-5">
+          <Alert type="error" message="Failed loading status. Please refresh." />
+        </div>
+      );
+    }
 
     return (
       <div className="p-5">
