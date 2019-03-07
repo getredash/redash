@@ -161,31 +161,11 @@ class UsersList extends React.Component {
     }
   };
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
 
-  enableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.enableUser(user)
-      .then(() => this.props.controller.update());
-  };
+  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
 
-  disableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.disableUser(user)
-      .then(() => this.props.controller.update());
-  };
-
-  deleteUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.deleteUser(user)
-      .then(() => this.props.controller.update());
-  };
+  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -230,7 +210,6 @@ class UsersList extends React.Component {
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
                     context={this.actions}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}

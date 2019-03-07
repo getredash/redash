@@ -14,7 +14,6 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import { Alert } from '@/services/alert';
-import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 const STATE_CLASS = {
@@ -57,8 +56,6 @@ class AlertsList extends React.Component {
       width: '1%' }),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('alerts/' + item.id);
-
   render() {
     const { controller } = this.props;
 
@@ -82,7 +79,6 @@ class AlertsList extends React.Component {
                 <ItemsTable
                   items={controller.pageItems}
                   columns={this.listColumns}
-                  onRowClick={this.onTableRowClick}
                   orderByField={controller.orderByField}
                   orderByReverse={controller.orderByReverse}
                   toggleSorting={controller.toggleSorting}
