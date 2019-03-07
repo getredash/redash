@@ -1,7 +1,9 @@
-version: '3'
+version: "3"
 services:
   redash:
     build: ../
+    cache_from:
+      - redash/redash:preview
     command: manage version
     depends_on:
       - postgres

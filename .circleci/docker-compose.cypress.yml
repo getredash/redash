@@ -1,7 +1,9 @@
-version: '3'
+version: "3"
 services:
   server:
     build: ../
+    cache_from:
+      - redash/redash:preview
     command: dev_server
     depends_on:
       - postgres
@@ -15,6 +17,8 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   worker:
     build: ../
+    cache_from:
+      - redash/redash:preview
     command: scheduler
     depends_on:
       - server
