@@ -1,6 +1,6 @@
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import { each } from 'lodash';
+import { map, min, max, values } from 'lodash';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
@@ -23,6 +23,40 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
+// target domain: [t1, t2]
+const MIN_WORD_SIZE = 10;
+const MAX_WORD_SIZE = 100;
+
+function createScale(wordCounts) {
+  wordCounts = values(wordCounts);
+
+  // source domain: [s1, s2]
+  const minCount = min(wordCounts);
+  const maxCount = max(wordCounts);
+
+  // v is value from source domain:
+  //    s1 <= v <= s2.
+  // We need to fit it target domain:
+  //    t1 <= v" <= t2
+  // 1. offset source value to zero point:
+  //    v' = v - s1
+  // 2. offset source and target domains to zero point:
+  //    s' = s2 - s1
+  //    t' = t2 - t1
+  // 3. compute fraction:
+  //    f = v' / s';
+  //    0 <= f <= 1
+  // 4. map f to target domain:
+  //    v" = f * t' + t1;
+  //    t1 <= v" <= t' + t1;
+  //    t1 <= v" <= t2 (because t' = t2 - t1, so t2 = t' + t1)
+
+  const sourceScale = maxCount - minCount;
+  const targetScale = MAX_WORD_SIZE - MIN_WORD_SIZE;
+
+  return value => ((value - minCount) / sourceScale) * targetScale + MIN_WORD_SIZE;
+}
+
 const WordCloudRenderer = {
   restrict: 'E',
   bindings: {
@@ -41,10 +75,12 @@ const WordCloudRenderer = {
         wordsHash = findWordFrequencies(data, options.column);
       }
 
-      const wordList = [];
-      each(wordsHash, (v, key) => {
-        wordList.push({ text: key, size: 10 + Math.pow(v, 2) });
-      });
+      const scaleValue = createScale(wordsHash);
+
+      const wordList = map(wordsHash, (count, key) => ({
+        text: key,
+        size: scaleValue(count),
+      }));
 
       const fill = d3.scale.category20();
       const layout = cloud()
