@@ -1,5 +1,6 @@
-import { isFunction, each, extend } from 'lodash';
+import { each, extend } from 'lodash';
 
+// eslint-disable-next-line import/prefer-default-export
 export function routesToAngularRoutes(routes, template) {
   const result = {};
   template = extend({}, template); // convert to object
@@ -21,19 +22,4 @@ export function routesToAngularRoutes(routes, template) {
     };
   });
   return result;
-}
-
-function doCancelEvent(event) {
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-export function cancelEvent(handler) {
-  if (isFunction(handler)) {
-    return (event, ...rest) => {
-      doCancelEvent(event);
-      return handler(...rest);
-    };
-  }
-  return doCancelEvent;
 }
