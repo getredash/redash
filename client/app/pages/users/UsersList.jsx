@@ -90,14 +90,7 @@ class UsersList extends React.Component {
       width: null,
     }),
     Columns.custom.sortable((text, user) => map(user.groups, group => (
-      <a
-        key={'group' + group.id}
-        className="label label-tag"
-        href={'groups/' + group.id}
-        onClick={event => event.stopPropagation()}
-      >
-        {group.name}
-      </a>
+      <a key={'group' + group.id} className="label label-tag" href={'groups/' + group.id}>{group.name}</a>
     )), {
       title: 'Groups',
       field: 'groups',
@@ -168,29 +161,11 @@ class UsersList extends React.Component {
     }
   };
 
-  enableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.enableUser(user)
-      .then(() => this.props.controller.update());
-  };
+  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
 
-  disableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.disableUser(user)
-      .then(() => this.props.controller.update());
-  };
+  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
 
-  deleteUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.deleteUser(user)
-      .then(() => this.props.controller.update());
-  };
+  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {

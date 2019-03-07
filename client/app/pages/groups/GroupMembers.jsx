@@ -24,7 +24,7 @@ import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -73,23 +73,21 @@ class GroupMembers extends React.Component {
     }),
   ];
 
-  removeGroupMember = cancelEvent((user) => {
-    Group.removeMember({ id: this.groupId, userId: user.id }).$promise
-      .then(() => {
-        this.props.controller.updatePagination({ page: 1 });
-        this.props.controller.update();
-      })
-      .catch(() => {
-        toastr.error('Failed to remove member from group.');
-      });
-  });
-
   componentDidMount() {
     Group.get({ id: this.groupId }).$promise.then((group) => {
       this.group = group;
       this.forceUpdate();
     });
   }
+
+  removeGroupMember = (event, user) => Group.removeMember({ id: this.groupId, userId: user.id }).$promise
+    .then(() => {
+      this.props.controller.updatePagination({ page: 1 });
+      this.props.controller.update();
+    })
+    .catch(() => {
+      toastr.error('Failed to remove member from group.');
+    });
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
