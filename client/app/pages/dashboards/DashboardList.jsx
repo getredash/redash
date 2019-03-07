@@ -16,7 +16,6 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { Dashboard } from '@/services/dashboard';
-import { handleNavigationEvent } from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import DashboardListEmptyState from './DashboardListEmptyState';
@@ -68,8 +67,6 @@ class DashboardList extends React.Component {
     }),
   ];
 
-  onTableRowClick = (event, item) => handleNavigationEvent(event, 'dashboard/' + item.slug);
-
   render() {
     const { controller } = this.props;
     return (
@@ -107,7 +104,6 @@ class DashboardList extends React.Component {
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
                     toggleSorting={controller.toggleSorting}
