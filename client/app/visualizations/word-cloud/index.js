@@ -30,6 +30,8 @@ const WordCloudRenderer = {
     options: '<',
   },
   controller($scope, $element) {
+    $element[0].style.display = 'block';
+
     const update = () => {
       const data = this.data.rows;
       const options = this.options;
@@ -54,11 +56,9 @@ const WordCloudRenderer = {
         .fontSize(d => d.size);
 
       function draw(words) {
-        d3.select($element[0].parentNode)
-          .select('svg')
-          .remove();
+        d3.select($element[0]).selectAll('*').remove();
 
-        d3.select($element[0].parentNode)
+        d3.select($element[0])
           .append('svg')
           .attr('width', layout.size()[0])
           .attr('height', layout.size()[1])
