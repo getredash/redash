@@ -2,7 +2,9 @@ import ast
 import itertools
 import json
 import base64
-from redash import redis_connection, models, __version__, settings
+from sqlalchemy import union_all
+from redash import redis_connection, __version__, settings
+from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.worker import celery
 
 
@@ -13,18 +15,19 @@ def get_redis_status():
 
 def get_object_counts():
     status = {}
-    status['queries_count'] = models.Query.query.count()
+    status['queries_count'] = Query.query.count()
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
-        status['query_results_count'] = models.QueryResult.query.count()
-        status['unused_query_results_count'] = models.QueryResult.unused().count()
-    status['dashboards_count'] = models.Dashboard.query.count()
-    status['widgets_count'] = models.Widget.query.count()
+        status['query_results_count'] = QueryResult.query.count()
+        status['unused_query_results_count'] = QueryResult.unused().count()
+    status['dashboards_count'] = Dashboard.query.count()
+    status['widgets_count'] = Widget.query.count()
     return status
 
 
 def get_queues():
-    query = models.db.session.execute(
-        'select distinct queue_name from data_sources union all select distinct scheduled_queue_name from data_sources')
+    queue_names = db.session.query(DataSource.queue_name).distinct()
+    scheduled_queue_names = db.session.query(DataSource.scheduled_queue_name).distinct()
+    query = db.session.execute(union_all(queue_names, scheduled_queue_names))
 
     return ['celery'] + [row[0] for row in query]
 
@@ -47,7 +50,7 @@ def get_db_sizes():
         ['Redash DB Size', "select pg_database_size('postgres') as size"]
     ]
     for query_name, query in queries:
-        result = models.db.session.execute(query).first()
+        result = db.session.execute(query).first()
         database_metrics.append([query_name, result[0]])
 
     return database_metrics
