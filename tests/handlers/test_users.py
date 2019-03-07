@@ -1,4 +1,4 @@
-from redash import models
+from redash import models, settings
 from tests import BaseTestCase
 from mock import patch
 
@@ -39,6 +39,34 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json['name'], test_user['name'])
         self.assertEqual(rv.json['email'], test_user['email'])
+
+    def test_shows_invite_link_when_email_is_not_configured(self):
+        previous = settings.MAIL_DEFAULT_SENDER
+        settings.MAIL_DEFAULT_SENDER = None
+
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'user@example.com'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue('invite_link' in rv.json)
+
+        settings.MAIL_DEFAULT_SENDER = previous
+
+    def test_does_not_show_invite_link_when_email_is_configured(self):
+        previous = settings.MAIL_DEFAULT_SENDER
+        settings.MAIL_DEFAULT_SENDER = "john@doe.com"
+
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'user@example.com'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertFalse('invite_link' in rv.json)
+
+        settings.MAIL_DEFAULT_SENDER = previous
 
     def test_creates_user_case_insensitive_email(self):
         admin = self.factory.create_admin()
