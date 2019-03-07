@@ -11,8 +11,6 @@ FROM redash/base:latest
 
 # Controls whether to install extra dependencies needed for all data sources.
 ARG skip_ds_deps
-# Controls whether to skip npm operations (useful in development mode)
-ARG skip_npm_build
 
 # We first copy only the requirements file, to avoid rebuilding on every file
 # change.
