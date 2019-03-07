@@ -5,6 +5,8 @@ import { isEmpty, get } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
+import { $route } from '@/services/ng';
+import { routesToAngularRoutes } from '@/lib/utils';
 import TypePicker from '@/components/type-picker/TypePicker';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
@@ -17,8 +19,18 @@ class DestinationsList extends React.Component {
   }
 
   componentDidMount() {
-    Destination.query(destinations => this.setState({ destinations, loading: false }));
-    Destination.types(destinationTypes => this.setState({ destinationTypes }));
+    Promise.all([
+      Destination.query().$promise,
+      Destination.types().$promise,
+    ]).then(values => this.setState({
+      destinations: values[0],
+      destinationTypes: values[1],
+      loading: false,
+    }, () => { // all resources are loaded in state
+      if ($route.current.locals.isNewDestinationPage) {
+        this.showCreateSourceDialog();
+      }
+    }));
   }
 
   createDestination = (selectedType, values) => {
@@ -42,6 +54,15 @@ class DestinationsList extends React.Component {
       sourceType: 'Alert Destination',
       imageFolder: Destination.IMG_ROOT,
       onCreate: this.createDestination,
+    }).result.then((success) => {
+      if (success) {
+        this.setState({ loading: true });
+        Destination.query(destinations => this.setState({ destinations }));
+      }
+    }).finally(() => {
+      if ($route.current.locals.isNewDestinationPage) {
+        navigateTo('destinations');
+      }
     });
   };
 
@@ -58,7 +79,7 @@ class DestinationsList extends React.Component {
       <div className="text-center">
         There are no alert destinations yet.
         <div className="m-t-5">
-          <a href="destinations/new">Click here</a> to add one.
+          <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
         </div>
       </div>
     ) : (<TypePicker types={types} hideSearch />);
@@ -89,12 +110,26 @@ export default function init(ngModule) {
 
   ngModule.component('pageDestinationsList', react2angular(DestinationsList));
 
-  return {
-    '/destinations': {
-      template: '<settings-screen><page-destinations-list></page-destinations-list></settings-screen>',
+  return routesToAngularRoutes([
+    {
+      path: '/destinations',
       title: 'Alert Destinations',
+      key: 'destinations',
     },
-  };
+    {
+      path: '/destinations/new',
+      title: 'Alert Destinations',
+      key: 'destinations',
+      isNewDestinationPage: true,
+    },
+  ], {
+    template: '<settings-screen><page-destinations-list></page-destinations-list></settings-screen>',
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
+  });
 }
 
 init.init = true;

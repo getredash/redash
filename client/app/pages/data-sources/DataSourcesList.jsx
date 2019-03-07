@@ -6,6 +6,8 @@ import settingsMenu from '@/services/settingsMenu';
 import { DataSource } from '@/services/data-source';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
+import { $route } from '@/services/ng';
+import { routesToAngularRoutes } from '@/lib/utils';
 import TypePicker from '@/components/type-picker/TypePicker';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
@@ -18,8 +20,18 @@ class DataSourcesList extends React.Component {
   }
 
   componentDidMount() {
-    DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
-    DataSource.types(dataSourceTypes => this.setState({ dataSourceTypes }));
+    Promise.all([
+      DataSource.query().$promise,
+      DataSource.types().$promise,
+    ]).then(values => this.setState({
+      dataSources: values[0],
+      dataSourceTypes: values[1],
+      loading: false,
+    }, () => { // all resources are loaded in state
+      if ($route.current.locals.isNewDataSourcePage) {
+        this.showCreateSourceDialog();
+      }
+    }));
   }
 
   createDataSource = (selectedType, values) => {
@@ -44,6 +56,15 @@ class DataSourcesList extends React.Component {
       imageFolder: DataSource.IMG_ROOT,
       helpLinks: DataSource.HELP_LINKS,
       onCreate: this.createDataSource,
+    }).result.then((success) => {
+      if (success) {
+        this.setState({ loading: true });
+        DataSource.query(dataSources => this.setState({ dataSources }));
+      }
+    }).finally(() => {
+      if ($route.current.locals.isNewDataSourcePage) {
+        navigateTo('data_sources');
+      }
     });
   };
 
@@ -60,7 +81,7 @@ class DataSourcesList extends React.Component {
       <div className="text-center">
         There are no data sources yet.
         <div className="m-t-5">
-          <a href="data_sources/new">Click here</a> to add one.
+          <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
         </div>
       </div>
     ) : (<TypePicker types={types} hideSearch />);
@@ -97,12 +118,26 @@ export default function init(ngModule) {
 
   ngModule.component('pageDataSourcesList', react2angular(DataSourcesList));
 
-  return {
-    '/data_sources': {
-      template: '<settings-screen><page-data-sources-list></page-data-sources-list></settings-screen>',
+  return routesToAngularRoutes([
+    {
+      path: '/data_sources',
       title: 'Data Sources',
+      key: 'data_sources',
     },
-  };
+    {
+      path: '/data_sources/new',
+      title: 'Data Sources',
+      key: 'data_sources',
+      isNewDataSourcePage: true,
+    },
+  ], {
+    template: '<settings-screen><page-data-sources-list></page-data-sources-list></settings-screen>',
+    controller($scope, $exceptionHandler) {
+      'ngInject';
+
+      $scope.handleError = $exceptionHandler;
+    },
+  });
 }
 
 init.init = true;
