@@ -1,4 +1,4 @@
-import { isFunction, isObject, cloneDeep, each, extend } from 'lodash';
+import { isObject, isFunction, cloneDeep, each, extend } from 'lodash';
 
 export function routesToAngularRoutes(routes, template) {
   const result = {};
@@ -21,21 +21,6 @@ export function routesToAngularRoutes(routes, template) {
     };
   });
   return result;
-}
-
-function doCancelEvent(event) {
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-export function cancelEvent(handler) {
-  if (isFunction(handler)) {
-    return (event, ...rest) => {
-      doCancelEvent(event);
-      return handler(...rest);
-    };
-  }
-  return doCancelEvent;
 }
 
 // ANGULAR_REMOVE_ME

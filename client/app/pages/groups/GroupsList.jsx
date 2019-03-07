@@ -38,9 +38,9 @@ class GroupsList extends React.Component {
     }),
     Columns.custom((text, group) => (
       <Button.Group>
-        <Button href={`groups/${group.id}`} onClick={e => e.stopPropagation()}>Members</Button>
+        <Button href={`groups/${group.id}`}>Members</Button>
         {currentUser.isAdmin && (
-          <Button href={`groups/${group.id}/data_sources`} onClick={e => e.stopPropagation()}>Data Sources</Button>
+          <Button href={`groups/${group.id}/data_sources`}>Data Sources</Button>
         )}
       </Button.Group>
     ), {
@@ -73,8 +73,6 @@ class GroupsList extends React.Component {
     });
   };
 
-  onTableRowClick = (event, item) => navigateTo('groups/' + item.id);
-
   onGroupDeleted = () => {
     this.props.controller.updatePagination({ page: 1 });
     this.props.controller.update();
@@ -103,7 +101,6 @@ class GroupsList extends React.Component {
                 items={controller.pageItems}
                 columns={this.listColumns}
                 showHeader={false}
-                onRowClick={this.onTableRowClick}
                 context={this.actions}
                 orderByField={controller.orderByField}
                 orderByReverse={controller.orderByReverse}

@@ -7,10 +7,6 @@ import Tooltip from 'antd/lib/tooltip';
 import { toastr } from '@/services/ng';
 
 function deleteGroup(event, group, onGroupDeleted) {
-  // prevent default click action on table rows
-  event.preventDefault();
-  event.stopPropagation();
-
   Modal.confirm({
     title: 'Delete Group',
     content: 'Are you sure you want to delete this group?',
