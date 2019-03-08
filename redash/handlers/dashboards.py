@@ -314,3 +314,37 @@ class DashboardTagsResource(BaseResource):
                 for name, count in tags
             ]
         }
+
+
+class DashboardFavoriteListResource(BaseResource):
+    def get(self):
+        search_term = request.args.get('q')
+
+        if search_term:
+            base_query = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
+        else:
+            favorites = models.Dashboard.favorites(self.current_user)
+
+        favorites = filter_by_tags(favorites, models.Dashboard.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        favorites = order_results(favorites, fallback=bool(search_term))
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        response = paginate(favorites, page, page_size, serialize_dashboard)
+
+        self.record_event({
+            'action': 'load_favorites',
+            'object_type': 'dashboard',
+            'params': {
+                'q': search_term,
+                'tags': request.args.getlist('tags'),
+                'page': page
+            }
+        })
+
+        return response
