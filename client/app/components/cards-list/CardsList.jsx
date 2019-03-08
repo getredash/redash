@@ -5,22 +5,28 @@ import { includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import EmptyState from '@/components/items-list/components/EmptyState';
-import { Type } from '../proptypes';
 
-import './TypePicker.css';
+import './CardsList.css';
 
 const { Search } = Input;
 const { Meta } = Card;
 
-export default class TypePicker extends React.Component {
+export default class CardsList extends React.Component {
   static propTypes = {
-    types: PropTypes.arrayOf(Type),
-    hideSearch: PropTypes.bool,
+    items: PropTypes.arrayOf(
+      PropTypes.shape({
+        title: PropTypes.string.isRequired,
+        imgSrc: PropTypes.string.isRequired,
+        onClick: PropTypes.func,
+        href: PropTypes.string,
+      }),
+    ),
+    showSearch: PropTypes.bool,
   };
 
   static defaultProps = {
-    types: [],
-    hideSearch: false,
+    items: [],
+    showSearch: false,
   };
 
   constructor(props) {
@@ -30,30 +36,33 @@ export default class TypePicker extends React.Component {
 
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
+    const card = (
+      <Card
+        size="small"
+        cover={(<div><img alt={item.title} src={item.imgSrc} /></div>)}
+        onClick={item.onClick}
+        hoverable
+      >
+        <Meta title={(<h3>{item.title}</h3>)} />
+      </Card>
+    );
     return (
-      <List.Item className="type-picker__item">
-        <Card
-          size="small"
-          cover={(<div><img alt={item.name} src={item.imgSrc} /></div>)}
-          onClick={item.onClick}
-          hoverable
-        >
-          <Meta title={(<h3>{item.name}</h3>)} />
-        </Card>
+      <List.Item className="cards-list__item">
+        {item.href ? (<a href={item.href}>{card}</a>) : card}
       </List.Item>
     );
   }
 
   render() {
-    const { types, hideSearch } = this.props;
+    const { items, showSearch } = this.props;
     const { searchText } = this.state;
 
-    const filteredTypes = types.filter(type => isEmpty(searchText) ||
-      includes(type.name.toLowerCase(), searchText.toLowerCase()));
+    const filteredItems = items.filter(item => isEmpty(searchText) ||
+      includes(item.title.toLowerCase(), searchText.toLowerCase()));
 
     return (
-      <div className="type-picker" data-test="TypePicker">
-        {!hideSearch && (
+      <div className="cards-list" data-test="CardsList">
+        {showSearch && (
           <div className="row p-10">
             <div className="col-md-4 col-md-offset-4">
               <Search
@@ -64,11 +73,11 @@ export default class TypePicker extends React.Component {
             </div>
           </div>
         )}
-        {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
+        {isEmpty(filteredItems) ? (<EmptyState className="" />) : (
           <List
             className="p-10"
             grid={{ gutter: 12, column: 6, xs: 1, sm: 3, lg: 4, xl: 6 }}
-            dataSource={filteredTypes}
+            dataSource={filteredItems}
             renderItem={item => this.renderListItem(item)}
           />
         )}

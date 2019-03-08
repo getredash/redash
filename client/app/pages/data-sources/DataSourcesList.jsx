@@ -8,7 +8,7 @@ import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import { $route } from '@/services/ng';
 import { routesToAngularRoutes } from '@/lib/utils';
-import TypePicker from '@/components/type-picker/TypePicker';
+import CardsList from '@/components/cards-list/CardsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
@@ -70,11 +70,10 @@ class DataSourcesList extends React.Component {
 
   renderDataSources() {
     const { dataSources } = this.state;
-    const types = dataSources.map(dataSource => ({
-      name: dataSource.name,
-      type: dataSource.type,
+    const items = dataSources.map(dataSource => ({
+      title: dataSource.name,
       imgSrc: `${DataSource.IMG_ROOT}/${dataSource.type}.png`,
-      onClick: () => navigateTo(`data_sources/${dataSource.id}`),
+      href: `data_sources/${dataSource.id}`,
     }));
 
     return isEmpty(dataSources) ? (
@@ -84,7 +83,7 @@ class DataSourcesList extends React.Component {
           <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
         </div>
       </div>
-    ) : (<TypePicker types={types} hideSearch />);
+    ) : (<CardsList items={items} />);
   }
 
   render() {

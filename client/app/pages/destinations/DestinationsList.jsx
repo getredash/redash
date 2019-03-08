@@ -7,7 +7,7 @@ import { Destination } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import { $route } from '@/services/ng';
 import { routesToAngularRoutes } from '@/lib/utils';
-import TypePicker from '@/components/type-picker/TypePicker';
+import CardsList from '@/components/cards-list/CardsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
@@ -68,11 +68,10 @@ class DestinationsList extends React.Component {
 
   renderDestinations() {
     const { destinations } = this.state;
-    const types = destinations.map(destination => ({
-      name: destination.name,
-      type: destination.type,
+    const items = destinations.map(destination => ({
+      title: destination.name,
       imgSrc: `${Destination.IMG_ROOT}/${destination.type}.png`,
-      onClick: () => navigateTo(`destinations/${destination.id}`),
+      href: `destinations/${destination.id}`,
     }));
 
     return isEmpty(destinations) ? (
@@ -82,7 +81,7 @@ class DestinationsList extends React.Component {
           <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
         </div>
       </div>
-    ) : (<TypePicker types={types} hideSearch />);
+    ) : (<CardsList items={items} />);
   }
 
   render() {

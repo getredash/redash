@@ -1,14 +1,14 @@
-.type-picker__item {
+.cards-list__item {
   text-align: center;
 }
 
-.type-picker__item img {
+.cards-list__item img {
   margin-top: 10px;
   width: 64px;
   height: 64px;
 }
 
-.type-picker__item h3 {
+.cards-list__item h3 {
   font-size: 13px;
   height: 40px;
   white-space: normal;
