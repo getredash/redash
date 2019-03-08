@@ -75,6 +75,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     name = Column(db.String(255))
     type = Column(db.String(255))
     options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.SECRET_KEY, FernetEngine)))
+    global_options = Column(MutableDict.as_mutable(PseudoJSON), default={})
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -101,6 +102,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             schema = get_configuration_schema_for_query_runner_type(self.type)
             self.options.set_schema(schema)
             d['options'] = self.options.to_dict(mask_secrets=True)
+            d['global_options'] = self.global_options
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups

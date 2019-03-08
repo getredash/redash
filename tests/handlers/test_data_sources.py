@@ -59,15 +59,25 @@ class TestDataSourceResourcePost(BaseTestCase):
         admin = self.factory.create_admin()
         new_name = 'New Name'
         new_options = {"dbname": "newdb"}
-        rv = self.make_request('post', self.path,
-                               data={'name': new_name, 'type': 'pg', 'options': new_options},
-                               user=admin)
+        new_global_options = {"some_key": "some_val"}
+        rv = self.make_request(
+            'post',
+            self.path,
+            data={
+                'name': new_name,
+                'type': 'pg',
+                'options': new_options,
+                'global_options': new_global_options
+            },
+            user=admin
+        )
 
         self.assertEqual(rv.status_code, 200)
         data_source = DataSource.query.get(self.factory.data_source.id)
 
         self.assertEqual(data_source.name, new_name)
         self.assertEqual(data_source.options.to_dict(), new_options)
+        self.assertEqual(data_source.global_options, new_global_options)
 
 
 class TestDataSourceResourceDelete(BaseTestCase):
@@ -100,8 +110,16 @@ class TestDataSourceListResourcePost(BaseTestCase):
 
     def test_creates_data_source(self):
         admin = self.factory.create_admin()
-        rv = self.make_request('post', '/api/data_sources',
-                               data={'name': 'DS 1', 'type': 'pg', 'options': {"dbname": "redash"}}, user=admin)
+        rv = self.make_request(
+            'post',
+            '/api/data_sources',
+            data={
+                'name': 'DS 1',
+                'type': 'pg',
+                'options': {"dbname": "redash"},
+                'global_options': {"doc_url": "www.example.com"}
+            },
+            user=admin)
 
         self.assertEqual(rv.status_code, 200)
 

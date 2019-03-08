@@ -45,6 +45,7 @@ class DataSourceResource(BaseResource):
         try:
             data_source.options.set_schema(schema)
             data_source.options.update(filter_none(req['options']))
+            data_source.global_options = req['global_options']
         except ValidationError:
             abort(400)
 
@@ -107,7 +108,7 @@ class DataSourceListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
+        required_fields = ('options', 'global_options', 'name', 'type')
         for f in required_fields:
             if f not in req:
                 abort(400)
@@ -126,7 +127,8 @@ class DataSourceListResource(BaseResource):
             datasource = models.DataSource.create_with_group(org=self.current_org,
                                                              name=req['name'],
                                                              type=req['type'],
-                                                             options=config)
+                                                             options=config,
+                                                             global_options=req['global_options'])
 
             models.db.session.commit()
         except IntegrityError as e:

@@ -225,10 +225,19 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
 
 export default function init(ngModule) {
   ngModule.component('dynamicForm', react2angular((props) => {
-    const fields = helper.getFields(props.type.configuration_schema, props.target);
+    let globalFields = [];
+    const globalProperties = props.type.global_options_schema.properties;
+    if (globalProperties && Object.keys(globalProperties).length > 0) {
+      globalFields = helper.getFields(
+        props.type.global_options_schema, props.target.name, props.target.global_options,
+      );
+    }
+    const fields = helper.getFields(
+      props.type.configuration_schema, props.target.name, props.target.options,
+    );
 
     const onSubmit = (values, onSuccess, onError) => {
-      helper.updateTargetWithValues(props.target, values);
+      helper.updateTargetWithValues(props.target, props.type, values);
       props.target.$save(
         () => {
           onSuccess('Saved.');
@@ -244,7 +253,7 @@ export default function init(ngModule) {
     };
 
     const updatedProps = {
-      fields,
+      fields: fields.concat(globalFields),
       actions: props.target.id ? props.actions : [],
       feedbackIcons: true,
       onSubmit,

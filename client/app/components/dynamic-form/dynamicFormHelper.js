@@ -57,9 +57,9 @@ function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
   }
 }
 
-function getFields(configurationSchema, target = {}) {
+function getFields(configurationSchema, targetName, targetOptions) {
   normalizeSchema(configurationSchema);
-  setDefaultValueForCheckboxes(configurationSchema, target.options);
+  setDefaultValueForCheckboxes(configurationSchema, targetOptions);
 
   const inputs = [
     {
@@ -67,19 +67,22 @@ function getFields(configurationSchema, target = {}) {
       title: 'Name',
       type: 'text',
       required: true,
-      initialValue: target.name,
+      initialValue: targetName,
     },
-    ...orderedInputs(configurationSchema.properties, configurationSchema.order, target.options),
+    ...orderedInputs(configurationSchema.properties, configurationSchema.order, targetOptions),
   ];
 
   return inputs;
 }
 
-function updateTargetWithValues(target, values) {
+function updateTargetWithValues(target, type, values) {
   target.name = values.name;
   Object.keys(values).forEach((key) => {
-    if (key !== 'name') {
+    if (key in type.configuration_schema.properties) {
       target.options[key] = values[key];
+    } else if (type.global_options_schema.properties &&
+               key in type.global_options_schema.properties) {
+      target.global_options[key] = values[key];
     }
   });
 }

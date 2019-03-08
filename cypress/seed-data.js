@@ -29,6 +29,7 @@ exports.seedData = [
         sslmode: 'prefer',
         user: 'postgres',
       },
+      global_options: {},
       type: 'pg',
     },
   },

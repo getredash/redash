@@ -100,7 +100,7 @@ export default function init(ngModule) {
         dataSource: (DataSource) => {
           'ngInject';
 
-          return new DataSource({ options: {} });
+          return new DataSource({ options: {}, global_options: {} });
         },
         types: ($http) => {
           'ngInject';

@@ -54,6 +54,7 @@ class NotSupported(Exception):
 
 class BaseQueryRunner(object):
     noop_query = None
+    global_options_schema = {}
 
     def __init__(self, configuration):
         self.syntax = 'sql'
@@ -78,6 +79,10 @@ class BaseQueryRunner(object):
     @classmethod
     def configuration_schema(cls):
         return {}
+
+    @classmethod
+    def add_global_option(cls, option, schema):
+        cls.global_options_schema["properties"][option] = schema
 
     def test_connection(self):
         if self.noop_query is None:
@@ -123,7 +128,8 @@ class BaseQueryRunner(object):
         return {
             'name': cls.name(),
             'type': cls.type(),
-            'configuration_schema': cls.configuration_schema()
+            'configuration_schema': cls.configuration_schema(),
+            'global_options_schema': cls.global_options_schema
         }
 
 
