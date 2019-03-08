@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import EmptyState from '@/components/items-list/components/EmptyState';
 
-import './CardsList.css';
+import './CardsList.less';
 
 const { Search } = Input;
 const { Meta } = Card;
@@ -47,7 +47,7 @@ export default class CardsList extends React.Component {
       </Card>
     );
     return (
-      <List.Item className="cards-list__item">
+      <List.Item className="cards-list-item">
         {item.href ? (<a href={item.href}>{card}</a>) : card}
       </List.Item>
     );
