@@ -2,7 +2,7 @@ import React from 'react';
 import { get, find, toUpper } from 'lodash';
 import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
-import { DataSource } from '@/services/data-source';
+import { DataSource, IMG_ROOT } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { $route, toastr } from '@/services/ng';
 import LoadingState from '@/components/items-list/components/LoadingState';
@@ -93,7 +93,7 @@ class EditDataSource extends React.Component {
     return (
       <div className="row" data-test="DataSource">
         <div className="d-flex justify-content-center align-items-center">
-          <img src={`${DataSource.IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
+          <img src={`${IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
           <h3 className="m-0">{type.name}</h3>
           {HELP_TRIGGER_TYPES[helpTriggerType] && (<HelpTrigger className="p-l-5" type={helpTriggerType} />)}
         </div>

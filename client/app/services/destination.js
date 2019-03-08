@@ -1,6 +1,6 @@
-export let Destination = null; // eslint-disable-line import/no-mutable-exports
+export const IMG_ROOT = '/static/images/destinations';
 
-const IMG_ROOT = '/static/images/destinations';
+export let Destination = null; // eslint-disable-line import/no-mutable-exports
 
 function DestinationService($resource) {
   const actions = {
@@ -14,11 +14,7 @@ function DestinationService($resource) {
     query: { method: 'GET', cache: false, isArray: true },
   };
 
-  const DestinationResource = $resource('api/destinations/:id', { id: '@id' }, actions);
-
-  DestinationResource.IMG_ROOT = IMG_ROOT;
-
-  return DestinationResource;
+  return $resource('api/destinations/:id', { id: '@id' }, actions);
 }
 
 export default function init(ngModule) {

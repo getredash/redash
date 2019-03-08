@@ -106,7 +106,12 @@ class CreateSourceDialog extends React.Component {
     return (
       <div className="p-5">
         <div className="d-flex justify-content-center align-items-center">
-          <img src={`${imageFolder}/${selectedType}.png`} alt={type.name} width="48" />
+          <img
+            className="profile__image--settings"
+            src={`${imageFolder}/${selectedType}.png`}
+            alt={type.name}
+            width="48"
+          />
           <h4 className="m-0">{type.name}</h4>
           {(helpTriggerPrefix && HELP_TRIGGER_TYPES[helpTriggerType]) && (
             <HelpTrigger className="p-l-5" type={helpTriggerType} />

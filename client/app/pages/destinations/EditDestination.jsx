@@ -2,7 +2,7 @@ import React from 'react';
 import { get, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
-import { Destination } from '@/services/destination';
+import { Destination, IMG_ROOT } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import { $route, toastr } from '@/services/ng';
 import LoadingState from '@/components/items-list/components/LoadingState';
@@ -75,7 +75,7 @@ class EditDestination extends React.Component {
     return (
       <div className="row" data-test="Destination">
         <div className="d-flex justify-content-center align-items-center">
-          <img src={`${Destination.IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
+          <img src={`${IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
           <h3 className="m-0">{type.name}</h3>
         </div>
         <div className="col-md-4 col-md-offset-4 m-b-10">

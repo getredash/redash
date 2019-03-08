@@ -1,9 +1,9 @@
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;
+export const IMG_ROOT = '/static/images/db-logos';
 
 export let DataSource = null; // eslint-disable-line import/no-mutable-exports
 
-const IMG_ROOT = '/static/images/db-logos';
 
 function DataSourceService($q, $resource, $http) {
   function fetchSchema(dataSourceId, refresh = false) {
@@ -35,8 +35,6 @@ function DataSourceService($q, $resource, $http) {
   };
 
   const DataSourceResource = $resource('api/data_sources/:id', { id: '@id' }, actions);
-
-  DataSourceResource.IMG_ROOT = IMG_ROOT;
 
   DataSourceResource.prototype.getSchema = function getSchema(refresh = false) {
     if (this._schema === undefined || refresh) {

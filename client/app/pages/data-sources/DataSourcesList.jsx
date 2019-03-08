@@ -3,7 +3,7 @@ import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
 import { isEmpty, get } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
-import { DataSource } from '@/services/data-source';
+import { DataSource, IMG_ROOT } from '@/services/data-source';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import { $route } from '@/services/ng';
@@ -53,7 +53,7 @@ class DataSourcesList extends React.Component {
     CreateSourceDialog.showModal({
       types: this.state.dataSourceTypes,
       sourceType: 'Data Source',
-      imageFolder: DataSource.IMG_ROOT,
+      imageFolder: IMG_ROOT,
       helpTriggerPrefix: 'DS_',
       onCreate: this.createDataSource,
     }).result.then((success) => {
@@ -72,7 +72,7 @@ class DataSourcesList extends React.Component {
     const { dataSources } = this.state;
     const items = dataSources.map(dataSource => ({
       title: dataSource.name,
-      imgSrc: `${DataSource.IMG_ROOT}/${dataSource.type}.png`,
+      imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
       href: `data_sources/${dataSource.id}`,
     }));
 

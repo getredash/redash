@@ -3,7 +3,7 @@ import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
 import { isEmpty, get } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
-import { Destination } from '@/services/destination';
+import { Destination, IMG_ROOT } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import { $route } from '@/services/ng';
 import { routesToAngularRoutes } from '@/lib/utils';
@@ -52,7 +52,7 @@ class DestinationsList extends React.Component {
     CreateSourceDialog.showModal({
       types: this.state.destinationTypes,
       sourceType: 'Alert Destination',
-      imageFolder: Destination.IMG_ROOT,
+      imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
     }).result.then((success) => {
       if (success) {
@@ -70,7 +70,7 @@ class DestinationsList extends React.Component {
     const { destinations } = this.state;
     const items = destinations.map(destination => ({
       title: destination.name,
-      imgSrc: `${Destination.IMG_ROOT}/${destination.type}.png`,
+      imgSrc: `${IMG_ROOT}/${destination.type}.png`,
       href: `destinations/${destination.id}`,
     }));
 
