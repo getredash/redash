@@ -82,6 +82,7 @@ class CreateSourceDialog extends React.Component {
           placeholder="Search..."
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
+          data-test="SearchSource"
         />
         <div className="scrollbox p-5 m-t-10" style={{ minHeight: '30vh', maxHeight: '40vh' }}>
           {isEmpty(filteredTypes) ? (<EmptyState className="" />) : (
@@ -149,25 +150,34 @@ class CreateSourceDialog extends React.Component {
         ] : [
           (<Button key="previous" onClick={this.resetType}>Previous</Button>),
           (
-            <Button key="submit" htmlType="submit" form="sourceForm" type="primary" loading={savingSource}>
+            <Button
+              key="submit"
+              htmlType="submit"
+              form="sourceForm"
+              type="primary"
+              loading={savingSource}
+              data-test="CreateSourceButton"
+            >
               Create
             </Button>
           ),
         ]}
       >
-        <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
-          {currentStep === StepEnum.CONFIGURE_IT ? (
-            <Step
-              title={<a>Select the Type</a>}
-              className="clickable"
-              onClick={this.resetType}
-            />
-          ) : (<Step title="Select the Type" />)}
-          <Step title="Configure it" />
-          <Step title="Done" />
-        </Steps>
-        {currentStep === StepEnum.SELECT_TYPE && this.renderTypeSelector()}
-        {currentStep !== StepEnum.SELECT_TYPE && this.renderForm()}
+        <div data-test="CreateSourceDialog">
+          <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
+            {currentStep === StepEnum.CONFIGURE_IT ? (
+              <Step
+                title={<a>Select the Type</a>}
+                className="clickable"
+                onClick={this.resetType}
+              />
+            ) : (<Step title="Select the Type" />)}
+            <Step title="Configure it" />
+            <Step title="Done" />
+          </Steps>
+          {currentStep === StepEnum.SELECT_TYPE && this.renderTypeSelector()}
+          {currentStep !== StepEnum.SELECT_TYPE && this.renderForm()}
+        </div>
       </Modal>
     );
   }
