@@ -54,7 +54,7 @@ class DataSourcesList extends React.Component {
       types: this.state.dataSourceTypes,
       sourceType: 'Data Source',
       imageFolder: DataSource.IMG_ROOT,
-      helpLinks: DataSource.HELP_LINKS,
+      helpTriggerPrefix: 'DS_',
       onCreate: this.createDataSource,
     }).result.then((success) => {
       if (success) {

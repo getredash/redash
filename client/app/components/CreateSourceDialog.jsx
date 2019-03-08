@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty, includes, find } from 'lodash';
+import { isEmpty, toUpper, includes, find } from 'lodash';
 import Button from 'antd/lib/button';
 import List from 'antd/lib/list';
 import Modal from 'antd/lib/modal';
@@ -11,6 +11,7 @@ import { PreviewCard } from '@/components/PreviewCard';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 const { Step } = Steps;
 const { Search } = Input;
@@ -27,13 +28,13 @@ class CreateSourceDialog extends React.Component {
     types: PropTypes.arrayOf(PropTypes.object),
     sourceType: PropTypes.string.isRequired,
     imageFolder: PropTypes.string.isRequired,
-    helpLinks: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    helpTriggerPrefix: PropTypes.string,
     onCreate: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     types: [],
-    helpLinks: {},
+    helpTriggerPrefix: null,
   };
 
   constructor(props) {
@@ -76,7 +77,7 @@ class CreateSourceDialog extends React.Component {
     const filteredTypes = types.filter(type => isEmpty(searchText) ||
       includes(type.name.toLowerCase(), searchText.toLowerCase()));
     return (
-      <div className="m-t-20">
+      <div className="m-t-10">
         <Search
           placeholder="Search..."
           onChange={e => this.setState({ searchText: e.target.value })}
@@ -96,22 +97,18 @@ class CreateSourceDialog extends React.Component {
   }
 
   renderForm() {
-    const { types, imageFolder, helpLinks } = this.props;
+    const { types, imageFolder, helpTriggerPrefix } = this.props;
     const { selectedType } = this.state;
     const type = find(types, { type: selectedType });
     const fields = helper.getFields(type.configuration_schema);
+    const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType)}`;
     return (
-      <div className="p-5 m-t-10">
-        <div className="text-center">
+      <div className="p-5">
+        <div className="d-flex justify-content-center align-items-center">
           <img src={`${imageFolder}/${selectedType}.png`} alt={type.name} width="48" />
-          <h4 className="di-block">{type.name}</h4>
-          {helpLinks[selectedType] && (
-          <p className="text-center">
-            {/* eslint-disable-next-line react/jsx-no-target-blank */}
-            <a href={helpLinks[selectedType]} target="_blank" rel="noopener">
-              Help setting up {type.name} <i className="fa fa-external-link" aria-hidden="true" />
-            </a>
-          </p>
+          <h4 className="m-0">{type.name}</h4>
+          {(helpTriggerPrefix && HELP_TRIGGER_TYPES[helpTriggerType]) && (
+            <HelpTrigger className="p-l-5" type={helpTriggerType} />
           )}
         </div>
         <DynamicForm
@@ -158,7 +155,7 @@ class CreateSourceDialog extends React.Component {
           ),
         ]}
       >
-        <Steps className="hidden-xs" size="small" current={currentStep} progressDot>
+        <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
           {currentStep === StepEnum.CONFIGURE_IT ? (
             <Step
               title={<a>Select the Type</a>}

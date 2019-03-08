@@ -1,24 +1,39 @@
 import React from 'react';
-import { find } from 'lodash';
+import { get, find, toUpper } from 'lodash';
 import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
 import { DataSource } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { $route, toastr } from '@/services/ng';
-import EditDataSourceForm from '@/components/data-sources/EditDataSourceForm';
+import LoadingState from '@/components/items-list/components/LoadingState';
+import DynamicForm from '@/components/dynamic-form/DynamicForm';
+import helper from '@/components/dynamic-form/dynamicFormHelper';
+import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 class EditDataSource extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { dataSource: null, type: null };
+    this.state = { dataSource: null, type: null, loading: true };
   }
 
   componentDidMount() {
     DataSource.get({ id: $route.current.params.dataSourceId }, (dataSource) => {
       const { type } = dataSource;
       this.setState({ dataSource });
-      DataSource.types(types => this.setState({ type: find(types, { type }) }));
+      DataSource.types(types => this.setState({ type: find(types, { type }), loading: false }));
     });
+  }
+
+  saveDataSource = (values, successCallback, errorCallback) => {
+    const { dataSource } = this.state;
+    helper.updateTargetWithValues(dataSource, values);
+    dataSource.$save(
+      () => successCallback('Saved.'),
+      (error) => {
+        const message = get(error, 'data.message', 'Failed saving.');
+        errorCallback(message);
+      },
+    );
   }
 
   deleteDataSource = (callback) => {
@@ -60,22 +75,37 @@ class EditDataSource extends React.Component {
     });
   };
 
-  render() {
+  renderForm() {
     const { dataSource, type } = this.state;
+    const fields = helper.getFields(type.configuration_schema, dataSource);
+    const helpTriggerType = `DS_${toUpper(type.type)}`;
     const formProps = {
-      dataSource,
+      fields,
       type,
       actions: [
         { name: 'Delete', type: 'danger', callback: this.deleteDataSource },
         { name: 'Test Connection', pullRight: true, callback: this.testConnection, disableWhenDirty: true },
       ],
+      onSubmit: this.saveDataSource,
+      feedbackIcons: true,
     };
 
     return (
-      <div>
-        {(dataSource && type) && <EditDataSourceForm {...formProps} />}
+      <div className="row" data-test="DataSource">
+        <div className="d-flex justify-content-center align-items-center">
+          <img src={`${DataSource.IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
+          <h3 className="m-0">{type.name}</h3>
+          {HELP_TRIGGER_TYPES[helpTriggerType] && (<HelpTrigger className="p-l-5" type={helpTriggerType} />)}
+        </div>
+        <div className="col-md-4 col-md-offset-4 m-b-10">
+          <DynamicForm {...formProps} />
+        </div>
       </div>
     );
+  }
+
+  render() {
+    return this.state.loading ? <LoadingState className="" /> : this.renderForm();
   }
 }
 
