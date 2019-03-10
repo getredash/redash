@@ -27,10 +27,15 @@
 @import '~antd/lib/dropdown/style/index';
 @import '~antd/lib/menu/style/index';
 @import '~antd/lib/list/style/index';
+@import "~antd/lib/badge/style/index";
+@import "~antd/lib/card/style/index";
+@import "~antd/lib/spin/style/index";
+@import "~antd/lib/tabs/style/index";
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
-.ant-checkbox-wrapper, .ant-radio-wrapper {
+.ant-checkbox-wrapper,
+.ant-radio-wrapper {
   font-weight: normal;
 }
 
@@ -160,7 +165,9 @@
 .@{table-prefix-cls} {
   color: inherit;
 
-  tr, th, td {
+  tr,
+  th,
+  td {
     transition: none !important;
   }
 
@@ -215,7 +222,8 @@
 // styling for short modals (no lines)
 .@{dialog-prefix-cls}.shortModal {
   .@{dialog-prefix-cls} {
-    &-header, &-footer {
+    &-header,
+    &-footer {
       border: none;
       padding: 16px;
     }
