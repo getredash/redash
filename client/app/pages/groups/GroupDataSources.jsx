@@ -90,10 +90,14 @@ class GroupDataSources extends React.Component {
   ];
 
   componentDidMount() {
-    Group.get({ id: this.groupId }).$promise.then((group) => {
-      this.group = group;
-      this.forceUpdate();
-    });
+    Group.get({ id: this.groupId }).$promise
+      .then((group) => {
+        this.group = group;
+        this.forceUpdate();
+      })
+      .catch((error) => {
+        this.props.controller.handleError(error);
+      });
   }
 
   removeGroupDataSource = (datasource) => {
