@@ -94,7 +94,7 @@ class EditDataSource extends React.Component {
 
   renderForm() {
     const { dataSource, type } = this.state;
-    const fields = helper.getFields(type.configuration_schema, dataSource);
+    const fields = helper.getFields(type, dataSource);
     const helpTriggerType = `DS_${toUpper(type.type)}`;
     const formProps = {
       fields,

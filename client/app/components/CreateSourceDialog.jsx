@@ -97,7 +97,7 @@ class CreateSourceDialog extends React.Component {
   renderForm() {
     const { imageFolder, helpTriggerPrefix } = this.props;
     const { selectedType } = this.state;
-    const fields = helper.getFields(selectedType.configuration_schema);
+    const fields = helper.getFields(selectedType);
     const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType.type)}`;
     return (
       <div className="p-5">

@@ -7,7 +7,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes } from 'lodash';
+import { includes, isFunction } from 'lodash';
 import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
@@ -158,12 +158,11 @@ class DynamicForm extends React.Component {
     return this.props.fields.map((field) => {
       const [firstField] = this.props.fields;
       const FormItem = Form.Item;
-      const { name, title, type, readOnly } = field;
+      const { name, title, type, readOnly, contentAfter } = field;
       const fieldLabel = title || helper.toHuman(name);
-      const { feedbackIcons } = this.props;
+      const { feedbackIcons, form } = this.props;
 
       const formItemProps = {
-        key: name,
         className: 'm-b-10',
         hasFeedback: type !== 'checkbox' && type !== 'file' && feedbackIcons,
         label: type === 'checkbox' ? '' : fieldLabel,
@@ -180,7 +179,12 @@ class DynamicForm extends React.Component {
         'data-test': fieldLabel,
       };
 
-      return (<FormItem {...formItemProps}>{this.renderField(field, fieldProps)}</FormItem>);
+      return (
+        <React.Fragment key={name}>
+          <FormItem {...formItemProps}>{this.renderField(field, fieldProps)}</FormItem>
+          {isFunction(contentAfter) ? contentAfter(form.getFieldValue(name)) : contentAfter}
+        </React.Fragment>
+      );
     });
   }
 

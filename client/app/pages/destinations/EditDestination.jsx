@@ -78,7 +78,7 @@ class EditDestination extends React.Component {
 
   renderForm() {
     const { destination, type } = this.state;
-    const fields = helper.getFields(type.configuration_schema, destination);
+    const fields = helper.getFields(type, destination);
     const formProps = {
       fields,
       type,

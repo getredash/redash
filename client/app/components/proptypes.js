@@ -40,6 +40,7 @@ export const Field = PropTypes.shape({
   readOnly: PropTypes.bool,
   minLength: PropTypes.number,
   placeholder: PropTypes.string,
+  contentAfter: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 });
 
