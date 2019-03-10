@@ -31,7 +31,7 @@ export function TimeEditor(props) {
   return (
     <React.Fragment>
       <TimePicker
-        allowEmpty={false}
+        allowClear={false}
         value={time}
         format={HOUR_FORMAT}
         minuteStep={5}
