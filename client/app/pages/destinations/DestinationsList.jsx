@@ -55,12 +55,7 @@ class DestinationsList extends React.Component {
       sourceType: 'Alert Destination',
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
-    }).result.then((success) => {
-      if (success) {
-        this.setState({ loading: true });
-        Destination.query(destinations => this.setState({ destinations }));
-      }
-    }).finally(() => {
+    }).result.finally(() => {
       if ($route.current.locals.isNewDestinationPage) {
         navigateTo('destinations');
       }

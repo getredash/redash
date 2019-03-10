@@ -61,12 +61,7 @@ class DataSourcesList extends React.Component {
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: 'DS_',
       onCreate: this.createDataSource,
-    }).result.then((success) => {
-      if (success) {
-        this.setState({ loading: true });
-        DataSource.query(dataSources => this.setState({ dataSources }));
-      }
-    }).finally(() => {
+    }).result.finally(() => {
       if ($route.current.locals.isNewDataSourcePage) {
         navigateTo('data_sources');
       }
