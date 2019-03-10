@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty, toUpper, includes, find } from 'lodash';
+import { isEmpty, toUpper, includes } from 'lodash';
 import Button from 'antd/lib/button';
 import List from 'antd/lib/list';
 import Modal from 'antd/lib/modal';
@@ -37,15 +37,12 @@ class CreateSourceDialog extends React.Component {
     helpTriggerPrefix: null,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchText: '',
-      selectedType: null,
-      savingSource: false,
-      currentStep: StepEnum.SELECT_TYPE,
-    };
-  }
+  state = {
+    searchText: '',
+    selectedType: null,
+    savingSource: false,
+    currentStep: StepEnum.SELECT_TYPE,
+  };
 
   selectType = (selectedType) => {
     this.setState({ selectedType, currentStep: StepEnum.CONFIGURE_IT });
@@ -98,23 +95,26 @@ class CreateSourceDialog extends React.Component {
   }
 
   renderForm() {
-    const { types, imageFolder, helpTriggerPrefix } = this.props;
+    const { imageFolder, helpTriggerPrefix } = this.props;
     const { selectedType } = this.state;
-    const type = find(types, { type: selectedType });
-    const fields = helper.getFields(type.configuration_schema);
-    const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType)}`;
+    const fields = helper.getFields(selectedType.configuration_schema);
+    const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType.type)}`;
     return (
       <div className="p-5">
         <div className="d-flex justify-content-center align-items-center">
           <img
-            className="profile__image--settings"
-            src={`${imageFolder}/${selectedType}.png`}
-            alt={type.name}
+            className="p-5"
+            src={`${imageFolder}/${selectedType.type}.png`}
+            alt={selectedType.name}
             width="48"
           />
-          <h4 className="m-0">{type.name}</h4>
-          {(helpTriggerPrefix && HELP_TRIGGER_TYPES[helpTriggerType]) && (
-            <HelpTrigger className="p-l-5" type={helpTriggerType} />
+          <h4 className="m-0">{selectedType.name}</h4>
+        </div>
+        <div className="text-center">
+          {HELP_TRIGGER_TYPES[helpTriggerType] && (
+            <HelpTrigger className="f-13" type={helpTriggerType}>
+              Setup Instructions <i className="fa fa-question-circle" />
+            </HelpTrigger>
           )}
         </div>
         <DynamicForm
@@ -133,9 +133,9 @@ class CreateSourceDialog extends React.Component {
     return (
       <List.Item
         className="p-l-10 p-r-10 clickable"
-        onClick={() => this.selectType(item.type)}
+        onClick={() => this.selectType(item)}
       >
-        <PreviewCard title={item.name} imageUrl={`${imageFolder}/${item.type}.png`}>
+        <PreviewCard title={item.name} imageUrl={`${imageFolder}/${item.type}.png`} roundedImage={false}>
           <i className="fa fa-angle-double-right" />
         </PreviewCard>
       </List.Item>

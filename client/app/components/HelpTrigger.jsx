@@ -28,35 +28,35 @@ export const TYPES = {
   ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
-    'Data Source: Help Setting up Amazon Athena',
+    'Guide: Help Setting up Amazon Athena',
   ],
   DS_BIGQUERY: [
     '/data-sources/bigquery-setup',
-    'Data Source: Help Setting up BigQuery',
+    'Guide: Help Setting up BigQuery',
   ],
   DS_URL: [
     '/data-sources/querying-urls',
-    'Data Source: Help Setting up URL',
+    'Guide: Help Setting up URL',
   ],
   DS_MONGODB: [
     '/data-sources/mongodb-setup',
-    'Data Source: Help Setting up MongoDB',
+    'Guide: Help Setting up MongoDB',
   ],
   DS_GOOGLE_SPREADSHEETS: [
     '/data-sources/querying-a-google-spreadsheet',
-    'Data Source: Help Setting up Google Spreadsheets',
+    'Guide: Help Setting up Google Spreadsheets',
   ],
   DS_GOOGLE_ANALYTICS: [
     '/data-sources/google-analytics-setup',
-    'Data Source: Help Setting up Google Analytics',
+    'Guide: Help Setting up Google Analytics',
   ],
   DS_AXIBASETSD: [
     '/data-sources/axibase-time-series-database',
-    'Data Source: Help Setting up Axibase Time Series',
+    'Guide: Help Setting up Axibase Time Series',
   ],
   DS_RESULTS: [
     '/user-guide/querying/query-results-data-source',
-    'Data Source: Help Setting up Query Results',
+    'Guide: Help Setting up Query Results',
   ],
 };
 
@@ -64,10 +64,12 @@ export class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
+    children: PropTypes.node,
   }
 
   static defaultProps = {
     className: null,
+    children: <i className="fa fa-question-circle" />,
   };
 
   iframeRef = null
@@ -125,7 +127,7 @@ export class HelpTrigger extends React.Component {
       <React.Fragment>
         <Tooltip title={tooltip}>
           <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
-            <i className="fa fa-question-circle" />
+            {this.props.children}
           </a>
         </Tooltip>
         <Drawer

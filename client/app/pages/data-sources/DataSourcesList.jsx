@@ -14,10 +14,11 @@ import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 class DataSourcesList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { dataSourceTypes: [], dataSources: [], loading: true };
-  }
+  state = {
+    dataSourceTypes: [],
+    dataSources: [],
+    loading: true,
+  };
 
   componentDidMount() {
     Promise.all([
@@ -29,13 +30,17 @@ class DataSourcesList extends React.Component {
       loading: false,
     }, () => { // all resources are loaded in state
       if ($route.current.locals.isNewDataSourcePage) {
-        this.showCreateSourceDialog();
+        if (policy.canCreateDataSource()) {
+          this.showCreateSourceDialog();
+        } else {
+          navigateTo('/data_sources');
+        }
       }
     }));
   }
 
   createDataSource = (selectedType, values) => {
-    const target = { options: {}, type: selectedType };
+    const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
     return DataSource.save(target).$promise.then(() => {
@@ -79,9 +84,11 @@ class DataSourcesList extends React.Component {
     return isEmpty(dataSources) ? (
       <div className="text-center">
         There are no data sources yet.
-        <div className="m-t-5">
-          <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
-        </div>
+        {policy.isCreateDataSourceEnabled() && (
+          <div className="m-t-5">
+            <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
+          </div>
+        )}
       </div>
     ) : (<CardsList items={items} />);
   }

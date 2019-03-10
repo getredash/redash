@@ -13,10 +13,11 @@ import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 class DestinationsList extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { destinationTypes: [], destinations: [], loading: true };
-  }
+  state = {
+    destinationTypes: [],
+    destinations: [],
+    loading: true,
+  };
 
   componentDidMount() {
     Promise.all([
@@ -34,7 +35,7 @@ class DestinationsList extends React.Component {
   }
 
   createDestination = (selectedType, values) => {
-    const target = { options: {}, type: selectedType };
+    const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
     return Destination.save(target).$promise.then(() => {

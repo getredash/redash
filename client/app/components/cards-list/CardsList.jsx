@@ -29,10 +29,9 @@ export default class CardsList extends React.Component {
     showSearch: false,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { searchText: '' };
-  }
+  state = {
+    searchText: '',
+  };
 
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {

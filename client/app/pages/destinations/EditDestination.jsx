@@ -10,10 +10,11 @@ import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 class EditDestination extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { destination: null, type: null, loading: true };
-  }
+  state = {
+    destination: null,
+    type: null,
+    loading: true,
+  };
 
   componentDidMount() {
     Destination.get({ id: $route.current.params.destinationId }, (destination) => {
@@ -74,8 +75,8 @@ class EditDestination extends React.Component {
 
     return (
       <div className="row" data-test="Destination">
-        <div className="d-flex justify-content-center align-items-center">
-          <img src={`${IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
+        <div className="text-center m-b-10">
+          <img className="p-5" src={`${IMG_ROOT}/${type.type}.png`} alt={type.name} width="64" />
           <h3 className="m-0">{type.name}</h3>
         </div>
         <div className="col-md-4 col-md-offset-4 m-b-10">
