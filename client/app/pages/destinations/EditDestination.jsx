@@ -1,15 +1,25 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { get, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
 import { Destination, IMG_ROOT } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
 import { $route, toastr } from '@/services/ng';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 
 class EditDestination extends React.Component {
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     destination: null,
     type: null,
@@ -17,10 +27,16 @@ class EditDestination extends React.Component {
   };
 
   componentDidMount() {
-    Destination.get({ id: $route.current.params.destinationId }, (destination) => {
+    Destination.get({ id: $route.current.params.destinationId }).$promise.then((destination) => {
       const { type } = destination;
       this.setState({ destination });
       Destination.types(types => this.setState({ type: find(types, { type }), loading: false }));
+    }).catch((error) => {
+      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+      if (error.status && error.data) {
+        error = new PromiseRejectionError(error);
+      }
+      this.props.onError(error);
     });
   }
 
@@ -96,8 +112,13 @@ export default function init(ngModule) {
 
   return {
     '/destinations/:destinationId': {
-      template: '<settings-screen><page-edit-destination></page-edit-destination></settings-screen>',
+      template: '<settings-screen><page-edit-destination on-error="handleError"></page-edit-destination></settings-screen>',
       title: 'Alert Destinations',
+      controller($scope, $exceptionHandler) {
+        'ngInject';
+
+        $scope.handleError = $exceptionHandler;
+      },
     },
   };
 }

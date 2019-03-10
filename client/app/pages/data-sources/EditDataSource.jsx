@@ -1,16 +1,26 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { get, find, toUpper } from 'lodash';
 import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
 import { DataSource, IMG_ROOT } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
 import { $route, toastr } from '@/services/ng';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 class EditDataSource extends React.Component {
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     dataSource: null,
     type: null,
@@ -18,10 +28,16 @@ class EditDataSource extends React.Component {
   };
 
   componentDidMount() {
-    DataSource.get({ id: $route.current.params.dataSourceId }, (dataSource) => {
+    DataSource.get({ id: $route.current.params.dataSourceId }).$promise.then((dataSource) => {
       const { type } = dataSource;
       this.setState({ dataSource });
       DataSource.types(types => this.setState({ type: find(types, { type }), loading: false }));
+    }).catch((error) => {
+      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+      if (error.status && error.data) {
+        error = new PromiseRejectionError(error);
+      }
+      this.props.onError(error);
     });
   }
 
@@ -121,8 +137,13 @@ export default function init(ngModule) {
 
   return {
     '/data_sources/:dataSourceId': {
-      template: '<settings-screen><page-edit-data-source></page-edit-data-source></settings-screen>',
+      template: '<settings-screen><page-edit-data-source on-error="handleError"></page-edit-data-source></settings-screen>',
       title: 'Data Sources',
+      controller($scope, $exceptionHandler) {
+        'ngInject';
+
+        $scope.handleError = $exceptionHandler;
+      },
     },
   };
 }
