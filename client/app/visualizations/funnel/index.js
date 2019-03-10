@@ -65,9 +65,7 @@ function Funnel(scope, element) {
     trs
       .append('td')
       .attr('class', 'col-xs-3 step')
-      .text(d => d.step)
-      .append('div')
-      .attr('class', 'step-name')
+      .attr('title', d => d.step)
       .text(d => d.step);
 
     // Funnel bars
@@ -177,11 +175,11 @@ Funnel.prototype.remove = function remove() {
   this.watches.forEach((unregister) => {
     unregister();
   });
-  angular.element(this.element).empty('.vis-container');
+  angular.element(this.element).empty();
 };
 
 const FunnelRenderer = {
-  template: '<div class="funnel-visualization-container resize-event="handleResize()"></div>',
+  template: '<div class="funnel-visualization-container" resize-event="handleResize()"></div>',
   bindings: {
     data: '<',
     options: '<',

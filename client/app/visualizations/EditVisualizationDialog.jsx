@@ -4,18 +4,19 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
+import * as Grid from 'antd/lib/grid';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import {
-  VisualizationType, registeredVisualizations,
-  getDefaultVisualization, newVisualization,
-} from './index';
-
 import { toastr } from '@/services/ng';
 import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
 import { cleanAngularProps, createPromiseHandler } from '@/lib/utils';
+
+import {
+  VisualizationType, registeredVisualizations,
+  getDefaultVisualization, newVisualization,
+} from './index';
 
 class EditVisualizationDialog extends React.Component {
   static propTypes = {
@@ -101,7 +102,12 @@ class EditVisualizationDialog extends React.Component {
   }
 
   setVisualizationOptions = (options) => {
-    this.setState({ options: extend({}, options) });
+    this.setState(({ type, data }) => {
+      const config = registeredVisualizations[type];
+      return {
+        options: config.getOptions(options, data),
+      };
+    });
   };
 
   dismiss() {
@@ -170,9 +176,7 @@ class EditVisualizationDialog extends React.Component {
     const { dialog } = this.props;
     const { type, name, data, options, canChangeType, saveInProgress } = this.state;
 
-    const { Renderer, Editor, getOptions } = registeredVisualizations[type];
-
-    const previewOptions = getOptions(options, data);
+    const { Renderer, Editor } = registeredVisualizations[type];
 
     return (
       <Modal
@@ -187,8 +191,8 @@ class EditVisualizationDialog extends React.Component {
         onOk={() => this.save()}
         onCancel={() => this.dismiss()}
       >
-        <div className="row">
-          <div className="col-md-5">
+        <Grid.Row gutter={24}>
+          <Grid.Col span={24} md={10}>
             <div className="m-b-15">
               <label htmlFor="visualization-type">Visualization Type</label>
               <Select
@@ -221,17 +225,19 @@ class EditVisualizationDialog extends React.Component {
                 onOptionsChange={this.setVisualizationOptions}
               />
             </div>
-          </div>
-          <div className="col-md-7">
-            <label htmlFor="visualization-preview" className="invisible">Preview</label>
-            <Renderer
-              data={data}
-              options={previewOptions}
-              visualizationName={name}
-              onOptionsChange={this.setVisualizationOptions}
-            />
-          </div>
-        </div>
+          </Grid.Col>
+          <Grid.Col span={24} md={14}>
+            <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
+            <div className="scrollbox">
+              <Renderer
+                data={data}
+                options={options}
+                visualizationName={name}
+                onOptionsChange={this.setVisualizationOptions}
+              />
+            </div>
+          </Grid.Col>
+        </Grid.Row>
       </Modal>
     );
   }
