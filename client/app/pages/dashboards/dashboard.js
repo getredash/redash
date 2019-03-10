@@ -368,6 +368,7 @@ function DashboardCtrl(
 
   this.onWidgetAdded = () => {
     this.extractGlobalParameters();
+    collectFilters(this.dashboard, false);
     // Save position of newly added widget (but not entire layout)
     const widget = _.last(this.dashboard.widgets);
     if (_.isObject(widget)) {
@@ -379,6 +380,7 @@ function DashboardCtrl(
   this.removeWidget = (widgetId) => {
     this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
+    collectFilters(this.dashboard, false);
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
       $timeout(() => {
