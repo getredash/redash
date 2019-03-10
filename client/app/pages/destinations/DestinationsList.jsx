@@ -4,6 +4,7 @@ import { react2angular } from 'react2angular';
 import { isEmpty, get } from 'lodash';
 import settingsMenu from '@/services/settingsMenu';
 import { Destination, IMG_ROOT } from '@/services/destination';
+import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
 import { $route } from '@/services/ng';
 import { routesToAngularRoutes } from '@/lib/utils';
@@ -29,7 +30,11 @@ class DestinationsList extends React.Component {
       loading: false,
     }, () => { // all resources are loaded in state
       if ($route.current.locals.isNewDestinationPage) {
-        this.showCreateSourceDialog();
+        if (policy.canCreateDestination()) {
+          this.showCreateSourceDialog();
+        } else {
+          navigateTo('/destinations');
+        }
       }
     }));
   }
@@ -73,18 +78,26 @@ class DestinationsList extends React.Component {
     return isEmpty(destinations) ? (
       <div className="text-center">
         There are no alert destinations yet.
-        <div className="m-t-5">
-          <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
-        </div>
+        {policy.isCreateDestinationEnabled() && (
+          <div className="m-t-5">
+            <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
+          </div>
+        )}
       </div>
     ) : (<CardsList items={items} />);
   }
 
   render() {
+    const newDestinationProps = {
+      type: 'primary',
+      onClick: policy.isCreateDestinationEnabled() ? this.showCreateSourceDialog : null,
+      disabled: !policy.isCreateDestinationEnabled(),
+    };
+
     return (
       <div>
         <div className="m-b-15">
-          <Button type="primary" onClick={this.showCreateSourceDialog}>
+          <Button {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" />
             New Alert Destination
           </Button>
