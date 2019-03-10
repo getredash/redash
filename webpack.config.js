@@ -129,7 +129,8 @@ const config = {
             options: {
               plugins: [
                 new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
-              ]
+              ],
+              javascriptEnabled: true
             }
           }
         ]
