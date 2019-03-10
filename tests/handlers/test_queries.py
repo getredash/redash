@@ -112,6 +112,44 @@ class TestQueryResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{0}'.format(q.id), data={'name': 'Testing', 'version': q.version - 1}, user=self.factory.user)
         self.assertEqual(rv.status_code, 409)
 
+    def test_allows_association_with_authorized_dropdown_queries(self):
+        data_source = self.factory.create_data_source(group=self.factory.default_group)
+
+        other_query = self.factory.create_query(data_source=data_source)
+        db.session.add(other_query)
+
+        my_query = self.factory.create_query(data_source=data_source)
+        db.session.add(my_query)
+
+        options = {
+            'parameters': [{
+                'type': 'query',
+                'queryId': other_query.id
+            }]
+        }
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(my_query.id), data={'options': options}, user=self.factory.user)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_prevents_association_with_unauthorized_dropdown_queries(self):
+        other_data_source = self.factory.create_data_source(group=self.factory.create_group())
+        other_query = self.factory.create_query(data_source=other_data_source)
+        db.session.add(other_query)
+
+        my_data_source = self.factory.create_data_source(group=self.factory.create_group())
+        my_query = self.factory.create_query(data_source=my_data_source)
+        db.session.add(my_query)
+
+        options = {
+            'parameters': [{
+                'type': 'query',
+                'queryId': other_query.id
+            }]
+        }
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(my_query.id), data={'options': options}, user=self.factory.user)
+        self.assertEqual(rv.status_code, 403)
+
     def test_overrides_existing_if_no_version_specified(self):
         q = self.factory.create_query()
         q.name = "Another Name"
