@@ -247,8 +247,8 @@ describe('ScheduleDialog', () => {
         .simulate('click');
 
       // expect calls
-      expect(confirmCb).toBeCalled();
-      expect(closeCb).toBeCalled();
+      expect(confirmCb).toHaveBeenCalled();
+      expect(closeCb).toHaveBeenCalled();
     });
 
     test('Query not saved on confirm if state unchanged', () => {
@@ -262,8 +262,8 @@ describe('ScheduleDialog', () => {
         .simulate('click');
 
       // expect calls
-      expect(confirmCb).not.toBeCalled();
-      expect(closeCb).toBeCalled();
+      expect(confirmCb).not.toHaveBeenCalled();
+      expect(closeCb).toHaveBeenCalled();
     });
 
     test('Cancel closes modal and query unsaved', () => {
@@ -282,8 +282,8 @@ describe('ScheduleDialog', () => {
         .simulate('click');
 
       // expect calls
-      expect(confirmCb).not.toBeCalled();
-      expect(closeCb).toBeCalled();
+      expect(confirmCb).not.toHaveBeenCalled();
+      expect(closeCb).toHaveBeenCalled();
     });
   });
 });
