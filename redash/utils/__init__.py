@@ -189,9 +189,6 @@ def filter_none(d):
 
 
 def to_filename(s):
-    # replace characters forbidden in filename with whitespace to process them with next regex
     s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
-    # collapse whitespaces (incl. NUL symbol and newlines) - whitespaces are allowed in filenames
-    s = re.sub("\s+", " ", s, flags=re.UNICODE)
-    # strip whitespaces from beginning and end
-    return s.strip()
+    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    return s.strip("_")

@@ -96,13 +96,13 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         return {'job': job.to_dict()}
 
 
-def get_download_filename(query_result, query=None, filetype='json'):
-    str_date = query_result.retrieved_at.strftime("%Y-%m-%d")
-    if query is not None:
-        str_filename = to_filename(query.name) if query.name != '' else str(query.id)
+def get_download_filename(query_result, query, filetype):
+    retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
+    if query:
+        filename = to_filename(query.name) if query.name != '' else str(query.id)
     else:
-        str_filename = str(query_result.id)
-    return u"{}.{}.{}".format(str_filename, str_date, filetype)
+        filename = str(query_result.id)
+    return u"{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):
