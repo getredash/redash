@@ -9,7 +9,7 @@ from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
 
-from redash import create_app, settings
+from redash import create_app, extensions, settings
 from redash.metrics import celery as celery_metrics  # noqa
 
 
@@ -76,11 +76,8 @@ def init_celery_flask_app(**kwargs):
     app.app_context().push()
 
 
-# Commented until https://github.com/getredash/redash/issues/3466 is implemented.
 # Hook for extensions to add periodic tasks.
-# @celery.on_after_configure.connect
-# def add_periodic_tasks(sender, **kwargs):
-#     app = safe_create_app()
-#     periodic_tasks = getattr(app, 'periodic_tasks', {})
-#     for params in periodic_tasks.values():
-#         sender.add_periodic_task(**params)
+@celery.on_after_configure.connect
+def add_periodic_tasks(sender, **kwargs):
+    for params in extensions.periodic_tasks.values():
+        sender.add_periodic_task(**params)

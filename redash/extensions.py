@@ -1,30 +1,50 @@
-import os
-from pkg_resources import iter_entry_points, resource_isdir, resource_listdir
+from importlib_metadata import entry_points
+
+# The global Redash extension registry
+extensions = {}
+
+# The periodic Celery task registry
+periodic_tasks = {}
 
 
 def init_app(app):
-    """
-    Load the Redash extensions for the given Redash Flask app.
-    """
-    if not hasattr(app, 'redash_extensions'):
-        app.redash_extensions = {}
+    """Load the Redash extensions for the given Redash Flask app.
 
-    for entry_point in iter_entry_points('redash.extensions'):
+    The extension entry pooint can return any type of value but
+    must take a Flask application object.
+
+    E.g.::
+
+        def extension(app):
+            app.logger.info("Loading the Foobar extenions")
+            Foobar(app)
+
+    """
+    for entry_point in entry_points().get('redash.extensions', []):
         app.logger.info('Loading Redash extension %s.', entry_point.name)
-        try:
-            extension = entry_point.load()
-            app.redash_extensions[entry_point.name] = {
-                "entry_function": extension(app),
-                "resources_list": []
-            }
-        except ImportError:
-            app.logger.info('%s does not have a callable and will not be loaded.', entry_point.name)
-            (root_module, _) = os.path.splitext(entry_point.module_name)
-            content_folder_relative = os.path.join(entry_point.name, 'bundle')
+        init_extension = entry_point.load()
+        extensions[entry_point.name] = init_extension(app)
 
-            # If it's a frontend extension only, store a list of files in the bundle directory.
-            if resource_isdir(root_module, content_folder_relative):
-                app.redash_extensions[entry_point.name] = {
-                    "entry_function": None,
-                    "resources_list": resource_listdir(root_module, content_folder_relative)
-                }
+
+def init_periodic_tasks(app):
+    """Load the Redash extensions for the given Redash Flask app.
+
+    The periodic task entry point needs to return a set of parameters
+    that can be passed to Celery's add_periodic_task:
+
+        https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#entries
+
+    E.g.::
+
+        def periodic_task():
+            return {
+                'name': 'add 2 and 2 every 10 seconds'
+                'sig': add.s(2, 2),
+                'schedule': 10.0,
+            }
+
+    """
+    for entry_point in entry_points().get('redash.periodic_tasks', []):
+        app.logger.info('Loading Redash periodic tasks %s.', entry_point.name)
+        init_periodic_task = entry_point.load()
+        periodic_tasks[entry_point.name] = init_periodic_task()
