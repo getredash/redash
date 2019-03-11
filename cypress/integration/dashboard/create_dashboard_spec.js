@@ -24,20 +24,28 @@ describe('Dashboard', () => {
   });
 
   it('creates a new dashboard and archives it', () => {
+    cy.getByTestId('DashboardLayoutContent').as('content');
+    cy.get('@content').toMatchSnapshot(); // TODO: make this overwrite https://git.io/fhjRW
+
     createNewDashboard('Foo Bar');
-    cy.url().should('include', '/dashboard/foo-bar');
+
+    let urlPath;
+    cy.location().should(({ pathname }) => {
+      urlPath = pathname;
+      expect(pathname).to.include('dashboard/foo-bar');
+    });
 
     cy.visit('/dashboards');
-    cy.percySnapshot('Dashboards List');
-
-    cy.get('.table-main-title[href*="dashboard/foo-bar"]')
+    cy.get('@content').within(() => {
+      cy.get('.table-main-title')
       .should('exist')
-      .and('contain', 'Foo Bar')
+      .and('have.attr', 'href', urlPath.substring(1))
       .click();
+    });
 
     archiveCurrentDashboard();
 
     cy.visit('/dashboards');
-    cy.percySnapshot('Dashboards List');
+    cy.get('@content').toMatchSnapshot();
   });
 });

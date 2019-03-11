@@ -88,35 +88,35 @@ class DashboardList extends React.Component {
             />
           </Layout.Sidebar>
           <Layout.Content>
-            {!controller.isLoaded && <LoadingState />}
-            {
-              controller.isLoaded && controller.isEmpty && (
-                <DashboardListEmptyState
-                  page={controller.params.currentPage}
-                  searchTerm={controller.searchTerm}
-                  selectedTags={controller.selectedTags}
-                />
-              )
-            }
-            {
-              controller.isLoaded && !controller.isEmpty && (
-                <div className="bg-white tiled table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    columns={this.listColumns}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
+            {controller.isLoaded ? (
+              <div data-test="DashboardLayoutContent">
+                {controller.isEmpty ? (
+                  <DashboardListEmptyState
+                    page={controller.params.currentPage}
+                    searchTerm={controller.searchTerm}
+                    selectedTags={controller.selectedTags}
                   />
-                  <Paginator
-                    totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
-              )
-            }
+                ) : (
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      columns={this.listColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
+                    />
+                    <Paginator
+                      totalCount={controller.totalItemsCount}
+                      itemsPerPage={controller.itemsPerPage}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <LoadingState />
+            )}
           </Layout.Content>
         </Layout>
       </div>
