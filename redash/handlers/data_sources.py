@@ -6,7 +6,7 @@ from funcy import project
 from six import text_type
 from sqlalchemy.exc import IntegrityError
 
-from redash import models
+from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
@@ -54,7 +54,7 @@ class DataSourceResource(BaseResource):
         models.db.session.add(data_source)
 
         # Refresh the stored schemas when a data source is updated
-        refresh_schemas.apply_async(queue="schemas")
+        refresh_schemas.apply_async(queue=settings.SCHEMAS_REFRESH_QUEUE)
 
         try:
             models.db.session.commit()
@@ -135,7 +135,7 @@ class DataSourceListResource(BaseResource):
             models.db.session.commit()
 
             # Refresh the stored schemas when a new data source is added to the list
-            refresh_schemas.apply_async(queue="schemas")
+            refresh_schemas.apply_async(queue=settings.SCHEMAS_REFRESH_QUEUE)
         except IntegrityError as e:
             if req['name'] in e.message:
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
@@ -160,7 +160,7 @@ class DataSourceSchemaResource(BaseResource):
         response = {}
         try:
             if refresh:
-                refresh_schemas.apply(queue="schemas")
+                refresh_schemas.apply(queue=settings.SCHEMAS_REFRESH_QUEUE)
             response['schema'] = data_source.get_schema()
         except NotSupported:
             response['error'] = {
