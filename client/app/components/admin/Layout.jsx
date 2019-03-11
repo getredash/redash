@@ -10,9 +10,15 @@ export default function Layout({ activeTab, children }) {
 
       <div className="bg-white tiled">
         <ul className="tab-nav">
-          <li className={cx({ active: activeTab === 'system_status' })}><a href="admin/status">System Status</a></li>
-          <li className={cx({ active: activeTab === 'tasks' })}><a href="admin/queries/tasks">Celery Status</a></li>
-          <li className={cx({ active: activeTab === 'outdated_queries' })}><a href="admin/queries/outdated">Outdated Queries</a></li>
+          <li className={cx({ active: activeTab === 'system_status' })}>
+            <a href="admin/status">System Status</a>
+          </li>
+          <li className={cx({ active: activeTab === 'tasks' })}>
+            <a href="admin/queries/tasks">Celery Status</a>
+          </li>
+          <li className={cx({ active: activeTab === 'outdated_queries' })}>
+            <a href="admin/queries/outdated">Outdated Queries</a>
+          </li>
         </ul>
         <div>
           {children}

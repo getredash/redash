@@ -15,7 +15,6 @@ import { ItemsSource } from '@/components/items-list/classes/ItemsSource';
 import { StateStorage } from '@/components/items-list/classes/StateStorage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
-import EmptyState from '@/components/items-list/components/EmptyState';
 import { PageSizeSelect } from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
@@ -102,20 +101,26 @@ class OutdatedQueries extends React.Component {
             {controller.params.lastUpdatedAt && (
               <div className="m-t-5">
                 Last updated:{' '}
-                <TimeAgo date={controller.params.lastUpdatedAt} />
+                <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
               </div>
             )}
           </Grid.Col>
           <Grid.Col span={8}>
-            <PageSizeSelect
-              options={controller.pageSizeOptions}
-              value={controller.itemsPerPage}
-              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-            />
+            {controller.isLoaded && !controller.isEmpty && (
+              <PageSizeSelect
+                options={controller.pageSizeOptions}
+                value={controller.itemsPerPage}
+                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              />
+            )}
           </Grid.Col>
         </Grid.Row>
         {!controller.isLoaded && <LoadingState />}
-        {controller.isLoaded && controller.isEmpty && <EmptyState />}
+        {controller.isLoaded && controller.isEmpty && (
+          <div className="text-center p-15">
+            There are no outdated queries.
+          </div>
+        )}
         {
           controller.isLoaded && !controller.isEmpty && (
             <div className="bg-white tiled table-responsive">

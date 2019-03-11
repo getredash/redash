@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-import { isNil, toPairs } from 'lodash';
+import { isString, toPairs } from 'lodash';
 import React from 'react';
 
 import List from 'antd/lib/list';
@@ -72,7 +72,7 @@ export function Queues({ info }) {
               {name}
               <Tooltip
                 className="m-l-5"
-                title={isNil(queue.data_sources) ? 'n/a' : queue.data_sources}
+                title={isString(queue.data_sources) && (queue.data_sources !== '') ? queue.data_sources : 'n/a'}
                 mouseLeaveDelay={0}
               >
                 <i className="fa fa-question-circle" />

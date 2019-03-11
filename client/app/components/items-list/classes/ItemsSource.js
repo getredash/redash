@@ -35,7 +35,7 @@ export class ItemsSource {
       searchTerm: this._searchTerm,
       selectedTags: this._selectedTags,
     };
-    const customParams = { ...this._params };
+    const customParams = {};
     const context = {
       ...this.getCallbackContext(),
       setCustomParams: (params) => {
@@ -48,7 +48,7 @@ export class ItemsSource {
           this._pageItems = results;
           this._allItems = allResults || null;
           this._paginator.setTotalCount(count);
-          this._params = customParams;
+          this._params = { ...this._params, ...customParams };
           return this._afterUpdate();
         })
         .catch((error) => {
