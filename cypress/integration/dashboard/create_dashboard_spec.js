@@ -1,36 +1,43 @@
-describe('Create Dashboard', () => {
+function createNewDashboard(dashboardName) {
+  cy.getByTestId('CreateButton').click();
+  cy.get('li[role="menuitem"').contains('Dashboard').click();
+  cy.getByTestId('EditDashboardDialog').within(() => {
+    cy.getByTestId('DashboardSaveButton').should('be.disabled');
+    cy.get('input').type(dashboardName);
+    cy.getByTestId('DashboardSaveButton').click();
+  });
+}
+
+function archiveCurrentDashboard() {
+  cy.getByTestId('DashboardMoreMenu').click().within(() => {
+    cy.get('li').contains('Archive').click();
+  });
+
+  cy.get('.btn-warning').contains('Archive').click();
+  cy.get('.label-tag-archived').should('exist');
+}
+
+describe('Dashboard', () => {
   beforeEach(() => {
     cy.login();
     cy.visit('/dashboards');
   });
 
-  it('creates a new dashboard', () => {
-    cy.getByTestId('CreateButton').click();
-    cy.get('li[role="menuitem"').contains('Dashboard').click();
-    cy.getByTestId('EditDashboardDialog').within(() => {
-      cy.getByTestId('DashboardSaveButton').should('be.disabled');
-      cy.get('input').type('Foo Bar');
-      cy.getByTestId('DashboardSaveButton').click();
-    });
+  it('creates a new dashboard and archives it', () => {
+    createNewDashboard('Foo Bar');
     cy.url().should('include', '/dashboard/foo-bar');
 
     cy.visit('/dashboards');
-    cy.get('.table-main-title').contains('Foo Bar').should('exist');
-  });
+    cy.percySnapshot('Dashboards List');
 
-  it('archive', () => {
-    cy.get('.table-main-title[href*="dashboard/foo-bar"]').as('listItem');
-    cy.get('@listItem').click();
-    cy.getByTestId('DashboardMoreMenu')
-      .click()
-      .within(() => {
-        cy.get('li').contains('Archive').click();
-      });
+    cy.get('.table-main-title[href*="dashboard/foo-bar"]')
+      .should('exist')
+      .and('contain', 'Foo Bar')
+      .click();
 
-    cy.get('.btn-warning').contains('Archive').click();
-    cy.get('.label-tag-archived').should('exist');
-    
+    archiveCurrentDashboard();
+
     cy.visit('/dashboards');
-    cy.get('@listItem').should('not.exist');
+    cy.percySnapshot('Dashboards List');
   });
 });
