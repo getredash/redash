@@ -342,7 +342,7 @@ def refresh_schema(data_source_id):
 
             get_table_sample_data.apply_async(
                 args=(data_source_id, table, persisted_table.id),
-                queue="schemas"
+                queue=settings.SCHEMAS_REFRESH_QUEUE
             )
 
             # If a column did not exist, set the 'column_exists' flag to false.
