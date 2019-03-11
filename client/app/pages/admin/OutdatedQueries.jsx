@@ -21,6 +21,7 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 
 import { $http } from '@/services/ng';
 import { Query } from '@/services/query';
+import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 class OutdatedQueries extends React.Component {
@@ -68,6 +69,7 @@ class OutdatedQueries extends React.Component {
   _updateTimer = null;
 
   componentDidMount() {
+    recordEvent('view', 'page', 'admin/queries/outdated');
     this.update(true);
   }
 

@@ -7,6 +7,7 @@ import Layout from '@/components/admin/Layout';
 import * as StatusBlock from '@/components/admin/StatusBlock';
 
 import { $http } from '@/services/ng';
+import recordEvent from '@/services/recordEvent';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { routesToAngularRoutes } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ class SystemStatus extends React.Component {
   _refreshTimer = null;
 
   componentDidMount() {
+    recordEvent('view', 'page', 'admin/status');
     this.refresh();
   }
 

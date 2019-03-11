@@ -46,7 +46,14 @@ function parseTasks(tasks) {
 function QueuesTable({ loading, queues }) {
   const columns = ['Name', 'Active', 'Reserved', 'Waiting'].map(c => ({ title: c, dataIndex: c.toLowerCase() }));
 
-  return <Table columns={columns} rowKey="name" dataSource={queues} loading={loading} />;
+  return (
+    <Table
+      columns={columns}
+      rowKey="name"
+      dataSource={queues}
+      loading={{ spinning: loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
+    />
+  );
 }
 
 QueuesTable.propTypes = {
@@ -56,7 +63,7 @@ QueuesTable.propTypes = {
 
 function CounterCard({ title, value, loading }) {
   return (
-    <Spin spinning={loading}>
+    <Spin spinning={loading} indicator={<i className="fa fa-spinner fa-pulse" />}>
       <Card>
         {title}
         <div className="f-20">{value}</div>
@@ -178,15 +185,15 @@ export default class AdminCeleryStatus extends React.Component {
     }
 
     return (
-      <div className="p-5">
-        <Row gutter={16}>
-          <Col span={4}>
+      <div className="p-15">
+        <Row gutter={15} className="m-b-15">
+          <Col span={8}>
             <CounterCard title="Active Tasks" value={this.state.counters.active} loading={this.state.loading} />
           </Col>
-          <Col span={4}>
+          <Col span={8}>
             <CounterCard title="Reserved Tasks" value={this.state.counters.reserved} loading={this.state.loading} />
           </Col>
-          <Col span={4}>
+          <Col span={8}>
             <CounterCard title="Waiting Tasks" value={this.state.counters.waiting} loading={this.state.loading} />
           </Col>
         </Row>
@@ -199,7 +206,7 @@ export default class AdminCeleryStatus extends React.Component {
               <Table
                 rowKey="task_id"
                 dataSource={this.state.queries}
-                loading={this.state.loading}
+                loading={{ spinning: this.state.loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
                 columns={queryColumns}
               />
             </Tabs.TabPane>
@@ -207,7 +214,7 @@ export default class AdminCeleryStatus extends React.Component {
               <Table
                 rowKey="task_id"
                 dataSource={this.state.otherTasks}
-                loading={this.state.loading}
+                loading={{ spinning: this.state.loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
                 columns={otherTasksColumns}
               />
             </Tabs.TabPane>
