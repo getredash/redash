@@ -35,7 +35,7 @@ export class ItemsSource {
       searchTerm: this._searchTerm,
       selectedTags: this._selectedTags,
     };
-    const customParams = {};
+    const customParams = { ...this._params };
     const context = {
       ...this.getCallbackContext(),
       setCustomParams: (params) => {
