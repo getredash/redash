@@ -4,7 +4,7 @@ describe('Create Dashboard', () => {
     cy.visit('/dashboards');
   });
 
-  it('create new', () => {
+  it('creates a new dashboard', () => {
     cy.getByTestId('CreateButton').click();
     cy.get('li[role="menuitem"').contains('Dashboard').click();
     cy.getByTestId('EditDashboardDialog').within(() => {
