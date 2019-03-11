@@ -19,4 +19,4 @@ describe('Embedded Queries', () => {
       cy.visit(embedUrl);
     });
   });
-})
+});

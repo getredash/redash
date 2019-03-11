@@ -171,6 +171,7 @@ class BaseQueryListResource(BaseResource):
 
         return response
 
+
 def require_access_to_dropdown_queries(user, query_def):
     parameters = query_def.get('options', {}).get('parameters', [])
     dropdown_query_ids = [str(p['queryId']) for p in parameters if p['type'] == 'query']
@@ -184,6 +185,7 @@ def require_access_to_dropdown_queries(user, query_def):
         object = lambda: None
         object.groups = dict(groups)
         require_access(object, user, view_only)
+
 
 class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
