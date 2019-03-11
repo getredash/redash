@@ -13,7 +13,7 @@ def _pluck_name_and_value(default_column, row):
     name_column = "name" if "name" in row.keys() else default_column.lower()
     value_column = "value" if "value" in row.keys() else default_column.lower()
 
-    return {"name": row[name_column], "value": row[value_column]}
+    return {"name": row[name_column], "value": unicode(row[value_column])}
 
 
 def _load_result(query_id):

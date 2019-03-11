@@ -66,7 +66,7 @@ export class QueryBasedParameterInput extends React.Component {
           className={className}
           disabled={loading || (options.length === 0)}
           loading={loading}
-          defaultValue={value}
+          defaultValue={'' + value}
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
