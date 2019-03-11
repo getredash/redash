@@ -149,6 +149,7 @@ export class ParameterValueInput extends React.Component {
       <Input
         className={'form-control ' + className}
         defaultValue={value || ''}
+        data-test="TextParamInput"
         onChange={event => onSelect(event.target.value)}
       />
     );
