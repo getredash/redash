@@ -242,6 +242,7 @@ def client_config():
 
     return client_config
 
+
 def messages():
     messages = []
 
