@@ -1,4 +1,18 @@
+function archiveAllDashboards() {
+  cy.visit('/dashboards');
+  
+  // archive all dashboards
+  cy.getByTestId('DashboardLayoutContent').then(($wrapper) => {
+    $wrapper
+      .find('.table-main-title')
+      .each((_, { href }) => {
+        archiveDashboard(href);
+      });
+  });
+}
+
 function createNewDashboard(dashboardName) {
+  cy.visit('/dashboards');
   cy.getByTestId('CreateButton').click();
   cy.get('li[role="menuitem"]').contains('Dashboard').click();
   cy.getByTestId('EditDashboardDialog').within(() => {
@@ -8,11 +22,15 @@ function createNewDashboard(dashboardName) {
   });
 }
 
-function archiveCurrentDashboard() {
+function archiveDashboard(url) {
+  if (url) {
+    cy.visit(url);
+  }
+
   cy.getByTestId('DashboardMoreMenu').click().within(() => {
     cy.get('li').contains('Archive').click();
   });
-
+  
   cy.get('.btn-warning').contains('Archive').click();
   cy.get('.label-tag-archived').should('exist');
 }
@@ -20,32 +38,29 @@ function archiveCurrentDashboard() {
 describe('Dashboard', () => {
   beforeEach(() => {
     cy.login();
-    cy.visit('/dashboards');
+    archiveAllDashboards();
   });
 
   it('creates a new dashboard and archives it', () => {
-    cy.getByTestId('DashboardLayoutContent').as('content');
-    cy.get('@content').toMatchSnapshot(); // TODO: make this overwrite https://git.io/fhjRW
-
+    // create new
     createNewDashboard('Foo Bar');
 
-    let urlPath;
-    cy.location().should(({ pathname }) => {
-      urlPath = pathname;
-      expect(pathname).to.include('dashboard/foo-bar');
-    });
-
+    // verify listed in dashboards
     cy.visit('/dashboards');
-    cy.get('@content').within(() => {
+    cy.getByTestId('DashboardLayoutContent').within(() => {
       cy.get('.table-main-title')
+        .contains('Foo Bar')
         .should('exist')
-        .and('have.attr', 'href', urlPath.substring(1))
         .click();
     });
 
-    archiveCurrentDashboard();
+    // archive
+    archiveDashboard();
 
+    // verify not listed in dashboards
     cy.visit('/dashboards');
-    cy.get('@content').toMatchSnapshot();
+    cy.getByTestId('DashboardLayoutContent').within(() => {
+      cy.get('.table-main-title').should('not.exist');
+    });
   });
 });
