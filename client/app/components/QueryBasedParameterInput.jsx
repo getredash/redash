@@ -58,9 +58,9 @@ export class QueryBasedParameterInput extends React.Component {
       };
 
       if (this.props.parentQueryId) {
-        Query.dropdownsOptions({ queryId: this.props.parentQueryId, dropdownQueryId: queryId }, resolve);
+        Query.associatedDropdown({ queryId: this.props.parentQueryId, dropdownQueryId: queryId }, resolve);
       } else {
-        Query.dropdownOptions({ id: queryId }, resolve);
+        Query.asDropdown({ id: queryId }, resolve);
       }
     }
   }

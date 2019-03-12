@@ -373,12 +373,12 @@ function QueryResource(
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
-      dropdownOptions: {
+      asDropdown: {
         method: 'get',
         isArray: true,
         url: 'api/queries/:id/dropdown',
       },
-      dropdownsOptions: {
+      associatedDropdown: {
         method: 'get',
         isArray: true,
         url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
