@@ -47,6 +47,8 @@ describe('Dashboard', () => {
     archiveAllDashboards();
   });
 
+  afterEach(archiveAllDashboards);
+
   it('creates a new dashboard and archives it', () => {
     // create new
     createNewDashboard('Foo Bar');
