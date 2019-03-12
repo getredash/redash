@@ -8,7 +8,7 @@ import Card from 'antd/lib/card';
 import Tooltip from 'antd/lib/tooltip';
 import { TimeAgo } from '@/components/TimeAgo';
 
-import { toHuman } from '@/filters';
+import { toHuman, prettySize } from '@/filters';
 
 export function General({ info }) {
   info = toPairs(info);
@@ -45,7 +45,7 @@ export function DatabaseMetrics({ info }) {
           itemLayout="vertical"
           dataSource={info}
           renderItem={([name, size]) => (
-            <List.Item extra={<span className="badge">{size}</span>}>
+            <List.Item extra={<span className="badge">{prettySize(size)}</span>}>
               {name}
             </List.Item>
           )}

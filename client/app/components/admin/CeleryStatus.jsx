@@ -51,7 +51,7 @@ function QueuesTable({ loading, queues }) {
       columns={columns}
       rowKey="name"
       dataSource={queues}
-      loading={{ spinning: loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
+      loading={loading}
     />
   );
 }
@@ -63,7 +63,7 @@ QueuesTable.propTypes = {
 
 function CounterCard({ title, value, loading }) {
   return (
-    <Spin spinning={loading} indicator={<i className="fa fa-spinner fa-pulse" />}>
+    <Spin spinning={loading}>
       <Card>
         {title}
         <div className="f-20">{value}</div>
@@ -206,7 +206,7 @@ export default class AdminCeleryStatus extends React.Component {
               <Table
                 rowKey="task_id"
                 dataSource={this.state.queries}
-                loading={{ spinning: this.state.loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
+                loading={this.state.loading}
                 columns={queryColumns}
               />
             </Tabs.TabPane>
@@ -214,7 +214,7 @@ export default class AdminCeleryStatus extends React.Component {
               <Table
                 rowKey="task_id"
                 dataSource={this.state.otherTasks}
-                loading={{ spinning: this.state.loading, indicator: <i className="fa fa-spinner fa-pulse" /> }}
+                loading={this.state.loading}
                 columns={otherTasksColumns}
               />
             </Tabs.TabPane>
