@@ -38,9 +38,9 @@ describe('Dashboard', () => {
     cy.visit('/dashboards');
     cy.get('@content').within(() => {
       cy.get('.table-main-title')
-      .should('exist')
-      .and('have.attr', 'href', urlPath.substring(1))
-      .click();
+        .should('exist')
+        .and('have.attr', 'href', urlPath.substring(1))
+        .click();
     });
 
     archiveCurrentDashboard();
