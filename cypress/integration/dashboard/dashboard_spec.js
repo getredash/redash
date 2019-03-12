@@ -1,20 +1,20 @@
 function archiveAllDashboards() {
   cy.visit('/dashboards');
-  
+
   // archive all dashboards
-  cy.getByTestId('DashboardLayoutContent').then(($wrapper) => {
-    $wrapper
-      .find('.table-main-title')
-      .each((_, { href }) => {
-        archiveDashboard(href);
-      });
+  cy.getByTestId('DashboardLayoutContent').then($wrapper => {
+    $wrapper.find('.table-main-title').each((_, { href }) => {
+      archiveDashboard(href);
+    });
   });
 }
 
 function createNewDashboard(dashboardName) {
   cy.visit('/dashboards');
   cy.getByTestId('CreateButton').click();
-  cy.get('li[role="menuitem"]').contains('Dashboard').click();
+  cy.get('li[role="menuitem"]')
+    .contains('Dashboard')
+    .click();
   cy.getByTestId('EditDashboardDialog').within(() => {
     cy.getByTestId('DashboardSaveButton').should('be.disabled');
     cy.get('input').type(dashboardName);
@@ -27,11 +27,17 @@ function archiveDashboard(url) {
     cy.visit(url);
   }
 
-  cy.getByTestId('DashboardMoreMenu').click().within(() => {
-    cy.get('li').contains('Archive').click();
-  });
-  
-  cy.get('.btn-warning').contains('Archive').click();
+  cy.getByTestId('DashboardMoreMenu')
+    .click()
+    .within(() => {
+      cy.get('li')
+        .contains('Archive')
+        .click();
+    });
+
+  cy.get('.btn-warning')
+    .contains('Archive')
+    .click();
   cy.get('.label-tag-archived').should('exist');
 }
 
