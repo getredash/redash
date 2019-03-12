@@ -1,6 +1,6 @@
 function createNewDashboard(dashboardName) {
   cy.getByTestId('CreateButton').click();
-  cy.get('li[role="menuitem]"').contains('Dashboard').click();
+  cy.get('li[role="menuitem"]').contains('Dashboard').click();
   cy.getByTestId('EditDashboardDialog').within(() => {
     cy.getByTestId('DashboardSaveButton').should('be.disabled');
     cy.get('input').type(dashboardName);
