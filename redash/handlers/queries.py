@@ -173,10 +173,15 @@ class BaseQueryListResource(BaseResource):
 
 def require_access_to_dropdown_queries(user, query_def):
     parameters = query_def.get('options', {}).get('parameters', [])
-    dropdown_queries = [models.Query.get_by_id(p["queryId"]) for p in parameters if p["type"] == "query"]
+    dropdown_query_ids = [str(p['queryId']) for p in parameters if p['type'] == 'query']
 
-    for query in dropdown_queries:
-        require_access(query.data_source.groups, user, view_only)
+    if dropdown_query_ids:
+        groups = models.db.session.execute('select group_id, view_only from queries join data_source_groups on queries.data_source_id = data_source_groups.data_source_id where queries.id in ({})'.format(','.join(dropdown_query_ids))).fetchall()
+
+        if len(groups) < len(dropdown_query_ids):
+            abort(400, message='You are trying to associate a dropdown query that does not have a matching group. Please verify the dropdown query id you are trying to associate with this query.')
+
+        require_access(dict(groups), user, view_only)
 
 class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')

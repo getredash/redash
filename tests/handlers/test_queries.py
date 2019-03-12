@@ -150,6 +150,21 @@ class TestQueryResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{0}'.format(my_query.id), data={'options': options}, user=self.factory.user)
         self.assertEqual(rv.status_code, 403)
 
+    def test_prevents_association_with_non_existing_dropdown_queries(self):
+        my_data_source = self.factory.create_data_source(group=self.factory.create_group())
+        my_query = self.factory.create_query(data_source=my_data_source)
+        db.session.add(my_query)
+
+        options = {
+            'parameters': [{
+                'type': 'query',
+                'queryId': 100000
+            }]
+        }
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(my_query.id), data={'options': options}, user=self.factory.user)
+        self.assertEqual(rv.status_code, 400)
+
     def test_overrides_existing_if_no_version_specified(self):
         q = self.factory.create_query()
         q.name = "Another Name"
