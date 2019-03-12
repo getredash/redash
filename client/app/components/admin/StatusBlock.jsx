@@ -1,11 +1,10 @@
 /* eslint-disable react/prop-types */
 
-import { isString, toPairs } from 'lodash';
+import { toPairs } from 'lodash';
 import React from 'react';
 
 import List from 'antd/lib/list';
 import Card from 'antd/lib/card';
-import Tooltip from 'antd/lib/tooltip';
 import { TimeAgo } from '@/components/TimeAgo';
 
 import { toHuman, prettySize } from '@/filters';
@@ -70,13 +69,6 @@ export function Queues({ info }) {
           renderItem={([name, queue]) => (
             <List.Item extra={<span className="badge">{queue.size}</span>}>
               {name}
-              <Tooltip
-                className="m-l-5"
-                title={isString(queue.data_sources) && (queue.data_sources !== '') ? queue.data_sources : 'n/a'}
-                mouseLeaveDelay={0}
-              >
-                <i className="fa fa-question-circle" />
-              </Tooltip>
             </List.Item>
           )}
         />
