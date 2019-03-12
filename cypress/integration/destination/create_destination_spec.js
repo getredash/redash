@@ -1,6 +1,6 @@
 describe('Create Destination', () => {
   beforeEach(() => {
-    cy.login();
+    cy.login()
     cy.visit('/destinations/new');
   });
 
