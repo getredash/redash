@@ -96,7 +96,7 @@ class Tasks extends React.Component {
                 </Grid.Col>
               </Grid.Row>
 
-              <Tabs defaultActiveKey="queues">
+              <Tabs defaultActiveKey="queues" animated={false}>
                 <Tabs.TabPane key="queues" tab="Queues">
                   <QueuesTable loading={isLoading} items={queues} />
                 </Tabs.TabPane>
