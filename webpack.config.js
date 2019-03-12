@@ -17,12 +17,12 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 
-const basePath = fs.realpathSync(path.join(__dirname, "client"));
-const appPath = fs.realpathSync(path.join(__dirname, "client", "app"));
+const basePath = path.join(__dirname, "client");
+const appPath = path.join(__dirname, "client", "app");
 
 const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
   path.join("client", "app", "extensions");
-const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
+const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 const config = {
   mode: isProduction ? "production" : "development",
@@ -40,11 +40,12 @@ const config = {
     publicPath: "/static/"
   },
   resolve: {
+    symlinks: false,
     extensions: ['.js', '.jsx'],
     alias: {
       "@": appPath,
       "extensions": extensionPath
-    }
+    },
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
