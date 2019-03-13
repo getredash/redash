@@ -42,18 +42,14 @@ describe('Dashboard', () => {
   });
 
   it('creates a new dashboard and archives it', () => {
-    // create new
     createNewDashboard('Foo Bar').then((slug) => {
-        // verify listed in dashboards
       cy.visit('/dashboards');
       cy.getByTestId('DashboardLayoutContent').within(() => {
         cy.getByTestId(slug).should('exist').click();
       });
 
-      // archive
       archiveCurrentDashboard();
 
-      // verify not listed in dashboards
       cy.visit('/dashboards');
       cy.getByTestId('DashboardLayoutContent').within(() => {
         cy.getByTestId(slug).should('not.exist');
