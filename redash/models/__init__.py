@@ -631,15 +631,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
         kwargs = {a: getattr(self, a) for a in forked_list}
-        forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
-                                    user=user, **kwargs)
+
+        # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
+        forked_query = Query(name=u'Copy of (#{}) {}'.format(self.id, self.name), user=user, **kwargs)
 
         for v in self.visualizations:
-            if v.type == 'TABLE':
-                continue
             forked_v = v.copy()
             forked_v['query_rel'] = forked_query
-            forked_query.visualizations.append(Visualization(**forked_v))
+            fv = Visualization(**forked_v)  # it will magically add it to `forked_query.visualizations`
+            db.session.add(fv)
+
         db.session.add(forked_query)
         return forked_query
 
