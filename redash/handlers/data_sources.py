@@ -107,7 +107,7 @@ class DataSourceListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(True)
-        require_fields(req,'options', 'name', 'type')
+        require_fields(req, 'options', 'name', 'type')
 
         schema = get_configuration_schema_for_query_runner_type(req['type'])
         if schema is None:
