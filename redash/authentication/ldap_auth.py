@@ -72,7 +72,8 @@ def auth_ldap_user(username, password):
     except LDAPBindError:
         return None
 
-    conn.search(settings.LDAP_SEARCH_DN, settings.LDAP_SEARCH_TEMPLATE % {"username": username}, attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY])
+    conn.search(settings.LDAP_SEARCH_DN, settings.LDAP_SEARCH_TEMPLATE % {"username": username}, 
+                attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY])
 
     if len(conn.entries) == 0:
         return None
