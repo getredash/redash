@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
 
+export let Widget = null; // eslint-disable-line import/no-mutable-exports
+
 function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
@@ -68,7 +70,7 @@ export const ParameterMappingType = {
 };
 
 function WidgetFactory($http, $location, Query, Visualization, dashboardGridOptions) {
-  class Widget {
+  class WidgetService {
     static MappingType = ParameterMappingType;
 
     constructor(data) {
@@ -171,7 +173,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
     isStaticParam(param) {
       const mappings = this.getParameterMappings();
       const mappingType = mappings[param.name].type;
-      return mappingType === Widget.MappingType.StaticValue;
+      return mappingType === WidgetService.MappingType.StaticValue;
     }
 
     getParametersDefs() {
@@ -182,8 +184,8 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
       const queryParams = $location.search();
 
       const localTypes = [
-        Widget.MappingType.WidgetLevel,
-        Widget.MappingType.StaticValue,
+        WidgetService.MappingType.WidgetLevel,
+        WidgetService.MappingType.StaticValue,
       ];
       return map(
         filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
@@ -192,8 +194,8 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
           const result = param.clone();
           result.title = mapping.title || param.title;
           result.locals = [param];
-          result.urlPrefix = `w${this.id}_`;
-          if (mapping.type === Widget.MappingType.StaticValue) {
+          result.urlPrefix = `p_w${this.id}_`;
+          if (mapping.type === WidgetService.MappingType.StaticValue) {
             result.setValue(mapping.value);
           } else {
             result.fromUrlParams(queryParams);
@@ -218,7 +220,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
           // should be mapped to a dashboard-level parameter with the same name
           this.options.parameterMappings[param.name] = {
             name: param.name,
-            type: param.global ? Widget.MappingType.DashboardLevel : Widget.MappingType.WidgetLevel,
+            type: param.global ? WidgetService.MappingType.DashboardLevel : WidgetService.MappingType.WidgetLevel,
             mapTo: param.name, // map to param with the same name
             value: null, // for StaticValue
             title: '', // Use parameter's title
@@ -239,12 +241,15 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
     }
   }
 
-  return Widget;
+  return WidgetService;
 }
 
 export default function init(ngModule) {
   ngModule.factory('Widget', WidgetFactory);
+
+  ngModule.run(($injector) => {
+    Widget = $injector.get('Widget');
+  });
 }
 
 init.init = true;
-

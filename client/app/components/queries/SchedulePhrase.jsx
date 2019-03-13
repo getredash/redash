@@ -3,23 +3,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
 import { localizeTime, durationHumanize } from '@/filters';
+import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
 
 import './ScheduleDialog.css';
 
-class SchedulePhrase extends React.Component {
+export class SchedulePhrase extends React.Component {
   static propTypes = {
-    // eslint-disable-next-line react/forbid-prop-types
-    schedule: PropTypes.object.isRequired,
+    schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,
     isLink: PropTypes.bool,
   };
 
   static defaultProps = {
+    schedule: RefreshScheduleDefault,
     isLink: false,
   };
 
   get content() {
-    const { interval: seconds } = this.props.schedule;
+    const { interval: seconds } = this.props.schedule || SchedulePhrase.defaultProps.schedule;
     if (!seconds) {
       return ['Never'];
     }

@@ -16,13 +16,15 @@ import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
-import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
+
+import DialogWrapper from '@/components/DialogWrapper';
+import organizationStatus from '@/services/organizationStatus';
 
 import * as filters from '@/filters';
 import registerDirectives from '@/directives';
@@ -47,7 +49,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  'angularMoment',
   toastr,
   'ui.ace',
   ngUpload,
@@ -101,7 +102,7 @@ function registerVisualizations() {
 }
 
 function registerPages() {
-  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.js$/);
+  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const routesCollection = registerAll(context);
   routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
@@ -110,11 +111,7 @@ function registerPages() {
         route.authenticated = true;
         route.resolve = extend(
           {
-            __organizationStatus: (OrganizationStatus) => {
-              'ngInject';
-
-              return OrganizationStatus.refresh();
-            },
+            __organizationStatus: () => organizationStatus.refresh(),
           },
           route.resolve,
         );
@@ -152,5 +149,9 @@ registerComponents();
 registerPages();
 registerExtensions();
 registerVisualizations(ngModule);
+
+ngModule.run(($q) => {
+  DialogWrapper.Promise = $q;
+});
 
 export default ngModule;

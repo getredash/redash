@@ -68,13 +68,13 @@ class ClickHouse(BaseSQLQueryRunner):
 
     def _send_query(self, data, stream=False):
         r = requests.post(
-            self.configuration['url'],
+            self.configuration.get('url', "http://127.0.0.1:8123"),
             data=data.encode("utf-8"),
             stream=stream,
             timeout=self.configuration.get('timeout', 30),
             params={
-                'user': self.configuration['user'],
-                'password':  self.configuration['password'],
+                'user': self.configuration.get('user', "default"),
+                'password':  self.configuration.get('password', ""),
                 'database': self.configuration['dbname']
             }
         )

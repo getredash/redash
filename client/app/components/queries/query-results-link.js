@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 function queryResultLink() {
   return {
     restrict: 'A',
@@ -22,11 +20,6 @@ function queryResultLink() {
             url = `api/query_results/${scope.queryResult.getId()}.${fileType}`;
           }
           element.attr('href', url);
-          element.attr(
-            'download',
-            `${scope.query.name.replace(/ /g, '_') +
-              moment(scope.queryResult.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`,
-          );
         }
       });
     },
@@ -38,4 +31,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
