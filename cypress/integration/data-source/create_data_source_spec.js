@@ -6,7 +6,7 @@ describe('Create Data Source', () => {
 
   it('renders the page and takes a screenshot', () => {
     cy.getByTestId('CreateSourceDialog').should('contain', 'PostgreSQL');
-    cy.getByTestId('SearchSource').click();
+    cy.wait(1000);
     cy.percySnapshot('Create Data Source - Types');
   });
 
