@@ -4,12 +4,12 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
+  MappingType,
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
-import { ParameterMappingType } from '@/services/widget';
 
 export function getParamValuesSnapshot(mappings, dashboardParameters) {
   return map(
@@ -17,11 +17,12 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
     (m) => {
       let param;
       switch (m.type) {
-        case ParameterMappingType.StaticValue:
+        case MappingType.StaticValue:
           return [m.name, m.value];
-        case ParameterMappingType.WidgetLevel:
+        case MappingType.WidgetLevel:
           return [m.name, m.param.value];
-        case ParameterMappingType.DashboardLevel:
+        case MappingType.DashboardAddNew:
+        case MappingType.DashboardMapToExisting:
           param = find(dashboardParameters, p => p.name === m.mapTo);
           return [m.name, param ? param.value : null];
         // no default
@@ -37,7 +38,7 @@ class EditParameterMappingsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
-  originalParameterMappings = null
+  originalParamValuesSnapshot = null
 
   constructor(props) {
     super(props);
@@ -48,7 +49,10 @@ class EditParameterMappingsDialog extends React.Component {
       map(this.props.dashboard.getParametersDefs(), p => p.name),
     );
 
-    this.originalParameterMappings = parameterMappings;
+    this.originalParamValuesSnapshot = getParamValuesSnapshot(
+      parameterMappings,
+      this.props.dashboard.getParametersDefs(),
+    );
 
     this.state = {
       saveInProgress: false,
@@ -65,10 +69,9 @@ class EditParameterMappingsDialog extends React.Component {
     const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
     widget.options.parameterMappings = newMappings;
 
-    const dashboardParameters = this.props.dashboard.getParametersDefs();
     const valuesChanged = !isMatch(
-      getParamValuesSnapshot(this.originalParameterMappings, dashboardParameters),
-      getParamValuesSnapshot(this.state.parameterMappings, dashboardParameters),
+      this.originalParamValuesSnapshot,
+      getParamValuesSnapshot(this.state.parameterMappings, this.props.dashboard.getParametersDefs()),
     );
 
     const widgetsToSave = [
