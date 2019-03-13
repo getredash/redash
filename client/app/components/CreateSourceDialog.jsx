@@ -110,7 +110,7 @@ class CreateSourceDialog extends React.Component {
           />
           <h4 className="m-0">{selectedType.name}</h4>
         </div>
-        <div className="text-center">
+        <div className="text-right">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
               Setup Instructions <i className="fa fa-question-circle" />
@@ -172,12 +172,12 @@ class CreateSourceDialog extends React.Component {
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
               <Step
-                title={<a>Select the Type</a>}
+                title={<a>Type Selection</a>}
                 className="clickable"
                 onClick={this.resetType}
               />
-            ) : (<Step title="Select the Type" />)}
-            <Step title="Configure it" />
+            ) : (<Step title="Type Selection" />)}
+            <Step title="Configuration" />
             <Step title="Done" />
           </Steps>
           {currentStep === StepEnum.SELECT_TYPE && this.renderTypeSelector()}
