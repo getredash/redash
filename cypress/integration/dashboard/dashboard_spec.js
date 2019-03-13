@@ -16,12 +16,12 @@ function createNewDashboard(dashboardName) {
 
   return cy.wait('@NewDashboard').then((xhr) => {
     const slug = Cypress._.get(xhr, 'response.body.slug');
-    assert.isDefined(slug, 'Dashboard api call returns slug')
+    assert.isDefined(slug, 'Dashboard api call returns slug');
     return Promise.resolve(slug);
   });
 }
 
-function archiveCurrentDashboard(url) {
+function archiveCurrentDashboard() {
   cy.getByTestId('DashboardMoreMenu')
     .click()
     .within(() => {
