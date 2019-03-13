@@ -37,16 +37,22 @@ class EditParameterMappingsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
+  originalParameterMappings = null
+
   constructor(props) {
     super(props);
 
+    const parameterMappings = parameterMappingsToEditableMappings(
+      props.widget.options.parameterMappings,
+      props.widget.query.getParametersDefs(),
+      map(this.props.dashboard.getParametersDefs(), p => p.name),
+    );
+
+    this.originalParameterMappings = parameterMappings;
+
     this.state = {
       saveInProgress: false,
-      parameterMappings: parameterMappingsToEditableMappings(
-        props.widget.options.parameterMappings,
-        props.widget.query.getParametersDefs(),
-        map(this.props.dashboard.getParametersDefs(), p => p.name),
-      ),
+      parameterMappings,
     };
   }
 
@@ -56,14 +62,13 @@ class EditParameterMappingsDialog extends React.Component {
 
     this.setState({ saveInProgress: true });
 
-    const prevMappings = widget.options.parameterMappings;
     const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
     widget.options.parameterMappings = newMappings;
 
     const dashboardParameters = this.props.dashboard.getParametersDefs();
     const valuesChanged = !isMatch(
-      getParamValuesSnapshot(prevMappings, dashboardParameters),
-      getParamValuesSnapshot(newMappings, dashboardParameters),
+      getParamValuesSnapshot(this.originalParameterMappings, dashboardParameters),
+      getParamValuesSnapshot(this.state.parameterMappings, dashboardParameters),
     );
 
     const widgetsToSave = [
