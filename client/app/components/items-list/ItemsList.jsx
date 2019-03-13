@@ -91,6 +91,12 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
       this.state.update();
     }
 
+    componentWillUnmount() {
+      itemsSource.onBeforeUpdate = () => {};
+      itemsSource.onAfterUpdate = () => {};
+      itemsSource.onError = () => {};
+    }
+
     // eslint-disable-next-line class-methods-use-this
     getState({ isLoaded, totalCount, pageItems, ...rest }) {
       const params = {
