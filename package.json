@@ -12,7 +12,7 @@
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "lint": "npm run lint:base  -- --ext .js --ext .jsx ./client/app",
-    "lint:base": "eslint",
+    "lint:base": "eslint --config ./client/.eslintrc.js",
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2",
