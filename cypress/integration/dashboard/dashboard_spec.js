@@ -1,5 +1,3 @@
-import { get } from 'lodash';
-
 function createNewDashboard(dashboardName) {
   cy.visit('/dashboards');
   cy.getByTestId('CreateButton').click();
@@ -17,7 +15,7 @@ function createNewDashboard(dashboardName) {
   });
 
   return cy.wait('@NewDashboard').then((xhr) => {
-    const slug = get(xhr, 'response.body.slug');
+    const slug = Cypress._.get(xhr, 'response.body.slug');
     assert.isDefined(slug, 'Dashboard api call returns slug')
     return Promise.resolve(slug);
   });
