@@ -1,3 +1,5 @@
+import { get } from 'lodash';
+
 function createNewDashboard(dashboardName) {
   cy.visit('/dashboards');
   cy.getByTestId('CreateButton').click();
@@ -11,11 +13,13 @@ function createNewDashboard(dashboardName) {
   cy.getByTestId('EditDashboardDialog').within(() => {
     cy.getByTestId('DashboardSaveButton').should('be.disabled');
     cy.get('input').type(dashboardName);
+    cy.getByTestId('DashboardSaveButton').click();
   });
 
-  cy.getByTestId('DashboardSaveButton').click();
   return cy.wait('@NewDashboard').then((xhr) => {
-    return Promise.resolve(xhr.response.body.slug);
+    const slug = get(xhr, 'response.body.slug');
+    assert.isDefined(slug, 'Dashboard api call returns slug')
+    return Promise.resolve(slug);
   });
 }
 
