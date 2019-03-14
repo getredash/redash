@@ -176,7 +176,7 @@ def require_access_to_dropdown_queries(user, query_def):
     dropdown_query_ids = [str(p['queryId']) for p in parameters if p['type'] == 'query']
 
     if dropdown_query_ids:
-        groups = models.db.session.execute('select group_id, view_only from queries join data_source_groups on queries.data_source_id = data_source_groups.data_source_id where queries.id in ({})'.format(','.join(dropdown_query_ids))).fetchall()
+        groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
 
         if len(groups) < len(dropdown_query_ids):
             abort(400, message='You are trying to associate a dropdown query that does not have a matching group. Please verify the dropdown query id you are trying to associate with this query.')

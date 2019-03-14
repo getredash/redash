@@ -627,6 +627,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    @classmethod
+    def all_groups_for_query_ids(cls, query_ids):
+        return db.session.execute('select group_id, view_only from queries join data_source_groups on queries.data_source_id = data_source_groups.data_source_id where queries.id in ({})'.format(','.join(query_ids))).fetchall()
+
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
