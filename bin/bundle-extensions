@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-
 import os
 from distutils.dir_util import copy_tree
 
 import importlib_metadata
 import importlib_resources
+
+from redash.extensions import BUNDLE_DIRECTORY, resource_isdir, entry_point_module
 
 
 # Make a directory for extensions and set it as an environment variable
@@ -19,27 +20,16 @@ if not os.path.exists(EXTENSIONS_DIRECTORY):
 os.environ["EXTENSIONS_DIRECTORY"] = EXTENSIONS_RELATIVE_PATH
 
 
-def is_resource_dir(module, resource):
-    try:
-        return (
-            resource in importlib_resources.contents(module)
-            and not importlib_resources.is_resource(module, resource)
-        )
-    except TypeError:
-        # module isn't a package, so can't have a subdirectory/-package
-        return False
-
-
 for entry_point in importlib_metadata.entry_points().get('redash.extensions', []):
-
     # Check if there is a "bundle" subdirectory/-package in the
     # entrypoint's module and ignoring the entrypoint if not.
-    module_name = entry_point.pattern.match(entry_point.value).group('module')
-    if not is_resource_dir(module_name, 'bundle'):
+    module = entry_point_module(entry_point)
+    if not resource_isdir(module, BUNDLE_DIRECTORY):
         continue
 
-    with importlib_resources.path(module_name, 'bundle') as bundle_dir:
-        # Copy content of extension bundle into extensions directory
-        destination = os.path.join(EXTENSIONS_DIRECTORY, entry_point.name)
+    # The destination for the bundle files with the entry point name as the subdirectory
+    destination = os.path.join(EXTENSIONS_DIRECTORY, entry_point.name)
+    # Copy the bundle directory from the module to its destination.
+    with importlib_resources.path(module, BUNDLE_DIRECTORY) as bundle_dir:
         print("Copying {} to {}".format(bundle_dir, destination))
         copy_tree(str(bundle_dir), destination)
