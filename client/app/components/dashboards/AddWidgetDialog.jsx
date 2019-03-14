@@ -144,21 +144,23 @@ class AddWidgetDialog extends React.Component {
         okText="Add to Dashboard"
         width={700}
       >
-        <QuerySelector onChange={query => this.selectQuery(query)} />
-        {this.state.selectedQuery && this.renderVisualizationInput()}
+        <div data-test="AddWidgetDialog">
+          <QuerySelector onChange={query => this.selectQuery(query)} />
+          {this.state.selectedQuery && this.renderVisualizationInput()}
 
-        {
-          (this.state.parameterMappings.length > 0) && [
-            <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
-            <ParameterMappingListInput
-              key="parameters-list"
-              id="parameter-mappings"
-              mappings={this.state.parameterMappings}
-              existingParams={existingParams}
-              onChange={mappings => this.updateParamMappings(mappings)}
-            />,
-          ]
-        }
+          {
+            (this.state.parameterMappings.length > 0) && [
+              <label key="parameters-title" htmlFor="parameter-mappings">Parameters</label>,
+              <ParameterMappingListInput
+                key="parameters-list"
+                id="parameter-mappings"
+                mappings={this.state.parameterMappings}
+                existingParams={existingParams}
+                onChange={mappings => this.updateParamMappings(mappings)}
+              />,
+            ]
+          }
+        </div>
       </Modal>
     );
   }
