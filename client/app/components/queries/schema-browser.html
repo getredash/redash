@@ -16,23 +16,15 @@
           <span title="{{table.name}}">{{table.name}}</span>
           <span ng-if="table.size !== undefined"> ({{table.size}})</span>
         </strong>
-        <i ng-if="table.hasColumnMetadata" class="fa fa-question-circle info" title="More Info" aria-hidden="true"
-          ng-click="openSchemaInfo($event, table.name, table.columns)"></i>
         <i class="fa fa-angle-double-right copy-to-editor" aria-hidden="true"
           ng-click="$ctrl.itemSelected($event, [table.name])"></i>
       </div>
       <div uib-collapse="table.collapsed">
-        <div ng-repeat="column in table.columns | filter:$ctrl.schemaFilterColumn track by column.key" class="table-open">{{column.name}}
+        <div ng-repeat="column in table.columns | filter:$ctrl.schemaFilterColumn track by column" class="table-open">{{column}}
           <i class="fa fa-angle-double-right copy-to-editor" aria-hidden="true"
-            ng-click="$ctrl.itemSelected($event, [column.name])"></i>
+            ng-click="$ctrl.itemSelected($event, [column])"></i>
         </div>
       </div>
     </div>
   </div>
-  <schema-data
-    show="showSchemaInfo"
-    table-name="tableName"
-    table-metadata="tableMetadata"
-    on-close="closeSchemaInfo"
-  ></schema-data>
 </div>
