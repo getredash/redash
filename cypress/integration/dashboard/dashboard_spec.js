@@ -65,7 +65,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Textbox', () => {
+  describe('Textbox', () => {
     beforeEach(() => {
       createNewDashboard('Foo Bar');
       cy.contains('button', 'Apply Changes').click();
