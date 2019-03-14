@@ -67,7 +67,6 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
-    data_sample_query = "SELECT * FROM {table} LIMIT 1"
 
     @classmethod
     def configuration_schema(cls):
@@ -96,11 +95,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                    "type": "string",
                    "title": "SSL Mode",
                    "default": "prefer"
-                },
-                "samples": {
-                    "type": "boolean",
-                    "title": "Show Data Samples"
-                },
+                }
             },
             "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname"],
@@ -126,13 +121,9 @@ class PostgreSQL(BaseSQLQueryRunner):
                 table_name = row['table_name']
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}
+                schema[table_name] = {'name': table_name, 'columns': []}
 
             schema[table_name]['columns'].append(row['column_name'])
-            schema[table_name]['metadata'].append({
-                "name": row['column_name'],
-                "type": row['column_type'],
-            })
 
     def _get_tables(self, schema):
         '''
@@ -152,8 +143,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
-               a.attname as column_name,
-               a.atttypid::regtype as column_type
+               a.attname as column_name
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
@@ -261,11 +251,7 @@ class Redshift(PostgreSQL):
                    "type": "string",
                    "title": "SSL Mode",
                    "default": "prefer"
-                },
-                "samples": {
-                    "type": "boolean",
-                    "title": "Show Data Samples"
-                },
+                }
             },
             "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname", "user", "password", "host", "port"],
@@ -285,12 +271,11 @@ class Redshift(PostgreSQL):
             SELECT DISTINCT table_name,
                             table_schema,
                             column_name,
-                            data_type AS column_type,
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
         )
-        SELECT table_name, table_schema, column_name, column_type
+        SELECT table_name, table_schema, column_name
         FROM tables
         WHERE
             HAS_SCHEMA_PRIVILEGE(table_schema, 'USAGE') AND

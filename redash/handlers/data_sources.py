@@ -6,11 +6,10 @@ from funcy import project
 from six import text_type
 from sqlalchemy.exc import IntegrityError
 
-from redash import models, settings
+from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
-from redash.tasks.queries import refresh_schemas
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  query_runners, NotSupported)
 from redash.utils import filter_none
@@ -52,9 +51,6 @@ class DataSourceResource(BaseResource):
         data_source.type = req['type']
         data_source.name = req['name']
         models.db.session.add(data_source)
-
-        # Refresh the stored schemas when a data source is updated
-        refresh_schemas.apply_async(queue=settings.SCHEMAS_REFRESH_QUEUE)
 
         try:
             models.db.session.commit()
@@ -133,9 +129,6 @@ class DataSourceListResource(BaseResource):
                                                              options=config)
 
             models.db.session.commit()
-
-            # Refresh the stored schemas when a new data source is added to the list
-            refresh_schemas.apply_async(queue=settings.SCHEMAS_REFRESH_QUEUE)
         except IntegrityError as e:
             if req['name'] in e.message:
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
@@ -158,10 +151,9 @@ class DataSourceSchemaResource(BaseResource):
         refresh = request.args.get('refresh') is not None
 
         response = {}
+
         try:
-            if refresh:
-                refresh_schemas.apply(queue=settings.SCHEMAS_REFRESH_QUEUE)
-            response['schema'] = data_source.get_schema()
+            response['schema'] = data_source.get_schema(refresh)
         except NotSupported:
             response['error'] = {
                 'code': 1,
