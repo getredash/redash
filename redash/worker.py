@@ -27,10 +27,6 @@ celery_schedule = {
     'sync_user_details': {
         'task': 'redash.tasks.sync_user_details',
         'schedule': timedelta(minutes=1),
-    },
-    'cleanup_schema_metadata': {
-        'task': 'redash.tasks.cleanup_schema_metadata',
-        'schedule': timedelta(days=3),
     }
 }
 

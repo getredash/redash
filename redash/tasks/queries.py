@@ -1,17 +1,14 @@
 import logging
 import signal
 import time
-import datetime
 
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from six import text_type
-from sqlalchemy.orm import load_only
 
-from redash import models, redis_connection, settings, statsd_client, utils
-from redash.models import TableMetadata, ColumnMetadata, db
+from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
@@ -232,143 +229,13 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
-@celery.task(name="redash.tasks.get_table_sample_data")
-def get_table_sample_data(data_source_id, table, table_id):
-    ds = models.DataSource.get_by_id(data_source_id)
-    sample = ds.query_runner.get_table_sample(table['name'])
-    if not sample:
-        return
-
-    # If a column exists, add a sample to it.
-    for i, column in enumerate(table['columns']):
-        persisted_column = ColumnMetadata.query.filter(
-            ColumnMetadata.name == column,
-            ColumnMetadata.table_id == table_id,
-        ).options(load_only('id')).first()
-
-        if persisted_column:
-            column_example = str(sample.get(column, None))
-            if column_example and len(column_example) > 4000:
-                column_example = u'{}...'.format(column_example[:4000])
-
-            ColumnMetadata.query.filter(
-                ColumnMetadata.id == persisted_column.id,
-            ).update({
-                'example': column_example,
-            })
-    models.db.session.commit()
-
-def cleanup_data_in_table(table_model):
-    removed_metadata = table_model.query.filter(
-        table_model.exists == False,
-    ).options(load_only('updated_at'))
-
-    for removed_metadata_row in removed_metadata:
-        is_old_data = (
-            utils.utcnow() - removed_metadata_row.updated_at
-        ) > datetime.timedelta(days=settings.SCHEMA_METADATA_TTL_DAYS)
-
-        table_model.query.filter(
-            table_model.id == removed_metadata_row.id,
-        ).delete()
-
-    db.session.commit()
-
-@celery.task(name="redash.tasks.cleanup_schema_metadata")
-def cleanup_schema_metadata():
-    cleanup_data_in_table(TableMetadata)
-    cleanup_data_in_table(ColumnMetadata)
-
 @celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
     start_time = time.time()
-
     try:
-        existing_tables = set()
-        schema = ds.query_runner.get_schema(get_stats=True)
-        for table in schema:
-            table_name = table['name']
-            existing_tables.add(table_name)
-
-            # Assume that there will only exist 1 table with a given name for a given data source so we use first()
-            persisted_table = TableMetadata.query.filter(
-                TableMetadata.name == table_name,
-                TableMetadata.data_source_id == ds.id,
-            ).first()
-
-            if persisted_table:
-                TableMetadata.query.filter(
-                    TableMetadata.id == persisted_table.id,
-                ).update({"exists": True})
-            else:
-                metadata = 'metadata' in table
-                persisted_table = TableMetadata(
-                    org_id=ds.org_id,
-                    name=table_name,
-                    data_source_id=ds.id,
-                    column_metadata=metadata
-                )
-                models.db.session.add(persisted_table)
-                models.db.session.flush()
-
-            existing_columns = set()
-            for i, column in enumerate(table['columns']):
-                existing_columns.add(column)
-                column_metadata = {
-                    'org_id': ds.org_id,
-                    'table_id': persisted_table.id,
-                    'name': column,
-                    'type': None,
-                    'example': None,
-                    'exists': True
-                }
-                if 'metadata' in table:
-                    column_metadata['type'] = table['metadata'][i]['type']
-
-                # If the column exists, update it, otherwise create a new one.
-                persisted_column = ColumnMetadata.query.filter(
-                     ColumnMetadata.name == column,
-                     ColumnMetadata.table_id == persisted_table.id,
-                ).options(load_only('id')).first()
-                if persisted_column:
-                    ColumnMetadata.query.filter(
-                        ColumnMetadata.id == persisted_column.id,
-                    ).update(column_metadata)
-                else:
-                    models.db.session.add(ColumnMetadata(**column_metadata))
-            models.db.session.commit()
-
-            get_table_sample_data.apply_async(
-                args=(data_source_id, table, persisted_table.id),
-                queue=settings.SCHEMAS_REFRESH_QUEUE
-            )
-
-            # If a column did not exist, set the 'column_exists' flag to false.
-            existing_columns_list = tuple(existing_columns)
-            ColumnMetadata.query.filter(
-                ColumnMetadata.exists == True,
-                ColumnMetadata.table_id == persisted_table.id,
-                ~ColumnMetadata.name.in_(existing_columns_list),
-            ).update({
-                "exists": False,
-                "updated_at": db.func.now()
-            }, synchronize_session='fetch')
-
-        # If a table did not exist in the get_schema() response above, set the 'exists' flag to false.
-        existing_tables_list = tuple(existing_tables)
-        tables_to_update = TableMetadata.query.filter(
-            TableMetadata.exists == True,
-            TableMetadata.data_source_id == ds.id,
-             ~TableMetadata.name.in_(existing_tables_list)
-         ).update({
-            "exists": False,
-            "updated_at": db.func.now()
-        }, synchronize_session='fetch')
-
-        models.db.session.commit()
-
+        ds.get_schema(refresh=True)
         logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
         statsd_client.incr('refresh_schema.success')
     except SoftTimeLimitExceeded:
