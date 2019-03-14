@@ -2,7 +2,6 @@ import React from 'react';
 import { includes } from 'lodash';
 import Tag from 'antd/lib/tag';
 import { Group } from '@/services/group';
-import navigateTo from '@/services/navigateTo';
 import { UserProfile } from '../proptypes';
 
 export default class UserShow extends React.Component {
@@ -28,8 +27,8 @@ export default class UserShow extends React.Component {
     return (
       <div>
         {groups.filter(group => includes(groupIds, group.id)).map((group => (
-          <Tag className="m-t-5 m-r-5" key={group.id} onClick={() => navigateTo(`groups/${group.id}`)}>
-            {group.name}
+          <Tag className="m-t-5 m-r-5" key={group.id}>
+            <a href={`groups/${group.id}`}>{group.name}</a>
           </Tag>
         )))}
       </div>

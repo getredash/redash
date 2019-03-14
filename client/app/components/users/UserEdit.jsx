@@ -9,7 +9,6 @@ import { User } from '@/services/user';
 import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
-import navigateTo from '@/services/navigateTo';
 import { UserProfile } from '../proptypes';
 import { DynamicForm } from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
@@ -165,8 +164,8 @@ export default class UserEdit extends React.Component {
     return loadingGroups ? 'Loading...' : (
       <div data-test="Groups">
         {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
-          <Tag className="m-b-5 m-r-5" key={group.value} onClick={() => navigateTo(`groups/${group.value}`)}>
-            {group.title}
+          <Tag className="m-b-5 m-r-5" key={group.value}>
+            <a href={`groups/${group.value}`}>{group.title}</a>
           </Tag>
         )))}
       </div>
