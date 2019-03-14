@@ -20,12 +20,7 @@ def get_saml_client(org):
     """
     metadata_url = org.get_setting("auth_saml_metadata_url")
     entity_id = org.get_setting("auth_saml_entity_id")
-
-    if settings.SAML_SCHEME_OVERRIDE:
-        acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True,
-                          _scheme=settings.SAML_SCHEME_OVERRIDE)
-    else:
-        acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
+    acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
         'metadata': {
