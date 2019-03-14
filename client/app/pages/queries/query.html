@@ -191,7 +191,7 @@
           <section class="flex-fill p-relative t-body query-visualizations-wrapper">
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
-                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
+                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit" on-updated="onParametersUpdated"></parameters>
               </div>
               <!-- Query Execution Status -->
 

@@ -25,7 +25,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token):
+def render_token_login_page(template, org_slug, token, invite=True):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -38,7 +38,7 @@ def render_token_login_page(template, org_slug, token):
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
 
-    if user.details.get('is_invitation_pending') is False:
+    if invite and user.details.get('is_invitation_pending') is False:
         return render_template("error.html",
                                error_message=("This invitation has already been accepted. "
                                               "Please try resetting your password instead.")), 400
@@ -55,7 +55,8 @@ def render_token_login_page(template, org_slug, token):
             flash('Password length is too short (<6).')
             status_code = 400
         else:
-            user.is_invitation_pending = False
+            if invite:
+                user.is_invitation_pending = False
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)

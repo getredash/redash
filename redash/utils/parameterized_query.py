@@ -1,9 +1,7 @@
 import pystache
 from functools import partial
 from flask_login import current_user
-from redash.authentication.org_resolving import current_org
 from numbers import Number
-from redash import models
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
 from funcy import distinct
@@ -15,10 +13,13 @@ def _pluck_name_and_value(default_column, row):
     name_column = "name" if "name" in row.keys() else default_column.lower()
     value_column = "value" if "value" in row.keys() else default_column.lower()
 
-    return {"name": row[name_column], "value": row[value_column]}
+    return {"name": row[name_column], "value": unicode(row[value_column])}
 
 
 def _load_result(query_id):
+    from redash.authentication.org_resolving import current_org
+    from redash import models
+
     query = models.Query.get_by_id_and_org(query_id, current_org)
     require_access(query.data_source.groups, current_user, view_only)
     query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
@@ -120,6 +121,11 @@ class ParameterizedQuery(object):
         validate = validators.get(definition["type"], lambda x: False)
 
         return validate(value)
+
+    @property
+    def is_safe(self):
+        text_parameters = filter(lambda p: p["type"] == "text", self.schema)
+        return not any(text_parameters)
 
     @property
     def missing_params(self):

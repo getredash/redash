@@ -58,6 +58,7 @@ export const Field = PropTypes.shape({
   minLength: PropTypes.number,
   placeholder: PropTypes.string,
   loading: PropTypes.bool,
+  props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 });
 
 export const Action = PropTypes.shape({

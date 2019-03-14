@@ -20,7 +20,7 @@
     <div class="row">
       <div class="col-xs-6">
         <span class="small hidden-print"><i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
-        <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}}</span>
+        <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}} UTC</span>
       </div>
       <div class="col-xs-6 text-right hidden-print">
         <a class="btn btn-default btn-sm" ng-href="queries/{{$ctrl.query.id}}#{{$ctrl.visualization.id}}" target="_blank" tooltip="Open in Redash">

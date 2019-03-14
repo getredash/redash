@@ -47,6 +47,7 @@ QUERY_RESULTS_CLEANUP_COUNT = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_C
 QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7"))
 
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
+SCHEMAS_REFRESH_QUEUE = os.environ.get("REDASH_SCHEMAS_REFRESH_QUEUE", "celery")
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
@@ -87,6 +88,10 @@ REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Re
 # If the organization setting auth_password_login_enabled is not false, then users will still be
 # able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
+# Bind LDAP using SSL. Default is False
+LDAP_SSL = parse_boolean(os.environ.get('REDASH_LDAP_USE_SSL', 'false'))
+# Choose authentication method(SIMPLE, ANONYMOUS or NTLM). Default is SIMPLE
+LDAP_AUTH_METHOD = os.environ.get('REDASH_LDAP_AUTH_METHOD', 'SIMPLE')
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
 # The DN & password used to connect to LDAP to determine the identity of the user being authenticated.
@@ -194,6 +199,7 @@ default_query_runners = [
     'redash.query_runner.kylin',
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
+    'redash.query_runner.snowflake',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -212,6 +218,7 @@ default_destinations = [
     'redash.destinations.mattermost',
     'redash.destinations.chatwork',
     'redash.destinations.pagerduty',
+    'redash.destinations.hangoutschat'
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))

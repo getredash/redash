@@ -1,7 +1,7 @@
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { Group } from '@/services/group';
-import { UserShow } from './UserShow';
+import UserShow from './UserShow';
 
 beforeEach(() => {
   Group.query = jest.fn(dataCallback => dataCallback([]));

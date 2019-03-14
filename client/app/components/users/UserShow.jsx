@@ -1,12 +1,11 @@
 import React from 'react';
-import { react2angular } from 'react2angular';
 import { includes } from 'lodash';
 import Tag from 'antd/lib/tag';
 import { Group } from '@/services/group';
 import navigateTo from '@/services/navigateTo';
 import { UserProfile } from '../proptypes';
 
-export class UserShow extends React.Component {
+export default class UserShow extends React.Component {
   static propTypes = {
     user: UserProfile.isRequired,
   };
@@ -66,9 +65,3 @@ export class UserShow extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('userShow', react2angular(UserShow));
-}
-
-init.init = true;

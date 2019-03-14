@@ -10,8 +10,8 @@ from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow)
-from redash.utils.parameterized_query import ParameterizedQuery, dropdown_values
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
+from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 def error_response(message):
@@ -64,7 +64,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         return None
 
 
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0, parameter_schema=None):
+def run_query(query, parameters, data_source, query_id, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -73,7 +73,10 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
 
         return error_response(message)
 
-    query = ParameterizedQuery(query_text, parameter_schema).apply(parameter_values)
+    try:
+        query.apply(parameters)
+    except InvalidParameterError as e:
+        abort(400, message=e.message)
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
@@ -86,8 +89,20 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0, pa
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query.text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(query.text, data_source, current_user.id, metadata={
+            "Username": current_user.email,
+            "Query ID": query_id
+        })
         return {'job': job.to_dict()}
+
+
+def get_download_filename(query_result, query, filetype):
+    retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
+    if query:
+        filename = to_filename(query.name) if query.name != '' else str(query.id)
+    else:
+        filename = str(query_result.id)
+    return u"{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):
@@ -116,6 +131,8 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
+        parameterized_query = ParameterizedQuery(query)
+
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
         if not has_access(data_source.groups, self.current_user, not_view_only):
@@ -129,7 +146,7 @@ class QueryResultListResource(BaseResource):
             'query_id': query_id,
             'parameters': parameters
         })
-        return run_query(data_source, parameters, query, query_id, max_age)
+        return run_query(parameterized_query, parameters, data_source, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
@@ -163,23 +180,6 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    def _fetch_rows(self, query_id):
-        query = models.Query.get_by_id_and_org(query_id, self.current_org)
-        require_access(query.data_source.groups, self.current_user, view_only)
-
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, self.current_org)
-
-        return json_loads(query_result.data)["rows"]
-
-    def _convert_queries_to_enums(self, definition):
-        if definition["type"] == "query":
-            definition["type"] = "enum"
-
-            rows = self._fetch_rows(definition.pop("queryId"))
-            definition["enumOptions"] = [row.get('value', row.get(row.keys()[0])) for row in rows if row]
-
-        return definition
-
     @require_permission('execute_query')
     def post(self, query_id):
         """
@@ -201,12 +201,13 @@ class QueryResultResource(BaseResource):
         max_age = int(max_age)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        parameter_schema = query.options.get("parameters", [])
 
-        if not has_access(query.data_source.groups, self.current_user, not_view_only):
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+        allow_executing_with_view_only_permissions = query.parameterized.is_safe
+
+        if has_access(query.data_source.groups, self.current_user, allow_executing_with_view_only_permissions):
+            return run_query(query.parameterized, parameters, query.data_source, query_id, max_age)
         else:
-            return run_query(query.data_source, parameters, query.query_text, query_id, max_age, parameter_schema=parameter_schema)
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
@@ -289,15 +290,12 @@ class QueryResultResource(BaseResource):
             if should_cache:
                 response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
 
-            str_date = query_result.retrieved_at.strftime("%Y_%m_%d")
-            str_id = None
-            if query is not None:
-                str_id = str(query.id)
-            else:
-                str_id = str(query_result.id)
-            filename = "{}_{}.{}".format(str_id, str_date, filetype,)
+            filename = get_download_filename(query_result, query, filetype)
 
-            response.headers.add_header("Content-Disposition", 'attachment; filename="{}"'.format(filename,))
+            response.headers.add_header(
+                "Content-Disposition",
+                'attachment; filename="{}"'.format(filename.encode("utf-8"))
+            )
 
             return response
 
