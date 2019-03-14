@@ -8,19 +8,12 @@ from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
-from importlib_metadata import entry_points
 
-from redash import create_app, settings
+from redash import create_app, extensions, settings
 from redash.metrics import celery as celery_metrics  # noqa
 
 
 logger = get_logger(__name__)
-
-# The periodic Celery tasks as provided by Redash extensions.
-# This is separate from the internal periodic Celery tasks in
-# celery_schedule since the extension task discovery phase is
-# after the configuration has already happened.
-extensions_schedule = {}
 
 
 celery = Celery('redash',
@@ -92,44 +85,9 @@ def init_celery_flask_app(**kwargs):
 
 @celery.on_after_configure.connect
 def add_periodic_tasks(sender, **kwargs):
-    """Load the periodic tasks as defined in Redash extensions.
-
-    The periodic task entry point needs to return a set of parameters
-    that can be passed to Celery's add_periodic_task:
-
-        https://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html#entries
-
-    E.g.::
-
-        def add_two_and_two():
-            return {
-                'name': 'add 2 and 2 every 10 seconds'
-                'sig': add.s(2, 2),
-                'schedule': 10.0,  # in seconds or a timedelta
-            }
-
-    and then registered with an entry point under the "redash.periodic_tasks"
-    group, e.g. in your setup.py::
-
-        setup(
-            # ...
-            entry_points={
-                "redash.periodic_tasks": [
-                    "add_two_and_two = calculus.addition:add_two_and_two",
-                ]
-                # ...
-            },
-            # ...
-        )
-    """
-    for entry_point in entry_points().get('redash.periodic_tasks', []):
-        logger.info('Loading periodic Redash tasks %s from %s.', entry_point.name, entry_point.value)
-        try:
-            params = entry_point.load()
-            # Keep a record of our periodic tasks
-            extensions_schedule[entry_point.name] = params
-            # and add it to Celery's periodic task registry, too.
-            sender.add_periodic_task(**params)
-        except (ImportError, AttributeError):
-            # and move on if it couldn't load it
-            logger.error('Periodic Redash task %s could not be found at %s.', entry_point.name, entry_point.value)
+    """Load all periodic tasks from extensions and add them to Celery."""
+    # Populate the redash.extensions.periodic_tasks dictionary
+    extensions.load_periodic_tasks(logger)
+    for params in extensions.periodic_tasks.values():
+        # Add it to Celery's periodic task registry, too.
+        sender.add_periodic_task(**params)

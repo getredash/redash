@@ -1,35 +1,43 @@
 #!/usr/bin/env python
+"""Copy bundle extension files to the client/app/extension directory"""
 import os
-from distutils.dir_util import copy_tree
+from pathlib2 import Path
+from shutil import copy
 
-import importlib_metadata
-import importlib_resources
-
-from redash.extensions import BUNDLE_DIRECTORY, resource_isdir, entry_point_module
-
+from redash import create_app, extensions
 
 # Make a directory for extensions and set it as an environment variable
 # to be picked up by webpack.
-EXTENSIONS_RELATIVE_PATH = os.path.join('client', 'app', 'extensions')
-EXTENSIONS_DIRECTORY = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    EXTENSIONS_RELATIVE_PATH)
+extensions_relative_path = Path('client', 'app', 'extensions')
+extensions_directory = Path(__file__).parent.parent / extensions_relative_path
 
-if not os.path.exists(EXTENSIONS_DIRECTORY):
-    os.makedirs(EXTENSIONS_DIRECTORY)
-os.environ["EXTENSIONS_DIRECTORY"] = EXTENSIONS_RELATIVE_PATH
+if not extensions_directory.exists():
+    extensions_directory.mkdir()
+os.environ["EXTENSIONS_DIRECTORY"] = str(extensions_relative_path)
 
+# We need the app here for logging and to make sure the bundles have loaded.
+app = create_app()
 
-for entry_point in importlib_metadata.entry_points().get('redash.extensions', []):
-    # Check if there is a "bundle" subdirectory/-package in the
-    # entrypoint's module and ignoring the entrypoint if not.
-    module = entry_point_module(entry_point)
-    if not resource_isdir(module, BUNDLE_DIRECTORY):
+bundles = extensions.bundles.items()
+if bundles:
+    app.logger.info('Number of extension bundles found: %s', len(bundles))
+else:
+    app.logger.info('No extension bundles found.')
+
+for bundle_name, paths in extensions.bundles.items():
+    # Shortcut in case not paths were found for the bundle
+    if not paths:
+        app.logger.info('No paths found for bundle "%s".', bundle_name)
         continue
 
     # The destination for the bundle files with the entry point name as the subdirectory
-    destination = os.path.join(EXTENSIONS_DIRECTORY, entry_point.name)
+    destination = Path(extensions_directory, bundle_name)
+    if not destination.exists():
+        destination.mkdir()
+
     # Copy the bundle directory from the module to its destination.
-    with importlib_resources.path(module, BUNDLE_DIRECTORY) as bundle_dir:
-        print("Copying {} to {}".format(bundle_dir, destination))
-        copy_tree(str(bundle_dir), destination)
+    app.logger.info('Copying "%s" bundle to %s:', bundle_name, destination.resolve())
+    for src_path in paths:
+        dest_path = destination / src_path.name
+        app.logger.info(" - {} -> {}".format(src_path, dest_path))
+        copy(str(src_path), str(dest_path))
