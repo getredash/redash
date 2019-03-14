@@ -1,9 +1,10 @@
 import logging
 import sqlite3
+import itertools
 from datetime import datetime
 
 from redash.query_runner import TYPE_STRING, BaseQueryRunner, register
-from redash.utils import json_dumps
+from redash.utils import json_loads, json_dumps
 
 from sqlalchemy import union_all
 from redash import redis_connection, __version__, settings
@@ -136,12 +137,53 @@ class DatabaseStatusSource(BaseStatusSource):
         ]
 
 
+class CeleryWorkersStatusSource(BaseStatusSource):
+    name = 'celery_workers'
+    columns = ['state', 'task_name', 'worker', 'queue', 'task_id', 'worker_pid', 'start_time']
+
+    def parse_tasks(self, task_lists, state):
+        rows = []
+
+        for task in itertools.chain(*task_lists.values()):
+            task_row = {
+                'state': state,
+                'task_name': task['name'],
+                'worker': task['hostname'],
+                'queue': task['delivery_info']['routing_key'],
+                'task_id': task['id'],
+                'worker_pid': task['worker_pid'],
+                'start_time': task['time_start'],
+            }
+
+            if task['name'] == 'redash.tasks.execute_query':
+                try:
+                    args = json_loads(task['args'])
+                except ValueError:
+                    args = {}
+
+                if args.get('query_id') == 'adhoc':
+                    args['query_id'] = None
+
+                task_row.update(args)
+
+            rows.append(task_row)
+
+        return rows
+
+    def get_data(self):
+        from redash.worker import celery
+        result = self.parse_tasks(celery.control.inspect().active(), 'active')
+        result += self.parse_tasks(celery.control.inspect().reserved(), 'reserved')
+        return result
+
+
 class SystemStatus(BaseQueryRunner):
     sources = [
         SystemStatusSource(),
         ManagerStatusSource(),
         QueuesStatusSource(),
         DatabaseStatusSource(),
+        CeleryWorkersStatusSource(),
     ]
 
     @classmethod
