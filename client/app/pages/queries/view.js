@@ -140,6 +140,7 @@ function QueryViewCtrl(
 
   const shortcuts = {
     'mod+enter': $scope.executeQuery,
+    'alt+enter': $scope.executeQuery,
   };
 
   KeyboardShortcuts.bind(shortcuts);
