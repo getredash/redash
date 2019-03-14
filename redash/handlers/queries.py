@@ -16,7 +16,7 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 
 # Ordering map for relationships

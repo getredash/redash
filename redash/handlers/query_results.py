@@ -11,7 +11,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 def error_response(message):

@@ -28,7 +28,7 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
 from .changes import ChangeTrackingMixin, Change  # noqa
