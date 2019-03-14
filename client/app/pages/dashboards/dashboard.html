@@ -61,7 +61,7 @@
           </button>
       </span>
 
-      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
+      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing" data-test="DashboardMoreMenu">
         <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
           <span class="zmdi zmdi-more"></span>
         </button>
