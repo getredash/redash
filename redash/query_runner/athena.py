@@ -78,6 +78,11 @@ class Athena(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Use Glue Data Catalog',
                 },
+                'work_group': {
+                    'type': 'string',
+                    'title': 'Athena work group',
+                    'default': 'primary'
+                },
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
@@ -170,6 +175,7 @@ class Athena(BaseQueryRunner):
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
             kms_key=self.configuration.get('kms_key', None),
+            work_group=self.configuration.get('work_group', 'primary'),
             formatter=SimpleFormatter()).cursor()
 
         try:
