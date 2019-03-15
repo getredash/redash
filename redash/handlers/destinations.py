@@ -4,7 +4,7 @@ from flask_restful import abort
 from redash import models
 from redash.destinations import (destinations,
                                  get_configuration_schema_for_destination_type)
-from redash.handlers.base import BaseResource
+from redash.handlers.base import BaseResource, require_fields
 from redash.permissions import require_admin
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 
@@ -86,10 +86,7 @@ class DestinationListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
-        for f in required_fields:
-            if f not in req:
-                abort(400)
+        require_fields(req, ('options', 'name', 'type'))
 
         schema = get_configuration_schema_for_destination_type(req['type'])
         if schema is None:
