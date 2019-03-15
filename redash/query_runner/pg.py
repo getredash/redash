@@ -147,7 +147,12 @@ class PostgreSQL(BaseSQLQueryRunner):
         FROM pg_class c
         JOIN pg_namespace s
         ON c.relnamespace = s.oid
-        AND s.nspname NOT IN ('pg_catalog', 'information_schema')
+        AND s.nspname IN (
+            SELECT table_schema
+            FROM information_schema.table_privileges
+            WHERE grantee = (SELECT current_user)
+            AND table_schema NOT IN ('pg_catalog', 'information_schema')
+            GROUP BY table_schema)
         JOIN pg_attribute a
         ON a.attrelid = c.oid
         AND a.attnum > 0
