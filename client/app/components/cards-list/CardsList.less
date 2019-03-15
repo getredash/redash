@@ -11,8 +11,12 @@
   
   .cards-list-item h3 {
     font-size: 13px;
-    height: 40px;
+    height: 44px;
     white-space: normal;
     overflow: hidden;
+    /* autoprefixer: off */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
   }
 }
