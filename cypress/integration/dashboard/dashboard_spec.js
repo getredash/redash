@@ -1,47 +1,41 @@
-function createNewDashboard(dashboardName) {
-  cy.visit('/dashboards');
-  cy.getByTestId('CreateButton').click();
-  cy.get('li[role="menuitem"]')
-    .contains('Dashboard')
-    .click();
-
+function createNewDashboardByAPI(name) {
   cy.server();
-  cy.route('POST', 'api/dashboards').as('NewDashboard');
-
-  cy.getByTestId('EditDashboardDialog').within(() => {
-    cy.getByTestId('DashboardSaveButton').should('be.disabled');
-    cy.get('input').type(dashboardName);
-    cy.getByTestId('DashboardSaveButton').click();
-  });
-
-  return cy.wait('@NewDashboard').then((xhr) => {
-    const slug = Cypress._.get(xhr, 'response.body.slug');
-    assert.isDefined(slug, 'Dashboard api call returns slug');
+  return cy.request('POST', 'api/dashboards', { name }).then((response) => {
+    const slug = Cypress._.get(response, 'body.slug');
+    assert.isDefined(slug, 'Widget api call returns widget slug');
     return slug;
   });
 }
 
-function archiveCurrentDashboard() {
+function editDashboard() {
   cy.getByTestId('DashboardMoreMenu')
     .click()
     .within(() => {
       cy.get('li')
-        .contains('Archive')
+        .contains('Edit')
         .click();
     });
-
-  cy.get('.btn-warning')
-    .contains('Archive')
-    .click();
-  cy.get('.label-tag-archived').should('exist');
 }
 
-function addTextbox() {
+function addTextbox(text) {
+  cy.server();
+  cy.route('POST', 'api/widgets').as('NewWidget');
+
+  editDashboard();
+
   cy.contains('a', 'Add Textbox').click();
   cy.get('.add-textbox').within(() => {
-    cy.get('textarea').type('Hello world!');
+    cy.get('textarea').type(text);
   });
   cy.contains('button', 'Add to Dashboard').click();
+  cy.get('.add-textbox').should('not.exist');
+  cy.contains('button', 'Apply Changes').click();
+
+  return cy.wait('@NewWidget').then((xhr) => {
+    const id = Cypress._.get(xhr, 'response.body.id');
+    assert.isDefined(id, 'Widget api call returns widget id');
+    return cy.getByTestId(`WidgetId${id}`).should('exist');
+  });
 }
 
 describe('Dashboard', () => {
@@ -49,14 +43,47 @@ describe('Dashboard', () => {
     cy.login();
   });
 
-  it('creates a new dashboard and archives it', () => {
-    createNewDashboard('Foo Bar').then((slug) => {
+  it('creates new dashboard', () => {
+    cy.visit('/dashboards');
+    cy.getByTestId('CreateButton').click();
+    cy.get('li[role="menuitem"]').contains('Dashboard').click();
+
+    cy.server();
+    cy.route('POST', 'api/dashboards').as('NewDashboard');
+
+    cy.getByTestId('EditDashboardDialog').within(() => {
+      cy.getByTestId('DashboardSaveButton').should('be.disabled');
+      cy.get('input').type('Foo Bar');
+      cy.getByTestId('DashboardSaveButton').click();
+    });
+
+    cy.wait('@NewDashboard').then((xhr) => {
+      const slug = Cypress._.get(xhr, 'response.body.slug');
+      assert.isDefined(slug, 'Dashboard api call returns slug');
+
       cy.visit('/dashboards');
       cy.getByTestId('DashboardLayoutContent').within(() => {
-        cy.getByTestId(slug).should('exist').click();
+        cy.getByTestId(slug).should('exist');
+      });
+    });
+  });
+
+  it('archives dashboard', function() {
+    createNewDashboardByAPI('Foo Bar').then((slug) => {
+      cy.visit(`/dashboard/${slug}`);
+
+      cy.getByTestId('DashboardMoreMenu')
+      .click()
+      .within(() => {
+        cy.get('li')
+          .contains('Archive')
+          .click();
       });
 
-      archiveCurrentDashboard();
+      cy.get('.btn-warning')
+        .contains('Archive')
+        .click();
+      cy.get('.label-tag-archived').should('exist');
 
       cy.visit('/dashboards');
       cy.getByTestId('DashboardLayoutContent').within(() => {
@@ -65,47 +92,44 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Textbox', () => {
-    beforeEach(() => {
-      createNewDashboard('Foo Bar');
-      cy.contains('button', 'Apply Changes').click();
-      cy.getByTestId('DashboardMoreMenu')
-        .click()
-        .within(() => {
-          cy.get('li')
-            .contains('Edit')
-            .click();
-        });
+
+  describe('Editing a dashboard', () => {
+    before(function() {
+      cy.login();
+      return createNewDashboardByAPI('Foo Bar').then((slug) => {
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
     });
 
-    it('adds and removes textbox (from button)', () => {
-      addTextbox();
+    beforeEach(function() {
+      cy.visit(this.dashboardUrl);
+      return addTextbox('Hello World!').then(($el) => {
+        this.$textboxEl = $el; 
+      });
+    });
 
-      cy.get('.widget-text').within(() => {
+    it('removes textbox from X button', function() {
+      editDashboard();
+
+      cy.wrap(this.$textboxEl).within(() => {
         cy.get('.widget-menu-remove').click();
       });
 
-      cy.get('.widget-text').should('not.exist');
+      cy.wrap(this.$textboxEl).should('not.exist');
     });
 
-    it('adds and removes textbox (from menu)', () => {
-      addTextbox();
-      cy.contains('button', 'Apply Changes').click();
-
-      cy.get('.widget-text').within(() => {
+    it('removes textbox from menu', function() {
+      cy.wrap(this.$textboxEl).within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Remove From Dashboard').click({ force: true });
         });
       });
 
-      cy.get('.widget-text').should('not.exist');
+      cy.wrap(this.$textboxEl).should('not.exist');
     });
 
-    it('adds, opens edit dialog and removes textbox', () => {
-      addTextbox();
-      cy.contains('button', 'Apply Changes').click();
-
-      cy.get('.widget-text').within(() => {
+    it('edits textbox', function() {
+      cy.wrap(this.$textboxEl).within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Edit').click({ force: true });
         });
@@ -117,13 +141,7 @@ describe('Dashboard', () => {
         cy.contains('button', 'Save').click();
       });
 
-      cy.get('.widget-text')
-        .should('contain', newContent)
-        .within(() => {
-          cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-            cy.get('li a').contains('Remove From Dashboard').click({ force: true });
-          });
-        });
+      cy.wrap(this.$textboxEl).should('contain', newContent);
     });
   });
 });
