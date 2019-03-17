@@ -93,7 +93,7 @@ describe('Dashboard', () => {
   });
 
 
-  describe('Editing a dashboard', () => {
+  describe('Textbox', () => {
     before(function() {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
