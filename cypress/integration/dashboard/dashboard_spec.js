@@ -2,7 +2,7 @@ function createNewDashboardByAPI(name) {
   cy.server();
   return cy.request('POST', 'api/dashboards', { name }).then((response) => {
     const slug = Cypress._.get(response, 'body.slug');
-    assert.isDefined(slug, 'Dashboard api call returns widget slug');
+    assert.isDefined(slug, 'Dashboard api call returns dashboard slug');
     return slug;
   });
 }
