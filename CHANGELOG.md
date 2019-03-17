@@ -4,7 +4,7 @@
 
 We're trying a new format for the CHANGELOG in this release. Focusing on the bigger changes, but for whoever interested, you can see all the changes [here](https://github.com/getredash/redash/compare/v6.0.0...master).
 
-Besides all the features, bug fixes and improvements listed below we managed to convert a large portion of Redash's frontend code from Angular.js to React. You can see status in #3071.
+Besides all the features, bug fixes and improvements listed below we managed to convert a large portion of Redash's frontend code from Angular.js to React. You can see status in [#3071](https://github.com/getredash/redash/issues/3071).
 
 This release was made possible with the help of 34 contributors. 🙇‍♂️
 
