@@ -106,7 +106,7 @@ describe('Dashboard', () => {
       addTextbox('Hello World!').as('TextboxEl');
     });
 
-    it('removes textbox from X button', function() {
+    it('removes textbox from X button', function () {
       editDashboard();
 
       cy.get('@TextboxEl').within(() => {
@@ -116,7 +116,7 @@ describe('Dashboard', () => {
       cy.get('@TextboxEl').should('not.exist');
     });
 
-    it('removes textbox from menu', function() {
+    it('removes textbox from menu', function () {
       cy.get('@TextboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Remove From Dashboard').click({ force: true });
