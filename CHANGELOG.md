@@ -29,24 +29,24 @@ You can now open the [Knowledge Base](https://redash.io/help) inside the applica
 
 - **Dashboard Parameters**: We improved the flow of adding queries with parameters to dashboards and now give you full control over how parameters are mapped. You no longer have to make sure all parameters have the same name or use the `Global` checkbox. We also added new options, like keeping the parameter local to the widget or setting a static value. [Read more in our Knowledge Base →](https://redash.io/help/user-guide/querying/query-parameters#Parameter-Mapping-on-Dashboards)
 - We added server side validation of parameter values for all parameter types, except for parameters of `text` type. All validated parameter types are considered safe. When a query is using safe parameters (or no parameters at all), View Only users can refresh it.
-- Refresh of safe queries is done using the new results API endpoint, which takes only a query ID (and optionally parameter values) and does not need the query text.
+- Refreshing safe queries is done using the new results API endpoint, which takes only a query ID (and optionally parameter values) and does not need the query text.
 
 ### Query Editor Improvements
 
 - Run only the highlighted query text: hit Execute after highlighting a portion of your query and only the selected portion will be sent to the database. This is useful for testing sub-SELECT statements and CTE's.
-- Improved auto complete: add a dot . after a table name in the query editor and auto complete will only suggests columns on that table.
+- Improved auto complete: add a dot . after a table name in the query editor and auto complete will only suggest columns on that table.
 - Autosave parameter configuration changes.
 - YAML syntax support (for data sources like Yandex Metrica).
 
 ### Improved Query Scheduler
 
-The Query Scheduler got a face lift and some new options: you can pick the day a weekly schedule runs on and also set an end date after which the query will no longer execute on schedule.
+The Query Scheduler got a face lift and some new options: you can pick a day for a weekly schedule to run on and also set an end date after which the query will no longer execute on schedule.
 
 ### Data Sources
 
 We added Apache Drill, Uptycs and a new JSON data source. Also fixed a few bugs in Athena's query runner and others.
 
-### Users Management
+### User Management
 
 The users page got revamped with a new look and feel and new features:
 
