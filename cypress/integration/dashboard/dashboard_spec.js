@@ -38,13 +38,21 @@ function addTextbox(text) {
   });
 }
 
-function addWidget(queryData) {
-  const defaultQueryData = { data_source_id: 1, options: { parameters: [] }, schedule: null };
-  const merged = Object.assign(defaultQueryData, queryData);
+const defaultQueryData = {
+  name: 'Test Query',
+  query: 'select 1',
+  data_source_id: 1,
+  options: {
+    parameters: []
+  },
+  schedule: null,
+};
 
-  cy.server();
+function addWidget(queryData = {}) {
+  const merged = Object.assign({}, defaultQueryData, queryData);
 
   // create query
+  cy.server();
   return cy.request('POST', '/api/queries', merged)
     .then(({ body }) => {
       // publish it so it's avail for widget
@@ -52,6 +60,7 @@ function addWidget(queryData) {
     })
     .then(({ body }) => {
       // create widget
+      editDashboard();
       cy.contains('a', 'Add Widget').click();
       cy.getByTestId('AddWidgetDialog').within(() => {
         cy.get(`.query-selector-result[data-test="QueryId${body.id}"]`).click();
@@ -63,7 +72,7 @@ function addWidget(queryData) {
     })
     .then((xhr) => {
       const body = Cypress._.get(xhr, 'response.body');
-      assert.isDefined(body, 'Widget api call returns body');
+      assert.isDefined(body, 'Widget api call returns response body');
       return body;
     });
 }
@@ -122,7 +131,6 @@ describe('Dashboard', () => {
     });
   });
 
-
   describe('Textbox', () => {
     before(function () {
       cy.login();
@@ -171,38 +179,67 @@ describe('Dashboard', () => {
 
       cy.get('@textboxEl').should('contain', newContent);
     });
+  });
 
-    it('adds and removes widget', () => {
-      const queryData = {
-        name: 'Test Query 01',
-        query: 'select 1',
-      };
+  describe('Widget', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar')
+        .then(slug => `/dashboard/${slug}`)
+        .as('DashboardUrl');
+    });
 
-      addWidget(queryData).then(({ id }) => {
-        cy.getByTestId(`WidgetId${id}`).should('exist').within(() => {
-          cy.get('.widget-menu-remove').click();
-        });
-        cy.getByTestId(`WidgetId${id}`).should('not.exist');
+    beforeEach(function () {
+      cy.visit(this.DashboardUrl);
+    });
+
+    it('adds widget', () => {
+      addWidget().then(({ id }) => {
+        cy.getByTestId(`WidgetId${id}`).should('exist');
       });
     });
 
-    it('renders widget auto height by table row count', () => {
-      const testAutoHeight = (rowCount, expectedWidgetHeight) => {
+    it('removes widget', () => {
+      addWidget().then(({ id }) => {
+        cy.getByTestId(`WidgetId${id}`)
+          .within(() => {
+            cy.get('.widget-menu-remove').click();
+          })
+          .should('not.exist');
+      });
+    });
+
+    describe('Auto height for table visualization', () => {
+      it('has correct visualization and position config', () => {
+        addWidget().then(({ options, visualization }) => {
+          expect(visualization.type).to.eq('TABLE');
+          expect(options.position.autoHeight).to.be.true;
+        });
+      });
+
+      it('render correct height for 2 table rows', () => {
         const queryData = {
-          name: 'Test Query Auto Height',
-          query: `select s.a FROM generate_series(1,${rowCount}) AS s(a)`,
+          query: `select s.a FROM generate_series(1,2) AS s(a)`,
         };
 
-        addWidget(queryData).then(({ id, options }) => {
-          expect(options.position.autoHeight).to.be.true;
+        addWidget(queryData).then(({ id }) => {
           cy.getByTestId(`WidgetId${id}`)
             .its('0.offsetHeight')
-            .should('eq', expectedWidgetHeight);
+            .should('eq', 235);
         });
-      }
+      });
 
-      testAutoHeight(2, 235);
-      testAutoHeight(5, 335);
+      it('render correct height for 5 table rows', () => {
+        const queryData = {
+          query: `select s.a FROM generate_series(1,5) AS s(a)`,
+        };
+
+        addWidget(queryData).then(({ id }) => {
+          cy.getByTestId(`WidgetId${id}`)
+            .its('0.offsetHeight')
+            .should('eq', 335);
+        });
+      });
     });
   });
 });
