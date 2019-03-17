@@ -109,7 +109,7 @@ class ParameterizedQuery(object):
             "text": lambda value: isinstance(value, basestring),
             "number": lambda value: isinstance(value, Number),
             "enum": lambda value: value in definition["enumOptions"],
-            "query": lambda value: value in [v["value"] for v in dropdown_values(definition["queryId"])],
+            "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,

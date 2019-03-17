@@ -119,6 +119,15 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEquals("foo baz", query.text)
 
+    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "1"}])
+    def test_validation_accepts_integer_values_for_dropdowns(self, _):
+        schema = [{"name": "bar", "type": "query", "queryId": 1}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": 1})
+
+        self.assertEquals("foo 1", query.text)
+
     @patch('redash.utils.parameterized_query.dropdown_values')
     def test_raises_on_invalid_query_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
