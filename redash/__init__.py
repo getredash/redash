@@ -19,7 +19,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '7.0.0-beta'
+__version__ = '7.0.0'
 
 
 import os
