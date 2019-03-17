@@ -48,17 +48,17 @@ We added Apache Drill, Uptycs and a new JSON data source. Also fixed a few bugs 
 
 ### User Management
 
-The users page got revamped with a new look and feel and new features:
+The users page got revamped with a new look and feel and few new features:
 
-- An indication when the user was last active.
+- An indication when a user was last active.
 - Show if an invited user hasn't finished the setup process yet (Pending Invitations section).
 - You can now generate a new API key for users, if there's a concern it was compromised.
 
 ### Admin
 
-- New Celery queues status screens to replace the old Queries Status, which should better reflect the status of running queries.
+- New Celery queues status screens, replacing the old Queries Status and better reflecting the status of running queries.
 - Make the queue name for schema refresh job configurable. The default used to be hard coded `schemas`, which is not available on all setups. Now it's `celery`.
-- The `gevent` library is installed by default, and you can setup gunicorn to use `gevent` based workers.
+- The `gevent` library is installed by default, and you can now setup gunicorn to use `gevent` based workers.
 - New Docker entrypoint command to do a health check for a worker process.
 - Flask-Admin is no longer setup or supported.
 
@@ -66,7 +66,7 @@ The users page got revamped with a new look and feel and new features:
 
 - New Alert destination: Google Hangouts Chat.
 - When downloading results from the results API it will set a user friendly filename for the downloaded file.
-- Add Archived Queries section to queries list.
+- Archived Queries section added to the queries list.
 
 ### Bug Fixes
 
