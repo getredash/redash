@@ -98,36 +98,36 @@ describe('Dashboard', () => {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
         .then(slug => `/dashboard/${slug}`)
-        .as('DashboardUrl');
+        .as('dashboardUrl');
     });
 
     beforeEach(function () {
-      cy.visit(this.DashboardUrl);
-      addTextbox('Hello World!').as('TextboxEl');
+      cy.visit(this.dashboardUrl);
+      addTextbox('Hello World!').as('textboxEl');
     });
 
     it('removes textbox from X button', function () {
       editDashboard();
 
-      cy.get('@TextboxEl').within(() => {
+      cy.get('@textboxEl').within(() => {
         cy.get('.widget-menu-remove').click();
       });
 
-      cy.get('@TextboxEl').should('not.exist');
+      cy.get('@textboxEl').should('not.exist');
     });
 
     it('removes textbox from menu', function () {
-      cy.get('@TextboxEl').within(() => {
+      cy.get('@textboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Remove From Dashboard').click({ force: true });
         });
       });
 
-      cy.get('@TextboxEl').should('not.exist');
+      cy.get('@textboxEl').should('not.exist');
     });
 
     it('edits textbox', function () {
-      cy.get('@TextboxEl').within(() => {
+      cy.get('@textboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Edit').click({ force: true });
         });
@@ -139,7 +139,7 @@ describe('Dashboard', () => {
         cy.contains('button', 'Save').click();
       });
 
-      cy.get('@TextboxEl').should('contain', newContent);
+      cy.get('@textboxEl').should('contain', newContent);
     });
   });
 });
