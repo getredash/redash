@@ -43,7 +43,7 @@ const defaultQueryData = {
   query: 'select 1',
   data_source_id: 1,
   options: {
-    parameters: []
+    parameters: [],
   },
   schedule: null,
 };
@@ -54,10 +54,8 @@ function addWidget(queryData = {}) {
   // create query
   cy.server();
   return cy.request('POST', '/api/queries', merged)
-    .then(({ body }) => {
-      // publish it so it's avail for widget
-      return cy.request('POST', `/api/queries/${body.id}`, { is_draft: false });
-    })
+    // publish it so it's avail for widget
+    .then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }))
     .then(({ body }) => {
       // create widget
       editDashboard();
@@ -219,7 +217,7 @@ describe('Dashboard', () => {
 
       it('render correct height for 2 table rows', () => {
         const queryData = {
-          query: `select s.a FROM generate_series(1,2) AS s(a)`,
+          query: 'select s.a FROM generate_series(1,2) AS s(a)',
         };
 
         addWidget(queryData).then(({ id }) => {
@@ -231,7 +229,7 @@ describe('Dashboard', () => {
 
       it('render correct height for 5 table rows', () => {
         const queryData = {
-          query: `select s.a FROM generate_series(1,5) AS s(a)`,
+          query: 'select s.a FROM generate_series(1,5) AS s(a)',
         };
 
         addWidget(queryData).then(({ id }) => {
