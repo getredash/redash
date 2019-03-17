@@ -109,7 +109,7 @@ class DestinationListResource(BaseResource):
 
         try:
             models.db.session.add(destination)
-            models.db.session.commit()        
+            models.db.session.commit()
         except IntegrityError as e:
             if 'name' in e.message:
                 abort(400, message="Alert Destination with the name {} already exists.".format(req['name']))
