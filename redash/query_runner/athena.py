@@ -80,12 +80,12 @@ class Athena(BaseQueryRunner):
                 },
                 'work_group': {
                     'type': 'string',
-                    'title': 'Athena work group',
+                    'title': 'Athena Work Group',
                     'default': 'primary'
                 },
             },
             'required': ['region', 's3_staging_dir'],
-            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'work_group'],
             'secret': ['aws_secret_key']
         }
 
