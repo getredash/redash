@@ -2,7 +2,7 @@ function createNewDashboardByAPI(name) {
   cy.server();
   return cy.request('POST', 'api/dashboards', { name }).then((response) => {
     const slug = Cypress._.get(response, 'body.slug');
-    assert.isDefined(slug, 'Widget api call returns widget slug');
+    assert.isDefined(slug, 'Dashboard api call returns widget slug');
     return slug;
   });
 }
@@ -34,7 +34,7 @@ function addTextbox(text) {
   return cy.wait('@NewWidget').then((xhr) => {
     const id = Cypress._.get(xhr, 'response.body.id');
     assert.isDefined(id, 'Widget api call returns widget id');
-    return cy.getByTestId(`WidgetId${id}`).should('exist');
+    return cy.getByTestId(`WidgetId${id}`);
   });
 }
 
@@ -96,40 +96,38 @@ describe('Dashboard', () => {
   describe('Editing a dashboard', () => {
     before(function() {
       cy.login();
-      return createNewDashboardByAPI('Foo Bar').then((slug) => {
-        this.dashboardUrl = `/dashboard/${slug}`;
-      });
+      createNewDashboardByAPI('Foo Bar')
+        .then(slug => `/dashboard/${slug}`)
+        .as('DashboardUrl');
     });
 
     beforeEach(function() {
-      cy.visit(this.dashboardUrl);
-      return addTextbox('Hello World!').then(($el) => {
-        this.$textboxEl = $el; 
-      });
+      cy.visit(this.DashboardUrl);
+      addTextbox('Hello World!').as('TextboxEl');
     });
 
     it('removes textbox from X button', function() {
       editDashboard();
 
-      cy.wrap(this.$textboxEl).within(() => {
+      cy.get('@TextboxEl').within(() => {
         cy.get('.widget-menu-remove').click();
       });
 
-      cy.wrap(this.$textboxEl).should('not.exist');
+      cy.get('@TextboxEl').should('not.exist');
     });
 
     it('removes textbox from menu', function() {
-      cy.wrap(this.$textboxEl).within(() => {
+      cy.get('@TextboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Remove From Dashboard').click({ force: true });
         });
       });
 
-      cy.wrap(this.$textboxEl).should('not.exist');
+      cy.get('@TextboxEl').should('not.exist');
     });
 
     it('edits textbox', function() {
-      cy.wrap(this.$textboxEl).within(() => {
+      cy.get('@TextboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Edit').click({ force: true });
         });
@@ -141,7 +139,7 @@ describe('Dashboard', () => {
         cy.contains('button', 'Save').click();
       });
 
-      cy.wrap(this.$textboxEl).should('contain', newContent);
+      cy.get('@TextboxEl').should('contain', newContent);
     });
   });
 });
