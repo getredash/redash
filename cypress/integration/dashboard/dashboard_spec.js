@@ -68,17 +68,17 @@ describe('Dashboard', () => {
     });
   });
 
-  it('archives dashboard', function() {
+  it('archives dashboard', function () {
     createNewDashboardByAPI('Foo Bar').then((slug) => {
       cy.visit(`/dashboard/${slug}`);
 
       cy.getByTestId('DashboardMoreMenu')
-      .click()
-      .within(() => {
-        cy.get('li')
-          .contains('Archive')
-          .click();
-      });
+        .click()
+        .within(() => {
+          cy.get('li')
+            .contains('Archive')
+            .click();
+        });
 
       cy.get('.btn-warning')
         .contains('Archive')
@@ -94,14 +94,14 @@ describe('Dashboard', () => {
 
 
   describe('Textbox', () => {
-    before(function() {
+    before(function () {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
         .then(slug => `/dashboard/${slug}`)
         .as('DashboardUrl');
     });
 
-    beforeEach(function() {
+    beforeEach(function () {
       cy.visit(this.DashboardUrl);
       addTextbox('Hello World!').as('TextboxEl');
     });
@@ -126,7 +126,7 @@ describe('Dashboard', () => {
       cy.get('@TextboxEl').should('not.exist');
     });
 
-    it('edits textbox', function() {
+    it('edits textbox', function () {
       cy.get('@TextboxEl').within(() => {
         cy.get('.widget-menu-regular').click({ force: true }).within(() => {
           cy.get('li a').contains('Edit').click({ force: true });
