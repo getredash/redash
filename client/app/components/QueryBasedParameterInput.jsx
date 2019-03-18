@@ -10,7 +10,6 @@ export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    parentQueryId: PropTypes.number,
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -20,7 +19,6 @@ export class QueryBasedParameterInput extends React.Component {
     value: null,
     parameter: null,
     queryId: null,
-    parentQueryId: null,
     onSelect: () => {},
     className: '',
   };
