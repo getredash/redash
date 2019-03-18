@@ -16,8 +16,6 @@ class Redash(Flask):
         super(Redash, self).__init__(__name__, *args, **kwargs)
         # Make sure we get the right referral address even behind proxies like nginx.
         self.wsgi_app = ProxyFix(self.wsgi_app, settings.PROXIES_COUNT)
-        # Handle the special case of the org slug
-        self.url_map.converters['org_slug'] = routes.SlugConverter
         # Configure Redash using our settings
         self.config.from_object('redash.settings')
 
