@@ -1,10 +1,12 @@
 import requests
 import time
-from datetime import datetime
-from dateutil import parser
 from urlparse import parse_qs
+from datetime import datetime
+from dateutil.tz import UTC
+from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
 from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 
 def get_instant_rows(metrics_data):
@@ -39,28 +41,134 @@ def get_range_rows(metrics_data):
     return rows
 
 
-# Convert datetime string to timestamp
-def convert_query_range(payload):
-    query_range = {}
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 
-    for key in ['start', 'end']:
-        if key not in payload.keys():
-            continue
-        value = payload[key][0]
 
-        if type(value) is str:
-            # Don't convert timestamp string
-            try:
-                int(value)
-                continue
-            except ValueError:
-                pass
-            value = parser.parse(value)
+def _timestamp(dt):
+    # python2 compatibility, use dt.timestamp() in python3
+    if dt.tzinfo is None:
+        return time.mktime(dt.timetuple()) + dt.microsecond / 1e6
+    else:
+        return (dt - _EPOCH).total_seconds()
 
-        if type(value) is datetime:
-            query_range[key] = [int(time.mktime(value.timetuple()))]
 
-    payload.update(query_range)
+def _round_datetime(dt, unit, up=True):
+    # One week from Sunday to Saturday
+    if unit == 'week':
+        if up:
+            dt = dt + relativedelta(days=7 - (dt.isoweekday() % 7))
+            up = False
+        else:
+            dt = dt + relativedelta(days=-(dt.isoweekday() % 7))
+        unit = 'day'
+
+    units = ('year', 'month', 'day', 'hour', 'minute', 'second')
+    found = False
+    dt_replace = {
+        'microsecond': 0
+    }
+
+    for _unit in units:
+        if found:
+            if _unit in ('month', 'day'):
+                dt_replace[_unit] = 1
+            else:
+                dt_replace[_unit] = 0
+
+        if _unit == unit:
+            if up:
+                dt = dt + relativedelta(**{_unit + 's': 1})
+            found = True
+
+    return dt.replace(**dt_replace)
+
+
+def parse_date_math(dt, math_str, round_up=True):
+    # Algorithm is from grafana https://github.com/grafana/grafana/blob/master/public/app/core/utils/datemath.ts
+    units = {
+        'y': 'year',
+        'M': 'month',
+        'w': 'week',
+        'd': 'day',
+        'h': 'hour',
+        'm': 'minute',
+        's': 'second'
+    }
+    i = 0
+    c_types = ('/', '+', '-')
+
+    while i < len(math_str) - 1:
+        c = math_str[i]
+        i += 1
+
+        if c not in c_types:
+            dt = None
+            break
+
+        if not math_str[i].isdigit():
+            num = 1
+        elif len(math_str) == 2:
+            num = math_str[i]
+        else:
+            num_from = i
+            while math_str[i].isdigit():
+                i += 1
+                if i > 10:
+                    dt = None
+                    break
+            num = int(math_str[num_from:i], 10)
+
+        if c == '/' and num != 1:
+            # rounding is only allowed on whole, single, units (eg M or 1M, not 0.5M or 2M)
+            dt = None
+            break
+
+        unit = math_str[i]
+        i += 1
+
+        if unit not in units:
+            dt = None
+            break
+        else:
+            unit_name = units[unit]
+            if c == '/':
+                dt = _round_datetime(dt, unit_name, round_up)
+            elif c == '+':
+                dt = dt + relativedelta(**{
+                    unit_name + 's': num
+                })
+            elif c == '-':
+                dt = dt - relativedelta(**{
+                    unit_name + 's': num
+                })
+
+    return dt
+
+
+def convert_to_timestamp(value, round_up=True):
+    # Convert datetime string to timestamp
+    if value is None:
+        return None
+
+    if type(value) is str:
+        # Don't convert timestamp string
+        if value.isdigit():
+            return value
+
+        if value.startswith('now'):
+            dt_value = parse_date_math(datetime.now(), value[3:], round_up)
+
+            if dt_value is None:
+                raise Exception('Can not parse "{}"'.format(value))
+
+            value = dt_value
+        else:
+            value = parse(value)
+
+    if type(value) is datetime:
+        return int(_timestamp(value))
+
+    return value
 
 
 class Prometheus(BaseQueryRunner):
@@ -100,20 +208,33 @@ class Prometheus(BaseQueryRunner):
 
     def run_query(self, query, user):
         """
-        Query Syntax, actually it is the URL query string.
+        Query Syntax, actually it is a JSON query which is converted from the URL query string.
         Check the Prometheus HTTP API for the details of the supported query string.
 
         https://prometheus.io/docs/prometheus/latest/querying/api/
 
-        example: instant query
-            query=http_requests_total
+        timestamp parameters type support:
+            rfc3339:                '2018-01-20T00:00:00.000Z'
+            unix timestamp:         '1516406400'
+            time units of grafana:  'now', 'now-1h', 'now/h'
+            redash frontend:        '2018-01-20 00:00:00'
 
-        example: range query
-            query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=2018-01-25T00:00:00.000Z&step=60s
+        timestamp parameters include 'time', 'start' and 'end'.
+        about the time units of grafana http://docs.grafana.org/reference/timerange/
 
-        example: until now range query
-            query=http_requests_total&start=2018-01-20T00:00:00.000Z&step=60s
-            query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=now&step=60s
+        query example: instant query
+            {
+                "query": "http_requests_total",
+                "time": "now"  # optional
+            }
+
+        query example: range query
+            {
+                "query": "http_requests_total",
+                "step": "60s",
+                "start": "now-1h",  # optional
+                "end": "now"  # optional
+            }
         """
 
         base_url = self.configuration["url"]
@@ -132,19 +253,33 @@ class Prometheus(BaseQueryRunner):
 
         try:
             error = None
-            query = query.strip()
-            # for backward compatibility
-            query = 'query={}'.format(query) if not query.startswith('query=') else query
+            try:
+                payload = json_loads(query)
+            except Exception:
+                # for backward compatibility
+                query = query.strip()
+                query = 'query={}'.format(query) if not query.startswith('query=') else query
+                payload = parse_qs(query)
+                for k in payload:
+                    payload[k] = payload[k][0]
 
-            payload = parse_qs(query)
-            query_type = 'query_range' if 'step' in payload.keys() else 'query'
+            query_type = 'query_range' if 'step' in payload else 'query'
 
-            # for the range of until now
-            if query_type == 'query_range' and ('end' not in payload.keys() or 'now' in payload['end']):
-                date_now = datetime.now()
-                payload.update({'end': [date_now]})
+            if query_type == 'query_range':
+                # for the range of until now
+                if 'end' not in payload:
+                    range_end = 'now'
+                else:
+                    range_end = payload['end']
 
-            convert_query_range(payload)
+                payload['end'] = convert_to_timestamp(range_end)
+
+                if 'start' in payload:
+                    payload['start'] = convert_to_timestamp(payload['start'], False)
+
+            elif query_type == 'query':
+                if 'time' in payload:
+                    payload['time'] = convert_to_timestamp(payload['time'])
 
             api_endpoint = base_url + '/api/v1/{}'.format(query_type)
 
@@ -154,7 +289,7 @@ class Prometheus(BaseQueryRunner):
             metrics = response.json()['data']['result']
 
             if len(metrics) == 0:
-                return None, 'query result is empty.'
+                return None, 'Query result is empty.'
 
             metric_labels = metrics[0]['metric'].keys()
 
