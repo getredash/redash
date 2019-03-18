@@ -7,9 +7,12 @@ from flask import current_app
 
 from celery import Celery
 from celery.schedules import crontab
-from celery.signals import worker_process_init
-from redash import create_app, settings
-from redash.metrics import celery as celery_metrics
+from celery.signals import task_postrun, task_prerun, worker_process_init
+
+from redash import settings
+from redash.app import create_app
+from redash.metrics.celery import task_postrun_handler, task_prerun_handler
+
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
@@ -65,6 +68,10 @@ class ContextTask(TaskBase):
 
 
 celery.Task = ContextTask
+
+# Connect the task signal handles for Redash metrics
+task_prerun.connect(task_prerun_handler)
+task_postrun.connect(task_postrun_handler)
 
 
 # Create Flask app after forking a new worker, to make sure no resources are shared between processes.
