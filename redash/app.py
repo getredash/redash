@@ -1,7 +1,7 @@
 from flask import Flask
 from werkzeug.contrib.fixers import ProxyFix
 
-from . import mail, settings
+from . import settings
 from .utils import routes
 
 
@@ -23,7 +23,7 @@ class Redash(Flask):
 
 
 def create_app():
-    from . import authentication, extensions, handlers, limiter, migrate, security
+    from . import authentication, extensions, handlers, limiter, mail, migrate, security
     from .destinations import import_destinations
     from .handlers import chrome_logger
     from .handlers.webpack import configure_webpack

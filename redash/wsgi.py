@@ -1,3 +1,3 @@
-from redash.app import create_app
+from redash import create_app
 
 app = create_app()

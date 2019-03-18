@@ -9,8 +9,7 @@ from celery import Celery
 from celery.schedules import crontab
 from celery.signals import task_postrun, task_prerun, worker_process_init
 
-from redash import settings
-from redash.app import create_app
+from redash import create_app, settings
 from redash.metrics.celery import task_postrun_handler, task_prerun_handler
 
 
