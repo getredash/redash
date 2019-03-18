@@ -2,7 +2,6 @@ from flask import Flask
 from werkzeug.contrib.fixers import ProxyFix
 
 from . import settings
-from .utils import routes
 
 
 class Redash(Flask):
