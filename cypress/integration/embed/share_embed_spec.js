@@ -14,7 +14,7 @@ describe('Embedded Queries', () => {
     cy.getByTestId('SaveButton').click();
     cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
     cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
-      const embedUrl = iframe.match(/"(.*?)"/)[1]
+      const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
       cy.visit(embedUrl);
     });

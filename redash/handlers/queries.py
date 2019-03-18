@@ -180,7 +180,8 @@ def require_access_to_dropdown_queries(user, query_def):
         groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
 
         if len(groups) < len(dropdown_query_ids):
-            abort(400, message='You are trying to associate a dropdown query that does not have a matching group. Please verify the dropdown query id you are trying to associate with this query.')
+            abort(400, message="You are trying to associate a dropdown query that does not have a matching group."
+                               "Please verify the dropdown query id you are trying to associate with this query.")
 
         object = lambda: None
         object.groups = dict(groups)
