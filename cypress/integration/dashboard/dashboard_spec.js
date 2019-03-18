@@ -215,7 +215,7 @@ describe('Dashboard', () => {
         });
       });
 
-      it('render correct height for 2 table rows', () => {
+      it('renders correct height for 2 table rows', () => {
         const queryData = {
           query: 'select s.a FROM generate_series(1,2) AS s(a)',
         };
