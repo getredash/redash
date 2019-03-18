@@ -3,14 +3,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { Query } from '@/services/query';
 
 const { Option } = Select;
 
 export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
+    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    parentQueryId: PropTypes.number,
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -18,8 +17,8 @@ export class QueryBasedParameterInput extends React.Component {
 
   static defaultProps = {
     value: null,
+    parameter: null,
     queryId: null,
-    parentQueryId: null,
     onSelect: () => {},
     className: '',
   };
@@ -43,24 +42,17 @@ export class QueryBasedParameterInput extends React.Component {
     }
   }
 
-  _loadOptions(queryId) {
+  async _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
       this.setState({ loading: true });
-      const resolve = (options) => {
-        if (this.props.queryId === queryId) {
-          this.setState({ options, loading: false });
+      const options = await this.props.parameter.loadDropdownValues();
+      if (this.props.queryId === queryId) {
+        this.setState({ options, loading: false });
 
-          const found = find(options, option => option.value === this.props.value) !== undefined;
-          if (!found && isFunction(this.props.onSelect)) {
-            this.props.onSelect(options[0].value);
-          }
+        const found = find(options, option => option.value === this.props.value) !== undefined;
+        if (!found && isFunction(this.props.onSelect)) {
+          this.props.onSelect(options[0].value);
         }
-      };
-
-      if (this.props.parentQueryId) {
-        Query.associatedDropdown({ queryId: this.props.parentQueryId, dropdownQueryId: queryId }, resolve);
-      } else {
-        Query.asDropdown({ id: queryId }, resolve);
       }
     }
   }
