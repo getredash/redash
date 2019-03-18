@@ -5,13 +5,6 @@ import urllib
 import urlparse
 
 import redis
-<<<<<<< HEAD
-from flask import Flask, current_app
-from werkzeug.contrib.fixers import ProxyFix
-from werkzeug.routing import BaseConverter
-from statsd import StatsClient
-=======
->>>>>>> Split redash/__init__.py to prevent import time side-effects.
 from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
