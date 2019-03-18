@@ -184,11 +184,11 @@ describe('Dashboard', () => {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
         .then(slug => `/dashboard/${slug}`)
-        .as('DashboardUrl');
+        .as('dashboardUrl');
     });
 
     beforeEach(function () {
-      cy.visit(this.DashboardUrl);
+      cy.visit(this.dashboardUrl);
     });
 
     it('adds widget', () => {
