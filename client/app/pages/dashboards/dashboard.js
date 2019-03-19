@@ -12,6 +12,7 @@ import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import AddTextboxDialog from '@/components/dashboards/AddTextboxDialog';
+import notification from '@/services/notification';
 
 import './dashboard.less';
 
@@ -44,7 +45,6 @@ function DashboardCtrl(
   currentUser,
   clientConfig,
   Events,
-  toastr,
 ) {
   this.saveInProgress = false;
 
@@ -59,7 +59,7 @@ function DashboardCtrl(
       .all(_.map(widgets, widget => widget.save()))
       .then(() => {
         if (showMessages) {
-          toastr.success('Changes saved.');
+          notification.success('Changes saved.');
         }
         // Update original widgets positions
         _.each(widgets, (widget) => {
@@ -68,7 +68,7 @@ function DashboardCtrl(
       })
       .catch(() => {
         if (showMessages) {
-          toastr.error('Error saving changes.');
+          notification.error('Error saving changes.');
         }
       })
       .finally(() => {
@@ -281,12 +281,12 @@ function DashboardCtrl(
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Dashboard update failed: Permission Denied.');
+          notification.error('Dashboard update failed', 'Permission Denied.');
         } else if (error.status === 409) {
-          toastr.error(
-            'It seems like the dashboard has been modified by another user. ' +
+          notification.error(
+            'It seems like the dashboard has been modified by another user. ',
             'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
+            { duration: null },
           );
         }
       },
@@ -314,12 +314,12 @@ function DashboardCtrl(
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          notification.error('Name update failed', 'Permission denied.');
         } else if (error.status === 409) {
-          toastr.error(
-            'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
+          notification.error(
+            'It seems like the dashboard has been modified by another user. ',
+            'Please copy/backup your changes and reload this page.',
+            { duration: null },
           );
         }
       },

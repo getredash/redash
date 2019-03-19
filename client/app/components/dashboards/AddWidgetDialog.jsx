@@ -10,7 +10,7 @@ import {
 } from '@/components/ParameterMappingInput';
 import { QuerySelector } from '@/components/QuerySelector';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 
 import { Query } from '@/services/query';
 
@@ -84,7 +84,7 @@ class AddWidgetDialog extends React.Component {
         this.props.dialog.close();
       })
       .catch(() => {
-        toastr.error('Widget could not be added');
+        notification.error('Widget could not be added');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });

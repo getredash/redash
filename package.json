@@ -43,7 +43,6 @@
     "angular-resource": "~1.5.8",
     "angular-route": "~1.5.8",
     "angular-sanitize": "~1.5.8",
-    "angular-toastr": "^2.1.1",
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",

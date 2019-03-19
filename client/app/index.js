@@ -1,15 +1,10 @@
 import ngModule from '@/config';
 
-ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConfig) => {
+ngModule.config(($locationProvider, $compileProvider, uiSelectConfig) => {
   $compileProvider.debugInfoEnabled(false);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|data|tel|sms|mailto):/);
   $locationProvider.html5Mode(true);
   uiSelectConfig.theme = 'bootstrap';
-
-  Object.assign(toastrConfig, {
-    positionClass: 'toast-bottom-right',
-    timeOut: 2000,
-  });
 });
 
 // Update ui-select's template to use Font-Awesome instead of glyphicon.

@@ -7,7 +7,7 @@ import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
 import Divider from 'antd/lib/divider';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 
 import './AddTextboxDialog.less';
 
@@ -44,7 +44,7 @@ class AddTextboxDialog extends React.Component {
         this.props.dialog.close();
       })
       .catch(() => {
-        toastr.error('Widget could not be added');
+        notification.error('Widget could not be added');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
