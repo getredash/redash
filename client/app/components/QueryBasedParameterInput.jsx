@@ -46,6 +46,8 @@ export class QueryBasedParameterInput extends React.Component {
     if (queryId && (queryId !== this.state.queryId)) {
       this.setState({ loading: true });
       const options = await this.props.parameter.loadDropdownValues();
+
+      // stale queryId check
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false });
 
