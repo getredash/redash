@@ -1,6 +1,5 @@
 import debug from 'debug';
-
-import logoUrl from '@/assets/images/redash_icon_small.png';
+import logoUrl from '@/assets/images/customlogo_01.png';
 import frontendVersion from '@/version.json';
 import template from './app-header.html';
 import './app-header.css';
