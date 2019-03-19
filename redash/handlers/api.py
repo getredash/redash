@@ -22,7 +22,6 @@ from redash.handlers.destinations import (DestinationListResource,
                                           DestinationResource,
                                           DestinationTypeListResource)
 from redash.handlers.events import EventsResource
-<<<<<<< HEAD
 from redash.handlers.favorites import (DashboardFavoriteResource,
                                        QueryFavoriteResource)
 from redash.handlers.groups import (GroupDataSourceListResource,
@@ -44,18 +43,6 @@ from redash.handlers.query_results import (JobResource,
                                            QueryResultResource)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
                                             QuerySnippetResource)
-=======
-from redash.handlers.queries import QueryArchiveResource, QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
-from redash.handlers.query_results import QueryResultListResource, QueryResultDropdownResource, QueryDropdownsResource, QueryResultResource, JobResource
-from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource, UserDisableResource, UserRegenerateApiKeyResource
-from redash.handlers.visualizations import VisualizationListResource
-from redash.handlers.visualizations import VisualizationResource
-from redash.handlers.widgets import WidgetResource, WidgetListResource
-from redash.handlers.groups import GroupListResource, GroupResource, GroupMemberListResource, GroupMemberResource, \
-    GroupDataSourceListResource, GroupDataSourceResource
-from redash.handlers.destinations import DestinationTypeListResource, DestinationResource, DestinationListResource
-from redash.handlers.query_snippets import QuerySnippetListResource, QuerySnippetResource
->>>>>>> split to 2 different dropdown endpoints and implement the second
 from redash.handlers.settings import OrganizationSettings
 from redash.handlers.users import (UserDisableResource, UserInviteResource,
                                    UserListResource,
