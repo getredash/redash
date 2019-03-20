@@ -42,11 +42,10 @@ def email_server_is_configured():
 
 
 def invite_user(org, inviter, user, send_email=True):
-    email_configured = settings.MAIL_DEFAULT_SENDER is not None
     d = user.to_dict()
 
     invite_url = invite_link_for_user(user)
-    if email_configured and send_email:
+    if email_server_is_configured() and send_email:
         send_invite_email(inviter, user, invite_url, org)
     else:
         d['invite_link'] = invite_url
