@@ -37,15 +37,11 @@ order_results = partial(
 )
 
 
-def email_server_is_configured():
-    return settings.MAIL_DEFAULT_SENDER is not None
-
-
 def invite_user(org, inviter, user, send_email=True):
     d = user.to_dict()
 
     invite_url = invite_link_for_user(user)
-    if email_server_is_configured() and send_email:
+    if settings.email_server_is_configured() and send_email:
         send_invite_email(inviter, user, invite_url, org)
     else:
         d['invite_link'] = invite_url
@@ -233,14 +229,14 @@ class UserResource(BaseResource):
                 abort(400, message='Bad email address.')
 
         email_address_changed = 'email' in params and params['email'] != user.email
-        if email_address_changed and email_server_is_configured():
+        if email_address_changed and settings.email_server_is_configured():
             user.is_email_verified = False
 
         try:
             self.update_model(user, params)
             models.db.session.commit()
 
-            if email_address_changed and email_server_is_configured():
+            if email_address_changed and settings.email_server_is_configured():
                 send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,
