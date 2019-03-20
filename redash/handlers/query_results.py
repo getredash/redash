@@ -11,7 +11,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 def error_response(message):
@@ -151,10 +151,19 @@ class QueryResultListResource(BaseResource):
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
-
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
         return dropdown_values(query_id)
+
+class QueryDropdownsResource(BaseResource):
+    def get(self, query_id, dropdown_query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+        related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
+        if int(dropdown_query_id) not in related_queries_ids:
+            abort(403)
+
+        return dropdown_values(dropdown_query_id, should_require_access=False)
 
 
 class QueryResultResource(BaseResource):
