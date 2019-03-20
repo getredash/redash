@@ -5,11 +5,11 @@ import notification from '@/services/notification';
 
 const logger = debug('redash:http');
 export const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
-export function logAndNotificateError(deleteObject, httpResponse) {
+export function logAndNotifyError(deleteObject, httpResponse) {
   logger('Failed to delete ' + deleteObject + ': ', httpResponse.status, httpResponse.statusText, httpResponse.data);
   notification.error('Failed to delete ' + deleteObject + '.');
 }
-export function notificateSuccessAndPath(deleteObject, deletePath, $location) {
+export function notifySuccessAndPath(deleteObject, deletePath, $location) {
   notification.success(deleteObject + ' deleted successfully.');
   $location.path('/' + deletePath + '/');
 }
@@ -54,9 +54,9 @@ function DataSourceCtrl(
   function deleteDataSource(callback) {
     const doDelete = () => {
       $scope.dataSource.$delete(() => {
-        notificateSuccessAndPath('Data source', 'data_sources', $location);
+        notifySuccessAndPath('Data source', 'data_sources', $location);
       }, (httpResponse) => {
-        logAndNotificateError('data source', httpResponse);
+        logAndNotifyError('data source', httpResponse);
       });
     };
 

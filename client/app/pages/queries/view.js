@@ -268,8 +268,8 @@ function QueryViewCtrl(
             AlertDialog.open(title, message, confirm).then(overwrite);
           } else {
             notification.error(
-              errorMessage,
-              ' Please copy/backup your changes and reload this page.',
+              'Changes not saved',
+              errorMessage + ' Please copy/backup your changes and reload this page.',
               { duration: null },
             );
           }

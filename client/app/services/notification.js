@@ -5,18 +5,16 @@ notification.config({
   duration: 3,
 });
 
-const updatedActions = [
-  'success',
-  'error',
-  'info',
-  'warning',
-  'warn',
-].reduce((acc, action) => ({
-  ...acc,
-  [action]: (message, description = null, props = null) => notification[action]({ ...props, message, description }),
-}), null);
+const simpleNotification = {};
+
+['success', 'error', 'info', 'warning', 'warn'].forEach((action) => {
+  // eslint-disable-next-line arrow-body-style
+  simpleNotification[action] = (message, description = null, props = null) => {
+    return notification[action]({ ...props, message, description });
+  };
+});
 
 export default { // export Ant's notification and replace actions
   ...notification,
-  ...updatedActions,
+  ...simpleNotification,
 };

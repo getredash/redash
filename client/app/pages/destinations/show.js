@@ -1,6 +1,6 @@
 import { find } from 'lodash';
 import template from './show.html';
-import { deleteConfirm, logAndNotificateError, notificateSuccessAndPath } from '../data-sources/show';
+import { deleteConfirm, logAndNotifyError, notifySuccessAndPath } from '../data-sources/show';
 
 function DestinationCtrl(
   $scope, $route, $routeParams, $http, $location,
@@ -31,9 +31,9 @@ function DestinationCtrl(
   function deleteDestination(callback) {
     const doDelete = () => {
       $scope.destination.$delete(() => {
-        notificateSuccessAndPath('Destination', 'destinations', $location);
+        notifySuccessAndPath('Destination', 'destinations', $location);
       }, (httpResponse) => {
-        logAndNotificateError('destination', httpResponse);
+        logAndNotifyError('destination', httpResponse);
       });
     };
 
