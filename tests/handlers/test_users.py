@@ -40,10 +40,8 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], test_user['name'])
         self.assertEqual(rv.json['email'], test_user['email'])
 
-    def test_shows_invite_link_when_email_is_not_configured(self):
-        previous = settings.MAIL_DEFAULT_SENDER
-        settings.MAIL_DEFAULT_SENDER = None
-
+    @patch('redash.settings.email_server_is_configured', return_value=False)
+    def test_shows_invite_link_when_email_is_not_configured(self, _):
         admin = self.factory.create_admin()
 
         test_user = {'name': 'User', 'email': 'user@example.com'}
@@ -52,12 +50,8 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertTrue('invite_link' in rv.json)
 
-        settings.MAIL_DEFAULT_SENDER = previous
-
-    def test_does_not_show_invite_link_when_email_is_configured(self):
-        previous = settings.MAIL_DEFAULT_SENDER
-        settings.MAIL_DEFAULT_SENDER = "john@doe.com"
-
+    @patch('redash.settings.email_server_is_configured', return_value=True)
+    def test_does_not_show_invite_link_when_email_is_configured(self, _):
         admin = self.factory.create_admin()
 
         test_user = {'name': 'User', 'email': 'user@example.com'}
@@ -65,8 +59,6 @@ class TestUserListResourcePost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
         self.assertFalse('invite_link' in rv.json)
-
-        settings.MAIL_DEFAULT_SENDER = previous
 
     def test_creates_user_case_insensitive_email(self):
         admin = self.factory.create_admin()
