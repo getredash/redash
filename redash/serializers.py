@@ -10,7 +10,7 @@ from flask_login import current_user
 from redash import models
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 
 def public_widget(widget):
