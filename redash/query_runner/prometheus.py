@@ -1,5 +1,5 @@
-import requests
 import time
+import requests
 from urlparse import parse_qs
 from datetime import datetime
 from dateutil.tz import UTC
@@ -17,8 +17,7 @@ def get_instant_rows(metrics_data):
 
         timestamp, value = metric['value']
         date_time = datetime.fromtimestamp(timestamp)
-
-        row_data.update({"timestamp": date_time, "value": value})
+        row_data.update({"timestamp": date_time, "value": float(value)})
         rows.append(row_data)
     return rows
 
@@ -36,7 +35,7 @@ def get_range_rows(metrics_data):
             timestamp, value = values
             date_time = datetime.fromtimestamp(timestamp)
 
-            row_data.update({'timestamp': date_time, 'value': value})
+            row_data.update({'timestamp': date_time, 'value': float(value)})
             rows.append(row_data)
     return rows
 
