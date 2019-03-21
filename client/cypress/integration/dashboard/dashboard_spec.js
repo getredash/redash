@@ -629,4 +629,70 @@ describe('Dashboard', () => {
       });
     });
   });
+
+  describe('switches to one column mode when viewport width is at 800px', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          return addTextboxByAPI('Hello World!', id);
+        })
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId).as('textboxEl');
+        });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+    });
+
+    it('widgets are full widths', () => {
+      cy.viewport(801, 800);
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(393);
+      });
+      cy.viewport(800, 800);
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(785);
+      });
+    });
+
+    it('hides edit option', () => {
+      cy.viewport(801, 800);
+      cy.getByTestId('DashboardMoreMenu')
+        .click()
+        .within(() => {
+          cy.get('li')
+            .contains('Edit')
+            .as('editButton')
+            .should('exist');
+        });
+
+      cy.viewport(800, 800);
+      cy.get('@editButton').should('not.be', 'visible');
+    });
+
+    it('disables edit mode', () => {
+      cy.viewport(801, 800);
+      editDashboard();
+      cy.get('button')
+        .contains('Apply Changes')
+        .as('saveButton')
+        .its('disabled')
+        .should('be', false);
+
+      cy.viewport(800, 800);
+      cy.get('@saveButton').its('disabled').should('be', true);
+    });
+
+    it('hides menu button when width is under 768px', () => {
+      cy.viewport(768, 800);
+      cy.getByTestId('DashboardMoreMenu').should('be', 'visible');
+
+      cy.viewport(767, 800);
+      cy.getByTestId('DashboardMoreMenu').should('not.be', 'visible');
+    });
+  });
 });
