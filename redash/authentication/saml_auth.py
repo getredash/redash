@@ -1,5 +1,6 @@
 import logging
 from flask import flash, redirect, url_for, Blueprint, request
+from redash import settings
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
