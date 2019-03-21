@@ -4,7 +4,7 @@ import os
 from pathlib2 import Path
 from shutil import copy
 
-from redash import create_app, extensions
+from redash import extensions
 
 # Make a directory for extensions and set it as an environment variable
 # to be picked up by webpack.
@@ -15,19 +15,17 @@ if not extensions_directory.exists():
     extensions_directory.mkdir()
 os.environ["EXTENSIONS_DIRECTORY"] = str(extensions_relative_path)
 
-# We need the app here for logging and to make sure the bundles have loaded.
-app = create_app()
 
 bundles = extensions.bundles.items()
 if bundles:
-    app.logger.info('Number of extension bundles found: %s', len(bundles))
+    print('Number of extension bundles found: {}'.format(len(bundles)))
 else:
-    app.logger.info('No extension bundles found.')
+    print('No extension bundles found.')
 
-for bundle_name, paths in extensions.bundles.items():
+for bundle_name, paths in bundles:
     # Shortcut in case not paths were found for the bundle
     if not paths:
-        app.logger.info('No paths found for bundle "%s".', bundle_name)
+        print('No paths found for bundle "{}".'.format(bundle_name))
         continue
 
     # The destination for the bundle files with the entry point name as the subdirectory
@@ -36,8 +34,8 @@ for bundle_name, paths in extensions.bundles.items():
         destination.mkdir()
 
     # Copy the bundle directory from the module to its destination.
-    app.logger.info('Copying "%s" bundle to %s:', bundle_name, destination.resolve())
+    print('Copying "{}" bundle to {}:'.format(bundle_name, destination.resolve()))
     for src_path in paths:
         dest_path = destination / src_path.name
-        app.logger.info(" - {} -> {}".format(src_path, dest_path))
+        print(" - {} -> {}".format(src_path, dest_path))
         copy(str(src_path), str(dest_path))
