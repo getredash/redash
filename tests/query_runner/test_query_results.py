@@ -34,6 +34,14 @@ class TestCreateTable(TestCase):
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
+    def test_creates_table_with_double_quotes_in_column_name(self):
+        connection = sqlite3.connect(':memory:')
+        results = {'columns': [{'name': 'ga:newUsers'}, {
+            'name': '"test2"'}], 'rows': [{'ga:newUsers': 123, '"test2"': 2}]}
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        connection.execute('SELECT 1 FROM query_123')
+
     def test_creates_table(self):
         connection = sqlite3.connect(':memory:')
         results = {'columns': [{'name': 'test1'},
