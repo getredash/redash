@@ -1,0 +1,18 @@
+{% extends "layouts/signed_out.html" %}
+
+{% block title %}Whoops... Redash doesn't support your browser{% endblock %}
+
+{% block content %}
+<div class="fixed-width-page">
+  <div class="bg-white tiled m-t-0">
+    <div class="error-state__details">
+      <h4>Download one of these free and up-to-date browsers:</h4>
+      <ul class="p-l-20 m-t-15" style="font-size: 14px; line-height: 25px;">
+        <li><a href="https://www.google.com/chrome/browser/desktop/" target="_blank">Chrome</a></li>
+        <li><a href="https://www.mozilla.com/firefox/" target="_blank">Firefox</a></li>
+        <li><a href="https://support.apple.com/en-us/HT204416" target="_blank">Safari</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
