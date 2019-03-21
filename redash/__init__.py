@@ -19,7 +19,7 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '7.0.0-beta'
+__version__ = '7.0.0'
 
 
 import os
@@ -97,8 +97,8 @@ class SlugConverter(BaseConverter):
         return value
 
 
-def create_app(load_admin=True):
-    from redash import admin, authentication, extensions, handlers
+def create_app():
+    from redash import authentication, extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
     from redash.models import db, users
@@ -126,8 +126,6 @@ def create_app(load_admin=True):
     provision_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    if load_admin:
-        admin.init_admin(app)
     mail.init_app(app)
     authentication.init_app(app)
     limiter.init_app(app)
@@ -138,11 +136,3 @@ def create_app(load_admin=True):
     users.init_app(app)
 
     return app
-
-
-def safe_create_app():
-    """Return current_app or create a new one."""
-    if current_app:
-        return current_app
-
-    return create_app()

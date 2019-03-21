@@ -136,6 +136,20 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
 
+    def test_prevents_execution_of_unsafe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 403)
+
+    def test_allows_execution_of_safe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "number"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 200)
+
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()
@@ -179,6 +193,50 @@ class TestQueryResultDropdownResource(BaseTestCase):
 
         self.assertEquals(rv.status_code, 403)
 
+class TestQueryDropdownsResource(BaseTestCase):
+    def test_prevents_access_if_query_isnt_associated_with_parent(self):
+        query = self.factory.create_query()
+        unrelated_dropdown_query = self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 403)
+
+    def test_allows_access_if_user_has_access_to_parent_query(self):
+        query_result = self.factory.create_query_result()
+        data = {
+            'rows': [],
+            'columns': [{'name': 'whatever'}]
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
+        dropdown_query = self.factory.create_query(latest_query_data=query_result)
+
+        options = {
+                'parameters': [{
+                'type': 'query',
+                'queryId': dropdown_query.id
+            }]
+        }
+        query = self.factory.create_query(options=options)
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 200)
+
+    def test_prevents_access_if_user_doesnt_have_access_to_parent_query(self):
+        related_dropdown_query = self.factory.create_query()
+        unrelated_dropdown_query = self.factory.create_query()
+        options = {
+                'parameters': [{
+                'type': 'query',
+                'queryId': related_dropdown_query.id
+            }]
+        }
+        query = self.factory.create_query(options=options)
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 403)
 
 class TestQueryResultExcelResponse(BaseTestCase):
     def test_renders_excel_file(self):

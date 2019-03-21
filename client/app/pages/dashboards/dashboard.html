@@ -61,7 +61,7 @@
           </button>
       </span>
 
-      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
+      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing" data-test="DashboardMoreMenu">
         <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
           <span class="zmdi zmdi-more"></span>
         </button>
@@ -97,7 +97,7 @@
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
         gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
-        <div class="grid-stack-item-content">
+        <div class="grid-stack-item-content" data-test="WidgetId{{ widget.id }}">
           <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
@@ -110,8 +110,8 @@
       <span class="hidden-xs hidden-sm">Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.</span>
     </h2>
     <div>
-      <a class="btn btn-default" ng-click="$ctrl.addTextBox()">Add Textbox</a>
-      <a class="btn btn-primary m-l-10" ng-click="$ctrl.addWidget('widget')">Add Widget</a>
+      <a class="btn btn-default" ng-click="$ctrl.showAddTextboxDialog()">Add Textbox</a>
+      <a class="btn btn-primary m-l-10" ng-click="$ctrl.showAddWidgetDialog()">Add Widget</a>
     </div>
   </div>
 </div>

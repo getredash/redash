@@ -28,6 +28,7 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
+from redash.models.parameterized_query import ParameterizedQuery
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
 from .changes import ChangeTrackingMixin, Change  # noqa
@@ -626,19 +627,29 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    @classmethod
+    def all_groups_for_query_ids(cls, query_ids):
+        query = """SELECT group_id, view_only
+                   FROM queries
+                   JOIN data_source_groups ON queries.data_source_id = data_source_groups.data_source_id
+                   WHERE queries.id in :ids"""
+
+        return db.session.execute(query, {'ids': tuple(query_ids)}).fetchall()
+
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
         kwargs = {a: getattr(self, a) for a in forked_list}
-        forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
-                                    user=user, **kwargs)
+
+        # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
+        forked_query = Query(name=u'Copy of (#{}) {}'.format(self.id, self.name), user=user, **kwargs)
 
         for v in self.visualizations:
-            if v.type == 'TABLE':
-                continue
             forked_v = v.copy()
             forked_v['query_rel'] = forked_query
-            forked_query.visualizations.append(Visualization(**forked_v))
+            fv = Visualization(**forked_v)  # it will magically add it to `forked_query.visualizations`
+            db.session.add(fv)
+
         db.session.add(forked_query)
         return forked_query
 
@@ -666,6 +677,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+    @property
+    def parameters(self):
+        return self.options.get("parameters", [])
+
+    @property
+    def parameterized(self):
+        return ParameterizedQuery(self.query_text, self.parameters)
 
 
 @listens_for(Query.query_text, 'set')

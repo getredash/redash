@@ -13,8 +13,9 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
+import Layout from '@/components/layouts/ContentWithSidebar';
+
 import { Dashboard } from '@/services/dashboard';
-import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import DashboardListEmptyState from './DashboardListEmptyState';
@@ -44,7 +45,7 @@ class DashboardList extends React.Component {
     Columns.favorites({ className: 'p-r-0' }),
     Columns.custom.sortable((text, item) => (
       <React.Fragment>
-        <a className="table-main-title" href={'dashboard/' + item.slug}>{ item.name }</a>
+        <a className="table-main-title" href={'dashboard/' + item.slug} data-test={item.slug}>{ item.name }</a>
         <DashboardTagsControl
           className="d-block"
           tags={item.tags}
@@ -66,70 +67,58 @@ class DashboardList extends React.Component {
     }),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
-
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          placeholder="Search Dashboards..."
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-        <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <div className="container">
         <PageHeader title={controller.params.title} />
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
-            {!controller.isLoaded && <LoadingState />}
-            {
-              controller.isLoaded && controller.isEmpty && (
-                <DashboardListEmptyState
-                  page={controller.params.currentPage}
-                  searchTerm={controller.searchTerm}
-                  selectedTags={controller.selectedTags}
-                />
-              )
-            }
-            {
-              controller.isLoaded && !controller.isEmpty && (
-                <div className="bg-white tiled table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
+        <Layout className="m-l-15 m-r-15">
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              placeholder="Search Dashboards..."
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
+            <Sidebar.PageSizeSelect
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
+            {controller.isLoaded ? (
+              <div data-test="DashboardLayoutContent">
+                {controller.isEmpty ? (
+                  <DashboardListEmptyState
+                    page={controller.params.currentPage}
+                    searchTerm={controller.searchTerm}
+                    selectedTags={controller.selectedTags}
                   />
-                  <Paginator
-                    totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
-              )
-            }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+                ) : (
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      columns={this.listColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
+                    />
+                    <Paginator
+                      totalCount={controller.totalItemsCount}
+                      itemsPerPage={controller.itemsPerPage}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <LoadingState />
+            )}
+          </Layout.Content>
+        </Layout>
       </div>
     );
   }

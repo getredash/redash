@@ -2,7 +2,7 @@ import { omit, debounce } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import hoistNonReactStatics from 'hoist-non-react-statics';
-import { $route } from '@/services/ng';
+import { $route, $routeParams } from '@/services/ng';
 import { clientConfig } from '@/services/auth';
 import { StateStorage } from './classes/StateStorage';
 
@@ -91,12 +91,19 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
       this.state.update();
     }
 
+    componentWillUnmount() {
+      itemsSource.onBeforeUpdate = () => {};
+      itemsSource.onAfterUpdate = () => {};
+      itemsSource.onError = () => {};
+    }
+
     // eslint-disable-next-line class-methods-use-this
     getState({ isLoaded, totalCount, pageItems, ...rest }) {
       const params = {
-        // Add some properties of current route (`$resolve`, title)
+        // Add some properties of current route (`$resolve`, title, route params)
         // ANGULAR_REMOVE_ME Revisit when some React router will be used
         title: $route.current.title,
+        ...$routeParams,
         ...omit($route.current.locals, ['$scope', '$template']),
 
         // Add to params all props except of own ones

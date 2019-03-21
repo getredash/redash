@@ -1,4 +1,4 @@
-import { each, includes } from 'lodash';
+import { each, includes, isUndefined } from 'lodash';
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -46,8 +46,21 @@ function normalizeSchema(configurationSchema) {
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function getFields(configurationSchema, target) {
+function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
+  if (Object.keys(options).length === 0) {
+    const properties = configurationSchema.properties;
+    Object.keys(properties).forEach((property) => {
+      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
+        options[property] = properties[property].default;
+      }
+    });
+  }
+}
+
+function getFields(configurationSchema, target = {}) {
   normalizeSchema(configurationSchema);
+  setDefaultValueForCheckboxes(configurationSchema, target.options);
+
   const inputs = [
     {
       name: 'name',

@@ -21,10 +21,19 @@
 @import '~antd/lib/grid/style/index';
 @import '~antd/lib/switch/style/index';
 @import '~antd/lib/drawer/style/index';
+@import '~antd/lib/divider/style/index';
+@import '~antd/lib/dropdown/style/index';
+@import '~antd/lib/menu/style/index';
+@import '~antd/lib/list/style/index';
+@import "~antd/lib/badge/style/index";
+@import "~antd/lib/card/style/index";
+@import "~antd/lib/spin/style/index";
+@import "~antd/lib/tabs/style/index";
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
-.ant-checkbox-wrapper, .ant-radio-wrapper {
+.ant-checkbox-wrapper,
+.ant-radio-wrapper {
   font-weight: normal;
 }
 
@@ -51,7 +60,6 @@
 }
 
 // Button overrides
-
 .@{btn-prefix-cls} {
   transition-duration: 150ms;
 }
@@ -155,7 +163,9 @@
 .@{table-prefix-cls} {
   color: inherit;
 
-  tr, th, td {
+  tr,
+  th,
+  td {
     transition: none !important;
   }
 
@@ -180,12 +190,38 @@
       }
     }
   }
+
+  // Custom styles
+
+  &-headerless &-tbody > tr:first-child > td {
+    border-top: @border-width-base @border-style-base @border-color-split;
+  }
+}
+
+// List
+
+.@{list-prefix-cls} {
+  &-item {
+    // custom rule
+    &.selected {
+      background-color: #F6F8F9;
+    }
+
+    &.disabled {
+      background-color: fade(#F6F8F9, 40%);
+
+      & > * {
+        opacity: 0.4;
+      }
+    }
+  }
 }
 
 // styling for short modals (no lines)
 .@{dialog-prefix-cls}.shortModal {
   .@{dialog-prefix-cls} {
-    &-header, &-footer {
+    &-header,
+    &-footer {
       border: none;
       padding: 16px;
     }

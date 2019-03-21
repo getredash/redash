@@ -7,7 +7,7 @@ from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, require_fields
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
@@ -107,10 +107,7 @@ class DataSourceListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
-        for f in required_fields:
-            if f not in req:
-                abort(400)
+        require_fields(req, ('options', 'name', 'type'))
 
         schema = get_configuration_schema_for_query_runner_type(req['type'])
         if schema is None:

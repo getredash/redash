@@ -278,6 +278,11 @@ class TestQueryFork(BaseTestCase):
             group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source,
                                           description="this is description")
+
+        # create default TABLE - query factory does not create it
+        self.factory.create_visualization(
+            query_rel=query, name="Table", description='', type="TABLE", options="{}")
+
         visualization_chart = self.factory.create_visualization(
             query_rel=query, description="chart vis", type="CHART",
             options="""{"yAxis": [{"type": "linear"}, {"type": "linear", "opposite": true}], "series": {"stacking": null}, "globalSeriesType": "line", "sortX": true, "seriesOptions": {"count": {"zIndex": 0, "index": 0, "type": "line", "yAxis": 0}}, "xAxis": {"labels": {"enabled": true}, "type": "datetime"}, "columnMapping": {"count": "y", "created_at": "x"}, "bottomMargin": 50, "legend": {"enabled": true}}""")
@@ -300,6 +305,7 @@ class TestQueryFork(BaseTestCase):
             if v.type == "TABLE":
                 count_table += 1
                 forked_table = v
+
         self.assert_visualizations(query, visualization_chart, forked_query,
                                    forked_visualization_chart)
         self.assert_visualizations(query, visualization_box, forked_query,
@@ -327,6 +333,11 @@ class TestQueryFork(BaseTestCase):
             group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source,
                                           description="this is description")
+
+        # create default TABLE - query factory does not create it
+        self.factory.create_visualization(
+            query_rel=query, name="Table", description='', type="TABLE", options="{}")
+
         fork_user = self.factory.create_user()
 
         forked_query = query.fork(fork_user)
