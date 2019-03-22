@@ -150,7 +150,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAI
 # See https://flask-limiter.readthedocs.io/en/stable/#rate-limit-string-notation
 
 THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50/hour')
-SKIP_LOGIN_RATE_LIMIT = parse_boolean(os.environ.get('REDASH_SKIP_LOGIN_RATE_LIMIT', 'false'))
+THROTTLE_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_THROTTLE_LOGIN_ENABLED', 'true'))
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
 
 # CORS settings for the Query Result API (and possbily future external APIs).
