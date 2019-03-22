@@ -4,9 +4,10 @@ set -e
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  MAX_MEMORY=$(($(/usr/bin/awk '/MemTotal/ {print $2}' /proc/meminfo)/4))
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 --max-memory-per-child=$MAX_MEMORY -Ofair
 }
 
 scheduler() {
