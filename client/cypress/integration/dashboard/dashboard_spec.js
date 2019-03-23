@@ -85,20 +85,20 @@ function dragBy(wrapper, offsetTop, offsetLeft) {
     .then(($el) => {
       start = $el.offset();
       return wrapper
-        .trigger('mousedown', { pageX: start.left , pageY: start.top, which: 1 })
+        .trigger('mousedown', { pageX: start.left, pageY: start.top, which: 1 })
         .trigger('mousemove', { pageX: start.left + offsetLeft, pageY: start.top + offsetTop, which: 1 });
-    }).then(($el) => {
+    })
+    .then(() => {
       // getting end position from placeholder instead of $el
       // cause on mouseup, $el animates back to position
       // and this is simpler than waiting for animationend
       end = Cypress.$(DRAG_PLACEHOLDER_SELECTOR).offset();
       return wrapper.trigger('mouseup');
-    }).then(() => {
-      return {
-        left: end.left - start.left,
-        top: end.top - start.top,
-      };
-    });
+    })
+    .then(() => ({
+      left: end.left - start.left,
+      top: end.top - start.top,
+    }));
 }
 
 describe('Dashboard', () => {
@@ -291,17 +291,17 @@ describe('Dashboard', () => {
         });
       });
 
-      it('discards drag on cancel', () =>{
+      it('discards drag on cancel', () => {
         let start;
         cy.get('@textboxEl')
           // save initial position, drag textbox 1 col
           .then(($el) => {
             start = $el.offset();
             editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200)
+            return dragBy(cy.get('@textboxEl'), 0, 200);
           })
           // cancel
-          .then((delta) => {
+          .then(() => {
             cy.get('.dashboard-header').within(() => {
               cy.contains('button', 'Cancel').click();
             });
@@ -313,17 +313,17 @@ describe('Dashboard', () => {
           });
       });
 
-      it('saves drag on apply', () =>{
+      it('saves drag on apply', () => {
         let start;
         cy.get('@textboxEl')
           // save initial position, drag textbox 1 col
           .then(($el) => {
             start = $el.offset();
             editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200)
+            return dragBy(cy.get('@textboxEl'), 0, 200);
           })
           // apply
-          .then((delta) => {
+          .then(() => {
             cy.contains('button', 'Apply Changes').click();
             return cy.get('@textboxEl');
           })
