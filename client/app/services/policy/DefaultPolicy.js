@@ -37,6 +37,10 @@ export default class DefaultPolicy {
     return currentUser.isAdmin;
   }
 
+  isCreateQuerySnippetEnabled() {
+    return true;
+  }
+
   getDashboardRefreshIntervals() {
     const result = clientConfig.dashboardRefreshIntervals;
     return isArray(result) ? result : null;
