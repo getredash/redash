@@ -113,9 +113,10 @@ export function QuerySelector(props) {
         {searchResults.map(q => (
           <a
             href="javascript:void(0)"
-            className={cx('list-group-item', { inactive: q.is_draft })}
+            className={cx('query-selector-result', 'list-group-item', { inactive: q.is_draft })}
             key={q.id}
             onClick={() => selectQuery(q.id)}
+            data-test={`QueryId${q.id}`}
           >
             {q.name}
             {' '}

@@ -1,10 +1,6 @@
 function createNewDashboardByAPI(name) {
-  cy.server();
-  return cy.request('POST', 'api/dashboards', { name }).then((response) => {
-    const slug = Cypress._.get(response, 'body.slug');
-    assert.isDefined(slug, 'Dashboard api call returns dashboard slug');
-    return slug;
-  });
+  return cy.request('POST', 'api/dashboards', { name })
+    .then(({ body }) => body);
 }
 
 function editDashboard() {
@@ -17,25 +13,67 @@ function editDashboard() {
     });
 }
 
-function addTextbox(text) {
-  cy.server();
-  cy.route('POST', 'api/widgets').as('NewWidget');
+function addTextboxByAPI(text, dashId) {
+  const data = {
+    width: 1,
+    dashboard_id: dashId,
+    visualization_id: null,
+    text: 'text',
+    options: {
+      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
+    },
+  };
 
-  editDashboard();
+  return cy.request('POST', 'api/widgets', data)
+    .then(({ body }) => {
+      const id = Cypress._.get(body, 'id');
+      assert.isDefined(id, 'Widget api call returns widget id');
+      return `WidgetId${id}`;
+    });
+}
 
-  cy.contains('a', 'Add Textbox').click();
-  cy.get('.add-textbox').within(() => {
-    cy.get('textarea').type(text);
-  });
-  cy.contains('button', 'Add to Dashboard').click();
-  cy.get('.add-textbox').should('not.exist');
-  cy.contains('button', 'Apply Changes').click();
+function addQueryByAPI(data, shouldPublish = true) {
+  const merged = Object.assign({
+    name: 'Test Query',
+    query: 'select 1',
+    data_source_id: 1,
+    options: {
+      parameters: [],
+    },
+    schedule: null,
+  }, data);
 
-  return cy.wait('@NewWidget').then((xhr) => {
-    const id = Cypress._.get(xhr, 'response.body.id');
-    assert.isDefined(id, 'Widget api call returns widget id');
-    return cy.getByTestId(`WidgetId${id}`);
-  });
+  const request = cy.request('POST', '/api/queries', merged);
+  if (shouldPublish) {
+    request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
+  }
+
+  return request.then(({ body }) => body);
+}
+
+function addWidgetByAPI(dashId, queryData = {}) {
+  const data = {
+    width: 1,
+    dashboard_id: dashId,
+    visualization_id: null,
+    options: {
+      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
+    },
+  };
+
+  return addQueryByAPI(queryData)
+    .then((query) => {
+      const visId = Cypress._.get(query, 'visualizations.0.id');
+      assert.isDefined(visId, 'Query api call returns at least one visualization with id');
+      data.visualization_id = visId;
+
+      return cy.request('POST', 'api/widgets', data);
+    })
+    .then(({ body }) => {
+      const id = Cypress._.get(body, 'id');
+      assert.isDefined(id, 'Widget api call returns widget id');
+      return `WidgetId${id}`;
+    });
 }
 
 describe('Dashboard', () => {
@@ -69,7 +107,7 @@ describe('Dashboard', () => {
   });
 
   it('archives dashboard', function () {
-    createNewDashboardByAPI('Foo Bar').then((slug) => {
+    createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
       cy.getByTestId('DashboardMoreMenu')
@@ -92,54 +130,132 @@ describe('Dashboard', () => {
     });
   });
 
-
   describe('Textbox', () => {
-    before(function () {
-      cy.login();
-      createNewDashboardByAPI('Foo Bar')
-        .then(slug => `/dashboard/${slug}`)
-        .as('dashboardUrl');
-    });
-
     beforeEach(function () {
+      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+        this.dashboardId = id;
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    it('adds textbox', function () {
       cy.visit(this.dashboardUrl);
-      addTextbox('Hello World!').as('textboxEl');
-    });
-
-    it('removes textbox from X button', function () {
       editDashboard();
-
-      cy.get('@textboxEl').within(() => {
-        cy.get('.widget-menu-remove').click();
+      cy.contains('a', 'Add Textbox').click();
+      cy.get('.add-textbox').within(() => {
+        cy.get('textarea').type('Hello World!');
       });
-
-      cy.get('@textboxEl').should('not.exist');
+      cy.contains('button', 'Add to Dashboard').click();
+      cy.get('.add-textbox').should('not.exist');
+      cy.get('.textbox').should('exist');
     });
 
-    it('removes textbox from menu', function () {
-      cy.get('@textboxEl').within(() => {
-        cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-          cy.get('li a').contains('Remove From Dashboard').click({ force: true });
-        });
-      });
+    it('removes textbox by X button', function () {
+      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+        cy.visit(this.dashboardUrl);
+        editDashboard();
 
-      cy.get('@textboxEl').should('not.exist');
+        cy.getByTestId(elTestId)
+          .within(() => {
+            cy.get('.widget-menu-remove').click();
+          })
+          .should('not.exist');
+      });
+    });
+
+    it('removes textbox by menu', function () {
+      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+        cy.visit(this.dashboardUrl);
+        cy.getByTestId(elTestId)
+          .within(() => {
+            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
+              cy.get('li a').contains('Remove From Dashboard').click({ force: true });
+            });
+          })
+          .should('not.exist');
+      });
     });
 
     it('edits textbox', function () {
-      cy.get('@textboxEl').within(() => {
-        cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-          cy.get('li a').contains('Edit').click({ force: true });
+      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+        cy.visit(this.dashboardUrl);
+        cy.getByTestId(elTestId).as('textboxEl')
+          .within(() => {
+            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
+              cy.get('li a').contains('Edit').click({ force: true });
+            });
+          });
+
+        const newContent = '[edited]';
+        cy.get('edit-text-box').should('exist').within(() => {
+          cy.get('textarea').clear().type(newContent);
+          cy.contains('button', 'Save').click();
+        });
+
+        cy.get('@textboxEl').should('contain', newContent);
+      });
+    });
+  });
+
+  describe('Widget', () => {
+    beforeEach(function () {
+      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+        this.dashboardId = id;
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    it('adds widget', () => {
+      addQueryByAPI().then(({ id: queryId }) => {
+        editDashboard();
+        cy.contains('a', 'Add Widget').click();
+        cy.getByTestId('AddWidgetDialog').within(() => {
+          cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        });
+        cy.contains('button', 'Add to Dashboard').click();
+        cy.getByTestId('AddWidgetDialog').should('not.exist');
+        cy.get('.widget-wrapper').should('exist');
+      });
+    });
+
+    it('removes widget', function () {
+      addWidgetByAPI(this.dashboardId).then((elTestId) => {
+        cy.visit(this.dashboardUrl);
+        editDashboard();
+        cy.getByTestId(elTestId)
+          .within(() => {
+            cy.get('.widget-menu-remove').click();
+          })
+          .should('not.exist');
+      });
+    });
+
+    describe('Auto height for table visualization', () => {
+      it('renders correct height for 2 table rows', function () {
+        const queryData = {
+          query: 'select s.a FROM generate_series(1,2) AS s(a)',
+        };
+
+        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId)
+            .its('0.offsetHeight')
+            .should('eq', 235);
         });
       });
 
-      const newContent = '[edited]';
-      cy.get('edit-text-box').should('exist').within(() => {
-        cy.get('textarea').clear().type(newContent);
-        cy.contains('button', 'Save').click();
-      });
+      it('renders correct height for 5 table rows', function () {
+        const queryData = {
+          query: 'select s.a FROM generate_series(1,5) AS s(a)',
+        };
 
-      cy.get('@textboxEl').should('contain', newContent);
+        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId)
+            .its('0.offsetHeight')
+            .should('eq', 335);
+        });
+      });
     });
   });
 });
