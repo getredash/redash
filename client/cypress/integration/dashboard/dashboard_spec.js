@@ -284,7 +284,7 @@ describe('Dashboard', () => {
           });
         });
 
-        it('moves 2 column dragged over snap threshold', () => {
+        it('moves two columns when dragged over snap threshold', () => {
           dragBy(cy.get('@textboxEl'), 0, 330).then((delta) => {
             expect(delta.left).to.eq(400);
           });
