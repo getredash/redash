@@ -327,7 +327,7 @@ describe('Dashboard', () => {
             cy.contains('button', 'Apply Changes').click();
             return cy.get('@textboxEl');
           })
-          // verify returned to original position
+          // verify move
           .then(($el) => {
             expect($el.offset()).to.not.deep.eq(start);
           });
