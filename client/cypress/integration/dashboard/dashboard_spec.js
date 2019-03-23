@@ -78,7 +78,7 @@ function addWidgetByAPI(dashId, queryData = {}) {
     });
 }
 
-function dragBy(wrapper, offsetTop, offsetLeft) {
+function dragBy(wrapper, offsetTop = 0, offsetLeft = 0) {
   let start;
   let end;
   return wrapper
