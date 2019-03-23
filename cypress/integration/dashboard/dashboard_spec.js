@@ -47,7 +47,7 @@ function addQueryByAPI(data, shouldPublish = true) {
   if (shouldPublish) {
     request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
   }
-  
+
   return request.then(({ body }) => body);
 }
 
@@ -66,7 +66,7 @@ function addWidgetByAPI(dashId, queryData = {}) {
       const visId = Cypress._.get(query, 'visualizations.0.id');
       assert.isDefined(visId, 'Query api call returns at least one visualization with id');
       data.visualization_id = visId;
-      
+
       return cy.request('POST', 'api/widgets', data);
     })
     .then(({ body }) => {
