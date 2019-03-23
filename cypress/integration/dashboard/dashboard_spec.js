@@ -176,6 +176,36 @@ describe('Dashboard', () => {
       });
     });
 
+    it.skip('allows opening menu after removal', function () {
+      let elTestId1;
+      addTextboxByAPI('txb 1', this.dashboardId)
+        .then((elTestId) => {
+          elTestId1 = elTestId;
+          return addTextboxByAPI('txb 2', this.dashboardId);
+        })
+        .then((elTestId2) => {
+          cy.visit(this.dashboardUrl);
+          editDashboard();
+
+          // remove 1st textbox and make sure it's gone
+          cy.getByTestId(elTestId1)
+            .as('textbox1')
+            .within(() => {
+              cy.get('.widget-menu-remove').click();
+            });
+          cy.get('@textbox1').should('not.exist');
+
+          // remove 2nd textbox and make sure it's gone
+          cy.getByTestId(elTestId2)
+            .as('textbox2')
+            .within(() => {
+              // unclickable https://github.com/getredash/redash/issues/3202
+              cy.get('.widget-menu-remove').click();
+            });
+          cy.get('@textbox2').should('not.exist'); // <-- fails because of the bug
+        });
+    });
+
     it('edits textbox', function () {
       addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
