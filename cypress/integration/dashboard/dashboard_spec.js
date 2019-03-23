@@ -1,5 +1,4 @@
 function createNewDashboardByAPI(name) {
-  cy.server();
   return cy.request('POST', 'api/dashboards', { name })
     .then(({ body }) => body);
 }
@@ -25,7 +24,6 @@ function addTextboxByAPI(text, dashId) {
     },
   };
 
-  cy.server();
   return cy.request('POST', 'api/widgets', data)
     .then(({ body }) => {
       const id = Cypress._.get(body, 'id');
@@ -45,7 +43,6 @@ function addQueryByAPI(data, shouldPublish = true) {
     schedule: null,
   }, data);
 
-  cy.server();
   const request = cy.request('POST', '/api/queries', merged);
   if (shouldPublish) {
     request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
@@ -70,7 +67,6 @@ function addWidgetByAPI(dashId, queryData = {}) {
       assert.isDefined(visId, 'Query api call returns at least one visualization with id');
       data.visualization_id = visId;
       
-      cy.server();
       return cy.request('POST', 'api/widgets', data);
     })
     .then(({ body }) => {
