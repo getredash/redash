@@ -16,7 +16,7 @@
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2",
-    "cypress": "node cypress/cypress.js"
+    "cypress": "node client/cypress/cypress.js"
   },
   "repository": {
     "type": "git",
@@ -155,9 +155,12 @@
     }
   },
   "lint-staged": {
-    "client/app/**/*.{js,jsx}": [
-      "npm run lint:base",
-      "npm run test -- --bail --findRelatedTests"
-    ]
+    "linters": {
+      "client/**/*.{js,jsx}": [
+        "npm run lint:base",
+        "npm run test -- --bail --findRelatedTests"
+      ]
+    },
+    "ignore": ["client/dist/*"]
   }
 }
