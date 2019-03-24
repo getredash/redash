@@ -1,13 +1,11 @@
 module.exports = {
   root: true,
-  extends: ["airbnb", "plugin:jest/recommended"],
-  plugins: ["jest"],
+  extends: ["airbnb"],
   settings: {
     "import/resolver": "webpack"
   },
   parser: "babel-eslint",
   env: {
-    "jest/globals": true,
     "browser": true,
     "node": true
   },
