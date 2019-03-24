@@ -136,7 +136,7 @@ def verification_email(org_slug=None):
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
-@limiter.limit(settings.THROTTLE_LOGIN_PATTERN, exempt_when=lambda: not settings.THROTTLE_LOGIN_ENABLED)
+@limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone

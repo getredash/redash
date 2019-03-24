@@ -13,8 +13,8 @@ os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
-# Disable login rate limit skip
-os.environ['REDASH_THROTTLE_LOGIN_ENABLED'] = "true"
+# Make sure rate limit is enabled
+os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
 
 from redash import create_app
 from redash import redis_connection
