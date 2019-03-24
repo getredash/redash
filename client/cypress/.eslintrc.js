@@ -1,6 +1,5 @@
 module.exports = {
-  root: true,
-  extends: ["plugin:cypress/recommended", "../.eslintrc.js"],
+  extends: ["plugin:cypress/recommended"],
   plugins: ["cypress", "chai-friendly"],
   env: {
     "cypress/globals": true,
