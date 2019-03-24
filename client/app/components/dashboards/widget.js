@@ -1,6 +1,6 @@
 import { filter } from 'lodash';
 import template from './widget.html';
-import AddTextboxDialog from '@/components/dashboards/AddTextboxDialog';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
@@ -22,7 +22,7 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
-    AddTextboxDialog.showModal({
+    TextboxDialog.showModal({
       dashboard: this.dashboard,
       text: this.widget.text,
       onConfirm: (text) => {

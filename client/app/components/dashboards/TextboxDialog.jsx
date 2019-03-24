@@ -9,9 +9,9 @@ import Divider from 'antd/lib/divider';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import notification from '@/services/notification';
 
-import './AddTextboxDialog.less';
+import './TextboxDialog.less';
 
-class AddTextboxDialog extends React.Component {
+class TextboxDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     dialog: DialogPropType.isRequired,
@@ -76,7 +76,7 @@ class AddTextboxDialog extends React.Component {
         okText={isNew ? 'Add to Dashboard' : 'Save'}
         width={500}
       >
-        <div className="add-textbox">
+        <div className="textbox-dialog">
           <Input.TextArea
             className="resize-vertical"
             rows="5"
@@ -111,4 +111,4 @@ class AddTextboxDialog extends React.Component {
   }
 }
 
-export default wrapDialog(AddTextboxDialog);
+export default wrapDialog(TextboxDialog);
