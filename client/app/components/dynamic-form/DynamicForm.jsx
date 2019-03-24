@@ -7,9 +7,9 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
+import notification from '@/services/notification';
 import { includes } from 'lodash';
 import { react2angular } from 'react2angular';
-import { toastr } from '@/services/ng';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
@@ -83,11 +83,11 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
             setFieldsValue(getFieldsValue()); // reset form touched state
-            toastr.success(msg);
+            notification.success(msg);
           },
           (msg) => {
             this.setState({ isSubmitting: false });
-            toastr.error(msg);
+            notification.error(msg);
           },
         );
       } else this.setState({ isSubmitting: false });
