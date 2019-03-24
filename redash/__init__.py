@@ -110,7 +110,7 @@ def create_app():
     app = Flask(__name__,
                 template_folder=settings.STATIC_ASSETS_PATH,
                 static_folder=settings.STATIC_ASSETS_PATH,
-                static_path='/static')
+                static_url_path='/static')
 
     # Make sure we get the right referral address even behind proxies like nginx.
     app.wsgi_app = ProxyFix(app.wsgi_app, settings.PROXIES_COUNT)
