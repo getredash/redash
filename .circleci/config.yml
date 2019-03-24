@@ -86,6 +86,7 @@ jobs:
       - run: .circleci/update_version
       - run: npm run bundle
       - run: npm run build
+      - run: rm -rf ./node_modules/
       - run: .circleci/pack
       - store_artifacts:
           path: /tmp/artifacts/
