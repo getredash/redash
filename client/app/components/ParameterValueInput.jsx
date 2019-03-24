@@ -125,7 +125,6 @@ export class ParameterValueInput extends React.Component {
         className={this.props.className}
         parameter={parameter}
         value={value}
-        parentQueryId={parentQueryId}
         queryId={queryId}
         onSelect={onSelect}
       />
@@ -181,7 +180,6 @@ export default function init(ngModule) {
         parameter="$ctrl.param"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
-        parent-query-id="$ctrl.param.parentQueryId"
         on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
