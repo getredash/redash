@@ -116,7 +116,7 @@ class QueriesList extends React.Component {
             }
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="bg-white tiled table-responsive">
+                <div className="bg-white tiled table-responsive" data-test="QueriesList">
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}

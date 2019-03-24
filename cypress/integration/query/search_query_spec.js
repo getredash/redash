@@ -19,6 +19,10 @@ describe("Search Query", () => {
 
   it("finds queries by name", () => {
     cy.getByTestId("AppHeaderSearch").type("Users{enter}");
-    cy.contains("Users Count");
+
+    cy.getByTestId("QueriesList").should(queriesList => {
+      expect(queriesList).to.contain("Users Count");
+      expect(queriesList).not.to.contain("Dashboards Count");
+    });
   });
 });
