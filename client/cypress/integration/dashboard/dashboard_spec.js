@@ -256,7 +256,7 @@ describe('Dashboard', () => {
           });
 
         const newContent = '[edited]';
-        cy.get('edit-text-box')
+        cy.get('.add-textbox')
           .should('exist')
           .within(() => {
             cy.get('textarea')

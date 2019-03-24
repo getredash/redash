@@ -16,13 +16,12 @@ class AddTextboxDialog extends React.Component {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     dialog: DialogPropType.isRequired,
     onConfirm: PropTypes.func.isRequired,
+    text: PropTypes.string,
   };
 
-  state = {
-    saveInProgress: false,
+  static defaultProps = {
     text: '',
-    preview: '',
-  }
+  };
 
   updatePreview = debounce(() => {
     const text = this.state.text;
@@ -30,6 +29,16 @@ class AddTextboxDialog extends React.Component {
       preview: markdown.toHTML(text),
     });
   }, 100);
+
+  constructor(props) {
+    super(props);
+    const { text } = props;
+    this.state = {
+      saveInProgress: false,
+      text,
+      preview: markdown.toHTML(text),
+    };
+  }
 
   onTextChanged = (event) => {
     this.setState({ text: event.target.value });
@@ -53,17 +62,18 @@ class AddTextboxDialog extends React.Component {
 
   render() {
     const { dialog } = this.props;
+    const isNew = !this.props.text;
 
     return (
       <Modal
         {...dialog.props}
-        title="Add Textbox"
+        title={isNew ? 'Add Textbox' : 'Edit Textbox'}
         onOk={() => this.saveWidget()}
         okButtonProps={{
           loading: this.state.saveInProgress,
           disabled: !this.state.text,
         }}
-        okText="Add to Dashboard"
+        okText={isNew ? 'Add to Dashboard' : 'Save'}
         width={500}
       >
         <div className="add-textbox">
