@@ -15,17 +15,27 @@ ACCESS_TYPES = (ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY, ACCESS_TYPE_DELETE)
 
 
 def has_access(object, user, need_view_only):
+    from redash import models
+    if type(user) is models.ApiKey:
+        return has_access_to_object(object, user, need_view_only)
+    else:
+        return has_access_to_groups(object.groups, user, need_view_only)
+
+def has_access_to_object(object, user, need_view_only):
+    pass
+
+def has_access_to_groups(groups, user, need_view_only):
     if 'admin' in user.permissions:
         return True
 
-    matching_groups = set(object.groups.keys()).intersection(user.group_ids)
+    matching_groups = set(groups.keys()).intersection(user.group_ids)
 
     if not matching_groups:
         return False
 
     required_level = 1 if need_view_only else 2
 
-    group_level = 1 if all(flatten([object.groups[group] for group in matching_groups])) else 2
+    group_level = 1 if all(flatten([groups[group] for group in matching_groups])) else 2
 
     return required_level <= group_level
 
