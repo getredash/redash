@@ -15,6 +15,7 @@ import { QuerySnippet } from '@/services/query-snippet';
 import settingsMenu from '@/services/settingsMenu';
 import { policy } from '@/services/policy';
 import { routesToAngularRoutes } from '@/lib/utils';
+import './QuerySnippetsList.less';
 
 class QuerySnippetsList extends React.Component {
   static propTypes = {
@@ -29,18 +30,25 @@ class QuerySnippetsList extends React.Component {
     ), {
       title: 'Trigger',
       field: 'trigger',
+      className: 'text-nowrap',
     }),
-    Columns.custom.sortable(text => text, { title: 'Description', field: 'description' }),
+    Columns.custom.sortable(text => text, {
+      title: 'Description',
+      field: 'description',
+      className: 'text-nowrap',
+    }),
+    Columns.custom(snippet => (
+      <code className="snippet-content">
+        {snippet}
+      </code>
+    ), {
+      title: 'Snippet',
+      field: 'snippet',
+    }),
     Columns.avatar({ field: 'user', className: 'p-l-0 p-r-0' }, name => `Created by ${name}`),
-    Columns.dateTime.sortable({
+    Columns.date.sortable({
       title: 'Created At',
       field: 'created_at',
-      className: 'text-nowrap',
-      width: '1%',
-    }),
-    Columns.timeAgo.sortable({
-      title: 'Updated At',
-      field: 'updated_at',
       className: 'text-nowrap',
       width: '1%',
     }),
@@ -116,7 +124,7 @@ export default function init(ngModule) {
         return (item => new QuerySnippet(item));
       },
     }),
-    new StateStorage({ orderByField: 'trigger', itemsPerPage: 20 }),
+    new StateStorage({ orderByField: 'trigger', itemsPerPage: 10 }),
   )));
 
   return routesToAngularRoutes([
