@@ -25,9 +25,10 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
 
   this.dateFormatList = clientConfig.dateFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
+  this.githubLoginEnabled = clientConfig.githubLoginEnabled;
 
   // eslint-disable-next-line max-len
-  this.disablePasswordLoginToggle = () => (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
+  this.disablePasswordLoginToggle = () => (clientConfig.githubLoginEnabled || clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
 }
 
 export default function init(ngModule) {

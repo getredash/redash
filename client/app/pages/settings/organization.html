@@ -56,6 +56,26 @@
                 </div>
             </div>
 
+            <div ng-if="$ctrl.githubLoginEnabled">
+                <h4>Github Login</h4>
+                <label>
+                    Allowed Github Apps Domains
+                </label>
+                <ui-select multiple tagging tagging-label="false" ng-model="$ctrl.settings.auth_github_apps_domains" tagging-tokens="SPACE|,"
+                    title="Github Apps Domain(s)"
+                    ng-change="$ctrl.update('auth_github_apps_domains')">
+                    <ui-select-match placeholder="Github Apps Domain(s)">{{$item}}</ui-select-match>
+                    <!-- the ui-select-choices is here just to make ui-select work -->
+                    <ui-select-choices repeat="domain in $ctrl.domains">
+                        {{domain}}
+                    </ui-select-choices>
+                </ui-select>
+
+                <div class="callout callout-info m-t-5" ng-if="$ctrl.settings.auth_github_apps_domains | notEmpty">
+                    Any user registered with a <strong>{{$ctrl.settings.auth_github_apps_domains | join}}</strong> Github Apps account will be able to login. If they don't have an existing user, a new user will be created and join the <strong>Default</strong> group.
+                </div>
+            </div>
+
             <h4>SAML</h4>
             <p>
                 <label>

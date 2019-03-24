@@ -14,6 +14,7 @@ from .users import User, Group
 @generic_repr('id', 'name', 'slug')
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = 'google_apps_domains'
+    SETTING_GITHUB_APPS_DOMAINS = 'github_apps_domains'
     SETTING_IS_PUBLIC = "is_public"
 
     id = Column(db.Integer, primary_key=True)
@@ -39,6 +40,10 @@ class Organization(TimestampMixin, db.Model):
     @property
     def google_apps_domains(self):
         return self.settings.get(self.SETTING_GOOGLE_APPS_DOMAINS, [])
+
+    @property
+    def github_apps_domains(self):
+        return self.settings.get(self.SETTING_GITHUB_APPS_DOMAINS, [])
 
     @property
     def is_public(self):

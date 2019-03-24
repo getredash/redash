@@ -11,6 +11,8 @@ os.environ['REDASH_CELERY_BROKER'] = os.environ.get('REDASH_REDIS_URL', "redis:/
 # Dummy values for oauth login
 os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
+os.environ['REDASH_GITHUB_CLIENT_ID'] = "dummy"
+os.environ['REDASH_GITHUB_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
 from redash import create_app
