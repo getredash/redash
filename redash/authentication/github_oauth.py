@@ -12,6 +12,7 @@ logger = logging.getLogger('github_oauth')
 oauth = OAuth()
 blueprint = Blueprint('github_oauth', __name__)
 
+
 def github_remote_app():
     if 'github' not in oauth.remote_apps:
         oauth.remote_app('github',
