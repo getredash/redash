@@ -29,6 +29,7 @@
 @import "~antd/lib/card/style/index";
 @import "~antd/lib/spin/style/index";
 @import "~antd/lib/tabs/style/index";
+@import "~antd/lib/notification/style/index";
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -246,4 +247,13 @@
 
 .ant-popover {
   z-index: 1000; // make sure it doesn't cover drawer
+}
+
+// flexible width for notifications
+.@{notification-prefix-cls} {
+  width: auto;
+
+  &-notice {
+    padding-right: 48px;
+  }
 }
