@@ -1,5 +1,6 @@
 import time
 
+import sqlalchemy
 from flask.cli import AppGroup
 from flask_migrate import stamp
 from sqlalchemy.exc import DatabaseError
@@ -25,6 +26,8 @@ def create_tables():
     from redash.models import db
 
     _wait_for_db_connection(db)
+    # To create triggers for searchable models, we need to call configure_mappers().
+    sqlalchemy.orm.configure_mappers()
     db.create_all()
 
     # Need to mark current DB as up to date
