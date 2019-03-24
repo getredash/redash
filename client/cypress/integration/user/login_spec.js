@@ -6,7 +6,7 @@ describe('Login', () => {
   it('greets the user and take a screenshot', () => {
     cy.contains('h3', 'Login to Redash');
 
-    cy.wait(1000);
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Login');
   });
 
@@ -24,7 +24,7 @@ describe('Login', () => {
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
 
-    cy.wait(1000);
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Homepage');
   });
 });

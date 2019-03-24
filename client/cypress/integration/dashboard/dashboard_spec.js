@@ -43,6 +43,7 @@ function addQueryByAPI(data, shouldPublish = true) {
     schedule: null,
   }, data);
 
+  // eslint-disable-next-line cypress/no-assigning-return-values
   const request = cy.request('POST', '/api/queries', merged);
   if (shouldPublish) {
     request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
@@ -106,7 +107,7 @@ describe('Dashboard', () => {
     });
   });
 
-  it('archives dashboard', function () {
+  it('archives dashboard', () => {
     createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
@@ -176,6 +177,7 @@ describe('Dashboard', () => {
       });
     });
 
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('allows opening menu after removal', function () {
       let elTestId1;
       addTextboxByAPI('txb 1', this.dashboardId)
