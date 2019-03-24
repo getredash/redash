@@ -30,6 +30,28 @@ def show_google_apps_domains():
 
 
 @manager.command()
+@argument('domains')
+def set_github_apps_domains(domains):
+    """
+    Sets the allowable domains to the comma separated list DOMAINS.
+    """
+    organization = models.Organization.query.first()
+    k = models.Organization.SETTING_GITHUB_APPS_DOMAINS
+    organization.settings[k] = domains.split(',')
+    models.db.session.add(organization)
+    models.db.session.commit()
+    print("Updated list of allowed domains to: {}".format(
+        organization.github_apps_domains))
+
+
+@manager.command()
+def show_github_apps_domains():
+    organization = models.Organization.query.first()
+    print("Current list of Github Apps domains: {}".format(
+        ', '.join(organization.github_apps_domains)))
+
+
+@manager.command()
 def list():
     """List all organizations"""
     orgs = models.Organization.query

@@ -47,7 +47,7 @@ class OrganizationSettings(BaseResource):
             if k == 'auth_google_apps_domains':
                 previous_values[k] = self.current_org.google_apps_domains
                 self.current_org.settings[Organization.SETTING_GOOGLE_APPS_DOMAINS] = v
-            if k == 'auth_github_apps_domains':
+            elif k == 'auth_github_apps_domains':
                 previous_values[k] = self.current_org.github_apps_domains
                 self.current_org.settings[Organization.SETTING_GITHUB_APPS_DOMAINS] = v
             else:
