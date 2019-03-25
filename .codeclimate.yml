@@ -23,8 +23,6 @@ plugins:
   eslint:
     enabled: true
     channel: "eslint-5"
-    config:
-      config: client/.eslintrc.js
     checks:
       import/no-unresolved:
         enabled: false
