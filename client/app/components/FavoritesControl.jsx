@@ -3,48 +3,50 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { $rootScope } from '@/services/ng';
 
-function toggleItem(event, item, callback) {
-  event.preventDefault();
-  event.stopPropagation();
+export class FavoritesControl extends React.Component {
+  static propTypes = {
+    item: PropTypes.shape({
+      is_favorite: PropTypes.bool.isRequired,
+    }).isRequired,
+    onChange: PropTypes.func,
+    // Force component update when `item` changes.
+    // Remove this when `react2angular` will finally go to hell
+    forceUpdate: PropTypes.string, // eslint-disable-line react/no-unused-prop-types
+  };
 
-  const action = item.is_favorite ? item.$unfavorite.bind(item) : item.$favorite.bind(item);
-  const savedIsFavorite = item.is_favorite;
+  static defaultProps = {
+    onChange: () => {},
+    forceUpdate: '',
+  };
 
-  action().then(() => {
-    item.is_favorite = !savedIsFavorite;
-    $rootScope.$broadcast('reloadFavorites');
-    callback();
-  });
+  toggleItem(event, item, callback) {
+    const action = item.is_favorite ? item.$unfavorite.bind(item) : item.$favorite.bind(item);
+    const savedIsFavorite = item.is_favorite;
+
+    action().then(() => {
+      item.is_favorite = !savedIsFavorite;
+      this.forceUpdate();
+      $rootScope.$broadcast('reloadFavorites');
+      callback();
+    });
+  }
+
+  render() {
+    const { item, onChange } = this.props;
+    const icon = item.is_favorite ? 'fa fa-star' : 'fa fa-star-o';
+    const title = item.is_favorite ? 'Remove from favorites' : 'Add to favorites';
+    return (
+      <a
+        href="javascript:void(0)"
+        title={title}
+        className="btn-favourite"
+        onClick={event => this.toggleItem(event, item, onChange)}
+      >
+        <i className={icon} aria-hidden="true" />
+      </a>
+    );
+  }
 }
-
-export function FavoritesControl({ item, onChange }) {
-  const icon = item.is_favorite ? 'fa fa-star' : 'fa fa-star-o';
-  const title = item.is_favorite ? 'Remove from favorites' : 'Add to favorites';
-  return (
-    <a
-      href="javascript:void(0)"
-      title={title}
-      className="btn-favourite"
-      onClick={event => toggleItem(event, item, onChange)}
-    >
-      <i className={icon} aria-hidden="true" />
-    </a>
-  );
-}
-
-FavoritesControl.propTypes = {
-  item: PropTypes.shape({
-    is_favorite: PropTypes.bool.isRequired,
-  }).isRequired,
-  onChange: PropTypes.func,
-  // Force component update when `item` changes.
-  // Remove this when `react2angular` will finally go to hell
-  forceUpdate: PropTypes.string.isRequired, // eslint-disable-line react/no-unused-prop-types
-};
-
-FavoritesControl.defaultProps = {
-  onChange: () => {},
-};
 
 export default function init(ngModule) {
   ngModule.component('favoritesControlImpl', react2angular(FavoritesControl));

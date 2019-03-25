@@ -6,7 +6,7 @@
                  on-type-select="setType"
                  ng-if="dataSource.type === undefined"></type-picker>
 
-    <div ng-if="dataSource.type !== undefined">
+    <div ng-if="dataSource.type !== undefined" data-test="DataSource">
       <div class="creation-container">
         <div class="col-xs-12 col-sm-4">
           <a ng-click="resetType()" ng-if="canChangeType">← Change <span class="hidden-xs">Type</span></a>

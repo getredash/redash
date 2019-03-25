@@ -1,5 +1,7 @@
-import { isString } from 'lodash';
-import { $http, $sanitize, toastr } from '@/services/ng';
+import { isString, get } from 'lodash';
+import { $http, $sanitize } from '@/services/ng';
+import notification from '@/services/notification';
+import { clientConfig } from '@/services/auth';
 
 export let User = null; // eslint-disable-line import/no-mutable-exports
 
@@ -13,17 +15,17 @@ function enableUser(user) {
   return $http
     .delete(disableResource(user))
     .then((data) => {
-      toastr.success(`User <b>${userName}</b> is now enabled.`, { allowHtml: true });
+      notification.success(`User ${userName} is now enabled.`);
       user.is_disabled = false;
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
     .catch((response) => {
-      let message = response instanceof Error ? response.message : response.statusText;
+      let message = get(response, 'data.message', response.statusText);
       if (!isString(message)) {
         message = 'Unknown error';
       }
-      toastr.error(`Cannot enable user <b>${userName}</b><br>${message}`, { allowHtml: true });
+      notification.error('Cannot enable user', message);
     });
 }
 
@@ -32,18 +34,14 @@ function disableUser(user) {
   return $http
     .post(disableResource(user))
     .then((data) => {
-      toastr.warning(`User <b>${userName}</b> is now disabled.`, { allowHtml: true });
+      notification.warning(`User ${userName} is now disabled.`);
       user.is_disabled = true;
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
-    .catch((response) => {
-      const message =
-        response.data && response.data.message
-          ? response.data.message
-          : `Cannot disable user <b>${userName}</b><br>${response.statusText}`;
-
-      toastr.error(message, { allowHtml: true });
+    .catch((response = {}) => {
+      const message = get(response, 'data.message', response.statusText);
+      notification.error('Cannot disable user', message);
     });
 }
 
@@ -52,22 +50,77 @@ function deleteUser(user) {
   return $http
     .delete(`api/users/${user.id}`)
     .then((data) => {
-      toastr.warning(`User <b>${userName}</b> has been deleted.`, { allowHtml: true });
+      notification.warning(`User ${userName} has been deleted.`);
       return data;
     })
-    .catch((response) => {
-      const message =
-        response.data && response.data.message
-          ? response.data.message
-          : `Cannot delete user <b>${userName}</b><br>${response.statusText}`;
+    .catch((response = {}) => {
+      const message = get(response, 'data.message', response.statusText);
+      notification.error('Cannot delete user', message);
+    });
+}
 
-      toastr.error(message, { allowHtml: true });
+function convertUserInfo(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    profileImageUrl: user.profile_image_url,
+    apiKey: user.api_key,
+    isDisabled: user.is_disabled,
+    isInvitationPending: user.is_invitation_pending,
+  };
+}
+
+function regenerateApiKey(user) {
+  return $http
+    .post(`api/users/${user.id}/regenerate_api_key`)
+    .then(({ data }) => {
+      notification.success('The API Key has been updated.');
+      return data.api_key;
+    })
+    .catch((response = {}) => {
+      const message = get(response, 'data.message', response.statusText);
+      notification.error('Failed regenerating API Key', message);
+    });
+}
+
+function sendPasswordReset(user) {
+  return $http
+    .post(`api/users/${user.id}/reset_password`)
+    .then(({ data }) => {
+      if (clientConfig.mailSettingsMissing) {
+        notification.warning('The mail server is not configured.');
+        return data.reset_link;
+      }
+      notification.success('Password reset email sent.');
+    })
+    .catch((response = {}) => {
+      const message = get(response, 'data.message', response.statusText);
+      notification.error('Failed to send password reset email', message);
+    });
+}
+
+function resendInvitation(user) {
+  return $http
+    .post(`api/users/${user.id}/invite`)
+    .then(({ data }) => {
+      if (clientConfig.mailSettingsMissing) {
+        notification.warning('The mail server is not configured.');
+        return data.invite_link;
+      }
+      notification.success('Invitation sent.');
+    })
+    .catch((response = {}) => {
+      const message = get(response, 'data.message', response.statusText);
+
+      notification.error('Failed to resend invitation', message);
     });
 }
 
 function UserService($resource) {
   const actions = {
     get: { method: 'GET' },
+    create: { method: 'POST' },
     save: { method: 'POST' },
     query: { method: 'GET', isArray: false },
     delete: { method: 'DELETE' },
@@ -80,6 +133,10 @@ function UserService($resource) {
   UserResource.enableUser = enableUser;
   UserResource.disableUser = disableUser;
   UserResource.deleteUser = deleteUser;
+  UserResource.convertUserInfo = convertUserInfo;
+  UserResource.regenerateApiKey = regenerateApiKey;
+  UserResource.sendPasswordReset = sendPasswordReset;
+  UserResource.resendInvitation = resendInvitation;
 
   return UserResource;
 }

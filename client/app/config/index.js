@@ -13,7 +13,6 @@ import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
-import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
@@ -23,6 +22,7 @@ import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 
+import DialogWrapper from '@/components/DialogWrapper';
 import organizationStatus from '@/services/organizationStatus';
 
 import * as filters from '@/filters';
@@ -48,7 +48,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  toastr,
   'ui.ace',
   ngUpload,
   'angularResizable',
@@ -101,7 +100,7 @@ function registerVisualizations() {
 }
 
 function registerPages() {
-  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.js$/);
+  const context = require.context('@/pages', true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   const routesCollection = registerAll(context);
   routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
@@ -148,5 +147,9 @@ registerComponents();
 registerPages();
 registerExtensions();
 registerVisualizations(ngModule);
+
+ngModule.run(($q) => {
+  DialogWrapper.Promise = $q;
+});
 
 export default ngModule;

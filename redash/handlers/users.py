@@ -13,7 +13,9 @@ from redash.permissions import require_permission, require_admin_or_owner, is_ad
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404, paginate, order_results as _order_results
 
-from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
+from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email, send_verify_email
+from redash.settings import parse_boolean
+from redash import settings
 
 
 # Ordering map for relationships
@@ -35,12 +37,49 @@ order_results = partial(
 )
 
 
-def invite_user(org, inviter, user):
+def invite_user(org, inviter, user, send_email=True):
+    email_configured = settings.MAIL_DEFAULT_SENDER is not None
+    d = user.to_dict()
+
     invite_url = invite_link_for_user(user)
-    send_invite_email(inviter, user, invite_url, org)
+    if email_configured and send_email:
+        send_invite_email(inviter, user, invite_url, org)
+    else:
+        d['invite_link'] = invite_url
+
+    return d
 
 
 class UserListResource(BaseResource):
+    def get_users(self, disabled, pending, search_term):
+        if disabled:
+            users = models.User.all_disabled(self.current_org)
+        else:
+            users = models.User.all(self.current_org)
+
+        if pending is not None:
+            users = models.User.pending(users, pending)
+
+        if search_term:
+            users = models.User.search(users, search_term)
+            self.record_event({
+                'action': 'search',
+                'object_type': 'user',
+                'term': search_term,
+                'pending': pending,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'user',
+                'pending': pending,
+            })
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        return order_results(users, fallback=bool(search_term))
+
     @require_permission('list_users')
     def get(self):
         page = request.args.get('page', 1, type=int)
@@ -63,30 +102,16 @@ class UserListResource(BaseResource):
 
         search_term = request.args.get('q', '')
 
-        if request.args.get('disabled', None) is not None:
-            users = models.User.all_disabled(self.current_org)
-        else:
-            users = models.User.all(self.current_org)
+        disabled = request.args.get('disabled', 'false')  # get enabled users by default
+        disabled = parse_boolean(disabled)
 
-        if search_term:
-            users = models.User.search(users, search_term)
-            self.record_event({
-                'action': 'search',
-                'object_type': 'user',
-                'term': search_term,
-            })
-        else:
-            self.record_event({
-                'action': 'list',
-                'object_type': 'user',
-            })
+        pending = request.args.get('pending', None)  # get both active and pending by default
+        if pending is not None:
+            pending = parse_boolean(pending)
 
-        # order results according to passed order parameter,
-        # special-casing search queries where the database
-        # provides an order by search rank
-        ordered_users = order_results(users, fallback=bool(search_term))
+        users = self.get_users(disabled, pending, search_term)
 
-        return paginate(ordered_users, page, page_size, serialize_user)
+        return paginate(users, page, page_size, serialize_user)
 
     @require_admin
     def post(self):
@@ -121,19 +146,14 @@ class UserListResource(BaseResource):
         })
 
         should_send_invitation = 'no_invite' not in request.args
-        if should_send_invitation:
-            invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
 
 
 class UserInviteResource(BaseResource):
     @require_admin
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        invite_url = invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user)
 
 
 class UserResetPasswordResource(BaseResource):
@@ -209,9 +229,16 @@ class UserResource(BaseResource):
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
 
+        email_changed = 'email' in params and params['email'] != user.email
+        if email_changed:
+            user.is_email_verified = False
+
         try:
             self.update_model(user, params)
             models.db.session.commit()
+
+            if email_changed:
+                send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,
             # forcing them to log in again. Since we don't want to force _this_ session to have to go

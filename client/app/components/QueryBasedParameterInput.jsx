@@ -3,49 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { Query } from '@/services/query';
 
 const { Option } = Select;
 
-function optionsFromQueryResult(queryResult) {
-  const columns = queryResult.data.columns;
-  const numColumns = columns.length;
-  let options = [];
-  // If there are multiple columns, check if there is a column
-  // named 'name' and column named 'value'. If name column is present
-  // in results, use name from name column. Similar for value column.
-  // Default: Use first string column for name and value.
-  if (numColumns > 0) {
-    let nameColumn = null;
-    let valueColumn = null;
-    columns.forEach((column) => {
-      const columnName = column.name.toLowerCase();
-      if (columnName === 'name') {
-        nameColumn = column.name;
-      }
-      if (columnName === 'value') {
-        valueColumn = column.name;
-      }
-      // Assign first string column as name and value column.
-      if (nameColumn === null) {
-        nameColumn = column.name;
-      }
-      if (valueColumn === null) {
-        valueColumn = column.name;
-      }
-    });
-    if (nameColumn !== null && valueColumn !== null) {
-      options = queryResult.data.rows.map(row => ({
-        name: row[nameColumn],
-        value: row[valueColumn],
-      }));
-    }
-  }
-  return options;
-}
-
 export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
+    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
@@ -54,6 +17,7 @@ export class QueryBasedParameterInput extends React.Component {
 
   static defaultProps = {
     value: null,
+    parameter: null,
     queryId: null,
     onSelect: () => {},
     className: '',
@@ -78,20 +42,20 @@ export class QueryBasedParameterInput extends React.Component {
     }
   }
 
-  _loadOptions(queryId) {
+  async _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
       this.setState({ loading: true });
-      Query.resultById({ id: queryId }, (result) => {
-        if (this.props.queryId === queryId) {
-          const options = optionsFromQueryResult(result.query_result);
-          this.setState({ options, loading: false });
+      const options = await this.props.parameter.loadDropdownValues();
 
-          const found = find(options, option => option.value === this.props.value) !== undefined;
-          if (!found && isFunction(this.props.onSelect)) {
-            this.props.onSelect(options[0].value);
-          }
+      // stale queryId check
+      if (this.props.queryId === queryId) {
+        this.setState({ options, loading: false });
+
+        const found = find(options, option => option.value === this.props.value) !== undefined;
+        if (!found && isFunction(this.props.onSelect)) {
+          this.props.onSelect(options[0].value);
         }
-      });
+      }
     }
   }
 
@@ -104,7 +68,7 @@ export class QueryBasedParameterInput extends React.Component {
           className={className}
           disabled={loading || (options.length === 0)}
           loading={loading}
-          defaultValue={value}
+          defaultValue={'' + value}
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"

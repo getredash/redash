@@ -3,6 +3,8 @@ import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source'
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
 import Notifications from '@/services/notifications';
+import ScheduleDialog from '@/components/queries/ScheduleDialog';
+import notification from '@/services/notification';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -19,7 +21,6 @@ function QueryViewCtrl(
   Title,
   AlertDialog,
   clientConfig,
-  toastr,
   $uibModal,
   currentUser,
   Query,
@@ -78,9 +79,9 @@ function QueryViewCtrl(
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         $scope.schema = undefined;
       } else if (data.error.code === SCHEMA_LOAD_ERROR) {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       } else {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       }
     });
   }
@@ -139,6 +140,7 @@ function QueryViewCtrl(
 
   const shortcuts = {
     'mod+enter': $scope.executeQuery,
+    'alt+enter': $scope.executeQuery,
   };
 
   KeyboardShortcuts.bind(shortcuts);
@@ -156,7 +158,7 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+  $scope.canExecuteQuery = () => $scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only);
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
@@ -251,7 +253,7 @@ function QueryViewCtrl(
     return Query.save(
       request,
       (updatedQuery) => {
-        toastr.success(options.successMessage);
+        notification.success(options.successMessage);
         $scope.query.version = updatedQuery.version;
       },
       (error) => {
@@ -265,13 +267,14 @@ function QueryViewCtrl(
 
             AlertDialog.open(title, message, confirm).then(overwrite);
           } else {
-            toastr.error(
+            notification.error(
+              'Changes not saved',
               errorMessage + ' Please copy/backup your changes and reload this page.',
-              { autoDismiss: false },
+              { duration: null },
             );
           }
         } else {
-          toastr.error(options.errorMessage);
+          notification.error(options.errorMessage);
         }
       },
     ).$promise;
@@ -314,7 +317,7 @@ function QueryViewCtrl(
           $scope.query.schedule = null;
         },
         () => {
-          toastr.error('Query could not be archived.');
+          notification.error('Query could not be archived.');
         },
       );
     }
@@ -375,7 +378,7 @@ function QueryViewCtrl(
           $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
         },
         () => {
-          toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
+          notification.error('Error deleting visualization.', 'Maybe it\'s used in a dashboard?');
         },
       );
     });
@@ -399,7 +402,7 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query_result.query;
       if (!ranSelectedQuery) {
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
@@ -444,6 +447,9 @@ function QueryViewCtrl(
       $scope.saveQuery().then((query) => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
+        // TODO: we don't really need this. Just need to assign query to $scope.query
+        // and maybe a few more small changes. Not worth handling this now, but also
+        // we shouldn't copy this bizzare method to the React codebase.
         $location.path(query.getSourceLink()).hash('add');
       });
     } else {
@@ -459,16 +465,18 @@ function QueryViewCtrl(
   const allowedIntervals = policy.getQueryRefreshIntervals();
   $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.updateQueryMetadata = changes => $scope.$apply(() => {
-    $scope.query = Object.assign($scope.query, changes);
-    $scope.saveQuery();
-  });
   $scope.showScheduleForm = false;
-  $scope.openScheduleForm = () => {
+  $scope.editSchedule = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
-    $scope.showScheduleForm = true;
+    ScheduleDialog.showModal({
+      schedule: $scope.query.schedule,
+      refreshOptions: $scope.refreshOptions,
+    }).result.then((schedule) => {
+      $scope.query.schedule = schedule;
+      $scope.saveQuery();
+    });
   };
   $scope.closeScheduleForm = () => {
     $scope.$apply(() => {

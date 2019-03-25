@@ -49,8 +49,8 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
-class Parameter {
-  constructor(parameter) {
+export class Parameter {
+  constructor(parameter, parentQueryId) {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
@@ -58,6 +58,7 @@ class Parameter {
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+    this.parentQueryId = parentQueryId;
 
     // Used for meta-parameters (i.e. dashboard-level params)
     this.locals = [];
@@ -66,11 +67,16 @@ class Parameter {
     this.setValue(parameter.value);
 
     // Used for URL serialization
-    this.urlPrefix = 'p_';
+    Object.defineProperty(this, 'urlPrefix', {
+      configurable: true,
+      enumerable: false, // don't save it
+      writable: true,
+      value: 'p_',
+    });
   }
 
   clone() {
-    return new Parameter(this);
+    return new Parameter(this, this.parentQueryId);
   }
 
   get isEmpty() {
@@ -78,20 +84,25 @@ class Parameter {
   }
 
   getValue() {
-    const isEmptyValue = isNull(this.value) || isUndefined(this.value) || (this.value === '');
+    return this.constructor.getValue(this);
+  }
+
+  static getValue(param) {
+    const { value, type, useCurrentDateTime } = param;
+    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
     if (isEmptyValue) {
       if (
-        includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type) &&
-        this.useCurrentDateTime
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
+        useCurrentDateTime
       ) {
-        return moment().format(DATETIME_FORMATS[this.type]);
+        return moment().format(DATETIME_FORMATS[type]);
       }
       return null; // normalize empty value
     }
-    if (this.type === 'number') {
-      return normalizeNumericValue(this.value, null); // normalize empty value
+    if (type === 'number') {
+      return normalizeNumericValue(value, null); // normalize empty value
     }
-    return this.value;
+    return value;
   }
 
   setValue(value) {
@@ -135,6 +146,8 @@ class Parameter {
         local.setValue(this.value);
       });
     }
+
+    return this;
   }
 
   get normalizedValue() {
@@ -188,6 +201,14 @@ class Parameter {
     }
     return `{{ ${this.name} }}`;
   }
+
+  loadDropdownValues() {
+    if (this.parentQueryId) {
+      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).$promise;
+    }
+
+    return Query.asDropdown({ id: this.queryId }).$promise;
+  }
 }
 
 class Parameters {
@@ -238,7 +259,8 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    const parameters = this.query.options.parameters;
+    this.query.options.parameters = parameters.filter(parameterExists).map(p => new Parameter(p, this.query.id));
   }
 
   initFromQueryString(query) {
@@ -358,6 +380,16 @@ function QueryResource(
         method: 'get',
         isArray: false,
         url: 'api/queries/:id/results.json',
+      },
+      asDropdown: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/:id/dropdown',
+      },
+      associatedDropdown: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
       },
       favorites: {
         method: 'get',
@@ -484,7 +516,7 @@ function QueryResource(
   };
 
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues());
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 

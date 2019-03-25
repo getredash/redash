@@ -2,7 +2,8 @@ import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
-import editParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
+import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
+import notification from '@/services/notification';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -18,6 +19,7 @@ const WidgetDialog = {
   },
 };
 
+
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
   bindings: {
@@ -25,7 +27,7 @@ const EditTextBoxComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller(toastr) {
+  controller() {
     'ngInject';
 
     this.saveInProgress = false;
@@ -40,7 +42,7 @@ const EditTextBoxComponent = {
             this.close();
           })
           .catch(() => {
-            toastr.error('Widget can not be updated');
+            notification.error('Widget can not be updated');
           })
           .finally(() => {
             this.saveInProgress = false;
@@ -52,7 +54,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -79,11 +81,17 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $rootScope, Events, 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
 
   this.editParameterMappings = () => {
-    editParameterMappingsDialog.open({
+    EditParameterMappingsDialog.showModal({
       dashboard: this.dashboard,
       widget: this.widget,
-    }).result.then(() => {
+    }).result.then((valuesChanged) => {
       this.localParameters = null;
+
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        $timeout(() => this.refresh());
+      }
+      $scope.$applyAsync();
       $rootScope.$broadcast('dashboard.update-parameters');
     });
   };
