@@ -112,7 +112,7 @@ class DestinationListResource(BaseResource):
             models.db.session.commit()
         except IntegrityError as e:
             if 'name' in e.message:
-                abort(400, message="Alert Destination with the name {} already exists.".format(req['name']))
+                abort(400, message=u"Alert Destination with the name {} already exists.".format(req['name']))
             abort(500)
 
         return destination.to_dict(all=True)
