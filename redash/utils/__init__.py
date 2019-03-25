@@ -18,7 +18,6 @@ import simplejson
 from funcy import select_values
 from redash import settings
 from sqlalchemy.orm.query import Query
-from jinja2 import Template, Environment
 
 from .human_time import parse_human_time
 
@@ -132,20 +131,6 @@ def build_url(request, host, path):
     return "{}://{}{}".format(request.scheme, host, path)
 
 
-def render_custom_template(template, rows, columns, showError=None):
-    try:
-        renderer = Template(template)
-        message = renderer.render(rows=rows, cols=columns)
-        err = False
-        return message, err
-    except Exception as e:
-        err = True
-        if showError is None:
-            message = "Can not build description. Please confirm it's template."
-            return message, err
-        else:
-            message = e.message
-            return message, err
 
 
 class UnicodeWriter:

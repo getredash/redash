@@ -1,26 +1,25 @@
-import { $http } from '@/services/ng';
+// import { $http } from '@/services/ng';
+import Mustache from 'mustache';
 
 export default class AlertTemplate {
   render(template, queryResult) {
-    const url = 'api/alerts/template';
-    return $http
-      .post(url, { template, data: queryResult })
-      .then((res) => {
-        const data = JSON.parse(res.data);
-        const preview = data.preview;
-        const escaped = data.preview
-          .replace(/"/g, '&quot;')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;');
-        const previewEscaped = escaped.replace(/\n|\r/g, '<br>');
-        const error = data.error;
-        return { preview, previewEscaped, error };
-      });
+    const view = {
+      rows: queryResult.rows,
+      cols: queryResult.columns,
+    };
+    const result = Mustache.render(template, view);
+    const escaped = result
+      .replace(/"/g, '&quot;')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n|\r/g, '<br>');
+
+    return { escaped, raw: result };
   }
 
   constructor() {
-    this.helpMessage = `using template engine "Jinja2".
+    this.helpMessage = `using template engine "mustache".
       you can build message with latest query result.
       variable name "rows" is assigned as result rows. "cols" as result columns.`;
 

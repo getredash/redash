@@ -25,7 +25,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps, json_loads, render_custom_template
+from redash.utils import generate_token, json_dumps, json_loads, mustache_render
 from redash.utils.configuration import ConfigurationContainer
 
 from .base import db, gfk_type, Column, GFKBase, SearchBaseQuery
@@ -726,7 +726,6 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
     rearm = Column(db.Integer, nullable=True)
-    template = Column(db.Text, nullable=True)
 
     __tablename__ = 'alerts'
 
@@ -773,9 +772,10 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_template(self, showError=None):
+    def render_template(self):
         data = json_loads(self.query_rel.latest_query_data.data)
-        return render_custom_template(self.template, data['rows'], data['columns'])
+        context = {'rows': data['rows'], 'cols': data['columns']}
+        return mustache_render(self.options['template'], context)
 
     @property
     def groups(self):

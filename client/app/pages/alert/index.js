@@ -76,17 +76,21 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     );
   };
 
-  this.preview = () => this.alertTemplate.render(this.alert.template, this.queryResult.query_result.data)
-    .then((data) => {
-      if (data.error) {
-        toastr.error('Unable to build description. please confirm your template.', { timeOut: 10000 });
+  this.preview = () => {
+    const notifyError = () => toastr.error('Unable to render description. please confirm your template.', { timeOut: 10000 });
+    try {
+      const result = this.alertTemplate.render(this.alert.options.template, this.queryResult.query_result.data);
+      this.alert.preview = $sce.trustAsHtml(result.escaped);
+      this.alert.previewHTML = $sce.trustAsHtml(result.raw);
+      if (!result.raw) {
+        notifyError();
       }
-      this.alert.preview = $sce.trustAsHtml(data.previewEscaped);
-      this.alert.previewHTML = $sce.trustAsHtml(data.preview);
-    })
-    .catch(() => {
-      toastr.error('Failed. unexpected error.');
-    });
+    } catch (e) {
+      notifyError();
+      this.alert.preview = e.message;
+      this.alert.previewHTML = e.message;
+    }
+  };
 
   this.delete = () => {
     this.alert.$delete(
