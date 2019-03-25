@@ -778,6 +778,20 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return mustache_render(self.options['template'], context)
 
     @property
+    def template(self):
+        if 'template' in self.options:
+            return self.options['template']
+        else:
+            return ""
+
+    @property
+    def custom_subject(self):
+        if 'subject' in self.options:
+            return self.options['subject']
+        else:
+            return ""
+
+    @property
     def groups(self):
         return self.query_rel.groups
 

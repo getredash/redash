@@ -132,4 +132,3 @@ class AlertSubscriptionResource(BaseResource):
             'object_id': alert_id,
             'object_type': 'alert'
         })
-

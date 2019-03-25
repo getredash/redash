@@ -47,9 +47,9 @@ class ChatWork(BaseDestination):
                 alert_name=alert.name, new_state=new_state.upper(),
                 alert_url=alert_url,
                 query_url=query_url)
-            
+
             if alert.template:
-                description, _ = alert.render_template()
+                description = alert.render_template()
                 message = message + "\n" + description
             headers = {'X-ChatWorkToken': options.get('api_token')}
             payload = {'body': message}

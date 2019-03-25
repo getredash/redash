@@ -131,8 +131,6 @@ def build_url(request, host, path):
     return "{}://{}{}".format(request.scheme, host, path)
 
 
-
-
 class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",
