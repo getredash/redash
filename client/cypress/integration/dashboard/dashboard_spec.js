@@ -117,13 +117,13 @@ function resizeBy(wrapper, offsetTop = 0, offsetLeft = 0) {
     .then(($handle) => {
       from = $handle.show().offset(); // turn on handle and get it's position
       return wrapper
-        .trigger('mouseover')
-        .trigger('mousedown', { pageX: from.left, pageY: from.top, which: 1 })
-        .trigger('mousemove', { pageX: from.left + offsetLeft, pageY: from.top + offsetTop, which: 1 });
+        .trigger('mouseover', { force: true })
+        .trigger('mousedown', { pageX: from.left, pageY: from.top, force: true, which: 1 })
+        .trigger('mousemove', { pageX: from.left + offsetLeft, pageY: from.top + offsetTop, force: true, which: 1 });
     })
     .then(() => {
       end = getSize(Cypress.$(DRAG_PLACEHOLDER_SELECTOR)); // see comment in dragBy ^^
-      return wrapper.trigger('mouseup');
+      return wrapper.trigger('mouseup', { force: true });
     })
     .then(() => ({
       height: end.height - start.height,
@@ -521,6 +521,71 @@ describe('Dashboard', () => {
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
             .should('eq', 335);
+        });
+      });
+
+      describe('adjusts height on refresh', () => {
+        const paramName = 'count';
+        const queryData = {
+          query: `select s.a FROM generate_series(1,{{ ${paramName} }}) AS s(a)`,
+        };
+
+        beforeEach(function () {
+          addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+            cy.visit(this.dashboardUrl);
+            cy.getByTestId(elTestId).as('widget').within(() => {
+              cy.getByTestId('RefreshIndicator').as('refreshButton');
+            });
+            cy.getByTestId(`ParameterName${paramName}`).within(() => {
+              cy.get('input').as('paramInput');
+            });
+          });
+        });
+
+        it('grows when dynamically adding table rows', () => {
+          // listen to results
+          cy.server();
+          cy.route('GET', 'api/query_results/*').as('FreshResults');
+
+          // start with 1 table row
+          cy.get('@paramInput').clear().type('1');
+          cy.get('@refreshButton').click();
+          cy.wait('@FreshResults', { timeout: 10000 });
+          cy.get('@widget').invoke('height').should('eq', 285);
+
+          // add 4 table rows
+          cy.get('@paramInput').clear().type('5');
+          cy.get('@refreshButton').click();
+          cy.wait('@FreshResults', { timeout: 10000 });
+
+          // expect to height to grow by 1 grid grow
+          cy.get('@widget').invoke('height').should('eq', 435);
+        });
+
+        it('auto height revoked after manual height adjustment', () => {
+          // listen to results
+          cy.server();
+          cy.route('GET', 'api/query_results/*').as('FreshResults');
+
+          editDashboard();
+
+          // start with 1 table row
+          cy.get('@paramInput').clear().type('1');
+          cy.get('@refreshButton').click();
+          cy.wait('@FreshResults');
+          cy.get('@widget').invoke('height').should('eq', 285);
+
+          // resize height by 1 grid row
+          resizeBy(cy.get('@widget'), 5);
+          cy.get('@widget').invoke('height').should('eq', 335);
+
+          // add 4 table rows
+          cy.get('@paramInput').clear().type('5');
+          cy.get('@refreshButton').click();
+          cy.wait('@FreshResults');
+
+          // expect height to stay unchanged (would have been 435)
+          cy.get('@widget').invoke('height').should('eq', 335);
         });
       });
     });
