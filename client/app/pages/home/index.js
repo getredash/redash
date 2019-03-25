@@ -1,6 +1,7 @@
 import template from './home.html';
+import notification from '@/services/notification';
 
-function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
+function HomeCtrl(Events, Dashboard, Query, $http, currentUser) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;
@@ -19,7 +20,7 @@ function HomeCtrl(Events, Dashboard, Query, $http, currentUser, toastr) {
 
   this.verifyEmail = () => {
     $http.post('verification_email/').success(({ message }) => {
-      toastr.success(message);
+      notification.success(message);
     });
   };
 }

@@ -73,7 +73,7 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
 
 
 def fix_column_name(name):
-    return u'"{}"'.format(name.replace(':', '_').replace('.', '_').replace(' ', '_'))
+    return u'"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
 
 
 def create_table(connection, table_name, query_results):

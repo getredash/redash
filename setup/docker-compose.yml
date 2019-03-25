@@ -1,6 +1,6 @@
 version: '2'
 x-redash-service: &redash-service
-  image: redash/redash:6.0.0.b8537
+  image: redash/redash:7.0.0.b18042
   depends_on:
     - postgres
     - redis

@@ -3,7 +3,7 @@ from mock import patch
 from collections import namedtuple
 import pytest
 
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 class TestParameterizedQuery(TestCase):
@@ -119,7 +119,7 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEquals("foo baz", query.text)
 
-    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "1"}])
+    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "1"}])
     def test_validation_accepts_integer_values_for_dropdowns(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
@@ -128,7 +128,7 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEquals("foo 1", query.text)
 
-    @patch('redash.utils.parameterized_query.dropdown_values')
+    @patch('redash.models.parameterized_query.dropdown_values')
     def test_raises_on_invalid_query_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
@@ -136,7 +136,7 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": 7})
 
-    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
     def test_raises_on_unlisted_query_value_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
@@ -144,7 +144,7 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "shlomo"})
 
-    @patch('redash.utils.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
     def test_validates_query_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
@@ -193,21 +193,21 @@ class TestParameterizedQuery(TestCase):
 
         self.assertTrue(query.is_safe)
 
-    @patch('redash.utils.parameterized_query._load_result', return_value={
+    @patch('redash.models.parameterized_query._load_result', return_value={
         "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
         "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]})
     def test_dropdown_values_prefers_name_and_value_columns(self, _):
         values = dropdown_values(1)
         self.assertEquals(values, [{"name": "John", "value": "John Doe"}])
 
-    @patch('redash.utils.parameterized_query._load_result', return_value={
+    @patch('redash.models.parameterized_query._load_result', return_value={
         "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
     def test_dropdown_values_compromises_for_first_column(self, _):
         values = dropdown_values(1)
         self.assertEquals(values, [{"name": 5, "value": "5"}])
 
-    @patch('redash.utils.parameterized_query._load_result', return_value={
+    @patch('redash.models.parameterized_query._load_result', return_value={
         "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}]})
     def test_dropdown_supports_upper_cased_columns(self, _):

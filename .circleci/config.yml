@@ -72,7 +72,7 @@ jobs:
           name: Setup Redash server
           command: |
             npm run cypress start
-            docker-compose run cypress node ./cypress/cypress.js db-seed
+            docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
