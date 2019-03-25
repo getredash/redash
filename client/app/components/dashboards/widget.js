@@ -3,6 +3,7 @@ import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
+import notification from '@/services/notification';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -18,6 +19,7 @@ const WidgetDialog = {
   },
 };
 
+
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
   bindings: {
@@ -25,7 +27,7 @@ const EditTextBoxComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller(toastr) {
+  controller() {
     'ngInject';
 
     this.saveInProgress = false;
@@ -40,7 +42,7 @@ const EditTextBoxComponent = {
             this.close();
           })
           .catch(() => {
-            toastr.error('Widget can not be updated');
+            notification.error('Widget can not be updated');
           })
           .finally(() => {
             this.saveInProgress = false;

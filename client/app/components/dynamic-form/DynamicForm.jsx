@@ -8,7 +8,7 @@ import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
 import { includes, isFunction } from 'lodash';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
@@ -84,11 +84,11 @@ class DynamicForm extends React.Component {
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
             setFieldsValue(getFieldsValue()); // reset form touched state
-            toastr.success(msg);
+            notification.success(msg);
           },
           (msg) => {
             this.setState({ isSubmitting: false });
-            toastr.error(msg);
+            notification.error(msg);
           },
         );
       } else this.setState({ isSubmitting: false });
