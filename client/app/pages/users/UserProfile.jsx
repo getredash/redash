@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import { EmailSettingsWarning } from '@/components/EmailSettingsWarning';
@@ -10,9 +11,18 @@ import { User } from '@/services/user';
 import settingsMenu from '@/services/settingsMenu';
 import { $route } from '@/services/ng';
 import { currentUser } from '@/services/auth';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import './settings.less';
 
 class UserProfile extends React.Component {
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   constructor(props) {
     super(props);
     this.state = { user: null };
@@ -20,7 +30,15 @@ class UserProfile extends React.Component {
 
   componentDidMount() {
     const userId = $route.current.params.userId || currentUser.id;
-    User.get({ id: userId }, user => this.setState({ user: User.convertUserInfo(user) }));
+    User.get({ id: userId }).$promise
+      .then(user => this.setState({ user: User.convertUserInfo(user) }))
+      .catch((error) => {
+        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+        if (error.status && error.data) {
+          error = new PromiseRejectionError(error);
+        }
+        this.props.onError(error);
+      });
   }
 
   render() {

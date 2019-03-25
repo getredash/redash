@@ -64,6 +64,7 @@ class BaseElasticSearch(BaseQueryRunner):
                     'title': 'Basic Auth Password'
                 }
             },
+            "order": ['server', 'basic_auth_user', 'basic_auth_password'],
             "secret": ["basic_auth_password"],
             "required": ["server"]
         }

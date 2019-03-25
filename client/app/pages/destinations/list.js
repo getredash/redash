@@ -1,7 +1,7 @@
 import settingsMenu from '@/services/settingsMenu';
 import template from './list.html';
 
-function DestinationsCtrl($scope, $location, toastr, currentUser, Destination) {
+function DestinationsCtrl($scope, $location, currentUser, Destination) {
   $scope.destinations = Destination.query();
 }
 

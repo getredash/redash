@@ -6,7 +6,7 @@ import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import * as Grid from 'antd/lib/grid';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
 
@@ -149,7 +149,7 @@ class EditVisualizationDialog extends React.Component {
 
     Visualization.save(visualization).$promise
       .then((result) => {
-        toastr.success('Visualization saved');
+        notification.success('Visualization saved');
 
         const index = findIndex(query.visualizations, v => v.id === result.id);
         if (index > -1) {
@@ -161,7 +161,7 @@ class EditVisualizationDialog extends React.Component {
         this.props.dialog.close(result);
       })
       .catch(() => {
-        toastr.error('Visualization could not be saved');
+        notification.error('Visualization could not be saved');
         this.setState({ saveInProgress: false });
       });
   }

@@ -6,7 +6,6 @@ export let $routeParams = null; // eslint-disable-line import/no-mutable-exports
 export let $q = null; // eslint-disable-line import/no-mutable-exports
 export let $rootScope = null; // eslint-disable-line import/no-mutable-exports
 export let $uibModal = null; // eslint-disable-line import/no-mutable-exports
-export let toastr = null; // eslint-disable-line import/no-mutable-exports
 
 export default function init(ngModule) {
   ngModule.run(($injector) => {
@@ -18,7 +17,6 @@ export default function init(ngModule) {
     $q = $injector.get('$q');
     $rootScope = $injector.get('$rootScope');
     $uibModal = $injector.get('$uibModal');
-    toastr = $injector.get('toastr');
   });
 }
 

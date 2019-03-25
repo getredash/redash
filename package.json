@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "7.0.0-beta",
+  "version": "7.0.0",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2",
-    "cypress": "node cypress/cypress.js"
+    "cypress": "node client/cypress/cypress.js"
   },
   "repository": {
     "type": "git",
@@ -43,7 +43,6 @@
     "angular-resource": "~1.5.8",
     "angular-route": "~1.5.8",
     "angular-sanitize": "~1.5.8",
-    "angular-toastr": "^2.1.1",
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
@@ -156,9 +155,12 @@
     }
   },
   "lint-staged": {
-    "client/app/**/*.{js,jsx}": [
-      "npm run lint:base",
-      "npm run test -- --bail --findRelatedTests"
-    ]
+    "linters": {
+      "client/**/*.{js,jsx}": [
+        "npm run lint:base",
+        "npm run test -- --bail --findRelatedTests"
+      ]
+    },
+    "ignore": ["client/dist/*"]
   }
 }

@@ -19,7 +19,7 @@ import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
@@ -74,10 +74,14 @@ class GroupMembers extends React.Component {
   ];
 
   componentDidMount() {
-    Group.get({ id: this.groupId }).$promise.then((group) => {
-      this.group = group;
-      this.forceUpdate();
-    });
+    Group.get({ id: this.groupId }).$promise
+      .then((group) => {
+        this.group = group;
+        this.forceUpdate();
+      })
+      .catch((error) => {
+        this.props.controller.handleError(error);
+      });
   }
 
   removeGroupMember = (event, user) => Group.removeMember({ id: this.groupId, userId: user.id }).$promise
@@ -86,7 +90,7 @@ class GroupMembers extends React.Component {
       this.props.controller.update();
     })
     .catch(() => {
-      toastr.error('Failed to remove member from group.');
+      notification.error('Failed to remove member from group.');
     });
 
   addMembers = () => {
