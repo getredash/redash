@@ -24,7 +24,7 @@ describe('Login', () => {
     cy.title().should('eq', 'Redash');
     cy.contains('Example Admin');
 
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
     cy.percySnapshot('Homepage');
   });
 });

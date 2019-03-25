@@ -13,11 +13,12 @@ const WidgetDialog = {
     resolve: '<',
     close: '&',
     dismiss: '&',
-  },
+  }
   controller() {
     this.widget = this.resolve.widget;
   },
 };
+
 
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
