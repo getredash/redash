@@ -5,7 +5,8 @@ import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
 import { Destination, IMG_ROOT } from '@/services/destination';
 import navigateTo from '@/services/navigateTo';
-import { $route, toastr } from '@/services/ng';
+import { $route } from '@/services/ng';
+import notification from '@/services/notification';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
@@ -57,7 +58,7 @@ class EditDestination extends React.Component {
 
     const doDelete = () => {
       destination.$delete(() => {
-        toastr.success('Alert destination deleted successfully.');
+        notification.success('Alert destination deleted successfully.');
         navigateTo('/destinations', true);
       }, () => {
         callback();

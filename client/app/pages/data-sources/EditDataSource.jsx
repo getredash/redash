@@ -5,7 +5,8 @@ import { react2angular } from 'react2angular';
 import Modal from 'antd/lib/modal';
 import { DataSource, IMG_ROOT } from '@/services/data-source';
 import navigateTo from '@/services/navigateTo';
-import { $route, toastr } from '@/services/ng';
+import { $route } from '@/services/ng';
+import notification from '@/services/notification';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
@@ -58,7 +59,7 @@ class EditDataSource extends React.Component {
 
     const doDelete = () => {
       dataSource.$delete(() => {
-        toastr.success('Data source deleted successfully.');
+        notification.success('Data source deleted successfully.');
         navigateTo('/data_sources', true);
       }, () => {
         callback();
@@ -81,13 +82,13 @@ class EditDataSource extends React.Component {
     const { dataSource } = this.state;
     DataSource.test({ id: dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
-        toastr.success('Success');
+        notification.success('Success');
       } else {
-        toastr.error(httpResponse.message, 'Connection Test Failed:', { timeOut: 10000 });
+        notification.error('Connection Test Failed:', httpResponse.message, { duration: 10 });
       }
       callback();
     }, () => {
-      toastr.error('Unknown error occurred while performing connection test. Please try again later.', 'Connection Test Failed:', { timeOut: 10000 });
+      notification.error('Connection Test Failed:', 'Unknown error occurred while performing connection test. Please try again later.', { duration: 10 });
       callback();
     });
   };
