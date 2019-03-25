@@ -35,7 +35,7 @@ describe('Edit visualization dialog', () => {
   });
 
   it('opens Edit Visualization dialog', () => {
-    cy.getByTestId('EditVisualization').should('exist').click();
+    cy.getByTestId('EditVisualization').click();
     cy.getByTestId('EditVisualizationDialog').should('exist');
     // Default visualization should be selected
     cy.getByTestId('VisualizationType').should('exist').should('contain', 'Table');

@@ -226,7 +226,7 @@
                     <p>Log Information:</p>
                     <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
                   </div>
-                  <ul class="tab-nav">
+                  <ul class="tab-nav" data-test="QueryPageVisualizationTabs">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
                       <span class="remove hidden-xs" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
