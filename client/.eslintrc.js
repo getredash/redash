@@ -1,11 +1,14 @@
 module.exports = {
   root: true,
-  extends: ["airbnb"],
+  extends: ["airbnb", "plugin:jest/recommended", "plugin:cypress/recommended"],
+  plugins: ["jest", "cypress", "chai-friendly"],
   settings: {
     "import/resolver": "webpack"
   },
   parser: "babel-eslint",
   env: {
+    "jest/globals": true,
+    "cypress/globals": true,
     "browser": true,
     "node": true
   },
@@ -53,5 +56,9 @@ module.exports = {
     }],
     "no-else-return": ["error", {"allowElseIf": true}],
     "object-curly-newline": ["error", {"consistent": true}],
+    // needed for cypress tests
+    "func-names": "off",
+    "no-unused-expressions": 0,
+    "chai-friendly/no-unused-expressions": 2
   }
 };
