@@ -131,7 +131,7 @@ describe('Dashboard', () => {
     });
   });
 
-  it('archives dashboard', function () {
+  it('archives dashboard', () => {
     createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
@@ -201,6 +201,7 @@ describe('Dashboard', () => {
       });
     });
 
+    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('allows opening menu after removal', function () {
       let elTestId1;
       addTextboxByAPI('txb 1', this.dashboardId)
