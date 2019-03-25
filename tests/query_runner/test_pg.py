@@ -10,9 +10,20 @@ class TestBuildSchema(TestCase):
                     "table_schema": "public",
                     "table_name": "main.users",
                     "column_name": "id",
+                    "column_type": "character varying",
                 },
-                {"table_schema": "main", "table_name": "users", "column_name": "id"},
-                {"table_schema": "main", "table_name": "users", "column_name": "name"},
+                {
+                    "table_schema": "main",
+                    "table_name": "users",
+                    "column_name": "id",
+                    "column_type": "character varying",
+                },
+                {
+                    "table_schema": "main",
+                    "table_name": "users",
+                    "column_name": "name",
+                    "column_type": "character varying",
+                },
             ]
         }
 

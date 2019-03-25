@@ -55,7 +55,11 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(
     os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7")
 )
 
-SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
+SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 360))
+SCHEMAS_REFRESH_QUEUE = os.environ.get("REDASH_SCHEMAS_REFRESH_QUEUE", "schemas")
+SCHEMA_REFRESH_TIME_LIMIT = int(
+    os.environ.get("REDASH_SCHEMA_REFRESH_TIME_LIMIT", 3600)
+)
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 INVITATION_TOKEN_MAX_AGE = int(
@@ -479,6 +483,22 @@ ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(
 # Enhance schema fetching
 SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(
     os.environ.get("REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS", "false")
+)
+
+# Frequency of clearing out old schema metadata.
+SCHEMA_METADATA_TTL_DAYS = int(os.environ.get("REDASH_SCHEMA_METADATA_TTL_DAYS", 60))
+
+# Frequency of schema samples updates
+SCHEMA_SAMPLE_UPDATE_FREQUENCY_DAYS = int(
+    os.environ.get("REDASH_SCHEMA_SAMPLE_UPDATE_FREQUENCY_DAYS", 14)
+)
+SCHEMA_SAMPLE_UPDATE_TIMEOUT = int(
+    os.environ.get("REDASH_SCHEMA_SAMPLE_UPDATE_TIMEOUT", SCHEMA_REFRESH_TIME_LIMIT)
+)
+
+# Frequency of schema samples refresh when no samples are stored
+SCHEMA_SAMPLE_REFRESH_FREQUENCY_DAYS = int(
+    os.environ.get("REDASH_SCHEMA_SAMPLE_REFRESH_FREQUENCY_DAYS", 2)
 )
 
 # kylin

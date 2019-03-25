@@ -1,5 +1,6 @@
 import datetime
 import logging
+import operator
 import sys
 import time
 from base64 import b64decode
@@ -86,6 +87,7 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 class BigQuery(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
+    sample_query = "#standardSQL\n SELECT * FROM {table} LIMIT 1"
 
     @classmethod
     def enabled(cls):
@@ -123,6 +125,7 @@ class BigQuery(BaseQueryRunner):
                     "default": "_v",
                     "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight.",
                 },
+                "samples": {"type": "boolean", "title": "Show Data Samples"},
             },
             "required": ["jsonKeyFile", "projectId"],
             "order": [
@@ -250,22 +253,122 @@ class BigQuery(BaseQueryRunner):
 
     def _get_columns_schema(self, table_data):
         columns = []
+        metadata = []
         for column in table_data.get("schema", {}).get("fields", []):
-            columns.extend(self._get_columns_schema_column(column))
+            metadatum = self._get_column_metadata(column)
+            metadata.extend(metadatum)
+            columns.extend(map(operator.itemgetter("name"), metadatum))
 
         project_id = self._get_project_id()
         table_name = table_data["id"].replace("%s:" % project_id, "")
-        return {"name": table_name, "columns": columns}
+        return {"name": table_name, "columns": columns, "metadata": metadata}
 
-    def _get_columns_schema_column(self, column):
-        columns = []
+    def _get_column_metadata(self, column):
+        metadata = []
         if column["type"] == "RECORD":
             for field in column["fields"]:
-                columns.append("{}.{}".format(column["name"], field["name"]))
+                field_name = u"{}.{}".format(column["name"], field["name"])
+                metadata.append({"name": field_name, "type": field["type"]})
         else:
-            columns.append(column["name"])
+            metadata.append({"name": column["name"], "type": column["type"]})
+        return metadata
 
-        return columns
+    def _columns_and_samples_to_dict(self, schema, samples):
+        samples_dict = {}
+        if not samples:
+            return samples_dict
+
+        # If a sample exists, its shape/length should be analogous to
+        # the schema provided (i.e their lengths should match up)
+        for i, column in enumerate(schema):
+            if column["type"] == "RECORD":
+                if column.get("mode", None) == "REPEATED":
+                    # Repeated fields have multiple samples of the same format.
+                    # We only need to show the first one as an example.
+                    associated_sample = [] if len(samples[i]) == 0 else samples[i][0]
+                else:
+                    associated_sample = samples[i] or []
+
+                for j, field in enumerate(column["fields"]):
+                    field_name = u"{}.{}".format(column["name"], field["name"])
+                    samples_dict[field_name] = None
+                    if len(associated_sample) > 0:
+                        samples_dict[field_name] = associated_sample[j]
+            else:
+                samples_dict[column["name"]] = samples[i]
+
+        return samples_dict
+
+    def _flatten_samples(self, samples):
+        samples_list = []
+        for field in samples:
+            value = field["v"]
+            if isinstance(value, dict):
+                samples_list.append(self._flatten_samples(value.get("f", [])))
+            elif isinstance(value, list):
+                samples_list.append(self._flatten_samples(value))
+            else:
+                samples_list.append(value)
+
+        return samples_list
+
+    def get_table_sample(self, table_name):
+        if not self.configuration.get("loadSchema", False):
+            return {}
+
+        service = self._get_bigquery_service()
+        project_id = self._get_project_id()
+
+        dataset_id, table_id = table_name.split(".", 1)
+
+        try:
+            # NOTE: the `sample_response` is limited by `maxResults` here.
+            # Without this limit, the response would be very large and require
+            # pagination using `nextPageToken`.
+            sample_response = (
+                service.tabledata()
+                .list(
+                    projectId=project_id,
+                    datasetId=dataset_id,
+                    tableId=table_id,
+                    fields="rows",
+                    maxResults=1,
+                )
+                .execute()
+            )
+            schema_response = (
+                service.tables()
+                .get(
+                    projectId=project_id,
+                    datasetId=dataset_id,
+                    tableId=table_id,
+                    fields="schema,id",
+                )
+                .execute()
+            )
+            table_rows = sample_response.get("rows", [])
+
+            if len(table_rows) == 0:
+                samples = []
+            else:
+                samples = table_rows[0].get("f", [])
+
+            schema = schema_response.get("schema", {}).get("fields", [])
+            columns = self._get_columns_schema(schema_response).get("columns", [])
+
+            flattened_samples = self._flatten_samples(samples)
+            samples_dict = self._columns_and_samples_to_dict(schema, flattened_samples)
+            return samples_dict
+        except HttpError as http_error:
+            logger.exception(
+                "Error communicating with server for sample for table %s: %s",
+                table_name,
+                http_error,
+            )
+
+            # If there is an error getting the sample using the API,
+            # try to do it by running a `select *` with a limit.
+            return super().get_table_sample(table_name)
 
     def get_schema(self, get_stats=False):
         if not self.configuration.get("loadSchema", False):

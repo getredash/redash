@@ -78,7 +78,11 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": ["row_id"], "name": "test1.jdbc_table"}
+                {
+                    "columns": ["row_id"],
+                    "name": "test1.jdbc_table",
+                    "metadata": [{"type": "int", "name": "row_id"}],
+                }
             ]
 
     def test_partitioned_table(self):
@@ -131,7 +135,14 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": ["sk", "category"], "name": "test1.partitioned_table"}
+                {
+                    "columns": ["sk", "category"],
+                    "name": "test1.partitioned_table",
+                    "metadata": [
+                        {"type": "int", "name": "sk"},
+                        {"type": "int", "name": "category"},
+                    ],
+                }
             ]
 
     def test_view(self):
@@ -167,7 +178,11 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": ["sk"], "name": "test1.view"}
+                {
+                    "columns": ["sk"],
+                    "name": "test1.view",
+                    "metadata": [{"type": "int", "name": "sk"}],
+                }
             ]
 
     def test_dodgy_table_does_not_break_schema_listing(self):
@@ -211,5 +226,9 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [
-                {"columns": ["region"], "name": "test1.csv"}
+                {
+                    "columns": ["region"],
+                    "name": "test1.csv",
+                    "metadata": [{"type": "string", "name": "region"}],
+                }
             ]

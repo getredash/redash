@@ -13,6 +13,7 @@ from redash.tasks import (
     refresh_queries,
     empty_schedules,
     refresh_schemas,
+    cleanup_schema_metadata,
     cleanup_query_results,
     purge_failed_jobs,
     version_check,
@@ -72,6 +73,7 @@ def periodic_job_definitions():
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
         },
+        {"func": cleanup_schema_metadata, "interval": timedelta(days=3)},
     ]
 
     if settings.VERSION_CHECK:

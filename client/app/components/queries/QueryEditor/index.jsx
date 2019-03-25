@@ -161,7 +161,7 @@ QueryEditor.propTypes = {
     PropTypes.shape({
       name: PropTypes.string.isRequired,
       size: PropTypes.number,
-      columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+      columns: PropTypes.arrayOf(PropTypes.object).isRequired,
     })
   ),
   onChange: PropTypes.func,

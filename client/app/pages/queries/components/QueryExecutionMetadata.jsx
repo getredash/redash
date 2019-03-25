@@ -55,7 +55,7 @@ export default function QueryExecutionMetadata({
         </span>
         {queryResultData.metadata.data_scanned && (
           <span className="m-l-5">
-            Data Scanned
+            <span className="hidden-xs">Data Scanned </span>
             <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
           </span>
         )}

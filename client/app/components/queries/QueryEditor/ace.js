@@ -31,9 +31,9 @@ function buildTableColumnKeywords(table) {
   const keywords = [];
   table.columns.forEach(column => {
     keywords.push({
-      caption: column,
-      name: `${table.name}.${column}`,
-      value: `${table.name}.${column}`,
+      caption: column.name,
+      name: `${table.name}.${column.name}`,
+      value: `${table.name}.${column.name}`,
       score: 100,
       meta: "Column",
       className: "completion",
@@ -56,7 +56,7 @@ function buildKeywordsFromSchema(schema) {
     });
     tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
     table.columns.forEach(c => {
-      columnKeywords[c] = "Column";
+      columnKeywords[c.name] = "Column";
     });
   });
 

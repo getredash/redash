@@ -102,6 +102,15 @@ query_with_params_factory = ModelFactory(
     org_id=1,
 )
 
+table_metadata_factory = ModelFactory(
+    redash.models.TableMetadata, data_source_id=1, exists=True, name="table", org_id=1
+)
+
+column_metadata_factory = ModelFactory(
+    redash.models.ColumnMetadata, table_id=1, name="column", org_id=1
+)
+
+
 access_permission_factory = ModelFactory(
     redash.models.AccessPermission,
     object_id=query_factory.create,
@@ -211,6 +220,12 @@ class Factory(object):
         )
 
         return org
+
+    def create_table_metadata(self, **kwargs):
+        return table_metadata_factory.create(**kwargs)
+
+    def create_column_metadata(self, **kwargs):
+        return column_metadata_factory.create(**kwargs)
 
     def create_user(self, **kwargs):
         args = {"org": self.org, "group_ids": [self.default_group.id]}

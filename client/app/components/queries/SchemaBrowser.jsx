@@ -15,17 +15,18 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
 import { clientConfig } from "@/services/auth";
 import notification from "@/services/notification";
+import SchemaData from "@/components/queries/SchemaData";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
   size: PropTypes.number,
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
 });
 
 const schemaTableHeight = 22;
 const schemaColumnHeight = 18;
 
-function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
+function SchemaItem({ item, expanded, onToggle, onSelect, onShowSchema, ...props }) {
   const handleSelect = useCallback(
     (event, ...args) => {
       event.preventDefault();
@@ -33,6 +34,15 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       onSelect(...args);
     },
     [onSelect]
+  );
+
+  const handleShowSchema = useCallback(
+    (event, ...args) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onShowSchema(...args);
+    },
+    [onShowSchema]
   );
 
   if (!item) {
@@ -47,6 +57,12 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
           <span title={item.name}>{item.name}</span>
           {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
+        {item.column_metadata && <i
+            className="fa fa-question-circle info"
+            title="More Info"
+            aria-hidden="true"
+            onClick={e => handleShowSchema(e, item)}
+          />}
         <i
           className="fa fa-angle-double-right copy-to-editor"
           aria-hidden="true"
@@ -56,12 +72,12 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       {expanded && (
         <div>
           {map(item.columns, column => (
-            <div key={column} className="table-open">
-              {column}
+            <div key={column.id} className="table-open">
+              {column.name}
               <i
                 className="fa fa-angle-double-right copy-to-editor"
                 aria-hidden="true"
-                onClick={e => handleSelect(e, column)}
+                onClick={e => handleSelect(e, column.name)}
               />
             </div>
           ))}
@@ -93,7 +109,7 @@ function SchemaLoadingState() {
   );
 }
 
-export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onItemSelect }) {
+export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onItemSelect, openSchemaInfo, closeSchemaInfo }) {
   const [listRef, setListRef] = useState(null);
 
   useEffect(() => {
@@ -128,6 +144,7 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
                     expanded={expandedFlags[item.name]}
                     onToggle={() => onTableExpand(item.name)}
                     onSelect={onItemSelect}
+                    onShowSchema={openSchemaInfo}
                   />
                 );
               }}
@@ -138,6 +155,14 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
     </div>
   );
 }
+
+function itemExists(item) {
+  if ("visible" in item) {
+    return item.visible;
+  } else {
+    return false;
+  }
+};
 
 export function applyFilterOnSchema(schema, filterString, showHidden, toggleString) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
@@ -155,6 +180,9 @@ export function applyFilterOnSchema(schema, filterString, showHidden, toggleStri
       }
   }
 
+  // Filter out all columns set to invisible
+  schema = filter(schema, itemExists);
+
   // Empty string: return original schema
   if (filters.length === 0) {
     return schema;
@@ -168,7 +196,7 @@ export function applyFilterOnSchema(schema, filterString, showHidden, toggleStri
       schema,
       item =>
         includes(item.name.toLowerCase(), nameFilter) ||
-        some(item.columns, column => includes(column.toLowerCase(), columnFilter))
+        some(item.columns, column => includes(column.name.toLowerCase(), columnFilter))
     );
   }
 
@@ -178,7 +206,7 @@ export function applyFilterOnSchema(schema, filterString, showHidden, toggleStri
   return filter(
     map(schema, item => {
       if (includes(item.name.toLowerCase(), nameFilter)) {
-        item = { ...item, columns: filter(item.columns, column => includes(column.toLowerCase(), columnFilter)) };
+        item = { ...item, columns: filter(item.columns, column => includes(column.name.toLowerCase(), columnFilter)) };
         return item.columns.length > 0 ? item : null;
       }
     })
@@ -203,8 +231,17 @@ export default function SchemaBrowser({
   const [handleToggleChange] = useDebouncedCallback(setShowHidden, 100);
   const [expandedFlags, setExpandedFlags] = useState({});
 
+  const [showSchemaInfo, setShowSchemaInfo] = useState(false);
+  const [tableName, setTableName] = useState("");
+  const [tableDescription, setTableDescription] = useState("");
+  const [tableMetadata, setTableMetadata] = useState([]);
+  const [sampleQueries, setSampleQueries] = useState([]);
+
   const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
 
+  useEffect(() => {
+    setExpandedFlags({});
+  }, [schema]);
 
   useEffect(() => {
     setExpandedFlags({});
@@ -237,6 +274,18 @@ export default function SchemaBrowser({
     return toggleString;
   }
 
+  function openSchemaInfo(table) {
+    setTableName(table.name);
+    setTableDescription(table.description);
+    setTableMetadata(table.columns);
+    setSampleQueries(Object.values(table.sample_queries));
+    setShowSchemaInfo(true);
+  }
+
+  function closeSchemaInfo() {
+    setShowSchemaInfo(false);
+  };
+
   return (
     <div className="schema-container" {...props}>
       <div className="schema-control">
@@ -267,6 +316,17 @@ export default function SchemaBrowser({
         expandedFlags={expandedFlags}
         onTableExpand={toggleTable}
         onItemSelect={onItemSelect}
+        toggleString={toggleString}
+        openSchemaInfo={openSchemaInfo}
+        closeSchemaInfo={closeSchemaInfo}
+      />
+      <SchemaData
+        show={showSchemaInfo}
+        tableName={tableName}
+        tableDescription={tableDescription}
+        tableMetadata={tableMetadata}
+        sampleQueries={sampleQueries}
+        onClose={closeSchemaInfo}
       />
     </div>
   );

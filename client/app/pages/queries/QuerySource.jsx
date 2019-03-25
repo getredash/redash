@@ -10,7 +10,6 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
-import QueryEditor from "@/components/queries/QueryEditor";
 import DynamicComponent from "@/components/DynamicComponent";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
@@ -214,6 +213,7 @@ function QuerySource(props) {
                       key={`ds-${ds.id}`}
                       value={ds.id}
                       data-name={ds.name}
+                      title={ds.description && ds.description}
                       data-test={`SelectDataSource${ds.id}`}>
                       <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
                       <span>{ds.name}</span>

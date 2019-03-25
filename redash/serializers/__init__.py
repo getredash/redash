@@ -75,15 +75,13 @@ class Serializer(object):
 class QuerySerializer(Serializer):
     def __init__(self, object_or_list, **kwargs):
         self.object_or_list = object_or_list
+        self.with_favorite_state = kwargs.pop("with_favorite_state", True)
         self.options = kwargs
 
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
-            if (
-                self.options.get("with_favorite_state", True)
-                and not current_user.is_api_user()
-            ):
+            if self.with_favorite_state and not current_user.is_api_user():
                 result["is_favorite"] = models.Favorite.is_favorite(
                     current_user.id, self.object_or_list
                 )
@@ -91,7 +89,7 @@ class QuerySerializer(Serializer):
             result = [
                 serialize_query(query, **self.options) for query in self.object_or_list
             ]
-            if self.options.get("with_favorite_state", True):
+            if self.with_favorite_state:
                 favorite_ids = models.Favorite.are_favorites(
                     current_user.id, self.object_or_list
                 )
@@ -99,6 +97,80 @@ class QuerySerializer(Serializer):
                     query["is_favorite"] = query["id"] in favorite_ids
 
         return result
+
+
+class ColumnMetadataSerializer(Serializer):
+    def __init__(self, object_or_list):
+        self.object_or_list = object_or_list
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.ColumnMetadata):
+            result = serialize_column_metadata(self.object_or_list)
+        else:
+            result = [
+                serialize_column_metadata(column_metadata)
+                for column_metadata in self.object_or_list
+            ]
+        return result
+
+
+class TableMetadataSerializer(Serializer):
+    def __init__(self, object_or_list, **kwargs):
+        self.object_or_list = object_or_list
+        self.options = kwargs
+
+    def serialize(self):
+        if isinstance(self.object_or_list, models.TableMetadata):
+            result = serialize_table_metadata(self.object_or_list, self.options)
+        else:
+            result = [
+                serialize_table_metadata(column_metadata, self.options)
+                for column_metadata in self.object_or_list
+            ]
+        return result
+
+
+def serialize_table_metadata(table_metadata, options, include_columns=True):
+    sample_queries_dict = dict(
+        [
+            (v["id"], v)
+            for v in QuerySerializer(
+                table_metadata.sample_queries, **options
+            ).serialize()
+        ]
+    )
+    d = {
+        "id": table_metadata.id,
+        "org_id": table_metadata.org_id,
+        "data_source_id": table_metadata.data_source_id,
+        "exists": table_metadata.exists,
+        "visible": table_metadata.visible,
+        "name": table_metadata.name,
+        "description": table_metadata.description,
+        "column_metadata": table_metadata.column_metadata,
+        "sample_updated_at": table_metadata.sample_updated_at,
+        "sample_queries": sample_queries_dict,
+    }
+    if include_columns:
+        d["columns"] = [
+            ColumnMetadataSerializer(column).serialize()
+            for column in table_metadata.existing_columns
+        ]
+    return d
+
+
+def serialize_column_metadata(column_metadata):
+    d = {
+        "id": column_metadata.id,
+        "org_id": column_metadata.org_id,
+        "table_id": column_metadata.table_id,
+        "name": column_metadata.name,
+        "type": column_metadata.type,
+        "example": column_metadata.example,
+        "exists": column_metadata.exists,
+        "description": column_metadata.description,
+    }
+    return d
 
 
 def serialize_query(

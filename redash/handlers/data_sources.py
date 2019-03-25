@@ -19,10 +19,10 @@ from redash.query_runner import (
     query_runners,
     NotSupported,
 )
+from redash.tasks.queries import refresh_schema
 from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.tasks.general import test_connection, get_schema
-from redash.serializers import serialize_job
+from redash.tasks.general import test_connection
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -72,7 +72,11 @@ class DataSourceResource(BaseResource):
 
         data_source.type = req["type"]
         data_source.name = req["name"]
+        data_source.description = req["description"] if "description" in req else ""
         models.db.session.add(data_source)
+
+        # Refresh the stored schemas when a data source is updated
+        refresh_schema.delay(data_source.id)
 
         try:
             models.db.session.commit()
@@ -128,7 +132,7 @@ class DataSourceListResource(BaseResource):
                 continue
 
             try:
-                d = ds.to_dict()
+                d = ds.to_dict(all=True)
                 d["view_only"] = all(
                     project(ds.groups, self.current_user.group_ids).values()
                 )
@@ -163,10 +167,18 @@ class DataSourceListResource(BaseResource):
 
         try:
             datasource = models.DataSource.create_with_group(
-                org=self.current_org, name=req["name"], type=req["type"], options=config
+                org=self.current_org,
+                name=req["name"],
+                type=req["type"],
+                description=req["description"] if "description" in req else "",
+                options=config,
             )
 
             models.db.session.commit()
+
+            # Refresh the stored schemas when a new data source is added to the list
+            refresh_schema.delay(datasource.id)
+
         except IntegrityError as e:
             models.db.session.rollback()
             if req["name"] in str(e):
@@ -191,6 +203,16 @@ class DataSourceListResource(BaseResource):
 
 
 class DataSourceSchemaResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = get_object_or_404(
+            models.DataSource.get_by_id_and_org, data_source_id, self.current_org
+        )
+        new_schema_data = request.get_json(force=True)
+        models.DataSource.save_schema(new_schema_data)
+        # Force update the schema cache to have all changes available right away
+        data_source.schema_cache.populate(forced=True)
+
     def get(self, data_source_id):
         data_source = get_object_or_404(
             models.DataSource.get_by_id_and_org, data_source_id, self.current_org
@@ -198,15 +220,19 @@ class DataSourceSchemaResource(BaseResource):
         require_access(data_source, self.current_user, view_only)
         refresh = request.args.get("refresh") is not None
 
-        if not refresh:
-            cached_schema = data_source.get_cached_schema()
+        response = {}
 
-            if cached_schema is not None:
-                return {"schema": cached_schema}
+        try:
+            response["schema"] = data_source.get_schema(refresh)
+        except NotSupported:
+            response["error"] = {
+                "code": 1,
+                "message": "Data source type does not support retrieving schema",
+            }
+        except Exception:
+            response["error"] = {"code": 2, "message": "Error retrieving schema."}
 
-        job = get_schema.delay(data_source.id, refresh)
-
-        return serialize_job(job)
+        return response
 
 
 class DataSourcePauseResource(BaseResource):
@@ -286,8 +312,6 @@ class DataSourceToggleStringResource(BaseResource):
         )
         require_access(data_source.groups, self.current_user, view_only)
         try:
-            return {
-                "toggle_string": data_source.options.get("toggle_table_string", "")
-            }
+            return {"toggle_string": data_source.options.get("toggle_table_string", "")}
         except Exception:
             abort(400)

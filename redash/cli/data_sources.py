@@ -4,7 +4,7 @@ import click
 from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
 
-from redash import models
+from redash import models, tasks
 from redash.query_runner import (
     get_configuration_schema_for_query_runner_type,
     query_runners,
@@ -200,6 +200,38 @@ def update_attr(obj, attr, new_value):
         old_value = getattr(obj, attr)
         print("Updating {}: {} -> {}".format(attr, old_value, new_value))
         setattr(obj, attr, new_value)
+
+
+@manager.command()
+@click.argument("name")
+@click.option(
+    "--org",
+    "organization",
+    default="default",
+    help="The organization the user belongs to (leave blank for " "'default').",
+)
+@click.option(
+    "--count",
+    "num_tables",
+    default=50,
+    help="number of tables to process data samples for",
+)
+def refresh_samples(name, num_tables=50, organization="default"):
+    """Refresh table samples by data source name."""
+    try:
+        org = models.Organization.get_by_slug(organization)
+        data_source = models.DataSource.query.filter(
+            models.DataSource.name == name, models.DataSource.org == org
+        ).one()
+        print(
+            "Refreshing samples for data source: {} (id={})".format(
+                name, data_source.id
+            )
+        )
+        tasks.refresh_samples(data_source.id, num_tables)
+    except NoResultFound:
+        print("Couldn't find data source named: {}".format(name))
+        exit(1)
 
 
 @manager.command()
