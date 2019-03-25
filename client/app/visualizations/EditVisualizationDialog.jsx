@@ -191,53 +191,57 @@ class EditVisualizationDialog extends React.Component {
         onOk={() => this.save()}
         onCancel={() => this.dismiss()}
       >
-        <Grid.Row gutter={24}>
-          <Grid.Col span={24} md={10}>
-            <div className="m-b-15">
-              <label htmlFor="visualization-type">Visualization Type</label>
-              <Select
-                id="visualization-type"
-                className="w-100"
-                disabled={!canChangeType}
-                value={type}
-                onChange={t => this.setVisualizationType(t)}
-              >
-                {map(
-                  registeredVisualizations,
-                  vis => <Select.Option key={vis.type}>{vis.name}</Select.Option>,
-                )}
-              </Select>
-            </div>
-            <div className="m-b-15">
-              <label htmlFor="visualization-name">Visualization Name</label>
-              <Input
-                id="visualization-name"
-                className="w-100"
-                value={name}
-                onChange={event => this.setVisualizationName(event.target.value)}
-              />
-            </div>
-            <div>
-              <Editor
-                data={data}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={this.setVisualizationOptions}
-              />
-            </div>
-          </Grid.Col>
-          <Grid.Col span={24} md={14}>
-            <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
-            <div className="scrollbox">
-              <Renderer
-                data={data}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={this.setVisualizationOptions}
-              />
-            </div>
-          </Grid.Col>
-        </Grid.Row>
+        <div data-test="EditVisualizationDialog">
+          <Grid.Row gutter={24}>
+            <Grid.Col span={24} md={10}>
+              <div className="m-b-15">
+                <label htmlFor="visualization-type">Visualization Type</label>
+                <Select
+                  data-test="VisualizationType"
+                  id="visualization-type"
+                  className="w-100"
+                  disabled={!canChangeType}
+                  value={type}
+                  onChange={t => this.setVisualizationType(t)}
+                >
+                  {map(
+                    registeredVisualizations,
+                    vis => <Select.Option key={vis.type}>{vis.name}</Select.Option>,
+                  )}
+                </Select>
+              </div>
+              <div className="m-b-15">
+                <label htmlFor="visualization-name">Visualization Name</label>
+                <Input
+                  data-test="VisualizationName"
+                  id="visualization-name"
+                  className="w-100"
+                  value={name}
+                  onChange={event => this.setVisualizationName(event.target.value)}
+                />
+              </div>
+              <div>
+                <Editor
+                  data={data}
+                  options={options}
+                  visualizationName={name}
+                  onOptionsChange={this.setVisualizationOptions}
+                />
+              </div>
+            </Grid.Col>
+            <Grid.Col span={24} md={14}>
+              <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
+              <div className="scrollbox">
+                <Renderer
+                  data={data}
+                  options={options}
+                  visualizationName={name}
+                  onOptionsChange={this.setVisualizationOptions}
+                />
+              </div>
+            </Grid.Col>
+          </Grid.Row>
+        </div>
       </Modal>
     );
   }

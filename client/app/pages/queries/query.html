@@ -234,7 +234,7 @@
                       </span>
                     </rd-tab>
                     <li class="rd-tab tab-new-vis">
-                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit">
+                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit" data-test="NewVisualization">
                         <i class="zmdi zmdi-plus"></i> New Visualization</a>
                     </li>
                   </ul>
@@ -254,7 +254,11 @@
       <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
 
-          <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
+          <button data-test="EditVisualization"
+            class="m-r-5 btn btn-default btn-edit-visualisation"
+            ng-click="openVisualizationEditor(selectedTab)"
+            ng-if="!query.isNew() && canEdit"
+          ><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>
             <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"
