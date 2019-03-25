@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  extends: ["airbnb", "plugin:jest/recommended", "plugin:cypress/recommended"],
+  extends: ["airbnb", "plugin:jest/recommended"],
   plugins: ["jest", "cypress", "chai-friendly"],
   settings: {
     "import/resolver": "webpack"
