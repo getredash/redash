@@ -6,7 +6,7 @@ describe('Login', () => {
   it('greets the user and take a screenshot', () => {
     cy.contains('h3', 'Login to Redash');
 
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
     cy.percySnapshot('Login');
   });
 
