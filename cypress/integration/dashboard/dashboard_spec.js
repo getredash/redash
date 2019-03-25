@@ -43,12 +43,6 @@ describe('Dashboard', () => {
     cy.login();
   });
 
-  it.only('tests multiple logins', () => {
-    for (let i = 0; i < 200; i++) {
-      cy.login();
-    }
-  });
-
   it('creates new dashboard', () => {
     cy.visit('/dashboards');
     cy.getByTestId('CreateButton').click();
