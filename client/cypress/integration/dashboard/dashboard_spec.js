@@ -80,7 +80,7 @@ function addWidgetByAPI(dashId, queryData = {}) {
     });
 }
 
-function dragBy(wrapper, offsetTop = 0, offsetLeft = 0) {
+function dragBy(wrapper, offsetLeft = 0, offsetTop = 0) {
   let start;
   let end;
   return wrapper
@@ -103,7 +103,7 @@ function dragBy(wrapper, offsetTop = 0, offsetLeft = 0) {
     }));
 }
 
-function resizeBy(wrapper, offsetTop = 0, offsetLeft = 0) {
+function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
   let start;
   let end;
   let from;
@@ -303,19 +303,19 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 90).then((delta) => {
+          dragBy(cy.get('@textboxEl'), 90).then((delta) => {
             expect(delta.left).to.eq(0);
           });
         });
 
         it('moves one column when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 110).then((delta) => {
+          dragBy(cy.get('@textboxEl'), 110).then((delta) => {
             expect(delta.left).to.eq(200);
           });
         });
 
         it('moves two columns when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 330).then((delta) => {
+          dragBy(cy.get('@textboxEl'), 330).then((delta) => {
             expect(delta.left).to.eq(400);
           });
         });
@@ -328,7 +328,7 @@ describe('Dashboard', () => {
           .then(($el) => {
             start = $el.offset();
             editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200);
+            return dragBy(cy.get('@textboxEl'), 200);
           })
           // cancel
           .then(() => {
@@ -350,7 +350,7 @@ describe('Dashboard', () => {
           .then(($el) => {
             start = $el.offset();
             editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200);
+            return dragBy(cy.get('@textboxEl'), 200);
           })
           // apply
           .then(() => {
@@ -371,19 +371,19 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 0, 90).then((delta) => {
+          resizeBy(cy.get('@textboxEl'), 90).then((delta) => {
             expect(delta.width).to.eq(0);
           });
         });
 
         it('moves one column when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 0, 110).then((delta) => {
+          resizeBy(cy.get('@textboxEl'), 110).then((delta) => {
             expect(delta.width).to.eq(200);
           });
         });
 
         it('moves two columns when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 0, 400).then((delta) => {
+          resizeBy(cy.get('@textboxEl'), 400).then((delta) => {
             expect(delta.width).to.eq(400);
           });
         });
@@ -395,13 +395,13 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 10, 0).then((delta) => {
+          resizeBy(cy.get('@textboxEl'), 0, 10).then((delta) => {
             expect(delta.height).to.eq(0);
           });
         });
 
         it('moves one row when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 30, 0).then((delta) => {
+          resizeBy(cy.get('@textboxEl'), 0, 30).then((delta) => {
             expect(delta.height).to.eq(50);
           });
         });
@@ -409,7 +409,7 @@ describe('Dashboard', () => {
         it('shrinks to minimum', () => {
           cy.get('@textboxEl')
             .then(($el) => {
-              resizeBy(cy.get('@textboxEl'), -$el.height(), -$el.width()); // resize to 0,0
+              resizeBy(cy.get('@textboxEl'), -$el.width(), -$el.height()); // resize to 0,0
               return cy.get('@textboxEl');
             })
             .then(($el) => {
@@ -426,7 +426,7 @@ describe('Dashboard', () => {
           .then(($el) => {
             start = $el.height();
             editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 200, 0);
+            return resizeBy(cy.get('@textboxEl'), 0, 200);
           })
           // cancel
           .then(() => {
@@ -448,7 +448,7 @@ describe('Dashboard', () => {
           .then(($el) => {
             start = $el.height();
             editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 200);
+            return resizeBy(cy.get('@textboxEl'), 0, 200);
           })
           // apply
           .then(() => {
@@ -576,7 +576,7 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 285);
 
           // resize height by 1 grid row
-          resizeBy(cy.get('@widget'), 5);
+          resizeBy(cy.get('@widget'), 0, 5);
           cy.get('@widget').invoke('height').should('eq', 335);
 
           // add 4 table rows
