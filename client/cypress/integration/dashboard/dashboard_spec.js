@@ -524,7 +524,7 @@ describe('Dashboard', () => {
         });
       });
 
-      describe('adjusts height on refresh', () => {
+      describe('Height behavior on refresh', () => {
         const paramName = 'count';
         const queryData = {
           query: `select s.a FROM generate_series(1,{{ ${paramName} }}) AS s(a)`,
