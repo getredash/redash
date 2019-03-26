@@ -9,20 +9,19 @@ import Divider from 'antd/lib/divider';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import notification from '@/services/notification';
 
-import './AddTextboxDialog.less';
+import './TextboxDialog.less';
 
-class AddTextboxDialog extends React.Component {
+class TextboxDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     dialog: DialogPropType.isRequired,
     onConfirm: PropTypes.func.isRequired,
+    text: PropTypes.string,
   };
 
-  state = {
-    saveInProgress: false,
+  static defaultProps = {
     text: '',
-    preview: '',
-  }
+  };
 
   updatePreview = debounce(() => {
     const text = this.state.text;
@@ -30,6 +29,16 @@ class AddTextboxDialog extends React.Component {
       preview: markdown.toHTML(text),
     });
   }, 100);
+
+  constructor(props) {
+    super(props);
+    const { text } = props;
+    this.state = {
+      saveInProgress: false,
+      text,
+      preview: markdown.toHTML(text),
+    };
+  }
 
   onTextChanged = (event) => {
     this.setState({ text: event.target.value });
@@ -53,20 +62,22 @@ class AddTextboxDialog extends React.Component {
 
   render() {
     const { dialog } = this.props;
+    const isNew = !this.props.text;
 
     return (
       <Modal
         {...dialog.props}
-        title="Add Textbox"
+        title={isNew ? 'Add Textbox' : 'Edit Textbox'}
         onOk={() => this.saveWidget()}
         okButtonProps={{
           loading: this.state.saveInProgress,
           disabled: !this.state.text,
         }}
-        okText="Add to Dashboard"
+        okText={isNew ? 'Add to Dashboard' : 'Save'}
         width={500}
+        wrapProps={{ 'data-test': 'TextboxDialog' }}
       >
-        <div className="add-textbox">
+        <div className="textbox-dialog">
           <Input.TextArea
             className="resize-vertical"
             rows="5"
@@ -101,4 +112,4 @@ class AddTextboxDialog extends React.Component {
   }
 }
 
-export default wrapDialog(AddTextboxDialog);
+export default wrapDialog(TextboxDialog);
