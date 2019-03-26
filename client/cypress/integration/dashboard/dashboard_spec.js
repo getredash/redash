@@ -406,7 +406,7 @@ describe('Dashboard', () => {
           });
         });
 
-        it('shrink to minimum', () => {
+        it('shrinks to minimum', () => {
           cy.get('@textboxEl')
             .then(($el) => {
               resizeBy(cy.get('@textboxEl'), -$el.height(), -$el.width()); // resize to 0,0
