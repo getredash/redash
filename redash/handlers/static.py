@@ -20,10 +20,6 @@ def render_index():
     return response
 
 
-@routes.route(org_scoped_rule('/unsupported'))
-def unsupported():
-    return render_template("unsupported.html")
-
 @routes.route(org_scoped_rule('/<path:path>'))
 @routes.route(org_scoped_rule('/'))
 @login_required
