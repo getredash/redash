@@ -230,6 +230,7 @@ function QueryViewCtrl(
     } else {
       request = pick($scope.query, [
         'schedule',
+        'schedule_resultset_size',
         'query',
         'id',
         'description',
@@ -486,8 +487,10 @@ function QueryViewCtrl(
     ScheduleDialog.showModal({
       schedule: $scope.query.schedule,
       refreshOptions: $scope.refreshOptions,
-    }).result.then((schedule) => {
+      resultsetSize: $scope.query.schedule_resultset_size,
+    }).result.then(([schedule, resultsetSize]) => {
       $scope.query.schedule = schedule;
+      $scope.query.schedule_resultset_size = resultsetSize;
       $scope.saveQuery();
     });
   };

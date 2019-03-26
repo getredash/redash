@@ -38,6 +38,7 @@ function getColumnFriendlyName(column) {
 function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const QueryResultByQueryIdResource = $resource('api/queries/:queryId/results/:id.json', { queryId: '@queryId', id: '@id' });
+  const QueryResultSetResource = $resource('api/queries/:id/resultset', { id: '@id' });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
@@ -291,6 +292,16 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
           handleErrorResponse(queryResult, error);
         },
       );
+
+      return queryResult;
+    }
+
+    static getResultSet(queryId) {
+      const queryResult = new QueryResult();
+
+      QueryResultSetResource.get({ id: queryId }, (response) => {
+        queryResult.update(response);
+      });
 
       return queryResult;
     }

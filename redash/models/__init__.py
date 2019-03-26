@@ -269,6 +269,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
         return (
             cls.query.filter(
+                ~QueryResultSet.query.filter(QueryResultSet.result_id == QueryResult.id).exists(),
                 Query.id.is_(None),
                 cls.retrieved_at < age_threshold
             )
@@ -318,6 +319,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             # don't auto-update the updated_at timestamp
             q.skip_updated_at = True
             db.session.add(q)
+            if q.schedule_resultset_size > 0:
+                q.query_results.append(query_result)
         query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
@@ -377,6 +380,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     data_source = db.relationship(DataSource, backref='queries')
     latest_query_data_id = Column(db.Integer, db.ForeignKey("query_results.id"), nullable=True)
     latest_query_data = db.relationship(QueryResult)
+    query_results = db.relationship("QueryResult", secondary="query_resultsets")
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     query_text = Column("query", db.Text)
@@ -391,6 +395,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(MutableDict.as_mutable(PseudoJSON), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
+    schedule_resultset_size = Column(db.Integer, nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
     search_vector = Column(TSVectorType('id', 'name', 'description', 'query',
@@ -591,6 +596,37 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return all_queries.search(term, sort=True).limit(limit)
 
     @classmethod
+    def delete_stale_resultsets(cls):
+        delete_count = 0
+        texts = [c[0] for c in db.session.query(Query.query_text)
+                 .filter(Query.schedule_resultset_size != None).distinct()]
+        for text in texts:
+            queries = (Query.query.filter(Query.query_text == text,
+                                          Query.schedule_resultset_size != None)
+                       .order_by(Query.schedule_resultset_size.desc()))
+            # Multiple queries with the same text may request multiple result sets
+            # be kept. We start with the one that keeps the most, and delete both
+            # the unneeded bridge rows and result sets.
+            first_query = queries.first()
+            if first_query is not None and first_query.schedule_resultset_size:
+                resultsets = QueryResultSet.query.filter(QueryResultSet.query_rel == first_query).order_by(QueryResultSet.result_id)
+                resultset_count = resultsets.count()
+                if resultset_count > first_query.schedule_resultset_size:
+                    n_to_delete = resultset_count - first_query.schedule_resultset_size
+                    r_ids = [r.result_id for r in resultsets][:n_to_delete]
+                    QueryResultSet.query.filter(QueryResultSet.result_id.in_(r_ids)).delete(synchronize_session=False)
+                    delete_count += QueryResult.query.filter(QueryResult.id.in_(r_ids)).delete(synchronize_session=False)
+            # By this point there are no stale result sets left.
+            # Delete unneeded bridge rows for the remaining queries.
+            for q in queries[1:]:
+                resultsets = db.session.query(QueryResultSet.result_id).filter(QueryResultSet.query_rel == q).order_by(QueryResultSet.result_id)
+                n_to_delete = resultsets.count() - q.schedule_resultset_size
+                if n_to_delete > 0:
+                    stale_r = QueryResultSet.query.filter(QueryResultSet.result_id.in_(resultsets.limit(n_to_delete).subquery()))
+                    stale_r.delete(synchronize_session=False)
+        return delete_count
+
+    @classmethod
     def search_by_user(cls, term, user, limit=None):
         return cls.by_user(user).search(term, sort=True).limit(limit)
 
@@ -681,6 +717,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @property
     def parameterized(self):
         return ParameterizedQuery(self.query_text, self.parameters)
+
+
+class QueryResultSet(db.Model):
+    query_id = Column(db.Integer, db.ForeignKey("queries.id"),
+                      primary_key=True)
+    query_rel = db.relationship(Query)
+    result_id = Column(db.Integer, db.ForeignKey("query_results.id"),
+                       primary_key=True)
+    result = db.relationship(QueryResult)
+    __tablename__ = 'query_resultsets'
 
 
 @listens_for(Query.query_text, 'set')
