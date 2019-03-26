@@ -562,7 +562,7 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 435);
         });
 
-        it('auto height revoked after manual height adjustment', () => {
+        it('revokes auto height after manual height adjustment', () => {
           // listen to results
           cy.server();
           cy.route('GET', 'api/query_results/*').as('FreshResults');
