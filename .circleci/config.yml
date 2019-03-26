@@ -52,7 +52,7 @@ jobs:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
       - run: npm install
-      - run: npm run lint
+      - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
   frontend-unit-tests:
