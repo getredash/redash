@@ -197,6 +197,7 @@ class QueryListResource(BaseQueryListResource):
         :<json string name:
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json number schedule_resultset_size: Number of result sets to keep (null to keep only one)
         :<json object options: Query options
 
         .. _query-response-label:
@@ -234,6 +235,8 @@ class QueryListResource(BaseQueryListResource):
         query_def['data_source'] = data_source
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
+        if query_def.get('schedule_resultset_size') == 1:
+            query_def['schedule_resultset_size'] = None
         query = models.Query.create(**query_def)
         query.record_changes(changed_by=self.current_user)
         models.db.session.add(query)
