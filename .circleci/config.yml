@@ -114,10 +114,13 @@ workflows:
       - python-flake8-tests
       - legacy-python-flake8-tests
       - backend-unit-tests
+      - frontend-lint
       - frontend-unit-tests:
           requires:
             - frontend-lint
       - frontend-e2e-tests
+          requires:
+            - frontend-lint
       - build-tarball:
           requires:
             - backend-unit-tests
