@@ -118,7 +118,7 @@ workflows:
       - frontend-unit-tests:
           requires:
             - frontend-lint
-      - frontend-e2e-tests
+      - frontend-e2e-tests:
           requires:
             - frontend-lint
       - build-tarball:
