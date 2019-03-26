@@ -1,5 +1,8 @@
-import { get } from 'lodash';
+/* global cy, Cypress */
+
 import { createDashboard, createQuery, addTextbox, addWidget } from '../../support/redash-api';
+
+const { get } = Cypress._;
 
 const DRAG_PLACEHOLDER_SELECTOR = '.grid-stack-placeholder';
 

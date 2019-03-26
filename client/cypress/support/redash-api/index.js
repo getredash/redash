@@ -1,6 +1,6 @@
-/* global cy */
+/* global cy, Cypress */
 
-import { extend, get } from 'lodash';
+const { extend, get } = Cypress._;
 
 export function createDashboard(name) {
   return cy.request('POST', 'api/dashboards', { name })
