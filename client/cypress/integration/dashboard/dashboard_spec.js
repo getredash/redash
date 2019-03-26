@@ -262,9 +262,9 @@ describe('Dashboard', () => {
             cy.get('textarea')
               .clear()
               .type(newContent);
-            cy.contains('button', 'Save').click();
           });
 
+        cy.contains('button', 'Save').click();
         cy.get('@textboxEl').should('contain', newContent);
       });
     });
