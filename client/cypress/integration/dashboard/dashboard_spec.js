@@ -382,7 +382,7 @@ describe('Dashboard', () => {
           });
         });
 
-        it('moves two column dragged over snap threshold', () => {
+        it('moves two columns when dragged over snap threshold', () => {
           resizeBy(cy.get('@textboxEl'), 0, 400).then((delta) => {
             expect(delta.width).to.eq(400);
           });
