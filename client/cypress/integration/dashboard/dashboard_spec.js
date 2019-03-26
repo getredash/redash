@@ -171,11 +171,11 @@ describe('Dashboard', () => {
       cy.visit(this.dashboardUrl);
       editDashboard();
       cy.contains('a', 'Add Textbox').click();
-      cy.get('.add-textbox').within(() => {
+      cy.getByTestId('TextboxDialog').within(() => {
         cy.get('textarea').type('Hello World!');
       });
       cy.contains('button', 'Add to Dashboard').click();
-      cy.get('.add-textbox').should('not.exist');
+      cy.getByTestId('TextboxDialog').should('not.exist');
       cy.get('.textbox').should('exist');
     });
 
@@ -256,7 +256,7 @@ describe('Dashboard', () => {
           });
 
         const newContent = '[edited]';
-        cy.get('edit-text-box')
+        cy.getByTestId('TextboxDialog')
           .should('exist')
           .within(() => {
             cy.get('textarea')
