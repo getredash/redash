@@ -126,7 +126,36 @@ class PostgreSQL(BaseSQLQueryRunner):
             schema[table_name]['columns'].append(row['column_name'])
 
     def _get_tables(self, schema):
+        '''
+        relkind constants per https://www.postgresql.org/docs/10/static/catalog-pg-class.html
+        r = regular table
+        v = view
+        m = materialized view
+        f = foreign table
+        p = partitioned table (new in 10)
+        ---
+        i = index
+        S = sequence
+        t = TOAST table
+        c = composite type
+        '''
+
         query = """
+        SELECT s.nspname as table_schema,
+               c.relname as table_name,
+               a.attname as column_name
+        FROM pg_class c
+        JOIN pg_namespace s
+        ON c.relnamespace = s.oid
+        AND s.nspname NOT IN ('pg_catalog', 'information_schema')
+        JOIN pg_attribute a
+        ON a.attrelid = c.oid
+        AND a.attnum > 0
+        AND NOT a.attisdropped
+        WHERE c.relkind IN ('m', 'f', 'p')
+
+        UNION
+
         SELECT table_schema,
                table_name,
                column_name
