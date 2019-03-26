@@ -690,6 +690,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def parameterized(self):
         return ParameterizedQuery(self.query_text, self.parameters)
 
+    @property
+    def dashboard_api_keys(self):
+        query = """SELECT api_keys.api_key
+                   FROM api_keys
+                   JOIN dashboards ON object_id = dashboards.id
+                   JOIN widgets ON dashboards.id = widgets.dashboard_id
+                   JOIN visualizations ON widgets.visualization_id = visualizations.id
+                   JOIN queries ON visualizations.query_id = queries.id
+                   WHERE object_type='dashboards'
+                     AND queries.api_key = :api_key"""
+
+        api_keys = db.session.execute(query, {'api_key': self.api_key}).fetchall()
+        return [api_key[0] for api_key in api_keys]
+
 
 @listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
