@@ -75,6 +75,7 @@ class TextboxDialog extends React.Component {
         }}
         okText={isNew ? 'Add to Dashboard' : 'Save'}
         width={500}
+        wrapProps={{ 'data-test': 'TextboxDialog' }}
       >
         <div className="textbox-dialog">
           <Input.TextArea
