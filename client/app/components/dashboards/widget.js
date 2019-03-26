@@ -19,6 +19,7 @@ const WidgetDialog = {
   },
 };
 
+
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
   bindings: {
