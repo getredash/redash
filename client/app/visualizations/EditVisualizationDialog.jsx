@@ -206,7 +206,7 @@ class EditVisualizationDialog extends React.Component {
               >
                 {map(
                   registeredVisualizations,
-                  vis => <Select.Option key={vis.type}>{vis.name}</Select.Option>,
+                  vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
                 )}
               </Select>
             </div>

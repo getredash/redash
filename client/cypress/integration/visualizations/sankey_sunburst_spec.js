@@ -28,7 +28,7 @@ describe('Sankey and Sunburst', () => {
 
     cy.getByTestId('NewVisualization').click();
     cy.getByTestId('VisualizationType').click();
-    cy.contains('li', 'Sunburst').click();
+    cy.getByTestId('VisualizationType.SUNBURST_SEQUENCE').click();
     cy.getByTestId('VisualizationName').clear().type(visualizationName);
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
@@ -40,7 +40,7 @@ describe('Sankey and Sunburst', () => {
 
     cy.getByTestId('NewVisualization').click();
     cy.getByTestId('VisualizationType').click();
-    cy.contains('li', 'Sankey').click();
+    cy.getByTestId('VisualizationType.SANKEY').click();
     cy.getByTestId('VisualizationName').clear().type(visualizationName);
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
