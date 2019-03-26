@@ -1,4 +1,4 @@
-import '@percy/cypress'; // eslint-disable-line import/no-extraneous-dependencies
+import '@percy/cypress'; // eslint-disable-line import/no-extraneous-dependencies, import/no-unresolved
 
 Cypress.Commands.add('login', (email = 'admin@redash.io', password = 'password') => cy.request({
   url: '/login',
