@@ -651,11 +651,11 @@ describe('Dashboard', () => {
     it('widgets are full widths', () => {
       cy.viewport(801, 800);
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(393);
+        expect($el.width()).to.eq(378);
       });
       cy.viewport(800, 800);
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(785);
+        expect($el.width()).to.eq(770);
       });
     });
 
