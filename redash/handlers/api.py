@@ -42,6 +42,7 @@ from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
                                            QueryDropdownsResource,
                                            QueryResultListResource,
+                                           QueryResultSetResource,
                                            QueryResultResource)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
                                             QuerySnippetResource)
@@ -117,6 +118,7 @@ api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries'
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
 api.add_org_resource(QueryForkResource, '/api/queries/<query_id>/fork', endpoint='query_fork')
+api.add_org_resource(QueryResultSetResource, '/api/queries/<query_id>/resultset', endpoint='query_aggregate_results')
 api.add_org_resource(QueryVersionListResource, '/api/queries/<query_id>/version', endpoint='query_versions')
 api.add_org_resource(ChangeResource, '/api/changes/<change_id>', endpoint='changes')
 

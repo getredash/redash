@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import DatePicker from 'antd/lib/date-picker';
 import TimePicker from 'antd/lib/time-picker';
+import InputNumber from 'antd/lib/input-number';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
 import { capitalize, clone, isEqual } from 'lodash';
@@ -60,10 +61,12 @@ class ScheduleDialog extends React.Component {
     schedule: RefreshScheduleType,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
     dialog: DialogPropType.isRequired,
+    resultsetSize: PropTypes.number,
   };
 
   static defaultProps = {
     schedule: RefreshScheduleDefault,
+    resultsetSize: 1,
   };
 
   state = this.getState();
@@ -81,6 +84,7 @@ class ScheduleDialog extends React.Component {
       interval,
       dayOfWeek: day ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(day)] : null,
       newSchedule,
+      resultsetSize: this.props.resultsetSize,
     };
   }
 
@@ -175,15 +179,19 @@ class ScheduleDialog extends React.Component {
     this.setScheduleUntil(null, date);
   };
 
+  setResultsetSize = (resultsetSize) => {
+    this.setState({ resultsetSize });
+  }
+
   save() {
     const { newSchedule } = this.state;
 
     // save if changed
     if (!isEqual(newSchedule, this.props.schedule)) {
       if (newSchedule.interval) {
-        this.props.dialog.close(clone(newSchedule));
+        this.props.dialog.close([clone(newSchedule), this.state.resultsetSize]);
       } else {
-        this.props.dialog.close(null);
+        this.props.dialog.close([null, this.state.resultsetSize]);
       }
     }
     this.props.dialog.dismiss();
@@ -197,6 +205,7 @@ class ScheduleDialog extends React.Component {
       hour,
       seconds,
       newSchedule: { until },
+      resultsetSize,
     } = this.state;
 
     return (
@@ -266,6 +275,14 @@ class ScheduleDialog extends React.Component {
             </div>
           </div>
         ) : null}
+        Number of query results to keep
+        <InputNumber
+          className="form-control"
+          min={1}
+          defaultValue={resultsetSize || 1}
+          onChange={this.setResultsetSize}
+        />
+
       </Modal>
     );
   }
