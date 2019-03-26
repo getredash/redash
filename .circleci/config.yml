@@ -45,6 +45,16 @@ jobs:
           path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
+  frontend-lint:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/test-results/eslint
+      - run: npm install
+      - run: npm run lint:ci
+      - store_test_results:
+          path: /tmp/test-results
   frontend-unit-tests:
     docker:
       - image: circleci/node:8
@@ -54,6 +64,7 @@ jobs:
       - run: npm install
       - run: npm run bundle
       - run: npm test
+      - run: npm run lint
   frontend-e2e-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.cypress.yml
@@ -105,8 +116,13 @@ workflows:
       - python-flake8-tests
       - legacy-python-flake8-tests
       - backend-unit-tests
-      - frontend-unit-tests
-      - frontend-e2e-tests
+      - frontend-lint
+      - frontend-unit-tests:
+          requires:
+            - frontend-lint
+      - frontend-e2e-tests:
+          requires:
+            - frontend-lint
       - build-tarball:
           requires:
             - backend-unit-tests

@@ -18,6 +18,7 @@ export function createQuery(data, shouldPublish = true) {
     schedule: null,
   }, data);
 
+  // eslint-disable-next-line cypress/no-assigning-return-values
   let request = cy.request('POST', '/api/queries', merged);
   if (shouldPublish) {
     request = request.then(({ body }) => (

@@ -61,7 +61,9 @@ describe('Dashboard', () => {
   it('creates new dashboard', () => {
     cy.visit('/dashboards');
     cy.getByTestId('CreateButton').click();
-    cy.get('li[role="menuitem"]').contains('Dashboard').click();
+    cy.get('li[role="menuitem"]')
+      .contains('Dashboard')
+      .click();
 
     cy.server();
     cy.route('POST', 'api/dashboards').as('NewDashboard');
@@ -145,9 +147,13 @@ describe('Dashboard', () => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId)
           .within(() => {
-            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-              cy.get('li a').contains('Remove From Dashboard').click({ force: true });
-            });
+            cy.get('.widget-menu-regular')
+              .click({ force: true })
+              .within(() => {
+                cy.get('li a')
+                  .contains('Remove From Dashboard')
+                  .click({ force: true });
+              });
           })
           .should('not.exist');
       });
@@ -188,18 +194,27 @@ describe('Dashboard', () => {
     it('edits textbox', function () {
       addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId).as('textboxEl')
+        cy.getByTestId(elTestId)
+          .as('textboxEl')
           .within(() => {
-            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-              cy.get('li a').contains('Edit').click({ force: true });
-            });
+            cy.get('.widget-menu-regular')
+              .click({ force: true })
+              .within(() => {
+                cy.get('li a')
+                  .contains('Edit')
+                  .click({ force: true });
+              });
           });
 
         const newContent = '[edited]';
-        cy.get('edit-text-box').should('exist').within(() => {
-          cy.get('textarea').clear().type(newContent);
-          cy.contains('button', 'Save').click();
-        });
+        cy.get('edit-text-box')
+          .should('exist')
+          .within(() => {
+            cy.get('textarea')
+              .clear()
+              .type(newContent);
+            cy.contains('button', 'Save').click();
+          });
 
         cy.get('@textboxEl').should('contain', newContent);
       });
