@@ -1,26 +1,9 @@
-function addQueryByAPI(data, shouldPublish = true) {
-  const merged = Object.assign({
-    name: 'Test Query',
-    query: 'select 1',
-    data_source_id: 1,
-    options: {
-      parameters: [],
-    },
-    schedule: null,
-  }, data);
-
-  const request = cy.request('POST', '/api/queries', merged);
-  if (shouldPublish) {
-    request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
-  }
-
-  return request.then(({ body }) => body);
-}
+import { createQuery } from '../../support/redash-api';
 
 describe('Edit visualization dialog', () => {
   beforeEach(() => {
     cy.login();
-    addQueryByAPI().then(({ id }) => {
+    createQuery().then(({ id }) => {
       cy.visit(`queries/${id}/source`);
       cy.getByTestId('ExecuteButton').click();
     });
