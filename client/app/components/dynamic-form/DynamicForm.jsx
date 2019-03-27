@@ -180,9 +180,8 @@ class DynamicForm extends React.Component {
 
   renderFields() {
     return this.props.fields.map((field) => {
-      const [firstField] = this.props.fields;
       const FormItem = Form.Item;
-      const { name, title, type, readOnly, contentAfter } = field;
+      const { name, title, type, readOnly, autoFocus, contentAfter } = field;
       const fieldLabel = title || helper.toHuman(name);
       const { feedbackIcons, form } = this.props;
 
@@ -194,11 +193,11 @@ class DynamicForm extends React.Component {
 
       const fieldProps = {
         ...field.props,
-        autoFocus: (firstField === field),
         className: 'w-100',
         name,
         type,
         readOnly,
+        autoFocus,
         placeholder: field.placeholder,
         'data-test': fieldLabel,
       };

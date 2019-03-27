@@ -63,6 +63,7 @@ function getFields(type = {}, target = { options: {} }) {
   normalizeSchema(configurationSchema);
   setDefaultValueForCheckboxes(configurationSchema, target.options);
 
+  const isNewTarget = !target.id;
   const inputs = [
     {
       name: 'name',
@@ -72,6 +73,7 @@ function getFields(type = {}, target = { options: {} }) {
       initialValue: target.name,
       contentAfter: React.createElement('hr'),
       placeholder: `My ${type.name}`,
+      autoFocus: isNewTarget,
     },
     ...orderedInputs(configurationSchema.properties, configurationSchema.order, target.options),
   ];
