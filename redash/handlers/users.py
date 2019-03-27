@@ -38,11 +38,10 @@ order_results = partial(
 
 
 def invite_user(org, inviter, user, send_email=True):
-    email_configured = settings.MAIL_DEFAULT_SENDER is not None
     d = user.to_dict()
 
     invite_url = invite_link_for_user(user)
-    if email_configured and send_email:
+    if settings.email_server_is_configured() and send_email:
         send_invite_email(inviter, user, invite_url, org)
     else:
         d['invite_link'] = invite_url
@@ -229,15 +228,16 @@ class UserResource(BaseResource):
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
 
-        email_changed = 'email' in params and params['email'] != user.email
-        if email_changed:
+        email_address_changed = 'email' in params and params['email'] != user.email
+        needs_to_verify_email = email_address_changed and settings.email_server_is_configured()
+        if needs_to_verify_email:
             user.is_email_verified = False
 
         try:
             self.update_model(user, params)
             models.db.session.commit()
 
-            if email_changed:
+            if needs_to_verify_email:
                 send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,
