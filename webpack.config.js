@@ -72,6 +72,7 @@ const config = {
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
+      { from: "client/app/unsupported.html" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
       { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" }
     ])
