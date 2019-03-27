@@ -6,7 +6,7 @@ REDASH_BASE_PATH=/opt/redash
 
 install_docker(){
     # Install Docker
-    sudo apt-get update 
+    sudo apt-get update
     sudo apt-get -yy install apt-transport-https ca-certificates curl software-properties-common wget pwgen
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -38,6 +38,7 @@ create_config() {
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
+    SECRET_KEY=$(pwgen -1s 32)
     POSTGRES_PASSWORD=$(pwgen -1s 32)
     REDASH_DATABASE_URL="postgresql://postgres:${POSTGRES_PASSWORD}@postgres/postgres"
 
@@ -46,6 +47,7 @@ create_config() {
     echo "REDASH_REDIS_URL=redis://redis:6379/0" >> $REDASH_BASE_PATH/env
     echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> $REDASH_BASE_PATH/env
     echo "REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/env
+    echo "REDASH_SECRET_KEY=$SECRET_KEY" >> $REDASH_BASE_PATH/env
     echo "REDASH_DATABASE_URL=$REDASH_DATABASE_URL" >> $REDASH_BASE_PATH/env
 }
 
