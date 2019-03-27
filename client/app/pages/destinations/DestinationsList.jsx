@@ -43,9 +43,10 @@ class DestinationsList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return Destination.save(target).$promise.then(() => {
+    return Destination.save(target).$promise.then((destination) => {
       this.setState({ loading: true });
       Destination.query(destinations => this.setState({ destinations, loading: false }));
+      return destination;
     }).catch((error) => {
       if (!(error instanceof Error)) {
         error = new Error(get(error, 'data.message', 'Failed saving.'));
@@ -60,9 +61,9 @@ class DestinationsList extends React.Component {
       sourceType: 'Alert Destination',
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
-    }).result.finally(() => {
-      if ($route.current.locals.isNewDestinationPage) {
-        navigateTo('destinations');
+    }).result.then((result = {}) => {
+      if (result.success) {
+        navigateTo(`destinations/${result.data.id}`);
       }
     });
   };

@@ -43,9 +43,10 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.save(target).$promise.then(() => {
+    return DataSource.save(target).$promise.then((dataSource) => {
       this.setState({ loading: true });
       DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
+      return dataSource;
     }).catch((error) => {
       if (!(error instanceof Error)) {
         error = new Error(get(error, 'data.message', 'Failed saving.'));
@@ -61,9 +62,9 @@ class DataSourcesList extends React.Component {
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: 'DS_',
       onCreate: this.createDataSource,
-    }).result.finally(() => {
-      if ($route.current.locals.isNewDataSourcePage) {
-        navigateTo('data_sources');
+    }).result.then((result = {}) => {
+      if (result.success) {
+        navigateTo(`data_sources/${result.data.id}`);
       }
     });
   };

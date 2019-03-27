@@ -58,9 +58,9 @@ class CreateSourceDialog extends React.Component {
     const { selectedType, savingSource } = this.state;
     if (!savingSource) {
       this.setState({ savingSource: true, currentStep: StepEnum.DONE });
-      this.props.onCreate(selectedType, values).then(() => {
+      this.props.onCreate(selectedType, values).then((data) => {
         successCallback('Saved.');
-        this.props.dialog.close({ success: true });
+        this.props.dialog.close({ success: true, data });
       }).catch((error) => {
         this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
         errorCallback(error.message);
