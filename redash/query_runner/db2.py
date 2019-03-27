@@ -1,5 +1,3 @@
-import os
-import json
 import logging
 
 from redash.query_runner import *

@@ -1,8 +1,7 @@
 import logging
 import jwt
 import requests
-
-from redash.utils import json_dumps
+import simplejson
 
 logger = logging.getLogger('jwt_auth')
 
@@ -22,7 +21,7 @@ def get_public_keys(url):
         if 'keys' in data:
             public_keys = []
             for key_dict in data['keys']:
-                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json_dumps(key_dict))
+                public_key = jwt.algorithms.RSAAlgorithm.from_jwk(simplejson.dumps(key_dict))
                 public_keys.append(public_key)
 
             get_public_keys.key_cache[url] = public_keys
