@@ -1,3 +1,5 @@
+/* global cy */
+
 import { createQuery } from '../../support/redash-api';
 
 describe('Edit visualization dialog', () => {

@@ -242,7 +242,8 @@
                     <visualization-renderer visualization="defaultVis" query-result="queryResult"></visualization-renderer>
                   </div>
 
-                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
+                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox"
+                    data-test="QueryPageVisualization{{ vis.id }}">
                     <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                   </div>
                 </div>

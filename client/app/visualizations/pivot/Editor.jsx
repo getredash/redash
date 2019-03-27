@@ -13,6 +13,7 @@ export default function Editor({ options, onOptionsChange }) {
       <label className="d-flex align-items-center" htmlFor="pivot-show-controls">
         <span className="m-r-10">Hide Pivot Controls</span>
         <Switch
+          data-test="PivotEditor.HideControls"
           id="pivot-show-controls"
           checked={options.controls.enabled}
           onChange={enabled => updateOptions({ controls: { enabled } })}
