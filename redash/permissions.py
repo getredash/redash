@@ -14,16 +14,20 @@ ACCESS_TYPE_DELETE = 'delete'
 ACCESS_TYPES = (ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY, ACCESS_TYPE_DELETE)
 
 
-def has_access(object, user, need_view_only):
-    if hasattr(object, 'api_key') and user.is_api_user():
-        return has_access_to_object(object, user, need_view_only)
+def has_access(obj, user, need_view_only):
+    if hasattr(obj, 'api_key') and user.is_api_user():
+        return has_access_to_object(obj, user, need_view_only)
     else:
-        return has_access_to_groups(object.groups, user, need_view_only)
+        return has_access_to_groups(obj, user, need_view_only)
 
-def has_access_to_object(object, user, need_view_only):
-    return (object.api_key == user.id) and need_view_only
 
-def has_access_to_groups(groups, user, need_view_only):
+def has_access_to_object(obj, user, need_view_only):
+    return (obj.api_key == user.id) and need_view_only
+
+
+def has_access_to_groups(obj, user, need_view_only):
+    groups = obj.groups if hasattr(obj, 'groups') else obj
+
     if 'admin' in user.permissions:
         return True
 
@@ -39,8 +43,8 @@ def has_access_to_groups(groups, user, need_view_only):
     return required_level <= group_level
 
 
-def require_access(object, user, need_view_only):
-    if not has_access(object, user, need_view_only):
+def require_access(obj, user, need_view_only):
+    if not has_access(obj, user, need_view_only):
         abort(403)
 
 

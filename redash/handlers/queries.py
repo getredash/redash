@@ -187,9 +187,7 @@ def require_access_to_dropdown_queries(user, query_def):
         object.groups = dict(groups)
         require_access(object, user, view_only)
 
-        object = lambda: None
-        object.groups = dict(groups)
-        require_access(object, user, view_only)
+        require_access(dict(groups), user, view_only)
 
 class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
