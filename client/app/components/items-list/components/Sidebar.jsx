@@ -139,20 +139,18 @@ Tags.propTypes = {
     PageSizeSelect
  */
 
-export function PageSizeSelect({ options, value, onChange }) {
+export function PageSizeSelect({ options, value, onChange, ...props }) {
   return (
-    <div className="m-b-10">
-      <div className="m-b-10">
-        <Select
-          className="w-100"
-          defaultValue={value}
-          onChange={onChange}
-        >
-          {map(options, option => (
-            <Select.Option key={option} value={option}>{ option } results</Select.Option>
-          ))}
-        </Select>
-      </div>
+    <div {...props}>
+      <Select
+        className="w-100"
+        defaultValue={value}
+        onChange={onChange}
+      >
+        {map(options, option => (
+          <Select.Option key={option} value={option}>{ option } results</Select.Option>
+        ))}
+      </Select>
     </div>
   );
 }

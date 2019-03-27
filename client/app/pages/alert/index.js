@@ -1,7 +1,8 @@
 import { template as templateBuilder } from 'lodash';
+import notification from '@/services/notification';
 import template from './alert.html';
 
-function AlertCtrl($scope, $routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
 
   if (this.alertId === 'new') {
@@ -61,13 +62,13 @@ function AlertCtrl($scope, $routeParams, $location, $sce, toastr, currentUser, Q
     }
     this.alert.$save(
       (alert) => {
-        toastr.success('Saved.');
+        notification.success('Saved.');
         if (this.alertId === 'new') {
           $location.path(`/alerts/${alert.id}`).replace();
         }
       },
       () => {
-        toastr.error('Failed saving alert.');
+        notification.error('Failed saving alert.');
       },
     );
   };
@@ -76,10 +77,10 @@ function AlertCtrl($scope, $routeParams, $location, $sce, toastr, currentUser, Q
     this.alert.$delete(
       () => {
         $location.path('/alerts');
-        toastr.success('Alert deleted.');
+        notification.success('Alert deleted.');
       },
       () => {
-        toastr.error('Failed deleting alert.');
+        notification.error('Failed deleting alert.');
       },
     );
   };

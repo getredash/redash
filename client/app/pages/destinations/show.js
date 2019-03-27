@@ -1,9 +1,9 @@
 import { find } from 'lodash';
 import template from './show.html';
-import { deleteConfirm, logAndToastrError, toastrSuccessAndPath } from '../data-sources/show';
+import { deleteConfirm, logAndNotifyError, notifySuccessAndPath } from '../data-sources/show';
 
 function DestinationCtrl(
-  $scope, $route, $routeParams, $http, $location, toastr,
+  $scope, $route, $routeParams, $http, $location,
   currentUser, AlertDialog, Destination,
 ) {
   $scope.destination = $route.current.locals.destination;
@@ -31,9 +31,9 @@ function DestinationCtrl(
   function deleteDestination(callback) {
     const doDelete = () => {
       $scope.destination.$delete(() => {
-        toastrSuccessAndPath('Destination', 'destinations', toastr, $location);
+        notifySuccessAndPath('Destination', 'destinations', $location);
       }, (httpResponse) => {
-        logAndToastrError('destination', httpResponse, toastr);
+        logAndNotifyError('destination', httpResponse);
       });
     };
 

@@ -3,12 +3,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { Query } from '@/services/query';
 
 const { Option } = Select;
 
 export class QueryBasedParameterInput extends React.Component {
   static propTypes = {
+    parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
@@ -17,6 +17,7 @@ export class QueryBasedParameterInput extends React.Component {
 
   static defaultProps = {
     value: null,
+    parameter: null,
     queryId: null,
     onSelect: () => {},
     className: '',
@@ -41,19 +42,20 @@ export class QueryBasedParameterInput extends React.Component {
     }
   }
 
-  _loadOptions(queryId) {
+  async _loadOptions(queryId) {
     if (queryId && (queryId !== this.state.queryId)) {
       this.setState({ loading: true });
-      Query.dropdownOptions({ id: queryId }, (options) => {
-        if (this.props.queryId === queryId) {
-          this.setState({ options, loading: false });
+      const options = await this.props.parameter.loadDropdownValues();
 
-          const found = find(options, option => option.value === this.props.value) !== undefined;
-          if (!found && isFunction(this.props.onSelect)) {
-            this.props.onSelect(options[0].value);
-          }
+      // stale queryId check
+      if (this.props.queryId === queryId) {
+        this.setState({ options, loading: false });
+
+        const found = find(options, option => option.value === this.props.value) !== undefined;
+        if (!found && isFunction(this.props.onSelect)) {
+          this.props.onSelect(options[0].value);
         }
-      });
+      }
     }
   }
 

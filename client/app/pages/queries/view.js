@@ -4,6 +4,7 @@ import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
 import Notifications from '@/services/notifications';
 import ScheduleDialog from '@/components/queries/ScheduleDialog';
+import notification from '@/services/notification';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -20,7 +21,6 @@ function QueryViewCtrl(
   Title,
   AlertDialog,
   clientConfig,
-  toastr,
   $uibModal,
   currentUser,
   Query,
@@ -79,9 +79,9 @@ function QueryViewCtrl(
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         $scope.schema = undefined;
       } else if (data.error.code === SCHEMA_LOAD_ERROR) {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       } else {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       }
     });
   }
@@ -253,7 +253,7 @@ function QueryViewCtrl(
     return Query.save(
       request,
       (updatedQuery) => {
-        toastr.success(options.successMessage);
+        notification.success(options.successMessage);
         $scope.query.version = updatedQuery.version;
       },
       (error) => {
@@ -267,13 +267,14 @@ function QueryViewCtrl(
 
             AlertDialog.open(title, message, confirm).then(overwrite);
           } else {
-            toastr.error(
+            notification.error(
+              'Changes not saved',
               errorMessage + ' Please copy/backup your changes and reload this page.',
-              { autoDismiss: false },
+              { duration: null },
             );
           }
         } else {
-          toastr.error(options.errorMessage);
+          notification.error(options.errorMessage);
         }
       },
     ).$promise;
@@ -316,7 +317,7 @@ function QueryViewCtrl(
           $scope.query.schedule = null;
         },
         () => {
-          toastr.error('Query could not be archived.');
+          notification.error('Query could not be archived.');
         },
       );
     }
@@ -377,7 +378,7 @@ function QueryViewCtrl(
           $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
         },
         () => {
-          toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
+          notification.error('Error deleting visualization.', 'Maybe it\'s used in a dashboard?');
         },
       );
     });

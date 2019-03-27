@@ -1,26 +1,28 @@
 import logging
-logger = logging.getLogger('ldap_auth')
+import sys
 
 from redash import settings
 
 from flask import flash, redirect, render_template, request, url_for, Blueprint
-from flask_login import current_user, login_required, login_user, logout_user
+from flask_login import current_user
 
 try:
-    from ldap3 import Server, Connection, SIMPLE, ANONYMOUS, NTLM
+    from ldap3 import Server, Connection
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
-        logger.error("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
-        exit()
+        sys.exit("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
 
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index, get_next_path
 from redash.authentication.org_resolving import current_org
+from redash.handlers.base import org_scoped_rule
+
+logger = logging.getLogger('ldap_auth')
 
 
 blueprint = Blueprint('ldap_auth', __name__)
 
 
-@blueprint.route("/ldap/login", methods=['GET', 'POST'])
+@blueprint.route(org_scoped_rule("/ldap/login"), methods=['GET', 'POST'])
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
     unsafe_next_path = request.args.get('next', index_url)

@@ -1,5 +1,6 @@
 import { map } from 'lodash';
 import { copy } from 'angular';
+import notification from '@/services/notification';
 import template from './edit-visualization-dialog.html';
 
 const EditVisualizationDialog = {
@@ -9,7 +10,7 @@ const EditVisualizationDialog = {
     close: '&',
     dismiss: '&',
   },
-  controller($window, currentUser, Events, Visualization, toastr) {
+  controller($window, currentUser, Events, Visualization) {
     'ngInject';
 
     this.query = this.resolve.query;
@@ -58,7 +59,7 @@ const EditVisualizationDialog = {
       Visualization.save(
         this.visualization,
         (result) => {
-          toastr.success('Visualization saved');
+          notification.success('Visualization saved');
 
           const visIds = map(this.query.visualizations, i => i.id);
           const index = visIds.indexOf(result.id);
@@ -74,7 +75,7 @@ const EditVisualizationDialog = {
           this.close();
         },
         () => {
-          toastr.error('Visualization could not be saved');
+          notification.error('Visualization could not be saved');
         },
       );
     };
