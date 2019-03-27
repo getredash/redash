@@ -1,7 +1,8 @@
 import 'brace/mode/snippets';
+import notification from '@/services/notification';
 import template from './edit.html';
 
-function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertDialog, QuerySnippet) {
+function SnippetCtrl($routeParams, $http, $location, currentUser, AlertDialog, QuerySnippet) {
   this.snippetId = $routeParams.snippetId;
 
   this.editorOptions = {
@@ -20,12 +21,12 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertD
 
   this.saveChanges = () => {
     this.snippet.$save((snippet) => {
-      toastr.success('Saved.');
+      notification.success('Saved.');
       if (this.snippetId === 'new') {
         $location.path(`/query_snippets/${snippet.id}`).replace();
       }
     }, () => {
-      toastr.error('Failed saving snippet.');
+      notification.error('Failed saving snippet.');
     });
   };
 
@@ -33,9 +34,9 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertD
     const doDelete = () => {
       this.snippet.$delete(() => {
         $location.path('/query_snippets');
-        toastr.success('Query snippet deleted.');
+        notification.success('Query snippet deleted.');
       }, () => {
-        toastr.error('Failed deleting query snippet.');
+        notification.error('Failed deleting query snippet.');
       });
     };
 
@@ -69,3 +70,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

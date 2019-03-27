@@ -1,7 +1,8 @@
-import settingsMenu from '@/lib/settings-menu';
+import settingsMenu from '@/services/settingsMenu';
+import notification from '@/services/notification';
 import template from './organization.html';
 
-function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
+function OrganizationSettingsCtrl($http, clientConfig, Events) {
   Events.record('view', 'page', 'org_settings');
 
   this.settings = {};
@@ -12,22 +13,22 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
   this.update = (key) => {
     $http.post('api/settings/organization', { [key]: this.settings[key] }).then((response) => {
       this.settings = response.data.settings;
-      toastr.success('Settings changes saved.');
+      notification.success('Settings changes saved.');
 
       if (this.disablePasswordLoginToggle() && this.settings.auth_password_login_enabled === false) {
         this.settings.auth_password_login_enabled = true;
         this.update('auth_password_login_enabled');
       }
     }).catch(() => {
-      toastr.error('Failed saving changes.');
+      notification.error('Failed saving changes.');
     });
   };
 
   this.dateFormatList = clientConfig.dateFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
 
-  this.disablePasswordLoginToggle = () =>
-    (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
+  // eslint-disable-next-line max-len
+  this.disablePasswordLoginToggle = () => (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
 }
 
 export default function init(ngModule) {
@@ -51,3 +52,4 @@ export default function init(ngModule) {
   };
 }
 
+init.init = true;

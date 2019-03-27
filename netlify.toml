@@ -1,0 +1,39 @@
+[build]
+  base    = "client"
+  publish = "client/dist"
+  command = "npm install && npm run build"
+
+[[redirects]]
+  from = "/api/*"
+  to = "http://preview-backend.redashapp.com/api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "http://preview-login.redashapp.com/login"
+  status = 200
+
+[[redirects]]
+  from = "/logout"
+  to = "http://preview-backend.redashapp.com/logout"
+  status = 200
+
+[[redirects]]
+  from = "/status.json"
+  to = "http://preview-backend.redashapp.com/status.json"
+  status = 200
+
+[[redirects]]
+  from = "/static/server*"
+  to = "http://preview-backend.redashapp.com/static/server:splat"
+  status = 200
+
+[[redirects]]
+  from = "/static/*"
+  to = "/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

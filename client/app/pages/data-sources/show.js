@@ -1,20 +1,21 @@
 import { find } from 'lodash';
 import debug from 'debug';
 import template from './show.html';
+import notification from '@/services/notification';
 
 const logger = debug('redash:http');
-const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
-function logAndToastrError(deleteObject, httpResponse, toastr) {
+export const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
+export function logAndNotifyError(deleteObject, httpResponse) {
   logger('Failed to delete ' + deleteObject + ': ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-  toastr.error('Failed to delete ' + deleteObject + '.');
+  notification.error('Failed to delete ' + deleteObject + '.');
 }
-function toastrSuccessAndPath(deleteObject, deletePath, toastr, $location) {
-  toastr.success(deleteObject + ' deleted successfully.');
+export function notifySuccessAndPath(deleteObject, deletePath, $location) {
+  notification.success(deleteObject + ' deleted successfully.');
   $location.path('/' + deletePath + '/');
 }
 
 function DataSourceCtrl(
-  $scope, $route, $routeParams, $http, $location, toastr,
+  $scope, $route, $routeParams, $http, $location,
   currentUser, AlertDialog, DataSource,
 ) {
   $scope.dataSource = $route.current.locals.dataSource;
@@ -53,9 +54,9 @@ function DataSourceCtrl(
   function deleteDataSource(callback) {
     const doDelete = () => {
       $scope.dataSource.$delete(() => {
-        toastrSuccessAndPath('Data source', 'data_sources', toastr, $location);
+        notifySuccessAndPath('Data source', 'data_sources', $location);
       }, (httpResponse) => {
-        logAndToastrError('data source', httpResponse, toastr);
+        logAndNotifyError('data source', httpResponse);
       });
     };
 
@@ -68,22 +69,22 @@ function DataSourceCtrl(
   function testConnection(callback) {
     DataSource.test({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
-        toastr.success('Success');
+        notification.success('Success');
       } else {
-        toastr.error(httpResponse.message, 'Connection Test Failed:', { timeOut: 10000 });
+        notification.error('Connection Test Failed:', httpResponse.message, { duration: 10 });
       }
       callback();
     }, (httpResponse) => {
       logger('Failed to test data source: ', httpResponse.status, httpResponse.statusText, httpResponse);
-      toastr.error('Unknown error occurred while performing connection test. Please try again later.', 'Connection Test Failed:', { timeOut: 10000 });
+      notification.error('Connection Test Failed:', 'Unknown error occurred while performing connection test. Please try again later.', { duration: 10 });
       callback();
     });
   }
 
   $scope.actions = [
-    { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
+    { name: 'Delete', type: 'danger', callback: deleteDataSource },
     {
-      name: 'Test Connection', class: 'btn-default pull-right', callback: testConnection, disableWhenDirty: true,
+      name: 'Test Connection', pullRight: true, callback: testConnection, disableWhenDirty: true,
     },
   ];
 }
@@ -128,3 +129,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

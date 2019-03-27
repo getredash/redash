@@ -1,5 +1,4 @@
-import settingsMenu from '@/lib/settings-menu';
-import { isFunction } from 'lodash';
+import settingsMenu from '@/services/settingsMenu';
 import template from './settings-screen.html';
 
 export default function init(ngModule) {
@@ -8,13 +7,10 @@ export default function init(ngModule) {
     template,
     controller($location, currentUser) {
       this.settingsMenu = settingsMenu;
-      this.isActive = (menuItem) => {
-        if (isFunction(menuItem.isActive)) {
-          return menuItem.isActive($location);
-        }
-        return $location.path().startsWith(menuItem.pathPrefix);
-      };
+      this.isActive = menuItem => menuItem.isActive($location.path());
       this.isAvailable = permission => permission === undefined || currentUser.hasPermission(permission);
     },
   });
 }
+
+init.init = true;

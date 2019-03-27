@@ -6,4 +6,4 @@ FILENAME=$NAME.$FULL_VERSION.tar.gz
 
 mkdir -p /tmp/artifacts/
 
-tar -zcv -f /tmp/artifacts/$FILENAME --exclude="optipng*" --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="node_modules" *
+tar -zcv -f /tmp/artifacts/$FILENAME --exclude=".git" --exclude="optipng*" --exclude="cypress" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" *

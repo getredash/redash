@@ -202,8 +202,11 @@ edit-in-place p.editable:hover {
   }
 }
 
-.visualization-renderer .pagination {
-  margin-top: 10px;
+.visualization-renderer {
+  .pagination,
+  .ant-pagination {
+    margin-top: 10px;
+  }
 }
 
 .embed__vis {
@@ -221,23 +224,29 @@ edit-in-place p.editable:hover {
 }
 
 .page-header--new {
-  .label-default {
-    margin-right: 3px;
+  .query-tags,
+  .query-tags__mobile {
+    .label-default,
+    .label-warning {
+      margin-right: 3px;
+    }
   }
 }
 
 .page-header--query {
   .page-title {
     display: block;
+    margin-left: 15px;
+    margin-right: 15px;
   }
 }
 
 a.label-tag {
   background: fade(@redash-gray, 15%);
-  color: #333;
+  color: darken(@redash-gray, 15%);
 
   &:hover {
-    color: #333;
+    color: darken(@redash-gray, 15%);
     background: fade(@redash-gray, 25%);
   }
 }
@@ -520,9 +529,51 @@ nav .rg-bottom {
   }
 }
 
+.query-tags {
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -3px; // padding-top of tags
+}
+
+.query-tags__mobile {
+  display: none;
+  margin: -5px 0 0 0;
+  padding: 0 0 0 23px;
+}
+
+.table--permission {
+  .profile__image {
+    margin-right: 0;
+  }
+}
+
+.mp__permission-type {
+  text-transform: capitalize;
+}
+
 // Smaller screens
 
 @media (max-width: 880px) {
+  .page-header--query {
+    .page-title {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .query-tags:not(.query-tags__empty) {
+    display: none;
+  }
+
+  .query-tags__mobile:not(.query-tags__empty) {
+    display: block;
+  }
+
+  .btn--showhide,
+  .query-actions-menu .dropdown-toggle {
+    margin-bottom: 5px;
+  }
+
   .btn-publish {
     display: none;
   }
@@ -601,33 +652,14 @@ nav .rg-bottom {
     }
   }
 
-  a.navbar-brand {
-    display: none;
-  }
-
   .datasource-small {
     visibility: visible;
-  }
-}
-
-
-@media (max-width: 438px) {
-  .btn--showhide {
-    margin-bottom: 5px;
-  }
-
-  .btn-publish {
-    margin-bottom: 5px;
   }
 }
 
 @media (max-width: 768px) {
   .editor__left__schema, .editor__left__data-source {
     display: none;
-  }
-
-  a.navbar-brand {
-    display: block;
   }
 
   .filter-container {

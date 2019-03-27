@@ -243,7 +243,7 @@
         <input ng-model="yAxis.rangeMax" type="number" step="any" placeholder="Auto" class="form-control">
       </div>
 
-      <div class="checkbox">
+      <div class="checkbox" ng-if="options.globalSeriesType == 'heatmap'">
         <label>
           <input type="checkbox" ng-model="options.sortY">
           <i class="input-helper"></i> Sort Values
@@ -405,7 +405,7 @@
     <div class="form-group">
       <label for="chart-editor-number-format">
         Number Values Format
-        <span class="m-l-5" uib-popover-html="'Format <a href=&quot;http://numeraljs.com/&quot; target=&quot;_blank&quot;>specs.</a>'"
+        <span class="m-l-5" uib-popover-html="'Format <a href=&quot;https://redash.io/help/user-guide/visualizations/formatting-numbers&quot; target=&quot;_blank&quot;>specs.</a>'"
           popover-trigger="'click outsideClick'">
           <i class="fa fa-question-circle"></i>
         </span>
@@ -416,7 +416,7 @@
     <div class="form-group">
       <label for="chart-editor-percent-format">
         Percent Values Format
-        <span class="m-l-5" uib-popover-html="'Format <a href=&quot;http://numeraljs.com/&quot; target=&quot;_blank&quot;>specs.</a>'"
+        <span class="m-l-5" uib-popover-html="'Format <a href=&quot;https://redash.io/help/user-guide/visualizations/formatting-numbers&quot; target=&quot;_blank&quot;>specs.</a>'"
           popover-trigger="'click outsideClick'">
           <i class="fa fa-question-circle"></i>
         </span>

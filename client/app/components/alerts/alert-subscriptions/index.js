@@ -1,7 +1,8 @@
 import { includes, without, compact } from 'lodash';
+import notification from '@/services/notification';
 import template from './alert-subscriptions.html';
 
-function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination, toastr) {
+function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination) {
   'ngInject';
 
   $scope.newSubscription = {};
@@ -60,7 +61,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
     sub.$save(
       () => {
-        toastr.success('Subscribed.');
+        notification.success('Subscribed.');
         $scope.subscribers.push(sub);
         $scope.destinations = without($scope.destinations, $scope.newSubscription.destination);
         if ($scope.destinations.length > 0) {
@@ -70,7 +71,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
         }
       },
       () => {
-        toastr.error('Failed saving subscription.');
+        notification.error('Failed saving subscription.');
       },
     );
   };
@@ -81,7 +82,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
     subscriber.$delete(
       () => {
-        toastr.success('Unsubscribed');
+        notification.success('Unsubscribed');
         $scope.subscribers = without($scope.subscribers, subscriber);
         if (destination) {
           $scope.destinations.push(destination);
@@ -94,7 +95,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
         }
       },
       () => {
-        toastr.error('Failed unsubscribing.');
+        notification.error('Failed unsubscribing.');
       },
     );
   };
@@ -111,3 +112,5 @@ export default function init(ngModule) {
     controller,
   }));
 }
+
+init.init = true;

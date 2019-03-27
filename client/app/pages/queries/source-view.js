@@ -1,15 +1,14 @@
-import { map } from 'lodash';
+import { map, defer } from 'lodash';
 import template from './query.html';
+import EditParameterSettingsDialog from '@/components/EditParameterSettingsDialog';
 
 function QuerySourceCtrl(
   Events,
-  toastr,
   $controller,
   $scope,
   $location,
   $uibModal,
   currentUser,
-  Query,
   KeyboardShortcuts,
   $rootScope,
 ) {
@@ -53,9 +52,7 @@ function QuerySourceCtrl(
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = (newQueryText) => {
-    $scope.query.query = newQueryText;
-  };
+  $scope.updateQuery = newQueryText => defer(() => $scope.$apply(() => { $scope.query.query = newQueryText; }));
 
   // @override
   $scope.saveQuery = (options, data) => {
@@ -76,37 +73,30 @@ function QuerySourceCtrl(
     return savePromise;
   };
 
-  $scope.formatQuery = () => {
-    Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then($scope.updateQuery)
-      .catch(error => toastr.error(error));
-  };
-
-  $scope.autoCompleteQuery = true;
-  $scope.toggleAutoComplete = () => {
-    $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
-  };
-
   $scope.addNewParameter = () => {
-    $uibModal
-      .open({
-        component: 'parameterSettings',
-        resolve: {
-          parameter: {
-            title: '',
-            name: '',
-            type: 'text',
-            value: null,
-            global: false,
-          },
-          existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
+    EditParameterSettingsDialog
+      .showModal({
+        parameter: {
+          title: null,
+          name: '',
+          type: 'text',
+          value: null,
         },
+        existingParams: map($scope.query.getParameters().get(), p => p.name),
       })
       .result.then((param) => {
         param = $scope.query.getParameters().add(param);
         $rootScope.$broadcast('query-editor.command', 'paste', param.toQueryTextFragment());
         $rootScope.$broadcast('query-editor.command', 'focus');
       });
+  };
+
+  $scope.onParametersUpdated = () => {
+    // save if query clean
+    // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
+    if (!$scope.isDirty) {
+      $scope.saveQuery();
+    }
   };
 
   $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
@@ -154,3 +144,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

@@ -5,9 +5,9 @@
 >
   <div class="form-group m-r-10" ng-repeat="param in parameters">
     <label class="parameter-label">{{param.title}}</label>
-    <button class="btn btn-default btn-xs" ng-if="editable" ng-click="showParameterSettings(param)">
+    <button class="btn btn-default btn-xs" ng-if="editable" ng-click="showParameterSettings(param, $index)">
       <i class="zmdi zmdi-settings"></i>
     </button>
-    <parameter-input param="param"></parameter-input>
+    <parameter-value-input param="param"></parameter-value-input>
   </div>
 </div>

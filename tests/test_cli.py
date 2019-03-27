@@ -70,11 +70,20 @@ class DataSourceCommandTests(BaseTestCase):
         self.factory.create_data_source(
             name='test2', type='sqlite',
             options=ConfigurationContainer({"dbpath": "/tmp/test.db"}))
+
+        self.factory.create_data_source(
+            name='Atest', type='sqlite',
+            options=ConfigurationContainer({"dbpath": "/tmp/test.db"}))
         runner = CliRunner()
         result = runner.invoke(manager, ['ds', 'list'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         expected_output = """
+        Id: 3
+        Name: Atest
+        Type: sqlite
+        Options: {"dbpath": "/tmp/test.db"}
+        --------------------
         Id: 1
         Name: test1
         Type: pg
@@ -208,6 +217,9 @@ class GroupCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_group(name='test', permissions=['list_dashboards'])
+        self.factory.create_group(name='agroup', permissions=['list_dashboards'])
+        self.factory.create_group(name='bgroup', permissions=['list_dashboards'])
+
         self.factory.create_user(name='Fred Foobar',
                          email=u'foobar@example.com',
                          org=self.factory.org,
@@ -222,18 +234,35 @@ class GroupCommandTests(BaseTestCase):
         Name: admin
         Type: builtin
         Organization: default
+        Permissions: [admin,super_admin]
+        Users: 
+        --------------------
+        Id: 4
+        Name: agroup
+        Type: regular
+        Organization: default
+        Permissions: [list_dashboards]
+        Users: 
+        --------------------
+        Id: 5
+        Name: bgroup
+        Type: regular
+        Organization: default
+        Permissions: [list_dashboards]
         Users: 
         --------------------
         Id: 2
         Name: default
         Type: builtin
         Organization: default
+        Permissions: [create_dashboard,create_query,edit_dashboard,edit_query,view_query,view_source,execute_query,list_users,schedule_query,list_dashboards,list_alerts,list_data_sources]
         Users: Fred Foobar
         --------------------
         Id: 3
         Name: test
         Type: regular
         Organization: default
+        Permissions: [list_dashboards]
         Users: 
         """
         self.assertMultiLineEqual(result.output,
@@ -267,11 +296,21 @@ class OrganizationCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_org(name='test', slug='test_org')
+        self.factory.create_org(name='Borg', slug='B_org')
+        self.factory.create_org(name='Aorg', slug='A_org')
         runner = CliRunner()
         result = runner.invoke(manager, ['org', 'list'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         output = """
+        Id: 4
+        Name: Aorg
+        Slug: A_org
+        --------------------
+        Id: 3
+        Name: Borg
+        Slug: B_org
+        --------------------
         Id: 1
         Name: Default
         Slug: default
@@ -390,14 +429,37 @@ class UserCommandTests(BaseTestCase):
         self.factory.create_user(name='Fred Foobar',
                                  email=u'foobar@example.com',
                                  org=self.factory.org)
+
+        self.factory.create_user(name='William Foobar',
+                                 email=u'william@example.com',
+                                 org=self.factory.org)
+
+        self.factory.create_user(name='Andrew Foobar',
+                                 email=u'andrew@example.com',
+                                 org=self.factory.org)
+
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'list'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         output = """
+        Id: 3
+        Name: Andrew Foobar
+        Email: andrew@example.com
+        Organization: Default
+        Active: True
+        Groups: default
+        --------------------
         Id: 1
         Name: Fred Foobar
         Email: foobar@example.com
+        Organization: Default
+        Active: True
+        Groups: default
+        --------------------
+        Id: 2
+        Name: William Foobar
+        Email: william@example.com
         Organization: Default
         Active: True
         Groups: default

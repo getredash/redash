@@ -13,6 +13,9 @@ os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
+# Make sure rate limit is enabled
+os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
+
 from redash import create_app
 from redash import redis_connection
 from redash.models import db
@@ -26,7 +29,7 @@ logging.getLogger("metrics").setLevel("ERROR")
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.id
+        sess['user_id'] = user.get_id()
 
 
 @contextmanager

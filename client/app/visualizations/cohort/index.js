@@ -115,17 +115,21 @@ function prepareSimpleData(sortedData, options) {
 function prepareData(rawData, options) {
   rawData = _.map(rawData, item => ({
     date: item[options.dateColumn],
-    stage: item[options.stageColumn],
-    total: item[options.totalColumn],
-    value: item[options.valueColumn],
+    stage: parseInt(item[options.stageColumn], 10),
+    total: parseFloat(item[options.totalColumn]),
+    value: parseFloat(item[options.valueColumn]),
   }));
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.stage, 10));
+  const sortedData = _.sortBy(rawData, r => r.date + r.stage);
   const initialDate = moment(sortedData[0].date).toDate();
 
   let data;
   switch (options.mode) {
-    case 'simple': data = prepareSimpleData(sortedData, options); break;
-    default: data = prepareDiagonalData(sortedData, options); break;
+    case 'simple':
+      data = prepareSimpleData(sortedData, options);
+      break;
+    default:
+      data = prepareDiagonalData(sortedData, options);
+      break;
   }
 
   return { data, initialDate };
@@ -160,10 +164,7 @@ function cohortRenderer() {
           return;
         }
 
-        const { data, initialDate } = prepareData(
-          $scope.queryResult.getData(),
-          $scope.options,
-        );
+        const { data, initialDate } = prepareData($scope.queryResult.getData(), $scope.options);
 
         Cornelius.draw({
           initialDate,
@@ -234,3 +235,5 @@ export default function init(ngModule) {
     });
   });
 }
+
+init.init = true;

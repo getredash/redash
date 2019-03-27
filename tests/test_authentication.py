@@ -1,18 +1,19 @@
 import os
 import time
 
+from six.moves import reload_module
+
 from flask import request
 from mock import patch
-from six.moves import reload_module
-from sqlalchemy.orm.exc import NoResultFound
-from tests import BaseTestCase
-
 from redash import models, settings
 from redash.authentication import (api_key_load_user_from_request,
                                    get_login_url, hmac_load_user_from_request,
                                    sign)
 from redash.authentication.google_oauth import (create_and_login_user,
                                                 verify_profile)
+from redash.utils import utcnow
+from sqlalchemy.orm.exc import NoResultFound
+from tests import BaseTestCase
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -53,6 +54,14 @@ class TestApiKeyAuthentication(BaseTestCase):
         with self.app.test_client() as c:
             rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
             self.assertEqual(user.id, api_key_load_user_from_request(request).id)
+
+    def test_disabled_user_api_key(self):
+        user = self.factory.create_user(api_key="user_key")
+        user.disable()
+        models.db.session.flush()
+        with self.app.test_client() as c:
+            rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
+            self.assertEqual(None, api_key_load_user_from_request(request))
 
     def test_api_key_header(self):
         with self.app.test_client() as c:

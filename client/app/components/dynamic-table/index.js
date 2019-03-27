@@ -2,8 +2,12 @@ import { find, filter, map, each } from 'lodash';
 import template from './dynamic-table.html';
 import './dynamic-table.less';
 
+function isNullOrUndefined(v) {
+  return v === null || v === undefined;
+}
+
 function filterRows(rows, searchTerm, columns) {
-  if ((searchTerm === '') || (columns.length === 0) || (rows.length === 0)) {
+  if (searchTerm === '' || columns.length === 0 || rows.length === 0) {
     return rows;
   }
   searchTerm = searchTerm.toUpperCase();
@@ -24,7 +28,7 @@ function filterRows(rows, searchTerm, columns) {
 }
 
 function sortRows(rows, orderBy) {
-  if ((orderBy.length === 0) || (rows.length === 0)) {
+  if (orderBy.length === 0 || rows.length === 0) {
     return rows;
   }
   // Create a copy of array before sorting, because .sort() will modify original array
@@ -34,11 +38,11 @@ function sortRows(rows, orderBy) {
     for (let i = 0; i < orderBy.length; i += 1) {
       va = a[orderBy[i].name];
       vb = b[orderBy[i].name];
-      if (va < vb) {
+      if (isNullOrUndefined(va) || va < vb) {
         // if a < b - we should return -1, but take in account direction
         return orderBy[i].direction * -1;
       }
-      if (va > vb) {
+      if (va > vb || isNullOrUndefined(vb)) {
         // if a > b - we should return 1, but take in account direction
         return orderBy[i].direction * 1;
       }
@@ -78,8 +82,32 @@ function createRowRenderTemplate(columns, $compile) {
   return $compile(rowTemplate);
 }
 
-function DynamicTable($compile) {
+class DynamicTablePaginatorAdapter {
+  constructor($ctrl) {
+    this.$ctrl = $ctrl;
+  }
+
+  get page() {
+    return this.$ctrl.currentPage;
+  }
+
+  get itemsPerPage() {
+    return this.$ctrl.itemsPerPage;
+  }
+
+  get totalCount() {
+    return this.$ctrl.preparedRows.length;
+  }
+
+  setPage(page) {
+    this.$ctrl.onPageChanged(page);
+  }
+}
+
+function DynamicTable($scope, $compile) {
   'ngInject';
+
+  this.paginatorAdapter = new DynamicTablePaginatorAdapter(this);
 
   this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
   this.currentPage = 1;
@@ -106,10 +134,7 @@ function DynamicTable($compile) {
 
   const updateRowsToDisplay = (performFilterAndSort) => {
     if (performFilterAndSort) {
-      this.preparedRows = sortRows(
-        filterRows(this.rows, this.searchTerm, this.searchColumns),
-        this.orderBy,
-      );
+      this.preparedRows = sortRows(filterRows(this.rows, this.searchTerm, this.searchColumns), this.orderBy);
     }
     const first = (this.currentPage - 1) * this.itemsPerPage;
     const last = first + this.itemsPerPage;
@@ -173,22 +198,20 @@ function DynamicTable($compile) {
     updateOrderByColumnsInfo();
     updateRowsToDisplay(true);
 
-
     // Remove text selection - may occur accidentally
     if ($event.shiftKey) {
       document.getSelection().removeAllRanges();
     }
   };
 
-  this.onPageChanged = () => {
+  this.onPageChanged = (page) => {
+    this.currentPage = page;
     updateRowsToDisplay(false);
+    $scope.$applyAsync();
   };
 
   this.onSearchTermChanged = () => {
-    this.preparedRows = sortRows(
-      filterRows(this.rows, this.searchTerm, this.searchColumns),
-      this.orderBy,
-    );
+    this.preparedRows = sortRows(filterRows(this.rows, this.searchTerm, this.searchColumns), this.orderBy);
     this.currentPage = 1;
     updateRowsToDisplay(true);
   };
@@ -226,3 +249,5 @@ export default function init(ngModule) {
     },
   });
 }
+
+init.init = true;

@@ -1,47 +1,88 @@
 import moment from 'moment';
 import { capitalize as _capitalize, isEmpty } from 'lodash';
 
-export function durationHumanize(duration) {
-  let humanized = '';
+export const IntervalEnum = {
+  NEVER: 'Never',
+  SECONDS: 'second',
+  MINUTES: 'minute',
+  HOURS: 'hour',
+  DAYS: 'day',
+  WEEKS: 'week',
+};
 
-  if (duration === undefined || duration === null) {
-    humanized = '-';
-  } else if (duration < 60) {
-    const seconds = Math.round(duration);
-    humanized = `${seconds} seconds`;
-  } else if (duration > 3600 * 24) {
-    const days = Math.round(parseFloat(duration) / 60.0 / 60.0 / 24.0);
-    humanized = `${days} days`;
-  } else if (duration === 3600) {
-    humanized = '1 hour';
-  } else if (duration >= 3600) {
-    const hours = Math.round(parseFloat(duration) / 60.0 / 60.0);
-    humanized = `${hours} hours`;
-  } else if (duration === 60) {
-    humanized = '1 minute';
-  } else {
-    const minutes = Math.round(parseFloat(duration) / 60.0);
-    humanized = `${minutes} minutes`;
-  }
-  return humanized;
+export function localizeTime(time) {
+  const [hrs, mins] = time.split(':');
+  return moment
+    .utc()
+    .hour(hrs)
+    .minute(mins)
+    .local()
+    .format('HH:mm');
 }
 
-export function scheduleHumanize(schedule) {
-  if (schedule === null) {
-    return 'Never';
-  } else if (schedule.match(/\d\d:\d\d/) !== null) {
-    const parts = schedule.split(':');
-    const localTime = moment
-      .utc()
-      .hour(parts[0])
-      .minute(parts[1])
-      .local()
-      .format('HH:mm');
-
-    return `Every day at ${localTime}`;
+export function secondsToInterval(count) {
+  if (!count) {
+    return { interval: IntervalEnum.NEVER };
   }
 
-  return `Every ${durationHumanize(parseInt(schedule, 10))}`;
+  let interval = IntervalEnum.SECONDS;
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.MINUTES;
+  }
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.HOURS;
+  }
+  if (count >= 24 && interval === IntervalEnum.HOURS) {
+    count /= 24;
+    interval = IntervalEnum.DAYS;
+  }
+  if (count >= 7 && !(count % 7) && interval === IntervalEnum.DAYS) {
+    count /= 7;
+    interval = IntervalEnum.WEEKS;
+  }
+  return { count, interval };
+}
+
+export function intervalToSeconds(count, interval) {
+  let intervalInSeconds = 0;
+  switch (interval) {
+    case IntervalEnum.MINUTES:
+      intervalInSeconds = 60;
+      break;
+    case IntervalEnum.HOURS:
+      intervalInSeconds = 3600;
+      break;
+    case IntervalEnum.DAYS:
+      intervalInSeconds = 86400;
+      break;
+    case IntervalEnum.WEEKS:
+      intervalInSeconds = 604800;
+      break;
+    default:
+      return null;
+  }
+  return intervalInSeconds * count;
+}
+
+export function pluralize(text, count) {
+  const should = count !== 1;
+  return text + (should ? 's' : '');
+}
+
+export function durationHumanize(duration, options = {}) {
+  if (!duration) {
+    return '-';
+  }
+  let ret = '';
+  const { interval, count } = secondsToInterval(duration);
+  const rounded = Math.round(count);
+  if (rounded !== 1 || !options.omitSingleValueNumber) {
+    ret = `${rounded} `;
+  }
+  ret += pluralize(interval, rounded);
+  return ret;
 }
 
 export function toHuman(text) {

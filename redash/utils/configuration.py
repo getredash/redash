@@ -92,4 +92,6 @@ class ConfigurationContainer(Mutable):
 
     @classmethod
     def from_json(cls, config_in_json):
+        if config_in_json is None:
+            return cls({})
         return cls(json_loads(config_in_json))
