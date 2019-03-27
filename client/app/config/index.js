@@ -30,6 +30,7 @@ import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
 import dashboardGridOptions from './dashboard-grid-options';
+import './antd-spinner';
 
 const logger = debug('redash:config');
 
