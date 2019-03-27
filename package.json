@@ -104,6 +104,7 @@
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-loader": "^2.1.1",
     "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-compat": "^3.0.1",
     "eslint-plugin-cypress": "^2.0.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^22.2.2",
@@ -162,5 +163,20 @@
         "npm run test -- --bail --findRelatedTests"
       ]
     }
-  }
+  },
+  "//": "browserslist set to 'Async functions' compatibility",
+  "browserslist": [
+    "Edge >= 15",
+    "Firefox >= 52",
+    "Chrome >= 55",
+    "Safari >= 10.1",
+    "iOS >= 10.3",
+    "Opera >= 42",
+    "op_mob >= 46",
+    "android >= 67",
+    "and_chr >= 71",
+    "and_ff >= 64",
+    "and_uc >= 11.8",
+    "samsung >= 6.2"
+  ]
 }
