@@ -4,6 +4,7 @@ from flask import request
 from flask_restful import abort
 from flask_login import current_user, login_user
 from funcy import project
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
@@ -207,7 +208,7 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ('email', 'name', 'password', 'old_password', 'groups'))
+        params = project(req, ('email', 'name', 'password', 'old_password', 'group_ids'))
 
         if 'password' in params and 'old_password' not in params:
             abort(403, message="Must provide current password to update password.")
@@ -219,8 +220,18 @@ class UserResource(BaseResource):
             user.hash_password(params.pop('password'))
             params.pop('old_password')
 
-        if 'groups' in params and not self.current_user.has_permission('admin'):
-            abort(403, message="Must be admin to change groups membership.")
+        if 'group_ids' in params:
+            if not self.current_user.has_permission('admin'):
+                abort(403, message="Must be admin to change groups membership.")
+
+            for group_id in params['group_ids']:
+                try:
+                    models.Group.get_by_id_and_org(group_id, self.current_org)
+                except NoResultFound:
+                    abort(400, message="Group id {} is invalid.".format(group_id))
+
+            if len(params['group_ids']) == 0:
+                params.pop('group_ids')
 
         if 'email' in params:
             _, domain = params['email'].split('@', 1)

@@ -307,6 +307,15 @@ class TestUserResourcePost(BaseTestCase):
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEquals(previous, current)
 
+    def test_admin_can_change_user_groups(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user(group_ids=[1])
+
+        rv = self.make_request('post', "/api/users/{}".format(other_user.id), data={"group_ids": [1, 2]}, user=admin_user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.User.query.get(other_user.id).group_ids, [1,2])
+
     def test_admin_can_delete_user(self):
         admin_user = self.factory.create_admin()
         other_user = self.factory.create_user(is_invitation_pending=True)
