@@ -4,9 +4,10 @@ set -e
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
 }
 
 scheduler() {
@@ -16,7 +17,7 @@ scheduler() {
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
 }
 
 server() {

@@ -1,7 +1,4 @@
-import os
-
-from flask import current_app, render_template, safe_join, send_file
-from werkzeug.exceptions import NotFound
+from flask import render_template, safe_join, send_file
 
 from flask_login import login_required
 from redash import settings
