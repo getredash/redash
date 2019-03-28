@@ -15,7 +15,7 @@ export function Timer({ from }) {
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(timeFrom(startTime)), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [startTime]);
 
   return currentTime;
 }
