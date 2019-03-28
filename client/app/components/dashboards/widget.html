@@ -55,7 +55,7 @@
     </div>
 
     <div class="body-row clearfix tile__bottom-control">
-      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public">
+      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public" data-test="RefreshIndicator">
         <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i>
         <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
         <rd-timer timestamp="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
