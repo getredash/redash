@@ -231,13 +231,13 @@ class Parameters {
     return parameters;
   }
 
-  updateParameters() {
+  updateParameters(update) {
     if (this.query.query === this.cachedQueryText) {
       return;
     }
 
     this.cachedQueryText = this.query.query;
-    const parameterNames = this.parseQuery();
+    const parameterNames = update ? this.parseQuery() : map(this.query.options.parameters, p => p.name);
 
     this.query.options.parameters = this.query.options.parameters || [];
 
@@ -269,8 +269,8 @@ class Parameters {
     });
   }
 
-  get() {
-    this.updateParameters();
+  get(update = true) {
+    this.updateParameters(update);
     return this.query.options.parameters;
   }
 
@@ -573,8 +573,8 @@ function QueryResource(
     return this.$parameters;
   };
 
-  QueryService.prototype.getParametersDefs = function getParametersDefs() {
-    return this.getParameters().get();
+  QueryService.prototype.getParametersDefs = function getParametersDefs(update = true) {
+    return this.getParameters().get(update);
   };
 
   return QueryService;

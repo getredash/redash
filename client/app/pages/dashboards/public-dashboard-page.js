@@ -9,10 +9,7 @@ function loadDashboard($http, $route) {
 
 const PublicDashboardPage = {
   template,
-  bindings: {
-    dashboard: '<',
-  },
-  controller($timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
+  controller($timeout, $location, $http, $route, $scope, dashboardGridOptions, Dashboard) {
     'ngInject';
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
@@ -22,33 +19,36 @@ const PublicDashboardPage = {
 
     this.logoUrl = logoUrl;
     this.public = true;
-    this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+    this.globalParameters = [];
+
+    this.extractGlobalParameters = () => {
+      this.globalParameters = this.dashboard.getParametersDefs();
+    };
+
+    $scope.$on('dashboard.update-parameters', () => {
+      this.extractGlobalParameters();
+    });
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
+    const refresh = () => {
+      loadDashboard($http, $route).then((data) => {
+        this.dashboard = new Dashboard(data);
+        this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+        this.extractGlobalParameters();
+      });
+    };
+
     if (refreshRate) {
-      const refresh = () => {
-        loadDashboard($http, $route).then((data) => {
-          this.dashboard = data;
-          this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
-
-          $timeout(refresh, refreshRate * 1000.0);
-        });
-      };
-
       $timeout(refresh, refreshRate * 1000.0);
     }
+
+    refresh();
   },
 };
 
 export default function init(ngModule) {
   ngModule.component('publicDashboardPage', PublicDashboardPage);
-
-  function loadPublicDashboard($http, $route) {
-    'ngInject';
-
-    return loadDashboard($http, $route);
-  }
 
   function session($http, $route, Auth) {
     const token = $route.current.params.token;
@@ -58,10 +58,9 @@ export default function init(ngModule) {
 
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/public/dashboards/:token', {
-      template: '<public-dashboard-page dashboard="$resolve.dashboard"></public-dashboard-page>',
+      template: '<public-dashboard-page></public-dashboard-page>',
       reloadOnSearch: false,
       resolve: {
-        dashboard: loadPublicDashboard,
         session,
       },
     });

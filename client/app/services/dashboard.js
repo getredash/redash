@@ -152,7 +152,6 @@ function DashboardService($resource, $http, $location, currentUser, Widget, dash
 
   resource.prepareDashboardWidgets = prepareDashboardWidgets;
   resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
-
   resource.prototype.getParametersDefs = function getParametersDefs() {
     const globalParams = {};
     const queryParams = $location.search();
@@ -161,7 +160,7 @@ function DashboardService($resource, $http, $location, currentUser, Widget, dash
         const mappings = widget.getParameterMappings();
         widget
           .getQuery()
-          .getParametersDefs()
+          .getParametersDefs(false)
           .forEach((param) => {
             const mapping = mappings[param.name];
             if (mapping.type === Widget.MappingType.DashboardLevel) {
