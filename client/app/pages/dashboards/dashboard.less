@@ -112,6 +112,23 @@
   }
 }
 
+.dashboard__control {
+  .save-status {
+    vertical-align: middle;
+    margin-right: 7px;
+    font-size: 12px;
+    position: relative;
+
+    &[data-dirty="true"] {
+      opacity: 0.6;
+
+      &::after {
+        content: "*";
+      }
+    }
+  }
+}
+
 
 // Mobile fixes
 @media (max-width: 767px) {
