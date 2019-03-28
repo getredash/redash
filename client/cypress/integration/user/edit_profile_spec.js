@@ -41,6 +41,8 @@ describe('Edit Profile', () => {
       $apiKey.val('secret');
     });
 
+    cy.getByTestId('Groups').should('contain', 'admin');
+
     cy.percySnapshot('User Profile');
   });
 

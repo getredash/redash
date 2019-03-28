@@ -194,7 +194,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         for w in obj.widgets:
             if w.visualization_id is None:
                 widgets.append(serialize_widget(w))
-            elif user and has_access(w.visualization.query_rel.groups, user, view_only):
+            elif user and has_access(w.visualization.query_rel, user, view_only):
                 widgets.append(serialize_widget(w))
             else:
                 widget = project(serialize_widget(w),

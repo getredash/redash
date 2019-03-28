@@ -135,7 +135,7 @@ class QueryResultListResource(BaseResource):
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if not has_access(data_source.groups, self.current_user, not_view_only):
+        if not has_access(data_source, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
         self.record_event({
@@ -213,7 +213,7 @@ class QueryResultResource(BaseResource):
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
 
-        if has_access(query.data_source.groups, self.current_user, allow_executing_with_view_only_permissions):
+        if has_access(query.data_source, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameters, query.data_source, query_id, max_age)
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
@@ -264,7 +264,7 @@ class QueryResultResource(BaseResource):
                     abort(404, message='No cached result found for this query.')
 
         if query_result:
-            require_access(query_result.data_source.groups, self.current_user, view_only)
+            require_access(query_result.data_source, self.current_user, view_only)
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {

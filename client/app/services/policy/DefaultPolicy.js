@@ -17,6 +17,14 @@ export default class DefaultPolicy {
     return currentUser.isAdmin;
   }
 
+  canCreateDestination() {
+    return currentUser.isAdmin;
+  }
+
+  isCreateDestinationEnabled() {
+    return currentUser.isAdmin;
+  }
+
   canCreateDashboard() {
     return currentUser.hasPermission('create_dashboard');
   }
