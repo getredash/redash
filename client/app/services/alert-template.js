@@ -3,7 +3,6 @@ import Mustache from 'mustache';
 
 export default class AlertTemplate {
   render(alert, queryResult) {
-    console.log(alert);
     const view = {
       state: alert.state,
       rows: queryResult.rows,
