@@ -7,10 +7,9 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
+import { includes, isFunction } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
-import { includes } from 'lodash';
-import { react2angular } from 'react2angular';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
@@ -26,8 +25,9 @@ const fieldRules = ({ type, required, minLength }) => {
   ].filter(rule => rule);
 };
 
-export const DynamicForm = Form.create()(class DynamicForm extends React.Component {
+class DynamicForm extends React.Component {
   static propTypes = {
+    id: PropTypes.string,
     fields: PropTypes.arrayOf(Field),
     actions: PropTypes.arrayOf(Action),
     feedbackIcons: PropTypes.bool,
@@ -38,6 +38,7 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
   };
 
   static defaultProps = {
+    id: null,
     fields: [],
     actions: [],
     feedbackIcons: false,
@@ -179,14 +180,12 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
 
   renderFields() {
     return this.props.fields.map((field) => {
-      const [firstField] = this.props.fields;
       const FormItem = Form.Item;
-      const { name, title, type, readOnly } = field;
+      const { name, title, type, readOnly, autoFocus, contentAfter } = field;
       const fieldLabel = title || helper.toHuman(name);
-      const { feedbackIcons } = this.props;
+      const { feedbackIcons, form } = this.props;
 
       const formItemProps = {
-        key: name,
         className: 'm-b-10',
         hasFeedback: type !== 'checkbox' && type !== 'file' && feedbackIcons,
         label: type === 'checkbox' ? '' : fieldLabel,
@@ -194,16 +193,21 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
 
       const fieldProps = {
         ...field.props,
-        autoFocus: (firstField === field),
         className: 'w-100',
         name,
         type,
         readOnly,
+        autoFocus,
         placeholder: field.placeholder,
         'data-test': fieldLabel,
       };
 
-      return (<FormItem {...formItemProps}>{this.renderField(field, fieldProps)}</FormItem>);
+      return (
+        <React.Fragment key={name}>
+          <FormItem {...formItemProps}>{this.renderField(field, fieldProps)}</FormItem>
+          {isFunction(contentAfter) ? contentAfter(form.getFieldValue(name)) : contentAfter}
+        </React.Fragment>
+      );
     });
   }
 
@@ -234,47 +238,17 @@ export const DynamicForm = Form.create()(class DynamicForm extends React.Compone
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const { hideSubmitButton, saveText } = this.props;
+    const { id, hideSubmitButton, saveText } = this.props;
     const saveButton = !hideSubmitButton;
 
     return (
-      <Form layout="vertical" onSubmit={this.handleSubmit}>
+      <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields()}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
       </Form>
     );
   }
-});
-
-export default function init(ngModule) {
-  ngModule.component('dynamicForm', react2angular((props) => {
-    const fields = helper.getFields(props.type.configuration_schema, props.target);
-
-    const onSubmit = (values, onSuccess, onError) => {
-      helper.updateTargetWithValues(props.target, values);
-      props.target.$save(
-        () => {
-          onSuccess('Saved.');
-        },
-        (error) => {
-          if (error.status === 400 && 'message' in error.data) {
-            onError(error.data.message);
-          } else {
-            onError('Failed saving.');
-          }
-        },
-      );
-    };
-
-    const updatedProps = {
-      fields,
-      actions: props.target.id ? props.actions : [],
-      feedbackIcons: true,
-      onSubmit,
-    };
-    return (<DynamicForm {...updatedProps} />);
-  }, ['target', 'type', 'actions']));
 }
 
-init.init = true;
+export default Form.create()(DynamicForm);

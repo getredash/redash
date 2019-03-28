@@ -55,8 +55,10 @@ export const Field = PropTypes.shape({
   mode: PropTypes.string,
   required: PropTypes.bool,
   readOnly: PropTypes.bool,
+  autoFocus: PropTypes.bool,
   minLength: PropTypes.number,
   placeholder: PropTypes.string,
+  contentAfter: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
   loading: PropTypes.bool,
   props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 });
