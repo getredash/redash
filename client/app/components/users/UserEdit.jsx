@@ -10,7 +10,7 @@ import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
-import { DynamicForm } from '../dynamic-form/DynamicForm';
+import DynamicForm from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import InputWithCopy from '../InputWithCopy';
 
