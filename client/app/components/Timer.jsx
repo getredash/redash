@@ -1,23 +1,20 @@
 import moment from 'moment';
-import { useState, useMemo, useEffect } from 'react';
+import { useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { Moment } from '@/components/proptypes';
-
-function timeFrom(startTime) {
-  return moment.utc(moment.now() - startTime).format('HH:mm:ss');
-}
+import useForceUpdate from '@/lib/hooks/useForceUpdate';
 
 export function Timer({ from }) {
   const startTime = useMemo(() => moment(from).valueOf(), [from]);
-  const [currentTime, setCurrentTime] = useState(timeFrom(startTime));
+  const forceUpdate = useForceUpdate();
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(timeFrom(startTime)), 1000);
+    const timer = setInterval(forceUpdate, 1000);
     return () => clearInterval(timer);
-  }, [startTime]);
+  }, []);
 
-  return currentTime;
+  return moment.utc(moment.now() - startTime).format('HH:mm:ss');
 }
 
 Timer.propTypes = {

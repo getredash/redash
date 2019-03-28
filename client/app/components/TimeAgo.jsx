@@ -1,29 +1,23 @@
 import moment from 'moment';
 import { isNil } from 'lodash';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Moment } from '@/components/proptypes';
 import { clientConfig } from '@/services/auth';
+import useForceUpdate from '@/lib/hooks/useForceUpdate';
 
-function getTimeAgo(date, placeholder) {
-  // if `date` prop is not empty and a valid date/time - convert it to `moment`
-  date = !isNil(date) ? moment(date) : null;
-  date = date && date.isValid() ? date : null;
-
-  return {
-    value: date ? date.fromNow() : placeholder,
-    title: date ? date.format(clientConfig.dateTimeFormat) : '',
-  };
-}
-
-function useForceUpdate() {
-  const [, setValue] = useState(false);
-  return () => setValue(value => !value);
+function toMoment(value) {
+  value = !isNil(value) ? moment(value) : null;
+  return value && value.isValid() ? value : null;
 }
 
 export function TimeAgo({ date, placeholder, autoUpdate }) {
-  const { value, title } = getTimeAgo(date, placeholder);
+  const startDate = toMoment(date);
+
+  const value = startDate ? startDate.fromNow() : placeholder;
+  const title = startDate ? startDate.format(clientConfig.dateTimeFormat) : '';
+
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
