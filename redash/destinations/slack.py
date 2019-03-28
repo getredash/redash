@@ -52,18 +52,18 @@ class Slack(BaseDestination):
                 "short": True
             }
         ]
+        if alert.template:
+            description = alert.render_template()
+            fields.append({
+                "title": "Description",
+                "value": description
+            })
         if new_state == "triggered":
             if alert.custom_subject:
                 text = alert.custom_subject
             else:
                 text = alert.name + " just triggered"
             color = "#c0392b"
-            if alert.template:
-                description = alert.render_template()
-                fields.append({
-                    "title": "Description",
-                    "value": description
-                })
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"

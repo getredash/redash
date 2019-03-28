@@ -793,23 +793,19 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
     def render_template(self):
+        if not self.template:
+            return ''
         data = json_loads(self.query_rel.latest_query_data.data)
-        context = {'rows': data['rows'], 'cols': data['columns']}
-        return mustache_render(self.options['template'], context)
+        context = {'rows': data['rows'], 'cols': data['columns'], 'state': self.state}
+        return mustache_render(self.template, context)
 
     @property
     def template(self):
-        if 'template' in self.options:
-            return self.options['template']
-        else:
-            return ""
+        return self.options.get('template', '')
 
     @property
     def custom_subject(self):
-        if 'subject' in self.options:
-            return self.options['subject']
-        else:
-            return ""
+        return self.options.get('subject', '')
 
     @property
     def groups(self):

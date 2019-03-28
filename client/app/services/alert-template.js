@@ -2,12 +2,14 @@
 import Mustache from 'mustache';
 
 export default class AlertTemplate {
-  render(template, queryResult) {
+  render(alert, queryResult) {
+    console.log(alert);
     const view = {
+      state: alert.state,
       rows: queryResult.rows,
       cols: queryResult.columns,
     };
-    const result = Mustache.render(template, view);
+    const result = Mustache.render(alert.options.template, view);
     const escaped = result
       .replace(/"/g, '&quot;')
       .replace(/&/g, '&amp;')
@@ -21,7 +23,7 @@ export default class AlertTemplate {
   constructor() {
     this.helpMessage = `using template engine "mustache".
       you can build message with latest query result.
-      variable name "rows" is assigned as result rows. "cols" as result columns.`;
+      variable name "rows" is assigned as result rows. "cols" as result columns, "state" as alert state.`;
 
     this.editorOptions = {
       useWrapMode: true,

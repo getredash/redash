@@ -3,7 +3,7 @@ import notification from '@/services/notification';
 import template from './alert.html';
 import AlertTemplate from '../../services/alert-template';
 
-function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, $sanitize, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
   this.hidePreview = false;
   this.alertTemplate = new AlertTemplate();
@@ -80,11 +80,11 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
   };
 
   this.preview = () => {
-    const notifyError = () => toastr.error('Unable to render description. please confirm your template.', { timeOut: 10000 });
+    const notifyError = () => notification.error('Unable to render description. please confirm your template.');
     try {
-      const result = this.alertTemplate.render(this.alert.options.template, this.queryResult.query_result.data);
+      const result = this.alertTemplate.render(this.alert, this.queryResult.query_result.data);
       this.alert.preview = $sce.trustAsHtml(result.escaped);
-      this.alert.previewHTML = $sce.trustAsHtml(result.raw);
+      this.alert.previewHTML = $sce.trustAsHtml($sanitize(result.raw));
       if (!result.raw) {
         notifyError();
       }
