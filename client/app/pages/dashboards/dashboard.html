@@ -96,8 +96,8 @@
       ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
-        <div class="grid-stack-item-content" data-test="WidgetId{{ widget.id }}">
+        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}"  data-test="WidgetId{{ widget.id }}">
+        <div class="grid-stack-item-content">
           <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
