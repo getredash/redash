@@ -1,7 +1,7 @@
 import template from './home.html';
 import notification from '@/services/notification';
 
-function HomeCtrl(Events, Dashboard, Query, $http, currentUser) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;

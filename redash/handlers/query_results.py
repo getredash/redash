@@ -157,12 +157,8 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
-        if request.is_json:
-            params = request.get_json(force=True)
-            parameter_values = params.get('parameters')
-        else:
-            params = request.args
-            parameter_values = collect_parameters_from_request(params)
+        params = request.get_json(force=True)
+        parameter_values = params.get('parameters')
 
         max_age = params.get('max_age', -1)
         # max_age might have the value of None, in which case calling int(None) will fail
