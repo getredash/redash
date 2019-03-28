@@ -12,7 +12,7 @@ import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
-import AddTextboxDialog from '@/components/dashboards/AddTextboxDialog';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import notification from '@/services/notification';
 
 import './dashboard.less';
@@ -301,7 +301,7 @@ function DashboardCtrl(
   };
 
   this.showAddTextboxDialog = () => {
-    AddTextboxDialog.showModal({
+    TextboxDialog.showModal({
       dashboard: this.dashboard,
       onConfirm: this.addTextbox,
     });

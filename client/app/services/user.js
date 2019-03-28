@@ -66,6 +66,7 @@ function convertUserInfo(user) {
     email: user.email,
     profileImageUrl: user.profile_image_url,
     apiKey: user.api_key,
+    groupIds: user.groups,
     isDisabled: user.is_disabled,
     isInvitationPending: user.is_invitation_pending,
   };

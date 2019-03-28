@@ -14,24 +14,26 @@ ACCESS_TYPE_DELETE = 'delete'
 ACCESS_TYPES = (ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY, ACCESS_TYPE_DELETE)
 
 
-def has_access(object_groups, user, need_view_only):
+def has_access(obj, user, need_view_only):
+    groups = obj.groups if hasattr(obj, 'groups') else obj
+
     if 'admin' in user.permissions:
         return True
 
-    matching_groups = set(object_groups.keys()).intersection(user.group_ids)
+    matching_groups = set(groups.keys()).intersection(user.group_ids)
 
     if not matching_groups:
         return False
 
     required_level = 1 if need_view_only else 2
 
-    group_level = 1 if all(flatten([object_groups[group] for group in matching_groups])) else 2
+    group_level = 1 if all(flatten([groups[group] for group in matching_groups])) else 2
 
     return required_level <= group_level
 
 
-def require_access(object_groups, user, need_view_only):
-    if not has_access(object_groups, user, need_view_only):
+def require_access(obj, user, need_view_only):
+    if not has_access(obj, user, need_view_only):
         abort(403)
 
 

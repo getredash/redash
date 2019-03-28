@@ -1,9 +1,8 @@
 import { filter } from 'lodash';
 import template from './widget.html';
-import editTextBoxTemplate from './edit-text-box.html';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
-import notification from '@/services/notification';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -19,51 +18,16 @@ const WidgetDialog = {
   },
 };
 
-
-const EditTextBoxComponent = {
-  template: editTextBoxTemplate,
-  bindings: {
-    resolve: '<',
-    close: '&',
-    dismiss: '&',
-  },
-  controller() {
-    'ngInject';
-
-    this.saveInProgress = false;
-    this.widget = this.resolve.widget;
-    this.saveWidget = () => {
-      this.saveInProgress = true;
-      if (this.widget.new_text !== this.widget.existing_text) {
-        this.widget.text = this.widget.new_text;
-        this.widget
-          .save()
-          .then(() => {
-            this.close();
-          })
-          .catch(() => {
-            notification.error('Widget can not be updated');
-          })
-          .finally(() => {
-            this.saveInProgress = false;
-          });
-      } else {
-        this.close();
-      }
-    };
-  },
-};
-
 function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
-    this.widget.existing_text = this.widget.text;
-    this.widget.new_text = this.widget.text;
-    $uibModal.open({
-      component: 'editTextBox',
-      resolve: {
-        widget: this.widget,
+    TextboxDialog.showModal({
+      dashboard: this.dashboard,
+      text: this.widget.text,
+      onConfirm: (text) => {
+        this.widget.text = text;
+        return this.widget.save();
       },
     });
   };
@@ -143,7 +107,6 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
 }
 
 export default function init(ngModule) {
-  ngModule.component('editTextBox', EditTextBoxComponent);
   ngModule.component('widgetDialog', WidgetDialog);
   ngModule.component('dashboardWidget', {
     template,

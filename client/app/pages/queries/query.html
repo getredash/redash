@@ -196,23 +196,23 @@
               <!-- Query Execution Status -->
 
               <div class="query-alerts">
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'processing'">
                   Executing query&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'loading-result'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'loading-result'">
                   Loading results&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                 </div>
-                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
+                <div class="alert alert-info m-t-15" ng-if="queryResult.getStatus() == 'waiting'">
                   Query in queue&hellip;
-                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <rd-timer from="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">
+                <div class="alert alert-danger m-t-15" ng-if="queryResult.getError()">
                   Error running query:
                   <strong>{{queryResult.getError()}}</strong>
                 </div>
