@@ -6,7 +6,7 @@ import { debounce, find } from 'lodash';
 import Input from 'antd/lib/input';
 import Select from 'antd/lib/select';
 import { Query } from '@/services/query';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 
 const SEARCH_DEBOUNCE_DURATION = 200;
@@ -94,7 +94,7 @@ export function QuerySelector(props) {
     if (queryId) {
       query = find(searchResults, { id: queryId });
       if (!query) { // shouldn't happen
-        toastr.error('Something went wrong... Couldn\'t select query');
+        notification.error('Something went wrong...', 'Couldn\'t select query');
       }
     }
 

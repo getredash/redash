@@ -1,10 +1,8 @@
-import ast
 import itertools
-import json
-import base64
 from sqlalchemy import union_all
 from redash import redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
+from redash.utils import json_loads
 from redash.worker import celery
 
 
@@ -74,9 +72,9 @@ def get_status():
 def get_waiting_in_queue(queue_name):
     jobs = []
     for raw in redis_connection.lrange(queue_name, 0, -1):
-        job = json.loads(raw)
+        job = json_loads(raw)
         try:
-            args = json.loads(job['headers']['argsrepr'])
+            args = json_loads(job['headers']['argsrepr'])
             if args.get('query_id') == 'adhoc':
                 args['query_id'] = None
         except ValueError:
@@ -114,7 +112,7 @@ def parse_tasks(task_lists, state):
 
         if task['name'] == 'redash.tasks.execute_query':
             try:
-                args = json.loads(task['args'])
+                args = json_loads(task['args'])
             except ValueError:
                 args = {}
 

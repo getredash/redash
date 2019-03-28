@@ -20,7 +20,10 @@
 @import '~antd/lib/tag/style/index';
 @import '~antd/lib/grid/style/index';
 @import '~antd/lib/switch/style/index';
+@import '~antd/lib/empty/style/index';
 @import '~antd/lib/drawer/style/index';
+@import '~antd/lib/card/style/index';
+@import '~antd/lib/steps/style/index';
 @import '~antd/lib/divider/style/index';
 @import '~antd/lib/dropdown/style/index';
 @import '~antd/lib/menu/style/index';
@@ -29,6 +32,7 @@
 @import "~antd/lib/card/style/index";
 @import "~antd/lib/spin/style/index";
 @import "~antd/lib/tabs/style/index";
+@import "~antd/lib/notification/style/index";
 @import 'inc/ant-variables';
 
 // Remove bold in labels for Ant checkboxes and radio buttons
@@ -246,4 +250,13 @@
 
 .ant-popover {
   z-index: 1000; // make sure it doesn't cover drawer
+}
+
+// flexible width for notifications
+.@{notification-prefix-cls} {
+  // vertical centering
+  &-notice-close {
+    top: 20px;
+    right: 20px;
+  }
 }
