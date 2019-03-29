@@ -285,7 +285,7 @@ def _resolve_user(user_id, is_api_key):
             q = models.Query.by_api_key(api_key)
             return models.ApiUser(api_key, q.org, q.groups)
         else:
-            return models.User.query.get(user_id)
+            return models.User.get_by_id(user_id)
     else:
         return None
 
