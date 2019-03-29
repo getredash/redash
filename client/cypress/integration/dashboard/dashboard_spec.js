@@ -680,8 +680,7 @@ describe('Dashboard', () => {
       cy.get('button')
         .contains('Apply Changes')
         .as('saveButton')
-        .its('disabled')
-        .should('be', false);
+        .should('not.be.disabled');
 
       cy.viewport(800, 800);
       cy.get('@saveButton').should('be.disabled');
