@@ -168,4 +168,5 @@ class Couchbase(BaseQueryRunner):
     def name(cls):
         return "Couchbase"
 
+
 register(Couchbase)
