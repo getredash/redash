@@ -630,7 +630,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('switches to one column mode when viewport width is at 800px', () => {
+  context('viewport width is at 800px', () => {
     before(function () {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
