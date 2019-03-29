@@ -311,3 +311,36 @@ class UserDisableResource(BaseResource):
         models.db.session.commit()
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
+
+
+class UserCreateResource(BaseResource):
+    @require_admin
+    def post(self):
+        req = request.get_json(force=True)
+        require_fields(req, ('name', 'email', 'password'))
+
+        user = models.User(org=self.current_org,
+                           name=req['name'],
+                           email=req['email'],
+                           group_ids=[self.current_org.default_group.id])
+        user.hash_password(req['password'])
+
+        try:
+            models.db.session.add(user)
+            models.db.session.commit()
+        except IntegrityError as e:
+            if "email" in e.message:
+                abort(400, message='Email already taken.')
+
+            abort(500)
+
+        self.record_event({
+            'action': 'create',
+            'timestamp': int(time.time()),
+            'object_id': user.id,
+            'object_type': 'user'
+        })
+
+        d = user.to_dict(with_api_key=True)
+
+        return d

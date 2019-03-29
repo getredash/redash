@@ -47,7 +47,8 @@ from redash.handlers.settings import OrganizationSettings
 from redash.handlers.users import (UserDisableResource, UserInviteResource,
                                    UserListResource,
                                    UserRegenerateApiKeyResource,
-                                   UserResetPasswordResource, UserResource)
+                                   UserResetPasswordResource, UserResource,
+                                   UserCreateResource)
 from redash.handlers.visualizations import (VisualizationListResource,
                                             VisualizationResource)
 from redash.handlers.widgets import WidgetListResource, WidgetResource
@@ -139,6 +140,7 @@ api.add_org_resource(UserRegenerateApiKeyResource,
                      '/api/users/<user_id>/regenerate_api_key',
                      endpoint='user_regenerate_api_key')
 api.add_org_resource(UserDisableResource, '/api/users/<user_id>/disable', endpoint='user_disable')
+api.add_org_resource(UserCreateResource, '/api/users/create', endpoint='users_create')
 
 api.add_org_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')
 api.add_org_resource(VisualizationResource, '/api/visualizations/<visualization_id>', endpoint='visualization')
