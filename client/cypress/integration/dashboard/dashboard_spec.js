@@ -648,7 +648,7 @@ describe('Dashboard', () => {
       cy.visit(this.dashboardUrl);
     });
 
-    it('widgets are full widths', () => {
+    it('shows widgets with full width', () => {
       cy.viewport(801, 800);
       cy.get('@textboxEl').should(($el) => {
         expect($el.width()).to.eq(378);
