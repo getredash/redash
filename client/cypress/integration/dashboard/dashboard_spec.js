@@ -16,15 +16,15 @@ function editDashboard() {
     });
 }
 
-function addTextboxByAPI(text, dashId) {
+function addTextboxByAPI(text, dashId, options = {}) {
   const data = {
     width: 1,
     dashboard_id: dashId,
     visualization_id: null,
     text: 'text',
-    options: {
+    options: Object.assign({
       position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    },
+    }, options),
   };
 
   return cy.request('POST', 'api/widgets', data).then(({ body }) => {
@@ -297,6 +297,27 @@ describe('Dashboard', () => {
 
         cy.get('@textboxEl').should('contain', newContent);
       });
+    });
+
+    it('renders textbox according to position configuration', function () {
+      const id = this.dashboardId;
+      const txb1Pos = { col: 0, row: 0, sizeX: 3, sizeY: 2 };
+      const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
+
+      cy.viewport(1215, 800);
+      addTextboxByAPI('x', id, { position: txb1Pos })
+        .then(() => addTextboxByAPI('x', id, { position: txb2Pos }))
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          return cy.getByTestId(elTestId);
+        })
+        .should(($el) => {
+          const { top, left } = $el.offset();
+          expect(top).to.eq(214);
+          expect(left).to.eq(215);
+          expect($el.width()).to.eq(585);
+          expect($el.height()).to.eq(185);
+        });
     });
   });
 
