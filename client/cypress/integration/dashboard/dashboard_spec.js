@@ -671,7 +671,7 @@ describe('Dashboard', () => {
         });
 
       cy.viewport(800, 800);
-      cy.get('@editButton').should('not.be', 'visible');
+      cy.get('@editButton').should('not.be.visible');
     });
 
     it('disables edit mode', () => {
