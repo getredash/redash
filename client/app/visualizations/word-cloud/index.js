@@ -37,8 +37,11 @@ function wordCloudRenderer() {
         }
 
         const wordList = [];
-        each(wordsHash, (v, key) => {
-          wordList.push({ text: key, size: 10 + Math.pow(v, 2) });
+        const values = Object.keys(wordsHash).map(key => wordsHash[key]);
+        const maxValue = Math.max.apply(null, values);
+
+        each(wordsHash, (value, key) => {
+          wordList.push({ text: key, size: 120 * value / maxValue });
         });
 
         const fill = d3.scale.category20();
