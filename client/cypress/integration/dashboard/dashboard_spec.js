@@ -667,7 +667,7 @@ describe('Dashboard', () => {
           cy.get('li')
             .contains('Edit')
             .as('editButton')
-            .should('exist');
+            .should('be.visible');
         });
 
       cy.viewport(800, 800);
