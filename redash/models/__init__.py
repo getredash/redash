@@ -547,6 +547,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
 
     @classmethod
+    def by_api_key(cls, api_key):
+        return cls.query.filter(cls.api_key == api_key).one()
+
+    @classmethod
     def outdated_queries(cls):
         queries = (
             Query.query

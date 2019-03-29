@@ -282,7 +282,7 @@ def _resolve_user(user_id, is_api_key):
     if user_id is not None:
         if is_api_key:
             api_key = user_id
-            q = models.Query.query.filter(models.Query.api_key == api_key).one()
+            q = models.Query.by_api_key(api_key)
             return models.ApiUser(api_key, q.org, q.groups)
         else:
             return models.User.query.get(user_id)
