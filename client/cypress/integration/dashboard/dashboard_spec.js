@@ -692,7 +692,7 @@ describe('Dashboard', () => {
       cy.getByTestId('DashboardMoreMenu').should('be', 'visible');
 
       cy.viewport(767, 800);
-      cy.getByTestId('DashboardMoreMenu').should('not.be', 'visible');
+      cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
     });
   });
 });
