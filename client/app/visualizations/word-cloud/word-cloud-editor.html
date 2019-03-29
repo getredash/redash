@@ -5,4 +5,10 @@
       <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.column" class="form-control"></select>
     </div>
   </div>
+  <div class="form-group">
+    <label class="col-lg-6">Word Cloud Frequency Column Name</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in [''].concat(queryResult.getColumnNames())" ng-model="visualization.options.frequency" class="form-control"></select>
+    </div>
+  </div>
 </div>
