@@ -684,7 +684,7 @@ describe('Dashboard', () => {
         .should('be', false);
 
       cy.viewport(800, 800);
-      cy.get('@saveButton').its('disabled').should('be', true);
+      cy.get('@saveButton').should('be.disabled');
     });
 
     it('hides menu button when width is under 768px', () => {
