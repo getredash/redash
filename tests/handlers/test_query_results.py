@@ -154,7 +154,8 @@ class TestQueryResultAPI(BaseTestCase):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
         query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
 
-        rv = self.make_request('post', '/api/queries/{}/results?api_key={}&p_foo=bar'.format(query.id, query.api_key), is_json=False)
+        data = {'parameters': {'foo': 'bar'}}
+        rv = self.make_request('post', '/api/queries/{}/results?api_key={}'.format(query.id, query.api_key), data=data)
         self.assertEquals(rv.status_code, 403)
 
     def test_access_with_query_api_key(self):
