@@ -323,7 +323,7 @@ class QueryExecutor(object):
 
         _unlock(self.query_hash, self.data_source.id)
 
-        if error:
+        if error is not None and data is None:
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)

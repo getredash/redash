@@ -4,12 +4,13 @@ import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import {
+  MappingType,
   ParameterMappingListInput,
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
-import { ParameterMappingType } from '@/services/widget';
+import notification from '@/services/notification';
 
 export function getParamValuesSnapshot(mappings, dashboardParameters) {
   return map(
@@ -17,11 +18,12 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
     (m) => {
       let param;
       switch (m.type) {
-        case ParameterMappingType.StaticValue:
+        case MappingType.StaticValue:
           return [m.name, m.value];
-        case ParameterMappingType.WidgetLevel:
+        case MappingType.WidgetLevel:
           return [m.name, m.param.value];
-        case ParameterMappingType.DashboardLevel:
+        case MappingType.DashboardAddNew:
+        case MappingType.DashboardMapToExisting:
           param = find(dashboardParameters, p => p.name === m.mapTo);
           return [m.name, param ? param.value : null];
         // no default
@@ -37,33 +39,39 @@ class EditParameterMappingsDialog extends React.Component {
     dialog: DialogPropType.isRequired,
   };
 
+  originalParamValuesSnapshot = null
+
   constructor(props) {
     super(props);
 
+    const parameterMappings = parameterMappingsToEditableMappings(
+      props.widget.options.parameterMappings,
+      props.widget.query.getParametersDefs(),
+      map(this.props.dashboard.getParametersDefs(), p => p.name),
+    );
+
+    this.originalParamValuesSnapshot = getParamValuesSnapshot(
+      parameterMappings,
+      this.props.dashboard.getParametersDefs(),
+    );
+
     this.state = {
       saveInProgress: false,
-      parameterMappings: parameterMappingsToEditableMappings(
-        props.widget.options.parameterMappings,
-        props.widget.query.getParametersDefs(),
-        map(this.props.dashboard.getParametersDefs(), p => p.name),
-      ),
+      parameterMappings,
     };
   }
 
   saveWidget() {
-    const toastr = this.props.toastr; // eslint-disable-line react/prop-types
     const widget = this.props.widget;
 
     this.setState({ saveInProgress: true });
 
-    const prevMappings = widget.options.parameterMappings;
     const newMappings = editableMappingsToParameterMappings(this.state.parameterMappings);
     widget.options.parameterMappings = newMappings;
 
-    const dashboardParameters = this.props.dashboard.getParametersDefs();
     const valuesChanged = !isMatch(
-      getParamValuesSnapshot(prevMappings, dashboardParameters),
-      getParamValuesSnapshot(newMappings, dashboardParameters),
+      this.originalParamValuesSnapshot,
+      getParamValuesSnapshot(this.state.parameterMappings, this.props.dashboard.getParametersDefs()),
     );
 
     const widgetsToSave = [
@@ -76,7 +84,7 @@ class EditParameterMappingsDialog extends React.Component {
         this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
-        toastr.error('Widget cannot be updated');
+        notification.error('Widget cannot be updated');
       })
       .finally(() => {
         this.setState({ saveInProgress: false });

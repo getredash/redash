@@ -38,6 +38,17 @@ class TestDestinationListResource(BaseTestCase):
         rv = self.make_request('post', '/api/destinations', user=self.factory.user, data=data)
         self.assertEqual(rv.status_code, 403)
 
+    def test_returns_400_when_name_already_exists(self):
+        d1 = self.factory.create_destination()
+        data = {
+            'options': {'addresses': 'test@example.com'},
+            'name': d1.name,
+            'type': 'email'
+        }
+
+        rv = self.make_request('post', '/api/destinations', user=self.factory.create_admin(), data=data)
+        self.assertEqual(rv.status_code, 400)
+
 
 class TestDestinationResource(BaseTestCase):
     def test_get(self):

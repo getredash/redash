@@ -10,7 +10,7 @@ from flask_login import current_user
 from redash import models
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
-from redash.utils.parameterized_query import ParameterizedQuery
+from redash.models.parameterized_query import ParameterizedQuery
 
 
 def public_widget(widget):
@@ -194,7 +194,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         for w in obj.widgets:
             if w.visualization_id is None:
                 widgets.append(serialize_widget(w))
-            elif user and has_access(w.visualization.query_rel.groups, user, view_only):
+            elif user and has_access(w.visualization.query_rel, user, view_only):
                 widgets.append(serialize_widget(w))
             else:
                 widget = project(serialize_widget(w),

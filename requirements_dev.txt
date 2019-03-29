@@ -9,3 +9,4 @@ pymongo[tls,srv]==3.6.1
 botocore==1.12.85
 PyAthena>=1.0.0
 ptvsd==4.2.3
+freezegun==0.3.11

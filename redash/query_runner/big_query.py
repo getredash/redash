@@ -32,28 +32,31 @@ types_map = {
 }
 
 
+def transform_cell(field_type, cell_value):
+    if cell_value is None:
+        return None
+    if field_type == 'INTEGER':
+        return int(cell_value)
+    elif field_type == 'FLOAT':
+        return float(cell_value)
+    elif field_type == 'BOOLEAN':
+        return cell_value.lower() == "true"
+    elif field_type == 'TIMESTAMP':
+        return datetime.datetime.fromtimestamp(float(cell_value))
+    return cell_value
+
+
 def transform_row(row, fields):
-    column_index = 0
     row_data = {}
 
-    for cell in row["f"]:
+    for column_index, cell in enumerate(row["f"]):
         field = fields[column_index]
-        cell_value = cell['v']
-
-        if cell_value is None:
-            pass
-        # Otherwise just cast the value
-        elif field['type'] == 'INTEGER':
-            cell_value = int(cell_value)
-        elif field['type'] == 'FLOAT':
-            cell_value = float(cell_value)
-        elif field['type'] == 'BOOLEAN':
-            cell_value = cell_value.lower() == "true"
-        elif field['type'] == 'TIMESTAMP':
-            cell_value = datetime.datetime.fromtimestamp(float(cell_value))
+        if field['mode'] == 'REPEATED':
+            cell_value = [transform_cell(field['type'], item['v']) for item in cell['v']]
+        else:
+            cell_value = transform_cell(field['type'], cell['v'])
 
         row_data[field["name"]] = cell_value
-        column_index += 1
 
     return row_data
 
@@ -221,9 +224,12 @@ class BigQuery(BaseQueryRunner):
 
             query_reply = jobs.getQueryResults(**query_result_request).execute()
 
-        columns = [{'name': f["name"],
-                    'friendly_name': f["name"],
-                    'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
+        columns = [{
+            'name': f["name"],
+            'friendly_name': f["name"],
+            'type': "string" if f['mode'] == "REPEATED"
+            else types_map.get(f['type'], "string")
+        } for f in query_reply["schema"]["fields"]]
 
         data = {
             "columns": columns,

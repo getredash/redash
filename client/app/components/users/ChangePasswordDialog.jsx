@@ -4,7 +4,7 @@ import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
 import { isFunction } from 'lodash';
 import { User } from '@/services/user';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { UserProfile } from '../proptypes';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 
@@ -68,10 +68,10 @@ class ChangePasswordDialog extends React.Component {
           this.setState({ updatingPassword: true });
 
           User.save(userData, () => {
-            toastr.success('Saved.');
+            notification.success('Saved.');
             this.props.dialog.close({ success: true });
           }, (error = {}) => {
-            toastr.error(error.data && error.data.message || 'Failed saving.');
+            notification.error(error.data && error.data.message || 'Failed saving.');
             this.setState({ updatingPassword: false });
           });
         } else {

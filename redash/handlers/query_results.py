@@ -11,7 +11,7 @@ from redash.permissions import (has_access, not_view_only, require_access,
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.utils.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
 
 
 def error_response(message):
@@ -135,7 +135,7 @@ class QueryResultListResource(BaseResource):
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if not has_access(data_source.groups, self.current_user, not_view_only):
+        if not has_access(data_source, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
         self.record_event({
@@ -151,10 +151,19 @@ class QueryResultListResource(BaseResource):
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
-
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
         return dropdown_values(query_id)
+
+class QueryDropdownsResource(BaseResource):
+    def get(self, query_id, dropdown_query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+        related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
+        if int(dropdown_query_id) not in related_queries_ids:
+            abort(403)
+
+        return dropdown_values(dropdown_query_id, should_require_access=False)
 
 
 class QueryResultResource(BaseResource):
@@ -204,7 +213,7 @@ class QueryResultResource(BaseResource):
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
 
-        if has_access(query.data_source.groups, self.current_user, allow_executing_with_view_only_permissions):
+        if has_access(query.data_source, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameters, query.data_source, query_id, max_age)
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
@@ -255,7 +264,7 @@ class QueryResultResource(BaseResource):
                     abort(404, message='No cached result found for this query.')
 
         if query_result:
-            require_access(query_result.data_source.groups, self.current_user, view_only)
+            require_access(query_result.data_source, self.current_user, view_only)
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {

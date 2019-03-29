@@ -38,6 +38,7 @@ from redash.handlers.queries import (MyQueriesResource, QueryArchiveResource,
                                      QueryTagsResource)
 from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
+                                           QueryDropdownsResource,
                                            QueryResultListResource,
                                            QueryResultResource)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
@@ -120,6 +121,7 @@ api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/ac
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
 api.add_org_resource(QueryResultDropdownResource, '/api/queries/<query_id>/dropdown', endpoint='query_result_dropdown')
+api.add_org_resource(QueryDropdownsResource, '/api/queries/<query_id>/dropdowns/<dropdown_query_id>', endpoint='query_result_dropdowns')
 api.add_org_resource(QueryResultResource,
                      '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',
