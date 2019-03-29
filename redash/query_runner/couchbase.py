@@ -128,11 +128,9 @@ class Couchbase(BaseQueryRunner):
             # Try fetch from Analytics
             return self.get_buckets(
                 "SELECT ds.GroupName as name FROM Metadata.`Dataset` ds where ds.DataverseName <> 'Metadata'", "name")
-        except:
+        except Exception:
             # Try fetch from N1QL
             return self.get_buckets("select name from system:keyspaces", "name")
-
-
 
     def call_service(self, query, user):
         try:
@@ -140,9 +138,9 @@ class Couchbase(BaseQueryRunner):
             password = self.configuration.get("password")
             host = self.configuration.get("host")
             port = self.configuration.get('port', 8095)
-            params = {'statement' : query}
+            params = {'statement': query}
 
-            url = "http://%s:%s/query/service" % ( host, port);
+            url = "http://%s:%s/query/service" % (host, port)
 
             r = requests.post(url, params=params, auth=(user, password))
             r.raise_for_status()
@@ -151,7 +149,6 @@ class Couchbase(BaseQueryRunner):
             if (err.response.status_code == 401):
                 raise Exception("Wrong username/password")
             raise Exception("Couchbase connection error")
-
 
     def run_query(self, query, user):
         try:
@@ -172,5 +169,3 @@ class Couchbase(BaseQueryRunner):
         return "Couchbase"
 
 register(Couchbase)
-
-
