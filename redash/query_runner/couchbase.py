@@ -26,12 +26,14 @@ TYPES_MAP = {
     datetime.datetime: TYPE_STRING
 }
 
+
 def _get_column_by_name(columns, column_name):
     for c in columns:
         if "name" in c and c["name"] == column_name:
             return c
-
     return None
+
+
 def parse_results(results):
     rows = []
     columns = []
@@ -62,8 +64,9 @@ def parse_results(results):
                 parsed_row[key] = row[key]
 
         rows.append(parsed_row)
-
     return rows, columns
+
+
 class Couchbase(BaseQueryRunner):
 
     noop_query = 'Select 1'
@@ -78,7 +81,7 @@ class Couchbase(BaseQueryRunner):
                 },
                 'port': {
                     'type': 'string',
-                    'title':'Port (Defaults: 8095 - Analytics, 8093 - N1QL)',
+                    'title': 'Port (Defaults: 8095 - Analytics, 8093 - N1QL)',
                     'default': '8095'
                 },
                 'user': {
@@ -107,7 +110,6 @@ class Couchbase(BaseQueryRunner):
     def test_connection(self):
         result = self.call_service(self.noop_query, '')
 
-
     def get_buckets(self, query, nameParam):
         defaultColumns = [
             'meta().id'
@@ -124,7 +126,8 @@ class Couchbase(BaseQueryRunner):
 
         try:
             # Try fetch from Analytics
-            return self.get_buckets("SELECT ds.GroupName as name FROM Metadata.`Dataset` ds where ds.DataverseName <> 'Metadata'", "name")
+            return self.get_buckets(
+                "SELECT ds.GroupName as name FROM Metadata.`Dataset` ds where ds.DataverseName <> 'Metadata'", "name")
         except:
             # Try fetch from N1QL
             return self.get_buckets("select name from system:keyspaces", "name")
