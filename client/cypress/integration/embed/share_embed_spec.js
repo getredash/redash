@@ -4,12 +4,16 @@ describe('Embedded Queries', () => {
     cy.visit('/queries/new');
   });
 
-  it('are shared with text parameters', () => {
+  it('are shared with safe parameters', () => {
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
       .type('SELECT * FROM organizations WHERE id=\'{{}{{}id}}\'{esc}', { force: true });
 
     cy.getByTestId('TextParamInput').type('1');
+    cy.getByTestId('ParameterSettings-id').click();
+    cy.getByTestId('ParameterTypeSelect').click();
+    cy.getByTestId('NumberParameterTypeOption').click();
+    cy.getByTestId('SaveParameterSettings').click();
     cy.getByTestId('ExecuteButton').click();
     cy.getByTestId('SaveButton').click();
     cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
