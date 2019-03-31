@@ -154,7 +154,7 @@ function EditParameterSettingsDialog(props) {
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
           <Select value={param.type} onChange={type => setParam({ ...param, type })} data-test="ParameterTypeSelect">
-            <Option value="text">Text</Option>
+            <Option value="text" data-test="TextParameterTypeOption">Text</Option>
             <Option value="number" data-test="NumberParameterTypeOption">Number</Option>
             <Option value="enum">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>

@@ -23,6 +23,30 @@ describe('Embedded Queries', () => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
       cy.visit(embedUrl);
+      cy.percySnapshot('Successfully Embedded Parameterized Query');
+    });
+  });
+
+  it('cannot be shared with unsafe parameters', () => {
+    cy.getByTestId('QueryEditor')
+      .get('.ace_text-input')
+      .type('SELECT * FROM organizations WHERE name=\'{{}{{}name}}\'{esc}', { force: true });
+
+    cy.getByTestId('TextParamInput').type('Redash');
+    cy.clickThrough(`
+      ParameterSettings-name
+      ParameterTypeSelect
+      TextParameterTypeOption
+      SaveParameterSettings
+      ExecuteButton
+      SaveButton
+    `);
+    cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
+    cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
+      const embedUrl = iframe.match(/"(.*?)"/)[1];
+      cy.logout();
+      cy.visit(embedUrl, { failOnStatusCode: false }); // prevent 403 from failing test
+      cy.percySnapshot('Unsuccessfully Embedded Parameterized Query');
     });
   });
 });
