@@ -2,7 +2,6 @@ import pystache
 from functools import partial
 from flask_login import current_user
 from flask_restful import abort
-from redash.authentication.org_resolving import current_org
 from numbers import Number
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
