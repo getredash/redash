@@ -130,7 +130,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                args = (query, data_source.id, metadata, user_id, is_api_key, scheduled_query_id)
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id, is_api_key)
                 argsrepr = json_dumps({
                     'org_id': data_source.org_id,
                     'data_source_id': data_source.id,
@@ -390,8 +390,8 @@ class QueryExecutor(object):
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
 @celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
-def execute_query(self, query, data_source_id, metadata, user_id=None, is_api_key=False,
-                  scheduled_query_id=None):
+def execute_query(self, query, data_source_id, metadata, user_id=None,
+                  scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
