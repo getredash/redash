@@ -33,7 +33,7 @@ services:
       QUEUES: "queries"
       WORKERS_COUNT: 2
   redis:
-    image: redis:3.0-alpine
+    image: redis:5.0-alpine
     restart: always
   postgres:
     image: postgres:9.5-alpine
