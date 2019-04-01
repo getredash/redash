@@ -91,6 +91,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -295,30 +296,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -334,229 +340,41 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
 <div
   data-testid="time"
 >
-  <TimePicker
-    align={
-      Object {
-        "offset": Array [
-          0,
-          -2,
-        ],
-      }
-    }
-    allowEmpty={false}
+  <TimeEditor
     defaultValue={"1999-12-31T22:15:00.000Z"}
-    disabled={false}
-    focusOnOpen={true}
-    format="HH:mm"
-    hideDisabledOptions={false}
-    minuteStep={5}
     onChange={[Function]}
-    placement="bottomLeft"
-    transitionName="slide-up"
   >
-    <LocaleReceiver
-      componentName="TimePicker"
-      defaultLocale={
+    <TimePicker
+      align={
         Object {
-          "placeholder": "Select time",
+          "offset": Array [
+            0,
+            -2,
+          ],
         }
       }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={"1999-12-31T22:15:00.000Z"}
     >
-      <Picker
-        addon={[Function]}
-        align={
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
           Object {
-            "offset": Array [
-              0,
-              -2,
-            ],
+            "placeholder": "Select time",
           }
         }
-        allowEmpty={false}
-        className=""
-        clearIcon={
-          <Icon
-            className="ant-time-picker-panel-clear-btn-icon"
-            theme="filled"
-            type="close-circle"
-          />
-        }
-        clearText="clear"
-        defaultOpen={false}
-        defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-        disabled={false}
-        disabledHours={[Function]}
-        disabledMinutes={[Function]}
-        disabledSeconds={[Function]}
-        focusOnOpen={true}
-        format="HH:mm"
-        hideDisabledOptions={false}
-        id=""
-        inputIcon={
-          <span
-            className="ant-time-picker-icon"
-          >
-            <Icon
-              className="ant-time-picker-clock-icon"
-              theme="outlined"
-              type="clock-circle"
-            />
-          </span>
-        }
-        inputReadOnly={false}
-        minuteStep={5}
-        onAmPmChange={[Function]}
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClose={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        onOpen={[Function]}
-        placeholder="Select time"
-        placement="bottomLeft"
-        popupClassName=""
-        popupStyle={Object {}}
-        prefixCls="ant-time-picker"
-        showHour={true}
-        showMinute={true}
-        showSecond={false}
-        style={Object {}}
-        transitionName="slide-up"
-        use12Hours={false}
-        value={"1999-12-31T22:15:00.000Z"}
       >
-        <Trigger
-          action={
-            Array [
-              "click",
-            ]
-          }
-          afterPopupVisibleChange={[Function]}
-          blurDelay={0.15}
-          builtinPlacements={
-            Object {
-              "bottomLeft": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tl",
-                  "tl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "bottomRight": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tr",
-                  "tr",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topLeft": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "bl",
-                  "bl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topRight": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "br",
-                  "br",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-            }
-          }
-          defaultPopupVisible={false}
-          destroyPopupOnHide={true}
-          focusDelay={0}
-          getDocument={[Function]}
-          getPopupClassNameFromAlign={[Function]}
-          hideAction={Array []}
-          mask={false}
-          maskClosable={true}
-          mouseEnterDelay={0}
-          mouseLeaveDelay={0.1}
-          onPopupAlign={[Function]}
-          onPopupVisibleChange={[Function]}
-          popup={
-            <Panel
-              addon={[Function]}
-              allowEmpty={false}
-              clearIcon={
-                <Icon
-                  className="ant-time-picker-panel-clear-btn-icon"
-                  theme="filled"
-                  type="close-circle"
-                />
-              }
-              clearText="clear"
-              defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-              disabledHours={[Function]}
-              disabledMinutes={[Function]}
-              disabledSeconds={[Function]}
-              focusOnOpen={true}
-              format="HH:mm"
-              hideDisabledOptions={false}
-              inputReadOnly={false}
-              minuteStep={5}
-              onAmPmChange={[Function]}
-              onChange={[Function]}
-              onClear={[Function]}
-              onEsc={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              prefixCls="ant-time-picker-panel"
-              showHour={true}
-              showMinute={true}
-              showSecond={false}
-              use12Hours={false}
-              value={"1999-12-31T22:15:00.000Z"}
-            />
-          }
-          popupAlign={
+        <Picker
+          addon={[Function]}
+          align={
             Object {
               "offset": Array [
                 0,
@@ -564,78 +382,281 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
               ],
             }
           }
-          popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
-          popupPlacement="bottomLeft"
-          popupStyle={Object {}}
-          popupTransitionName="slide-up"
-          popupVisible={false}
-          prefixCls="ant-time-picker-panel"
-          showAction={Array []}
-        >
-          <span
-            className="ant-time-picker "
-            key="trigger"
-            onClick={[Function]}
-            onMouseDown={[Function]}
-            onTouchStart={[Function]}
-            style={Object {}}
-          >
-            <input
-              className="ant-time-picker-input"
-              disabled={false}
-              id=""
-              onBlur={[Function]}
-              onChange={[Function]}
-              onFocus={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              readOnly={false}
-              type="text"
-              value="00:15"
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
             />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
             <span
               className="ant-time-picker-icon"
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
-              >
-                <i
-                  className="anticon anticon-clock-circle ant-time-picker-clock-icon"
-                >
-                  <IconReact
-                    className=""
-                    type="clock-circle-o"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className=""
-                      data-icon="clock-circle"
-                      fill="currentColor"
-                      height="1em"
-                      key="svg-clock-circle"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                        key="svg-clock-circle-svg-0"
-                      />
-                      <path
-                        d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                        key="svg-clock-circle-svg-1"
-                      />
-                    </svg>
-                  </IconReact>
-                </i>
-              </Icon>
+              />
             </span>
-          </span>
-        </Trigger>
-      </Picker>
-    </LocaleReceiver>
-  </TimePicker>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={"1999-12-31T22:15:00.000Z"}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={"1999-12-31T22:15:00.000Z"}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value="00:15"
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+    <span
+      className="utc"
+      data-testid="utc"
+    >
+      (
+      22:15
+       UTC)
+    </span>
+  </TimeEditor>
 </div>
 `;
 
@@ -730,6 +751,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -934,30 +956,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -1060,6 +1087,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -1264,30 +1292,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -1303,229 +1336,41 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
 <div
   data-testid="time"
 >
-  <TimePicker
-    align={
-      Object {
-        "offset": Array [
-          0,
-          -2,
-        ],
-      }
-    }
-    allowEmpty={false}
+  <TimeEditor
     defaultValue={"1999-12-31T22:15:00.000Z"}
-    disabled={false}
-    focusOnOpen={true}
-    format="HH:mm"
-    hideDisabledOptions={false}
-    minuteStep={5}
     onChange={[Function]}
-    placement="bottomLeft"
-    transitionName="slide-up"
   >
-    <LocaleReceiver
-      componentName="TimePicker"
-      defaultLocale={
+    <TimePicker
+      align={
         Object {
-          "placeholder": "Select time",
+          "offset": Array [
+            0,
+            -2,
+          ],
         }
       }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={"1999-12-31T22:15:00.000Z"}
     >
-      <Picker
-        addon={[Function]}
-        align={
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
           Object {
-            "offset": Array [
-              0,
-              -2,
-            ],
+            "placeholder": "Select time",
           }
         }
-        allowEmpty={false}
-        className=""
-        clearIcon={
-          <Icon
-            className="ant-time-picker-panel-clear-btn-icon"
-            theme="filled"
-            type="close-circle"
-          />
-        }
-        clearText="clear"
-        defaultOpen={false}
-        defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-        disabled={false}
-        disabledHours={[Function]}
-        disabledMinutes={[Function]}
-        disabledSeconds={[Function]}
-        focusOnOpen={true}
-        format="HH:mm"
-        hideDisabledOptions={false}
-        id=""
-        inputIcon={
-          <span
-            className="ant-time-picker-icon"
-          >
-            <Icon
-              className="ant-time-picker-clock-icon"
-              theme="outlined"
-              type="clock-circle"
-            />
-          </span>
-        }
-        inputReadOnly={false}
-        minuteStep={5}
-        onAmPmChange={[Function]}
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClose={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        onOpen={[Function]}
-        placeholder="Select time"
-        placement="bottomLeft"
-        popupClassName=""
-        popupStyle={Object {}}
-        prefixCls="ant-time-picker"
-        showHour={true}
-        showMinute={true}
-        showSecond={false}
-        style={Object {}}
-        transitionName="slide-up"
-        use12Hours={false}
-        value={"1999-12-31T22:15:00.000Z"}
       >
-        <Trigger
-          action={
-            Array [
-              "click",
-            ]
-          }
-          afterPopupVisibleChange={[Function]}
-          blurDelay={0.15}
-          builtinPlacements={
-            Object {
-              "bottomLeft": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tl",
-                  "tl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "bottomRight": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tr",
-                  "tr",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topLeft": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "bl",
-                  "bl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topRight": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "br",
-                  "br",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-            }
-          }
-          defaultPopupVisible={false}
-          destroyPopupOnHide={true}
-          focusDelay={0}
-          getDocument={[Function]}
-          getPopupClassNameFromAlign={[Function]}
-          hideAction={Array []}
-          mask={false}
-          maskClosable={true}
-          mouseEnterDelay={0}
-          mouseLeaveDelay={0.1}
-          onPopupAlign={[Function]}
-          onPopupVisibleChange={[Function]}
-          popup={
-            <Panel
-              addon={[Function]}
-              allowEmpty={false}
-              clearIcon={
-                <Icon
-                  className="ant-time-picker-panel-clear-btn-icon"
-                  theme="filled"
-                  type="close-circle"
-                />
-              }
-              clearText="clear"
-              defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-              disabledHours={[Function]}
-              disabledMinutes={[Function]}
-              disabledSeconds={[Function]}
-              focusOnOpen={true}
-              format="HH:mm"
-              hideDisabledOptions={false}
-              inputReadOnly={false}
-              minuteStep={5}
-              onAmPmChange={[Function]}
-              onChange={[Function]}
-              onClear={[Function]}
-              onEsc={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              prefixCls="ant-time-picker-panel"
-              showHour={true}
-              showMinute={true}
-              showSecond={false}
-              use12Hours={false}
-              value={"1999-12-31T22:15:00.000Z"}
-            />
-          }
-          popupAlign={
+        <Picker
+          addon={[Function]}
+          align={
             Object {
               "offset": Array [
                 0,
@@ -1533,78 +1378,281 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               ],
             }
           }
-          popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
-          popupPlacement="bottomLeft"
-          popupStyle={Object {}}
-          popupTransitionName="slide-up"
-          popupVisible={false}
-          prefixCls="ant-time-picker-panel"
-          showAction={Array []}
-        >
-          <span
-            className="ant-time-picker "
-            key="trigger"
-            onClick={[Function]}
-            onMouseDown={[Function]}
-            onTouchStart={[Function]}
-            style={Object {}}
-          >
-            <input
-              className="ant-time-picker-input"
-              disabled={false}
-              id=""
-              onBlur={[Function]}
-              onChange={[Function]}
-              onFocus={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              readOnly={false}
-              type="text"
-              value="00:15"
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
             />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
             <span
               className="ant-time-picker-icon"
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
-              >
-                <i
-                  className="anticon anticon-clock-circle ant-time-picker-clock-icon"
-                >
-                  <IconReact
-                    className=""
-                    type="clock-circle-o"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className=""
-                      data-icon="clock-circle"
-                      fill="currentColor"
-                      height="1em"
-                      key="svg-clock-circle"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                        key="svg-clock-circle-svg-0"
-                      />
-                      <path
-                        d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                        key="svg-clock-circle-svg-1"
-                      />
-                    </svg>
-                  </IconReact>
-                </i>
-              </Icon>
+              />
             </span>
-          </span>
-        </Trigger>
-      </Picker>
-    </LocaleReceiver>
-  </TimePicker>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={"1999-12-31T22:15:00.000Z"}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={"1999-12-31T22:15:00.000Z"}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value="00:15"
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+    <span
+      className="utc"
+      data-testid="utc"
+    >
+      (
+      22:15
+       UTC)
+    </span>
+  </TimeEditor>
 </div>
 `;
 
@@ -1631,7 +1679,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sun"
@@ -1686,7 +1733,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={true}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Mon"
@@ -1741,7 +1787,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Tue"
@@ -1796,7 +1841,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Wed"
@@ -1851,7 +1895,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Thu"
@@ -1906,7 +1949,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Fri"
@@ -1961,7 +2003,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           checked={false}
           className="input"
           disabled={false}
-          onChange={[Function]}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sat"
@@ -2103,6 +2144,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2307,30 +2349,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -2431,6 +2478,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
         dropdownMenuStyle={Object {}}
         dropdownRender={[Function]}
         dropdownStyle={Object {}}
+        empty={false}
         inputValue=""
         menuItemSelectedIcon={
           <Icon
@@ -2609,30 +2657,35 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                   className="ant-select-arrow-icon"
                   type="down"
                 >
-                  <i
-                    className="anticon anticon-down ant-select-arrow-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="down-o"
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="down"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-down"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="down-o"
                       >
-                        <path
-                          d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
-                          key="svg-down-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </span>
             </div>
@@ -2648,229 +2701,41 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
 <div
   data-testid="time"
 >
-  <TimePicker
-    align={
-      Object {
-        "offset": Array [
-          0,
-          -2,
-        ],
-      }
-    }
-    allowEmpty={false}
+  <TimeEditor
     defaultValue={null}
-    disabled={false}
-    focusOnOpen={true}
-    format="HH:mm"
-    hideDisabledOptions={false}
-    minuteStep={5}
     onChange={[Function]}
-    placement="bottomLeft"
-    transitionName="slide-up"
   >
-    <LocaleReceiver
-      componentName="TimePicker"
-      defaultLocale={
+    <TimePicker
+      align={
         Object {
-          "placeholder": "Select time",
+          "offset": Array [
+            0,
+            -2,
+          ],
         }
       }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={null}
     >
-      <Picker
-        addon={[Function]}
-        align={
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
           Object {
-            "offset": Array [
-              0,
-              -2,
-            ],
+            "placeholder": "Select time",
           }
         }
-        allowEmpty={false}
-        className=""
-        clearIcon={
-          <Icon
-            className="ant-time-picker-panel-clear-btn-icon"
-            theme="filled"
-            type="close-circle"
-          />
-        }
-        clearText="clear"
-        defaultOpen={false}
-        defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-        disabled={false}
-        disabledHours={[Function]}
-        disabledMinutes={[Function]}
-        disabledSeconds={[Function]}
-        focusOnOpen={true}
-        format="HH:mm"
-        hideDisabledOptions={false}
-        id=""
-        inputIcon={
-          <span
-            className="ant-time-picker-icon"
-          >
-            <Icon
-              className="ant-time-picker-clock-icon"
-              theme="outlined"
-              type="clock-circle"
-            />
-          </span>
-        }
-        inputReadOnly={false}
-        minuteStep={5}
-        onAmPmChange={[Function]}
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClose={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        onOpen={[Function]}
-        placeholder="Select time"
-        placement="bottomLeft"
-        popupClassName=""
-        popupStyle={Object {}}
-        prefixCls="ant-time-picker"
-        showHour={true}
-        showMinute={true}
-        showSecond={false}
-        style={Object {}}
-        transitionName="slide-up"
-        use12Hours={false}
-        value={null}
       >
-        <Trigger
-          action={
-            Array [
-              "click",
-            ]
-          }
-          afterPopupVisibleChange={[Function]}
-          blurDelay={0.15}
-          builtinPlacements={
-            Object {
-              "bottomLeft": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tl",
-                  "tl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "bottomRight": Object {
-                "offset": Array [
-                  0,
-                  -3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "tr",
-                  "tr",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topLeft": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "bl",
-                  "bl",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-              "topRight": Object {
-                "offset": Array [
-                  0,
-                  3,
-                ],
-                "overflow": Object {
-                  "adjustX": 1,
-                  "adjustY": 1,
-                },
-                "points": Array [
-                  "br",
-                  "br",
-                ],
-                "targetOffset": Array [
-                  0,
-                  0,
-                ],
-              },
-            }
-          }
-          defaultPopupVisible={false}
-          destroyPopupOnHide={true}
-          focusDelay={0}
-          getDocument={[Function]}
-          getPopupClassNameFromAlign={[Function]}
-          hideAction={Array []}
-          mask={false}
-          maskClosable={true}
-          mouseEnterDelay={0}
-          mouseLeaveDelay={0.1}
-          onPopupAlign={[Function]}
-          onPopupVisibleChange={[Function]}
-          popup={
-            <Panel
-              addon={[Function]}
-              allowEmpty={false}
-              clearIcon={
-                <Icon
-                  className="ant-time-picker-panel-clear-btn-icon"
-                  theme="filled"
-                  type="close-circle"
-                />
-              }
-              clearText="clear"
-              defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-              disabledHours={[Function]}
-              disabledMinutes={[Function]}
-              disabledSeconds={[Function]}
-              focusOnOpen={true}
-              format="HH:mm"
-              hideDisabledOptions={false}
-              inputReadOnly={false}
-              minuteStep={5}
-              onAmPmChange={[Function]}
-              onChange={[Function]}
-              onClear={[Function]}
-              onEsc={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              prefixCls="ant-time-picker-panel"
-              showHour={true}
-              showMinute={true}
-              showSecond={false}
-              use12Hours={false}
-              value={null}
-            />
-          }
-          popupAlign={
+        <Picker
+          addon={[Function]}
+          align={
             Object {
               "offset": Array [
                 0,
@@ -2878,78 +2743,273 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
               ],
             }
           }
-          popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
-          popupPlacement="bottomLeft"
-          popupStyle={Object {}}
-          popupTransitionName="slide-up"
-          popupVisible={false}
-          prefixCls="ant-time-picker-panel"
-          showAction={Array []}
-        >
-          <span
-            className="ant-time-picker "
-            key="trigger"
-            onClick={[Function]}
-            onMouseDown={[Function]}
-            onTouchStart={[Function]}
-            style={Object {}}
-          >
-            <input
-              className="ant-time-picker-input"
-              disabled={false}
-              id=""
-              onBlur={[Function]}
-              onChange={[Function]}
-              onFocus={[Function]}
-              onKeyDown={[Function]}
-              placeholder="Select time"
-              readOnly={false}
-              type="text"
-              value=""
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
             />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
             <span
               className="ant-time-picker-icon"
             >
               <Icon
                 className="ant-time-picker-clock-icon"
-                theme="outlined"
                 type="clock-circle"
-              >
-                <i
-                  className="anticon anticon-clock-circle ant-time-picker-clock-icon"
-                >
-                  <IconReact
-                    className=""
-                    type="clock-circle-o"
-                  >
-                    <svg
-                      aria-hidden="true"
-                      className=""
-                      data-icon="clock-circle"
-                      fill="currentColor"
-                      height="1em"
-                      key="svg-clock-circle"
-                      viewBox="64 64 896 896"
-                      width="1em"
-                    >
-                      <path
-                        d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
-                        key="svg-clock-circle-svg-0"
-                      />
-                      <path
-                        d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
-                        key="svg-clock-circle-svg-1"
-                      />
-                    </svg>
-                  </IconReact>
-                </i>
-              </Icon>
+              />
             </span>
-          </span>
-        </Trigger>
-      </Picker>
-    </LocaleReceiver>
-  </TimePicker>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={null}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={null}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value=""
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+  </TimeEditor>
 </div>
 `;
 
@@ -3452,30 +3512,35 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                   className="ant-calendar-picker-icon"
                   type="calendar"
                 >
-                  <i
-                    className="anticon anticon-calendar ant-calendar-picker-icon"
+                  <LocaleReceiver
+                    componentName="Icon"
                   >
-                    <IconReact
-                      className=""
-                      type="calendar-o"
+                    <i
+                      aria-label="icon: calendar"
+                      className="anticon anticon-calendar ant-calendar-picker-icon"
                     >
-                      <svg
-                        aria-hidden="true"
+                      <IconReact
                         className=""
-                        data-icon="calendar"
-                        fill="currentColor"
-                        height="1em"
-                        key="svg-calendar"
-                        viewBox="64 64 896 896"
-                        width="1em"
+                        type="calendar-o"
                       >
-                        <path
-                          d="M880 184H712v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H384v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H144c-17.7 0-32 14.3-32 32v664c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V216c0-17.7-14.3-32-32-32zm-40 656H184V460h656v380zM184 392V256h128v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h256v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h128v136H184z"
-                          key="svg-calendar-svg-0"
-                        />
-                      </svg>
-                    </IconReact>
-                  </i>
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="calendar"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-calendar"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M880 184H712v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H384v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H144c-17.7 0-32 14.3-32 32v664c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V216c0-17.7-14.3-32-32-32zm-40 656H184V460h656v380zM184 392V256h128v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h256v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h128v136H184z"
+                            key="svg-calendar-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
                 </Icon>
               </div>
             </Trigger>

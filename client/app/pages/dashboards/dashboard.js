@@ -2,10 +2,18 @@ import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
+import { Widget } from '@/services/widget';
+import {
+  editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
+} from '@/components/ParameterMappingInput';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
+import notification from '@/services/notification';
+
 import './dashboard.less';
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
@@ -37,7 +45,6 @@ function DashboardCtrl(
   currentUser,
   clientConfig,
   Events,
-  toastr,
 ) {
   this.saveInProgress = false;
 
@@ -52,7 +59,7 @@ function DashboardCtrl(
       .all(_.map(widgets, widget => widget.save()))
       .then(() => {
         if (showMessages) {
-          toastr.success('Changes saved.');
+          notification.success('Changes saved.');
         }
         // Update original widgets positions
         _.each(widgets, (widget) => {
@@ -61,7 +68,7 @@ function DashboardCtrl(
       })
       .catch(() => {
         if (showMessages) {
-          toastr.error('Error saving changes.');
+          notification.error('Error saving changes.');
         }
       })
       .finally(() => {
@@ -274,12 +281,12 @@ function DashboardCtrl(
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Dashboard update failed: Permission Denied.');
+          notification.error('Dashboard update failed', 'Permission Denied.');
         } else if (error.status === 409) {
-          toastr.error(
-            'It seems like the dashboard has been modified by another user. ' +
+          notification.error(
+            'It seems like the dashboard has been modified by another user. ',
             'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
+            { duration: null },
           );
         }
       },
@@ -307,34 +314,81 @@ function DashboardCtrl(
       },
       (error) => {
         if (error.status === 403) {
-          toastr.error('Name update failed: Permission denied.');
+          notification.error('Name update failed', 'Permission denied.');
         } else if (error.status === 409) {
-          toastr.error(
-            'It seems like the dashboard has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
+          notification.error(
+            'It seems like the dashboard has been modified by another user. ',
+            'Please copy/backup your changes and reload this page.',
+            { duration: null },
           );
         }
       },
     );
   };
 
-  this.addTextBox = () => {
-    $uibModal
-      .open({
-        component: 'addTextboxDialog',
-        resolve: {
-          dashboard: () => this.dashboard,
-        },
-      })
-      .result.then(this.onWidgetAdded);
+  this.showAddTextboxDialog = () => {
+    TextboxDialog.showModal({
+      dashboard: this.dashboard,
+      onConfirm: this.addTextbox,
+    });
   };
 
-  this.addWidget = () => {
-    AddWidgetDialog.showModal({ dashboard: this.dashboard })
-      .result.then(() => {
+  this.addTextbox = (text) => {
+    const widget = new Widget({
+      dashboard_id: this.dashboard.id,
+      options: {
+        isHidden: false,
+        position: {},
+      },
+      text,
+      visualization: null,
+      visualization_id: null,
+    });
+
+    const position = this.dashboard.calculateNewWidgetPosition(widget);
+    widget.options.position.col = position.col;
+    widget.options.position.row = position.row;
+
+    return widget.save()
+      .then(() => {
+        this.dashboard.widgets.push(widget);
         this.onWidgetAdded();
-        $scope.$applyAsync();
+      });
+  };
+
+  this.showAddWidgetDialog = () => {
+    AddWidgetDialog.showModal({
+      dashboard: this.dashboard,
+      onConfirm: this.addWidget,
+    });
+  };
+
+  this.addWidget = (selectedVis, parameterMappings) => {
+    const widget = new Widget({
+      visualization_id: selectedVis && selectedVis.id,
+      dashboard_id: this.dashboard.id,
+      options: {
+        isHidden: false,
+        position: {},
+        parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+      },
+      visualization: selectedVis,
+      text: '',
+    });
+
+    const position = this.dashboard.calculateNewWidgetPosition(widget);
+    widget.options.position.col = position.col;
+    widget.options.position.row = position.row;
+
+    const widgetsToSave = [
+      widget,
+      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.dashboard.widgets),
+    ];
+
+    return Promise.all(widgetsToSave.map(w => w.save()))
+      .then(() => {
+        this.dashboard.widgets.push(widget);
+        this.onWidgetAdded();
       });
   };
 
@@ -345,6 +399,7 @@ function DashboardCtrl(
     if (_.isObject(widget)) {
       return widget.save();
     }
+    $scope.$applyAsync();
   };
 
   this.removeWidget = (widgetId) => {

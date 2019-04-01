@@ -4,12 +4,11 @@ from flask import render_template
 from redash import settings
 from redash.tasks import send_mail
 from redash.utils import base_url
-from redash.models import User
 # noinspection PyUnresolvedReferences
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 
 logger = logging.getLogger(__name__)
-serializer = URLSafeTimedSerializer(settings.COOKIE_SECRET)
+serializer = URLSafeTimedSerializer(settings.SECRET_KEY)
 
 
 def invite_token(user):

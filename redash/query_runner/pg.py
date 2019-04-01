@@ -152,7 +152,15 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('r', 'v', 'm', 'f', 'p')
+        WHERE c.relkind IN ('m', 'f', 'p')
+
+        UNION
+
+        SELECT table_schema,
+               table_name,
+               column_name
+        FROM information_schema.columns
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
 
         self._get_definitions(schema, query)
@@ -261,8 +269,6 @@ class Redshift(PostgreSQL):
     def _get_tables(self, schema):
         # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
         # https://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
-        # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
-        # https://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
         # Use HAS_SCHEMA_PRIVILEGE(), SVV_EXTERNAL_SCHEMAS and HAS_TABLE_PRIVILEGE() to filter
         # out tables the current user cannot access.
         # https://docs.aws.amazon.com/redshift/latest/dg/r_HAS_SCHEMA_PRIVILEGE.html
@@ -276,13 +282,6 @@ class Redshift(PostgreSQL):
                             ordinal_position AS pos
             FROM svv_columns
             WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
-            UNION ALL
-            SELECT DISTINCT view_name::varchar AS table_name,
-                            view_schema::varchar AS table_schema,
-                            col_name::varchar AS column_name,
-                            col_num AS pos
-            FROM pg_get_late_binding_view_cols()
-                 cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int)
         )
         SELECT table_name, table_schema, column_name
         FROM tables

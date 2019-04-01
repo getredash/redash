@@ -45,6 +45,16 @@ jobs:
           path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
+  frontend-lint:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/test-results/eslint
+      - run: npm install
+      - run: npm run lint:ci
+      - store_test_results:
+          path: /tmp/test-results
   frontend-unit-tests:
     docker:
       - image: circleci/node:8
@@ -54,6 +64,7 @@ jobs:
       - run: npm install
       - run: npm run bundle
       - run: npm test
+      - run: npm run lint
   frontend-e2e-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.cypress.yml
@@ -72,7 +83,7 @@ jobs:
           name: Setup Redash server
           command: |
             npm run cypress start
-            docker-compose run cypress node ./cypress/cypress.js db-seed
+            docker-compose run cypress npm run cypress db-seed
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
@@ -86,6 +97,7 @@ jobs:
       - run: .circleci/update_version
       - run: npm run bundle
       - run: npm run build
+      - run: rm -rf ./node_modules/
       - run: .circleci/pack
       - store_artifacts:
           path: /tmp/artifacts/
@@ -96,9 +108,7 @@ jobs:
       - setup_remote_docker
       - checkout
       - run: .circleci/update_version
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -t redash/redash:$(.circleci/docker_tag) .
-      - run: docker push redash/redash:$(.circleci/docker_tag)
+      - run: .circleci/docker_build
 workflows:
   version: 2
   build:
@@ -106,24 +116,31 @@ workflows:
       - python-flake8-tests
       - legacy-python-flake8-tests
       - backend-unit-tests
-      - frontend-unit-tests
-      - frontend-e2e-tests
+      - frontend-lint
+      - frontend-unit-tests:
+          requires:
+            - frontend-lint
+      - frontend-e2e-tests:
+          requires:
+            - frontend-lint
       - build-tarball:
-           requires:
-             - backend-unit-tests
-           filters:
-             tags:
-               only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - /release\/.*/
       - build-docker-image:
-           requires:
-             - backend-unit-tests
-           filters:
-             branches:
-               only:
-                 - master
-                 - preview-build
-                 - /release\/.*/
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
+                - preview-image
+                - /release\/.*/

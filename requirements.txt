@@ -6,7 +6,7 @@ click==6.6
 MarkupSafe==0.23
 pyOpenSSL==16.2.0
 httplib2==0.10.3
-Flask-Admin==1.5.2
+wtforms==2.2.1
 Flask-RESTful==0.3.5
 Flask-Login==0.4.0
 Flask-OAuthLib==0.9.5
@@ -15,7 +15,7 @@ requests-oauthlib>=0.6.2,<1.2.0
 Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.0.1
 flask-mail==0.9.1
-flask-sslify==0.1.5
+flask-talisman==0.6.0
 Flask-Limiter==0.9.3
 passlib==1.6.2
 aniso8601==1.1.0
@@ -60,3 +60,4 @@ disposable-email-domains
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
+gevent==1.4.0

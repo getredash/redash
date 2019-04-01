@@ -60,7 +60,7 @@ body {
 
 // Fixed width layout for specific pages
 @media (min-width: 768px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 750px;
     }
@@ -68,7 +68,7 @@ body {
 }
 
 @media (min-width: 992px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 970px;
     }
@@ -76,7 +76,7 @@ body {
 }
 
 @media (min-width: 1200px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 1170px;
     }
@@ -157,7 +157,6 @@ body {
 .table-data {
   tbody > tr > td {
     padding-top: 5px !important;
-    cursor: pointer;
   }
 
   .btn-favourite, .btn-archive {
@@ -242,110 +241,6 @@ body {
 .float-right {
   float: right;
 }
-
-.database-source {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.visual-card {
-  background: #FFFFFF;
-  border: 1px solid fade(@redash-gray, 15%);
-  border-radius: 3px;
-  margin: 5px;
-  width: 212px;
-  padding: 15px 5px;
-  cursor: pointer;
-  box-shadow: none;
-  transition: transform 0.12s ease-out;
-  transition-duration: 0.3s;
-  transition-property: box-shadow;
-
-  display: flex;
-  //flex-direction: row;
-  align-items: center;
-
-  &:hover {
-    box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
-  }
-
-  img {
-    width: 64px !important;
-    height: 64px !important;
-    margin-right: 5px;
-  }
-
-  h3 {
-    font-size: 13px;
-    color: #323232;
-    margin: 0 !important;
-    text-overflow: ellipsis;
-    overflow: hidden;
-  }
-}
-
-.visual-card--selected {
-  background: fade(@redash-gray, 3%);
-  border: 1px solid fade(@redash-gray, 15%);
-  border-radius: 3px;
-  padding: 0 15px;
-  box-shadow: none;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  justify-content: space-around;
-  margin-bottom: 15px;
-  width: 100%;
-
-  img {
-    width: 64px;
-    height: 64px;
-  }
-
-  a {
-    cursor: pointer;
-  }
-}
-
-@media (max-width: 1200px) {
-  .visual-card {
-    width: 217px;
-  }
-}
-
-@media (max-width: 755px) {
-  .visual-card {
-    width: 47%;
-  }
-}
-
-@media (max-width: 515px) {
-  .visual-card {
-    width: 47%;
-
-    img {
-      width: 48px;
-      height: 48px;
-    }
-  }
-}
-
-@media (max-width: 408px) {
-  .visual-card {
-    width: 100%;
-    padding: 5px;
-    margin: 5px 0;
-
-    img {
-      width: 48px;
-      height: 48px;
-    }
-  }
-}
-
 
 .t-header:not(.th-alt) {
   padding: 15px;
@@ -636,11 +531,6 @@ body {
   background: #fff;
   margin-bottom: 10px;
 
-  a.navbar-brand {
-    padding: 4px 0px 0px 0px;
-    margin-left: -3px !important;
-  }
-
   .btn-group.open .dropdown-toggle {
     -webkit-box-shadow: none;
     box-shadow: none;
@@ -648,6 +538,17 @@ body {
 
   .btn-group .btn:active {
     box-shadow: none;
+  }
+}
+
+.navbar-link-ANGULAR_REMOVE_ME {
+  line-height: 18px;
+  padding: 10px 15px;
+  display: block;
+
+  @media (min-width: 768px) {
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 }
 
@@ -669,12 +570,6 @@ body {
   //background-color: fade(@redash-gray, 10%);
   //text-decoration: underline;
   //border-radius: 0;
-}
-
-.navbar-link-ANGULAR_REMOVE_ME {
-  line-height: 18px;
-  padding: 16px 15px;
-  display: block;
 }
 
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
@@ -725,11 +620,10 @@ body {
 
 .navbar-brand {
   position: absolute;
-  left: 49%;
-  margin-left: -50px !important;
+  left: 50%;
+  margin-left: -25px !important; // center
   display: block;
   zoom: 0.9;
-  margin-top: 3px;
 }
 
 .va-top {
@@ -849,6 +743,7 @@ text.slicetext {
 
   .navbar-brand {
     left: 2%;
+    margin-left: 0 !important;
   }
 
   //Fix navbar collapse
@@ -889,13 +784,28 @@ text.slicetext {
   }
 }
 
-@media (min-width: 768px) and (max-width: 850px) {
-  .menu-search {
-    width: 175px;
+@media (min-width: 768px) {
+  @media (max-width: 880px) {
+    .navbar-link-ANGULAR_REMOVE_ME,
+    .navbar-default .navbar-nav > li > a,
+    .navbar-form {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+
+    a.navbar-brand {
+      margin-left: -15px !important;
+    }
   }
 
-  a.navbar-brand {
-    display: none !important;
+  @media (max-width: 810px) {
+    .menu-search {
+      width: 175px;
+    }
+
+    a.navbar-brand {
+      margin-left: 13px !important;
+    }
   }
 }
 
@@ -952,4 +862,13 @@ text.slicetext {
   color: #333;
   pointer-events: none;
   cursor: not-allowed;
+}
+
+.select-option-divider {
+  margin: 10px 0 !important;
+}
+
+.table-data .label-tag {
+  display: inline-block;
+  max-width: 135px;
 }

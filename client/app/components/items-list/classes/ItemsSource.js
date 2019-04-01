@@ -1,4 +1,4 @@
-import { isFunction, identity, map } from 'lodash';
+import { isFunction, identity, map, extend } from 'lodash';
 import Paginator from './Paginator';
 import Sorter from './Sorter';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
@@ -35,20 +35,23 @@ export class ItemsSource {
       searchTerm: this._searchTerm,
       selectedTags: this._selectedTags,
     };
-    const context = this.getCallbackContext();
+    const customParams = {};
+    const context = {
+      ...this.getCallbackContext(),
+      setCustomParams: (params) => {
+        extend(customParams, params);
+      },
+    };
     return this._beforeUpdate().then(() => (
       this._fetcher.fetch(changes, state, context)
         .then(({ results, count, allResults }) => {
           this._pageItems = results;
           this._allItems = allResults || null;
           this._paginator.setTotalCount(count);
+          this._params = { ...this._params, ...customParams };
           return this._afterUpdate();
         })
         .catch((error) => {
-          // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-          if (error.status && error.data) {
-            error = new PromiseRejectionError(error.data.message);
-          }
           this.handleError(error);
         })
     ));
@@ -65,6 +68,8 @@ export class ItemsSource {
 
     this.setState(defaultState);
     this._pageItems = [];
+
+    this._params = {};
   }
 
   getState() {
@@ -78,6 +83,7 @@ export class ItemsSource {
       totalCount: this._paginator.totalCount,
       pageItems: this._pageItems,
       allItems: this._allItems,
+      params: this._params,
     };
   }
 
@@ -132,11 +138,15 @@ export class ItemsSource {
 
   update = () => this._changed();
 
-  handleError(error) {
+  handleError = (error) => {
     if (isFunction(this.onError)) {
+      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+      if (error.status && error.data) {
+        error = new PromiseRejectionError(error);
+      }
       this.onError(error);
     }
-  }
+  };
 }
 
 export class ResourceItemsSource extends ItemsSource {

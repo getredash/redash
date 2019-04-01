@@ -16,7 +16,6 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { Dashboard } from '@/services/dashboard';
-import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import DashboardListEmptyState from './DashboardListEmptyState';
@@ -46,7 +45,7 @@ class DashboardList extends React.Component {
     Columns.favorites({ className: 'p-r-0' }),
     Columns.custom.sortable((text, item) => (
       <React.Fragment>
-        <a className="table-main-title" href={'dashboard/' + item.slug}>{ item.name }</a>
+        <a className="table-main-title" href={'dashboard/' + item.slug} data-test={item.slug}>{ item.name }</a>
         <DashboardTagsControl
           className="d-block"
           tags={item.tags}
@@ -68,8 +67,6 @@ class DashboardList extends React.Component {
     }),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('dashboard/' + item.slug);
-
   render() {
     const { controller } = this.props;
     return (
@@ -85,42 +82,42 @@ class DashboardList extends React.Component {
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
             <Sidebar.PageSizeSelect
+              className="m-b-10"
               options={controller.pageSizeOptions}
               value={controller.itemsPerPage}
               onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
             />
           </Layout.Sidebar>
           <Layout.Content>
-            {!controller.isLoaded && <LoadingState />}
-            {
-              controller.isLoaded && controller.isEmpty && (
-                <DashboardListEmptyState
-                  page={controller.params.currentPage}
-                  searchTerm={controller.searchTerm}
-                  selectedTags={controller.selectedTags}
-                />
-              )
-            }
-            {
-              controller.isLoaded && !controller.isEmpty && (
-                <div className="bg-white tiled table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
+            {controller.isLoaded ? (
+              <div data-test="DashboardLayoutContent">
+                {controller.isEmpty ? (
+                  <DashboardListEmptyState
+                    page={controller.params.currentPage}
+                    searchTerm={controller.searchTerm}
+                    selectedTags={controller.selectedTags}
                   />
-                  <Paginator
-                    totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
-              )
-            }
+                ) : (
+                  <div className="bg-white tiled table-responsive">
+                    <ItemsTable
+                      items={controller.pageItems}
+                      columns={this.listColumns}
+                      orderByField={controller.orderByField}
+                      orderByReverse={controller.orderByReverse}
+                      toggleSorting={controller.toggleSorting}
+                    />
+                    <Paginator
+                      totalCount={controller.totalItemsCount}
+                      itemsPerPage={controller.itemsPerPage}
+                      page={controller.page}
+                      onChange={page => controller.updatePagination({ page })}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <LoadingState />
+            )}
           </Layout.Content>
         </Layout>
       </div>

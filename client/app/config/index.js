@@ -13,7 +13,6 @@ import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
-import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
@@ -31,6 +30,7 @@ import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
 import dashboardGridOptions from './dashboard-grid-options';
+import './antd-spinner';
 
 const logger = debug('redash:config');
 
@@ -49,7 +49,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  toastr,
   'ui.ace',
   ngUpload,
   'angularResizable',

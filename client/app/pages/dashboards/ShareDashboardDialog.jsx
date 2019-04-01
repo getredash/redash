@@ -5,7 +5,8 @@ import Switch from 'antd/lib/switch';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
 import Alert from 'antd/lib/alert';
-import { $http, toastr } from '@/services/ng';
+import { $http } from '@/services/ng';
+import notification from '@/services/notification';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
 import { HelpTrigger } from '@/components/HelpTrigger';
@@ -60,7 +61,7 @@ class ShareDashboardDialog extends React.Component {
         dashboard.public_url = data.public_url;
       })
       .error(() => {
-        toastr.error('Failed to turn on sharing for this dashboard');
+        notification.error('Failed to turn on sharing for this dashboard');
       })
       .finally(() => {
         this.setState({ saving: false });
@@ -78,7 +79,7 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .error(() => {
-        toastr.error('Failed to turn off sharing for this dashboard');
+        notification.error('Failed to turn off sharing for this dashboard');
       })
       .finally(() => {
         this.setState({ saving: false });

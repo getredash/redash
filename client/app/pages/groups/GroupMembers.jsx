@@ -19,12 +19,12 @@ import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
 
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
 import { Group } from '@/services/group';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes, cancelEvent } from '@/lib/utils';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -73,25 +73,25 @@ class GroupMembers extends React.Component {
     }),
   ];
 
-  removeGroupMember = cancelEvent((user) => {
-    Group.removeMember({ id: this.groupId, userId: user.id }).$promise
-      .then(() => {
-        this.props.controller.updatePagination({ page: 1 });
-        this.props.controller.update();
-      })
-      .catch(() => {
-        toastr.error('Failed to remove member from group.');
-      });
-  });
-
   componentDidMount() {
-    Group.get({ id: this.groupId }).$promise.then((group) => {
-      this.group = group;
-      this.forceUpdate();
-    });
+    Group.get({ id: this.groupId }).$promise
+      .then((group) => {
+        this.group = group;
+        this.forceUpdate();
+      })
+      .catch((error) => {
+        this.props.controller.handleError(error);
+      });
   }
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  removeGroupMember = (event, user) => Group.removeMember({ id: this.groupId, userId: user.id }).$promise
+    .then(() => {
+      this.props.controller.updatePagination({ page: 1 });
+      this.props.controller.update();
+    })
+    .catch(() => {
+      notification.error('Failed to remove member from group.');
+    });
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
@@ -164,7 +164,6 @@ class GroupMembers extends React.Component {
                     items={controller.pageItems}
                     columns={this.listColumns}
                     showHeader={false}
-                    onRowClick={this.onTableRowClick}
                     context={this.actions}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}

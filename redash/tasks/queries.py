@@ -25,116 +25,6 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-# TODO:
-# There is some duplication between this class and QueryTask, but I wanted to implement the monitoring features without
-# much changes to the existing code, so ended up creating another object. In the future we can merge them.
-class QueryTaskTracker(object):
-    DONE_LIST = 'query_task_trackers:done'
-    WAITING_LIST = 'query_task_trackers:waiting'
-    IN_PROGRESS_LIST = 'query_task_trackers:in_progress'
-    ALL_LISTS = (DONE_LIST, WAITING_LIST, IN_PROGRESS_LIST)
-
-    def __init__(self, data):
-        self.data = data
-
-    @classmethod
-    def create(cls, task_id, state, query_hash, data_source_id, scheduled, metadata):
-        data = dict(task_id=task_id, state=state,
-                    query_hash=query_hash, data_source_id=data_source_id,
-                    scheduled=scheduled,
-                    username=metadata.get('Username', 'unknown'),
-                    query_id=metadata.get('Query ID', 'unknown'),
-                    retries=0,
-                    scheduled_retries=0,
-                    created_at=time.time(),
-                    started_at=None,
-                    run_time=None)
-
-        return cls(data)
-
-    def save(self, connection=None):
-        if connection is None:
-            connection = redis_connection
-
-        self.data['updated_at'] = time.time()
-        key_name = self._key_name(self.data['task_id'])
-        connection.set(key_name, json_dumps(self.data))
-        connection.zadd(self._get_list(), {key_name: time.time()})
-
-        for _list in self.ALL_LISTS:
-            if _list != self._get_list():
-                connection.zrem(_list, key_name)
-
-    # TOOD: this is not thread/concurrency safe. In current code this is not an issue, but better to fix this.
-    def update(self, **kwargs):
-        self.data.update(kwargs)
-        self.save()
-
-    @staticmethod
-    def _key_name(task_id):
-        return 'query_task_tracker:{}'.format(task_id)
-
-    def _get_list(self):
-        if self.state in ('finished', 'failed', 'cancelled'):
-            return self.DONE_LIST
-
-        if self.state in ('created'):
-            return self.WAITING_LIST
-
-        return self.IN_PROGRESS_LIST
-
-    @classmethod
-    def get_by_task_id(cls, task_id, connection=None):
-        if connection is None:
-            connection = redis_connection
-
-        key_name = cls._key_name(task_id)
-        data = connection.get(key_name)
-        return cls.create_from_data(data)
-
-    @classmethod
-    def create_from_data(cls, data):
-        if data:
-            data = json_loads(data)
-            return cls(data)
-
-        return None
-
-    @classmethod
-    def all(cls, list_name, offset=0, limit=-1):
-        if limit != -1:
-            limit -= 1
-
-        if offset != 0:
-            offset -= 1
-
-        ids = redis_connection.zrevrange(list_name, offset, limit)
-        pipe = redis_connection.pipeline()
-        for id in ids:
-            pipe.get(id)
-
-        tasks = [cls.create_from_data(data) for data in pipe.execute()]
-        return tasks
-
-    @classmethod
-    def prune(cls, list_name, keep_count, max_keys=100):
-        count = redis_connection.zcard(list_name)
-        if count <= keep_count:
-            return 0
-
-        remove_count = min(max_keys, count - keep_count)
-        keys = redis_connection.zrange(list_name, 0, remove_count - 1)
-        redis_connection.delete(*keys)
-        redis_connection.zremrangebyrank(list_name, 0, remove_count - 1)
-        return remove_count
-
-    def __getattr__(self, item):
-        return self.data[item]
-
-    def __contains__(self, item):
-        return item in self.data
-
-
 class QueryTask(object):
     # TODO: this is mapping to the old Job class statuses. Need to update the client side and remove this
     STATUSES = {
@@ -256,11 +146,6 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                                                    time_limit=time_limit)
 
                 job = QueryTask(async_result=result)
-                tracker = QueryTaskTracker.create(
-                    result.id, 'created', query_hash, data_source.id,
-                    scheduled_query is not None, metadata)
-                tracker.save(connection=pipe)
-
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(_job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                 pipe.execute()
@@ -323,35 +208,6 @@ def refresh_queries():
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
 
-@celery.task(name="redash.tasks.cleanup_tasks")
-def cleanup_tasks():
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST)
-    for tracker in in_progress:
-        result = AsyncResult(tracker.task_id)
-
-        if result.ready():
-            logging.info("in progress tracker %s finished", tracker.query_hash)
-            _unlock(tracker.query_hash, tracker.data_source_id)
-            tracker.update(state='finished')
-
-    # Maintain constant size of the finished tasks list:
-    removed = 1000
-    while removed > 0:
-        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
-
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
-    for tracker in waiting:
-        if tracker is None:
-            continue
-
-        result = AsyncResult(tracker.task_id)
-
-        if result.ready():
-            logging.info("waiting tracker %s finished", tracker.query_hash)
-            _unlock(tracker.query_hash, tracker.data_source_id)
-            tracker.update(state='finished')
-
-
 @celery.task(name="redash.tasks.cleanup_query_results")
 def cleanup_query_results():
     """
@@ -409,7 +265,7 @@ def refresh_schemas():
         elif ds.org.is_disabled:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
-            refresh_schema.apply_async(args=(ds.id,), queue="schemas")
+            refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
@@ -441,23 +297,12 @@ class QueryExecutor(object):
         self.query_hash = gen_query_hash(self.query)
         self.scheduled_query = scheduled_query
         # Load existing tracker or create a new one if the job was created before code update:
-        self.tracker = (
-            QueryTaskTracker.get_by_task_id(task.request.id) or
-            QueryTaskTracker.create(
-                task.request.id,
-                'created',
-                self.query_hash,
-                self.data_source_id,
-                False,
-                metadata
-            )
-        )
-        if self.tracker.scheduled:
-            models.scheduled_queries_executions.update(self.tracker.query_id)
+        if scheduled_query:
+            models.scheduled_queries_executions.update(scheduled_query.id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
-        self.tracker.update(started_at=time.time(), state='started')
+        started_at = time.time()
 
         logger.debug("Executing query:\n%s", self.query)
         self._log_progress('executing_query')
@@ -472,15 +317,13 @@ class QueryExecutor(object):
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
-        run_time = time.time() - self.tracker.started_at
-        self.tracker.update(error=error, run_time=run_time, state='saving_results')
+        run_time = time.time() - started_at
 
         logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
-        if error:
-            self.tracker.update(state='failed')
+        if error is not None and data is None:
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -528,7 +371,6 @@ class QueryExecutor(object):
             self.task.request.delivery_info['routing_key'],
             self.metadata.get('Query ID', 'unknown'),
             self.metadata.get('Username', 'unknown'))
-        self.tracker.update(state=state)
 
     def _load_data_source(self):
         logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)

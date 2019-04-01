@@ -1,12 +1,14 @@
-import { map } from 'lodash';
+import { map, get } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
+import Modal from 'antd/lib/modal';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
 import { UserPreviewCard } from '@/components/PreviewCard';
+import InputWithCopy from '@/components/InputWithCopy';
 
 import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -18,13 +20,15 @@ import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import Layout from '@/components/layouts/ContentWithSidebar';
+import CreateUserDialog from '@/components/users/CreateUserDialog';
 
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import notification from '@/services/notification';
+import { absoluteUrl } from '@/services/utils';
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
@@ -116,31 +120,50 @@ class UsersList extends React.Component {
     }),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  componentDidMount() {
+    if (this.props.controller.params.isNewUserPage) {
+      this.showCreateUserDialog();
+    }
+  }
 
-  enableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.enableUser(user)
-      .then(() => this.props.controller.update());
+  createUser = values => User.create(values).$promise.then((user) => {
+    notification.success('Saved.');
+    if (user.invite_link) {
+      Modal.warning({ title: 'Email not sent!',
+        content: (
+          <React.Fragment>
+            <p>
+              The mail server is not configured, please send the following link
+              to <b>{user.name}</b>:
+            </p>
+            <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+          </React.Fragment>
+        ) });
+    }
+  }).catch((error) => {
+    if (!(error instanceof Error)) {
+      error = new Error(get(error, 'data.message', 'Failed saving.'));
+    }
+    return Promise.reject(error);
+  });
+
+  showCreateUserDialog = () => {
+    if (policy.isCreateUserEnabled()) {
+      CreateUserDialog.showModal({ onCreate: this.createUser }).result
+        .then(() => this.props.controller.update())
+        .finally(() => {
+          if (this.props.controller.params.isNewUserPage) {
+            navigateTo('users');
+          }
+        });
+    }
   };
 
-  disableUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.disableUser(user)
-      .then(() => this.props.controller.update());
-  };
+  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
 
-  deleteUser = (event, user) => {
-    // prevent default click action on table rows
-    event.preventDefault();
-    event.stopPropagation();
-    return User.deleteUser(user)
-      .then(() => this.props.controller.update());
-  };
+  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
+
+  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -149,7 +172,7 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
@@ -171,6 +194,7 @@ class UsersList extends React.Component {
             />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.PageSizeSelect
+              className="m-b-10"
               options={controller.pageSizeOptions}
               value={controller.itemsPerPage}
               onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
@@ -185,7 +209,6 @@ class UsersList extends React.Component {
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
                     context={this.actions}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
@@ -243,32 +266,6 @@ export default function init(ngModule) {
     }),
     new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
   )));
-
-  return routesToAngularRoutes([
-    {
-      path: '/users',
-      title: 'Users',
-      key: 'active',
-    },
-    {
-      path: '/users/pending',
-      title: 'Pending Invitations',
-      key: 'pending',
-    },
-    {
-      path: '/users/disabled',
-      title: 'Disabled Users',
-      key: 'disabled',
-    },
-  ], {
-    template: '<settings-screen><page-users-list on-error="handleError"></page-users-list></settings-screen>',
-    reloadOnSearch: false,
-    controller($scope, $exceptionHandler) {
-      'ngInject';
-
-      $scope.handleError = $exceptionHandler;
-    },
-  });
 }
 
 init.init = true;

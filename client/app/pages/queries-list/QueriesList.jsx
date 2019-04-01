@@ -18,7 +18,6 @@ import Layout from '@/components/layouts/ContentWithSidebar';
 
 import { Query } from '@/services/query';
 import { currentUser } from '@/services/auth';
-import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import QueriesListEmptyState from './QueriesListEmptyState';
@@ -84,8 +83,6 @@ class QueriesList extends React.Component {
     ),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('queries/' + item.id);
-
   render() {
     const { controller } = this.props;
     return (
@@ -101,6 +98,7 @@ class QueriesList extends React.Component {
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.Tags url="api/queries/tags" onChange={controller.updateSelectedTags} />
             <Sidebar.PageSizeSelect
+              className="m-b-10"
               options={controller.pageSizeOptions}
               value={controller.itemsPerPage}
               onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
@@ -123,7 +121,6 @@ class QueriesList extends React.Component {
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
                     toggleSorting={controller.toggleSorting}

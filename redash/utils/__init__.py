@@ -186,3 +186,9 @@ def base_url(org):
 
 def filter_none(d):
     return select_values(lambda v: v is not None, d)
+
+
+def to_filename(s):
+    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    return s.strip("_")
