@@ -1,4 +1,3 @@
-from flask import url_for
 from flask_login import current_user
 from funcy import project
 from mock import patch
@@ -91,17 +90,25 @@ class TestLogin(BaseTestCase):
         super(TestLogin, self).setUp()
         self.factory.org.set_setting('auth_password_login_enabled', True)
 
-    @classmethod
-    def setUpClass(cls):
-        settings.ORG_RESOLVING = "single_org"
-
-    @classmethod
-    def tearDownClass(cls):
-        settings.ORG_RESOLVING = "multi_org"
-
     def test_get_login_form(self):
         rv = self.client.get('/default/login')
         self.assertEquals(rv.status_code, 200)
+
+    def test_get_login_form_remote_auth(self):
+        """Make sure the remote auth link can be rendered correctly on the
+        login page when the remote user login feature is enabled"""
+        old_remote_user_enabled = settings.REMOTE_USER_LOGIN_ENABLED
+        old_ldap_login_enabled = settings.LDAP_LOGIN_ENABLED
+        try:
+            settings.REMOTE_USER_LOGIN_ENABLED = True
+            settings.LDAP_LOGIN_ENABLED = True
+            rv = self.client.get('/default/login')
+            self.assertEquals(rv.status_code, 200)
+            self.assertIn('/{}/remote_user/login'.format(self.factory.org.slug), rv.data)
+            self.assertIn('/{}/ldap/login'.format(self.factory.org.slug), rv.data)
+        finally:
+            settings.REMOTE_USER_LOGIN_ENABLED = old_remote_user_enabled
+            settings.LDAP_LOGIN_ENABLED = old_ldap_login_enabled
 
     def test_submit_non_existing_user(self):
         with patch('redash.handlers.authentication.login_user') as login_user_mock:

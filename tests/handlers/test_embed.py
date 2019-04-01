@@ -2,6 +2,15 @@ from tests import BaseTestCase
 from redash.models import db
 
 
+class TestUnembedables(BaseTestCase):
+    def test_not_embedable(self):
+        query = self.factory.create_query()
+        res = self.make_request('get', '/api/queries/{0}'.format(query.id))
+        self.assertEquals(res.status_code, 200)
+        self.assertIn("frame-ancestors 'none'", res.headers['Content-Security-Policy'])
+        self.assertEqual(res.headers['X-Frame-Options'], 'deny')
+
+
 class TestEmbedVisualization(BaseTestCase):
     def test_sucesss(self):
         vis = self.factory.create_visualization()
@@ -10,6 +19,8 @@ class TestEmbedVisualization(BaseTestCase):
 
         res = self.make_request("get", "/embed/query/{}/visualization/{}".format(vis.query_rel.id, vis.id), is_json=False)
         self.assertEqual(res.status_code, 200)
+        self.assertIn('frame-ancestors *', res.headers['Content-Security-Policy'])
+        self.assertNotIn("X-Frame-Options", res.headers)
 
     # TODO: bring back?
     # def test_parameters_on_embeds(self):
@@ -49,6 +60,8 @@ class TestPublicDashboard(BaseTestCase):
 
         res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 200)
+        self.assertIn('frame-ancestors *', res.headers['Content-Security-Policy'])
+        self.assertNotIn("X-Frame-Options", res.headers)
 
     def test_works_for_logged_in_user(self):
         dashboard = self.factory.create_dashboard()
@@ -72,6 +85,7 @@ class TestPublicDashboard(BaseTestCase):
     # def test_token_doesnt_belong_to_dashboard(self):
     #     pass
 
+
 class TestAPIPublicDashboard(BaseTestCase):
     def test_success(self):
         dashboard = self.factory.create_dashboard()
@@ -79,6 +93,8 @@ class TestAPIPublicDashboard(BaseTestCase):
 
         res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 200)
+        self.assertIn('frame-ancestors *', res.headers['Content-Security-Policy'])
+        self.assertNotIn("X-Frame-Options", res.headers)
 
     def test_works_for_logged_in_user(self):
         dashboard = self.factory.create_dashboard()

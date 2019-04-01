@@ -1,5 +1,6 @@
 from flask import make_response, request
 from flask_restful import abort
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
 from redash.destinations import (destinations,
@@ -45,6 +46,10 @@ class DestinationResource(BaseResource):
             models.db.session.commit()
         except ValidationError:
             abort(400)
+        except IntegrityError as e:
+            if 'name' in e.message:
+                abort(400, message=u"Alert Destination with the name {} already exists.".format(req['name']))
+            abort(500)
 
         return destination.to_dict(all=True)
 
@@ -102,6 +107,12 @@ class DestinationListResource(BaseResource):
                                                      options=config,
                                                      user=self.current_user)
 
-        models.db.session.add(destination)
-        models.db.session.commit()
+        try:
+            models.db.session.add(destination)
+            models.db.session.commit()
+        except IntegrityError as e:
+            if 'name' in e.message:
+                abort(400, message=u"Alert Destination with the name {} already exists.".format(req['name']))
+            abort(500)
+
         return destination.to_dict(all=True)
