@@ -249,6 +249,28 @@ describe('Dashboard', () => {
         cy.get('@textboxEl').should('contain', newContent);
       });
     });
+
+    it('renders textbox according to position configuration', function () {
+      const id = this.dashboardId;
+      const txb1Pos = { col: 0, row: 0, sizeX: 3, sizeY: 2 };
+      const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
+
+      cy.viewport(1215, 800);
+      addTextbox(id, 'x', { position: txb1Pos })
+        .then(() => addTextbox(id, 'x', { position: txb2Pos }))
+        .then(getWidgetTestId)
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          return cy.getByTestId(elTestId);
+        })
+        .should(($el) => {
+          const { top, left } = $el.offset();
+          expect(top).to.eq(214);
+          expect(left).to.eq(215);
+          expect($el.width()).to.eq(600);
+          expect($el.height()).to.eq(185);
+        });
+    });
   });
 
   describe('Grid compliant widgets', () => {

@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-const { extend, get } = Cypress._;
+const { extend, get, merge } = Cypress._;
 
 export function createDashboard(name) {
   return cy.request('POST', 'api/dashboards', { name })
@@ -30,15 +30,17 @@ export function createQuery(data, shouldPublish = true) {
   return request;
 }
 
-export function addTextbox(dashboardId, text = 'text') {
+export function addTextbox(dashboardId, text = 'text', options = {}) {
+  const defaultOptions = {
+    position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
+  };
+
   const data = {
     width: 1,
     dashboard_id: dashboardId,
     visualization_id: null,
     text,
-    options: {
-      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    },
+    options: merge(defaultOptions, options),
   };
 
   return cy.request('POST', 'api/widgets', data)
