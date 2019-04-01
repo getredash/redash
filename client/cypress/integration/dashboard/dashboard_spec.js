@@ -315,7 +315,7 @@ describe('Dashboard', () => {
           const { top, left } = $el.offset();
           expect(top).to.eq(214);
           expect(left).to.eq(215);
-          expect($el.width()).to.eq(585);
+          expect($el.width()).to.eq(600);
           expect($el.height()).to.eq(185);
         });
     });
