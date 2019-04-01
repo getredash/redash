@@ -153,6 +153,6 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        parameter_names = ", ".join(parameters)
+        parameter_names = u", ".join(parameters)
         message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)
