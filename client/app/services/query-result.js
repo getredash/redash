@@ -69,7 +69,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       logger('Unknown error', response);
       queryResult.update({
         job: {
-          error: 'unknown error occurred. Please try again later.',
+          error: response.data.message || 'unknown error occurred. Please try again later.',
           status: 4,
         },
       });
