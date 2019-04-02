@@ -252,11 +252,15 @@
   z-index: 1000; // make sure it doesn't cover drawer
 }
 
-// flexible width for notifications
+// Notification overrides
 .@{notification-prefix-cls} {
   // vertical centering
   &-notice-close {
     top: 20px;
     right: 20px;
+  }
+
+  &-notice-description {
+    max-width: 484px;
   }
 }
