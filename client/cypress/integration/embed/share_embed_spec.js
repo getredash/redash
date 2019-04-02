@@ -7,7 +7,7 @@ describe('Embedded Queries', () => {
   it('are shared with safe parameters', () => {
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
-      .type('SELECT * FROM organizations WHERE id=\'{{}{{}id}}\'{esc}', { force: true });
+      .type('SELECT name, slug FROM organizations WHERE id=\'{{}{{}id}}\'{esc}', { force: true });
 
     cy.getByTestId('TextParamInput').type('1');
     cy.clickThrough(`
@@ -31,7 +31,7 @@ describe('Embedded Queries', () => {
   it('cannot be shared with unsafe parameters', () => {
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
-      .type('SELECT * FROM organizations WHERE name=\'{{}{{}name}}\'{esc}', { force: true });
+      .type('SELECT name, slug FROM organizations WHERE name=\'{{}{{}name}}\'{esc}', { force: true });
 
     cy.getByTestId('TextParamInput').type('Redash');
     cy.clickThrough(`
