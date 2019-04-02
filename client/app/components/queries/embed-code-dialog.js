@@ -9,7 +9,7 @@ const EmbedCodeDialog = {
 
     this.embedUrl = `${clientConfig.basePath}embed/query/${this.query.id}/visualization/${
       this.visualization.id
-    }?api_key=${this.query.api_key}`;
+    }?api_key=${this.query.api_key}&${this.query.getParameters().toUrlParams()}`;
     if (window.snapshotUrlBuilder) {
       this.snapshotUrl = window.snapshotUrlBuilder(this.query, this.visualization);
     }

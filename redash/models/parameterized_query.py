@@ -73,6 +73,17 @@ def _parameter_names(parameter_values):
     return names
 
 
+def _is_number(string):
+    if isinstance(string, Number):
+        return True
+    else:
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
+
+
 def _is_date(string):
     try:
         parse(string)
@@ -116,7 +127,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
-            "number": lambda value: isinstance(value, Number),
+            "number": _is_number,
             "enum": lambda value: value in definition["enumOptions"],
             "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
@@ -148,5 +159,6 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        message = u"The following parameter values are incompatible with their definitions: {}".format(", ".join(parameters))
+        parameter_names = u", ".join(parameters)
+        message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)

@@ -18,52 +18,6 @@ def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
 
-#
-# Run a parameterized query synchronously and return the result
-# DISCLAIMER: Temporary solution to support parameters in queries. Should be
-#             removed once we refactor the query results API endpoints and handling
-#             on the client side. Please don't reuse in other API handlers.
-#
-def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    query = ParameterizedQuery(query_text).apply(parameter_values)
-
-    if query.missing_params:
-        raise Exception('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
-
-    if max_age <= 0:
-        query_result = None
-    else:
-        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
-
-    query_hash = gen_query_hash(query.text)
-
-    if query_result:
-        logging.info("Returning cached result for query %s" % query_hash)
-        return query_result
-
-    try:
-        started_at = time.time()
-        data, error = data_source.query_runner.run_query(query.text, current_user)
-
-        if error:
-            logging.info('got bak error')
-            logging.info(error)
-            return None
-
-        run_time = time.time() - started_at
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                          query_hash, query.text, data,
-                                                                          run_time, utcnow())
-        models.db.session.commit()
-        return query_result
-    except Exception as e:
-        if max_age > 0:
-            abort(404, message="Unable to get result from the database, and no cached query result found.")
-        else:
-            abort(503, message="Unable to get result from the database.")
-        return None
-
-
 def run_query(query, parameters, data_source, query_id, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
@@ -89,8 +43,8 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query.text, data_source, current_user.id, metadata={
-            "Username": current_user.email,
+        job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
+            "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
             "Query ID": query_id
         })
         return {'job': job.to_dict()}
@@ -151,9 +105,11 @@ class QueryResultListResource(BaseResource):
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
+
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
         return dropdown_values(query_id)
+
 
 class QueryDropdownsResource(BaseResource):
     def get(self, query_id, dropdown_query_id):
@@ -189,7 +145,7 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_permission('execute_query')
+    @require_permission('view_query')
     def post(self, query_id):
         """
         Execute a saved query.
@@ -202,7 +158,8 @@ class QueryResultResource(BaseResource):
                                 always execute.
         """
         params = request.get_json(force=True)
-        parameters = params.get('parameters', {})
+        parameter_values = params.get('parameters')
+
         max_age = params.get('max_age', -1)
         # max_age might have the value of None, in which case calling int(None) will fail
         if max_age is None:
@@ -213,8 +170,8 @@ class QueryResultResource(BaseResource):
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
 
-        if has_access(query.data_source, self.current_user, allow_executing_with_view_only_permissions):
-            return run_query(query.parameterized, parameters, query.data_source, query_id, max_age)
+        if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
+            return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
@@ -253,11 +210,10 @@ class QueryResultResource(BaseResource):
         if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-            if query_result is None and query is not None:
-                if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
-                elif query.latest_query_data_id is not None:
-                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
+            if query_result is None and query is not None and query.latest_query_data_id is not None:
+                query_result = get_object_or_404(models.QueryResult.get_by_id_and_org,
+                                                 query.latest_query_data_id,
+                                                 self.current_org)
 
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
