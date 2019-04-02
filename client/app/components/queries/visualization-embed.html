@@ -1,4 +1,4 @@
-<div class="tile m-l-10 m-r-10 embed__vis">
+<div class="tile m-l-10 m-r-10 embed__vis" data-test="VisualizationEmbed">
   <div class="embed-heading p-t-10 p-b-10 p-r-15 p-l-15">
     <h3>
       <img ng-src="{{$ctrl.logoUrl}}" style="height: 24px;"/>
@@ -12,6 +12,10 @@
   </div>
 
   <div class="col-md-12 query__vis">
+    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.getParametersDefs().length > 0">
+      <parameters parameters="$ctrl.query.getParametersDefs()"></parameters>
+    </div>
+
     <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
     </visualization-renderer>
   </div>

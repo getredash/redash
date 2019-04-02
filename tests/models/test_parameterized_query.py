@@ -82,6 +82,14 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEquals("foo 7", query.text)
 
+    def test_coerces_number_parameters(self):
+        schema = [{"name": "bar", "type": "number"}]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": "3.14"})
+
+        self.assertEquals("foo 3.14", query.text)
+
     def test_raises_on_invalid_date_parameters(self):
         schema = [{"name": "bar", "type": "date"}]
         query = ParameterizedQuery("foo", schema)

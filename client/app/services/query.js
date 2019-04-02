@@ -294,6 +294,14 @@ class Parameters {
     const params = this.get();
     return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
   }
+
+  toUrlParams() {
+    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
+    return Object
+      .keys(params)
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+  }
 }
 
 function QueryResultErrorFactory($q) {

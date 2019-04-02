@@ -22,6 +22,9 @@ const VisualizationEmbed = {
   },
 };
 
+const queryStringAsObject = () => location.search.slice(1).split('&').map(p => p.split('='))
+  .reduce((obj, [key, value]) => ({ ...obj, [key.replace(/^p_/, '')]: value }), {});
+
 export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
@@ -37,7 +40,8 @@ export default function init(ngModule) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
       const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
-      const queryResult = $http.get(`api/queries/${queryId}/results.json${location.search}`).then(response => response.data);
+      const { api_key: apiKey, ...parameters } = queryStringAsObject();
+      const queryResult = $http.post(`api/queries/${queryId}/results?api_key=${apiKey}`, { parameters }).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }

@@ -148,6 +148,7 @@ export class ParameterValueInput extends React.Component {
       <Input
         className={'form-control ' + className}
         defaultValue={value || ''}
+        data-test="TextParamInput"
         onChange={event => onSelect(event.target.value)}
       />
     );
@@ -179,7 +180,6 @@ export default function init(ngModule) {
         parameter="$ctrl.param"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
-        parent-query-id="$ctrl.param.parentQueryId"
         on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
