@@ -23,7 +23,7 @@ describe('Embedded Queries', () => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
       cy.visit(embedUrl);
-      cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.getByTestId('VisualizationEmbed', { timeout: 10000 }).should('exist');
       cy.percySnapshot('Successfully Embedded Parameterized Query');
     });
   });
@@ -47,7 +47,7 @@ describe('Embedded Queries', () => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
       cy.visit(embedUrl, { failOnStatusCode: false }); // prevent 403 from failing test
-      cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.getByTestId('ErrorMessage', { timeout: 10000 }).should('exist');
       cy.percySnapshot('Unsuccessfully Embedded Parameterized Query');
     });
   });
