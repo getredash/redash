@@ -1,8 +1,11 @@
+import { get } from 'lodash';
 import React from 'react';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
+import Modal from 'antd/lib/modal';
 import { Paginator } from '@/components/Paginator';
+import QuerySnippetDialog from '@/components/query-snippets/QuerySnippetDialog';
 
 import { wrap as liveItemsList, ControllerType } from '@/components/items-list/ItemsList';
 import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
@@ -13,7 +16,9 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 
 import { QuerySnippet } from '@/services/query-snippet';
 import settingsMenu from '@/services/settingsMenu';
+import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
+import notification from '@/services/notification';
 import { routesToAngularRoutes } from '@/lib/utils';
 import './QuerySnippetsList.less';
 
@@ -25,7 +30,9 @@ class QuerySnippetsList extends React.Component {
   listColumns = [
     Columns.custom.sortable((text, querySnippet) => (
       <div>
-        <a className="table-main-title" href={'query_snippets/' + querySnippet.id}>{querySnippet.trigger}</a>
+        <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
+          {querySnippet.trigger}
+        </a>
       </div>
     ), {
       title: 'Trigger',
@@ -52,7 +59,45 @@ class QuerySnippetsList extends React.Component {
       className: 'text-nowrap',
       width: '1%',
     }),
+    Columns.custom((text, querySnippet) => (currentUser.isAdmin || currentUser.id === get(querySnippet, 'user.id')) && (
+      <Button type="danger" className="w-100" onClick={e => this.deleteQuerySnippet(e, querySnippet)}>
+        Delete
+      </Button>
+    ), {
+      width: '1%',
+    }),
   ];
+
+  saveQuerySnippet = querySnippet => QuerySnippet.save(querySnippet).$promise;
+
+  deleteQuerySnippet = (event, querySnippet) => {
+    Modal.confirm({
+      title: 'Delete Query Snippet',
+      content: 'Are you sure you want to delete this query snippet?',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk: () => {
+        querySnippet.$delete(() => {
+          notification.success('Query snippet deleted successfully.');
+          this.props.controller.update();
+        }, () => {
+          notification.error('Failed deleting query snippet.');
+        });
+      },
+    });
+  }
+
+  showSnippetDialog = (querySnippet = null) => {
+    const canSave = !querySnippet || currentUser.isAdmin || currentUser.id === get(querySnippet, 'user.id');
+
+    QuerySnippetDialog.showModal({
+      querySnippet,
+      onSubmit: this.saveQuerySnippet,
+      readOnly: !canSave,
+    }).result
+      .then(() => this.props.controller.update());
+  };
 
   render() {
     const { controller } = this.props;
@@ -60,7 +105,11 @@ class QuerySnippetsList extends React.Component {
     return (
       <div>
         <div className="m-b-15">
-          <Button type="primary" href="/query_snippets/new" disabled={!policy.isCreateQuerySnippetEnabled()}>
+          <Button
+            type="primary"
+            onClick={() => this.showSnippetDialog()}
+            disabled={!policy.isCreateQuerySnippetEnabled()}
+          >
             <i className="fa fa-plus m-r-5" />
             New Query Snippet
           </Button>
