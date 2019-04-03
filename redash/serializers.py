@@ -43,7 +43,7 @@ def public_widget(widget):
                 'name': v.query_rel.name,
                 'data_source_id': v.query_rel.data_source_id,
                 'description': v.query_rel.description,
-                'options': {},
+                'options': v.query_rel.options,
                 'latest_query_data': query_data
             }
         }
