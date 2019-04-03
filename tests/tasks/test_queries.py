@@ -22,9 +22,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, False, query, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, False, query, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, False, query, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(1, execute_query.apply_async.call_count)
 
@@ -32,9 +32,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '2', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '3', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, False, None, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '2', query.data_source, query.user_id, False, None, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '3', query.data_source, query.user_id, False, None, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(3, execute_query.apply_async.call_count)
 
