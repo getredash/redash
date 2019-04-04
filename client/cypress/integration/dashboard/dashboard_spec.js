@@ -220,6 +220,35 @@ describe('Dashboard', () => {
         ` },
         `OpenShareForm
         PublicAccessEnabled`);
+
+        cy.getByTestId('SecretAddress').should('exist');
+      });
+    });
+
+    it('is not possible if some queries are not safe', function () {
+      const options = {
+        parameters: [{
+          name: 'foo',
+          type: 'text',
+        }],
+      };
+
+      const dashboardUrl = this.dashboardUrl;
+      addQueryByAPI({ options }).then(({ id: queryId }) => {
+        cy.visit(dashboardUrl);
+        editDashboard();
+        cy.contains('a', 'Add Widget').click();
+        cy.getByTestId('AddWidgetDialog').within(() => {
+          cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        });
+        cy.clickThrough({ button: `
+          Add to Dashboard
+          Apply Changes
+          Publish
+        ` },
+        'OpenShareForm');
+
+        cy.getByTestId('PublicAccessEnabled').should('be.disabled');
       });
     });
   });
