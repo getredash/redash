@@ -82,7 +82,7 @@ def invite(token, org_slug=None):
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
 def reset(token, org_slug=None):
-    return render_token_login_page("reset.html", org_slug, token)
+    return render_token_login_page("reset.html", org_slug, token, False)
 
 
 @routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
