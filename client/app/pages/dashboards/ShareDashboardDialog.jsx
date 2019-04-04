@@ -118,11 +118,12 @@ class ShareDashboardDialog extends React.Component {
               onChange={this.onChange}
               loading={this.state.saving}
               disabled={this.disabled}
+              data-test="PublicAccessEnabled"
             />
           </Form.Item>
           {dashboard.public_url && (
             <Form.Item label="Secret address" {...this.formItemProps}>
-              <InputWithCopy value={dashboard.public_url} />
+              <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}
         </Form>

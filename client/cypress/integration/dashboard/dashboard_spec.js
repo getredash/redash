@@ -189,6 +189,42 @@ describe('Dashboard', () => {
     });
   });
 
+  describe('Sharing', () => {
+    beforeEach(function () {
+      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+        this.dashboardId = id;
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    it('is possible if all queries are safe', function () {
+      const options = {
+        parameters: [{
+          name: 'foo',
+          type: 'number',
+        }],
+      };
+
+      const dashboardUrl = this.dashboardUrl;
+      addQueryByAPI({ options }).then(({ id: queryId }) => {
+        cy.visit(dashboardUrl);
+        editDashboard();
+        cy.contains('a', 'Add Widget').click();
+        cy.getByTestId('AddWidgetDialog').within(() => {
+          cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        });
+        cy.clickThrough({ button: `
+          Add to Dashboard
+          Apply Changes
+          Publish
+        ` },
+        `OpenShareForm
+        PublicAccessEnabled`);
+      });
+    });
+  });
+
+
   describe('Textbox', () => {
     beforeEach(function () {
       createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
