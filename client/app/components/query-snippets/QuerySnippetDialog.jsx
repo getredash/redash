@@ -55,7 +55,7 @@ class QuerySnippetDialog extends React.Component {
         title: 'Snippet',
         type: 'textarea',
         required: true,
-        props: { autosize: true },
+        props: { autosize: { minRows: 3, maxRows: 6 } },
         initialValue: get(querySnippet, 'snippet', '') },
     ].map(field => ({ ...field, readOnly }));
 

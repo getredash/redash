@@ -4,6 +4,7 @@ import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { Paginator } from '@/components/Paginator';
 import QuerySnippetDialog from '@/components/query-snippets/QuerySnippetDialog';
 
@@ -15,6 +16,7 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
 
 import { QuerySnippet } from '@/services/query-snippet';
+import navigateTo from '@/services/navigateTo';
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
@@ -68,6 +70,30 @@ class QuerySnippetsList extends React.Component {
     }),
   ];
 
+  componentDidMount() {
+    const { isNewOrEditPage, querySnippetId } = this.props.controller.params;
+
+    if (isNewOrEditPage) {
+      if (querySnippetId === 'new') {
+        if (policy.isCreateQuerySnippetEnabled()) {
+          this.showSnippetDialog();
+        } else {
+          navigateTo('/query_snippets');
+        }
+      } else {
+        QuerySnippet.get({ id: querySnippetId }).$promise
+          .then(this.showSnippetDialog)
+          .catch((error = {}) => {
+            // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+            if (error.status && error.data) {
+              error = new PromiseRejectionError(error);
+            }
+            this.props.controller.handleError(error);
+          });
+      }
+    }
+  }
+
   saveQuerySnippet = querySnippet => QuerySnippet.save(querySnippet).$promise;
 
   deleteQuerySnippet = (event, querySnippet) => {
@@ -96,7 +122,12 @@ class QuerySnippetsList extends React.Component {
       onSubmit: this.saveQuerySnippet,
       readOnly: !canSave,
     }).result
-      .then(() => this.props.controller.update());
+      .then(() => this.props.controller.update())
+      .finally(() => {
+        if (this.props.controller.params.isNewOrEditPage) {
+          navigateTo('/query_snippets');
+        }
+      });
   };
 
   render() {
@@ -181,6 +212,12 @@ export default function init(ngModule) {
       path: '/query_snippets',
       title: 'Query Snippets',
       key: 'query_snippets',
+    },
+    {
+      path: '/query_snippets/:querySnippetId',
+      title: 'Query Snippets',
+      key: 'query_snippets',
+      isNewOrEditPage: true,
     },
   ], {
     reloadOnSearch: false,
