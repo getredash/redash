@@ -201,25 +201,6 @@ class TestQueryResultDropdownResource(BaseTestCase):
 
         self.assertEquals(rv.status_code, 403)
 
-class TestQueryDropdownsResource(BaseTestCase):
-    def test_prevents_access_if_query_isnt_associated_with_parent(self):
-        query = self.factory.create_query()
-        unrelated_dropdown_query = self.factory.create_query()
-
-        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
-
-        self.assertEquals(rv.status_code, 403)
-
-
-class TestQueryDropdownsResource(BaseTestCase):
-    def test_prevents_access_if_query_isnt_associated_with_parent(self):
-        query = self.factory.create_query()
-        unrelated_dropdown_query = self.factory.create_query()
-
-        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
-
-        self.assertEquals(rv.status_code, 403)
-
 
 class TestQueryDropdownsResource(BaseTestCase):
     def test_prevents_access_if_query_isnt_associated_with_parent(self):
