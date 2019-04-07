@@ -40,7 +40,7 @@ class TestAlertAll(BaseTestCase):
 
 
 def get_results(value):
-    return json_dumps({'rows': [{'foo': value}], 'columns': [{'name': 'foo', 'type': 'STRING'}]})
+    return {'rows': [{'foo': value}], 'columns': [{'name': 'foo', 'type': 'STRING'}]}
 
 
 class TestAlertEvaluate(BaseTestCase):
@@ -59,6 +59,6 @@ class TestAlertEvaluate(BaseTestCase):
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)
 
     def test_evaluate_return_unknown_when_empty_results(self):
-        results = json_dumps({'rows': [], 'columns': [{'name': 'foo', 'type': 'STRING'}]})
+        results = {'rows': [], 'columns': [{'name': 'foo', 'type': 'STRING'}]}
         alert = self.create_alert(results)
         self.assertEqual(alert.evaluate(), Alert.UNKNOWN_STATE)

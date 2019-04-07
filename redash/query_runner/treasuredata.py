@@ -109,7 +109,7 @@ class TreasureData(BaseQueryRunner):
             else:
                 rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
             error = None
         except errors.InternalError as e:
             json_data = None

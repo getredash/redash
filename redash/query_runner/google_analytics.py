@@ -170,7 +170,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 response = api.get(**params).execute()
                 data = parse_ga_response(response)
                 error = None
-                json_data = json_dumps(data)
+                json_data = data
             except HttpError as e:
                 # Make sure we return a more readable error to the end user
                 error = e._get_reason()

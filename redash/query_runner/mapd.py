@@ -85,7 +85,7 @@ class Mapd(BaseSQLQueryRunner):
             rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
             data = {'columns': columns, 'rows': rows}
             error = None
-            json_data = json_dumps(data)
+            json_data = data
         finally:
             cursor.close()
             connection.close()

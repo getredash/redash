@@ -1,10 +1,13 @@
 import logging
+import types
+from types import MethodType
 
 from dateutil import parser
 import requests
 
 from redash import settings
-from redash.utils import json_loads
+from redash.utils import json_loads, json_dumps
+from redash.query_runner.query_result_data import QueryResultDataFactory
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +119,7 @@ class BaseQueryRunner(object):
 
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
-        return json_loads(results)['rows']
+        return results['rows']
 
     @classmethod
     def to_dict(cls):
@@ -135,6 +138,29 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
         return schema_dict.values()
+
+    def get_data(self, **kwargs):
+        if self.cursor.description is not None:
+            data = self.cursor.fetchall()
+            rows = [dict(zip((c['name'] for c in self.columns), row)) for row in data]
+            data = {'columns': self.columns, 'rows': rows}
+        return data or {}
+
+    def get_row(self, **kwargs):
+        row = self.cursor.fetchone()
+        if row:
+            return dict(zip((c['name'] for c in self.columns), row))
+        else:
+            return None
+
+    def json_dumps(self, data):
+        return json_dumps(data)
+
+    def handle_result_data(self):
+
+        data_handler = QueryResultDataFactory().get_resultdatahandler()
+        json_data = data_handler.save(query_runner=self)
+        return json_data, data_handler
 
     def _get_tables(self, schema_dict):
         return []

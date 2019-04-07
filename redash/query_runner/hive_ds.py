@@ -126,7 +126,7 @@ class Hive(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
             error = None
         except KeyboardInterrupt:
             if connection:

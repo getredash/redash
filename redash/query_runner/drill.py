@@ -97,7 +97,7 @@ class Drill(BaseHTTPQueryRunner):
 
             results = parse_response(response.json())
 
-            return json_dumps(results), None
+            return results, None
         except KeyboardInterrupt:
             return None, 'Query cancelled by user.'
 

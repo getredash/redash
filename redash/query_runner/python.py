@@ -172,7 +172,7 @@ class Python(BaseQueryRunner):
             raise Exception(error)
 
         # TODO: allow avoiding the JSON dumps/loads in same process
-        return json_loads(data)
+        return data
 
     @staticmethod
     def get_source_schema(data_source_name_or_id):
@@ -209,7 +209,7 @@ class Python(BaseQueryRunner):
         if query.latest_query_data.data is None:
             raise Exception("Query does not have results yet.")
 
-        return json_loads(query.latest_query_data.data)
+        return query.latest_query_data.get_data()
 
     def get_current_user(self):
         return self._current_user.to_dict()
@@ -268,7 +268,7 @@ class Python(BaseQueryRunner):
 
             result = self._script_locals['result']
             result['log'] = self._custom_print.lines
-            json_data = json_dumps(result)
+            json_data = (result)
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None

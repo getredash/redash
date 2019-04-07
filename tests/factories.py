@@ -2,7 +2,7 @@ from passlib.apps import custom_app_context as pwd_context
 import redash.models
 from redash.models import db
 from redash.permissions import ACCESS_TYPE_MODIFY
-from redash.utils import gen_query_hash, utcnow
+from redash.utils import gen_query_hash, utcnow, json_loads
 from redash.utils.configuration import ConfigurationContainer
 
 
@@ -24,8 +24,15 @@ class ModelFactory(object):
     def create(self, **override_kwargs):
         kwargs = self._get_kwargs(override_kwargs)
         obj = self.model(**kwargs)
-        db.session.add(obj)
-        db.session.commit()
+
+        # use Model defined save method if exists! if not fall back to session.add
+        # ex: QueryResult
+        save_op = getattr(obj, "save", None)
+        if callable(save_op):
+            obj.save()
+        else:
+            db.session.add(obj)
+            db.session.commit()
         return obj
 
 
@@ -104,7 +111,7 @@ alert_factory = ModelFactory(redash.models.Alert,
                              options={})
 
 query_result_factory = ModelFactory(redash.models.QueryResult,
-                                    data='{"columns":{}, "rows":[]}',
+                                    data=json_loads('{"columns":{}, "rows":[]}'),
                                     runtime=1,
                                     retrieved_at=utcnow,
                                     query_text="SELECT 1",

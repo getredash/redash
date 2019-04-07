@@ -130,7 +130,7 @@ class MemSQL(BaseSQLQueryRunner):
                     })
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
             error = None
         except KeyboardInterrupt:
             cursor.close()

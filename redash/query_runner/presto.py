@@ -112,7 +112,7 @@ class Presto(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
             error = None
         except DatabaseError as db:
             json_data = None

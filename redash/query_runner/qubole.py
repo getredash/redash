@@ -92,7 +92,7 @@ class Qubole(BaseQueryRunner):
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data.pop(0).split('\t')])
                 rows = [dict(zip((c['name'] for c in columns), row.split('\t'))) for row in data]
 
-            json_data = json_dumps({'columns': columns, 'rows': rows})
+            json_data = ({'columns': columns, 'rows': rows})
         except KeyboardInterrupt:
             logging.info('Sending KILL signal to Qubole Command Id: %s', cmd.id)
             cmd.cancel()

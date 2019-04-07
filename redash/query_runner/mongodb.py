@@ -326,7 +326,7 @@ class MongoDB(BaseQueryRunner):
             "rows": rows
         }
         error = None
-        json_data = json_dumps(data, cls=MongoDBJSONEncoder)
+        json_data = json_loads(json_dumps(data, cls=MongoDBJSONEncoder))
 
         return json_data, error
 

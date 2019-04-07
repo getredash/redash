@@ -136,7 +136,7 @@ class Vertica(BaseSQLQueryRunner):
                             'type': types_map.get(col[1], None)} for col in columns_data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(data)
+                json_data = data
                 error = None
             else:
                 json_data = None

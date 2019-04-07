@@ -22,7 +22,7 @@ def _transform_result(response):
             rows.append({'Time::x': timestamp, 'name::series': series['target'], 'value::y': values[0]})
 
     data = {'columns': columns, 'rows': rows}
-    return json_dumps(data)
+    return data
 
 
 class Graphite(BaseQueryRunner):

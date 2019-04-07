@@ -146,12 +146,12 @@ class Oracle(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json_dumps(data)
+                json_data = data
             else:
                 columns = [{'name': 'Row(s) Affected', 'type': 'TYPE_INTEGER'}]
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(data)
+                json_data = data
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)

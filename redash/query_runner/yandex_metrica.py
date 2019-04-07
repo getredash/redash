@@ -146,7 +146,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             return data, error
 
         try:
-            data = json_dumps(parse_ym_response(self._send_query(**params)))
+            data = (parse_ym_response(self._send_query(**params)))
             error = None
         except Exception as e:
             logging.exception(e)

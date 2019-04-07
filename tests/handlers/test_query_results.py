@@ -277,7 +277,7 @@ class TestQueryResultExcelResponse(BaseTestCase):
                 {'name': 'test2'},
             ],
         }
-        query_result = self.factory.create_query_result(data=json_dumps(data))
+        query_result = self.factory.create_query_result(data=data)
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)

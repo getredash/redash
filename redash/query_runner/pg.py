@@ -92,9 +92,9 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "title": "Database Name"
                 },
                 "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -178,6 +178,9 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return connection
 
+    def json_dumps(self, data):
+        return json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
+
     def run_query(self, query, user):
         connection = self._get_connection()
         _wait(connection, timeout=10)
@@ -188,16 +191,18 @@ class PostgreSQL(BaseSQLQueryRunner):
             cursor.execute(query)
             _wait(connection)
 
+            error = None
+            json_data = None
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
-
-                data = {'columns': columns, 'rows': rows}
-                error = None
-                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
+                self.cursor = cursor
+                self.columns = columns
+                json_data, data_handler = self.handle_result_data()
+                if json_data is None:
+                    error = "No data was returned."
             else:
                 error = 'Query completed but it returned no data.'
-                json_data = None
+
         except (select.error, OSError) as e:
             error = "Query interrupted. Please retry."
             json_data = None
@@ -235,7 +240,6 @@ class Redshift(PostgreSQL):
 
     @classmethod
     def configuration_schema(cls):
-
         return {
             "type": "object",
             "properties": {
@@ -256,9 +260,9 @@ class Redshift(PostgreSQL):
                     "title": "Database Name"
                 },
                 "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
+                    "type": "string",
+                    "title": "SSL Mode",
+                    "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -304,6 +308,7 @@ class CockroachDB(PostgreSQL):
     @classmethod
     def type(cls):
         return "cockroach"
+
 
 register(PostgreSQL)
 register(Redshift)

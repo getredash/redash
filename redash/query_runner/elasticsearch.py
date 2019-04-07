@@ -357,7 +357,7 @@ class Kibana(BaseElasticSearch):
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
                 raise Exception("Advanced queries are not supported")
 
-            json_data = json_dumps({
+            json_data = ({
                 "columns": result_columns,
                 "rows": result_rows
             })
@@ -421,7 +421,7 @@ class ElasticSearch(BaseElasticSearch):
             result_rows = []
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
-            json_data = json_dumps({
+            json_data = ({
                 "columns": result_columns,
                 "rows": result_rows
             })

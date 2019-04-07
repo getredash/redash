@@ -41,7 +41,7 @@ def _transform_result(results):
                         result_row[column] = value
                 result_rows.append(result_row)
 
-    return json_dumps({
+    return ({
         "columns": [{'name': c} for c in result_columns],
         "rows": result_rows
     })

@@ -49,7 +49,7 @@ def get_query_results(user, query_id, bring_from_cache):
     query = _load_query(user, query_id)
     if bring_from_cache:
         if query.latest_query_data_id is not None:
-            results = query.latest_query_data.data
+            results = query.latest_query_data.get_data()
         else:
             raise Exception("No cached result available for query {}.".format(query.id))
     else:
@@ -57,7 +57,7 @@ def get_query_results(user, query_id, bring_from_cache):
         if error:
             raise Exception("Failed loading results for query id {}.".format(query.id))
 
-    return json_loads(results)
+    return results
 
 
 def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
@@ -151,7 +151,7 @@ class Results(BaseQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json_dumps(data)
+                json_data = data
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None

@@ -36,6 +36,7 @@ from .mixins import BelongsToOrgMixin, TimestampMixin
 from .organizations import Organization
 from .types import EncryptedConfiguration, Configuration, MutableDict, MutableList, PseudoJSON
 from .users import (AccessPermission, AnonymousUser, ApiUser, Group, User)  # noqa
+from redash.query_runner.query_result_data import *
 
 logger = logging.getLogger(__name__)
 
@@ -253,11 +254,28 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'id': self.id,
             'query_hash': self.query_hash,
             'query': self.query_text,
-            'data': json_loads(self.data),
+            'data': self.get_data(),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
         }
+
+    def get_data(self):
+        return QueryResultDataFactory.get_resultdatahandler(self.data).get()
+
+    def delete(self):
+        QueryResultDataFactory.get_resultdatahandler(self.data).delete()
+        res = db.session.delete(self)
+        db.session.commit()
+        return res
+
+# Note All QueryResult inserts needs to go from this function
+    def save(self):
+        # cant save dict object in databse convert it to string
+        if type(self.data) is dict:
+            self.data = json_dumps(self.data)
+            db.session.add(self)
+            db.session.commit()
 
     @classmethod
     def unused(cls, days=7):
@@ -301,13 +319,14 @@ class QueryResult(db.Model, BelongsToOrgMixin):
                            data_source=data_source,
                            retrieved_at=retrieved_at,
                            data=data)
-        db.session.add(query_result)
+        query_result.save()
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
         queries = Query.query.filter(
             Query.query_hash == query_hash,
             Query.data_source == data_source
         )
+
         for q in queries:
             q.latest_query_data = query_result
             # don't auto-update the updated_at timestamp
@@ -325,7 +344,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_csv_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json_loads(self.data)
+        query_data = self.get_data()
         writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
@@ -337,7 +356,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_excel_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json_loads(self.data)
+        query_data = self.get_data()
         book = xlsxwriter.Workbook(s, {'constant_memory': True})
         sheet = book.add_worksheet("result")
 
@@ -774,7 +793,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = json_loads(self.query_rel.latest_query_data.data)
+        data = self.query_rel.latest_query_data.get_data()
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
             value = data['rows'][0][self.options['column']]

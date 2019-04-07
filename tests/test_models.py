@@ -10,6 +10,7 @@ from tests import BaseTestCase
 from redash import models, redis_connection
 from redash.models import db, types
 from redash.utils import gen_query_hash, utcnow
+from redash import settings
 
 
 class DashboardTest(BaseTestCase):
@@ -430,19 +431,31 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.query_hash = gen_query_hash(self.query)
         self.runtime = 123
         self.utcnow = utcnow()
-        self.data = "data"
+        self.data = {"data":"data"}
 
     def test_stores_the_result(self):
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
-        self.assertEqual(query_result.data, self.data)
+        self.assertEqual(query_result.get_data(), self.data)
         self.assertEqual(query_result.runtime, self.runtime)
         self.assertEqual(query_result.retrieved_at, self.utcnow)
         self.assertEqual(query_result.query_text, self.query)
         self.assertEqual(query_result.query_hash, self.query_hash)
         self.assertEqual(query_result.data_source, self.data_source)
+
+    def test_stores_the_result_and_delte(self):
+        query_result, _ = models.QueryResult.store_result(
+            self.data_source.org_id, self.data_source, self.query_hash,
+            self.query, self.data, self.runtime, self.utcnow)
+        _id = query_result.id;
+        query_result = db.session.query(models.QueryResult).get(_id)
+        self.assertEqual(query_result.get_data(), self.data)
+
+        query_result.delete()
+        query_result = db.session.query(models.QueryResult).get(_id)
+        self.assertEqual(query_result, None)
 
     def test_updates_existing_queries(self):
         query1 = self.factory.create_query(query_text=self.query)
@@ -456,6 +469,10 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertEqual(query3.latest_query_data, query_result)
+
+    def test_updates_existing_queries_to_file(self):
+        settings.QUERY_RESULTS_STORAGE_TYPE = "file"
+        self.test_updates_existing_queries()
 
     def test_doesnt_update_queries_with_different_hash(self):
         query1 = self.factory.create_query(query_text=self.query)

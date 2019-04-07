@@ -170,7 +170,7 @@ class Prometheus(BaseQueryRunner):
             else:
                 rows = get_instant_rows(metrics)
 
-            json_data = json_dumps(
+            json_data = (
                 {
                     'rows': rows,
                     'columns': columns

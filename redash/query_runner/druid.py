@@ -59,7 +59,7 @@ class Druid(BaseQueryRunner):
 
             data = {'columns': columns, 'rows': rows}
             error = None
-            json_data = json_dumps(data)
+            json_data = data
             print(json_data)
         finally:
             connection.close()

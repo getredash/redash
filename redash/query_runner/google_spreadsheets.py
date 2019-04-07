@@ -190,7 +190,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
             data = parse_spreadsheet(spreadsheet, worksheet_num)
 
-            return json_dumps(data), None
+            return data, None
         except gspread.SpreadsheetNotFound:
             return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
 

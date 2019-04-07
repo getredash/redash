@@ -90,7 +90,7 @@ class Snowflake(BaseQueryRunner):
 
             data = {'columns': columns, 'rows': rows}
             error = None
-            json_data = json_dumps(data)
+            json_data = data
         finally:
             cursor.close()
             connection.close()

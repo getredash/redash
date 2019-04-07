@@ -116,7 +116,7 @@ class Impala(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
             error = None
             cursor.close()
         except DatabaseError as e:

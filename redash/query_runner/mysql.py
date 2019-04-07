@@ -142,21 +142,17 @@ class Mysql(BaseSQLQueryRunner):
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
-            data = cursor.fetchall()
-
-            while cursor.nextset():
-                data = cursor.fetchall()
-
-            # TODO - very similar to pg.py
+            error = None
+            json_data = None
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                self.cursor = cursor
+                self.columns = columns
+                json_data, data_handler = self.handle_result_data()
 
-                data = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(data)
-                error = None
+                if json_data is None:
+                    error = "No data was returned."
             else:
-                json_data = None
                 error = "No data was returned."
 
             cursor.close()

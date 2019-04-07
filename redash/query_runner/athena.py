@@ -201,7 +201,7 @@ class Athena(BaseQueryRunner):
                     'athena_query_id': athena_query_id
                 }
             }
-            json_data = json_dumps(data, ignore_nan=True)
+            json_data = data
             error = None
         except (KeyboardInterrupt, InterruptException):
             if cursor.query_id:

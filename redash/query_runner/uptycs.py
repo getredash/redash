@@ -109,7 +109,7 @@ class Uptycs(BaseSQLQueryRunner):
 
     def run_query(self, query, user):
         data, error = self.api_call(query)
-        json_data = json_dumps(data)
+        json_data = data
         logger.debug("%s", json_data)
         return json_data, error
 

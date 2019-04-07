@@ -22,7 +22,7 @@ class ResultSet(object):
             self.columns[column] = {'name': column, 'type': column_type, 'friendly_name': column}
 
     def to_json(self):
-        return json_dumps({'rows': self.rows, 'columns': self.columns.values()})
+        return ({'rows': self.rows, 'columns': self.columns.values()})
 
     def merge(self, set):
         self.rows = self.rows + set.rows

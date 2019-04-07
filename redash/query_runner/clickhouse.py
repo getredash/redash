@@ -142,7 +142,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
         try:
             q = self._clickhouse_query(query)
-            data = json_dumps(q)
+            data = q
             error = None
         except Exception as e:
             data = None

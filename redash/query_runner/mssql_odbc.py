@@ -132,7 +132,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(data)
+                json_data = data
                 error = None
             else:
                 error = "No data was returned."

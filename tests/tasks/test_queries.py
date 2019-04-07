@@ -51,7 +51,7 @@ class QueryExecutorTests(BaseTestCase):
             result_id = execute_query("SELECT 1, 2", self.factory.data_source.id, {})
             self.assertEqual(1, qr.call_count)
             result = models.QueryResult.query.get(result_id)
-            self.assertEqual(result.data, '{1,2}')
+            self.assertEqual(result.get_data(), '{1,2}')
 
     def test_success_scheduled(self):
         """

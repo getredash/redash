@@ -166,7 +166,7 @@ class Salesforce(BaseQueryRunner):
                 columns = self.fetch_columns(cols)
             error = None
             data = {'columns': columns, 'rows': rows}
-            json_data = json_dumps(data)
+            json_data = data
         except SalesforceError as err:
             error = err.content
             json_data = None
