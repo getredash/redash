@@ -144,7 +144,7 @@ class DataSourceListResource(BaseResource):
 class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
-        require_access(data_source.groups, self.current_user, view_only)
+        require_access(data_source, self.current_user, view_only)
         refresh = request.args.get('refresh') is not None
 
         response = {}

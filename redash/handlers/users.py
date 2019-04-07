@@ -4,6 +4,7 @@ from flask import request
 from flask_restful import abort
 from flask_login import current_user, login_user
 from funcy import project
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
@@ -38,11 +39,10 @@ order_results = partial(
 
 
 def invite_user(org, inviter, user, send_email=True):
-    email_configured = settings.MAIL_DEFAULT_SENDER is not None
     d = user.to_dict()
 
     invite_url = invite_link_for_user(user)
-    if email_configured and send_email:
+    if settings.email_server_is_configured() and send_email:
         send_invite_email(inviter, user, invite_url, org)
     else:
         d['invite_link'] = invite_url
@@ -208,7 +208,7 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ('email', 'name', 'password', 'old_password', 'groups'))
+        params = project(req, ('email', 'name', 'password', 'old_password', 'group_ids'))
 
         if 'password' in params and 'old_password' not in params:
             abort(403, message="Must provide current password to update password.")
@@ -220,8 +220,18 @@ class UserResource(BaseResource):
             user.hash_password(params.pop('password'))
             params.pop('old_password')
 
-        if 'groups' in params and not self.current_user.has_permission('admin'):
-            abort(403, message="Must be admin to change groups membership.")
+        if 'group_ids' in params:
+            if not self.current_user.has_permission('admin'):
+                abort(403, message="Must be admin to change groups membership.")
+
+            for group_id in params['group_ids']:
+                try:
+                    models.Group.get_by_id_and_org(group_id, self.current_org)
+                except NoResultFound:
+                    abort(400, message="Group id {} is invalid.".format(group_id))
+
+            if len(params['group_ids']) == 0:
+                params.pop('group_ids')
 
         if 'email' in params:
             _, domain = params['email'].split('@', 1)
@@ -229,15 +239,16 @@ class UserResource(BaseResource):
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
 
-        email_changed = 'email' in params and params['email'] != user.email
-        if email_changed:
+        email_address_changed = 'email' in params and params['email'] != user.email
+        needs_to_verify_email = email_address_changed and settings.email_server_is_configured()
+        if needs_to_verify_email:
             user.is_email_verified = False
 
         try:
             self.update_model(user, params)
             models.db.session.commit()
 
-            if email_changed:
+            if needs_to_verify_email:
                 send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,

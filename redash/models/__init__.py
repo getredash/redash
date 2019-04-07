@@ -74,7 +74,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.SECRET_KEY, FernetEngine)))
+    options = Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(db.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine)))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -545,6 +545,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def by_user(cls, user):
         return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
+
+    @classmethod
+    def by_api_key(cls, api_key):
+        return cls.query.filter(cls.api_key == api_key).one()
 
     @classmethod
     def outdated_queries(cls):

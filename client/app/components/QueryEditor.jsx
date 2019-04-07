@@ -5,7 +5,7 @@ import { react2angular } from 'react2angular';
 
 import AceEditor from 'react-ace';
 import ace from 'brace';
-import toastr from 'angular-toastr';
+import notification from '@/services/notification';
 
 import 'brace/ext/language_tools';
 import 'brace/mode/json';
@@ -209,7 +209,7 @@ class QueryEditor extends React.Component {
   formatQuery = () => {
     Query.format(this.props.dataSource.syntax || 'sql', this.props.queryText)
       .then(this.updateQuery)
-      .catch(error => toastr.error(error));
+      .catch(error => notification.error(error));
   };
 
   toggleAutocomplete = (state) => {
@@ -289,7 +289,13 @@ class QueryEditor extends React.Component {
               </select>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
-                  <button type="button" className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
+                  <button
+                    type="button"
+                    className="btn btn-default m-l-5"
+                    onClick={this.props.saveQuery}
+                    data-test="SaveButton"
+                    title="Save"
+                  >
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}

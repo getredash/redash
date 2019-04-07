@@ -11,12 +11,13 @@
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
-    "lint": "npm run lint:base  -- --ext .js --ext .jsx ./client/app",
-    "lint:base": "eslint --config ./client/.eslintrc.js",
+    "lint": "npm run lint:base  -- --ext .js --ext .jsx ./client",
+    "lint:base": "eslint --config ./client/.eslintrc.js --ignore-path ./client/.eslintignore",
+    "lint:ci": "npm run lint -- --format junit --output-file /tmp/test-results/eslint/results.xml",
     "test": "TZ=Africa/Khartoum jest",
     "test:watch": "jest --watch",
     "cypress:install": "npm install --no-save cypress@^3.1.5 @percy/cypress@^0.2.3 atob@2.1.2",
-    "cypress": "node cypress/cypress.js"
+    "cypress": "node client/cypress/cypress.js"
   },
   "repository": {
     "type": "git",
@@ -43,7 +44,6 @@
     "angular-resource": "~1.5.8",
     "angular-route": "~1.5.8",
     "angular-sanitize": "~1.5.8",
-    "angular-toastr": "^2.1.1",
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
@@ -103,6 +103,8 @@
     "eslint-config-airbnb": "^17.1.0",
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-loader": "^2.1.1",
+    "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-compat": "^3.0.1",
     "eslint-plugin-cypress": "^2.0.1",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^22.2.2",
@@ -155,9 +157,26 @@
     }
   },
   "lint-staged": {
-    "client/app/**/*.{js,jsx}": [
-      "npm run lint:base",
-      "npm run test -- --bail --findRelatedTests"
-    ]
-  }
+    "linters": {
+      "client/**/*.{js,jsx}": [
+        "npm run lint:base",
+        "npm run test -- --bail --findRelatedTests"
+      ]
+    }
+  },
+  "//": "browserslist set to 'Async functions' compatibility",
+  "browserslist": [
+    "Edge >= 15",
+    "Firefox >= 52",
+    "Chrome >= 55",
+    "Safari >= 10.1",
+    "iOS >= 10.3",
+    "Opera >= 42",
+    "op_mob >= 46",
+    "android >= 67",
+    "and_chr >= 71",
+    "and_ff >= 64",
+    "and_uc >= 11.8",
+    "samsung >= 6.2"
+  ]
 }

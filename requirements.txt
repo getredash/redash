@@ -15,7 +15,7 @@ requests-oauthlib>=0.6.2,<1.2.0
 Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.0.1
 flask-mail==0.9.1
-flask-sslify==0.1.5
+flask-talisman==0.6.0
 Flask-Limiter==0.9.3
 passlib==1.6.2
 aniso8601==1.1.0

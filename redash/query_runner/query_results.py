@@ -38,7 +38,7 @@ def _load_query(user, query_id):
     if user.org_id != query.org_id:
         raise PermissionError("Query id {} not found.".format(query.id))
 
-    if not has_access(query.data_source.groups, user, not_view_only):
+    if not has_access(query.data_source, user, not_view_only):
         raise PermissionError(u"You are not allowed to execute queries on {} data source (used for query id {}).".format(
             query.data_source.name, query.id))
 
@@ -73,7 +73,7 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
 
 
 def fix_column_name(name):
-    return u'"{}"'.format(name.replace(':', '_').replace('.', '_').replace(' ', '_'))
+    return u'"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
 
 
 def create_table(connection, table_name, query_results):
