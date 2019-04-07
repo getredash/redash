@@ -51,6 +51,7 @@ function runCypressCI() {
       process.env.CYPRESS_RECORD_KEY = atob(`${CYPRESS_RECORD_KEY_ENCODED}`);
     }
   }
+  console.log('vars', CIRCLE_REPOSITORY_URL, process.env.CYPRESS_PROJECT_ID, process.env.CYPRESS_RECORD_KEY);
 
   execSync(
     'docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --record --browser chrome',
