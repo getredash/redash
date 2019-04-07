@@ -1,4 +1,5 @@
 import { find } from 'lodash';
+import qs from 'qs';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
 
@@ -22,12 +23,7 @@ const VisualizationEmbed = {
   },
 };
 
-const queryStringAsObject = () => location.search.slice(1).split('&').map(p => p.split('=')).map(p => [p[0].replace(/^p_/, ''), p[1]])
-  .reduce((obj, [k, v]) => (
-    k.includes('.') ?
-      Object.assign(obj, { [k.split('.')[0]]: { ...obj[k.split('.')[0]], [k.split('.')[1]]: v } }) :
-      { ...obj, [k]: v }
-  ), {});
+const queryStringAsObject = () => qs.parse(location.search, { allowDots: true });
 
 export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
