@@ -33,11 +33,17 @@ function stopServer() {
 }
 
 function runCypressCI() {
-  const { PERCY_TOKEN_ENCODED, CIRCLE_REPOSITORY_URL } = process.env;
+  const { PERCY_TOKEN_ENCODED, CYPRESS_PROJECT_ID_ENCODED, CIRCLE_REPOSITORY_URL } = process.env;
 
-  if (PERCY_TOKEN_ENCODED && CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
-    process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
+  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
+    if (PERCY_TOKEN_ENCODED) {
+      process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
+    }
+    if (CYPRESS_PROJECT_ID_ENCODED) {
+      process.env.CYPRESS_PROJECT_ID = atob(`${CYPRESS_PROJECT_ID_ENCODED}`);
+    }
   }
+
   execSync(
     'docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser chrome',
     { stdio: 'inherit' },
