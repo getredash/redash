@@ -42,11 +42,9 @@ export default class CardsList extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderListItem(item) {
     return (
-      <a key={`card${item.id}`} className="d-flex" href={item.href}>
-        <div className="visual-card" onClick={item.onClick}>
-          <img alt={item.title} src={item.imgSrc} />
-          <h3>{item.title}</h3>
-        </div>
+      <a key={`card${item.id}`} className="visual-card" onClick={item.onClick} href={item.href}>
+        <img alt={item.title} src={item.imgSrc} />
+        <h3>{item.title}</h3>
       </a>
     );
   }
