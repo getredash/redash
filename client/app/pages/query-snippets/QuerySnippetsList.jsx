@@ -24,6 +24,8 @@ import notification from '@/services/notification';
 import { routesToAngularRoutes } from '@/lib/utils';
 import './QuerySnippetsList.less';
 
+const canEditQuerySnippet = querySnippet => (currentUser.isAdmin || currentUser.id === get(querySnippet, 'user.id'));
+
 class QuerySnippetsList extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
@@ -61,7 +63,7 @@ class QuerySnippetsList extends React.Component {
       className: 'text-nowrap',
       width: '1%',
     }),
-    Columns.custom((text, querySnippet) => (currentUser.isAdmin || currentUser.id === get(querySnippet, 'user.id')) && (
+    Columns.custom((text, querySnippet) => canEditQuerySnippet(querySnippet) && (
       <Button type="danger" className="w-100" onClick={e => this.deleteQuerySnippet(e, querySnippet)}>
         Delete
       </Button>
@@ -115,7 +117,7 @@ class QuerySnippetsList extends React.Component {
   }
 
   showSnippetDialog = (querySnippet = null) => {
-    const canSave = !querySnippet || currentUser.isAdmin || currentUser.id === get(querySnippet, 'user.id');
+    const canSave = !querySnippet || canEditQuerySnippet(querySnippet);
 
     QuerySnippetDialog.showModal({
       querySnippet,

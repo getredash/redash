@@ -44,20 +44,14 @@ class QuerySnippetDialog extends React.Component {
     const isEditing = !!get(querySnippet, 'id');
 
     const formFields = [
-      { name: 'trigger',
-        title: 'Trigger',
-        type: 'text',
-        required: true,
-        initialValue: get(querySnippet, 'trigger', ''),
-        autoFocus: !isEditing },
-      { name: 'description', title: 'Description', type: 'text', initialValue: get(querySnippet, 'description', '') },
+      { name: 'trigger', title: 'Trigger', type: 'text', required: true, autoFocus: !isEditing },
+      { name: 'description', title: 'Description', type: 'text' },
       { name: 'snippet',
         title: 'Snippet',
         type: 'textarea',
         required: true,
-        props: { autosize: { minRows: 3, maxRows: 6 } },
-        initialValue: get(querySnippet, 'snippet', '') },
-    ].map(field => ({ ...field, readOnly }));
+        props: { autosize: { minRows: 3, maxRows: 6 } } },
+    ].map(field => ({ ...field, readOnly, initialValue: get(querySnippet, field.name, '') }));
 
     return (
       <Modal
