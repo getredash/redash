@@ -76,6 +76,7 @@
     "pivottable": "^2.15.0",
     "plotly.js": "1.41.3",
     "prop-types": "^15.6.1",
+    "qs": "^6.7.0",
     "react": "^16.8.3",
     "react-ace": "^6.1.0",
     "react-dom": "^16.8.3",

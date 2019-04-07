@@ -1,4 +1,5 @@
 import { find } from 'lodash';
+import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
 
@@ -22,9 +23,6 @@ const VisualizationEmbed = {
   },
 };
 
-const queryStringAsObject = () => location.search.slice(1).split('&').map(p => p.split('='))
-  .reduce((obj, [key, value]) => ({ ...obj, [key.replace(/^p_/, '')]: value }), {});
-
 export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
@@ -40,8 +38,7 @@ export default function init(ngModule) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
       const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
-      const { api_key: apiKey, ...parameters } = queryStringAsObject();
-      const queryResult = $http.post(`api/queries/${queryId}/results?api_key=${apiKey}`, { parameters }).then(response => response.data);
+      const queryResult = $http.post(`api/queries/${queryId}/results`, { parameters: queryStringParameters() }).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }
