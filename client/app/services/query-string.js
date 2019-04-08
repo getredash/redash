@@ -16,7 +16,14 @@ const fromString = queryString => Object.entries(parse(queryString))
 
 const fromUrl = () => fromString(location.search);
 
+const toString = obj => qs.stringify(
+  Object.entries(obj)
+    .map(addPrefix)
+    .reduce(toObject, {}), options,
+);
+
 export default {
   fromString,
   fromUrl,
+  toString,
 };

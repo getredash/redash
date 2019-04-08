@@ -10,3 +10,9 @@ describe('fromString', () => {
   });
 });
 
+describe('toString', () => {
+  it('adds prefixes', () => {
+    expect(queryString.toString({ a: 'b' })).toEqual('p_a=b');
+  });
+});
+
