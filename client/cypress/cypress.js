@@ -68,7 +68,7 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case 'run':
-    execSync('cypress run --browser chrome', { stdio: 'inherit' });
+    execSync('cypress run', { stdio: 'inherit' });
     break;
   case 'open':
     execSync('cypress open', { stdio: 'inherit' });
@@ -82,7 +82,7 @@ switch (command) {
   case 'all':
     startServer();
     seedDatabase(seedData);
-    execSync('cypress run --browser chrome', { stdio: 'inherit' });
+    execSync('cypress run', { stdio: 'inherit' });
     stopServer();
     break;
   default:
