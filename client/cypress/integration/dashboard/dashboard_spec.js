@@ -629,4 +629,83 @@ describe('Dashboard', () => {
       });
     });
   });
+
+  context('viewport width is at 800px', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          this.dashboardEditUrl = `/dashboard/${slug}?edit`;
+          return addTextboxByAPI('Hello World!', id);
+        })
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId).as('textboxEl');
+        });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(800, 800);
+    });
+
+    it('shows widgets with full width', () => {
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(785);
+      });
+
+      cy.viewport(801, 800);
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(393);
+      });
+    });
+
+    it('hides edit option', () => {
+      cy.getByTestId('DashboardMoreMenu')
+        .click()
+        .should('be.visible')
+        .within(() => {
+          cy.get('li')
+            .contains('Edit')
+            .as('editButton')
+            .should('not.be.visible');
+        });
+
+      cy.viewport(801, 800);
+      cy.get('@editButton').should('be.visible');
+    });
+
+    it('disables edit mode', function () {
+      cy.visit(this.dashboardEditUrl);
+      cy.contains('button', 'Apply Changes')
+        .as('saveButton')
+        .should('be.disabled');
+
+      cy.viewport(801, 800);
+      cy.get('@saveButton').should('not.be.disabled');
+    });
+  });
+
+  context('viewport width is at 767px', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(767, 800);
+    });
+
+    it('hides menu button', () => {
+      cy.get('.dashboard__control').should('exist');
+      cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
+
+      cy.viewport(768, 800);
+      cy.getByTestId('DashboardMoreMenu').should('be.visible');
+    });
+  });
 });
