@@ -73,7 +73,7 @@ class TextboxDialog extends React.Component {
           loading: this.state.saveInProgress,
           disabled: !this.state.text,
         }}
-        okText={isNew ? 'Wrong text' : 'Save'}
+        okText={isNew ? 'Add to Dashboard' : 'Save'}
         width={500}
         wrapProps={{ 'data-test': 'TextboxDialog' }}
       >
