@@ -1,5 +1,6 @@
 import moment from 'moment';
 import debug from 'debug';
+import qs from '@/services/query-string';
 import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
@@ -164,19 +165,7 @@ export class Parameter {
   }
 
   toUrlParams() {
-    if (this.isEmpty) {
-      return {};
-    }
-    const prefix = this.urlPrefix;
-    if (isDateRangeParameter(this.type)) {
-      return {
-        [`${prefix}${this.name}.start`]: this.value.start,
-        [`${prefix}${this.name}.end`]: this.value.end,
-      };
-    }
-    return {
-      [`${prefix}${this.name}`]: this.value,
-    };
+    return this.isEmpty ? {} : { [this.name]: this.value };
   }
 
   fromUrlParams(query) {
@@ -300,11 +289,7 @@ class Parameters {
       return '';
     }
 
-    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
-    return Object
-      .keys(params)
-      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
-      .join('&');
+    return qs.toString(Object.assign(...this.get().map(p => p.toUrlParams())));
   }
 }
 
