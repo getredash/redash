@@ -700,7 +700,7 @@ describe('Dashboard', () => {
       cy.viewport(767, 800);
     });
 
-    it('hides menu button when width is under 768px', () => {
+    it('hides menu button', () => {
       cy.get('.dashboard__control').should('exist');
       cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
 
