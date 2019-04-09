@@ -25,6 +25,11 @@ describe('Edit Profile', () => {
     fillProfileDataAndSave('Example Admin', 'admin@redash.io');
   });
 
+  it('renders the page and takes a screenshot', () => {
+    cy.getByTestId('Groups').should('contain', 'admin');
+    cy.percySnapshot('User Profile');
+  });
+
   it('regenerates API Key', () => {
     cy.getByTestId('ApiKey').then(($apiKey) => {
       const previousApiKey = $apiKey.val();
@@ -34,11 +39,6 @@ describe('Edit Profile', () => {
 
       cy.getByTestId('ApiKey').should('not.eq', previousApiKey);
     });
-  });
-
-  it('renders the page and takes a screenshot', () => {
-    cy.getByTestId('Groups').should('contain', 'admin');
-    cy.percySnapshot('User Profile');
   });
 
   context('changing password', () => {
