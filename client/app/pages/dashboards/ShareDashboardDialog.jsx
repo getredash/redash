@@ -35,7 +35,7 @@ class ShareDashboardDialog extends React.Component {
     };
 
     this.apiUrl = replace(API_SHARE_URL, '{id}', dashboard.id);
-    this.disabled = !(this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled);
+    this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
   static get headerContent() {
@@ -117,7 +117,7 @@ class ShareDashboardDialog extends React.Component {
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
               loading={this.state.saving}
-              disabled={this.disabled}
+              disabled={!this.enabled}
               data-test="PublicAccessEnabled"
             />
           </Form.Item>
