@@ -4,7 +4,8 @@ describe('Create Query', () => {
     cy.visit('/queries/new');
   });
 
-  it('executes the query', () => {
+  // https://github.com/getredash/redash/issues/3688
+  it.skip('executes the query', () => {
     cy.getByTestId('SelectDataSource')
       .click()
       .contains('Test PostgreSQL').click();
