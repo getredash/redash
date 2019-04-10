@@ -447,7 +447,6 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    // check if any of the wigets have query parameters
     const hasOnlySafeQueries = _.every(
       this.dashboard.widgets,
       w => w.getQuery() && w.getQuery().is_safe,
