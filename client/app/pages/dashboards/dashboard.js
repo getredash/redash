@@ -75,7 +75,7 @@ function DashboardCtrl(
       });
   };
 
-  const saveDashboardLayoutDebounced = _.debounce(saveDashboardLayout, 1000);
+  const saveDashboardLayoutDebounced = _.debounce(saveDashboardLayout, 2000);
 
   this.layoutEditing = false;
   this.isFullscreen = false;

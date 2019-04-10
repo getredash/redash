@@ -15,10 +15,9 @@
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
-          <div ng-if="$ctrl.layoutEditing">
-            <span class="save-status" data-dirty="{{ $ctrl.isLayoutDirty && !$ctrl.saveInProgress }}">
-              Saved
-            </span>
+          <div ng-if="$ctrl.layoutEditing" ng-switch="$ctrl.isLayoutDirty || $ctrl.saveInProgress">
+            <span class="save-status" data-saving ng-switch-when="true">Saving</span>
+            <span class="save-status" ng-switch-default>Saved</span>
 
             <button type="button" class="btn btn-primary btn-sm"
               ng-disabled="$ctrl.isGridDisabled"
