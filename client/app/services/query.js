@@ -4,7 +4,7 @@ import qs from '@/services/query-string';
 import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity, extend, each,
+  isNull, isUndefined, isArray, isObject, identity, each,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -285,11 +285,7 @@ class Parameters {
   }
 
   toUrlParams() {
-    if (this.get().length === 0) {
-      return '';
-    }
-
-    return qs.toString(Object.assign(...this.get().map(p => p.toUrlParams())));
+    return qs.toString(this.getValues());
   }
 }
 
@@ -531,13 +527,7 @@ function QueryResource(
       url += '/source';
     }
 
-    let params = {};
-    if (this.getParameters().isRequired()) {
-      this.getParametersDefs().forEach((param) => {
-        extend(params, param.toUrlParams());
-      });
-    }
-    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
+    const params = this.getParameters().toUrlParams();
 
     if (params !== '') {
       url += `?${params}`;

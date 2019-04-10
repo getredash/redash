@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 import template from './parameters.html';
+import qs from '@/services/query-string';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
 function ParametersDirective($location) {
@@ -23,11 +24,11 @@ function ParametersDirective($location) {
             if (scope.changed) {
               scope.changed({});
             }
-            const params = extend({}, $location.search());
+            const params = qs.fromUrl();
             scope.parameters.forEach((param) => {
               extend(params, param.toUrlParams());
             });
-            $location.search(params);
+            $location.search(qs.toString(params));
           },
           true,
         );
