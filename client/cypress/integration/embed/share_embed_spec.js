@@ -18,7 +18,8 @@ describe('Embedded Queries', () => {
       ExecuteButton
       SaveButton
     `);
-    cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
+    cy.getByTestId('QueryControlDropdownButton').click({ force: true });
+    cy.getByTestId('ShowEmbedDialogButton').click();
     cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
@@ -42,7 +43,8 @@ describe('Embedded Queries', () => {
       ExecuteButton
       SaveButton
     `);
-    cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
+    cy.getByTestId('QueryControlDropdownButton').click({ force: true });
+    cy.getByTestId('ShowEmbedDialogButton').click();
     cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
