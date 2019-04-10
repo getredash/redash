@@ -225,6 +225,39 @@ describe('Dashboard', () => {
       });
     });
 
+    it.only('is available to unauthenticated users', function () {
+      const options = {
+        parameters: [{
+          name: 'foo',
+          type: 'number',
+        }],
+      };
+
+      const dashboardUrl = this.dashboardUrl;
+      addQueryByAPI({ options }).then(({ id: queryId }) => {
+        cy.visit(dashboardUrl);
+        editDashboard();
+        cy.contains('a', 'Add Widget').click();
+        cy.getByTestId('AddWidgetDialog').within(() => {
+          cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        });
+        cy.clickThrough({ button: `
+          Add to Dashboard
+          Apply Changes
+          Publish
+        ` },
+        `OpenShareForm
+        PublicAccessEnabled`);
+
+        cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
+          cy.logout();
+          cy.visit(secretAddress);
+          cy.getByTestId('PublicDashboard', { timeout: 10000 }).should('exist');
+          cy.percySnapshot('Successfully Shared Parameterized Dashboard');
+        });
+      });
+    });
+
     it('is not possible if some queries are not safe', function () {
       const options = {
         parameters: [{
