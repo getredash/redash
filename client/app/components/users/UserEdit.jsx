@@ -176,7 +176,7 @@ export default class UserEdit extends React.Component {
     const { user, regeneratingApiKey } = this.state;
 
     return (
-      <Form layout="vertical">
+      <Form className="hide-in-percy" layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
           <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
