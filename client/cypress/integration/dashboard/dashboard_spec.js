@@ -225,7 +225,7 @@ describe('Dashboard', () => {
       });
     });
 
-    it.only('is available to unauthenticated users', function () {
+    it('is available to unauthenticated users', function () {
       const options = {
         parameters: [{
           name: 'foo',
