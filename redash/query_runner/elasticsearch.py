@@ -148,7 +148,11 @@ class BaseElasticSearch(BaseQueryRunner):
             '''
             path = path or []
             result = []
-            for field, description in doc['properties'].items():
+            # index mappings contains "_default_" do not have "properties"
+            properties = doc.get('properties')
+            if not properties:
+                return result
+            for field, description in properties.items():
                 if 'properties' in description:
                     result.extend(parse_doc(description, path + [field]))
                 else:

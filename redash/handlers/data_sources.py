@@ -157,6 +157,8 @@ class DataSourceSchemaResource(BaseResource):
                 'message': 'Data source type does not support retrieving schema'
             }
         except Exception:
+            import traceback
+            traceback.print_exc()
             response['error'] = {
                 'code': 2,
                 'message': 'Error retrieving schema.'
