@@ -186,8 +186,19 @@ public-dashboard-page {
 /****
   grid bg - based on 6 cols, 35px rows and 15px spacing
 ****/
+
+// let the bg go all the way to the bottom
+dashboard-page, dashboard-page .container {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  width: 100%;
+}
+
 #dashboard-container {
   position: relative;
+  flex-grow: 1;
+  margin-bottom: 50px; // but not ALL the way ಠ_ಠ
 
   &.editing-mode.grid-enabled {
     /* Y axis lines */
