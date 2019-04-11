@@ -88,8 +88,8 @@
   </div>
 
   <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="$ctrl.layoutEditing" batch-update="$ctrl.updateGridItems"
-      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper" on-layout-changed="$ctrl.onLayoutChanged"
+    <div gridstack editing="$ctrl.layoutEditing" on-layout-changed="$ctrl.onLayoutChanged"
+      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
       ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"

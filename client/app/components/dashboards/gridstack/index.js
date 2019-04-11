@@ -175,9 +175,7 @@ function gridstack($parse, dashboardGridOptions) {
       };
     },
     link: ($scope, $element, $attr, controller) => {
-      const batchUpdateAssignable = _.isFunction($parse($attr.batchUpdate).assign);
-      const isOneColumnModeAssignable = _.isFunction($parse($attr.batchUpdate).assign);
-
+      const isOneColumnModeAssignable = _.isFunction($parse($attr.onLayoutChanged).assign);
       let enablePolling = true;
 
       $element.addClass('grid-stack');
@@ -240,7 +238,9 @@ function gridstack($parse, dashboardGridOptions) {
             $(node.el).trigger('gridstack.changed', node);
           }
         });
-        $scope.onLayoutChanged();
+        if ($scope.onLayoutChanged) {
+          $scope.onLayoutChanged();
+        }
         changedNodes = {};
       });
 
@@ -255,10 +255,6 @@ function gridstack($parse, dashboardGridOptions) {
       $scope.$watch('editing', (value) => {
         controller.setEditing(!!value);
       });
-
-      if (batchUpdateAssignable) {
-        $scope.batchUpdate = controller.batchUpdateWidgets;
-      }
 
       $scope.$on('$destroy', () => {
         enablePolling = false;
