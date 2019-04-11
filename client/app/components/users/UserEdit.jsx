@@ -176,10 +176,10 @@ export default class UserEdit extends React.Component {
     const { user, regeneratingApiKey } = this.state;
 
     return (
-      <Form className="hide-in-percy" layout="vertical">
+      <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button
           className="w-100"
