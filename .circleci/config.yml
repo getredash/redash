@@ -86,8 +86,6 @@ jobs:
           command: |
             npm run cypress start
             docker-compose run cypress npm run cypress db-seed
-            # Make sure the API key is the same so Percy snapshots are consistent
-            docker-compose -p cypress run postgres psql -U postgres -h postgres -c "update users set api_key = 'secret' where email ='admin@redash.io';"
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
