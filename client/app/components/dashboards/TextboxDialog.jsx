@@ -102,7 +102,7 @@ class TextboxDialog extends React.Component {
               <strong className="preview-title">Preview:</strong>
               <p
                 dangerouslySetInnerHTML={{ __html: this.state.preview }} // eslint-disable-line react/no-danger
-                className="preview"
+                className="preview markdown"
               />
             </React.Fragment>
           )}

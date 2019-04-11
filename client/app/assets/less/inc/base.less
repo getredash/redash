@@ -21,14 +21,9 @@ html, body {
 body {
     padding-top: @header-height;
     position: relative;
-    padding-bottom: @footer-height;
     &.headless {
         padding-top: 0;
-        padding-bottom: 0;
         .nav.app-header {
-            display: none;
-        }
-        div#footer {
             display: none;
         }
     }
