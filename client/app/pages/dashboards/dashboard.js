@@ -68,6 +68,8 @@ function DashboardCtrl(
         this.isLayoutDirty = false;
       })
       .catch(() => {
+        // in the off-chance that a widget got deleted mid-saving it's position, an error will occur
+        // currently left unhandled PR 3653#issuecomment-481699053
         notification.error('Error saving changes.');
       })
       .finally(() => {
