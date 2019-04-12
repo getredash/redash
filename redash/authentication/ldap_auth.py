@@ -62,8 +62,14 @@ def login(org_slug=None):
 
 def auth_ldap_user(username, password):
     server = Server(settings.LDAP_HOST_URL, use_ssl=settings.LDAP_SSL)
-    if settings.LDAP_BIND_DN != None:
-        conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD, authentication=settings.LDAP_AUTH_METHOD, auto_bind=True)
+    if settings.LDAP_BIND_DN is not None:
+        conn = Connection(
+            server,
+            settings.LDAP_BIND_DN,
+            password=settings.LDAP_BIND_DN_PASSWORD,
+            authentication=settings.LDAP_AUTH_METHOD,
+            auto_bind=True
+        )
     else:
         conn = Connection(server, auto_bind=True)
 
