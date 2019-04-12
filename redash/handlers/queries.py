@@ -145,7 +145,6 @@ class BaseQueryListResource(BaseResource):
         # provides an order by search rank
         ordered_results = order_results(results, fallback=not bool(search_term))
 
-
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
 
