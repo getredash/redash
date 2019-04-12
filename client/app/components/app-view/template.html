@@ -1,5 +1,5 @@
 <app-header ng-if="$ctrl.layout.showHeader"></app-header>
-<div ng-if="$ctrl.handler.error" class="fixed-container">
+<div ng-if="$ctrl.handler.error" class="fixed-container" data-test="ErrorMessage">
   <div class="container">
     <div class="col-md-8 col-md-push-2">
       <div class="error-state bg-white tiled">
@@ -14,4 +14,3 @@
   </div>
 </div>
 <div ng-if="!$ctrl.handler.error" ng-view></div>
-<footer ng-if="$ctrl.layout.showFooter"></footer>

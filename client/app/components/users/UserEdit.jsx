@@ -1,13 +1,16 @@
 import React, { Fragment } from 'react';
+import { includes } from 'lodash';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
+import Tag from 'antd/lib/tag';
 import { User } from '@/services/user';
+import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
-import { DynamicForm } from '../dynamic-form/DynamicForm';
+import DynamicForm from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import InputWithCopy from '../InputWithCopy';
 
@@ -20,11 +23,22 @@ export default class UserEdit extends React.Component {
     super(props);
     this.state = {
       user: this.props.user,
+      groups: [],
+      loadingGroups: true,
       regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
       togglingUser: false,
     };
+  }
+
+  componentDidMount() {
+    Group.query((groups) => {
+      this.setState({
+        groups: groups.map(({ id, name }) => ({ value: id, title: name })),
+        loadingGroups: false,
+      });
+    });
   }
 
   changePassword = () => {
@@ -102,8 +116,9 @@ export default class UserEdit extends React.Component {
     });
   };
 
-  renderBasicInfoForm() {
-    const { user } = this.state;
+  renderUserInfoForm() {
+    const { user, groups, loadingGroups } = this.state;
+
     const formFields = [
       {
         name: 'name',
@@ -117,7 +132,22 @@ export default class UserEdit extends React.Component {
         type: 'email',
         initialValue: user.email,
       },
-    ].map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
+      (!user.isDisabled && currentUser.id !== user.id) ? {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'select',
+        mode: 'multiple',
+        options: groups,
+        initialValue: groups.filter(group => includes(user.groupIds, group.value)).map(group => group.value),
+        loading: loadingGroups,
+        placeholder: loadingGroups ? 'Loading...' : '',
+      } : {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'content',
+        content: this.renderUserGroups(),
+      },
+    ].map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
 
     return (
       <DynamicForm
@@ -128,6 +158,20 @@ export default class UserEdit extends React.Component {
     );
   }
 
+  renderUserGroups() {
+    const { user, groups, loadingGroups } = this.state;
+
+    return loadingGroups ? 'Loading...' : (
+      <div data-test="Groups">
+        {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
+          <Tag className="m-b-5 m-r-5" key={group.value}>
+            <a href={`groups/${group.value}`}>{group.title}</a>
+          </Tag>
+        )))}
+      </div>
+    );
+  }
+
   renderApiKey() {
     const { user, regeneratingApiKey } = this.state;
 
@@ -135,7 +179,7 @@ export default class UserEdit extends React.Component {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button
           className="w-100"
@@ -227,7 +271,7 @@ export default class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        {this.renderBasicInfoForm()}
+        {this.renderUserInfoForm()}
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}

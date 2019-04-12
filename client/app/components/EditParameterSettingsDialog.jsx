@@ -131,7 +131,7 @@ function EditParameterSettingsDialog(props) {
       footer={[(
         <Button key="cancel" onClick={props.dialog.dismiss}>Cancel</Button>
       ), (
-        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm">
+        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm" data-test="SaveParameterSettings">
           {isNew ? 'Add Parameter' : 'OK'}
         </Button>
       )]}
@@ -153,9 +153,9 @@ function EditParameterSettingsDialog(props) {
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={type => setParam({ ...param, type })}>
-            <Option value="text">Text</Option>
-            <Option value="number">Number</Option>
+          <Select value={param.type} onChange={type => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+            <Option value="text" data-test="TextParameterTypeOption">Text</Option>
+            <Option value="number" data-test="NumberParameterTypeOption">Number</Option>
             <Option value="enum">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>
             <Option disabled key="dv1">
