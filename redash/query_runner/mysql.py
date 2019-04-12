@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
@@ -25,6 +26,9 @@ types_map = {
     254: TYPE_STRING,
 }
 
+class Result(object):
+    def __init__(self):
+        pass
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
@@ -128,7 +132,10 @@ class Mysql(BaseSQLQueryRunner):
     def run_query(self, query, user):
         import MySQLdb
 
-        connection = None
+        ev = threading.Event()
+        thread_id = ""
+        r = Result()
+        t = None
         try:
             connection = MySQLdb.connect(host=self.configuration.get('host', ''),
                                          user=self.configuration.get('user', ''),
@@ -138,6 +145,25 @@ class Mysql(BaseSQLQueryRunner):
                                          charset='utf8', use_unicode=True,
                                          ssl=self._get_ssl_parameters(),
                                          connect_timeout=60)
+            thread_id = connection.thread_id()
+            t = threading.Thread(target=self._run_query, args=(query, user, connection, r, ev))
+            t.start()
+            while ev.wait(1) != True:
+                pass
+        except (KeyboardInterrupt, InterruptException):
+            error = self._cancel(thread_id)
+            t.join()
+            r.json_data = None
+            r.error = "Query cancelled by user."
+            if error is not None:
+                r.error = error
+
+        return r.json_data, r.error
+
+    def _run_query(self, query, user, connection, r, ev):
+        import MySQLdb
+
+        try:
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
@@ -156,25 +182,22 @@ class Mysql(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(data)
-                error = None
+                r.json_data = json_dumps(data)
+                r.error = None
             else:
-                json_data = None
-                error = "No data was returned."
+                r.json_data = None
+                r.error = "No data was returned."
 
             cursor.close()
         except MySQLdb.Error as e:
-            json_data = None
-            error = e.args[1]
-        except KeyboardInterrupt:
-            cursor.close()
-            error = "Query cancelled by user."
-            json_data = None
+            if cursor:
+                cursor.close()
+            r.json_data = None
+            r.error = e.args[1]
         finally:
+            ev.set()
             if connection:
                 connection.close()
-
-        return json_data, error
 
     def _get_ssl_parameters(self):
         ssl_params = {}
@@ -190,6 +213,34 @@ class Mysql(BaseSQLQueryRunner):
 
         return ssl_params
 
+    def _cancel(self, thread_id):
+        import MySQLdb
+        connection = None
+        cursor = None
+        error = None
+
+        try:
+            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
+                                         user=self.configuration.get('user', ''),
+                                         passwd=self.configuration.get('passwd', ''),
+                                         db=self.configuration['db'],
+                                         port=self.configuration.get('port', 3306),
+                                         charset='utf8', use_unicode=True,
+                                         ssl=self._get_ssl_parameters(),
+                                         connect_timeout=60)
+            cursor = connection.cursor()
+            query = "KILL %d" % (thread_id)
+            logging.debug(query)
+            cursor.execute(query)
+        except MySQLdb.Error as e:
+            if cursor:
+                cursor.close()
+            error = e.args[1]
+        finally:
+            if connection:
+                connection.close()
+
+        return error
 
 class RDSMySQL(Mysql):
     @classmethod
