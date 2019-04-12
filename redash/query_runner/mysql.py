@@ -26,9 +26,11 @@ types_map = {
     254: TYPE_STRING,
 }
 
+
 class Result(object):
     def __init__(self):
         pass
+
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
@@ -148,7 +150,7 @@ class Mysql(BaseSQLQueryRunner):
             thread_id = connection.thread_id()
             t = threading.Thread(target=self._run_query, args=(query, user, connection, r, ev))
             t.start()
-            while ev.wait(1) != True:
+            while not ev.wait(1):
                 pass
         except (KeyboardInterrupt, InterruptException):
             error = self._cancel(thread_id)
@@ -172,7 +174,7 @@ class Mysql(BaseSQLQueryRunner):
             desc = cursor.description
 
             while cursor.nextset():
-                if cursor.description != None:
+                if cursor.description is not None:
                     data = cursor.fetchall()
                     desc = cursor.description
 
@@ -241,6 +243,7 @@ class Mysql(BaseSQLQueryRunner):
                 connection.close()
 
         return error
+
 
 class RDSMySQL(Mysql):
     @classmethod
