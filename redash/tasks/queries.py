@@ -137,7 +137,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     'user_id': user_id
                 })
 
-                time_limit = settings.dynamic_settings.get_query_time_limit(scheduled_query, user_id)
+                time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
 
                 result = execute_query.apply_async(args=args,
                                                    argsrepr=argsrepr,
