@@ -35,10 +35,9 @@ export class QueryBasedParameterInput extends React.Component {
     this._loadOptions(this.props.queryId);
   }
 
-  // eslint-disable-next-line no-unused-vars
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.queryId !== this.props.queryId) {
-      this._loadOptions(nextProps.queryId, nextProps.value);
+  componentDidUpdate(prevProps) {
+    if (this.props.queryId !== prevProps.queryId) {
+      this._loadOptions(this.props.queryId);
     }
   }
 
@@ -68,7 +67,7 @@ export class QueryBasedParameterInput extends React.Component {
           className={className}
           disabled={loading || (options.length === 0)}
           loading={loading}
-          defaultValue={'' + value}
+          value={'' + value}
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
