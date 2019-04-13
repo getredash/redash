@@ -44,11 +44,16 @@ class HangoutsChat(BaseDestination):
             else:
                 message = "Unable to determine status. Check Query and Alert configuration."
 
+            if alert.custom_subject:
+                title = alert.custom_subject
+            else:
+                title = alert.name
+
             data = {
                 "cards": [
                     {
                         "header": {
-                            "title": alert.name
+                            "title": title
                         },
                         "sections": [
                             {
@@ -64,6 +69,17 @@ class HangoutsChat(BaseDestination):
                     }
                 ]
             }
+
+            if alert.template:
+                data["cards"][0]["sections"].append({
+                    "widgets": [
+                        {
+                            "textParagraph": {
+                                "text": alert.render_template()
+                            }
+                        }
+                    ]
+                })
 
             if options.get("icon_url"):
                 data["cards"][0]["header"]["imageUrl"] = options.get("icon_url")
