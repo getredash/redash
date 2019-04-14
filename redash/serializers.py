@@ -25,11 +25,6 @@ def public_widget(widget):
 
     v = widget.visualization
     if v and v.id:
-        if v.query_rel.latest_query_data_id:
-            query_data = models.QueryResult.query.get(v.query_rel.latest_query_data_id).to_dict()
-        else:
-            query_data = None
-
         res['visualization'] = {
             'type': v.type,
             'name': v.name,
@@ -43,8 +38,7 @@ def public_widget(widget):
                 'name': v.query_rel.name,
                 'data_source_id': v.query_rel.data_source_id,
                 'description': v.query_rel.description,
-                'options': v.query_rel.options,
-                'latest_query_data': query_data
+                'options': v.query_rel.options
             }
         }
 
