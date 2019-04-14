@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+compose_build() {
+  docker-compose build
+}
+up() {
+  docker-compose up -d --build
+}
+test_db() {
+  for i in {1..5}
+  do
+    if (docker-compose exec postgres sh -c 'psql -U postgres -c "select 1;"' 2>&1 > /dev/null)
+    then
+      break
+    else
+      echo "postgres initializing..."
+      sleep 5
+    fi
+  done
+  docker-compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
+}
+create_database() {
+  docker-compose run server create_db
+}
+clean() {
+  docker-compose down && docker-compose rm
+}
+down() {
+  docker-compose down
+}
+bundle() {
+  docker-compose run server bin/bundle-extensions
+}
+tests() {
+  docker-compose run server tests
+}
+lint() {
+  ./bin/flake8_tests.sh
+}
+
+case "$1" in
+  compose_build)
+    shift
+    compose_build
+    ;;
+  up)
+    shift
+    up
+    ;;
+  test_db)
+    shift
+    test_db
+    ;;
+  create_database)
+    shift
+    create_database
+    ;;
+  compose_build)
+    shift
+    compose_build
+    ;;
+  clean)
+    clean
+    up
+    ;;
+  down)
+    shift
+    down
+    ;;
+  bundle)
+    shift
+    bundle
+    ;;
+  tests)
+    shift
+    tests
+    ;;
+  lint)
+    shift
+    lint
+    ;;
+  backend-unit-tests)
+    shift
+    up
+    test_db
+    docker-compose run --rm --name tests server tests
+    ;;
+  frontend-unit-tests)
+    shift
+    bundle
+    npm install
+    npm run bundle
+    npm test
+    ;;
+  test)
+    shift
+    lint
+    backend-unit-tests
+    frontend-unit-tests
+    ;;
+  build)
+    shift
+    bundle
+    npm run build
+    ;;
+  watch)
+    shift
+    bundle
+    npm run watch
+    ;;
+  start)
+    shift
+    bundle
+    npm run start
+    ;;
+  redis-cli)
+    shift
+    docker-compose run --rm redis redis-cli -h redis
+    ;;
+  bash)
+    shift
+    docker-compose run --rm server bash
+    ;;
+  *)
+    echo "I have no idea what to do with that."
+    ;;
+esac
