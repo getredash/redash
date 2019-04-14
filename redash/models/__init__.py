@@ -498,7 +498,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 contains_eager(Query.user),
                 contains_eager(Query.latest_query_data),
             )
-            .order_by(Query.created_at.desc())
         )
 
         if not include_drafts:
