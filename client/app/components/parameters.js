@@ -26,7 +26,7 @@ function ParametersDirective($location) {
             }
             const params = qs.fromUrl();
             scope.parameters.forEach((param) => {
-              extend(params, param.toUrlParams());
+              extend(params.queryParameters, param.toUrlParams());
             });
             $location.search(qs.toString(params));
           },

@@ -285,7 +285,7 @@ class Parameters {
   }
 
   toUrlParams() {
-    return qs.toString(this.getValues());
+    return qs.toString({ queryParameters: this.getValues() });
   }
 }
 
