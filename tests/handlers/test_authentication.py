@@ -8,6 +8,13 @@ from redash.authentication.account import invite_token
 from redash.models import User
 
 
+class TestResetPassword(BaseTestCase):
+    def test_shows_reset_password_form(self):
+        user = self.factory.create_user(is_invitation_pending=False)
+        token = invite_token(user)
+        response = self.get_request('/reset/{}'.format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 200)
+
 class TestInvite(BaseTestCase):
     def test_expired_invite_token(self):
 
