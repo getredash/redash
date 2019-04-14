@@ -78,7 +78,7 @@ class UserListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        return order_results(users, fallback=bool(search_term))
+        return order_results(users, fallback=not bool(search_term))
 
     @require_permission('list_users')
     def get(self):
