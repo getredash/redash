@@ -36,8 +36,10 @@ const toString = (obj) => {
     .reduce(toObject, {}), options);
 };
 
-export default {
+const queryString = {
   fromString,
   fromUrl,
   toString,
 };
+
+export default queryString;

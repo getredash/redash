@@ -1,6 +1,6 @@
 import moment from 'moment';
 import debug from 'debug';
-import qs from '@/services/query-string';
+import queryString from '@/services/query-string';
 import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
@@ -201,10 +201,10 @@ export class Parameter {
 }
 
 class Parameters {
-  constructor(query, queryString) {
+  constructor(query, queryStringParameters) {
     this.query = query;
     this.updateParameters();
-    this.initFromQueryString(queryString);
+    this.initFromQueryString(queryStringParameters);
   }
 
   parseQuery() {
@@ -285,7 +285,7 @@ class Parameters {
   }
 
   toUrlParams() {
-    return qs.toString({ queryParameters: this.getValues() });
+    return queryString.toString({ queryParameters: this.getValues() });
   }
 }
 
