@@ -696,11 +696,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                    JOIN dashboards ON object_id = dashboards.id
                    JOIN widgets ON dashboards.id = widgets.dashboard_id
                    JOIN visualizations ON widgets.visualization_id = visualizations.id
-                   JOIN queries ON visualizations.query_id = queries.id
                    WHERE object_type='dashboards'
-                     AND queries.api_key = :api_key"""
+                     AND active=true
+                     AND visualizations.query_id = :id"""
 
-        api_keys = db.session.execute(query, {'api_key': self.api_key}).fetchall()
+        api_keys = db.session.execute(query, {'id': self.id}).fetchall()
         return [api_key[0] for api_key in api_keys]
 
 
