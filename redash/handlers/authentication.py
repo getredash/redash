@@ -25,7 +25,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token, invite=True):
+def render_token_login_page(template, org_slug, token, invite):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -77,7 +77,7 @@ def render_token_login_page(template, org_slug, token, invite=True):
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
 def invite(token, org_slug=None):
-    return render_token_login_page("invite.html", org_slug, token)
+    return render_token_login_page("invite.html", org_slug, token, True)
 
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
