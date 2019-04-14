@@ -303,7 +303,7 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json_dumps(data)
+            json_data = json_dumps(data, ignore_nan=True)
         except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status == 400:
