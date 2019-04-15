@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { chain, pick } from 'lodash';
 import { react2angular } from 'react2angular';
 import cx from 'classnames';
-import GridLayout, { WidthProvider } from 'react-grid-layout';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 import { DashboardWidget } from '@/components/dashboards/widget';
 import cfg from '@/config/dashboard-grid-options';
 
 import 'react-grid-layout/css/styles.css';
 
-const ResponsiveGridLayout = WidthProvider(GridLayout);
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WidgetType = PropTypes.shape({
   id: PropTypes.number.isRequired,
@@ -27,11 +27,15 @@ const WidgetType = PropTypes.shape({
   }).isRequired,
 });
 
+const SINGLE = 'single-column';
+const MULTI = 'multi-column';
+
 class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
+    onBreakpointChange: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
   };
@@ -39,6 +43,7 @@ class DashboardGrid extends React.Component {
   static defaultProps = {
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
+    onBreakpointChange: () => {},
   }
 
   static normalizeFrom(widget) {
@@ -67,13 +72,35 @@ class DashboardGrid extends React.Component {
     };
   }
 
-  onLayoutChange(layout) {
+  state = {
+    layouts: {},
+  }
+
+  mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI
+
+  onLayoutChange = (layout, layouts) => {
+    this.setState({ layouts });
+
+    // workaround till fix lands for https://github.com/STRML/react-grid-layout/issues/889
+    this.mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI;
+    // end workaround
+
+    // don't save single column mode layout
+    if (this.mode === SINGLE) {
+      return;
+    }
+
     const normalized = chain(layout)
       .keyBy('i')
       .mapValues(DashboardGrid.normalizeTo)
       .value();
 
     this.props.onLayoutChange(normalized);
+  }
+
+  onBreakpointChange = (mode) => {
+    this.mode = mode;
+    this.props.onBreakpointChange(mode === SINGLE);
   }
 
   render() {
@@ -84,12 +111,15 @@ class DashboardGrid extends React.Component {
       <div className={className}>
         <ResponsiveGridLayout
           className="layout"
-          cols={cfg.columns}
+          cols={{ [MULTI]: cfg.columns, [SINGLE]: 1 }}
           rowHeight={cfg.rowHeight - cfg.margins}
           margin={[cfg.margins, cfg.margins]}
           isDraggable={this.props.isEditing}
           isResizable={this.props.isEditing}
-          onLayoutChange={layout => this.onLayoutChange(layout)}
+          layouts={this.state.layouts}
+          onLayoutChange={this.onLayoutChange}
+          onBreakpointChange={this.onBreakpointChange}
+          breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
           measureBeforeMount
         >
           {widgets.map(widget => (
