@@ -28,6 +28,16 @@ class TestEnqueueTask(BaseTestCase):
 
         self.assertEqual(1, execute_query.apply_async.call_count)
 
+    @mock.patch('redash.settings.dynamic_settings.query_time_limit', return_value=60)
+    def test_limits_query_time(self, _):
+        query = self.factory.create_query()
+        execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
+
+        enqueue_query(query.query_text, query.data_source, query.user_id, False, query, {'Username': 'Arik', 'Query ID': query.id})
+
+        _, kwargs = execute_query.apply_async.call_args
+        self.assertEqual(60, kwargs.get('time_limit'))
+
     def test_multiple_enqueue_of_different_query(self):
         query = self.factory.create_query()
         execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
