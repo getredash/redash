@@ -1,249 +1,213 @@
-import { isEqual, extend, map, findIndex, cloneDeep } from 'lodash';
-import React from 'react';
+import { extend, map, findIndex, isEqual } from 'lodash';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import * as Grid from 'antd/lib/grid';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { Filters, filterData } from '@/components/Filters';
 import notification from '@/services/notification';
 import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
-import { cleanAngularProps, createPromiseHandler } from '@/lib/utils';
+import { cleanAngularProps } from '@/lib/utils';
+import useQueryResult from '@/lib/hooks/useQueryResult';
 
-import {
-  VisualizationType, registeredVisualizations,
-  getDefaultVisualization, newVisualization,
-} from './index';
+import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from './index';
 
-class EditVisualizationDialog extends React.Component {
-  static propTypes = {
-    dialog: DialogPropType.isRequired,
-    query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    visualization: VisualizationType,
-    queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  };
+function updateQueryVisualizations(query, visualization) {
+  const index = findIndex(query.visualizations, v => v.id === visualization.id);
+  if (index > -1) {
+    query.visualizations[index] = visualization;
+  } else {
+    // new visualization
+    query.visualizations.push(visualization);
+  }
+}
 
-  static defaultProps = {
-    visualization: null,
-  };
-
-  handleQueryResult = createPromiseHandler(
-    queryResult => queryResult.toPromise(),
-    () => {
-      this.setState(({ isNew, type }) => {
-        const config = registeredVisualizations[type];
-
-        const { queryResult, visualization } = this.props;
-        const data = {
-          columns: queryResult ? queryResult.getColumns() : [],
-          rows: queryResult ? queryResult.getData() : [],
-        };
-
-        const options = config.getOptions(isNew ? {} : visualization.options, data);
-
-        this._originalOptions = cloneDeep(options);
-
-        return { isLoading: false, data, options };
-      });
-    },
-  );
-
-  constructor(props) {
-    super(props);
-
-    const { visualization } = this.props;
-
-    const isNew = !visualization;
-
-    const config = isNew ? getDefaultVisualization()
-      : registeredVisualizations[visualization.type];
-
-    this.state = {
-      isLoading: true,
-
-      isNew, // eslint-disable-line
-      data: { columns: [], rows: [] },
-      options: {},
-
-      type: config.type,
-      canChangeType: isNew, // cannot change type when editing existing visualization
-      name: isNew ? config.name : visualization.name,
-      nameChanged: false,
-
-      saveInProgress: false,
-    };
+function saveVisualization(visualization) {
+  if (visualization.id) {
+    recordEvent('update', 'visualization', visualization.id, { type: visualization.type });
+  } else {
+    recordEvent('create', 'visualization', null, { type: visualization.type });
   }
 
-  componentWillUnmount() {
-    this.handleQueryResult.cancel();
-  }
-
-  setVisualizationType(type) {
-    this.setState(({ isNew, name, nameChanged, data }) => {
-      const { visualization } = this.props;
-      const config = registeredVisualizations[type];
-      const options = config.getOptions(isNew ? {} : visualization.options, data);
-      return {
-        type,
-        name: nameChanged ? name : config.name,
-        options,
-      };
+  return Visualization.save(visualization).$promise
+    .then((result) => {
+      notification.success('Visualization saved');
+      return result;
+    })
+    .catch((error) => {
+      notification.error('Visualization could not be saved');
+      return Promise.reject(error);
     });
-  }
+}
 
-  setVisualizationName(name) {
-    this.setState({
-      name,
-      nameChanged: true,
-    });
-  }
-
-  setVisualizationOptions = (options) => {
-    this.setState(({ type, data }) => {
-      const config = registeredVisualizations[type];
-      return {
-        options: config.getOptions(options, data),
-      };
-    });
-  };
-
-  dismiss() {
-    const { nameChanged, options } = this.state;
-
-    const optionsChanged = !isEqual(cleanAngularProps(options), this._originalOptions);
-    if (nameChanged || optionsChanged) {
+function confirmDialogClose(isDirty) {
+  return new Promise((resolve, reject) => {
+    if (isDirty) {
       Modal.confirm({
         title: 'Visualization Editor',
         content: 'Are you sure you want to close the editor without saving?',
         okText: 'Yes',
         cancelText: 'No',
-        onOk: () => {
-          this.props.dialog.dismiss();
-        },
+        onOk: () => resolve(),
+        onCancel: () => reject(),
       });
     } else {
-      this.props.dialog.dismiss();
+      resolve();
     }
-  }
-
-  save() {
-    const { query } = this.props;
-    const { type, name, options } = this.state;
-
-    const visualization = extend({}, newVisualization(type), this.props.visualization);
-
-    visualization.name = name;
-    visualization.options = options;
-    visualization.query_id = query.id;
-
-    if (visualization.id) {
-      recordEvent('update', 'visualization', visualization.id, { type: visualization.type });
-    } else {
-      recordEvent('create', 'visualization', null, { type: visualization.type });
-    }
-
-    this.setState({ saveInProgress: true });
-
-    Visualization.save(visualization).$promise
-      .then((result) => {
-        notification.success('Visualization saved');
-
-        const index = findIndex(query.visualizations, v => v.id === result.id);
-        if (index > -1) {
-          query.visualizations[index] = result;
-        } else {
-          // new visualization
-          query.visualizations.push(result);
-        }
-        this.props.dialog.close(result);
-      })
-      .catch(() => {
-        notification.error('Visualization could not be saved');
-        this.setState({ saveInProgress: false });
-      });
-  }
-
-  render() {
-    this.handleQueryResult(this.props.queryResult);
-
-    if (this.state.isLoading) {
-      return null;
-    }
-
-    const { dialog } = this.props;
-    const { type, name, data, options, canChangeType, saveInProgress } = this.state;
-
-    const { Renderer, Editor } = registeredVisualizations[type];
-
-    return (
-      <Modal
-        {...dialog.props}
-        wrapClassName="ant-modal-fullscreen"
-        title="Visualization Editor"
-        okText="Save"
-        okButtonProps={{
-          loading: saveInProgress,
-          disabled: saveInProgress,
-        }}
-        onOk={() => this.save()}
-        onCancel={() => this.dismiss()}
-        wrapProps={{ 'data-test': 'EditVisualizationDialog' }}
-      >
-        <Grid.Row gutter={24}>
-          <Grid.Col span={24} md={10}>
-            <div className="m-b-15">
-              <label htmlFor="visualization-type">Visualization Type</label>
-              <Select
-                data-test="VisualizationType"
-                id="visualization-type"
-                className="w-100"
-                disabled={!canChangeType}
-                value={type}
-                onChange={t => this.setVisualizationType(t)}
-              >
-                {map(
-                  registeredVisualizations,
-                  vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
-                )}
-              </Select>
-            </div>
-            <div className="m-b-15">
-              <label htmlFor="visualization-name">Visualization Name</label>
-              <Input
-                data-test="VisualizationName"
-                id="visualization-name"
-                className="w-100"
-                value={name}
-                onChange={event => this.setVisualizationName(event.target.value)}
-              />
-            </div>
-            <div data-test="VisualizationEditor">
-              <Editor
-                data={data}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={this.setVisualizationOptions}
-              />
-            </div>
-          </Grid.Col>
-          <Grid.Col span={24} md={14}>
-            <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
-            <div className="scrollbox" data-test="VisualizationPreview">
-              <Renderer
-                data={data}
-                options={options}
-                visualizationName={name}
-                onOptionsChange={this.setVisualizationOptions}
-              />
-            </div>
-          </Grid.Col>
-        </Grid.Row>
-      </Modal>
-    );
-  }
+  });
 }
+
+function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+  const isNew = !visualization;
+
+  const data = useQueryResult(queryResult);
+  const [filters, setFilters] = useState(data.filters);
+
+  const filteredData = useMemo(() => ({
+    columns: data.columns,
+    rows: filterData(data.rows, filters),
+  }), [data, filters]);
+
+  const defaultState = useMemo(
+    () => {
+      const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
+      const options = config.getOptions(isNew ? {} : visualization.options, data);
+      return {
+        type: config.type,
+        name: isNew ? config.name : visualization.name,
+        options,
+        originalOptions: options,
+      };
+    },
+    [visualization],
+  );
+
+  const [type, setType] = useState(defaultState.type);
+  const [name, setName] = useState(defaultState.name);
+  const [nameChanged, setNameChanged] = useState(false);
+  const [options, setOptions] = useState(defaultState.options);
+
+  const [saveInProgress, setSaveInProgress] = useState(false);
+
+  function onTypeChanged(newType) {
+    setType(newType);
+
+    const config = registeredVisualizations[newType];
+    if (!nameChanged) {
+      setName(config.name);
+    }
+
+    setOptions(config.getOptions(isNew ? {} : visualization.options, data));
+  }
+
+  function onNameChanged(newName) {
+    setName(newName);
+    setNameChanged(newName !== name);
+  }
+
+  function onOptionsChanged(newOptions) {
+    const config = registeredVisualizations[type];
+    setOptions(config.getOptions(newOptions, data));
+  }
+
+  function save() {
+    setSaveInProgress(true);
+    const visualizationData = extend(newVisualization(type), visualization, { name, options, query_id: query.id });
+    saveVisualization(visualizationData).then((savedVisualization) => {
+      updateQueryVisualizations(query, savedVisualization);
+      dialog.close(savedVisualization);
+    });
+  }
+
+  function dismiss() {
+    const optionsChanged = !isEqual(cleanAngularProps(options), defaultState.originalOptions);
+    confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
+  }
+
+  const { Renderer, Editor } = registeredVisualizations[type];
+
+  return (
+    <Modal
+      {...dialog.props}
+      wrapClassName="ant-modal-fullscreen"
+      title="Visualization Editor"
+      okText="Save"
+      okButtonProps={{
+        loading: saveInProgress,
+        disabled: saveInProgress,
+      }}
+      onOk={save}
+      onCancel={dismiss}
+      wrapProps={{ 'data-test': 'EditVisualizationDialog' }}
+    >
+      <Grid.Row gutter={24}>
+        <Grid.Col span={24} md={10}>
+          <div className="m-b-15">
+            <label htmlFor="visualization-type">Visualization Type</label>
+            <Select
+              data-test="VisualizationType"
+              id="visualization-type"
+              className="w-100"
+              disabled={!isNew}
+              value={type}
+              onChange={onTypeChanged}
+            >
+              {map(
+                registeredVisualizations,
+                vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
+              )}
+            </Select>
+          </div>
+          <div className="m-b-15">
+            <label htmlFor="visualization-name">Visualization Name</label>
+            <Input
+              data-test="VisualizationName"
+              id="visualization-name"
+              className="w-100"
+              value={name}
+              onChange={event => onNameChanged(event.target.value)}
+            />
+          </div>
+          <div data-test="VisualizationEditor">
+            <Editor
+              data={data}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
+          </div>
+        </Grid.Col>
+        <Grid.Col span={24} md={14}>
+          <label htmlFor="visualization-preview" className="invisible hidden-xs">Preview</label>
+          <Filters filters={filters} onChange={setFilters} />
+          <div className="scrollbox" data-test="VisualizationPreview">
+            <Renderer
+              data={filteredData}
+              options={options}
+              visualizationName={name}
+              onOptionsChange={onOptionsChanged}
+            />
+          </div>
+        </Grid.Col>
+      </Grid.Row>
+    </Modal>
+  );
+}
+
+EditVisualizationDialog.propTypes = {
+  dialog: DialogPropType.isRequired,
+  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  visualization: VisualizationType,
+  queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
+
+EditVisualizationDialog.defaultProps = {
+  visualization: null,
+};
 
 export default wrapDialog(EditVisualizationDialog);

@@ -7,6 +7,7 @@ import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
 
 const DEFAULT_OPTIONS = {
+  counterLabel: '',
   counterColName: 'counter',
   rowNumber: 1,
   targetRowNumber: 1,
