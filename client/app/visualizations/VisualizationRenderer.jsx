@@ -87,7 +87,9 @@ export class VisualizationRenderer extends React.Component {
     return (
       <React.Fragment>
         <Filters filters={filters} onChange={newFilters => this.applyFilters(newFilters)} />
-        <Renderer options={options} data={data} visualizationName={visualization.name} />
+        <div>
+          <Renderer options={options} data={data} visualizationName={visualization.name} />
+        </div>
       </React.Fragment>
     );
   }

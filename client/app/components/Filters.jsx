@@ -87,6 +87,7 @@ export function Filters({ filters, onChange }) {
                   mode={filter.multiple ? 'multiple' : 'default'}
                   value={filter.current}
                   allowClear={filter.multiple}
+                  showSearch
                   onChange={value => onChange(filter, value)}
                 >
                   {!filter.multiple && options}
