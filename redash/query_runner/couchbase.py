@@ -76,6 +76,10 @@ class Couchbase(BaseQueryRunner):
         return {
             'type': 'object',
             'properties': {
+                'protocol': {
+                    'type': 'string',
+                    'default': 'http'
+                },
                 'host': {
                     'type': 'string',
                 },
@@ -92,8 +96,8 @@ class Couchbase(BaseQueryRunner):
                 },
             },
             'required': ['host', 'user', 'password'],
-            "order": ['host', 'port', 'user', 'password'],
-            "secret": ["password"]
+            'order': ['protocol', 'host', 'port', 'user', 'password'],
+            'secret': ['password']
         }
 
     def __init__(self, configuration):
@@ -136,11 +140,12 @@ class Couchbase(BaseQueryRunner):
         try:
             user = self.configuration.get("user")
             password = self.configuration.get("password")
+            protocol = self.configuration.get("protocol", "http")
             host = self.configuration.get("host")
-            port = self.configuration.get('port', 8095)
+            port = self.configuration.get("port", 8095)
             params = {'statement': query}
 
-            url = "http://%s:%s/query/service" % (host, port)
+            url = "%s://%s:%s/query/service" % (protocol, host, port)
 
             r = requests.post(url, params=params, auth=(user, password))
             r.raise_for_status()
