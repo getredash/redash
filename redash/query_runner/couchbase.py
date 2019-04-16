@@ -110,14 +110,14 @@ class Couchbase(BaseQueryRunner):
     def test_connection(self):
         result = self.call_service(self.noop_query, '')
 
-    def get_buckets(self, query, nameParam):
+    def get_buckets(self, query, name_param):
         defaultColumns = [
             'meta().id'
         ]
         result = self.call_service(query, "").json()['results']
         schema = {}
         for row in result:
-            table_name = row.get(nameParam)
+            table_name = row.get(name_param)
             schema[table_name] = {'name': table_name, 'columns': defaultColumns}
 
         return schema.values()
