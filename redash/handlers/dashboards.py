@@ -6,10 +6,11 @@ from redash import models, serializers
 from redash.handlers.base import (BaseResource, get_object_or_404, paginate,
                                   filter_by_tags,
                                   order_results as _order_results)
-from redash.serializers import serialize_dashboard
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission)
+from redash.security import csp_allows_embeding
+from redash.serializers import serialize_dashboard
 from sqlalchemy.orm.exc import StaleDataError
 
 
@@ -63,7 +64,7 @@ class DashboardListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -235,6 +236,8 @@ class DashboardResource(BaseResource):
 
 
 class PublicDashboardResource(BaseResource):
+    decorators = BaseResource.decorators + [csp_allows_embeding]
+
     def get(self, token):
         """
         Retrieve a public dashboard.
@@ -331,7 +334,7 @@ class DashboardFavoriteListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        favorites = order_results(favorites, fallback=bool(search_term))
+        favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

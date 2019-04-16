@@ -1,5 +1,7 @@
 import os
+import importlib
 from funcy import distinct, remove
+from flask_talisman import talisman
 
 from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
 from .organization import DATE_FORMAT
@@ -14,7 +16,6 @@ def all_settings():
             settings[name] = item
 
     return settings
-
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -50,8 +51,85 @@ SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE",
 SCHEMAS_REFRESH_QUEUE = os.environ.get("REDASH_SCHEMAS_REFRESH_QUEUE", "celery")
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
-ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
 INVITATION_TOKEN_MAX_AGE = int(os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7))
+
+# The secret key to use in the Flask app for various cryptographic features
+SECRET_KEY = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
+# The secret key to use when encrypting data source options
+DATASOURCE_SECRET_KEY = os.environ.get('REDASH_SECRET_KEY', SECRET_KEY)
+
+# Whether and how to redirect non-HTTP requests to HTTPS. Disabled by default.
+ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
+ENFORCE_HTTPS_PERMANENT = parse_boolean(
+    os.environ.get("REDASH_ENFORCE_HTTPS_PERMANENT", "false"))
+# Whether file downloads are enforced or not.
+ENFORCE_FILE_SAVE = parse_boolean(
+    os.environ.get("REDASH_ENFORCE_FILE_SAVE", "true"))
+
+# Whether to use secure cookies by default.
+COOKIES_SECURE = parse_boolean(
+    os.environ.get("REDASH_COOKIES_SECURE", str(ENFORCE_HTTPS)))
+# Whether the session cookie is set to secure.
+SESSION_COOKIE_SECURE = parse_boolean(
+    os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(COOKIES_SECURE))
+# Whether the session cookie is set HttpOnly.
+SESSION_COOKIE_HTTPONLY = parse_boolean(
+    os.environ.get("REDASH_SESSION_COOKIE_HTTPONLY", "true"))
+# Whether the session cookie is set to secure.
+REMEMBER_COOKIE_SECURE = parse_boolean(
+    os.environ.get("REDASH_REMEMBER_COOKIE_SECURE") or str(COOKIES_SECURE))
+# Whether the remember cookie is set HttpOnly.
+REMEMBER_COOKIE_HTTPONLY = parse_boolean(
+    os.environ.get("REDASH_REMEMBER_COOKIE_HTTPONLY", "true"))
+
+# Doesn't set X-Frame-Options by default since it's highly dependent
+# on the specific deployment.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+# for more information.
+FRAME_OPTIONS = os.environ.get("REDASH_FRAME_OPTIONS", "deny")
+FRAME_OPTIONS_ALLOW_FROM = os.environ.get(
+    "REDASH_FRAME_OPTIONS_ALLOW_FROM", "")
+
+# Whether and how to send Strict-Transport-Security response headers.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# for more information.
+HSTS_ENABLED = parse_boolean(
+    os.environ.get("REDASH_HSTS_ENABLED") or str(ENFORCE_HTTPS))
+HSTS_PRELOAD = parse_boolean(os.environ.get("REDASH_HSTS_PRELOAD", "false"))
+HSTS_MAX_AGE = int(
+    os.environ.get("REDASH_HSTS_MAX_AGE", talisman.ONE_YEAR_IN_SECS))
+HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
+    os.environ.get("REDASH_HSTS_INCLUDE_SUBDOMAINS", "false"))
+
+# Whether and how to send Content-Security-Policy response headers.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+# for more information.
+# Overriding this value via an environment variables requires setting it
+# as a string in the general CSP format of a semicolon separated list of
+# individual CSP directives, see https://github.com/GoogleCloudPlatform/flask-talisman#example-7
+# for more information. E.g.:
+CONTENT_SECURITY_POLICY = os.environ.get(
+    "REDASH_CONTENT_SECURITY_POLICY",
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none';"
+)
+CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
+    "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")
+CONTENT_SECURITY_POLICY_REPORT_ONLY = parse_boolean(
+    os.environ.get("REDASH_CONTENT_SECURITY_POLICY_REPORT_ONLY", "false"))
+CONTENT_SECURITY_POLICY_NONCE_IN = array_from_string(
+    os.environ.get("REDASH_CONTENT_SECURITY_POLICY_NONCE_IN", ""))
+
+# Whether and how to send Referrer-Policy response headers. Defaults to
+# 'strict-origin-when-cross-origin'.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
+# for more information.
+REFERRER_POLICY = os.environ.get(
+    "REDASH_REFERRER_POLICY", "strict-origin-when-cross-origin")
+# Whether and how to send Feature-Policy response headers. Defaults to
+# an empty value.
+# See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
+# for more information.
+FEATURE_POLICY = os.environ.get("REDASH_REFERRER_POLICY", "")
 
 MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
@@ -111,9 +189,6 @@ LDAP_SEARCH_DN = os.environ.get('REDASH_LDAP_SEARCH_DN', os.environ.get('REDASH_
 STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/"))
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
-COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
-SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
-SECRET_KEY = os.environ.get('REDASH_SECRET_KEY', COOKIE_SECRET)
 
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 LOG_STDOUT = parse_boolean(os.environ.get('REDASH_LOG_STDOUT', 'false'))
@@ -140,6 +215,11 @@ MAIL_PASSWORD = os.environ.get('REDASH_MAIL_PASSWORD', None)
 MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', None)
 MAIL_MAX_EMAILS = os.environ.get('REDASH_MAIL_MAX_EMAILS', None)
 MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHMENTS', 'false'))
+
+
+def email_server_is_configured():
+    return MAIL_DEFAULT_SENDER is not None
+
 
 HOST = os.environ.get('REDASH_HOST', '')
 
@@ -202,6 +282,7 @@ default_query_runners = [
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
     'redash.query_runner.snowflake',
+    'redash.query_runner.phoenix'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -209,7 +290,8 @@ additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_Q
 disabled_query_runners = array_from_string(os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", ""))
 
 QUERY_RUNNERS = remove(set(disabled_query_runners), distinct(enabled_query_runners + additional_query_runners))
-ADHOC_QUERY_TIME_LIMIT = int_or_none(os.environ.get('REDASH_ADHOC_QUERY_TIME_LIMIT', None))
+
+dynamic_settings = importlib.import_module(os.environ.get('REDASH_DYNAMIC_SETTINGS_MODULE', 'redash.settings.dynamic_settings'))
 
 # Destinations
 default_destinations = [
@@ -251,12 +333,13 @@ FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATUR
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
 
+# Allow Parameters in Embeds
+# WARNING: Deprecated!
+# See https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337 for more details.
+ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
+
 # Enhance schema fetching
 SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS", "false"))
-
-# Allow Parameters in Embeds
-# WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
-ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
 
 # kylin
 KYLIN_OFFSET = int(os.environ.get('REDASH_KYLIN_OFFSET', 0))

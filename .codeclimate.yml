@@ -21,20 +21,12 @@ plugins:
   pep8:
     enabled: true
   eslint:
-    enabled: true
-    channel: "eslint-5"
-    config:
-      config: client/.eslintrc.js
-    checks:
-      import/no-unresolved:
-        enabled: false
-      no-multiple-empty-lines: # TODO: Enable
-        enabled: false
+    enabled: false
 exclude_patterns:
-- "tests/**/*.py"
-- "migrations/**/*.py"
-- "setup/**/*"
-- "bin/**/*"
-- "**/node_modules/"
-- "client/dist/"
-- "**/*.pyc"
+  - "tests/**/*.py"
+  - "migrations/**/*.py"
+  - "setup/**/*"
+  - "bin/**/*"
+  - "**/node_modules/"
+  - "client/dist/"
+  - "**/*.pyc"

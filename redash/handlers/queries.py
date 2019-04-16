@@ -143,7 +143,7 @@ class BaseQueryListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -171,6 +171,7 @@ class BaseQueryListResource(BaseResource):
 
         return response
 
+
 def require_access_to_dropdown_queries(user, query_def):
     parameters = query_def.get('options', {}).get('parameters', [])
     dropdown_query_ids = [str(p['queryId']) for p in parameters if p['type'] == 'query']
@@ -179,7 +180,8 @@ def require_access_to_dropdown_queries(user, query_def):
         groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
 
         if len(groups) < len(dropdown_query_ids):
-            abort(400, message='You are trying to associate a dropdown query that does not have a matching group. Please verify the dropdown query id you are trying to associate with this query.')
+            abort(400, message="You are trying to associate a dropdown query that does not have a matching group."
+                               "Please verify the dropdown query id you are trying to associate with this query.")
 
         require_access(dict(groups), user, view_only)
 
@@ -220,7 +222,7 @@ class QueryListResource(BaseQueryListResource):
         """
         query_def = request.get_json(force=True)
         data_source = models.DataSource.get_by_id_and_org(query_def.pop('data_source_id'), self.current_org)
-        require_access(data_source.groups, self.current_user, not_view_only)
+        require_access(data_source, self.current_user, not_view_only)
         require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
@@ -288,7 +290,7 @@ class MyQueriesResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -356,7 +358,7 @@ class QueryResource(BaseResource):
         Responds with the :ref:`query <query-response-label>` contents.
         """
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(q.groups, self.current_user, view_only)
+        require_access(q, self.current_user, view_only)
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
@@ -393,7 +395,7 @@ class QueryForkResource(BaseResource):
         Responds with created :ref:`query <query-response-label>` object.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.data_source.groups, self.current_user, not_view_only)
+        require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
 
@@ -422,7 +424,7 @@ class QueryRefreshResource(BaseResource):
             abort(403, message="Please use a user API key.")
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.groups, self.current_user, not_view_only)
+        require_access(query, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
         parameterized_query = ParameterizedQuery(query.query_text)
@@ -462,7 +464,7 @@ class QueryFavoriteListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_favorites = order_results(favorites, fallback=bool(search_term))
+        ordered_favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

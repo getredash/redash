@@ -2,7 +2,7 @@ import os
 from pkg_resources import iter_entry_points, resource_isdir, resource_listdir
 
 
-def init_extensions(app):
+def init_app(app):
     """
     Load the Redash extensions for the given Redash Flask app.
     """
