@@ -13,6 +13,7 @@ export class QueryBasedParameterInput extends React.Component {
     queryId: PropTypes.number,
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    isDirty: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -21,6 +22,7 @@ export class QueryBasedParameterInput extends React.Component {
     queryId: null,
     onSelect: () => {},
     className: '',
+    isDirty: false,
   };
 
   constructor(props) {

@@ -21,6 +21,7 @@ export class ParameterValueInput extends React.Component {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    isDirty: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -31,6 +32,7 @@ export class ParameterValueInput extends React.Component {
     parameter: null,
     onSelect: () => {},
     className: '',
+    isDirty: false,
   };
 
   renderDateTimeWithSecondsInput() {
@@ -119,7 +121,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { value, onSelect, queryId, parameter } = this.props;
+    const { value, onSelect, queryId, parameter, isDirty } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
@@ -127,6 +129,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         queryId={queryId}
         onSelect={onSelect}
+        isDirty={isDirty}
       />
     );
   }
@@ -181,10 +184,12 @@ export default function init(ngModule) {
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
         on-select="$ctrl.setValue"
+        is-dirty="$ctrl.isDirty"
       ></parameter-value-input-impl>
     `,
     bindings: {
       param: '<',
+      isDirty: '<',
     },
     controller($scope) {
       this.setValue = (value) => {
