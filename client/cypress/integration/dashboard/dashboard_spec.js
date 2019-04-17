@@ -525,7 +525,7 @@ describe('Dashboard', () => {
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
           this.dashboardEditUrl = `/dashboard/${slug}?edit`;
-          return addTextbox(id, 'Hello World!');
+          return addTextbox(id, 'Hello World!').then(getWidgetTestId);
         })
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
