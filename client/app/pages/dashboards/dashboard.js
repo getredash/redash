@@ -48,33 +48,36 @@ function DashboardCtrl(
 ) {
   this.saveInProgress = false;
 
-  const saveDashboardLayout = (widgets) => {
+  const saveDashboardLayout = () => {
     if (!this.dashboard.canEdit()) {
       return;
     }
 
+    // calc diff, bail if none
+    const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
+    if (!changedWidgets.length) {
+      this.isLayoutDirty = false;
+      $scope.$applyAsync();
+      return;
+    }
+
     this.saveInProgress = true;
-    const showMessages = true;
     return $q
-      .all(_.map(widgets, widget => widget.save()))
+      .all(_.map(changedWidgets, widget => widget.save()))
       .then(() => {
-        if (showMessages) {
-          notification.success('Changes saved.');
-        }
-        // Update original widgets positions
-        _.each(widgets, (widget) => {
-          _.extend(widget.$originalPosition, widget.options.position);
-        });
+        this.isLayoutDirty = false;
       })
       .catch(() => {
-        if (showMessages) {
-          notification.error('Error saving changes.');
-        }
+        // in the off-chance that a widget got deleted mid-saving it's position, an error will occur
+        // currently left unhandled PR 3653#issuecomment-481699053
+        notification.error('Error saving changes.');
       })
       .finally(() => {
         this.saveInProgress = false;
       });
   };
+
+  const saveDashboardLayoutDebounced = _.debounce(saveDashboardLayout, 2000);
 
   this.layoutEditing = false;
   this.isFullscreen = false;
@@ -84,6 +87,7 @@ function DashboardCtrl(
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
   this.isDashboardOwner = false;
+  this.isLayoutDirty = false;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
@@ -242,28 +246,17 @@ function DashboardCtrl(
     });
   };
 
-  this.editLayout = (enableEditing, applyChanges) => {
-    if (!this.isGridDisabled) {
-      if (!enableEditing) {
-        if (applyChanges) {
-          const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
-          saveDashboardLayout(changedWidgets);
-        } else {
-          // Revert changes
-          const items = {};
-          _.each(this.dashboard.widgets, (widget) => {
-            _.extend(widget.options.position, widget.$originalPosition);
-            items[widget.id] = widget.options.position;
-          });
-          this.dashboard.widgets = Dashboard.prepareWidgetsForDashboard(this.dashboard.widgets);
-          if (this.updateGridItems) {
-            this.updateGridItems(items);
-          }
-        }
-      }
-
-      this.layoutEditing = enableEditing;
+  this.onLayoutChanged = () => {
+    // prevent unnecessary save when gridstack is loaded
+    if (!this.layoutEditing) {
+      return;
     }
+    this.isLayoutDirty = true;
+    saveDashboardLayoutDebounced();
+  };
+
+  this.editLayout = (enableEditing) => {
+    this.layoutEditing = enableEditing;
   };
 
   this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
@@ -405,12 +398,11 @@ function DashboardCtrl(
   this.removeWidget = (widgetId) => {
     this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
+    $scope.$applyAsync();
+
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
-      $timeout(() => {
-        const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
-        saveDashboardLayout(changedWidgets);
-      }, 50);
+      $timeout(saveDashboardLayout, 50);
     }
   };
 
