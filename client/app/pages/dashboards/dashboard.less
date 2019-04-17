@@ -112,6 +112,38 @@
   }
 }
 
+.dashboard__control {
+  .save-status {
+    vertical-align: middle;
+    margin-right: 7px;
+    font-size: 12px;
+    text-align: left;
+    display: inline-block;
+
+    &[data-saving] {
+      opacity: 0.6;
+      width: 45px;
+
+      &:after {
+        content: '';
+        animation: saving 2s linear infinite;
+      }
+    }
+  }
+}
+
+@keyframes saving {
+  0%, 100% {
+    content: '.';
+  }
+  33% {
+    content: '..';
+  }
+  66% {
+    content: '...';
+  }
+}
+
 
 // Mobile fixes
 @media (max-width: 767px) {

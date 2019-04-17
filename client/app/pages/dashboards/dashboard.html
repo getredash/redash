@@ -15,17 +15,15 @@
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
-          <div class="btn-group">
+          <div ng-if="$ctrl.layoutEditing" ng-switch="$ctrl.isLayoutDirty || $ctrl.saveInProgress">
+            <span class="save-status" data-saving ng-switch-when="true">Saving</span>
+            <span class="save-status" ng-switch-default>Saved</span>
+
             <button type="button" class="btn btn-primary btn-sm"
               ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, true)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-check"></i> Apply Changes
-            </button>
-
-            <button type="button" class="btn btn-default btn-sm"
-              ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, false)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-close"></i> Cancel
+              ng-click="$ctrl.editLayout(false)"
+              ng-class="{'disabled-silent': $ctrl.isLayoutDirty || $ctrl.saveInProgress }">
+              <i class="fa fa-check"></i> Done Editing
             </button>
           </div>
 
@@ -91,7 +89,7 @@
   </div>
 
   <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="$ctrl.layoutEditing && !$ctrl.saveInProgress" batch-update="$ctrl.updateGridItems"
+    <div gridstack editing="$ctrl.layoutEditing" on-layout-changed="$ctrl.onLayoutChanged"
       is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
       ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
       <div class="dashboard-widget-wrapper"
