@@ -16,7 +16,7 @@ os.environ['REDASH_MULTI_ORG'] = "true"
 # Make sure rate limit is enabled
 os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
 
-from redash import create_app
+from redash import create_app, limiter
 from redash import redis_connection
 from redash.models import db
 from redash.utils import json_dumps, json_loads
@@ -48,6 +48,7 @@ class BaseTestCase(TestCase):
         self.db = db
         self.app.config['TESTING'] = True
         self.app.config['SERVER_NAME'] = 'localhost'
+        limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
         db.session.close()
@@ -115,7 +116,7 @@ class BaseTestCase(TestCase):
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
             if isinstance(v, datetime.datetime) or isinstance(actual[k],
-                    datetime.datetime):
+                                                              datetime.datetime):
                 continue
 
             if isinstance(v, list):

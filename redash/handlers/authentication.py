@@ -25,7 +25,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token, invite=True):
+def render_token_login_page(template, org_slug, token, invite):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -77,12 +77,12 @@ def render_token_login_page(template, org_slug, token, invite=True):
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
 def invite(token, org_slug=None):
-    return render_token_login_page("invite.html", org_slug, token)
+    return render_token_login_page("invite.html", org_slug, token, True)
 
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
 def reset(token, org_slug=None):
-    return render_token_login_page("reset.html", org_slug, token)
+    return render_token_login_page("reset.html", org_slug, token, False)
 
 
 @routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
@@ -243,6 +243,18 @@ def client_config():
     return client_config
 
 
+def messages():
+    messages = []
+
+    if not current_user.is_email_verified:
+        messages.append('email-not-verified')
+
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+        messages.append('using-deprecated-embed-feature')
+
+    return messages
+
+
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
@@ -266,12 +278,12 @@ def session(org_slug=None):
             'name': current_user.name,
             'email': current_user.email,
             'groups': current_user.group_ids,
-            'permissions': current_user.permissions,
-            'is_email_verified': current_user.is_email_verified
+            'permissions': current_user.permissions
         }
 
     return json_response({
         'user': user,
+        'messages': messages(),
         'org_slug': current_org.slug,
         'client_config': client_config()
     })

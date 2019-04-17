@@ -498,7 +498,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 contains_eager(Query.user),
                 contains_eager(Query.latest_query_data),
             )
-            .order_by(Query.created_at.desc())
         )
 
         if not include_drafts:
@@ -545,6 +544,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def by_user(cls, user):
         return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
+
+    @classmethod
+    def by_api_key(cls, api_key):
+        return cls.query.filter(cls.api_key == api_key).one()
 
     @classmethod
     def outdated_queries(cls):
