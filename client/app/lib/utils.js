@@ -1,4 +1,4 @@
-import { isObject, isFunction, cloneDeep, each, extend } from 'lodash';
+import { isObject, cloneDeep, each, extend } from 'lodash';
 
 export function routesToAngularRoutes(routes, template) {
   const result = {};
@@ -39,32 +39,4 @@ export function cleanAngularProps(value) {
 
   const result = cloneDeep(value);
   return isObject(result) ? omitAngularProps(result) : result;
-}
-
-export function createPromiseHandler(toPromise, onResolved, onRejected = null) {
-  let lastValue = null;
-  let isCancelled = false;
-
-  function handle(value) {
-    if (value !== lastValue) {
-      lastValue = value;
-      toPromise(value)
-        .then((result) => {
-          if (!isCancelled && (lastValue === value) && isFunction(onResolved)) {
-            onResolved(result);
-          }
-        })
-        .catch((error) => {
-          if (!isCancelled && (lastValue === value) && isFunction(onRejected)) {
-            onRejected(error);
-          }
-        });
-    }
-  }
-
-  handle.cancel = () => {
-    isCancelled = true;
-  };
-
-  return handle;
 }
