@@ -47,11 +47,14 @@ function DashboardCtrl(
   Events,
 ) {
   this.saveInProgress = false;
+  this.saveDelay = false;
 
-  const saveDashboardLayout = () => {
+  this.saveDashboardLayout = () => {
     if (!this.dashboard.canEdit()) {
       return;
     }
+
+    this.isLayoutDirty = true;
 
     // calc diff, bail if none
     const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
@@ -61,6 +64,7 @@ function DashboardCtrl(
       return;
     }
 
+    this.saveDelay = false;
     this.saveInProgress = true;
     return $q
       .all(_.map(changedWidgets, widget => widget.save()))
@@ -77,7 +81,10 @@ function DashboardCtrl(
       });
   };
 
-  const saveDashboardLayoutDebounced = _.debounce(saveDashboardLayout, 2000);
+  const saveDashboardLayoutDebounced = () => {
+    this.saveDelay = true;
+    return _.debounce(() => this.saveDashboardLayout(), 2000)();
+  };
 
   this.layoutEditing = false;
   this.isFullscreen = false;
@@ -402,7 +409,7 @@ function DashboardCtrl(
 
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
-      $timeout(saveDashboardLayout, 50);
+      $timeout(() => this.saveDashboardLayout(), 50);
     }
   };
 
