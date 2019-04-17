@@ -521,11 +521,11 @@ describe('Dashboard', () => {
   context('viewport width is at 800px', () => {
     before(function () {
       cy.login();
-      createNewDashboardByAPI('Foo Bar')
+      createDashboard('Foo Bar')
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
           this.dashboardEditUrl = `/dashboard/${slug}?edit`;
-          return addTextboxByAPI('Hello World!', id);
+          return addTextbox(id, 'Hello World!');
         })
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
@@ -578,7 +578,7 @@ describe('Dashboard', () => {
   context('viewport width is at 767px', () => {
     before(function () {
       cy.login();
-      createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+      createDashboard('Foo Bar').then(({ slug }) => {
         this.dashboardUrl = `/dashboard/${slug}`;
       });
     });
