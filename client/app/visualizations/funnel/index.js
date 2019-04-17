@@ -117,6 +117,9 @@ function Funnel(scope, element) {
   }
 
   function prepareData(queryData) {
+    if (queryData.length === 0) {
+      return [];
+    }
     const data = queryData.map(
       row => ({
         step: normalizeValue(row[options.stepCol.colName]),
@@ -161,7 +164,7 @@ function Funnel(scope, element) {
 
     const queryData = scope.$ctrl.data.rows;
     const data = prepareData(queryData, options);
-    if (data) {
+    if (data.length > 0) {
       createVisualization(data); // draw funnel
     }
   }

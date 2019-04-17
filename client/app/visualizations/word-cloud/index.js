@@ -34,6 +34,11 @@ function createScale(wordCounts) {
   const minCount = min(wordCounts);
   const maxCount = max(wordCounts);
 
+  // Edge case - if all words have the same count; just set middle size for all
+  if (minCount === maxCount) {
+    return () => (MAX_WORD_SIZE + MIN_WORD_SIZE) / 2;
+  }
+
   // v is value from source domain:
   //    s1 <= v <= s2.
   // We need to fit it target domain:
