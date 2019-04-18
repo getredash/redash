@@ -172,4 +172,4 @@ def load_periodic_tasks(logger):
 
 def init_app(app):
     load_extensions(app)
-    load_bundles(app)
+    load_bundles()
