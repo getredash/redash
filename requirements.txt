@@ -63,4 +63,5 @@ disposable-email-domains
 gevent==1.4.0
 # These can be removed when upgrading to Python 3.x
 importlib-metadata==0.9  # remove when on 3.8
-importlib_resources==1.0.2 # remove when on 3.7
+importlib_resources==1.0.2  # remove when on 3.7
+pathlib2==2.3.3  # remove when on 3.x
