@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import logging
 from collections import OrderedDict as odict
 
 from importlib_resources import contents, is_resource, path
 from importlib_metadata import entry_points
 
-BUNDLE_DIRECTORY = 'bundle'
+BUNDLE_DIRECTORY = "bundle"
 
 # The global Redash extension registry
 extensions = odict()
@@ -17,6 +18,8 @@ bundles = odict()
 # celery_schedule since the extension task discovery phase is
 # after the configuration has already happened.
 periodic_tasks = odict()
+
+logger = logging.getLogger(__name__)
 
 
 def resource_isdir(module, resource):
@@ -33,7 +36,7 @@ def resource_isdir(module, resource):
 
 def entry_point_module(entry_point):
     """Returns the dotted module path for the given entry point"""
-    return entry_point.pattern.match(entry_point.value).group('module')
+    return entry_point.pattern.match(entry_point.value).group("module")
 
 
 def load_extensions(app):
@@ -49,25 +52,29 @@ def load_extensions(app):
             Foobar(app)
 
     """
-    for entry_point in entry_points().get('redash.extensions', []):
+    for entry_point in entry_points().get("redash.extensions", []):
         app.logger.info('Loading Redash extension "%s".', entry_point.name)
         try:
             # Then try to load the entry point (import and getattr)
             obj = entry_point.load()
         except (ImportError, AttributeError):
             # or move on
-            app.logger.error('Redash extension "%s" could not be found.', entry_point.name)
+            app.logger.error(
+                'Redash extension "%s" could not be found.', entry_point.name
+            )
             continue
 
         if not callable(obj):
-            app.logger.error('Redash extension "%s" is not a callable.', entry_point.name)
+            app.logger.error(
+                'Redash extension "%s" is not a callable.', entry_point.name
+            )
             continue
 
         # then simply call the loaded entry point.
         extensions[entry_point.name] = obj(app)
 
 
-def load_bundles(app):
+def load_bundles():
     """"Load bundles as defined in Redash extensions.
 
     The bundle entry point can be defined as a dotted path to a module
@@ -101,12 +108,15 @@ def load_bundles(app):
         )
 
     """
-    for entry_point in entry_points().get('redash.bundles', []):
-        app.logger.info('Loading Redash bundle "%s".', entry_point.name)
+    bundles.clear()
+    for entry_point in entry_points().get("redash.bundles", []):
+        logger.info('Loading Redash bundle "%s".', entry_point.name)
         module = entry_point_module(entry_point)
         # Try to get a list of bundle files
         if not resource_isdir(module, BUNDLE_DIRECTORY):
-            app.logger.error('Redash bundle directory "%s" could not be found.', entry_point.name)
+            logger.error(
+                'Redash bundle directory "%s" could not be found.', entry_point.name
+            )
             continue
         with path(module, BUNDLE_DIRECTORY) as bundle_dir:
             bundles[entry_point.name] = list(bundle_dir.rglob("*"))
@@ -143,13 +153,21 @@ def load_periodic_tasks(logger):
             # ...
         )
     """
-    for entry_point in entry_points().get('redash.periodic_tasks', []):
-        logger.info('Loading periodic Redash tasks "%s" from "%s".', entry_point.name, entry_point.value)
+    for entry_point in entry_points().get("redash.periodic_tasks", []):
+        logger.info(
+            'Loading periodic Redash tasks "%s" from "%s".',
+            entry_point.name,
+            entry_point.value,
+        )
         try:
             periodic_tasks[entry_point.name] = entry_point.load()
         except (ImportError, AttributeError):
             # and move on if it couldn't load it
-            logger.error('Periodic Redash task "%s" could not be found at "%s".', entry_point.name, entry_point.value)
+            logger.error(
+                'Periodic Redash task "%s" could not be found at "%s".',
+                entry_point.name,
+                entry_point.value,
+            )
 
 
 def init_app(app):
