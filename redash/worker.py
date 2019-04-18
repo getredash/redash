@@ -10,6 +10,7 @@ from celery.schedules import crontab
 from celery.signals import worker_process_init
 
 from redash import create_app, settings
+from redash.metrics import celery as celery_metrics  # noqa
 
 
 celery = Celery('redash',
