@@ -2,16 +2,10 @@
 import logging
 from collections import OrderedDict as odict
 
-from importlib_resources import contents, is_resource, path
 from importlib_metadata import entry_points
-
-BUNDLE_DIRECTORY = "bundle"
 
 # The global Redash extension registry
 extensions = odict()
-
-# The global Redash bundle registry
-bundles = odict()
 
 # The periodic Celery tasks as provided by Redash extensions.
 # This is separate from the internal periodic Celery tasks in
@@ -20,23 +14,6 @@ bundles = odict()
 periodic_tasks = odict()
 
 logger = logging.getLogger(__name__)
-
-
-def resource_isdir(module, resource):
-    """Whether a given resource is a directory in the given module
-
-    https://importlib-resources.readthedocs.io/en/latest/migration.html#pkg-resources-resource-isdir
-    """
-    try:
-        return resource in contents(module) and not is_resource(module, resource)
-    except (ImportError, TypeError):
-        # module isn't a package, so can't have a subdirectory/-package
-        return False
-
-
-def entry_point_module(entry_point):
-    """Returns the dotted module path for the given entry point"""
-    return entry_point.pattern.match(entry_point.value).group("module")
 
 
 def load_extensions(app):
@@ -72,54 +49,6 @@ def load_extensions(app):
 
         # then simply call the loaded entry point.
         extensions[entry_point.name] = obj(app)
-
-
-def load_bundles():
-    """"Load bundles as defined in Redash extensions.
-
-    The bundle entry point can be defined as a dotted path to a module
-    or a callable, but it won't be called but just used as a means
-    to find the files under its file system path.
-
-    The name of the directory it looks for files in is "bundle".
-
-    So a Python package with an extension bundle could look like this::
-
-        my_extensions/
-        ├── __init__.py
-        └── wide_footer
-            ├── __init__.py
-            └── bundle
-                ├── extension.js
-                └── styles.css
-
-    and would then need to register the bundle with an entry point
-    under the "redash.periodic_tasks" group, e.g. in your setup.py::
-
-        setup(
-            # ...
-            entry_points={
-                "redash.bundles": [
-                    "wide_footer = my_extensions.wide_footer",
-                ]
-                # ...
-            },
-            # ...
-        )
-
-    """
-    bundles.clear()
-    for entry_point in entry_points().get("redash.bundles", []):
-        logger.info('Loading Redash bundle "%s".', entry_point.name)
-        module = entry_point_module(entry_point)
-        # Try to get a list of bundle files
-        if not resource_isdir(module, BUNDLE_DIRECTORY):
-            logger.error(
-                'Redash bundle directory "%s" could not be found.', entry_point.name
-            )
-            continue
-        with path(module, BUNDLE_DIRECTORY) as bundle_dir:
-            bundles[entry_point.name] = list(bundle_dir.rglob("*"))
 
 
 def load_periodic_tasks(logger):
@@ -172,4 +101,3 @@ def load_periodic_tasks(logger):
 
 def init_app(app):
     load_extensions(app)
-    load_bundles()

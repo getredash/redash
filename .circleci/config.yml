@@ -111,6 +111,9 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
+      - run: sudo apt install python-pip
+      - run: sudo pip install -r requirements_bundles.txt
+      - run: npm run bundle
       - run: .circleci/update_version
       - run: .circleci/docker_build
 workflows:
