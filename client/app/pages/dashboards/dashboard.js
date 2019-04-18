@@ -78,6 +78,7 @@ function DashboardCtrl(
       })
       .finally(() => {
         this.saveInProgress = false;
+        this.showSaveButtonProgress = false;
       });
   };
 
@@ -86,6 +87,8 @@ function DashboardCtrl(
     return _.debounce(() => this.saveDashboardLayout(), 2000)();
   };
 
+  this.saveDelay = false;
+  this.showSaveButtonProgress = false;
   this.layoutEditing = false;
   this.isFullscreen = false;
   this.refreshRate = null;
