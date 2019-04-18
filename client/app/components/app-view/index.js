@@ -10,7 +10,6 @@ const handler = new ErrorHandler();
 const layouts = {
   default: {
     showHeader: true,
-    showFooter: true,
     bodyClass: false,
   },
   darkTheme: {
@@ -18,12 +17,10 @@ const layouts = {
   },
   fixed: {
     showHeader: true,
-    showFooter: false,
     bodyClass: 'fixed-layout',
   },
   defaultSignedOut: {
     showHeader: false,
-    showFooter: false,
   },
 };
 
@@ -44,7 +41,6 @@ function selectLayout(route, theme = 'light') {
 class AppViewComponent {
   constructor($rootScope, $route, Auth) {
     this.$rootScope = $rootScope;
-    this.showHeaderAndFooter = false;
     this.layout = layouts.defaultSignedOut;
     this.handler = handler;
     this.theme = 'light';

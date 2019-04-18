@@ -1,4 +1,5 @@
 import os
+import importlib
 from funcy import distinct, remove
 from flask_talisman import talisman
 
@@ -15,6 +16,7 @@ def all_settings():
             settings[name] = item
 
     return settings
+
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -109,7 +111,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # for more information. E.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none';"
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;"
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")
@@ -288,7 +290,8 @@ additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_Q
 disabled_query_runners = array_from_string(os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", ""))
 
 QUERY_RUNNERS = remove(set(disabled_query_runners), distinct(enabled_query_runners + additional_query_runners))
-ADHOC_QUERY_TIME_LIMIT = int_or_none(os.environ.get('REDASH_ADHOC_QUERY_TIME_LIMIT', None))
+
+dynamic_settings = importlib.import_module(os.environ.get('REDASH_DYNAMIC_SETTINGS_MODULE', 'redash.settings.dynamic_settings'))
 
 # Destinations
 default_destinations = [

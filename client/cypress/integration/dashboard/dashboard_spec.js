@@ -360,46 +360,14 @@ describe('Dashboard', () => {
         });
       });
 
-      it('discards drag on cancel', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 200);
-          })
-          // cancel
-          .then(() => {
-            cy.get('.dashboard-header').within(() => {
-              cy.contains('button', 'Cancel').click();
-            });
-            return cy.get('@textboxEl');
-          })
-          // verify returned to original position
-          .then(($el) => {
-            expect($el.offset()).to.deep.eq(start);
-          });
-      });
+      it('auto saves after drag', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
 
-      it('saves drag on apply', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 200);
-          })
-          // apply
-          .then(() => {
-            cy.contains('button', 'Apply Changes').click();
-            return cy.get('@textboxEl');
-          })
-          // verify move
-          .then(($el) => {
-            expect($el.offset()).to.not.deep.eq(start);
-          });
+        editDashboard();
+        dragBy(cy.get('@textboxEl'), 330).then(() => {
+          cy.wait('@WidgetSave');
+        });
       });
     });
 
@@ -458,46 +426,14 @@ describe('Dashboard', () => {
         });
       });
 
-      it('discards resize on cancel', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, resize textbox 1 col
-          .then(($el) => {
-            start = $el.height();
-            editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // cancel
-          .then(() => {
-            cy.get('.dashboard-header').within(() => {
-              cy.contains('button', 'Cancel').click();
-            });
-            return cy.get('@textboxEl');
-          })
-          // verify returned to original size
-          .then(($el) => {
-            expect($el.height()).to.eq(start);
-          });
-      });
+      it('auto saves after resize', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
 
-      it('saves resize on apply', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, resize textbox 1 col
-          .then(($el) => {
-            start = $el.height();
-            editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // apply
-          .then(() => {
-            cy.contains('button', 'Apply Changes').click().should('not.exist');
-            return cy.get('@textboxEl');
-          })
-          // verify size change persists
-          .then(($el) => {
-            expect($el.height()).to.not.eq(start);
-          });
+        editDashboard();
+        resizeBy(cy.get('@textboxEl'), 200).then(() => {
+          cy.wait('@WidgetSave');
+        });
       });
     });
   });
@@ -627,6 +563,85 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 335);
         });
       });
+    });
+  });
+
+  context('viewport width is at 800px', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          this.dashboardEditUrl = `/dashboard/${slug}?edit`;
+          return addTextboxByAPI('Hello World!', id);
+        })
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId).as('textboxEl');
+        });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(800, 800);
+    });
+
+    it('shows widgets with full width', () => {
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(785);
+      });
+
+      cy.viewport(801, 800);
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(393);
+      });
+    });
+
+    it('hides edit option', () => {
+      cy.getByTestId('DashboardMoreMenu')
+        .click()
+        .should('be.visible')
+        .within(() => {
+          cy.get('li')
+            .contains('Edit')
+            .as('editButton')
+            .should('not.be.visible');
+        });
+
+      cy.viewport(801, 800);
+      cy.get('@editButton').should('be.visible');
+    });
+
+    it('disables edit mode', function () {
+      cy.visit(this.dashboardEditUrl);
+      cy.contains('button', 'Done Editing')
+        .as('saveButton')
+        .should('be.disabled');
+
+      cy.viewport(801, 800);
+      cy.get('@saveButton').should('not.be.disabled');
+    });
+  });
+
+  context('viewport width is at 767px', () => {
+    before(function () {
+      cy.login();
+      createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(767, 800);
+    });
+
+    it('hides menu button', () => {
+      cy.get('.dashboard__control').should('exist');
+      cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
+
+      cy.viewport(768, 800);
+      cy.getByTestId('DashboardMoreMenu').should('be.visible');
     });
   });
 });

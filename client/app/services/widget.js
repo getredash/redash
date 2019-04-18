@@ -92,6 +92,11 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
         this.options.position.autoHeight = true;
       }
       this.visualization.options.darkTheme = darkTheme;
+
+      this.updateOriginalPosition();
+    }
+
+    updateOriginalPosition() {
       // Save original position (create a shallow copy)
       this.$originalPosition = extend({}, this.options.position);
     }
@@ -160,6 +165,8 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
         each(response.data, (v, k) => {
           this[k] = v;
         });
+
+        this.updateOriginalPosition();
 
         return this;
       });
