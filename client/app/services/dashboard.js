@@ -47,8 +47,8 @@ function prepareWidgetsForDashboard(widgets) {
 }
 
 function DashboardService($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
-  function prepareDashboardWidgets(widgets) {
-    return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
+  function prepareDashboardWidgets(widgets, darkTheme = false) {
+    return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget, darkTheme)));
   }
 
   function transformSingle(dashboard) {

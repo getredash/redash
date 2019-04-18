@@ -19,10 +19,11 @@ const PublicDashboardPage = {
       resizable: { enabled: false },
       draggable: { enabled: false },
     });
-
+    this.darkTheme = $route.current.params.theme === 'dark';
+    this.dashboard.darkTheme = this.darkTheme;
     this.logoUrl = logoUrl;
     this.public = true;
-    this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+    this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets, this.darkTheme);
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
@@ -30,7 +31,7 @@ const PublicDashboardPage = {
       const refresh = () => {
         loadDashboard($http, $route).then((data) => {
           this.dashboard = data;
-          this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+          this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets, this.darkTheme);
 
           $timeout(refresh, refreshRate * 1000.0);
         });
@@ -57,7 +58,7 @@ export default function init(ngModule) {
   }
 
   ngModule.config(($routeProvider) => {
-    $routeProvider.when('/public/dashboards/:token', {
+    $routeProvider.when('/public/dashboards/:token/:theme?', {
       template: '<public-dashboard-page dashboard="$resolve.dashboard"></public-dashboard-page>',
       reloadOnSearch: false,
       resolve: {

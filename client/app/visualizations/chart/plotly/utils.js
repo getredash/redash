@@ -287,7 +287,7 @@ function preparePieData(seriesList, options) {
       },
       hoverinfo,
       text: [],
-      textinfo: options.showDataLabels ? 'percent' : 'none',
+      textinfo: options.showDataLabels ? (options.pieLabelType || 'percent') : 'none',
       textposition: 'inside',
       textfont: { color: '#ffffff' },
       name: serie.name,
@@ -624,6 +624,32 @@ export function prepareLayout(element, seriesList, options, data) {
     }
   }
 
+  if (options.darkTheme) {
+    result.plot_bgcolor = '#555';
+    result.paper_bgcolor = '#555';
+    result.font = {
+      ...result.font,
+      color: '#ccc',
+    };
+
+    if (result.yaxis) {
+      result.yaxis.gridcolor = '#bbb';
+      result.yaxis.color = '#bbb';
+    }
+
+    if (result.yaxis2) {
+      result.yaxis2.gridcolor = '#bbb';
+      result.yaxis2.color = '#bbb';
+    }
+
+    if (result.xaxis) {
+      result.xaxis.color = '#bbb';
+    }
+
+    if (result.legend) {
+      result.legend.bgcolor = '#555';
+    }
+  }
   return result;
 }
 

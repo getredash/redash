@@ -262,6 +262,10 @@ body {
     margin: 0.2em 0;
     line-height: 1.3;
     font-weight: 500;
+
+    .dark-theme & {
+      color: #ccc;
+    }  
   }
 }
 
@@ -633,6 +637,12 @@ body {
 .navbar {
   box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
 
+  .dark-theme & {
+    background-color: #555;
+    box-shadow: #333 0px 4px 9px -3px;
+    border: 1px solid #000;
+  }
+
   .navbar-collapse {
     padding-left: 0;
   }
@@ -651,6 +661,16 @@ body {
 
 .menu-search {
   margin-top: 2px;
+
+  .dark-theme & {
+    background-color: #555;
+    box-shadow: #333 0px 4px 9px -3px;
+    .form-control {
+      background-color: #555;
+      color: #ccc;
+      border-color: #333;
+    }
+  }
 }
 
 .tags-list {

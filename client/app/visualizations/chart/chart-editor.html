@@ -443,5 +443,18 @@
       <input class="form-control" ng-model="options.textFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }" id="chart-editor-text"
         placeholder="(auto)">
     </div>
+
+    <div class="form-group" ng-if="options.globalSeriesType == 'pie'">
+      <label>
+        Label Type
+      </label>
+      <ui-select ng-model="options.pieLabelType">
+        <ui-select-match allow-clear="true" placeholder="Choose Label Type...">{{$select.selected | capitalize}}</ui-select-match>
+        <ui-select-choices repeat="value in pieLabelTypes">
+          <div ng-bind-html="value | highlight: $select.search | capitalize"></div>
+        </ui-select-choices>
+      </ui-select>
+    </div>
+    
   </div>
 </div>

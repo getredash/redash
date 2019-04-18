@@ -22,7 +22,7 @@ const DEFAULT_OPTIONS = {
   percentFormat: '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
-
+  pieLabelType: 'percent',
   defaultColumns: 3,
   defaultRows: 8,
   minColumns: 1,
@@ -125,7 +125,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.colorScheme = ['Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
         'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
         'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd', 'Custom...'];
-
+      scope.pieLabelTypes = ['percent', 'text', 'value'];
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
       scope.showZColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'heatmap');
 
