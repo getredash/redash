@@ -7,7 +7,7 @@ from flask import current_app
 
 from celery import Celery
 from celery.schedules import crontab
-from celery.signals import task_postrun, task_prerun, worker_process_init
+from celery.signals import worker_process_init
 
 from redash import create_app, settings
 
