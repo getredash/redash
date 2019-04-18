@@ -61,5 +61,3 @@ disposable-email-domains
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
 gevent==1.4.0
-# Requirements for the extension bundle loading
--r requirements_bundles.txt
