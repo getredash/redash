@@ -16,8 +16,8 @@ os.environ['REDASH_MULTI_ORG'] = "true"
 # Make sure rate limit is enabled
 os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
 
-from redash import create_app, limiter
-from redash import redis_connection
+from redash import limiter, redis_connection
+from redash.app import create_app
 from redash.models import db
 from redash.utils import json_dumps, json_loads
 from tests.factories import Factory, user_factory
