@@ -2,12 +2,14 @@ import logging
 import socket
 import time
 
+from celery.signals import task_postrun, task_prerun
 from redash import settings, statsd_client
 from redash.utils import json_dumps
 
 tasks_start_time = {}
 
 
+@task_prerun.connect
 def task_prerun_handler(signal, sender, task_id, task, args, kwargs, **kw):
     try:
         tasks_start_time[task_id] = time.time()
@@ -25,6 +27,7 @@ def metric_name(name, tags):
     return "{},{}".format(name, tags_string)
 
 
+@task_postrun.connect
 def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, state, **kw):
     try:
         run_time = 1000 * (time.time() - tasks_start_time.pop(task_id))
