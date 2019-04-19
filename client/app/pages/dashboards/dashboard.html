@@ -19,8 +19,8 @@
             <span ng-switch-when="true" ng-switch="$ctrl.saveInProgress || $ctrl.saveDelay">
                 <span ng-switch-when="true">
                   <span class="save-status" data-saving>Saving</span>
-                  <button class="btn btn-primary btn-sm" ng-disabled="$ctrl.showSaveButtonProgress"  ng-click="$ctrl.showSaveButtonProgress = true">
-                    <i class="fa" ng-class="{'fa-check': !$ctrl.showSaveButtonProgress, 'fa-spinner fa-pulse': $ctrl.showSaveButtonProgress}"></i> Done Editing
+                  <button class="btn btn-primary btn-sm" ng-disabled="$ctrl.editBtnClickedWhileSaving" ng-click="$ctrl.editBtnClickedWhileSaving = true">
+                    <i class="fa fa-check" ng-class="{'fa-spinner fa-pulse': $ctrl.editBtnClickedWhileSaving}"></i> Done Editing
                   </button>
                 </span>
                 <span ng-switch-default>

@@ -70,6 +70,9 @@ function DashboardCtrl(
       .all(_.map(changedWidgets, widget => widget.save()))
       .then(() => {
         this.isLayoutDirty = false;
+        if (this.editBtnClickedWhileSaving) {
+          this.layoutEditing = false;
+        }
       })
       .catch(() => {
         // in the off-chance that a widget got deleted mid-saving it's position, an error will occur
@@ -78,7 +81,7 @@ function DashboardCtrl(
       })
       .finally(() => {
         this.saveInProgress = false;
-        this.showSaveButtonProgress = false;
+        this.editBtnClickedWhileSaving = false;
       });
   };
 
@@ -88,7 +91,7 @@ function DashboardCtrl(
   };
 
   this.saveDelay = false;
-  this.showSaveButtonProgress = false;
+  this.editBtnClickedWhileSaving = false;
   this.layoutEditing = false;
   this.isFullscreen = false;
   this.refreshRate = null;
