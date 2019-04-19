@@ -47,11 +47,14 @@ function DashboardCtrl(
   Events,
 ) {
   this.saveInProgress = false;
+  this.saveDelay = false;
 
-  const saveDashboardLayout = () => {
+  this.saveDashboardLayout = () => {
     if (!this.dashboard.canEdit()) {
       return;
     }
+
+    this.isLayoutDirty = true;
 
     // calc diff, bail if none
     const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
@@ -61,11 +64,15 @@ function DashboardCtrl(
       return;
     }
 
+    this.saveDelay = false;
     this.saveInProgress = true;
     return $q
       .all(_.map(changedWidgets, widget => widget.save()))
       .then(() => {
         this.isLayoutDirty = false;
+        if (this.editBtnClickedWhileSaving) {
+          this.layoutEditing = false;
+        }
       })
       .catch(() => {
         // in the off-chance that a widget got deleted mid-saving it's position, an error will occur
@@ -74,11 +81,17 @@ function DashboardCtrl(
       })
       .finally(() => {
         this.saveInProgress = false;
+        this.editBtnClickedWhileSaving = false;
       });
   };
 
-  const saveDashboardLayoutDebounced = _.debounce(saveDashboardLayout, 2000);
+  const saveDashboardLayoutDebounced = () => {
+    this.saveDelay = true;
+    return _.debounce(() => this.saveDashboardLayout(), 2000)();
+  };
 
+  this.saveDelay = false;
+  this.editBtnClickedWhileSaving = false;
   this.layoutEditing = false;
   this.isFullscreen = false;
   this.refreshRate = null;
@@ -402,7 +415,7 @@ function DashboardCtrl(
 
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout
-      $timeout(saveDashboardLayout, 50);
+      $timeout(() => this.saveDashboardLayout(), 50);
     }
   };
 
