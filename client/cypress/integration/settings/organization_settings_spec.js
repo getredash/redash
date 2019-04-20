@@ -6,7 +6,7 @@ describe('Settings', () => {
 
   it('renders the page and takes a screenshot', () => {
     cy.getByTestId('OrganizationSettings').within(() => {
-      cy.get('select').should('have.value', 'DD/MM/YY');
+      cy.getByTestId('DateFormat').should('contain', 'DD/MM/YY');
     });
 
     cy.percySnapshot('Organization Settings');

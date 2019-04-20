@@ -94,7 +94,7 @@ class OrganizationSettings extends React.Component {
         <Form.Item>
           <Checkbox
             name="auth_saml_enabled"
-            defaultChecked={formValues.auth_saml_enabled}
+            checked={formValues.auth_saml_enabled}
             onChange={e => this.handleChange('auth_saml_enabled', e.target.checked)}
           >
             SAML Enabled
@@ -125,8 +125,9 @@ class OrganizationSettings extends React.Component {
         <hr />
         <Form.Item label="Date Format">
           <Select
-            defaultValue={formValues.date_format}
+            value={formValues.date_format}
             onChange={value => this.handleChange('date_format', value)}
+            data-test="DateFormat"
           >
             {clientConfig.dateFormatList.map(dateFormat => (
               <Option key={dateFormat}>{dateFormat}</Option>
@@ -136,7 +137,7 @@ class OrganizationSettings extends React.Component {
         <Form.Item label="Feature Flags">
           <Checkbox
             name="feature_show_permissions_control"
-            defaultChecked={formValues.feature_show_permissions_control}
+            checked={formValues.feature_show_permissions_control}
             onChange={e => this.handleChange('feature_show_permissions_control', e.target.checked)}
           >
             Enable experimental multiple owners support
