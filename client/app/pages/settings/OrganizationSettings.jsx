@@ -10,6 +10,7 @@ import Select from 'antd/lib/select';
 import Checkbox from 'antd/lib/checkbox';
 import Tooltip from 'antd/lib/tooltip';
 import LoadingState from '@/components/items-list/components/LoadingState';
+import { HelpTrigger } from '@/components/HelpTrigger';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import { clientConfig } from '@/services/auth';
@@ -103,13 +104,22 @@ class OrganizationSettings extends React.Component {
         {formValues.auth_saml_enabled && (
           <div>
             <Form.Item label="SAML Metadata URL">
-              <Input value={formValues.auth_saml_metadata_url} />
+              <Input
+                value={formValues.auth_saml_metadata_url}
+                onChange={e => this.handleChange('auth_saml_metadata_url', e.target.value)}
+              />
             </Form.Item>
             <Form.Item label="SAML Entity ID">
-              <Input value={formValues.auth_saml_entity_id} />
+              <Input
+                value={formValues.auth_saml_entity_id}
+                onChange={e => this.handleChange('auth_saml_entity_id', e.target.value)}
+              />
             </Form.Item>
             <Form.Item label="SAML NameID Format">
-              <Input value={formValues.auth_saml_nameid_format} />
+              <Input
+                value={formValues.auth_saml_nameid_format}
+                onChange={e => this.handleChange('auth_saml_nameid_format', e.target.value)}
+              />
             </Form.Item>
           </div>
         )}
@@ -151,7 +161,9 @@ class OrganizationSettings extends React.Component {
     const { settings, formValues } = this.state;
     return (
       <React.Fragment>
-        <h3 className="m-t-0">Authentication</h3>
+        <h3 className="m-t-0">
+          Authentication <HelpTrigger type="AUTHENTICATION_OPTIONS" />
+        </h3>
         <hr />
         {!settings.auth_password_login_enabled && (
         <Alert

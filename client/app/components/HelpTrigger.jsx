@@ -26,6 +26,10 @@ export const TYPES = {
     '/user-guide/dashboards/sharing-dashboards',
     'Guide: Sharing and Embedding Dashboards',
   ],
+  AUTHENTICATION_OPTIONS: [
+    '/user-guide/users/authentication-options',
+    'Guide: Authentication Options',
+  ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
     'Guide: Help Setting up Amazon Athena',
