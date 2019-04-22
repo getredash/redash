@@ -101,6 +101,7 @@ class Presto(BaseQueryRunner):
                 port=self.configuration.get('port', 8080),
                 protocol=self.configuration.get('protocol', 'http'),
                 username=user_name,
+                password=self.configuration.get('password', None),
                 source='redash',
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
