@@ -56,8 +56,11 @@ class Presto(BaseQueryRunner):
                 'username': {
                     'type': 'string'
                 },
+                'password': {
+                    'type': 'string'
+                },
             },
-            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
+            'order': ['host', 'protocol', 'port', 'username', 'password', 'schema', 'catalog'],
             'required': ['host']
         }
 
