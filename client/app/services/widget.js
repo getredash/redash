@@ -1,9 +1,10 @@
 import moment from 'moment';
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from 'lodash';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
-function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
+function calculatePositionOptions(Visualization, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
   const visualizationOptions = {
@@ -69,7 +70,7 @@ export const ParameterMappingType = {
   StaticValue: 'static-value',
 };
 
-function WidgetFactory($http, $location, Query, Visualization, dashboardGridOptions) {
+function WidgetFactory($http, $location, Query, Visualization) {
   class WidgetService {
     static MappingType = ParameterMappingType;
 
@@ -79,7 +80,7 @@ function WidgetFactory($http, $location, Query, Visualization, dashboardGridOpti
         this[k] = v;
       });
 
-      const visualizationOptions = calculatePositionOptions(Visualization, dashboardGridOptions, this);
+      const visualizationOptions = calculatePositionOptions(Visualization, this);
 
       this.options = this.options || {};
       this.options.position = extend(

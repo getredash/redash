@@ -5,7 +5,7 @@ import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import GridLayout, { WidthProvider } from 'react-grid-layout';
 import { DashboardWidget } from '@/components/dashboards/widget';
-import { gridOptions as cfg } from '@/config/dashboard-grid-options';
+import cfg from '@/config/dashboard-grid-options';
 
 import 'react-grid-layout/css/styles.css';
 
@@ -54,9 +54,7 @@ class DashboardGrid extends React.Component {
       maxW: pos.maxSizeX,
       minH: pos.minSizeY,
       maxH: pos.maxSizeY,
-      __proto__: {
-        toString: () => JSON.stringify(pick(pos, ['col', 'row', 'sizeX', 'sizeY'])),
-      },
+      toString: () => JSON.stringify(pick(pos, ['col', 'row', 'sizeX', 'sizeY'])),
     };
   }
 

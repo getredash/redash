@@ -1,5 +1,6 @@
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 import './dashboard.less';
 
 function loadDashboard($http, $route) {
@@ -12,7 +13,7 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
+  controller($timeout, $location, $http, $route, Dashboard) {
     'ngInject';
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {

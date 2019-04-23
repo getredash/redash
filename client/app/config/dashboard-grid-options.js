@@ -1,4 +1,4 @@
-export const gridOptions = {
+const options = {
   columns: 6, // grid columns count
   rowHeight: 50, // grid row height (incl. bottom padding)
   margins: 15, // widget margins
@@ -12,8 +12,4 @@ export const gridOptions = {
   maxSizeY: 1000,
 };
 
-export default function init(ngModule) {
-  ngModule.constant('dashboardGridOptions', gridOptions);
-}
-
-init.init = true;
+export default options;
