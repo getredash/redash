@@ -535,7 +535,7 @@ describe('Dashboard', () => {
     });
   });
 
-  context.skip('viewport width is at 800px', () => {
+  context('viewport width is at 800px', () => {
     before(function () {
       cy.login();
       createNewDashboardByAPI('Foo Bar')
@@ -592,7 +592,7 @@ describe('Dashboard', () => {
     });
   });
 
-  context.skip('viewport width is at 767px', () => {
+  context('viewport width is at 767px', () => {
     before(function () {
       cy.login();
       createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
