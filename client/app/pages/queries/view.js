@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
+import { debounce, pick, some, isEmpty, find, filter, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -27,7 +27,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge, selectedQueryText) {
+  function getQueryResult(maxAge, selectedQueryText, parameters) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -38,12 +38,13 @@ function QueryViewCtrl(
 
     $scope.showLog = false;
     if ($scope.isDirty) {
-      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText, parameters);
     } else {
-      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
     }
   }
 
+  const getQueryResultDebounced = debounce(getQueryResult, 1000);
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -124,6 +125,7 @@ function QueryViewCtrl(
       return;
     }
 
+    getQueryResultDebounced.cancel();
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
@@ -421,6 +423,16 @@ function QueryViewCtrl(
       $scope.showLog = true;
     }
   });
+
+  $scope.$watch('query.getParametersDefs()', (parameters) => {
+    const touchedParameters = filter(parameters, { touched: true });
+
+    if (!isEmpty(touchedParameters)) {
+      getQueryResultDebounced(0, $scope.selectedQueryText);
+    } else {
+      getQueryResultDebounced.cancel();
+    }
+  }, true);
 
   function getVisualization(visId) {
     // eslint-disable-next-line eqeqeq

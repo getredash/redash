@@ -66,6 +66,10 @@ export class Parameter {
     // validate value and init internal state
     this.setValue(parameter.value);
 
+    // define touch state based on last query result value
+    this.lastQueryResultValue = parameter.value;
+    Object.defineProperty(this, 'touched', { get: () => this.value !== this.lastQueryResultValue });
+
     // Used for URL serialization
     Object.defineProperty(this, 'urlPrefix', {
       configurable: true,
@@ -527,14 +531,29 @@ function QueryResource(
     return this.queryResult;
   };
 
-  QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge);
+  QueryService.prototype.getQueryResult = function getQueryResult(maxAge, parameters) {
+    if (parameters === undefined) {
+      parameters = this.getParameters().getValues();
+    }
+
+    this.getParametersDefs().forEach((param) => {
+      param.lastQueryResultValue = parameters[param.name];
+    });
+
+    const execute = () => QueryResult.getByQueryId(this.id, parameters, maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 
-  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
+  QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText, parameters) {
+    if (parameters === undefined) {
+      parameters = this.getParameters().getValues();
+    }
+
+    this.getParametersDefs().forEach((param) => {
+      param.lastQueryResultValue = parameters[param.name];
+    });
+
     const queryText = selectedQueryText || this.query;
-    const parameters = this.getParameters().getValues();
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
