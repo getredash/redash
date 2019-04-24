@@ -76,12 +76,17 @@ class DashboardGrid extends React.Component {
     layouts: {},
   }
 
-  mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI
+  mode = null
+
+  componentDidMount() {
+    this.onBreakpointChange(document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI);
+  }
 
   onLayoutChange = (layout, layouts) => {
     this.setState({ layouts });
 
-    // workaround till fix lands for https://github.com/STRML/react-grid-layout/issues/889
+    // workaround for https://github.com/STRML/react-grid-layout/issues/889
+    // remove next line when fix lands
     this.mode = document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI;
     // end workaround
 

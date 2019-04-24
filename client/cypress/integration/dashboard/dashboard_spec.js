@@ -557,12 +557,12 @@ describe('Dashboard', () => {
 
     it('shows widgets with full width', () => {
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(785);
+        expect($el.width()).to.eq(770);
       });
 
       cy.viewport(801, 800);
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(393);
+        expect($el.width()).to.eq(378);
       });
     });
 
