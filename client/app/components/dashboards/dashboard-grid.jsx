@@ -82,8 +82,13 @@ class DashboardGrid extends React.Component {
     this.onBreakpointChange(document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI);
   }
 
-  onLayoutChange = (layout, layouts) => {
-    this.setState({ layouts });
+  onLayoutChange = (_, layouts) => {
+    // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
+    // fixes test dashboard_spec['shows widgets with full width']
+    // TODO: open react-grid-layout issue
+    if (layouts[MULTI]) {
+      this.setState({ layouts });
+    }
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
     // remove next line when fix lands
@@ -95,7 +100,7 @@ class DashboardGrid extends React.Component {
       return;
     }
 
-    const normalized = chain(layout)
+    const normalized = chain(layouts[MULTI])
       .keyBy('i')
       .mapValues(DashboardGrid.normalizeTo)
       .value();
