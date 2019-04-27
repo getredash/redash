@@ -6,10 +6,6 @@ import { react2angular } from 'react2angular';
 
 
 export function EditVisualizationButton(props) {
-  if (props.query.isNew() || !props.canEdit) {
-    return null;
-  }
-
   return (
     <Button
       data-test="EditVisualization"
@@ -25,8 +21,6 @@ export function EditVisualizationButton(props) {
 }
 
 EditVisualizationButton.propTypes = {
-  query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  canEdit: PropTypes.bool.isRequired,
   openVisualizationEditor: PropTypes.func.isRequired,
   selectedTab: PropTypes.oneOfType([
     PropTypes.string,

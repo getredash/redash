@@ -250,8 +250,7 @@
       <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
           <edit-visualization-button
-            query="query"
-            can-edit="canEdit"
+            ng-if="!query.isNew() && canEdit"
             open-visualization-editor="openVisualizationEditor"
             selected-tab="selectedTab">
           </edit-visualization-button>

@@ -28,7 +28,6 @@ export function QueryControlDropdown(props) {
       )}
       <Menu.Item>
         <QueryResultsLink
-          target="_self"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
@@ -41,7 +40,6 @@ export function QueryControlDropdown(props) {
       <Menu.Item>
         <QueryResultsLink
           fileType="xlsx"
-          target="_self"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
