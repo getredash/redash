@@ -11,7 +11,7 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
+from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)

@@ -1,4 +1,3 @@
-const DRAG_PLACEHOLDER_SELECTOR = '.grid-stack-placeholder';
 const RESIZE_HANDLE_SELECTOR = '.ui-resizable-se';
 
 
@@ -82,55 +81,24 @@ function addWidgetByAPI(dashId, queryData = {}) {
     });
 }
 
-function dragBy(wrapper, offsetLeft = 0, offsetTop = 0) {
+function dragBy(wrapper, offsetLeft = 0, offsetTop = 0, force = false) {
   let start;
-  let end;
   return wrapper
     .then(($el) => {
       start = $el.offset();
       return wrapper
-        .trigger('mousedown', { pageX: start.left, pageY: start.top, which: 1 })
-        .trigger('mousemove', { pageX: start.left + offsetLeft, pageY: start.top + offsetTop, which: 1 });
-    })
-    .then(() => {
-      // getting end position from placeholder instead of $el
-      // cause on mouseup, $el animates back to position
-      // and this is simpler than waiting for animationend
-      end = Cypress.$(DRAG_PLACEHOLDER_SELECTOR).offset();
-      return wrapper.trigger('mouseup');
-    })
-    .then(() => ({
-      left: end.left - start.left,
-      top: end.top - start.top,
-    }));
+        .trigger('mouseover', { force })
+        .trigger('mousedown', { pageX: start.left, pageY: start.top, which: 1, force })
+        .trigger('mousemove', { pageX: start.left + offsetLeft, pageY: start.top + offsetTop, which: 1, force })
+        .trigger('mouseup', { force });
+    });
 }
 
 function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
-  let start;
-  let end;
-  let from;
-  const getSize = $el => ({ height: $el.height(), width: $el.width() });
-
   return wrapper
-    .then(($el) => {
-      start = getSize($el);
-    })
-    .within(() => cy.get(RESIZE_HANDLE_SELECTOR))
-    .then(($handle) => {
-      from = $handle.show().offset(); // turn on handle and get it's position
-      return wrapper
-        .trigger('mouseover', { force: true })
-        .trigger('mousedown', { pageX: from.left, pageY: from.top, force: true, which: 1 })
-        .trigger('mousemove', { pageX: from.left + offsetLeft, pageY: from.top + offsetTop, force: true, which: 1 });
-    })
-    .then(() => {
-      end = getSize(Cypress.$(DRAG_PLACEHOLDER_SELECTOR)); // see comment in dragBy ^^
-      return wrapper.trigger('mouseup', { force: true });
-    })
-    .then(() => ({
-      height: end.height - start.height,
-      width: end.width - start.width,
-    }));
+    .within(() => {
+      dragBy(cy.get(RESIZE_HANDLE_SELECTOR), offsetLeft, offsetTop, true);
+    });
 }
 
 describe('Dashboard', () => {
@@ -342,64 +310,31 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 90).then((delta) => {
-            expect(delta.left).to.eq(0);
-          });
+          dragBy(cy.get('@textboxEl'), 90)
+            .invoke('offset')
+            .should('have.property', 'left', 15); // no change, 15 -> 15
         });
 
         it('moves one column when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 110).then((delta) => {
-            expect(delta.left).to.eq(200);
-          });
+          dragBy(cy.get('@textboxEl'), 110)
+            .invoke('offset')
+            .should('have.property', 'left', 215); //  moved by 200, 15 -> 215
         });
 
         it('moves two columns when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 330).then((delta) => {
-            expect(delta.left).to.eq(400);
-          });
+          dragBy(cy.get('@textboxEl'), 330)
+            .invoke('offset')
+            .should('have.property', 'left', 415); //  moved by 400, 15 -> 415
         });
       });
 
-      it('discards drag on cancel', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 200);
-          })
-          // cancel
-          .then(() => {
-            cy.get('.dashboard-header').within(() => {
-              cy.contains('button', 'Cancel').click();
-            });
-            return cy.get('@textboxEl');
-          })
-          // verify returned to original position
-          .then(($el) => {
-            expect($el.offset()).to.deep.eq(start);
-          });
-      });
+      it('auto saves after drag', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
 
-      it('saves drag on apply', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 200);
-          })
-          // apply
-          .then(() => {
-            cy.contains('button', 'Apply Changes').click();
-            return cy.get('@textboxEl');
-          })
-          // verify move
-          .then(($el) => {
-            expect($el.offset()).to.not.deep.eq(start);
-          });
+        editDashboard();
+        dragBy(cy.get('@textboxEl'), 330);
+        cy.wait('@WidgetSave');
       });
     });
 
@@ -410,21 +345,24 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 90).then((delta) => {
-            expect(delta.width).to.eq(0);
-          });
+          resizeBy(cy.get('@textboxEl'), 90)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 600); // no change, 600 -> 600
         });
 
         it('moves one column when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 110).then((delta) => {
-            expect(delta.width).to.eq(200);
-          });
+          resizeBy(cy.get('@textboxEl'), 110)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 800); // resized by 200, 600 -> 800
         });
 
         it('moves two columns when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 400).then((delta) => {
-            expect(delta.width).to.eq(400);
-          });
+          resizeBy(cy.get('@textboxEl'), 400)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 1000); // resized by 400, 600 -> 1000
         });
       });
 
@@ -434,70 +372,37 @@ describe('Dashboard', () => {
         });
 
         it('stays put when dragged under snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 0, 10).then((delta) => {
-            expect(delta.height).to.eq(0);
-          });
+          resizeBy(cy.get('@textboxEl'), 0, 10)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('height')
+            .should('eq', 135); // no change, 135 -> 135
         });
 
         it('moves one row when dragged over snap threshold', () => {
-          resizeBy(cy.get('@textboxEl'), 0, 30).then((delta) => {
-            expect(delta.height).to.eq(50);
-          });
+          resizeBy(cy.get('@textboxEl'), 0, 30)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('height')
+            .should('eq', 185); // resized by 50, , 135 -> 185
         });
 
         it('shrinks to minimum', () => {
           cy.get('@textboxEl')
-            .then(($el) => {
-              resizeBy(cy.get('@textboxEl'), -$el.width(), -$el.height()); // resize to 0,0
-              return cy.get('@textboxEl');
-            })
-            .then(($el) => {
-              expect($el.width()).to.eq(200);
-              expect($el.height()).to.eq(35);
+            .then($el => resizeBy(cy.get('@textboxEl'), -$el.width(), -$el.height())) // resize to 0,0
+            .then(() => cy.get('@textboxEl'))
+            .should(($el) => {
+              expect($el.width()).to.eq(200); // min textbox width
+              expect($el.height()).to.eq(35); // min textbox height
             });
         });
       });
 
-      it('discards resize on cancel', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, resize textbox 1 col
-          .then(($el) => {
-            start = $el.height();
-            editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // cancel
-          .then(() => {
-            cy.get('.dashboard-header').within(() => {
-              cy.contains('button', 'Cancel').click();
-            });
-            return cy.get('@textboxEl');
-          })
-          // verify returned to original size
-          .then(($el) => {
-            expect($el.height()).to.eq(start);
-          });
-      });
+      it('auto saves after resize', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
 
-      it('saves resize on apply', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, resize textbox 1 col
-          .then(($el) => {
-            start = $el.height();
-            editDashboard();
-            return resizeBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // apply
-          .then(() => {
-            cy.contains('button', 'Apply Changes').click().should('not.exist');
-            return cy.get('@textboxEl');
-          })
-          // verify size change persists
-          .then(($el) => {
-            expect($el.height()).to.not.eq(start);
-          });
+        editDashboard();
+        resizeBy(cy.get('@textboxEl'), 200);
+        cy.wait('@WidgetSave');
       });
     });
   });
@@ -678,7 +583,7 @@ describe('Dashboard', () => {
 
     it('disables edit mode', function () {
       cy.visit(this.dashboardEditUrl);
-      cy.contains('button', 'Apply Changes')
+      cy.contains('button', 'Done Editing')
         .as('saveButton')
         .should('be.disabled');
 
