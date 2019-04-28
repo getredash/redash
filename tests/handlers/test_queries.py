@@ -122,6 +122,11 @@ class TestQueryResourcePost(BaseTestCase):
 
         options = {
             'parameters': [{
+                'name': 'foo',
+                'type': 'query',
+                'queryId': other_query.id
+            }, {
+                'name': 'bar',
                 'type': 'query',
                 'queryId': other_query.id
             }]
@@ -251,6 +256,11 @@ class TestQueryListResourcePost(BaseTestCase):
             'data_source_id': self.factory.data_source.id,
             'options': {
                 'parameters': [{
+                    'name': 'foo',
+                    'type': 'query',
+                    'queryId': other_query.id
+                }, {
+                    'name': 'bar',
                     'type': 'query',
                     'queryId': other_query.id
                 }]
