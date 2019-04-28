@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { chain, pick } from 'lodash';
+import { chain, cloneDeep, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { DashboardWidget } from '@/components/dashboards/widget';
 import cfg from '@/config/dashboard-grid-options';
+import AutoHeightController from './AutoHeightController';
 
 import 'react-grid-layout/css/styles.css';
 
@@ -59,27 +60,36 @@ class DashboardGrid extends React.Component {
       maxW: pos.maxSizeX,
       minH: pos.minSizeY,
       maxH: pos.maxSizeY,
-      toString: () => JSON.stringify(pick(pos, ['col', 'row', 'sizeX', 'sizeY'])),
     };
-  }
-
-  static normalizeTo(layout) {
-    return {
-      col: layout.x,
-      row: layout.y,
-      sizeX: layout.w,
-      sizeY: layout.h,
-    };
-  }
-
-  state = {
-    layouts: {},
   }
 
   mode = null
 
+  autoHeightCtrl = null
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      layouts: {},
+    };
+
+    // init AutoHeightController
+    this.autoHeightCtrl = new AutoHeightController(this.onWidgetHeightUpdated);
+    this.autoHeightCtrl.update(this.props.widgets);
+  }
+
   componentDidMount() {
     this.onBreakpointChange(document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI);
+  }
+
+  componentDidUpdate() {
+    // update, in case widgets added or removed
+    this.autoHeightCtrl.update(this.props.widgets);
+  }
+
+  componentWillUnmount() {
+    this.autoHeightCtrl.destroy();
   }
 
   onLayoutChange = (_, layouts) => {
@@ -102,7 +112,7 @@ class DashboardGrid extends React.Component {
 
     const normalized = chain(layouts[MULTI])
       .keyBy('i')
-      .mapValues(DashboardGrid.normalizeTo)
+      .mapValues(this.normalizeTo)
       .value();
 
     this.props.onLayoutChange(normalized);
@@ -112,6 +122,37 @@ class DashboardGrid extends React.Component {
     this.mode = mode;
     this.props.onBreakpointChange(mode === SINGLE);
   }
+
+  // height updated by auto-height
+  onWidgetHeightUpdated = (widgetId, newHeight) => {
+    this.setState(({ layouts }) => {
+      const layout = cloneDeep(layouts[MULTI]); // must clone to allow react-grid-layout to compare prev/next state
+      const item = find(layout, { i: widgetId.toString() });
+      if (item) {
+        // update widget height
+        item.h = Math.ceil((newHeight + cfg.margins) / cfg.rowHeight);
+      }
+
+      return { layouts: { [MULTI]: layout } };
+    });
+  }
+
+  // height updated by manual resize
+  onWidgetResize = (layout, oldItem, newItem) => {
+    if (oldItem.h !== newItem.h) {
+      this.autoHeightCtrl.remove(Number(newItem.i));
+    }
+
+    this.autoHeightCtrl.resume();
+  }
+
+  normalizeTo = layout => ({
+    col: layout.x,
+    row: layout.y,
+    sizeX: layout.w,
+    sizeY: layout.h,
+    autoHeight: this.autoHeightCtrl.exists(layout.i),
+  });
 
   render() {
     const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
@@ -126,6 +167,8 @@ class DashboardGrid extends React.Component {
           margin={[cfg.margins, cfg.margins]}
           isDraggable={this.props.isEditing}
           isResizable={this.props.isEditing}
+          onResizeStart={this.autoHeightCtrl.stop}
+          onResizeStop={this.onWidgetResize}
           layouts={this.state.layouts}
           onLayoutChange={this.onLayoutChange}
           onBreakpointChange={this.onBreakpointChange}
@@ -136,8 +179,9 @@ class DashboardGrid extends React.Component {
             <div
               key={widget.id}
               data-grid={DashboardGrid.normalizeFrom(widget)}
+              data-widgetid={widget.id}
               data-test={`WidgetId${widget.id}`}
-              className="dashboard-widget-wrapper"
+              className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
             >
               <DashboardWidget
                 widget={widget}

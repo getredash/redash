@@ -1,7 +1,7 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
     ng-switch="$ctrl.widget.getQueryResult().getStatus()">
-    <div class="body-row">
+    <div class="body-row widget-header">
       <div class="t-header widget clearfix">
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
           <div class="actions">

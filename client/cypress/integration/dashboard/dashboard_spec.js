@@ -441,7 +441,7 @@ describe('Dashboard', () => {
       });
     });
 
-    describe.skip('Auto height for table visualization', () => {
+    describe('Auto height for table visualization', () => {
       it('renders correct height for 2 table rows', function () {
         const queryData = {
           query: 'select s.a FROM generate_series(1,2) AS s(a)',
@@ -481,7 +481,7 @@ describe('Dashboard', () => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
             });
             cy.getByTestId(`ParameterName${paramName}`).within(() => {
-              cy.get('input').as('paramInput');
+              cy.getByTestId('TextParamInput').as('paramInput');
             });
           });
         });
@@ -520,8 +520,10 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 285);
 
           // resize height by 1 grid row
-          resizeBy(cy.get('@widget'), 0, 5);
-          cy.get('@widget').invoke('height').should('eq', 335);
+          resizeBy(cy.get('@widget'), 0, 50)
+            .then(() => cy.get('@widget'))
+            .invoke('height')
+            .should('eq', 335); // resized by 50, , 135 -> 185
 
           // add 4 table rows
           cy.get('@paramInput').clear().type('5');
