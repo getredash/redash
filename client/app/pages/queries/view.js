@@ -1,4 +1,4 @@
-import { debounce, pick, some, isEmpty, find, filter, minBy, map, intersection, isArray, isObject } from 'lodash';
+import { debounce, pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -27,7 +27,7 @@ function QueryViewCtrl(
   DataSource,
   Visualization,
 ) {
-  function getQueryResult(maxAge, selectedQueryText, parameters) {
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -38,9 +38,9 @@ function QueryViewCtrl(
 
     $scope.showLog = false;
     if ($scope.isDirty) {
-      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText, parameters);
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
     } else {
-      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
     }
   }
 
@@ -125,6 +125,8 @@ function QueryViewCtrl(
       return;
     }
 
+    $scope.executeQueryDebounced.cancel();
+
     getQueryResultDebounced.cancel();
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
@@ -133,6 +135,8 @@ function QueryViewCtrl(
 
     Notifications.getPermissions();
   };
+
+  $scope.executeQueryDebounced = debounce($scope.executeQuery, 1000);
 
   $scope.selectedTab = DEFAULT_TAB;
   $scope.currentUser = currentUser;
@@ -424,16 +428,6 @@ function QueryViewCtrl(
     }
   });
 
-  $scope.$watch('query.getParametersDefs()', (parameters) => {
-    const touchedParameters = filter(parameters, { touched: true });
-
-    if (!isEmpty(touchedParameters)) {
-      getQueryResultDebounced(0, $scope.selectedQueryText);
-    } else {
-      getQueryResultDebounced.cancel();
-    }
-  }, true);
-
   function getVisualization(visId) {
     // eslint-disable-next-line eqeqeq
     return find($scope.query.visualizations, item => item.id == visId);
@@ -517,6 +511,10 @@ function QueryViewCtrl(
         visualization,
       },
     });
+  };
+
+  $scope.onParametersValuesChanged = () => {
+    $scope.executeQueryDebounced();
   };
 
   $scope.$watch(

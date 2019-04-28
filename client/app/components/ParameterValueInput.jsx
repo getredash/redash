@@ -4,6 +4,7 @@ import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
+import { isFunction } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -185,10 +186,14 @@ export default function init(ngModule) {
     `,
     bindings: {
       param: '<',
+      onChange: '=',
     },
     controller($scope) {
       this.setValue = (value) => {
         this.param.setValue(value);
+        if (isFunction(this.onChange)) {
+          this.onChange();
+        }
         $scope.$applyAsync();
       };
     },
