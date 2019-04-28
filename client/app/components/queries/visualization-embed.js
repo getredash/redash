@@ -38,8 +38,7 @@ export default function init(ngModule) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
       const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
-      // eslint-disable-next-line no-unused-vars
-      const queryResult = $http.post(`api/queries/${queryId}/results`, { parameters: queryStringParameters() }).then(response => response.data, _ => ({}));
+      const queryResult = $http.post(`api/queries/${queryId}/results`, { parameters: queryStringParameters() }).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }
