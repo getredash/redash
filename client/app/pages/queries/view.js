@@ -44,8 +44,6 @@ function QueryViewCtrl(
     }
   }
 
-  const getQueryResultDebounced = debounce(getQueryResult, 1000);
-
   function getDataSourceId() {
     // Try to get the query's data source id
     let dataSourceId = $scope.query.data_source_id;
@@ -127,7 +125,6 @@ function QueryViewCtrl(
 
     $scope.executeQueryDebounced.cancel();
 
-    getQueryResultDebounced.cancel();
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
