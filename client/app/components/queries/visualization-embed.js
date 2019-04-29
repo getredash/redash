@@ -45,7 +45,7 @@ export default function init(ngModule) {
 
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
-      template: '<visualization-embed data="$resolve.data"></visualization-embed>',
+      template: '<visualization-embed></visualization-embed>',
     });
   });
 }
