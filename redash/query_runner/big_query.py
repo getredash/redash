@@ -172,8 +172,7 @@ class BigQuery(BaseQueryRunner):
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
-    def _get_query_result(self, jobs, query):
-        project_id = self._get_project_id()
+    def _get_job_data(self, query):
         job_data = {
             "configuration": {
                 "query": {
@@ -198,6 +197,11 @@ class BigQuery(BaseQueryRunner):
         if "maximumBillingTier" in self.configuration:
             job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
+        return job_data
+
+    def _get_query_result(self, jobs, query):
+        project_id = self._get_project_id()
+        job_data = self._get_job_data()
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
         query_reply = _get_query_results(jobs, project_id=project_id, location=self._get_location(),
