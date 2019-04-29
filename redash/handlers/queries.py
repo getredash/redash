@@ -143,7 +143,7 @@ class BaseQueryListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -174,13 +174,13 @@ class BaseQueryListResource(BaseResource):
 
 def require_access_to_dropdown_queries(user, query_def):
     parameters = query_def.get('options', {}).get('parameters', [])
-    dropdown_query_ids = [str(p['queryId']) for p in parameters if p['type'] == 'query']
+    dropdown_query_ids = set([str(p['queryId']) for p in parameters if p['type'] == 'query'])
 
     if dropdown_query_ids:
         groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
 
         if len(groups) < len(dropdown_query_ids):
-            abort(400, message="You are trying to associate a dropdown query that does not have a matching group."
+            abort(400, message="You are trying to associate a dropdown query that does not have a matching group. "
                                "Please verify the dropdown query id you are trying to associate with this query.")
 
         require_access(dict(groups), user, view_only)
@@ -290,7 +290,7 @@ class MyQueriesResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_results = order_results(results, fallback=bool(search_term))
+        ordered_results = order_results(results, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -464,7 +464,7 @@ class QueryFavoriteListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        ordered_favorites = order_results(favorites, fallback=bool(search_term))
+        ordered_favorites = order_results(favorites, fallback=not bool(search_term))
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
