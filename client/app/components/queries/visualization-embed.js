@@ -24,7 +24,13 @@ const VisualizationEmbed = {
       const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
       const queryResult = $http.post(`api/queries/${queryId}/results`, {
         parameters: queryStringParameters(),
-      }).then(response => response.data, /* eslint-disable-line no-unused-vars */ _ => ({}));
+      }).then(response => response.data, (error) => {
+        if (error.status === 400) {
+          return {};
+        }
+
+        throw error;
+      });
 
       $q.all([query, queryResult]).then((data) => {
         this.query = new Query(data[0]);
