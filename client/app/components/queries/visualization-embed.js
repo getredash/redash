@@ -5,9 +5,6 @@ import template from './visualization-embed.html';
 
 const VisualizationEmbed = {
   template,
-  bindings: {
-    data: '<',
-  },
   controller($http, $q, $routeParams, Auth, Query, QueryResult) {
     'ngInject';
 
