@@ -101,10 +101,9 @@
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 
-  <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
+  <div ng-if="$ctrl.dashboard.widgets.length > 0"  id="dashboard-container" ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing, 'grid-enabled': !$ctrl.isGridDisabled}">
     <div gridstack editing="$ctrl.layoutEditing" on-layout-changed="$ctrl.onLayoutChanged"
-      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
-      ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
+      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper">
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
         gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}"  data-test="WidgetId{{ widget.id }}">
