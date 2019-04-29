@@ -2,6 +2,7 @@ import { find } from 'lodash';
 import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
+import notification from '@/services/notification';
 
 const VisualizationEmbed = {
   template,
@@ -26,7 +27,7 @@ const VisualizationEmbed = {
           return {};
         }
 
-        throw error;
+        notification.error('Could Not Load Query Results', error.statusText, { duration: 60 });
       });
 
       $q.all([query, queryResult]).then((data) => {
