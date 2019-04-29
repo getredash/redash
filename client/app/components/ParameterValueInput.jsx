@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { react2angular } from 'react2angular';
+import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -10,6 +12,8 @@ import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
+
+import './ParameterValueInput.less';
 
 const { Option } = Select;
 
@@ -33,6 +37,26 @@ export class ParameterValueInput extends React.Component {
     onSelect: () => {},
     className: '',
   };
+
+  constructor(props) {
+    super(props);
+    this.state = { value: props.value };
+  }
+
+  renderApplyButton() {
+    const { onSelect } = this.props;
+    const { value } = this.state;
+    return (
+      <Button
+        className="parameter-apply-button"
+        type="primary"
+        size="small"
+        onClick={() => onSelect(value)}
+      >
+        Apply
+      </Button>
+    );
+  }
 
   renderDateTimeWithSecondsInput() {
     const { value, onSelect } = this.props;
@@ -133,25 +157,37 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderNumberInput() {
-    const { value, onSelect, className } = this.props;
+    const { className, onSelect } = this.props;
+    const { value } = this.state;
+    const showApplyButton = value !== this.props.value;
     return (
-      <InputNumber
-        className={'form-control ' + className}
-        defaultValue={!isNaN(value) && value || 0}
-        onChange={onSelect}
-      />
+      <React.Fragment>
+        <InputNumber
+          className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
+          value={!isNaN(value) && value || 0}
+          onChange={newValue => this.setState({ value: newValue })}
+          onPressEnter={() => onSelect(value)}
+        />
+        {showApplyButton && this.renderApplyButton()}
+      </React.Fragment>
     );
   }
 
   renderTextInput() {
-    const { value, onSelect, className } = this.props;
+    const { className, onSelect } = this.props;
+    const { value } = this.state;
+    const showApplyButton = value !== this.props.value;
     return (
-      <Input
-        className={'form-control ' + className}
-        defaultValue={value || ''}
-        data-test="TextParamInput"
-        onChange={event => onSelect(event.target.value)}
-      />
+      <React.Fragment>
+        <Input
+          className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
+          value={value || ''}
+          data-test="TextParamInput"
+          onChange={event => this.setState({ value: event.target.value })}
+          onPressEnter={() => onSelect(value)}
+        />
+        {showApplyButton && this.renderApplyButton()}
+      </React.Fragment>
     );
   }
 
