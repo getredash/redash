@@ -2,11 +2,11 @@ import { find } from 'lodash';
 import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
-import notification from '@/services/notification';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 
 const VisualizationEmbed = {
   template,
-  controller($http, $q, $routeParams, Auth, Query, QueryResult) {
+  controller($http, $q, $routeParams, Auth, Query, QueryResult, $exceptionHandler) {
     'ngInject';
 
     document.querySelector('body').classList.add('headless');
@@ -27,7 +27,12 @@ const VisualizationEmbed = {
           return {};
         }
 
-        notification.error('Could Not Load Query Results', error.statusText, { duration: 60 });
+        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+        if (error.status && error.data) {
+          error = new PromiseRejectionError(error);
+        }
+
+        $exceptionHandler(error);
       });
 
       $q.all([query, queryResult]).then((data) => {
