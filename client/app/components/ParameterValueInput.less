@@ -1,3 +1,5 @@
+@import '~antd/lib/input-number/style/index'; // for ant @vars
+
 .parameter-apply-button {
   margin-left: -55px;
   width: 50px;
@@ -8,5 +10,10 @@
 
   &--apply-button {
     padding-right: 60px !important;
+  }
+
+  // Remove Input Number spinners
+  .@{input-number-prefix-cls}-handler-wrap {
+    display: none;
   }
 }
