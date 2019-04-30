@@ -226,25 +226,20 @@
                     <p>Log Information:</p>
                     <p class="query-log-line" ng-repeat="l in queryResult.getLog()">{{l}}</p>
                   </div>
-                  <ul class="tab-nav">
+                  <ul class="tab-nav" data-test="QueryPageVisualizationTabs">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
-                    <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
+                    <rd-tab ng-repeat="vis in query.visualizations | orderBy:'id'" tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)">
                       <span class="remove hidden-xs" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
                         <i class="zmdi zmdi-close"></i>
                       </span>
                     </rd-tab>
                     <li class="rd-tab tab-new-vis">
-                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit">
+                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit" data-test="NewVisualization">
                         <i class="zmdi zmdi-plus"></i> New Visualization</a>
                     </li>
                   </ul>
-                  <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
-                    <filters filters="filters"></filters>
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  </div>
-
-                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
-                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                  <div class="query__vis m-t-15 p-b-15 scrollbox" data-test="QueryPageVisualization{{ selectedVisualization.id }}">
+                    <visualization-renderer visualization="selectedVisualization" query-result="queryResult"></visualization-renderer>
                   </div>
                 </div>
               </div>
@@ -255,7 +250,11 @@
       <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
 
-          <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
+          <button data-test="EditVisualization"
+            class="m-r-5 btn btn-default btn-edit-visualisation"
+            ng-click="openVisualizationEditor(selectedTab)"
+            ng-if="!query.isNew() && canEdit"
+          ><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>
             <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"

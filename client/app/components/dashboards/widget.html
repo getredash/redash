@@ -46,7 +46,11 @@
       <div class="alert alert-danger m-5" ng-show="$ctrl.widget.getQueryResult().getError()">Error running query: <strong>{{$ctrl.widget.getQueryResult().getError()}}</strong></div>
     </div>
     <div ng-switch-when="done" class="body-row-auto scrollbox">
-      <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body"></visualization-renderer>
+      <visualization-renderer class="t-body"
+        visualization="$ctrl.widget.visualization"
+        query-result="$ctrl.widget.getQueryResult()"
+        filters="$ctrl.filters"
+      ></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
       <div class="spinner">
