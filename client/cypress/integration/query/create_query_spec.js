@@ -4,8 +4,7 @@ describe('Create Query', () => {
     cy.visit('/queries/new');
   });
 
-  // https://github.com/getredash/redash/issues/3688
-  it.skip('executes the query', () => {
+  it('executes the query', () => {
     cy.getByTestId('SelectDataSource')
       .click()
       .contains('Test PostgreSQL').click();
@@ -18,5 +17,10 @@ describe('Create Query', () => {
 
     cy.getByTestId('DynamicTable').should('exist');
     cy.percySnapshot('Edit Query');
+
+    // https://github.com/cypress-io/cypress/issues/2118
+    cy.window().then((win) => {
+      win.onbeforeunload = null;
+    });
   });
 });
