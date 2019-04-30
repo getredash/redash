@@ -2,6 +2,36 @@ import _ from 'lodash';
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
+export function collectDashboardFilters(dashboard, queryResults, urlParams) {
+  const filters = {};
+  queryResults.forEach((queryResult) => {
+    const queryFilters = queryResult.getFilters();
+    queryFilters.forEach((queryFilter) => {
+      const hasQueryStringValue = _.has(urlParams, queryFilter.name);
+
+      if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
+        // If dashboard filters not enabled, or no query string value given,
+        // skip filters linking.
+        return;
+      }
+
+      if (hasQueryStringValue) {
+        queryFilter.current = urlParams[queryFilter.name];
+      }
+
+      if (!_.has(filters, queryFilter.name)) {
+        const filter = { ...queryFilter };
+        filters[filter.name] = filter;
+      }
+
+      // TODO: merge values. -- maybe - intersect??
+      // filters[queryFilter.name].originFilters.push(queryFilter);
+    });
+  });
+
+  return _.values(filters);
+}
+
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.

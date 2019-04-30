@@ -221,21 +221,61 @@
   }
 }
 
-// styling for short modals (no lines)
-.@{dialog-prefix-cls}.shortModal {
-  .@{dialog-prefix-cls} {
-    &-header,
-    &-footer {
-      border: none;
-      padding: 16px;
+.@{dialog-prefix-cls} {
+  // styling for short modals (no lines)
+  &.shortModal {
+    .@{dialog-prefix-cls} {
+      &-header,
+      &-footer {
+        border: none;
+        padding: 16px;
+      }
+
+      &-body {
+        padding: 10px 16px;
+      }
+
+      &-close-x {
+        width: 46px;
+        height: 46px;
+        line-height: 46px;
+      }
     }
-    &-body {
-      padding: 10px 16px;
-    }
-    &-close-x {
-      width: 46px;
-      height: 46px;
-      line-height: 46px;
+  }
+
+  // fullscreen modals
+  &-fullscreen {
+    .@{dialog-prefix-cls} {
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      right: 15px;
+      bottom: 15px;
+      width: auto !important;
+      height: auto !important;
+      max-width: none;
+      max-height: none;
+      margin: 0;
+      padding: 0;
+
+      .@{dialog-prefix-cls}-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .@{dialog-prefix-cls}-body {
+        flex: 1 1 auto;
+        overflow: auto;
+      }
     }
   }
 }
