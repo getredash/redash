@@ -201,7 +201,7 @@ class BigQuery(BaseQueryRunner):
 
     def _get_query_result(self, jobs, query):
         project_id = self._get_project_id()
-        job_data = self._get_job_data()
+        job_data = self._get_job_data(query)
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
         query_reply = _get_query_results(jobs, project_id=project_id, location=self._get_location(),
