@@ -4,19 +4,7 @@ from funcy import distinct, remove
 from flask_talisman import talisman
 
 from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
-from .organization import DATE_FORMAT
-
-
-def all_settings():
-    from types import ModuleType
-
-    settings = {}
-    for name, item in globals().iteritems():
-        if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
-            settings[name] = item
-
-    return settings
-
+from .organization import DATE_FORMAT  # noqa
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -249,6 +237,7 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
+    'redash.query_runner.couchbase',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',

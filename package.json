@@ -4,7 +4,7 @@
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "node --max-http-header-size=16385 ./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
     "build": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
