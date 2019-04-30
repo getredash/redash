@@ -24,6 +24,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    applyButton: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -34,6 +35,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
+    applyButton: false,
     onSelect: () => {},
     className: '',
   };
@@ -157,16 +159,24 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderNumberInput() {
-    const { className, onSelect } = this.props;
+    const { className, onSelect, applyButton } = this.props;
     const { value } = this.state;
-    const showApplyButton = value !== this.props.value;
+    const showApplyButton = applyButton && value !== this.props.value;
+
+    const onChange = (newValue) => {
+      this.setState({ value: newValue });
+      if (!applyButton) {
+        onSelect(newValue);
+      }
+    };
+
     return (
       <React.Fragment>
         <InputNumber
           className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
           value={!isNaN(value) && value || 0}
-          onChange={newValue => this.setState({ value: newValue })}
-          onPressEnter={() => onSelect(value)}
+          onChange={onChange}
+          onPressEnter={showApplyButton ? () => onSelect(value) : null}
         />
         {showApplyButton && this.renderApplyButton()}
       </React.Fragment>
@@ -174,17 +184,25 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderTextInput() {
-    const { className, onSelect } = this.props;
+    const { className, onSelect, applyButton } = this.props;
     const { value } = this.state;
-    const showApplyButton = value !== this.props.value;
+    const showApplyButton = applyButton && value !== this.props.value;
+
+    const onChange = (event) => {
+      this.setState({ value: event.target.value });
+      if (!applyButton) {
+        onSelect(event.target.value);
+      }
+    };
+
     return (
       <React.Fragment>
         <Input
           className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
           value={value || ''}
           data-test="TextParamInput"
-          onChange={event => this.setState({ value: event.target.value })}
-          onPressEnter={() => onSelect(value)}
+          onChange={onChange}
+          onPressEnter={showApplyButton ? () => onSelect(value) : null}
         />
         {showApplyButton && this.renderApplyButton()}
       </React.Fragment>
@@ -218,10 +236,12 @@ export default function init(ngModule) {
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
         on-select="$ctrl.setValue"
+        apply-button="$ctrl.applyButton"
       ></parameter-value-input-impl>
     `,
     bindings: {
       param: '<',
+      applyButton: '=?',
       onChange: '=',
     },
     controller($scope) {

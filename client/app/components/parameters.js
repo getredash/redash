@@ -10,6 +10,7 @@ function ParametersDirective($location) {
       parameters: '=',
       syncValues: '=?',
       editable: '=?',
+      applyButton: '=?',
       changed: '&onChange',
       onUpdated: '=',
       onValuesChange: '=',
