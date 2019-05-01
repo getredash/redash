@@ -335,8 +335,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
     refreshStatus(query, parameters, tryNumber = 1) {
       const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
-      const loadResult = Auth.isAuthenticated() ?
-        this.loadResult : () => this.loadLatestCachedResult(query, parameters);
+      const loadResult = () => (Auth.isAuthenticated()
+        ? this.loadResult()
+        : this.loadLatestCachedResult(query, parameters));
+
       resource.get(
         { queryId: query, id: this.job.id },
         (jobResponse) => {
