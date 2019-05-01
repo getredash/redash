@@ -129,7 +129,10 @@ api.add_org_resource(QueryResultResource,
                      '/api/queries/<query_id>/results.<filetype>',
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
-api.add_org_resource(JobResource, '/api/jobs/<job_id>', endpoint='job')
+api.add_org_resource(JobResource,
+                     '/api/jobs/<job_id>',
+                     '/api/queries/<query_id>/jobs/<job_id>',
+                     endpoint='job')
 
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
