@@ -4,7 +4,6 @@ import template from './widget.html';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
-import lazyInjector from './lazyInjector';
 import './widget.less';
 import './widget-dialog.less';
 
@@ -19,6 +18,8 @@ const WidgetDialog = {
     this.widget = this.resolve.widget;
   },
 };
+
+export let DashboardWidget = null; // eslint-disable-line import/no-mutable-exports
 
 function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
@@ -123,11 +124,9 @@ const DashboardWidgetOptions = {
 export default function init(ngModule) {
   ngModule.component('widgetDialog', WidgetDialog);
   ngModule.component('dashboardWidget', DashboardWidgetOptions);
-  ngModule.run(['$injector', (_$injector) => {
-    lazyInjector.$injector = _$injector;
+  ngModule.run(['$injector', ($injector) => {
+    DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, $injector);
   }]);
 }
 
 init.init = true;
-
-export const DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, lazyInjector.$injector);
