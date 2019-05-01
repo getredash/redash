@@ -20,6 +20,10 @@ const VisualizationEmbed = {
     this.queryResult = new QueryResult(this.data[1]);
     this.visualization =
       find(this.query.visualizations, visualization => visualization.id === visualizationId);
+
+    this.refreshQueryResults = () => {
+      this.queryResult = this.query.getQueryResult();
+    };
   },
 };
 
