@@ -98,13 +98,14 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
-    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
   <div style="margin: -15px -15px 0" ng-if="$ctrl.dashboard.widgets.length > 0">
     <dashboard-grid
       dashboard="$ctrl.dashboard"
       widgets="$ctrl.dashboard.widgets"
+      filters="$ctrl.filters"
       is-editing="$ctrl.layoutEditing && !$ctrl.isGridDisabled"
       on-layout-change="$ctrl.onLayoutChange"
       on-remove-widget="$ctrl.removeWidget"

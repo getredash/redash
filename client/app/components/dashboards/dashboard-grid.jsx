@@ -5,6 +5,7 @@ import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import GridLayout, { WidthProvider } from 'react-grid-layout';
 import { DashboardWidget } from '@/components/dashboards/widget';
+import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 
 import 'react-grid-layout/css/styles.css';
@@ -32,6 +33,7 @@ class DashboardGrid extends React.Component {
     isEditing: PropTypes.bool.isRequired,
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
+    filters: FiltersType,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
   };
@@ -39,7 +41,8 @@ class DashboardGrid extends React.Component {
   static defaultProps = {
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
-  }
+    filters: [],
+  };
 
   static normalizeFrom(widget) {
     const { id, options: { position: pos } } = widget;
@@ -102,6 +105,7 @@ class DashboardGrid extends React.Component {
               <DashboardWidget
                 widget={widget}
                 dashboard={dashboard}
+                filters={this.props.filters}
                 deleted={() => onRemoveWidget(widget.id)}
               />
             </div>

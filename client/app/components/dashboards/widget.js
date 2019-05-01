@@ -115,6 +115,7 @@ const DashboardWidgetOptions = {
     widget: '<',
     public: '<',
     dashboard: '<',
+    filters: '<',
     deleted: '<',
   },
 };

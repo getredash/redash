@@ -13,8 +13,10 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($timeout, $location, $http, $route, Dashboard) {
+  controller($scope, $timeout, $location, $http, $route, Dashboard) {
     'ngInject';
+
+    this.filters = [];
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
@@ -32,6 +34,12 @@ const PublicDashboardPage = {
         loadDashboard($http, $route).then((data) => {
           this.dashboard = data;
           this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+
+          this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+          this.filtersOnChange = (allFilters) => {
+            this.filters = allFilters;
+            $scope.$applyAsync();
+          };
 
           $timeout(refresh, refreshRate * 1000.0);
         });

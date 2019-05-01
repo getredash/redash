@@ -2,13 +2,14 @@
   <page-header title="$ctrl.dashboard.name"></page-header>
 
   <div class="m-b-5">
-    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
   <div style="margin: -15px -15px 0" ng-if="$ctrl.dashboard.widgets.length > 0">
     <dashboard-grid
       dashboard="$ctrl.dashboard"
       widgets="$ctrl.dashboard.widgets"
+      filters="$ctrl.filters"
       is-editing="false"
     />
   </div>

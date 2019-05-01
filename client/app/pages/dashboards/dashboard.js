@@ -7,6 +7,7 @@ import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
+import { collectDashboardFilters } from '@/services/dashboard';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
@@ -104,6 +105,7 @@ function DashboardCtrl(
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
   this.isDashboardOwner = false;
+  this.filters = [];
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
@@ -143,38 +145,10 @@ function DashboardCtrl(
     }));
 
     $q.all(queryResultPromises).then((queryResults) => {
-      const filters = {};
-      queryResults.forEach((queryResult) => {
-        const queryFilters = queryResult.getFilters();
-        queryFilters.forEach((queryFilter) => {
-          const hasQueryStringValue = _.has($location.search(), queryFilter.name);
-
-          if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
-            // If dashboard filters not enabled, or no query string value given,
-            // skip filters linking.
-            return;
-          }
-
-          if (hasQueryStringValue) {
-            queryFilter.current = $location.search()[queryFilter.name];
-          }
-
-          if (!_.has(filters, queryFilter.name)) {
-            const filter = _.extend({}, queryFilter);
-            filters[filter.name] = filter;
-            filters[filter.name].originFilters = [];
-          }
-
-          // TODO: merge values.
-          filters[queryFilter.name].originFilters.push(queryFilter);
-        });
-      });
-
-      this.filters = _.values(filters);
-      this.filtersOnChange = (filter) => {
-        _.each(filter.originFilters, (originFilter) => {
-          originFilter.current = filter.current;
-        });
+      this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());
+      this.filtersOnChange = (allFilters) => {
+        this.filters = allFilters;
+        $scope.$applyAsync();
       };
     });
   };
@@ -418,6 +392,7 @@ function DashboardCtrl(
 
   this.onWidgetAdded = () => {
     this.extractGlobalParameters();
+    collectFilters(this.dashboard, false);
     // Save position of newly added widget (but not entire layout)
     const widget = _.last(this.dashboard.widgets);
     if (_.isObject(widget)) {
@@ -429,6 +404,7 @@ function DashboardCtrl(
   this.removeWidget = (widgetId) => {
     this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
+    collectFilters(this.dashboard, false);
     $scope.$applyAsync();
   };
 
