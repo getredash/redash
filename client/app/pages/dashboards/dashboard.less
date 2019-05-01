@@ -13,7 +13,7 @@
     padding: 0;
   }
 
-  pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+  .pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
     overflow: visible;
   }
 
@@ -45,13 +45,13 @@
       right: 0;
       bottom: 0;
 
-      > filters {
-        flex-grow: 0;
-      }
-
       > div {
         flex-grow: 1;
         position: relative;
+      }
+
+      > .filters-wrapper {
+        flex-grow: 0;
       }
     }
 
