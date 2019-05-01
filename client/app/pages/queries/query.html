@@ -249,41 +249,22 @@
       </div>
       <div class="bottom-controller-container" ng-if="showDataset">
         <div class="bottom-controller">
-
-          <button data-test="EditVisualization"
-            class="m-r-5 btn btn-default btn-edit-visualisation"
-            ng-click="openVisualizationEditor(selectedTab)"
+          <edit-visualization-button
             ng-if="!query.isNew() && canEdit"
-          ><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
+            open-visualization-editor="openVisualizationEditor"
+            selected-tab="selectedTab">
+          </edit-visualization-button>
 
-          <div class="m-r-5 btn-group dropup" uib-dropdown>
-            <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"
-              uib-dropdown-toggle aria-expanded="false">
-              <span class="fa fa-ellipsis-v"></span>
-            </button>
-            <ul class="dropdown-menu" uib-dropdown-menu>
-              <li>
-                <a target="_self" ng-click="openAddToDashboardForm(selectedTab)" ng-if="!query.isNew() && (!query.is_draft || !query.is_archived)">
-                  <span class="fa fa-plus-circle"></span> Add to Dashboard
-                </a>
-              </li>
-              <li>
-                <a ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()" data-test="ShowEmbedDialogButton">
-                  <span class="zmdi zmdi-code"></span> Embed elsewhere
-                </a>
-              </li>
-              <li>
-                <a query-result-link target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
-                  <span class="fa fa-file-o"></span> Download as CSV File
-                </a>
-              </li>
-              <li>
-                <a query-result-link file-type="xlsx" target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
-                  <span class="fa fa-file-excel-o"></span> Download as Excel File
-                </a>
-              </li>
-            </ul>
-          </div>
+          <query-control-dropdown
+            query="query"
+            query-result="queryResult"
+            query-executing="queryExecuting"
+            show-embed-dialog="showEmbedDialog"
+            embed="embed"
+            apiKey="apiKey"
+            selected-tab="selectedTab"
+            open-add-to-dashboard-form="openAddToDashboardForm">
+          </query-control-dropdown>
 
           <span class="query-metadata__bottom" ng-if="queryResult.getData()">
             <span class="query-metadata__property">
