@@ -297,7 +297,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     loadLatestCachedResult(queryId, parameters) {
       $resource('api/queries/:id/results', { id: '@queryId' }, { post: { method: 'POST' } })
         .post({ queryId, parameters },
-          this.update,
           (response) => { this.update(response); },
           (error) => { handleErrorResponse(this, error); });
     }
