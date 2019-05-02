@@ -193,7 +193,7 @@ def base_href():
     return base_href
 
 
-def date_format_config():
+def date_time_format_config():
     date_format = current_org.get_setting('date_format')
     date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
     time_format = current_org.get_setting('time_format')
@@ -240,7 +240,7 @@ def client_config():
     client_config.update({
         'basePath': base_href()
     })
-    client_config.update(date_format_config())
+    client_config.update(date_time_format_config())
     client_config.update(number_format_config())
 
     return client_config
