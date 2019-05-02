@@ -172,6 +172,12 @@ edit-in-place p.editable:hover {
   }
 }
 
+.query-log-line {
+  font-family: monospace;
+  white-space: pre;
+  margin: 0;
+}
+
 .paginator-container {
   text-align: center;
 }
@@ -216,7 +222,7 @@ edit-in-place p.editable:hover {
 
 .widget-wrapper {
   .body-container {
-    filters {
+    .filters-wrapper {
       display: block;
       padding-left: 15px;
     }
@@ -258,6 +264,7 @@ a.label-tag {
 .query-page-wrapper {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
 .query-fullscreen {
@@ -336,7 +343,7 @@ a.label-tag {
       border-bottom: 1px solid #efefef;
     }
 
-    pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+    .pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
       overflow: visible;
     }
 
@@ -549,6 +556,10 @@ nav .rg-bottom {
 
 .mp__permission-type {
   text-transform: capitalize;
+}
+
+.edit-visualization {
+    margin-right: 5px;
 }
 
 // Smaller screens

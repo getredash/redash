@@ -1,5 +1,13 @@
 @redash-gray: rgba(102, 136, 153, 1);
 
+.pivot-table-renderer {
+  &.hide-controls {
+    .pvtAxisContainer, .pvtRenderer, .pvtVals {
+      display: none !important;
+    }
+  }
+}
+
 .pvtAxisContainer, .pvtVals {
   border: 1px solid fade(@redash-gray, 15%);
   background: #fff;
@@ -11,7 +19,7 @@
   }
 
   li.ui-sortable-handle {
-    padding: 5px 5px 5px 0px;
+    padding: 5px 5px 5px 0;
   }
 }
 
