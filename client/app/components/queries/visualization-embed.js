@@ -1,4 +1,5 @@
 import { find } from 'lodash';
+import moment from 'moment';
 import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
@@ -42,6 +43,20 @@ const VisualizationEmbed = {
           find(this.query.visualizations, visualization => visualization.id === visualizationId);
       });
     });
+
+    this.refreshQueryResults = () => {
+      this.loading = true;
+      this.refreshStartedAt = moment();
+      this.query.getQueryResultPromise()
+        .then((result) => {
+          this.loading = false;
+          this.queryResult = result;
+        })
+        .catch((error) => {
+          this.loading = false;
+          this.queryResult = error;
+        });
+    };
   },
 };
 

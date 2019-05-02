@@ -341,11 +341,6 @@ function QueryResultErrorFactory($q) {
     getLog() {
       return null;
     }
-
-    // eslint-disable-next-line class-methods-use-this
-    getChartData() {
-      return null;
-    }
   }
 
   return QueryResultError;
