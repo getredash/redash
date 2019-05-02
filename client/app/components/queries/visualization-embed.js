@@ -4,6 +4,7 @@ import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import notification from '@/services/notification';
 
 const VisualizationEmbed = {
   template,
@@ -25,6 +26,10 @@ const VisualizationEmbed = {
         parameters: queryStringParameters(),
       }).then(response => response.data, (error) => {
         if (error.status === 400) {
+          if (error.data.job) {
+            notification.error(error.data.job.error);
+          }
+
           return {};
         }
 
