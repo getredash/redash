@@ -9,6 +9,7 @@ import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 
 import 'react-grid-layout/css/styles.css';
+import './dashboard-grid.less';
 
 const ResponsiveGridLayout = WidthProvider(GridLayout);
 
@@ -70,6 +71,18 @@ class DashboardGrid extends React.Component {
     };
   }
 
+  state = {
+    disableAnimations: true,
+  };
+
+  componentDidMount() {
+    // Work-around to disable initial animation on widgets; `measureBeforeMount` doesn't work properly:
+    // it disables animation, but it cannot detect scrollbars.
+    setTimeout(() => {
+      this.setState({ disableAnimations: false });
+    }, 50);
+  }
+
   onLayoutChange(layout) {
     const normalized = chain(layout)
       .keyBy('i')
@@ -86,14 +99,13 @@ class DashboardGrid extends React.Component {
     return (
       <div className={className}>
         <ResponsiveGridLayout
-          className="layout"
+          className={cx('layout', { 'disable-animations': this.state.disableAnimations })}
           cols={cfg.columns}
           rowHeight={cfg.rowHeight - cfg.margins}
           margin={[cfg.margins, cfg.margins]}
           isDraggable={this.props.isEditing}
           isResizable={this.props.isEditing}
           onLayoutChange={layout => this.onLayoutChange(layout)}
-          measureBeforeMount
         >
           {widgets.map(widget => (
             <div
