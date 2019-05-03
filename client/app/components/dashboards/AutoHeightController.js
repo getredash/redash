@@ -9,14 +9,14 @@ const WIDGET_CONTENT_SELECTOR = [
   '.spinner-container', // loading state
   '.tile__bottom-control', // footer
 ].join(',');
-const INTERVAL = 500;
+const INTERVAL = 200;
 
 export default class AutoHeightController {
-  widgets = {}
+  widgets = {};
 
-  interval = null
+  interval = null;
 
-  onHeightChange = null
+  onHeightChange = null;
 
   constructor(handler) {
     this.onHeightChange = handler;
@@ -61,7 +61,7 @@ export default class AutoHeightController {
         }, 0);
       },
     ];
-  }
+  };
 
   remove = (id) => {
     // not actually deleting from this.widgets to prevent case of unwanted re-adding
@@ -70,11 +70,11 @@ export default class AutoHeightController {
     if (this.isEmpty()) {
       this.stop();
     }
-  }
+  };
 
-  exists = id => !!this.widgets[id.toString()]
+  exists = id => !!this.widgets[id.toString()];
 
-  isEmpty = () => !some(this.widgets)
+  isEmpty = () => !some(this.widgets);
 
   checkHeightChanges = () => {
     Object.keys(this.widgets).forEach((id) => {
@@ -85,22 +85,22 @@ export default class AutoHeightController {
         this.onHeightChange(id, height); // dispatch
       }
     });
-  }
+  };
 
   start = () => {
     this.stop();
     this.interval = setInterval(this.checkHeightChanges, INTERVAL);
-  }
+  };
 
   stop = () => {
     clearInterval(this.interval);
-  }
+  };
 
   resume = () => {
     if (!this.isEmpty()) {
       this.start();
     }
-  }
+  };
 
   destroy = () => {
     this.stop();
