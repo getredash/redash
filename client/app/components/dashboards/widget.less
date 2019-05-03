@@ -105,4 +105,9 @@ visualization-name {
   &.resizing {
     z-index: 3;
   }
+
+  // auto-height animation
+  &.cssTransforms:not(.resizing) {
+    transition-property: transform, height; // added ", height"
+  }
 }

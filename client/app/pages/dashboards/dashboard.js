@@ -258,6 +258,11 @@ function DashboardCtrl(
     }
   };
 
+  this.onBreakpointChanged = (isSingleCol) => {
+    this.isGridDisabled = isSingleCol;
+    $scope.$applyAsync();
+  };
+
   this.editLayout = (isEditing) => {
     this.layoutEditing = isEditing;
   };

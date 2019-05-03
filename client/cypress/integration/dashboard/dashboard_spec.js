@@ -394,7 +394,7 @@ describe('Dashboard', () => {
       });
     });
 
-    describe.skip('Auto height for table visualization', () => {
+    describe('Auto height for table visualization', () => {
       it('renders correct height for 2 table rows', function () {
         const queryData = {
           query: 'select s.a FROM generate_series(1,2) AS s(a)',
@@ -434,7 +434,7 @@ describe('Dashboard', () => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
             });
             cy.getByTestId(`ParameterName${paramName}`).within(() => {
-              cy.get('input').as('paramInput');
+              cy.getByTestId('TextParamInput').as('paramInput');
             });
           });
         });
@@ -473,8 +473,10 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 285);
 
           // resize height by 1 grid row
-          resizeBy(cy.get('@widget'), 0, 5);
-          cy.get('@widget').invoke('height').should('eq', 335);
+          resizeBy(cy.get('@widget'), 0, 50)
+            .then(() => cy.get('@widget'))
+            .invoke('height')
+            .should('eq', 335); // resized by 50, , 135 -> 185
 
           // add 4 table rows
           cy.get('@paramInput').clear().type('5');
@@ -488,7 +490,7 @@ describe('Dashboard', () => {
     });
   });
 
-  context.skip('viewport width is at 800px', () => {
+  context('viewport width is at 800px', () => {
     before(function () {
       cy.login();
       createDashboard('Foo Bar')
@@ -510,12 +512,12 @@ describe('Dashboard', () => {
 
     it('shows widgets with full width', () => {
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(785);
+        expect($el.width()).to.eq(770);
       });
 
       cy.viewport(801, 800);
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(393);
+        expect($el.width()).to.eq(378);
       });
     });
 
@@ -545,7 +547,7 @@ describe('Dashboard', () => {
     });
   });
 
-  context.skip('viewport width is at 767px', () => {
+  context('viewport width is at 767px', () => {
     before(function () {
       cy.login();
       createDashboard('Foo Bar').then(({ slug }) => {
