@@ -288,7 +288,8 @@ function DashboardCtrl(
         slug: this.dashboard.id,
         version: this.dashboard.version,
         dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
-        dashboard_filters_only: this.dashboard.dashboard_filters_only,
+        dashboard_filters_only: this.dashboard.dashboard_filters_enabled &&
+                                this.dashboard.dashboard_filters_only,
       },
       (dashboard) => {
         this.dashboard = dashboard;
