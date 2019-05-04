@@ -128,6 +128,7 @@ class DashboardResource(BaseResource):
         :>json string updated_at: ISO format timestamp for last dashboard modification
         :>json number version: Revision number of dashboard
         :>json boolean dashboard_filters_enabled: Whether filters are enabled or not
+        :>json boolean dashboard_filters_only: Whether only dashboard filter are shown.
         :>json boolean is_archived: Whether this dashboard has been removed from the index or not
         :>json boolean is_draft: Whether this dashboard is a draft or not.
         :>json array layout: Array of arrays containing widget IDs, corresponding to the rows and columns the widgets are displayed in
@@ -182,8 +183,8 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags',
-                                                 'is_draft', 'dashboard_filters_enabled'))
+        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags', 'is_draft',
+                                                 'dashboard_filters_enabled', 'dashboard_filters_only'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
         # to the update. But we still have to make sure that we're not starting

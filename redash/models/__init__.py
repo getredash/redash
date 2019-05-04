@@ -824,6 +824,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(db.Text)
     dashboard_filters_enabled = Column(db.Boolean, default=False)
+    dashboard_filters_only = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship('Widget', backref='dashboard', lazy='dynamic')
