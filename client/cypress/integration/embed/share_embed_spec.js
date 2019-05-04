@@ -18,7 +18,13 @@ describe('Embedded Queries', () => {
       ExecuteButton
       SaveButton
     `);
-    cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
+
+    cy.location('search').should('eq', '?p_id=1');
+    cy.clickThrough(`
+      QueryControlDropdownButton
+      ShowEmbedDialogButton
+    `);
+
     cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
@@ -42,7 +48,14 @@ describe('Embedded Queries', () => {
       ExecuteButton
       SaveButton
     `);
-    cy.getByTestId('ShowEmbedDialogButton').click({ force: true });
+
+
+    cy.location('search').should('eq', '?p_name=Redash');
+    cy.clickThrough(`
+      QueryControlDropdownButton
+      ShowEmbedDialogButton
+    `);
+
     cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
       const embedUrl = iframe.match(/"(.*?)"/)[1];
       cy.logout();
