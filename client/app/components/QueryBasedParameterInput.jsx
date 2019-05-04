@@ -49,8 +49,12 @@ export class QueryBasedParameterInput extends React.Component {
       return await this.props.parameter.loadDropdownValues(this.props.isDirty);
     } catch {
       if (this.props.isDirty) {
-        notification.error('Cannot Fetch Dropdown Parameter Values', 'This query has other queries associated with it as dropdown parameters. ' +
-        'In order to edit this query, you must have access to the associated queries.', { duration: 10 });
+        notification.error('Cannot Fetch Dropdown Parameter Values',
+          `
+            This query has other queries associated with it as dropdown parameters. 
+            In order to edit this query, you must have access to the associated queries.
+          `,
+          { duration: 10 });
       }
 
       return [];
