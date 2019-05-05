@@ -8,7 +8,7 @@ import notification from '@/services/notification';
 
 const VisualizationEmbed = {
   template,
-  controller($http, $q, $routeParams, Auth, Query, QueryResult, $exceptionHandler) {
+  controller($http, $q, $routeParams, Query, QueryResult, $exceptionHandler) {
     'ngInject';
 
     document.querySelector('body').classList.add('headless');
@@ -16,37 +16,33 @@ const VisualizationEmbed = {
     this.showQueryDescription = $routeParams.showDescription;
     this.logoUrl = logoUrl;
 
-    this.apiKey = $routeParams.api_key;
-    Auth.setApiKey(this.apiKey);
-    Auth.loadConfig().then(() => {
-      const queryId = $routeParams.queryId;
+    const queryId = $routeParams.queryId;
 
-      const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
-      const queryResult = $http.post(`api/queries/${queryId}/results`, {
-        parameters: queryStringParameters(),
-      }).then(response => response.data, (error) => {
-        if (error.status === 400) {
-          if (error.data.job) {
-            notification.error(error.data.job.error);
-          }
-
-          return {};
+    const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
+    const queryResult = $http.post(`api/queries/${queryId}/results`, {
+      parameters: queryStringParameters(),
+    }).then(response => response.data, (error) => {
+      if (error.status === 400) {
+        if (error.data.job) {
+          notification.error(error.data.job.error);
         }
 
-        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-        if (error.status && error.data) {
-          error = new PromiseRejectionError(error);
-        }
+        return {};
+      }
 
-        $exceptionHandler(error);
-      });
+      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
+      if (error.status && error.data) {
+        error = new PromiseRejectionError(error);
+      }
 
-      $q.all([query, queryResult]).then((data) => {
-        this.query = new Query(data[0]);
-        this.queryResult = new QueryResult(data[1]);
-        this.visualization =
-          find(this.query.visualizations, visualization => visualization.id === visualizationId);
-      });
+      $exceptionHandler(error);
+    });
+
+    $q.all([query, queryResult]).then((data) => {
+      this.query = new Query(data[0]);
+      this.queryResult = new QueryResult(data[1]);
+      this.visualization =
+        find(this.query.visualizations, visualization => visualization.id === visualizationId);
     });
 
     this.refreshQueryResults = () => {
@@ -68,8 +64,19 @@ const VisualizationEmbed = {
 export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
+  function loadSession($route, Auth) {
+    'ngInject';
+
+    const apiKey = $route.current.params.api_key;
+    Auth.setApiKey(apiKey);
+    return Auth.loadConfig();
+  }
+
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
+      resolve: {
+        session: loadSession,
+      },
       reloadOnSearch: false,
       template: '<visualization-embed></visualization-embed>',
     });
