@@ -34,7 +34,11 @@ const VisualizationEmbed = {
 
     document.querySelector('body').classList.add('headless');
 
-    this.refreshQueryResults();
+    if (this.query.is_safe) {
+      this.refreshQueryResults();
+    } else {
+      this.error = "Can't embed queries with text parameters.";
+    }
   },
 };
 
