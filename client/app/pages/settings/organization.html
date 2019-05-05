@@ -6,8 +6,16 @@
                 <label>
                     Date Format
                 </label>
-                <select class="form-control" ng-model="$ctrl.settings.date_format" ng-change="$ctrl.update('date_format')">
+                <select class="form-control" ng-model="$ctrl.settings.date_format" ng-change="$ctrl.update('date_format')" data-test="DateFormatSelect">
                     <option ng-repeat="date_format in $ctrl.dateFormatList" value="{{date_format}}">{{date_format}}</option>
+                </select>
+            </p>
+            <p>
+                <label>
+                    Time Format
+                </label>
+                <select class="form-control" ng-model="$ctrl.settings.time_format" ng-change="$ctrl.update('time_format')" data-test="TimeFormatSelect">
+                    <option ng-repeat="time_format in $ctrl.timeFormatList" value="{{time_format}}">{{time_format}}</option>
                 </select>
             </p>
 
