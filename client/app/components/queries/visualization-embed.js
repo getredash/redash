@@ -70,6 +70,7 @@ export default function init(ngModule) {
 
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
+      reloadOnSearch: false,
       template: '<visualization-embed></visualization-embed>',
     });
   });
