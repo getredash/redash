@@ -1,4 +1,4 @@
-import { debounce, pick, some, find, minBy, map, intersection, isArray } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -127,8 +127,6 @@ function QueryViewCtrl(
       return;
     }
 
-    $scope.executeQueryDebounced.cancel();
-
     getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
@@ -136,8 +134,6 @@ function QueryViewCtrl(
 
     Notifications.getPermissions();
   };
-
-  $scope.executeQueryDebounced = debounce($scope.executeQuery, 1000);
 
   $scope.selectedVisualization = DEFAULT_VISUALIZATION;
   $scope.currentUser = currentUser;
@@ -507,7 +503,7 @@ function QueryViewCtrl(
   };
 
   $scope.onParametersValuesChanged = () => {
-    $scope.executeQueryDebounced();
+    $scope.executeQuery();
   };
 
   $scope.$watch(
