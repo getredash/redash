@@ -116,10 +116,12 @@ class QueryResultDropdownResource(BaseResource):
 class QueryDropdownsResource(BaseResource):
     def get(self, query_id, dropdown_query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source, current_user, view_only)
 
         related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
         if int(dropdown_query_id) not in related_queries_ids:
-            if not has_access(query.data_source, current_user, view_only):
+            dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
+            if not has_access(dropdown_query.data_source, current_user, view_only):
               abort(403)
 
         return dropdown_values(dropdown_query_id)
