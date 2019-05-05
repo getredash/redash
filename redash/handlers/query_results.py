@@ -108,6 +108,8 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source, current_user, view_only)
         return dropdown_values(query_id)
 
 
@@ -119,7 +121,7 @@ class QueryDropdownsResource(BaseResource):
         if int(dropdown_query_id) not in related_queries_ids:
             abort(403)
 
-        return dropdown_values(dropdown_query_id, should_require_access=False)
+        return dropdown_values(dropdown_query_id)
 
 
 class QueryResultResource(BaseResource):
