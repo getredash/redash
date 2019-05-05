@@ -34,7 +34,7 @@
           <span class="zmdi zmdi-link"></span>
         </a>
 
-        <div class="btn-group dropup" uib-dropdown>
+        <div class="btn-group dropup" uib-dropdown ng-if="!$ctrl.query.hasParameters()">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" aria-haspopup="true" uib-dropdown-toggle
                   aria-expanded="false">
             Download Dataset <span class="caret"></span>
