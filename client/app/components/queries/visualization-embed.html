@@ -16,7 +16,11 @@
       <parameters parameters="$ctrl.query.getParametersDefs()" on-refresh="$ctrl.refreshQueryResults"></parameters>
     </div>
 
-    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
+    <div ng-if="$ctrl.error">
+      <div class="alert alert-danger">Error: {{$ctrl.error}}</div>
+    </div>
+
+    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body" ng-if="$ctrl.queryResult">
     </visualization-renderer>
   </div>
 

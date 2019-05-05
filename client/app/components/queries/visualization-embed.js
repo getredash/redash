@@ -1,22 +1,19 @@
 import { find } from 'lodash';
 import moment from 'moment';
-// import queryStringParameters from '@/services/query-string';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
-// import PromiseRejectionError from '@/lib/promise-rejection-error';
-// import notification from '@/services/notification';
 
 const VisualizationEmbed = {
   template,
   bindings: {
     query: '<',
   },
-  // controller($http, $q, $routeParams, QueryResult, $exceptionHandler) {
   controller($routeParams) {
     'ngInject';
 
     this.refreshQueryResults = () => {
       this.loading = true;
+      this.error = null;
       this.refreshStartedAt = moment();
       this.query
         .getQueryResultPromise()
@@ -26,7 +23,7 @@ const VisualizationEmbed = {
         })
         .catch((error) => {
           this.loading = false;
-          this.queryResult = error;
+          this.error = error.getError();
         });
     };
 
@@ -38,38 +35,6 @@ const VisualizationEmbed = {
     document.querySelector('body').classList.add('headless');
 
     this.refreshQueryResults();
-
-    // const queryId = $routeParams.queryId;
-
-    // const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
-    // const queryResult = $http
-    //   .post(`api/queries/${queryId}/results`, {
-    //     parameters: queryStringParameters(),
-    //   })
-    //   .then(
-    //     response => response.data,
-    //     (error) => {
-    //       if (error.status === 400) {
-    //         if (error.data.job) {
-    //           notification.error(error.data.job.error);
-    //         }
-
-    //         return {};
-    //       }
-
-    //       // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-    //       if (error.status && error.data) {
-    //         error = new PromiseRejectionError(error);
-    //       }
-
-    //       $exceptionHandler(error);
-    //     },
-    //   );
-
-    // $q.all([queryResult]).then((data) => {
-    //   // this.query = new Query(data[0]);
-    //   this.queryResult = new QueryResult(data[1]);
-    // });
   },
 };
 
@@ -91,7 +56,6 @@ export default function init(ngModule) {
   ngModule.config(($routeProvider) => {
     $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
       resolve: {
-        // session: loadSession,
         query: loadQuery,
       },
       reloadOnSearch: false,
