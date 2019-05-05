@@ -15,7 +15,6 @@ describe('Embedded Queries', () => {
       ParameterTypeSelect
       NumberParameterTypeOption
       SaveParameterSettings
-      ExecuteButton
       SaveButton
     `);
 
@@ -45,7 +44,6 @@ describe('Embedded Queries', () => {
       ParameterTypeSelect
       TextParameterTypeOption
       SaveParameterSettings
-      ExecuteButton
       SaveButton
     `);
 
