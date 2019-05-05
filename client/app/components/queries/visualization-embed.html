@@ -12,7 +12,7 @@
   </div>
 
   <div class="col-md-12 query__vis">
-    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.getParametersDefs().length > 0">
+    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.hasParameters()">
       <parameters parameters="$ctrl.query.getParametersDefs()" on-refresh="$ctrl.refreshQueryResults"></parameters>
     </div>
 
