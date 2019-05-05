@@ -202,8 +202,8 @@ export class Parameter {
     return `{{ ${this.name} }}`;
   }
 
-  loadDropdownValues(isDirty) {
-    if (this.parentQueryId && !isDirty) {
+  loadDropdownValues() {
+    if (this.parentQueryId) {
       return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).$promise;
     }
 
