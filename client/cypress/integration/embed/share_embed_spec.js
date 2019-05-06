@@ -7,7 +7,7 @@ describe('Embedded Queries', () => {
   it('are shared with safe parameters', () => {
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
-      .type('SELECT name, slug FROM organizations WHERE id=\'{{}{{}id}}\'{esc}', { force: true });
+      .type("SELECT name, slug FROM organizations WHERE id='{{}{{}id}}'{esc}", { force: true });
 
     cy.getByTestId('TextParamInput').type('1');
     cy.clickThrough(`
@@ -25,19 +25,22 @@ describe('Embedded Queries', () => {
       ShowEmbedDialogButton
     `);
 
-    cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
-      const embedUrl = iframe.match(/"(.*?)"/)[1];
-      cy.logout();
-      cy.visit(embedUrl);
-      cy.getByTestId('VisualizationEmbed', { timeout: 10000 }).should('exist');
-      cy.percySnapshot('Successfully Embedded Parameterized Query');
-    });
+    cy.getByTestId('EmbedIframe')
+      .invoke('text')
+      .then((iframe) => {
+        const embedUrl = iframe.match(/"(.*?)"/)[1];
+        cy.logout();
+        cy.visit(embedUrl);
+        cy.getByTestId('VisualizationEmbed', { timeout: 10000 }).should('exist');
+        cy.getByTestId('TimeAgo', { timeout: 10000 }).should('exist');
+        cy.percySnapshot('Successfully Embedded Parameterized Query');
+      });
   });
 
   it('cannot be shared with unsafe parameters', () => {
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
-      .type('SELECT name, slug FROM organizations WHERE name=\'{{}{{}name}}\'{esc}', { force: true });
+      .type("SELECT name, slug FROM organizations WHERE name='{{}{{}name}}'{esc}", { force: true });
 
     cy.getByTestId('TextParamInput').type('Redash');
     cy.clickThrough(`
@@ -49,19 +52,22 @@ describe('Embedded Queries', () => {
       SaveButton
     `);
 
-
     cy.location('search').should('eq', '?p_name=Redash');
     cy.clickThrough(`
       QueryControlDropdownButton
       ShowEmbedDialogButton
     `);
 
-    cy.getByTestId('EmbedIframe').invoke('text').then((iframe) => {
-      const embedUrl = iframe.match(/"(.*?)"/)[1];
-      cy.logout();
-      cy.visit(embedUrl, { failOnStatusCode: false }); // prevent 403 from failing test
-      cy.getByTestId('ErrorMessage', { timeout: 10000 }).should('exist');
-      cy.percySnapshot('Unsuccessfully Embedded Parameterized Query');
-    });
+    cy.getByTestId('EmbedIframe')
+      .invoke('text')
+      .then((iframe) => {
+        const embedUrl = iframe.match(/"(.*?)"/)[1];
+        cy.logout();
+        cy.visit(embedUrl, { failOnStatusCode: false }); // prevent 403 from failing test
+        cy.getByTestId('ErrorMessage', { timeout: 10000 })
+          .should('exist')
+          .contains("Can't embed");
+        cy.percySnapshot('Unsuccessfully Embedded Parameterized Query');
+      });
   });
 });
