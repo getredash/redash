@@ -176,7 +176,12 @@ export class ParameterValueInput extends React.Component {
           className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
           value={!isNaN(value) && value || 0}
           onChange={onChange}
-          onPressEnter={showApplyButton ? () => onSelect(value) : null}
+          onKeyUp={showApplyButton ? (e) => {
+            const keyNumber = e.which || e.keyCode;
+            if (keyNumber === 13) { // enter key
+              onSelect(value);
+            }
+          } : null}
         />
         {showApplyButton && this.renderApplyButton()}
       </React.Fragment>
