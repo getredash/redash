@@ -1,9 +1,0 @@
-{
-  "name": "redash-dev-preview",
-  "type": "docker",
-  "env": {
-    "DATABASE_URL": "@redash-dev-postgres-url",
-    "REDIS_URL": "@redash-dev-redis-url",
-    "REDASH_WEB_WORKERS": "2"
-  }
-}

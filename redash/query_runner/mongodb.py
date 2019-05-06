@@ -13,6 +13,7 @@ try:
     import pymongo
     from bson.objectid import ObjectId
     from bson.timestamp import Timestamp
+    from bson.decimal128 import Decimal128
     from bson.son import SON
     from bson.json_util import object_hook as bson_object_hook
     enabled = True
@@ -38,7 +39,8 @@ class MongoDBJSONEncoder(JSONEncoder):
             return str(o)
         elif isinstance(o, Timestamp):
             return super(MongoDBJSONEncoder, self).default(o.as_datetime())
-
+        elif isinstance(o, Decimal128):
+            return o.to_decimal()
         return super(MongoDBJSONEncoder, self).default(o)
 
 
@@ -174,6 +176,12 @@ class MongoDB(BaseQueryRunner):
               if property not in columns:
                   columns.append(property)
 
+    def _is_collection_a_view(self, db, collection_name):
+        if 'viewOn' in db[collection_name].options():
+            return True
+        else:
+            return False
+
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
         # to have the same fields as another documet in the collection its a bit hard to
@@ -184,19 +192,20 @@ class MongoDB(BaseQueryRunner):
         # as we don't know the correct order. In most single server installations it would be
         # find. In replicaset when reading from non master it might not return the really last
         # document written.
-        first_document = None
-        last_document = None
+        collection_is_a_view = self._is_collection_a_view(db, collection_name)
+        documents_sample = []
+        if collection_is_a_view:
+            for d in db[collection_name].find().limit(2):
+                documents_sample.append(d)
+        else:
+            for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+                documents_sample.append(d)
 
-        for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
-            first_document = d
-
-        for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
-            last_document = d
-
+            for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+                documents_sample.append(d)
         columns = []
-        if first_document: self._merge_property_names(columns, first_document)
-        if last_document: self._merge_property_names(columns, last_document)
-
+        for d in documents_sample:
+            self._merge_property_names(columns, d)
         return columns
 
     def get_schema(self, get_stats=False):
@@ -309,6 +318,10 @@ class MongoDB(BaseQueryRunner):
                     ordered_columns.append(column)
 
             columns = ordered_columns
+
+        if query_data.get('sortColumns'):
+            reverse = query_data['sortColumns'] == 'desc'
+            columns = sorted(columns, key=lambda col: col['name'], reverse=reverse)
 
         data = {
             "columns": columns,

@@ -4,14 +4,15 @@ impyla==0.10.0
 influxdb==2.7.1
 MySQL-python==1.2.5
 oauth2client==3.0.0
-pyhive==0.3.0
+pyhive==0.5.1
 pymongo[tls,srv]==3.6.1
-vertica-python==0.5.1
+vertica-python==0.8.0
 td-client==0.8.0
 pymssql==2.1.3
 dql==0.5.24
 dynamo3==0.4.7
-botocore==1.10.2
+boto3==1.9.115
+botocore==1.12.115
 sasl>=0.1.3
 thrift>=0.8.0
 thrift_sasl>=0.1.0
@@ -19,13 +20,13 @@ cassandra-driver==3.11.0
 memsql==2.16.0
 atsd_client==2.0.12
 simple_salesforce==0.72.2
-PyAthena>=1.0.0
-pymapd>=0.2.1
+PyAthena>=1.5.0
+pymapd==0.7.1
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
+pydruid==0.4
+requests_aws_sign==0.1.4
+snowflake_connector_python==1.6.10
+phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi
-# We don't install snowflake connector by default, as it's causing conflicts with
-# other packages. To properly support it we probably need to switch from pyOpenSSL
-# to the other package snowflake is using (that's compatible with it).
-# snowflake_connector_python==1.6.10

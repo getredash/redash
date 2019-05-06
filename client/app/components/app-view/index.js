@@ -10,17 +10,14 @@ const handler = new ErrorHandler();
 const layouts = {
   default: {
     showHeader: true,
-    showFooter: true,
     bodyClass: false,
   },
   fixed: {
     showHeader: true,
-    showFooter: false,
     bodyClass: 'fixed-layout',
   },
   defaultSignedOut: {
     showHeader: false,
-    showFooter: false,
   },
 };
 
@@ -37,7 +34,6 @@ function selectLayout(route) {
 class AppViewComponent {
   constructor($rootScope, $route, Auth) {
     this.$rootScope = $rootScope;
-    this.showHeaderAndFooter = false;
     this.layout = layouts.defaultSignedOut;
     this.handler = handler;
 
@@ -82,12 +78,17 @@ class AppViewComponent {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('$exceptionHandler', () => function exceptionHandler(exception) {
-    handler.process(exception);
-  });
+  ngModule.factory(
+    '$exceptionHandler',
+    () => function exceptionHandler(exception) {
+      handler.process(exception);
+    },
+  );
 
   ngModule.component('appView', {
     template,
     controller: AppViewComponent,
   });
 }
+
+init.init = true;

@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 
-import pystache
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
@@ -12,7 +11,7 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow
+from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
@@ -24,116 +23,6 @@ def _job_lock_id(query_hash, data_source_id):
 
 def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
-
-
-# TODO:
-# There is some duplication between this class and QueryTask, but I wanted to implement the monitoring features without
-# much changes to the existing code, so ended up creating another object. In the future we can merge them.
-class QueryTaskTracker(object):
-    DONE_LIST = 'query_task_trackers:done'
-    WAITING_LIST = 'query_task_trackers:waiting'
-    IN_PROGRESS_LIST = 'query_task_trackers:in_progress'
-    ALL_LISTS = (DONE_LIST, WAITING_LIST, IN_PROGRESS_LIST)
-
-    def __init__(self, data):
-        self.data = data
-
-    @classmethod
-    def create(cls, task_id, state, query_hash, data_source_id, scheduled, metadata):
-        data = dict(task_id=task_id, state=state,
-                    query_hash=query_hash, data_source_id=data_source_id,
-                    scheduled=scheduled,
-                    username=metadata.get('Username', 'unknown'),
-                    query_id=metadata.get('Query ID', 'unknown'),
-                    retries=0,
-                    scheduled_retries=0,
-                    created_at=time.time(),
-                    started_at=None,
-                    run_time=None)
-
-        return cls(data)
-
-    def save(self, connection=None):
-        if connection is None:
-            connection = redis_connection
-
-        self.data['updated_at'] = time.time()
-        key_name = self._key_name(self.data['task_id'])
-        connection.set(key_name, json_dumps(self.data))
-        connection.zadd(self._get_list(), time.time(), key_name)
-
-        for l in self.ALL_LISTS:
-            if l != self._get_list():
-                connection.zrem(l, key_name)
-
-    # TOOD: this is not thread/concurrency safe. In current code this is not an issue, but better to fix this.
-    def update(self, **kwargs):
-        self.data.update(kwargs)
-        self.save()
-
-    @staticmethod
-    def _key_name(task_id):
-        return 'query_task_tracker:{}'.format(task_id)
-
-    def _get_list(self):
-        if self.state in ('finished', 'failed', 'cancelled'):
-            return self.DONE_LIST
-
-        if self.state in ('created'):
-            return self.WAITING_LIST
-
-        return self.IN_PROGRESS_LIST
-
-    @classmethod
-    def get_by_task_id(cls, task_id, connection=None):
-        if connection is None:
-            connection = redis_connection
-
-        key_name = cls._key_name(task_id)
-        data = connection.get(key_name)
-        return cls.create_from_data(data)
-
-    @classmethod
-    def create_from_data(cls, data):
-        if data:
-            data = json_loads(data)
-            return cls(data)
-
-        return None
-
-    @classmethod
-    def all(cls, list_name, offset=0, limit=-1):
-        if limit != -1:
-            limit -= 1
-
-        if offset != 0:
-            offset -= 1
-
-        ids = redis_connection.zrevrange(list_name, offset, limit)
-        pipe = redis_connection.pipeline()
-        for id in ids:
-            pipe.get(id)
-
-        tasks = [cls.create_from_data(data) for data in pipe.execute()]
-        return tasks
-
-    @classmethod
-    def prune(cls, list_name, keep_count, max_keys=100):
-        count = redis_connection.zcard(list_name)
-        if count <= keep_count:
-            return 0
-
-        remove_count = min(max_keys, count - keep_count)
-        keys = redis_connection.zrange(list_name, 0, remove_count - 1)
-        redis_connection.delete(*keys)
-        redis_connection.zremrangebyrank(list_name, 0, remove_count - 1)
-        return remove_count
-
-    def __getattr__(self, item):
-        return self.data[item]
-
-    def __contains__(self, item):
-        return item in self.data
 
 
 class QueryTask(object):
@@ -205,7 +94,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True, signal='SIGINT')
 
 
-def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}):
+def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -231,25 +120,31 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
             if not job:
                 pipe.multi()
 
-                time_limit = None
-
                 if scheduled_query:
                     queue_name = data_source.scheduled_queue_name
                     scheduled_query_id = scheduled_query.id
                 else:
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
-                    time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
-                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
+                args = (query, data_source.id, metadata, user_id, scheduled_query_id, is_api_key)
+                argsrepr = json_dumps({
+                    'org_id': data_source.org_id,
+                    'data_source_id': data_source.id,
+                    'enqueue_time': time.time(),
+                    'scheduled': scheduled_query_id is not None,
+                    'query_id': metadata.get('Query ID'),
+                    'user_id': user_id
+                })
+
+                time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
+
+                result = execute_query.apply_async(args=args,
+                                                   argsrepr=argsrepr,
                                                    queue=queue_name,
                                                    time_limit=time_limit)
-                job = QueryTask(async_result=result)
-                tracker = QueryTaskTracker.create(
-                    result.id, 'created', query_hash, data_source.id,
-                    scheduled_query is not None, metadata)
-                tracker.save(connection=pipe)
 
+                job = QueryTask(async_result=result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(_job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                 pipe.execute()
@@ -276,7 +171,7 @@ def refresh_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
-                logging.info("Skipping refresh of %s because org is disabled.", query.id)
+                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
@@ -285,7 +180,7 @@ def refresh_queries():
                 if query.options and len(query.options.get('parameters', [])) > 0:
                     query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
-                    query_text = pystache.render(query.query_text, query_params)
+                    query_text = mustache_render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
 
@@ -310,32 +205,6 @@ def refresh_queries():
     })
 
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
-
-
-@celery.task(name="redash.tasks.cleanup_tasks")
-def cleanup_tasks():
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST)
-    for tracker in in_progress:
-        result = AsyncResult(tracker.task_id)
-
-        if result.ready():
-            logging.info("in progress tracker %s finished", tracker.query_hash)
-            _unlock(tracker.query_hash, tracker.data_source_id)
-            tracker.update(state='finished')
-
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
-    for tracker in waiting:
-        result = AsyncResult(tracker.task_id)
-
-        if result.ready():
-            logging.info("waiting tracker %s finished", tracker.query_hash)
-            _unlock(tracker.query_hash, tracker.data_source_id)
-            tracker.update(state='finished')
-
-    # Maintain constant size of the finished tasks list:
-    removed = 1000
-    while removed > 0:
-        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
 @celery.task(name="redash.tasks.cleanup_query_results")
@@ -395,7 +264,7 @@ def refresh_schemas():
         elif ds.org.is_disabled:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
-            refresh_schema.apply_async(args=(ds.id,), queue="schemas")
+            refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
@@ -408,42 +277,41 @@ class QueryExecutionError(Exception):
     pass
 
 
+def _resolve_user(user_id, is_api_key):
+    if user_id is not None:
+        if is_api_key:
+            api_key = user_id
+            q = models.Query.by_api_key(api_key)
+            return models.ApiUser(api_key, q.org, q.groups)
+        else:
+            return models.User.get_by_id(user_id)
+    else:
+        return None
+
+
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
-    def __init__(self, task, query, data_source_id, user_id, metadata,
+    def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        if user_id is not None:
-            self.user = models.User.query.get(user_id)
-        else:
-            self.user = None
+        self.user = _resolve_user(user_id, is_api_key)
+
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
         self.scheduled_query = scheduled_query
         # Load existing tracker or create a new one if the job was created before code update:
-        self.tracker = (
-            QueryTaskTracker.get_by_task_id(task.request.id) or
-            QueryTaskTracker.create(
-                task.request.id,
-                'created',
-                self.query_hash,
-                self.data_source_id,
-                False,
-                metadata
-            )
-        )
-        if self.tracker.scheduled:
-            models.scheduled_queries_executions.update(self.tracker.query_id)
+        if scheduled_query:
+            models.scheduled_queries_executions.update(scheduled_query.id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
-        self.tracker.update(started_at=time.time(), state='started')
+        started_at = time.time()
 
         logger.debug("Executing query:\n%s", self.query)
         self._log_progress('executing_query')
@@ -458,15 +326,13 @@ class QueryExecutor(object):
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
-        run_time = time.time() - self.tracker.started_at
-        self.tracker.update(error=error, run_time=run_time, state='saving_results')
+        run_time = time.time() - started_at
 
         logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
-        if error:
-            self.tracker.update(state='failed')
+        if error is not None and data is None:
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -514,7 +380,6 @@ class QueryExecutor(object):
             self.task.request.delivery_info['routing_key'],
             self.metadata.get('Query ID', 'unknown'),
             self.metadata.get('Username', 'unknown'))
-        self.tracker.update(state=state)
 
     def _load_data_source(self):
         logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
@@ -525,10 +390,10 @@ class QueryExecutor(object):
 # jobs before the upgrade to this version.
 @celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
-                  scheduled_query_id=None):
+                  scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
-    return QueryExecutor(self, query, data_source_id, user_id, metadata,
+    return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
                          scheduled_query).run()

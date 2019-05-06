@@ -1,6 +1,5 @@
 from tests import BaseTestCase
-from redash import models
-from redash.models import db
+
 
 class TestQueryFavoriteResource(BaseTestCase):
     def test_favorite(self):

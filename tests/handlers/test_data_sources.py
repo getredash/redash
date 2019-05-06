@@ -1,7 +1,7 @@
 from funcy import pairwise
 from tests import BaseTestCase
 
-from redash.models import DataSource, Query
+from redash.models import DataSource
 
 
 class TestDataSourceGetSchema(BaseTestCase):

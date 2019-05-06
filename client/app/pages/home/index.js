@@ -1,11 +1,13 @@
 import template from './home.html';
+import notification from '@/services/notification';
 
-function HomeCtrl(Events, Dashboard, Query) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;
   this.noQueries = false;
 
+  this.messages = messages;
 
   Dashboard.favorites().$promise.then((data) => {
     this.favoriteDashboards = data.results;
@@ -15,6 +17,12 @@ function HomeCtrl(Events, Dashboard, Query) {
     this.favoriteQueries = data.results;
     this.noQueries = data.results.length === 0;
   });
+
+  this.verifyEmail = () => {
+    $http.post('verification_email/').success(({ message }) => {
+      notification.success(message);
+    });
+  };
 }
 
 export default function init(ngModule) {
@@ -30,3 +38,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

@@ -48,29 +48,6 @@ def _get_columns_and_column_names(row):
     return columns, column_names
 
 
-def _guess_type(value):
-    if value == '':
-        return TYPE_STRING
-    try:
-        val = int(value)
-        return TYPE_INTEGER
-    except ValueError:
-        pass
-    try:
-        val = float(value)
-        return TYPE_FLOAT
-    except ValueError:
-        pass
-    if unicode(value).lower() in ('true', 'false'):
-        return TYPE_BOOLEAN
-    try:
-        val = parser.parse(value)
-        return TYPE_DATETIME
-    except (ValueError, OverflowError):
-        pass
-    return TYPE_STRING
-
-
 def _value_eval_list(row_values, col_types):
     value_list = []
     raw_values = zip(col_types, row_values)
@@ -120,7 +97,7 @@ def parse_worksheet(worksheet):
 
     if len(worksheet) > 1:
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
-            columns[j]['type'] = _guess_type(value)
+            columns[j]['type'] = guess_type(value)
 
     column_types = [c['type'] for c in columns]
     rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
@@ -140,6 +117,10 @@ def parse_spreadsheet(spreadsheet, worksheet_num):
     return parse_worksheet(worksheet)
 
 
+def is_url_key(key):
+    return key.startswith('https://')
+
+
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault('timeout', 300)
@@ -147,6 +128,9 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(GoogleSpreadsheet, self).__init__(configuration)
+        self.syntax = 'custom'
 
     @classmethod
     def annotate_query(cls):
@@ -191,11 +175,6 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def test_connection(self):
         self._get_spreadsheet_service()
 
-    def is_url_key(self, key):
-        if key.startswith('https://'):
-            return True
-        return False
-
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         key, worksheet_num = parse_query(query)
@@ -203,7 +182,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         try:
             spreadsheet_service = self._get_spreadsheet_service()
 
-            if self.is_url_key(key):
+            if is_url_key(key):
                 spreadsheet = spreadsheet_service.open_by_url(key)
             else:
                 spreadsheet = spreadsheet_service.open_by_key(key)

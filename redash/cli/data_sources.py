@@ -27,7 +27,7 @@ def list(organization=None):
             models.DataSource.org == org)
     else:
         data_sources = models.DataSource.query
-    for i, ds in enumerate(data_sources):
+    for i, ds in enumerate(data_sources.order_by(models.DataSource.name)):
         if i > 0:
             print("-" * 20)
 

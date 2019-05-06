@@ -5,6 +5,18 @@
     <meta charset="UTF-8">
     <base href="/">
     <title>Redash</title>
+    <script>
+      function onIE() {
+        window.location.href = '/static/unsupported';
+      }
+      if (
+        navigator.userAgent.match('MSIE') || // IE10
+        navigator.appVersion.match('Trident/') // IE11
+      ){
+        onIE();
+      }
+    </script>
+    <!--[if IE]><script>onIE()</script><![endif]-->
 
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png">

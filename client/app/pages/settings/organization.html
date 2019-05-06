@@ -1,14 +1,31 @@
 <settings-screen>
-    <div class="row">
+    <div class="row" data-test="OrganizationSettings">
         <div class="col-md-offset-4 col-md-4">
             <h3 class="m-t-0">General</h3>
             <p>
                 <label>
                     Date Format
                 </label>
-                <select class="form-control" ng-model="$ctrl.settings.date_format" ng-change="$ctrl.update('date_format')">
+                <select class="form-control" ng-model="$ctrl.settings.date_format" ng-change="$ctrl.update('date_format')" data-test="DateFormatSelect">
                     <option ng-repeat="date_format in $ctrl.dateFormatList" value="{{date_format}}">{{date_format}}</option>
                 </select>
+            </p>
+            <p>
+                <label>
+                    Time Format
+                </label>
+                <select class="form-control" ng-model="$ctrl.settings.time_format" ng-change="$ctrl.update('time_format')" data-test="TimeFormatSelect">
+                    <option ng-repeat="time_format in $ctrl.timeFormatList" value="{{time_format}}">{{time_format}}</option>
+                </select>
+            </p>
+
+            <p>
+                <h4>Feature Flags</h4>
+
+                <label>
+                    <input name="input" type="checkbox" ng-model="$ctrl.settings.feature_show_permissions_control" ng-change="$ctrl.update('feature_show_permissions_control')"
+                        accesskey="tab"> Enable experimental multiple owners support
+                </label>
             </p>
             <hr>
             <h3>Authentication</h3>

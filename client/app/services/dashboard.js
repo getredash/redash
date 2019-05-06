@@ -1,5 +1,36 @@
 import _ from 'lodash';
 
+export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
+
+export function collectDashboardFilters(dashboard, queryResults, urlParams) {
+  const filters = {};
+  queryResults.forEach((queryResult) => {
+    const queryFilters = queryResult.getFilters();
+    queryFilters.forEach((queryFilter) => {
+      const hasQueryStringValue = _.has(urlParams, queryFilter.name);
+
+      if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
+        // If dashboard filters not enabled, or no query string value given,
+        // skip filters linking.
+        return;
+      }
+
+      if (hasQueryStringValue) {
+        queryFilter.current = urlParams[queryFilter.name];
+      }
+
+      const filter = { ...queryFilter };
+      if (!_.has(filters, queryFilter.name)) {
+        filters[filter.name] = filter;
+      } else {
+        filters[filter.name].values = _.union(filters[filter.name].values, filter.values);
+      }
+    });
+  });
+
+  return _.values(filters);
+}
+
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
   // Compute biggest widget size and choose between it and some magic number.
@@ -44,7 +75,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
+function DashboardService($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -151,9 +182,46 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   resource.prepareDashboardWidgets = prepareDashboardWidgets;
   resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
 
+  resource.prototype.getParametersDefs = function getParametersDefs() {
+    const globalParams = {};
+    const queryParams = $location.search();
+    _.each(this.widgets, (widget) => {
+      if (widget.getQuery()) {
+        const mappings = widget.getParameterMappings();
+        widget
+          .getQuery()
+          .getParametersDefs()
+          .forEach((param) => {
+            const mapping = mappings[param.name];
+            if (mapping.type === Widget.MappingType.DashboardLevel) {
+              // create global param
+              if (!globalParams[mapping.mapTo]) {
+                globalParams[mapping.mapTo] = param.clone();
+                globalParams[mapping.mapTo].name = mapping.mapTo;
+                globalParams[mapping.mapTo].title = mapping.title || param.title;
+                globalParams[mapping.mapTo].locals = [];
+              }
+
+              // add to locals list
+              globalParams[mapping.mapTo].locals.push(param);
+            }
+          });
+      }
+    });
+    return _.values(_.each(globalParams, (param) => {
+      param.fromUrlParams(queryParams);
+    }));
+  };
+
   return resource;
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Dashboard', Dashboard);
+  ngModule.factory('Dashboard', DashboardService);
+
+  ngModule.run(($injector) => {
+    Dashboard = $injector.get('Dashboard');
+  });
 }
+
+init.init = true;

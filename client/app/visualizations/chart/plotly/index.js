@@ -8,7 +8,6 @@ import box from 'plotly.js/lib/box';
 import heatmap from 'plotly.js/lib/heatmap';
 
 import {
-  ColorPalette,
   prepareData,
   prepareLayout,
   updateData,
@@ -46,7 +45,9 @@ const PlotlyChart = () => ({
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
 
       // It will auto-purge previous graph
-      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
+      Plotly.newPlot(plotlyElement, data, layout, plotlyOptions).then(() => {
+        updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+      });
 
       plotlyElement.on('plotly_restyle', (updates) => {
         // This event is triggered if some plotly data/layout has changed.
@@ -132,7 +133,8 @@ const CustomPlotlyChart = clientConfig => ({
 });
 
 export default function init(ngModule) {
-  ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
+
+init.init = true;

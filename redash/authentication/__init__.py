@@ -1,19 +1,18 @@
-from flask_login import LoginManager, user_logged_in, login_user, logout_user
-from sqlalchemy.orm.exc import NoResultFound
 import hashlib
 import hmac
-import time
 import logging
-
-from flask import redirect, request, jsonify, url_for
+import time
 from urlparse import urlsplit, urlunsplit
-from werkzeug.exceptions import Unauthorized
 
+from flask import jsonify, redirect, request, url_for
+from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from redash import models, settings
-from redash.settings.organization import settings as org_settings
 from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
+from redash.settings.organization import settings as org_settings
 from redash.tasks import record_event
+from sqlalchemy.orm.exc import NoResultFound
+from werkzeug.exceptions import Unauthorized
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
@@ -41,12 +40,35 @@ def sign(key, path, expires):
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id_with_identity):
     org = current_org._get_current_object()
+
+    '''
+    Users who logged in prior to https://github.com/getredash/redash/pull/3174 going live are going
+    to have their (integer) user_id as their session user identifier.
+    These session user identifiers will be updated the first time they visit any page so we add special
+    logic to allow a frictionless transition.
+    This logic will be removed 2-4 weeks after going live, and users who haven't
+    visited any page during that time will simply have to log in again.
+    '''
+
+    is_legacy_session_identifier = str(user_id_with_identity).find('-') < 0
+
+    if is_legacy_session_identifier:
+        user_id = user_id_with_identity
+    else:
+        user_id, _ = user_id_with_identity.split("-")
+
     try:
         user = models.User.get_by_id_and_org(user_id, org)
         if user.is_disabled:
             return None
+
+        if is_legacy_session_identifier:
+            login_user(user, remember=True)
+        elif user.get_id() != user_id_with_identity:
+            return None
+
         return user
     except models.NoResultFound:
         return None
@@ -83,7 +105,7 @@ def hmac_load_user_from_request(request):
                 return user
 
         if query_id:
-            query = models.db.session.query(models.Query).filter(models.Query.id == query_id).one()
+            query = models.Query.query.filter(models.Query.id == query_id).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
@@ -102,6 +124,8 @@ def get_user_from_api_key(api_key, query_id):
     org = current_org._get_current_object()
     try:
         user = models.User.get_by_api_key_and_org(api_key, org)
+        if user.is_disabled:
+            user = None
     except models.NoResultFound:
         try:
             api_key = models.ApiKey.get_by_api_key(api_key)
@@ -118,11 +142,13 @@ def get_user_from_api_key(api_key, query_id):
 def get_api_key_from_request(request):
     api_key = request.args.get('api_key', None)
 
-    if api_key is None and request.headers.get('Authorization'):
+    if api_key is not None:
+        return api_key
+
+    if request.headers.get('Authorization'):
         auth_header = request.headers.get('Authorization')
         api_key = auth_header.replace('Key ', '', 1)
-
-    if api_key is None and request.view_args.get('token'):
+    elif request.view_args is not None and request.view_args.get('token'):
         api_key = request.view_args['token']
 
     return api_key
@@ -130,8 +156,12 @@ def get_api_key_from_request(request):
 
 def api_key_load_user_from_request(request):
     api_key = get_api_key_from_request(request)
-    query_id = request.view_args.get('query_id', None)
-    user = get_user_from_api_key(api_key, query_id)
+    if request.view_args is not None:
+        query_id = request.view_args.get('query_id', None)
+        user = get_user_from_api_key(api_key, query_id)
+    else:
+        user = None
+
     return user
 
 
@@ -171,7 +201,7 @@ def jwt_token_load_user_from_request(request):
 
 def log_user_logged_in(app, user):
     event = {
-        'org_id': current_org.id,
+        'org_id': user.org_id,
         'user_id': user.id,
         'action': 'login',
         'object_type': 'redash',
@@ -208,13 +238,12 @@ def logout_and_redirect_to_index():
     return redirect(index_url)
 
 
-def setup_authentication(app):
+def init_app(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
 
-    app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
     app.register_blueprint(remote_user_auth.blueprint)
@@ -229,14 +258,17 @@ def create_and_login_user(org, name, email, picture=None):
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.is_disabled:
             return None
+        if user_object.is_invitation_pending:
+            user_object.is_invitation_pending = False
+            models.db.session.commit()
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
-                                  group_ids=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, is_invitation_pending=False,
+                                  _profile_image_url=picture, group_ids=[org.default_group.id])
         models.db.session.add(user_object)
         models.db.session.commit()
 

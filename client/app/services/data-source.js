@@ -1,7 +1,11 @@
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;
+export const IMG_ROOT = '/static/images/db-logos';
 
-function DataSource($q, $resource, $http) {
+export let DataSource = null; // eslint-disable-line import/no-mutable-exports
+
+
+function DataSourceService($q, $resource, $http) {
   function fetchSchema(dataSourceId, refresh = false) {
     const params = {};
 
@@ -15,6 +19,13 @@ function DataSource($q, $resource, $http) {
   const actions = {
     get: { method: 'GET', cache: false, isArray: false },
     query: { method: 'GET', cache: false, isArray: true },
+    save: { method: 'POST' },
+    types: {
+      method: 'GET',
+      cache: false,
+      isArray: true,
+      url: 'api/data_sources/types',
+    },
     test: {
       method: 'POST',
       cache: false,
@@ -43,5 +54,11 @@ function DataSource($q, $resource, $http) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('DataSource', DataSource);
+  ngModule.factory('DataSource', DataSourceService);
+
+  ngModule.run(($injector) => {
+    DataSource = $injector.get('DataSource');
+  });
 }
+
+init.init = true;

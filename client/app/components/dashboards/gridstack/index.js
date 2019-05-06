@@ -69,6 +69,7 @@ function gridstack($parse, dashboardGridOptions) {
     scope: {
       editing: '=',
       batchUpdate: '=', // set by directive - for using in wrapper components
+      onLayoutChanged: '=',
       isOneColumnMode: '=',
     },
     controller() {
@@ -118,67 +119,6 @@ function gridstack($parse, dashboardGridOptions) {
           grid.maxWidth($element, item.maxSizeX);
           grid.minHeight($element, item.minSizeY);
           grid.maxHeight($element, item.maxSizeY);
-        });
-      };
-
-      this.batchUpdateWidgets = (items) => {
-        // This method is used to update multiple widgets with a single
-        // reflow (for example, restore positions when dashboard editing cancelled).
-        // "dirty" part of code: updating grid and DOM nodes directly.
-        // layout reflow is triggered by `batchUpdate`/`commit` calls
-        this.update((grid) => {
-          _.each(grid.grid.nodes, (node) => {
-            const item = items[node.id];
-            if (item) {
-              if (_.isNumber(item.col)) {
-                node.x = parseFloat(item.col);
-                node.el.attr('data-gs-x', node.x);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.row)) {
-                node.y = parseFloat(item.row);
-                node.el.attr('data-gs-y', node.y);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.sizeX)) {
-                node.width = parseFloat(item.sizeX);
-                node.el.attr('data-gs-width', node.width);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.sizeY)) {
-                node.height = parseFloat(item.sizeY);
-                node.el.attr('data-gs-height', node.height);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.minSizeX)) {
-                node.minWidth = parseFloat(item.minSizeX);
-                node.el.attr('data-gs-min-width', node.minWidth);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.maxSizeX)) {
-                node.maxWidth = parseFloat(item.maxSizeX);
-                node.el.attr('data-gs-max-width', node.maxWidth);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.minSizeY)) {
-                node.minHeight = parseFloat(item.minSizeY);
-                node.el.attr('data-gs-min-height', node.minHeight);
-                node._dirty = true;
-              }
-
-              if (_.isNumber(item.maxSizeY)) {
-                node.maxHeight = parseFloat(item.maxSizeY);
-                node.el.attr('data-gs-max-height', node.maxHeight);
-                node._dirty = true;
-              }
-            }
-          });
         });
       };
 
@@ -235,9 +175,7 @@ function gridstack($parse, dashboardGridOptions) {
       };
     },
     link: ($scope, $element, $attr, controller) => {
-      const batchUpdateAssignable = _.isFunction($parse($attr.batchUpdate).assign);
-      const isOneColumnModeAssignable = _.isFunction($parse($attr.batchUpdate).assign);
-
+      const isOneColumnModeAssignable = _.isFunction($parse($attr.onLayoutChanged).assign);
       let enablePolling = true;
 
       $element.addClass('grid-stack');
@@ -300,6 +238,9 @@ function gridstack($parse, dashboardGridOptions) {
             $(node.el).trigger('gridstack.changed', node);
           }
         });
+        if ($scope.onLayoutChanged) {
+          $scope.onLayoutChanged();
+        }
         changedNodes = {};
       });
 
@@ -314,10 +255,6 @@ function gridstack($parse, dashboardGridOptions) {
       $scope.$watch('editing', (value) => {
         controller.setEditing(!!value);
       });
-
-      if (batchUpdateAssignable) {
-        $scope.batchUpdate = controller.batchUpdateWidgets;
-      }
 
       $scope.$on('$destroy', () => {
         enablePolling = false;
@@ -459,3 +396,5 @@ export default function init(ngModule) {
   ngModule.directive('gridstack', gridstack);
   ngModule.directive('gridstackItem', gridstackItem);
 }
+
+init.init = true;

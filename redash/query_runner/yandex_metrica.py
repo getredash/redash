@@ -115,7 +115,11 @@ class YandexMetrica(BaseSQLQueryRunner):
 
     def _send_query(self, path='stat/v1/data', **kwargs):
         token = kwargs.pop('oauth_token', self.configuration['token'])
-        r = requests.get('{0}/{1}'.format(self.host, path), params=dict(oauth_token=token, **kwargs))
+        r = requests.get(
+            '{0}/{1}'.format(self.host, path),
+            headers={'Authorization': 'OAuth {}'.format(token)},
+            params=kwargs
+        )
         if r.status_code != 200:
             raise Exception(r.text)
         return r.json()

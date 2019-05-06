@@ -13,8 +13,11 @@ os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
-from redash import create_app
-from redash import redis_connection
+# Make sure rate limit is enabled
+os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
+
+from redash import limiter, redis_connection
+from redash.app import create_app
 from redash.models import db
 from redash.utils import json_dumps, json_loads
 from tests.factories import Factory, user_factory
@@ -26,7 +29,7 @@ logging.getLogger("metrics").setLevel("ERROR")
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.id
+        sess['user_id'] = user.get_id()
 
 
 @contextmanager
@@ -45,6 +48,7 @@ class BaseTestCase(TestCase):
         self.db = db
         self.app.config['TESTING'] = True
         self.app.config['SERVER_NAME'] = 'localhost'
+        limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
         db.session.close()
@@ -112,7 +116,7 @@ class BaseTestCase(TestCase):
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
             if isinstance(v, datetime.datetime) or isinstance(actual[k],
-                    datetime.datetime):
+                                                              datetime.datetime):
                 continue
 
             if isinstance(v, list):

@@ -1,8 +1,18 @@
 {
-  "presets": ["env", "react", "stage-2"],
+  "presets": [
+    ["@babel/preset-env", {
+      "exclude": [
+        "@babel/plugin-transform-async-to-generator",
+        "@babel/plugin-transform-arrow-functions"
+      ],
+      "useBuiltIns": "usage"
+    }],
+    "@babel/preset-react"
+  ],
   "plugins": [
     "angularjs-annotate",
-    "transform-object-assign",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-object-assign",
     ["babel-plugin-transform-builtin-extend", {
       "globals": ["Error"]
     }]

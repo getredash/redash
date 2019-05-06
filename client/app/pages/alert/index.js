@@ -1,7 +1,8 @@
 import { template as templateBuilder } from 'lodash';
+import notification from '@/services/notification';
 import template from './alert.html';
 
-function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
 
   if (this.alertId === 'new') {
@@ -11,11 +12,13 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
   this.trustAsHtml = html => $sce.trustAsHtml(html);
 
   this.onQuerySelected = (item) => {
+    this.alert.query = item;
     this.selectedQuery = new Query(item);
     this.selectedQuery.getQueryResultPromise().then((result) => {
       this.queryResult = result;
       this.alert.options.column = this.alert.options.column || result.getColumnNames()[0];
     });
+    $scope.$applyAsync();
   };
 
   if (this.alertId === 'new') {
@@ -59,13 +62,13 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     }
     this.alert.$save(
       (alert) => {
-        toastr.success('Saved.');
+        notification.success('Saved.');
         if (this.alertId === 'new') {
           $location.path(`/alerts/${alert.id}`).replace();
         }
       },
       () => {
-        toastr.error('Failed saving alert.');
+        notification.error('Failed saving alert.');
       },
     );
   };
@@ -74,10 +77,10 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     this.alert.$delete(
       () => {
         $location.path('/alerts');
-        toastr.success('Alert deleted.');
+        notification.success('Alert deleted.');
       },
       () => {
-        toastr.error('Failed deleting alert.');
+        notification.error('Failed deleting alert.');
       },
     );
   };
@@ -96,3 +99,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

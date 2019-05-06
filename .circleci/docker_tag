@@ -1,5 +1,0 @@
-#!/bin/bash
-VERSION=$(jq -r .version package.json)
-FULL_VERSION=$VERSION.b$CIRCLE_BUILD_NUM
-
-echo $FULL_VERSION

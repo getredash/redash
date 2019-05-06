@@ -1,4 +1,3 @@
-from flask import url_for
 from flask_login import current_user
 from funcy import project
 from mock import patch
@@ -20,6 +19,22 @@ class AuthenticationTestMixin(object):
 
 
 class TestAuthentication(BaseTestCase):
+    def test_responds_with_success_for_signed_in_user(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = self.factory.user.get_id()
+            rv = self.client.get("/default/")
+
+            self.assertEquals(200, rv.status_code)
+
+    def test_responds_with_success_for_signed_in_user_with_a_legacy_identity_session(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = str(self.factory.user.id)
+            rv = self.client.get("/default/")
+
+            self.assertEquals(200, rv.status_code)
+
     def test_redirects_for_nonsigned_in_user(self):
         rv = self.client.get("/default/")
         self.assertEquals(302, rv.status_code)
@@ -75,17 +90,25 @@ class TestLogin(BaseTestCase):
         super(TestLogin, self).setUp()
         self.factory.org.set_setting('auth_password_login_enabled', True)
 
-    @classmethod
-    def setUpClass(cls):
-        settings.ORG_RESOLVING = "single_org"
-
-    @classmethod
-    def tearDownClass(cls):
-        settings.ORG_RESOLVING = "multi_org"
-
     def test_get_login_form(self):
         rv = self.client.get('/default/login')
         self.assertEquals(rv.status_code, 200)
+
+    def test_get_login_form_remote_auth(self):
+        """Make sure the remote auth link can be rendered correctly on the
+        login page when the remote user login feature is enabled"""
+        old_remote_user_enabled = settings.REMOTE_USER_LOGIN_ENABLED
+        old_ldap_login_enabled = settings.LDAP_LOGIN_ENABLED
+        try:
+            settings.REMOTE_USER_LOGIN_ENABLED = True
+            settings.LDAP_LOGIN_ENABLED = True
+            rv = self.client.get('/default/login')
+            self.assertEquals(rv.status_code, 200)
+            self.assertIn('/{}/remote_user/login'.format(self.factory.org.slug), rv.data)
+            self.assertIn('/{}/ldap/login'.format(self.factory.org.slug), rv.data)
+        finally:
+            settings.REMOTE_USER_LOGIN_ENABLED = old_remote_user_enabled
+            settings.LDAP_LOGIN_ENABLED = old_ldap_login_enabled
 
     def test_submit_non_existing_user(self):
         with patch('redash.handlers.authentication.login_user') as login_user_mock:

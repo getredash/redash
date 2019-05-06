@@ -1,0 +1,50 @@
+version: '3'
+services:
+  server:
+    build: ../
+    command: dev_server
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5000:5000"
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_RATELIMIT_ENABLED: "false"
+  worker:
+    build: ../
+    command: scheduler
+    depends_on:
+      - server
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "queries,scheduled_queries,celery,schemas"
+      WORKERS_COUNT: 2
+  cypress:
+    build:
+      context: ../
+      dockerfile: .circleci/Dockerfile.cypress
+    depends_on:
+      - server
+      - worker
+    environment:
+      CYPRESS_baseUrl: "http://server:5000"
+      PERCY_TOKEN: ${PERCY_TOKEN}
+      PERCY_BRANCH: ${CIRCLE_BRANCH}
+      PERCY_COMMIT: ${CIRCLE_SHA1}
+      PERCY_PULL_REQUEST: ${CIRCLE_PR_NUMBER}
+      CYPRESS_PROJECT_ID: ${CYPRESS_PROJECT_ID}
+      CYPRESS_RECORD_KEY: ${CYPRESS_RECORD_KEY}
+  redis:
+    image: redis:3.0-alpine
+    restart: unless-stopped
+  postgres:
+    image: postgres:9.5.6-alpine
+    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    restart: unless-stopped

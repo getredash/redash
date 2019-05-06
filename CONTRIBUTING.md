@@ -6,7 +6,6 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
 - [Documentation](https://redash.io/help/)
 - [Blog](https://blog.redash.io/)
@@ -61,7 +60,7 @@ If you would like to suggest an enhancement or ask for a new feature:
 
 ### Documentation
 
-The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/website/_kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
+The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/src/pages/kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
 
 ## Additional Notes
 

@@ -11,3 +11,5 @@ export default function init(ngModule) {
   resizeEvent(ngModule);
   resizableToggle(ngModule);
 }
+
+init.init = true;
