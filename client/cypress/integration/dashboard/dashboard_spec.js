@@ -1,8 +1,24 @@
+/* global cy, Cypress */
+
+import { createDashboard, createQuery, addTextbox, addWidget } from '../../support/redash-api';
+
+const { get } = Cypress._;
+
 const RESIZE_HANDLE_SELECTOR = '.ui-resizable-se';
 
 
-function createNewDashboardByAPI(name) {
-  return cy.request('POST', 'api/dashboards', { name }).then(({ body }) => body);
+function getWidgetTestId(widget) {
+  return `WidgetId${widget.id}`;
+}
+
+function createQueryAndAddWidget(dashboardId, queryData = {}) {
+  return createQuery(queryData)
+    .then((query) => {
+      const visualizationId = get(query, 'visualizations.0.id');
+      assert.isDefined(visualizationId, 'Query api call returns at least one visualization with id');
+      return addWidget(dashboardId, visualizationId);
+    })
+    .then(getWidgetTestId);
 }
 
 function editDashboard() {
@@ -12,72 +28,6 @@ function editDashboard() {
       cy.get('li')
         .contains('Edit')
         .click();
-    });
-}
-
-function addTextboxByAPI(text, dashId, options = {}) {
-  const data = {
-    width: 1,
-    dashboard_id: dashId,
-    visualization_id: null,
-    text: 'text',
-    options: Object.assign({
-      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    }, options),
-  };
-
-  return cy.request('POST', 'api/widgets', data).then(({ body }) => {
-    const id = Cypress._.get(body, 'id');
-    assert.isDefined(id, 'Widget api call returns widget id');
-    return `WidgetId${id}`;
-  });
-}
-
-function addQueryByAPI(data, shouldPublish = true) {
-  const merged = Object.assign(
-    {
-      name: 'Test Query',
-      query: 'select 1',
-      data_source_id: 1,
-      options: {
-        parameters: [],
-      },
-      schedule: null,
-    },
-    data,
-  );
-
-  // eslint-disable-next-line cypress/no-assigning-return-values
-  const request = cy.request('POST', '/api/queries', merged);
-  if (shouldPublish) {
-    request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
-  }
-
-  return request.then(({ body }) => body);
-}
-
-function addWidgetByAPI(dashId, queryData = {}) {
-  const data = {
-    width: 1,
-    dashboard_id: dashId,
-    visualization_id: null,
-    options: {
-      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    },
-  };
-
-  return addQueryByAPI(queryData)
-    .then((query) => {
-      const visId = Cypress._.get(query, 'visualizations.0.id');
-      assert.isDefined(visId, 'Query api call returns at least one visualization with id');
-      data.visualization_id = visId;
-
-      return cy.request('POST', 'api/widgets', data);
-    })
-    .then(({ body }) => {
-      const id = Cypress._.get(body, 'id');
-      assert.isDefined(id, 'Widget api call returns widget id');
-      return `WidgetId${id}`;
     });
 }
 
@@ -134,7 +84,7 @@ describe('Dashboard', () => {
   });
 
   it('archives dashboard', () => {
-    createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+    createDashboard('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
       cy.getByTestId('DashboardMoreMenu')
@@ -159,7 +109,7 @@ describe('Dashboard', () => {
 
   describe('Textbox', () => {
     beforeEach(function () {
-      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+      createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboard/${slug}`;
       });
@@ -178,7 +128,7 @@ describe('Dashboard', () => {
     });
 
     it('removes textbox by X button', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
 
@@ -191,7 +141,7 @@ describe('Dashboard', () => {
     });
 
     it('removes textbox by menu', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId)
           .within(() => {
@@ -210,10 +160,11 @@ describe('Dashboard', () => {
     // eslint-disable-next-line jest/no-disabled-tests
     it.skip('allows opening menu after removal', function () {
       let elTestId1;
-      addTextboxByAPI('txb 1', this.dashboardId)
+      addTextbox(this.dashboardId, 'txb 1')
+        .then(getWidgetTestId)
         .then((elTestId) => {
           elTestId1 = elTestId;
-          return addTextboxByAPI('txb 2', this.dashboardId);
+          return addTextbox(this.dashboardId, 'txb 2').then(getWidgetTestId);
         })
         .then((elTestId2) => {
           cy.visit(this.dashboardUrl);
@@ -239,7 +190,7 @@ describe('Dashboard', () => {
     });
 
     it('edits textbox', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId)
           .as('textboxEl')
@@ -273,8 +224,9 @@ describe('Dashboard', () => {
       const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
 
       cy.viewport(1215, 800);
-      addTextboxByAPI('x', id, { position: txb1Pos })
-        .then(() => addTextboxByAPI('x', id, { position: txb2Pos }))
+      addTextbox(id, 'x', { position: txb1Pos })
+        .then(() => addTextbox(id, 'x', { position: txb2Pos }))
+        .then(getWidgetTestId)
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
           return cy.getByTestId(elTestId);
@@ -292,10 +244,10 @@ describe('Dashboard', () => {
   describe('Grid compliant widgets', () => {
     beforeEach(function () {
       cy.viewport(1215, 800);
-      createNewDashboardByAPI('Foo Bar')
+      createDashboard('Foo Bar')
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
-          return addTextboxByAPI('Hello World!', id);
+          return addTextbox(id, 'Hello World!').then(getWidgetTestId);
         })
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
@@ -409,14 +361,14 @@ describe('Dashboard', () => {
 
   describe('Widget', () => {
     beforeEach(function () {
-      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+      createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboard/${slug}`;
       });
     });
 
     it('adds widget', function () {
-      addQueryByAPI().then(({ id: queryId }) => {
+      createQuery().then(({ id: queryId }) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
         cy.contains('a', 'Add Widget').click();
@@ -430,7 +382,7 @@ describe('Dashboard', () => {
     });
 
     it('removes widget', function () {
-      addWidgetByAPI(this.dashboardId).then((elTestId) => {
+      createQueryAndAddWidget(this.dashboardId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
         cy.getByTestId(elTestId)
@@ -447,7 +399,7 @@ describe('Dashboard', () => {
           query: 'select s.a FROM generate_series(1,2) AS s(a)',
         };
 
-        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
@@ -460,7 +412,7 @@ describe('Dashboard', () => {
           query: 'select s.a FROM generate_series(1,5) AS s(a)',
         };
 
-        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
@@ -475,7 +427,7 @@ describe('Dashboard', () => {
         };
 
         beforeEach(function () {
-          addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+          createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
             cy.visit(this.dashboardUrl);
             cy.getByTestId(elTestId).as('widget').within(() => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
@@ -538,11 +490,11 @@ describe('Dashboard', () => {
   context('viewport width is at 800px', () => {
     before(function () {
       cy.login();
-      createNewDashboardByAPI('Foo Bar')
+      createDashboard('Foo Bar')
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
           this.dashboardEditUrl = `/dashboard/${slug}?edit`;
-          return addTextboxByAPI('Hello World!', id);
+          return addTextbox(id, 'Hello World!').then(getWidgetTestId);
         })
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
@@ -595,7 +547,7 @@ describe('Dashboard', () => {
   context('viewport width is at 767px', () => {
     before(function () {
       cy.login();
-      createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+      createDashboard('Foo Bar').then(({ slug }) => {
         this.dashboardUrl = `/dashboard/${slug}`;
       });
     });
