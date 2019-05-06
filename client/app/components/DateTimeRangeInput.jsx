@@ -1,5 +1,5 @@
 import { isArray } from 'lodash';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
@@ -16,17 +16,25 @@ export function DateTimeRangeInput({
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
-  const additionalAttributes = {};
+  let defaultValue;
   if (isArray(value) && value[0].isValid() && value[1].isValid()) {
-    additionalAttributes.defaultValue = value;
+    defaultValue = value;
   }
+  const [currentValue, setCurrentValue] = useState(defaultValue);
   return (
     <RangePicker
       className={className}
       showTime
-      {...additionalAttributes}
+      value={currentValue}
       format={format}
-      onChange={onSelect}
+      onChange={newValue => setCurrentValue(newValue)}
+      onOpenChange={(status) => {
+        if (!status) { // on close picker
+          if (isArray(currentValue) && currentValue[0].isValid() && currentValue[1].isValid()) {
+            onSelect(currentValue);
+          }
+        }
+      }}
     />
   );
 }
