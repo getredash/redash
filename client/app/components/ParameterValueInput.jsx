@@ -178,7 +178,7 @@ export class ParameterValueInput extends React.Component {
           onChange={onChange}
           onKeyUp={showApplyButton ? (e) => {
             const keyNumber = e.which || e.keyCode;
-            if (keyNumber === 13) { // enter key
+            if (keyNumber === 13 && !e.ctrlKey && !e.metaKey) { // enter key
               onSelect(value);
             }
           } : null}
@@ -207,7 +207,11 @@ export class ParameterValueInput extends React.Component {
           value={value || ''}
           data-test="TextParamInput"
           onChange={onChange}
-          onPressEnter={showApplyButton ? () => onSelect(value) : null}
+          onPressEnter={showApplyButton ? (e) => {
+            if (!e.ctrlKey && !e.metaKey) {
+              onSelect(value);
+            }
+          } : null}
         />
         {showApplyButton && this.renderApplyButton()}
       </React.Fragment>
