@@ -262,6 +262,7 @@ function preparePieData(seriesList, options) {
       textposition: 'inside',
       textfont: { color: '#ffffff' },
       name: serie.name,
+      direction: options.direction.type,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
         y: [yPosition, yPosition + cellHeight - yPadding],
