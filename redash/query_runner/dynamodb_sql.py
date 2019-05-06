@@ -85,8 +85,16 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         engine = self._connect()
 
-        for table in engine.describe_all():
-            schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
+        # We can't use describe_all because sometimes a user might give List permission
+        # for * (all tables), but describe permission only for some of them.
+        tables = engine.connection.list_tables()
+        for table_name in tables:
+            try:
+                table = engine.describe(table_name, True)
+                schema[table.name] = {'name': table.name,
+                                      'columns': table.attrs.keys()}
+            except DynamoDBError:
+                pass
 
     def run_query(self, query, user):
         engine = None
