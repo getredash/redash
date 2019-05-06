@@ -12,26 +12,33 @@
   </div>
 
   <div class="col-md-12 query__vis">
-    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.getParametersDefs().length > 0">
-      <parameters parameters="$ctrl.query.getParametersDefs()"></parameters>
+    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.hasParameters()">
+      <parameters parameters="$ctrl.query.getParametersDefs()" on-refresh="$ctrl.refreshQueryResults"></parameters>
     </div>
 
-    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
+    <div ng-if="$ctrl.error">
+      <div class="alert alert-danger" data-test="ErrorMessage">Error: {{$ctrl.error}}</div>
+    </div>
+
+    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body" ng-if="$ctrl.queryResult">
     </visualization-renderer>
   </div>
 
   <div class="clearfix tile__bottom-control">
     <div class="row">
       <div class="col-xs-6">
-        <span class="small hidden-print"><i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
-        <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}} UTC</span>
+        <a class="small hidden-print" ng-click="$ctrl.refreshQueryResults()">
+          <i ng-class='{"zmdi-hc-spin": $ctrl.loading}' class="zmdi zmdi-refresh"></i>
+          <span am-time-ago="$ctrl.queryResult.getUpdatedAt()" ng-if="!$ctrl.loading"></span>
+          <rd-timer from="$ctrl.refreshStartedAt" ng-if="$ctrl.loading"></rd-timer>
+        </a>
       </div>
       <div class="col-xs-6 text-right hidden-print">
-        <a class="btn btn-default btn-sm" ng-href="queries/{{$ctrl.query.id}}#{{$ctrl.visualization.id}}" target="_blank" tooltip="Open in Redash">
+        <a class="btn btn-default btn-sm" ng-href="{{$ctrl.query.getUrl()}}" target="_blank" tooltip="Open in Redash">
           <span class="zmdi zmdi-link"></span>
         </a>
 
-        <div class="btn-group dropup" uib-dropdown>
+        <div class="btn-group dropup" uib-dropdown ng-if="!$ctrl.query.hasParameters()">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" aria-haspopup="true" uib-dropdown-toggle
                   aria-expanded="false">
             Download Dataset <span class="caret"></span>
