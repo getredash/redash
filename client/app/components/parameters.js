@@ -12,6 +12,7 @@ function ParametersDirective($location) {
       editable: '=?',
       changed: '&onChange',
       onUpdated: '=',
+      onRefresh: '=',
     },
     template,
     link(scope) {
