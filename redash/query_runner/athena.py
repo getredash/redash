@@ -78,9 +78,14 @@ class Athena(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Use Glue Data Catalog',
                 },
+                'work_group': {
+                    'type': 'string',
+                    'title': 'Athena Work Group',
+                    'default': 'primary'
+                },
             },
             'required': ['region', 's3_staging_dir'],
-            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'work_group'],
             'secret': ['aws_secret_key']
         }
 
@@ -121,18 +126,20 @@ class Athena(BaseQueryRunner):
                 region_name=self.configuration['region']
                 )
         schema = {}
-        paginator = client.get_paginator('get_tables')
 
-        for database in client.get_databases()['DatabaseList']:
-            iterator = paginator.paginate(DatabaseName=database['Name'])
-            for table in iterator.search('TableList[]'):
-                table_name = '%s.%s' % (database['Name'], table['Name'])
-                if table_name not in schema:
-                    column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
-                    schema[table_name] = {'name': table_name, 'columns': column}
-                    for partition in table.get('PartitionKeys', []):
-                        schema[table_name]['columns'].append(partition['Name'])
+        database_paginator = client.get_paginator('get_databases')
+        table_paginator = client.get_paginator('get_tables')
 
+        for databases in database_paginator.paginate():
+            for database in databases['DatabaseList']:
+                iterator = table_paginator.paginate(DatabaseName=database['Name'])
+                for table in iterator.search('TableList[]'):
+                    table_name = '%s.%s' % (database['Name'], table['Name'])
+                    if table_name not in schema:
+                        column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
+                        schema[table_name] = {'name': table_name, 'columns': column}
+                        for partition in table.get('PartitionKeys', []):
+                            schema[table_name]['columns'].append(partition['Name'])
         return schema.values()
 
     def get_schema(self, get_stats=False):
@@ -168,6 +175,7 @@ class Athena(BaseQueryRunner):
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
             kms_key=self.configuration.get('kms_key', None),
+            work_group=self.configuration.get('work_group', 'primary'),
             formatter=SimpleFormatter()).cursor()
 
         try:
@@ -195,7 +203,7 @@ class Athena(BaseQueryRunner):
             }
             json_data = json_dumps(data, ignore_nan=True)
             error = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, InterruptException):
             if cursor.query_id:
                 cursor.cancel()
             error = "Query cancelled by user."

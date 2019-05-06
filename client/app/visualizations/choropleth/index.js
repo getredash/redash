@@ -4,6 +4,9 @@ import 'leaflet/dist/leaflet.css';
 import { formatSimpleTemplate } from '@/lib/value-format';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
+import ColorPalette from '@/visualizations/ColorPalette';
 
 import {
   AdditionalColors,
@@ -23,6 +26,39 @@ import editorTemplate from './choropleth-editor.html';
 import countriesDataUrl from './countries.geo.json';
 import subdivJapanDataUrl from './japan.prefectures.geo.json';
 
+export const ChoroplethPalette = _.extend({}, AdditionalColors, ColorPalette);
+
+const DEFAULT_OPTIONS = {
+  mapType: 'countries',
+  countryCodeColumn: '',
+  countryCodeType: 'iso_a3',
+  valueColumn: '',
+  clusteringMode: 'e',
+  steps: 5,
+  valueFormat: '0,0.00',
+  noValuePlaceholder: 'N/A',
+  colors: {
+    min: ChoroplethPalette['Light Blue'],
+    max: ChoroplethPalette['Dark Blue'],
+    background: ChoroplethPalette.White,
+    borders: ChoroplethPalette.White,
+    noValue: ChoroplethPalette['Light Gray'],
+  },
+  legend: {
+    visible: true,
+    position: 'bottom-left',
+    alignText: 'right',
+  },
+  tooltip: {
+    enabled: true,
+    template: '<b>{{ @@name }}</b>: {{ @@value }}',
+  },
+  popup: {
+    enabled: true,
+    template: 'Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>',
+  },
+};
+
 const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   if (!this[url]) {
     this[url] = $http.get(url).then(response => response.data);
@@ -30,338 +66,303 @@ const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   return this[url];
 }, {});
 
-function choroplethRenderer($sanitize, $http) {
-  return {
-    restrict: 'E',
-    template,
-    scope: {
-      queryResult: '=',
-      options: '=?',
-    },
-    link($scope, $element) {
-      let countriesData = null;
-      let map = null;
-      let choropleth = null;
-      let updateBoundsLock = false;
+const ChoroplethRenderer = {
+  template,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope, $element, $sanitize, $http) {
+    let countriesData = null;
+    let map = null;
+    let choropleth = null;
+    let mapMoveLock = false;
 
-      function getBounds() {
-        if (!updateBoundsLock) {
-          const bounds = map.getBounds();
-          $scope.options.bounds = [
-            [bounds._southWest.lat, bounds._southWest.lng],
-            [bounds._northEast.lat, bounds._northEast.lng],
-          ];
-          $scope.$applyAsync();
-        }
+    const onMapMoveStart = () => {
+      mapMoveLock = true;
+    };
+
+    const onMapMoveEnd = () => {
+      const bounds = map.getBounds();
+      this.options.bounds = [
+        [bounds._southWest.lat, bounds._southWest.lng],
+        [bounds._northEast.lat, bounds._northEast.lng],
+      ];
+      if (this.onOptionsChange) {
+        this.onOptionsChange(this.options);
+      }
+      $scope.$applyAsync(() => {
+        mapMoveLock = false;
+      });
+    };
+
+    const updateBounds = ({ disableAnimation = false } = {}) => {
+      if (mapMoveLock) {
+        return;
+      }
+      if (map && choropleth) {
+        const bounds = this.options.bounds || choropleth.getBounds();
+        const options = disableAnimation ? {
+          animate: false,
+          duration: 0,
+        } : null;
+        map.fitBounds(bounds, options);
+      }
+    };
+
+    const getDataUrl = (type) => {
+      switch (type) {
+        case 'countries': return countriesDataUrl;
+        case 'subdiv_japan': return subdivJapanDataUrl;
+        default: return '';
+      }
+    };
+
+    let dataUrl = getDataUrl(this.options.mapType);
+
+    const render = () => {
+      if (map) {
+        map.remove();
+        map = null;
+        choropleth = null;
+      }
+      if (!countriesData) {
+        return;
       }
 
-      function setBounds({ disableAnimation = false } = {}) {
-        if (map && choropleth) {
-          const bounds = $scope.options.bounds || choropleth.getBounds();
-          const options = disableAnimation ? {
-            animate: false,
-            duration: 0,
-          } : null;
-          map.fitBounds(bounds, options);
-        }
-      }
+      this.formatValue = createNumberFormatter(
+        this.options.valueFormat,
+        this.options.noValuePlaceholder,
+      );
 
-      function getDataUrl(type) {
-        switch (type) {
-          case 'countries': return countriesDataUrl;
-          case 'subdiv_japan': return subdivJapanDataUrl;
-          default: return '';
-        }
-      }
+      const data = prepareData(this.data.rows, this.options.countryCodeColumn, this.options.valueColumn);
 
-      let dataUrl = getDataUrl($scope.options.mapType);
+      const { limits, colors, legend } = createScale(countriesData.features, data, this.options);
 
-      function render() {
-        if (map) {
-          map.remove();
-          map = null;
-          choropleth = null;
-        }
-        if (!countriesData) {
-          return;
-        }
+      // Update data for legend block
+      this.legendItems = legend;
 
-        $scope.formatValue = createNumberFormatter(
-          $scope.options.valueFormat,
-          $scope.options.noValuePlaceholder,
-        );
+      choropleth = L.geoJson(countriesData, {
+        onEachFeature: (feature, layer) => {
+          const value = getValueForFeature(feature, data, this.options.countryCodeType);
+          const valueFormatted = this.formatValue(value);
+          const featureData = prepareFeatureProperties(
+            feature,
+            valueFormatted,
+            data,
+            this.options.countryCodeType,
+          );
+          const color = getColorByValue(value, limits, colors, this.options.colors.noValue);
 
-        const data = prepareData(
-          $scope.queryResult.getData(),
-          $scope.options.countryCodeColumn,
-          $scope.options.valueColumn,
-        );
+          layer.setStyle({
+            color: this.options.colors.borders,
+            weight: 1,
+            fillColor: color,
+            fillOpacity: 1,
+          });
 
-        const { limits, colors, legend } = createScale(
-          countriesData.features,
-          data,
-          $scope.options,
-        );
+          if (this.options.tooltip.enabled) {
+            layer.bindTooltip($sanitize(formatSimpleTemplate(
+              this.options.tooltip.template,
+              featureData,
+            )), { sticky: true });
+          }
 
-        // Update data for legend block
-        $scope.legendItems = legend;
+          if (this.options.popup.enabled) {
+            layer.bindPopup($sanitize(formatSimpleTemplate(
+              this.options.popup.template,
+              featureData,
+            )));
+          }
 
-        choropleth = L.geoJson(countriesData, {
-          onEachFeature: (feature, layer) => {
-            const value = getValueForFeature(feature, data, $scope.options.countryCodeType);
-            const valueFormatted = $scope.formatValue(value);
-            const featureData = prepareFeatureProperties(
-              feature,
-              valueFormatted,
-              data,
-              $scope.options.countryCodeType,
-            );
-            const color = getColorByValue(value, limits, colors, $scope.options.colors.noValue);
-
+          layer.on('mouseover', () => {
             layer.setStyle({
-              color: $scope.options.colors.borders,
+              weight: 2,
+              fillColor: darkenColor(color),
+            });
+          });
+          layer.on('mouseout', () => {
+            layer.setStyle({
               weight: 1,
               fillColor: color,
-              fillOpacity: 1,
             });
+          });
+        },
+      });
 
-            if ($scope.options.tooltip.enabled) {
-              layer.bindTooltip($sanitize(formatSimpleTemplate(
-                $scope.options.tooltip.template,
-                featureData,
-              )), { sticky: true });
-            }
+      const choroplethBounds = choropleth.getBounds();
 
-            if ($scope.options.popup.enabled) {
-              layer.bindPopup($sanitize(formatSimpleTemplate(
-                $scope.options.popup.template,
-                featureData,
-              )));
-            }
+      map = L.map($element[0].children[0].children[0], {
+        center: choroplethBounds.getCenter(),
+        zoom: 1,
+        zoomSnap: 0,
+        layers: [choropleth],
+        scrollWheelZoom: false,
+        maxBounds: choroplethBounds,
+        maxBoundsViscosity: 1,
+        attributionControl: false,
+        fullscreenControl: true,
+      });
 
-            layer.on('mouseover', () => {
-              layer.setStyle({
-                weight: 2,
-                fillColor: darkenColor(color),
-              });
-            });
-            layer.on('mouseout', () => {
-              layer.setStyle({
-                weight: 1,
-                fillColor: color,
-              });
-            });
-          },
-        });
+      map.on('focus', () => {
+        map.on('movestart', onMapMoveStart);
+        map.on('moveend', onMapMoveEnd);
+      });
+      map.on('blur', () => {
+        map.off('movestart', onMapMoveStart);
+        map.off('moveend', onMapMoveEnd);
+      });
 
-        const choroplethBounds = choropleth.getBounds();
+      updateBounds({ disableAnimation: true });
+    };
 
-        map = L.map($element[0].children[0].children[0], {
-          center: choroplethBounds.getCenter(),
-          zoom: 1,
-          zoomSnap: 0,
-          layers: [choropleth],
-          scrollWheelZoom: false,
-          maxBounds: choroplethBounds,
-          maxBoundsViscosity: 1,
-          attributionControl: false,
-          fullscreenControl: true,
-        });
+    const load = () => {
+      loadCountriesData($http, dataUrl).then((data) => {
+        if (_.isObject(data)) {
+          countriesData = data;
+          render();
+        }
+      });
+    };
 
-        map.on('focus', () => { map.on('moveend', getBounds); });
-        map.on('blur', () => { map.off('moveend', getBounds); });
+    load();
 
-        setBounds({ disableAnimation: true });
+
+    $scope.handleResize = _.debounce(() => {
+      if (map) {
+        map.invalidateSize(false);
+        updateBounds({ disableAnimation: true });
       }
+    }, 50);
 
-      function load() {
-        loadCountriesData($http, dataUrl).then((data) => {
-          if (_.isObject(data)) {
-            countriesData = data;
-            render();
-          }
-        });
-      }
-
+    $scope.$watch('$ctrl.data', render);
+    $scope.$watch(() => _.omit(this.options, 'bounds', 'mapType'), render, true);
+    $scope.$watch('$ctrl.options.bounds', updateBounds, true);
+    $scope.$watch('$ctrl.options.mapType', () => {
+      dataUrl = getDataUrl(this.options.mapType);
       load();
+    }, true);
+  },
+};
 
-      $scope.handleResize = _.debounce(() => {
-        if (map) {
-          map.invalidateSize(false);
-          setBounds({ disableAnimation: true });
-        }
-      }, 50);
+const ChoroplethEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    this.currentTab = 'general';
+    this.setCurrentTab = (tab) => {
+      this.currentTab = tab;
+    };
 
-      $scope.$watch('queryResult && queryResult.getData()', render);
-      $scope.$watch(() => _.omit($scope.options, 'bounds', 'mapType'), render, true);
-      $scope.$watch('options.bounds', () => {
-        // Prevent infinite digest loop
-        const savedLock = updateBoundsLock;
-        updateBoundsLock = true;
-        setBounds();
-        updateBoundsLock = savedLock;
-      }, true);
-      $scope.$watch('options.mapType', () => {
-        dataUrl = getDataUrl($scope.options.mapType);
-        load();
-      }, true);
-    },
-  };
-}
+    this.colors = ChoroplethPalette;
 
-function choroplethEditor(ChoroplethPalette) {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-    scope: {
-      queryResult: '=',
-      options: '=?',
-    },
-    link($scope) {
-      $scope.currentTab = 'general';
-      $scope.changeTab = (tab) => {
-        $scope.currentTab = tab;
-      };
+    this.mapTypes = {
+      countries: 'Countries',
+      subdiv_japan: 'Japan/Prefectures',
+    };
 
-      $scope.colors = ChoroplethPalette;
+    this.clusteringModes = {
+      q: 'quantile',
+      e: 'equidistant',
+      k: 'k-means',
+    };
 
-      $scope.mapTypes = {
-        countries: 'Countries',
-        subdiv_japan: 'Japan/Prefectures',
-      };
+    this.legendPositions = {
+      'top-left': 'top / left',
+      'top-right': 'top / right',
+      'bottom-left': 'bottom / left',
+      'bottom-right': 'bottom / right',
+    };
 
-      $scope.clusteringModes = {
-        q: 'quantile',
-        e: 'equidistant',
-        k: 'k-means',
-      };
+    this.countryCodeTypes = {};
 
-      $scope.legendPositions = {
-        'top-left': 'top / left',
-        'top-right': 'top / right',
-        'bottom-left': 'bottom / left',
-        'bottom-right': 'bottom / right',
-      };
+    this.templateHintFormatter = propDescription => `
+      <div class="p-b-5">All query result columns can be referenced using <code>{{ column_name }}</code> syntax.</div>
+      <div class="p-b-5">Use special names to access additional properties:</div>
+      <div><code>{{ @@value }}</code> formatted value;</div>
+      ${propDescription}
+      <div class="p-t-5">This syntax is applicable to tooltip and popup templates.</div>
+    `;
 
-      $scope.countryCodeTypes = {};
+    const updateCountryCodeType = () => {
+      this.options.countryCodeType = inferCountryCodeType(
+        this.options.mapType,
+        this.data ? this.data.rows : [],
+        this.options.countryCodeColumn,
+      ) || this.options.countryCodeType;
+    };
 
-      $scope.templateHintFormatter = propDescription => `
-        <div class="p-b-5">All query result columns can be referenced using <code>{{ column_name }}</code> syntax.</div>
-        <div class="p-b-5">Use special names to access additional properties:</div>
-        <div><code>{{ @@value }}</code> formatted value;</div>
-        ${propDescription}
-        <div class="p-t-5">This syntax is applicable to tooltip and popup templates.</div>
-      `;
-
-      function updateCountryCodeType() {
-        $scope.options.countryCodeType = inferCountryCodeType(
-          $scope.options.mapType,
-          $scope.queryResult.getData(),
-          $scope.options.countryCodeColumn,
-        ) || $scope.options.countryCodeType;
+    const populateCountryCodeTypes = () => {
+      let propDescription = '';
+      switch (this.options.mapType) {
+        case 'subdiv_japan':
+          propDescription = `
+            <div><code>{{ @@name }}</code> Prefecture name in English;</div>
+            <div><code>{{ @@name_local }}</code> Prefecture name in Kanji;</div>
+            <div><code>{{ @@iso_3166_2 }}</code> five-letter ISO subdivision code (JP-xx);</div>
+          `;
+          this.countryCodeTypes = {
+            name: 'Name',
+            name_local: 'Name (local)',
+            iso_3166_2: 'ISO-3166-2',
+          };
+          break;
+        case 'countries':
+          propDescription = `
+           <div><code>{{ @@name }}</code> short country name;</div>
+             <div><code>{{ @@name_long }}</code> full country name;</div>
+             <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
+             <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
+             <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
+             <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
+          `;
+          this.countryCodeTypes = {
+            name: 'Short name',
+            name_long: 'Full name',
+            abbrev: 'Abbreviated name',
+            iso_a2: 'ISO code (2 letters)',
+            iso_a3: 'ISO code (3 letters)',
+            iso_n3: 'ISO code (3 digits)',
+          };
+          break;
+        default:
+          this.countryCodeTypes = {};
       }
+      this.templateHint = this.templateHintFormatter(propDescription);
+    };
 
-      function populateCountryCodeTypes() {
-        let propDescription = '';
-        switch ($scope.options.mapType) {
-          case 'subdiv_japan':
-            propDescription = `
-              <div><code>{{ @@name }}</code> Prefecture name in English;</div>
-              <div><code>{{ @@name_local }}</code> Prefecture name in Kanji;</div>
-              <div><code>{{ @@iso_3166_2 }}</code> five-letter ISO subdivision code (JP-xx);</div>
-            `;
-            $scope.countryCodeTypes = {
-              name: 'Name',
-              name_local: 'Name (local)',
-              iso_3166_2: 'ISO-3166-2',
-            };
-            break;
-          case 'countries':
-            propDescription = `
-              <div><code>{{ @@name }}</code> short country name;</div>
-              <div><code>{{ @@name_long }}</code> full country name;</div>
-              <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
-              <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
-              <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
-              <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
-            `;
-            $scope.countryCodeTypes = {
-              name: 'Short name',
-              name_long: 'Full name',
-              abbrev: 'Abbreviated name',
-              iso_a2: 'ISO code (2 letters)',
-              iso_a3: 'ISO code (3 letters)',
-              iso_n3: 'ISO code (3 digits)',
-            };
-            break;
-          default:
-            $scope.countryCodeTypes = {};
-        }
-        $scope.templateHint = $scope.templateHintFormatter(propDescription);
-      }
+    $scope.$watch('$ctrl.options.mapType', populateCountryCodeTypes);
+    $scope.$watch('$ctrl.options.countryCodeColumn', updateCountryCodeType);
+    $scope.$watch('$ctrl.data', updateCountryCodeType);
 
-      $scope.$watch('options.mapType', populateCountryCodeTypes);
-      $scope.$watch('options.countryCodeColumn', updateCountryCodeType);
-      $scope.$watch('queryResult.getData()', updateCountryCodeType);
-    },
-  };
-}
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
 
 export default function init(ngModule) {
-  ngModule.constant('ChoroplethPalette', {});
-  ngModule.directive('choroplethRenderer', choroplethRenderer);
-  ngModule.directive('choroplethEditor', choroplethEditor);
-  ngModule.config((VisualizationProvider, ColorPalette, ChoroplethPalette) => {
-    _.extend(ChoroplethPalette, AdditionalColors, ColorPalette);
+  ngModule.component('choroplethRenderer', ChoroplethRenderer);
+  ngModule.component('choroplethEditor', ChoroplethEditor);
 
-    const renderTemplate =
-      '<choropleth-renderer options="visualization.options" query-result="queryResult"></choropleth-renderer>';
+  ngModule.run(($injector) => {
+    registerVisualization({
+      type: 'CHOROPLETH',
+      name: 'Map (Choropleth)',
+      getOptions: options => _.merge({}, DEFAULT_OPTIONS, options),
+      Renderer: angular2react('choroplethRenderer', ChoroplethRenderer, $injector),
+      Editor: angular2react('choroplethEditor', ChoroplethEditor, $injector),
 
-    const editTemplate = '<choropleth-editor options="visualization.options" query-result="queryResult"></choropleth-editor>';
-
-    const defaultOptions = {
       defaultColumns: 3,
       defaultRows: 8,
       minColumns: 2,
-
-      countryCodeColumn: '',
-      countryCodeType: 'iso_a3',
-      valueColumn: '',
-      clusteringMode: 'e',
-      steps: 5,
-      valueFormat: '0,0.00',
-      noValuePlaceholder: 'N/A',
-      colors: {
-        min: ChoroplethPalette['Light Blue'],
-        max: ChoroplethPalette['Dark Blue'],
-        background: ChoroplethPalette.White,
-        borders: ChoroplethPalette.White,
-        noValue: ChoroplethPalette['Light Gray'],
-      },
-      legend: {
-        visible: true,
-        position: 'bottom-left',
-        alignText: 'right',
-      },
-      tooltip: {
-        enabled: true,
-        template: '<b>{{ @@name }}</b>: {{ @@value }}',
-      },
-      popup: {
-        enabled: true,
-        template: 'Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>',
-      },
-    };
-
-    VisualizationProvider.registerVisualization({
-      type: 'CHOROPLETH',
-      name: 'Map (Choropleth)',
-      renderTemplate,
-      editorTemplate: editTemplate,
-      defaultOptions,
     });
   });
 }
 
 init.init = true;
-

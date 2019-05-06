@@ -8,16 +8,25 @@
             <a ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
           </div>
         </div>
-        <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public" uib-dropdown>
+        <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public"
+          uib-dropdown dropdown-append-to-body="true"
+        >
           <div class="actions">
             <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more-vert"></i></a>
           </div>
 
-          <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
+          <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
             <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'csv')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'csv')}}" target="_self">Download as CSV File</a></li>
             <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'xlsx')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
-            <li><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
-            <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
+
+            <li ng-if="$ctrl.canViewQuery || ($ctrl.dashboard.canEdit() && $ctrl.hasParameters())" class="divider"></li>
+            <li ng-if="$ctrl.canViewQuery"><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}">View Query</a></li>
+            <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()">
+              <li ng-if="$ctrl.dashboard.canEdit() && $ctrl.hasParameters()"><a ng-click="$ctrl.editParameterMappings()">Edit Parameters</a></li>
+            </li>
+
+            <li ng-if="$ctrl.dashboard.canEdit()" class="divider"></li>
+            <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
           </ul>
         </div>
         <div class="th-title">
@@ -37,7 +46,11 @@
       <div class="alert alert-danger m-5" ng-show="$ctrl.widget.getQueryResult().getError()">Error running query: <strong>{{$ctrl.widget.getQueryResult().getError()}}</strong></div>
     </div>
     <div ng-switch-when="done" class="body-row-auto scrollbox">
-      <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body"></visualization-renderer>
+      <visualization-renderer class="t-body"
+        visualization="$ctrl.widget.visualization"
+        query-result="$ctrl.widget.getQueryResult()"
+        filters="$ctrl.filters"
+      ></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
       <div class="spinner">
@@ -46,10 +59,10 @@
     </div>
 
     <div class="body-row clearfix tile__bottom-control">
-      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public">
+      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public" data-test="RefreshIndicator">
         <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i>
         <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
-        <rd-timer timestamp="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
+        <rd-timer from="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
       </a>
       <span class="small hidden-print" ng-if="$ctrl.public">
         <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
@@ -92,6 +105,6 @@
         </ul>
       </div>
     </div>
-    <div class="body-row-auto scrollbox tiled t-body p-15" ng-bind-html="$ctrl.widget.text | markdown"></div>
+    <div class="body-row-auto scrollbox tiled t-body p-15 markdown" ng-bind-html="$ctrl.widget.text | markdown"></div>
   </div>
 </div>

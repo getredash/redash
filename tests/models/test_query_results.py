@@ -43,7 +43,7 @@ class QueryResultTest(BaseTestCase):
 
     def test_get_latest_returns_the_most_recent_result(self):
         yesterday = utcnow() - datetime.timedelta(seconds=30)
-        old_qr = self.factory.create_query_result(retrieved_at=yesterday)
+        self.factory.create_query_result(retrieved_at=yesterday)
         qr = self.factory.create_query_result()
 
         found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query_text, 60)
@@ -52,7 +52,7 @@ class QueryResultTest(BaseTestCase):
 
     def test_get_latest_returns_the_last_cached_result_for_negative_ttl(self):
         yesterday = utcnow() + datetime.timedelta(days=-100)
-        very_old = self.factory.create_query_result(retrieved_at=yesterday)
+        self.factory.create_query_result(retrieved_at=yesterday)
 
         yesterday = utcnow() + datetime.timedelta(days=-1)
         qr = self.factory.create_query_result(retrieved_at=yesterday)

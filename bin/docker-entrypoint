@@ -3,19 +3,21 @@ set -e
 
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
 }
 
 scheduler() {
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
 }
 
 server() {
@@ -24,6 +26,10 @@ server() {
 
 create_db() {
   exec /app/manage.py database create_tables
+}
+
+celery_healthcheck() {
+  exec /usr/local/bin/celery inspect ping --app=redash.worker -d celery@$HOSTNAME
 }
 
 help() {
@@ -35,9 +41,11 @@ help() {
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start Celery worker"
   echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
+  echo "debug -- start Flask development server with remote debugger via ptvsd"
   echo "create_db -- create database tables"
   echo "manage -- CLI to manage redash"
   echo "tests -- run tests"
@@ -70,6 +78,11 @@ case "$1" in
   dev_server)
     export FLASK_DEBUG=1
     exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    ;;
+  debug)
+    export FLASK_DEBUG=1
+    export REMOTE_DEBUG=1
+    exec /app/manage.py runserver --debugger --no-reload -h 0.0.0.0
     ;;
   shell)
     exec /app/manage.py shell

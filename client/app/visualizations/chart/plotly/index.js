@@ -8,7 +8,6 @@ import box from 'plotly.js/lib/box';
 import heatmap from 'plotly.js/lib/heatmap';
 
 import {
-  ColorPalette,
   prepareData,
   prepareLayout,
   updateData,
@@ -134,10 +133,8 @@ const CustomPlotlyChart = clientConfig => ({
 });
 
 export default function init(ngModule) {
-  ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
 
 init.init = true;
-

@@ -10,10 +10,10 @@ from redash.authentication import current_org
 @login_required
 def organization_status(org_slug=None):
     counters = {
-        'users': models.User.all_not_disabled(current_org).count(),
+        'users': models.User.all(current_org).count(),
         'alerts': models.Alert.all(group_ids=current_user.group_ids).count(),
         'data_sources': models.DataSource.all(current_org, group_ids=current_user.group_ids).count(),
-        'queries': models.Query.all_queries(current_user.group_ids, current_user.id, drafts=True).count(),
+        'queries': models.Query.all_queries(current_user.group_ids, current_user.id, include_drafts=True).count(),
         'dashboards': models.Dashboard.query.filter(models.Dashboard.org==current_org, models.Dashboard.is_archived==False).count(),
     }
 

@@ -12,7 +12,7 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
+  controller($scope, $timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
     'ngInject';
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
@@ -31,6 +31,12 @@ const PublicDashboardPage = {
         loadDashboard($http, $route).then((data) => {
           this.dashboard = data;
           this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+
+          this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+          this.filtersOnChange = (allFilters) => {
+            this.filters = allFilters;
+            $scope.$applyAsync();
+          };
 
           $timeout(refresh, refreshRate * 1000.0);
         });
@@ -71,4 +77,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-
