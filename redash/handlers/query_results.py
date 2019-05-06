@@ -284,7 +284,7 @@ class QueryResultResource(BaseResource):
 
 
 class JobResource(BaseResource):
-    def get(self, job_id):
+    def get(self, job_id, query_id=None):
         """
         Retrieve info about a running query job.
         """

@@ -35,9 +35,10 @@ function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-function QueryResultService($resource, $timeout, $q, QueryResultError) {
+function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
+  const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
     1: 'waiting',
     2: 'processing',
@@ -293,6 +294,13 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       return queryResult;
     }
 
+    loadLatestCachedResult(queryId, parameters) {
+      $resource('api/queries/:id/results', { id: '@queryId' }, { post: { method: 'POST' } })
+        .post({ queryId, parameters },
+          (response) => { this.update(response); },
+          (error) => { handleErrorResponse(this, error); });
+    }
+
     loadResult(tryCount) {
       this.isLoadingResult = true;
       QueryResultResource.get(
@@ -324,18 +332,23 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       );
     }
 
-    refreshStatus(query, tryNumber = 1) {
-      Job.get(
-        { id: this.job.id },
+    refreshStatus(query, parameters, tryNumber = 1) {
+      const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
+      const loadResult = () => (Auth.isAuthenticated()
+        ? this.loadResult()
+        : this.loadLatestCachedResult(query, parameters));
+
+      resource.get(
+        { queryId: query, id: this.job.id },
         (jobResponse) => {
           this.update(jobResponse);
 
           if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-            this.loadResult();
+            loadResult();
           } else if (this.getStatus() !== 'failed') {
             const waitTime = tryNumber > 10 ? 3000 : 500;
             $timeout(() => {
-              this.refreshStatus(query, tryNumber + 1);
+              this.refreshStatus(query, parameters, tryNumber + 1);
             }, waitTime);
           }
         },
@@ -377,7 +390,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
           queryResult.update(response);
 
           if ('job' in response) {
-            queryResult.refreshStatus(id);
+            queryResult.refreshStatus(id, parameters);
           }
         },
         (error) => {
@@ -408,7 +421,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
           queryResult.update(response);
 
           if ('job' in response) {
-            queryResult.refreshStatus(query);
+            queryResult.refreshStatus(query, parameters);
           }
         },
         (error) => {
