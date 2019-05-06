@@ -137,10 +137,21 @@ class OrganizationSettings extends React.Component {
           <Select
             value={formValues.date_format}
             onChange={value => this.handleChange('date_format', value)}
-            data-test="DateFormat"
+            data-test="DateFormatSelect"
           >
             {clientConfig.dateFormatList.map(dateFormat => (
               <Option key={dateFormat}>{dateFormat}</Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Time Format">
+          <Select
+            value={formValues.time_format}
+            onChange={value => this.handleChange('time_format', value)}
+            data-test="TimeFormatSelect"
+          >
+            {clientConfig.timeFormatList.map(timeFormat => (
+              <Option key={timeFormat}>{timeFormat}</Option>
             ))}
           </Select>
         </Form.Item>
