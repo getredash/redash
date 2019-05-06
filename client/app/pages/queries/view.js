@@ -502,10 +502,6 @@ function QueryViewCtrl(
     });
   };
 
-  $scope.onParametersValuesChanged = () => {
-    $scope.executeQuery();
-  };
-
   $scope.$watch(
     () => $location.hash(),
     (hash) => {
