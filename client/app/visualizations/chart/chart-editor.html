@@ -122,6 +122,17 @@
       </ui-select>
     </div>
 
+    <div class="form-group" ng-if="$ctrl.options.globalSeriesType === 'pie'">
+      <label class="control-label">Direction</label>
+
+      <ui-select ng-model="$ctrl.options.direction.type">
+        <ui-select-match placeholder="Choose Direction...">{{$select.selected.label}}</ui-select-match>
+        <ui-select-choices repeat="direction.value as direction in $ctrl.directions">
+          <div ng-bind-html="direction.label | highlight: $select.search"></div>
+        </ui-select-choices>
+      </ui-select>
+    </div>
+
     <div class="checkbox" ng-if="['custom', 'heatmap'].indexOf($ctrl.options.globalSeriesType) == -1">
       <label>
         <input type="checkbox" ng-model="$ctrl.options.legend.enabled">
