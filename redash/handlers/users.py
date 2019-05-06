@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
 
-from redash import models
+from redash import models, limiter
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404, paginate, order_results as _order_results
@@ -51,6 +51,9 @@ def invite_user(org, inviter, user, send_email=True):
 
 
 class UserListResource(BaseResource):
+    decorators = BaseResource.decorators + \
+        [limiter.limit('200/day;50/hour', methods=['POST'])]
+
     def get_users(self, disabled, pending, search_term):
         if disabled:
             users = models.User.all_disabled(self.current_org)
@@ -190,6 +193,9 @@ class UserRegenerateApiKeyResource(BaseResource):
 
 
 class UserResource(BaseResource):
+    decorators = BaseResource.decorators + \
+        [limiter.limit('50/hour', methods=['POST'])]
+
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)

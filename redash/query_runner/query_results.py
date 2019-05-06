@@ -1,14 +1,10 @@
 import logging
-import numbers
 import re
 import sqlite3
 
-from dateutil import parser
-from six import text_type
-
 from redash import models
 from redash.permissions import has_access, not_view_only
-from redash.query_runner import guess_type, TYPE_STRING, BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner, TYPE_STRING, guess_type, register
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)

@@ -9,7 +9,10 @@ function loadDashboard($http, $route) {
 
 const PublicDashboardPage = {
   template,
-  controller($timeout, $location, $http, $route, $scope, dashboardGridOptions, Dashboard) {
+  bindings: {
+    dashboard: '<',
+  },
+  controller($scope, $timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
     'ngInject';
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
@@ -35,6 +38,12 @@ const PublicDashboardPage = {
       loadDashboard($http, $route).then((data) => {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+        this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+        this.filtersOnChange = (allFilters) => {
+          this.filters = allFilters;
+          $scope.$applyAsync();
+        };
+
         this.extractGlobalParameters();
       });
     };
