@@ -19,13 +19,12 @@ export function collectDashboardFilters(dashboard, queryResults, urlParams) {
         queryFilter.current = urlParams[queryFilter.name];
       }
 
+      const filter = { ...queryFilter };
       if (!_.has(filters, queryFilter.name)) {
-        const filter = { ...queryFilter };
         filters[filter.name] = filter;
+      } else {
+        filters[filter.name].values = _.union(filters[filter.name].values, filter.values);
       }
-
-      // TODO: merge values. -- maybe - intersect??
-      // filters[queryFilter.name].originFilters.push(queryFilter);
     });
   });
 
