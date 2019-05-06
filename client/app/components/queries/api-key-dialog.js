@@ -4,26 +4,46 @@ const ApiKeyDialog = {
 </div>
 <div class="modal-body">
     <h5>API Key</h5>
-    <pre>{{$ctrl.apiKey}}</pre>
+    <div class="form-group">
+        <pre>{{query.api_key}}</pre>
+        <div ng-if="canEdit">
+            <button class="btn btn-default" ng-click="$ctrl.regenerateQueryApiKey()" ng-disabled="disableRegenerateApiKeyButton">Regenerate</button>
+        </div>
+    </div>
 
     <h5>Example API Calls:</h5>
 
     <div>
         Results in CSV format:
 
-        <pre>{{$ctrl.csvUrl}}</pre>
+        <pre>{{$ctrl.csvUrlBase + query.api_key}}</pre>
 
         Results in JSON format:
 
-        <pre>{{$ctrl.jsonUrl}}</pre>
+        <pre>{{$ctrl.jsonUrlBase + query.api_key}}</pre>
     </div>
 </div>`,
-  controller(clientConfig) {
+  controller($scope, $http, clientConfig, currentUser) {
     'ngInject';
 
-    this.apiKey = this.resolve.query.api_key;
-    this.csvUrl = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.csv?api_key=${this.apiKey}`;
-    this.jsonUrl = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.json?api_key=${this.apiKey}`;
+    $scope.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission('admin');
+    $scope.disableRegenerateApiKeyButton = false;
+    $scope.query = this.resolve.query;
+    this.csvUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.csv?api_key=`;
+    this.jsonUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.json?api_key=`;
+
+    this.regenerateQueryApiKey = () => {
+      $scope.disableRegenerateApiKeyButton = true;
+      $http
+        .post(`api/queries/${this.resolve.query.id}/regenerate_api_key`)
+        .success((data) => {
+          $scope.query = data;
+          $scope.disableRegenerateApiKeyButton = false;
+        })
+        .error(() => {
+          $scope.disableRegenerateApiKeyButton = false;
+        });
+    };
   },
   bindings: {
     resolve: '<',
