@@ -8,51 +8,51 @@
       <div class="form-group">
         <label class="col-lg-6">Parent Column Name</label>
         <div class="col-lg-6">
-          <select ng-options="name for name in queryResult.getColumnNames()" ng-model="options.parentColumn" class="form-control"></select>
+          <select ng-options="col.name as col.name for col in $ctrl.data.columns" ng-model="$ctrl.options.parentColumn" class="form-control"></select>
         </div>
       </div>
       <div class="form-group">
         <label class="col-lg-6">Child Column Name</label>
         <div class="col-lg-6">
-          <select ng-options="name for name in queryResult.getColumnNames()" ng-model="options.childColumn" class="form-control"></select>
+          <select ng-options="col.name as col.name for col in $ctrl.data.columns" ng-model="$ctrl.options.childColumn" class="form-control"></select>
         </div>
       </div>
       <div class="form-group">
         <label class="col-lg-6">Size Column Name</label>
         <div class="col-lg-6">
-          <select ng-options="name for name in queryResult.getColumnNames()" ng-model="options.sizeColumn" class="form-control"></select>
+          <select ng-options="col.name as col.name for col in $ctrl.data.columns" ng-model="$ctrl.options.sizeColumn" class="form-control"></select>
         </div>
       </div>
       <div class="form-group">
         <label class="col-lg-6">Cell Padding</label>
         <div class="col-lg-6">
-          <input ng-model="options.cellPadding" type="number" step="any" class="form-control">
+          <input ng-model="$ctrl.options.cellPadding" type="number" step="any" class="form-control">
         </div>
       </div>
     </div>
     <div>
       <div class="checkbox">
         <label>
-          <input type="checkbox" ng-model="options.sortReverse">
+          <input type="checkbox" ng-model="$ctrl.options.sortReverse">
           <i class="input-helper"></i> Reverse Order
         </label>
       </div>
       <div class="form-group">
-        <label><input type="checkbox" ng-model="options.tooltip.enabled"> Show tooltip</label>
+        <label><input type="checkbox" ng-model="$ctrl.options.tooltip.enabled"> Show tooltip</label>
         <div>
           <label for="tooltip-template">Tooltip template</label>
           <input class="form-control" id="tooltip-template"
-            ng-model="options.tooltip.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-            ng-disabled="!options.tooltip.enabled">
+            ng-model="$ctrl.options.tooltip.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            ng-disabled="!$ctrl.options.tooltip.enabled">
         </div>
       </div>
       <div class="form-group">
-        <label><input type="checkbox" ng-model="options.datalabel.enabled"> Show data label</label>
+        <label><input type="checkbox" ng-model="$ctrl.options.datalabel.enabled"> Show data label</label>
         <div>
           <label for="datalabel-template">Datalabel template</label>
           <input class="form-control" id="datalabel-template"
-            ng-model="options.datalabel.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-            ng-disabled="!options.datalabel.enabled">
+            ng-model="$ctrl.options.datalabel.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            ng-disabled="!$ctrl.options.datalabel.enabled">
         </div>
       </div>
     </div>
@@ -66,12 +66,12 @@
   </div>
   <div ng-show="currentTab == 'colors'" class="m-t-10 m-b-10">
     <div class="form-group">
-      <label><input type="checkbox" ng-model="options.customColor.enabled"> Custom Color</label>
+      <label><input type="checkbox" ng-model="$ctrl.options.customColor.enabled"> Custom Color</label>
       <div class="form-horizontal">
         <div class="form-group">
           <label class="col-lg-6">Color Column Name</label>
           <div class="col-lg-6">
-            <select ng-options="name for name in queryResult.getColumnNames()" ng-model="options.colorColumn" class="form-control" ng-disabled="!options.customColor.enabled"></select>
+            <select ng-options="col.name as col.name for col in $ctrl.data.columns" ng-model="$ctrl.options.colorColumn" class="form-control" ng-disabled="!$ctrl.options.customColor.enabled"></select>
           </div>
         </div>
         <div class="form-group">
@@ -79,8 +79,8 @@
           <div class="col-lg-6">
             <select class="form-control" id="color-encoding"
               ng-options="key as value for (key, value) in colorEncodings"
-              ng-model="options.customColor.encoding"
-              ng-disabled="!options.customColor.enabled">
+              ng-model="$ctrl.options.customColor.encoding"
+              ng-disabled="!$ctrl.options.customColor.enabled">
             </select>
           </div>
         </div>
@@ -89,7 +89,7 @@
         <div class="col-xs-6">
           <div class="form-group">
             <label>Min color</label>
-            <ui-select ng-model="options.customColor.min" ng-disabled="!options.customColor.enabled || options.customColor.encoding != 'value'">
+            <ui-select ng-model="$ctrl.options.customColor.min" ng-disabled="!$ctrl.options.customColor.enabled || $ctrl.options.customColor.encoding != 'value'">
               <ui-select-match>
                 <color-box color="$select.selected.value"></color-box>
                 <span ng-bind-html="$select.selected.key | capitalize"></span>
@@ -104,7 +104,7 @@
         <div class="col-xs-6">
           <div class="form-group">
             <label>Max color</label>
-            <ui-select ng-model="options.customColor.max" ng-disabled="!options.customColor.enabled || options.customColor.encoding != 'value'">
+            <ui-select ng-model="$ctrl.options.customColor.max" ng-disabled="!$ctrl.options.customColor.enabled || $ctrl.options.customColor.encoding != 'value'">
               <ui-select-match>
                 <color-box color="$select.selected.value"></color-box>
                 <span ng-bind-html="$select.selected.key | capitalize"></span>
