@@ -224,7 +224,7 @@
                 <div class="d-flex flex-column p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
                   <div class="p-10" ng-show="showLog">
                     <p>Log Information:</p>
-                    <p class="query-log-line" ng-repeat="l in queryResult.getLog()">{{l}}</p>
+                    <p class="query-log-line" ng-repeat="l in queryResult.getLog() track by $index">{{l}}</p>
                   </div>
                   <ul class="tab-nav" data-test="QueryPageVisualizationTabs">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
