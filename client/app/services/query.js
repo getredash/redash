@@ -341,11 +341,6 @@ function QueryResultErrorFactory($q) {
     getLog() {
       return null;
     }
-
-    // eslint-disable-next-line class-methods-use-this
-    getChartData() {
-      return null;
-    }
   }
 
   return QueryResultError;
@@ -476,6 +471,10 @@ function QueryResource(
 
   QueryService.prototype.paramsRequired = function paramsRequired() {
     return this.getParameters().isRequired();
+  };
+
+  QueryService.prototype.hasParameters = function hasParameters() {
+    return this.getParametersDefs().length > 0;
   };
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {

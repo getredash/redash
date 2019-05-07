@@ -25,6 +25,7 @@ function OrganizationSettingsCtrl($http, clientConfig, Events) {
   };
 
   this.dateFormatList = clientConfig.dateFormatList;
+  this.timeFormatList = clientConfig.timeFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
 
   // eslint-disable-next-line max-len
