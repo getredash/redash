@@ -5,6 +5,7 @@ import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
 import { clientConfig } from '@/services/auth';
 import { Moment } from '@/components/proptypes';
+import { PRESETTED_RANGES } from './DateRangeInput';
 
 const { RangePicker } = DatePicker;
 
@@ -13,6 +14,7 @@ export function DateTimeRangeInput({
   withSeconds,
   onSelect,
   className,
+  showPresettedRanges,
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
@@ -20,6 +22,11 @@ export function DateTimeRangeInput({
   if (isArray(value) && value[0].isValid() && value[1].isValid()) {
     additionalAttributes.defaultValue = value;
   }
+
+  if (showPresettedRanges) {
+    additionalAttributes.ranges = PRESETTED_RANGES;
+  }
+
   return (
     <RangePicker
       className={className}
@@ -36,6 +43,7 @@ DateTimeRangeInput.propTypes = {
   withSeconds: PropTypes.bool,
   onSelect: PropTypes.func,
   className: PropTypes.string,
+  showPresettedRanges: PropTypes.bool,
 };
 
 DateTimeRangeInput.defaultProps = {
@@ -43,6 +51,7 @@ DateTimeRangeInput.defaultProps = {
   withSeconds: false,
   onSelect: () => {},
   className: '',
+  showPresettedRanges: true,
 };
 
 export default function init(ngModule) {
