@@ -1,4 +1,4 @@
-import { map, trim, uniq } from 'lodash';
+import { map, trim, uniq, filter } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Select from 'antd/lib/select';
@@ -30,7 +30,7 @@ class EditTagsDialog extends React.Component {
     this.props.getAvailableTags().then((availableTags) => {
       this.setState({
         loading: false,
-        availableTags: uniq(map(availableTags, trim)),
+        availableTags: uniq(filter(map(availableTags, trim), Boolean)),
       });
     });
   }
@@ -50,7 +50,7 @@ class EditTagsDialog extends React.Component {
           className="w-100"
           placeholder="Add some tags..."
           defaultValue={result}
-          onChange={values => this.setState({ result: map(values, trim) })}
+          onChange={values => this.setState({ result: filter(map(values, trim), Boolean) })}
           autoFocus
           disabled={loading}
           loading={loading}
