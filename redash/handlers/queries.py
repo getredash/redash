@@ -13,7 +13,7 @@ from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
                                 require_object_modify_permission,
-                                require_permission, view_only)
+                                require_permission, require_permissions, view_only)
 from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
 from redash.models.parameterized_query import ParameterizedQuery
@@ -351,7 +351,7 @@ class QueryResource(BaseResource):
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 
-    @require_permission('view_query')
+    @require_permissions(('view_query', 'view_source'))
     def get(self, query_id):
         """
         Retrieve a query.
