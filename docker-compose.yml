@@ -47,3 +47,7 @@ services:
       - "15432:5432"
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
+    volumes:
+     - dbdata:/var/lib/postgresql/data
+volumes:
+  dbdata:
