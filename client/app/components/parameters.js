@@ -1,4 +1,4 @@
-import { debounce, extend } from 'lodash';
+import { extend } from 'lodash';
 import template from './parameters.html';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
@@ -33,8 +33,6 @@ function ParametersDirective($location) {
           true,
         );
       }
-
-      scope.onValuesChangeDebounced = debounce(scope.onValuesChange, 1000);
 
       scope.showParameterSettings = (parameter, index) => {
         EditParameterSettingsDialog
