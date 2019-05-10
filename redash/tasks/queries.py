@@ -8,6 +8,7 @@ from celery import group
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
+from dateutil import parser
 from six import text_type
 from sqlalchemy.orm import load_only
 from sqlalchemy import or_
@@ -256,14 +257,35 @@ def truncate_long_string(original_str, max_length):
 
 
 @celery.task(name="redash.tasks.update_sample")
-def update_sample(data_source_id, table_name, table_id):
+def update_sample(data_source_id, table_name, table_id, sample_updated_at):
     """
-    For a given table, find look up a sample row for it and update
+    For a given table, look up a sample row for it and update
     the "example" fields for it in the column_metadata table.
     """
     logger.info(u"task=update_sample state=start table_name=%s", table_name)
     start_time = time.time()
     ds = models.DataSource.get_by_id(data_source_id)
+
+    persisted_columns = ColumnMetadata.query.filter(
+        ColumnMetadata.exists.is_(True),
+        ColumnMetadata.table_id == table_id,
+    ).options(load_only('id', 'name', 'example'))
+
+    DAYS_AGO = (
+        utils.utcnow() - datetime.timedelta(days=settings.SCHEMA_SAMPLE_UPDATE_FREQUENCY_DAYS))
+
+    first_column = persisted_columns.first()
+
+    if (first_column and
+        sample_updated_at and
+        first_column.example and
+        parser.parse(sample_updated_at) > DAYS_AGO):
+        # Look at the first example in the persisted columns.
+        # If this is *not* empty AND sample_updated_at is recent, don't update sample
+        logger.info(u"task=update_sample state=abort - recent sample exists table_name=%s",
+                table_name)
+        return
+
     sample = None
     try:
         sample = ds.query_runner.get_table_sample(table_name)
@@ -273,14 +295,9 @@ def update_sample(data_source_id, table_name, table_id):
     if not sample:
         return
 
-    persisted_columns = ColumnMetadata.query.filter(
-        ColumnMetadata.exists.is_(True),
-        ColumnMetadata.table_id == table_id,
-    ).options(load_only('id')).all()
-
     #  If a column exists, add a sample to it.
     column_examples = []
-    for persisted_column in persisted_columns:
+    for persisted_column in persisted_columns.all():
         column_example = sample.get(persisted_column.name, None)
         column_example = column_example if isinstance(
             column_example, unicode) else str(column_example)
@@ -330,7 +347,7 @@ def refresh_samples(data_source_id, table_sample_limit):
     for table in tables_to_sample:
         tasks.append(
             update_sample.signature(
-                args=(ds.id, table.name, table.id),
+                args=(ds.id, table.name, table.id, table.sample_updated_at),
                 queue=settings.SCHEMAS_REFRESH_QUEUE
             )
         )

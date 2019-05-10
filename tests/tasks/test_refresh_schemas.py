@@ -42,9 +42,9 @@ class TestRefreshSchemas(BaseTestCase):
         self.patched_get_schema.return_value = self.default_schema_return_value
 
         get_table_sample_patcher = patch('redash.query_runner.BaseQueryRunner.get_table_sample')
-        patched_get_table_sample = get_table_sample_patcher.start()
+        self.patched_get_table_sample = get_table_sample_patcher.start()
         self.addCleanup(get_table_sample_patcher.stop)
-        patched_get_table_sample.return_value = {self.COLUMN_NAME: self.COLUMN_EXAMPLE}
+        self.patched_get_table_sample.return_value = {self.COLUMN_NAME: self.COLUMN_EXAMPLE}
 
     def tearDown(self):
         self.factory.data_source.query_runner.configuration['samples'] = False
@@ -87,7 +87,8 @@ class TestRefreshSchemas(BaseTestCase):
         update_sample(
             self.factory.data_source.id,
             'table',
-            1
+            1,
+            "2019-05-09T17:07:52.386910Z"
         )
         table_metadata = TableMetadata.query.all()
         column_metadata = ColumnMetadata.query.all()
@@ -182,7 +183,8 @@ class TestRefreshSchemas(BaseTestCase):
         update_sample(
             self.factory.data_source.id,
             'table',
-            1
+            1,
+            "2019-05-09T17:07:52.386910Z"
         )
         column_metadata = ColumnMetadata.query.all()
         self.assertEqual(column_metadata[0].to_dict(), self.EXPECTED_COLUMN_METADATA)
@@ -292,7 +294,8 @@ class TestRefreshSchemas(BaseTestCase):
         update_sample(
             self.factory.data_source.id,
             'table',
-            1
+            1,
+            "2019-05-09T17:07:52.386910Z"
         )
         column_metadata = ColumnMetadata.query.first()
         self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
@@ -317,3 +320,50 @@ class TestRefreshSchemas(BaseTestCase):
             TableMetadata.sample_updated_at.isnot(None)
         )
         self.assertEqual(table_metadata.count(), len(self.default_schema_return_value))
+
+    def test_recent_empty_sample_refreshs(self):
+        self.factory.data_source.query_runner.configuration['samples'] = True
+        refresh_schema(self.factory.data_source.id)
+
+        # Confirm no sample exists
+        column_metadata = ColumnMetadata.query.first()
+        self.assertEqual(column_metadata.example, None)
+
+        LAST_UPDATE = utils.utcnow() - datetime.timedelta(days=5)
+        update_sample(
+            self.factory.data_source.id,
+            'table',
+            1,
+            LAST_UPDATE.isoformat()
+        )
+
+        column_metadata = ColumnMetadata.query.first()
+        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
+
+    def test_recent_non_empty_sample_doesnt_refresh(self):
+        self.factory.data_source.query_runner.configuration['samples'] = True
+        refresh_schema(self.factory.data_source.id)
+
+        update_sample(
+            self.factory.data_source.id,
+            'table',
+            1,
+            None
+        )
+
+        # Confirm a sample was added
+        column_metadata = ColumnMetadata.query.first()
+        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
+
+        self.patched_get_table_sample.return_value = {self.COLUMN_NAME: "a new example"}
+        LAST_UPDATE = utils.utcnow() - datetime.timedelta(days=5)
+        update_sample(
+            self.factory.data_source.id,
+            'table',
+            1,
+            LAST_UPDATE.isoformat()
+        )
+
+        # The sample doesn't take on the new value that is returned.
+        column_metadata = ColumnMetadata.query.first()
+        self.assertEqual(column_metadata.example, self.COLUMN_EXAMPLE)
