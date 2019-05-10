@@ -332,6 +332,9 @@ class QueryResource(BaseResource):
         if 'query' in query_def:
             query_def['query_text'] = query_def.pop('query')
 
+        if 'tags' in query_def:
+            query_def['tags'] = [tag for tag in query_def['tags'] if tag]
+
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
         # SQLAlchemy handles the case where a concurrent transaction beats us
