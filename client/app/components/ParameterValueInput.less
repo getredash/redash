@@ -1,19 +1,50 @@
 @import '~antd/lib/input-number/style/index'; // for ant @vars
 
-.parameter-apply-button {
-  margin-left: -55px;
-  width: 50px;
-}
-
 .parameter-input {
-  width: 195px !important;
+  display: inline-block;
+  position: relative;
+  width: 195px;
 
   &--apply-button {
-    padding-right: 60px !important;
+    .@{ant-prefix}-input {
+      padding-right: 58px !important;
+    }
   }
 
-  // Remove Input Number spinners
+  .parameter-apply-button {
+    position: absolute !important;
+    height: 25px !important;
+    width: 50px;
+    top: 5px;
+    right: 4px;
+  }
+}
+
+.parameter-input-number {
+  display: inline-block;
+  position: relative;
+  width: 195px;
+
+  .@{ant-prefix}-input-number {
+    width: 100% !important;
+  }
+
+  &--apply-button {
+    .@{ant-prefix}-input-number {
+      padding-right: 68px !important;
+    }
+  }
+
+  // Make Input Number spinners always visible
   .@{input-number-prefix-cls}-handler-wrap {
-    display: none;
+    opacity: 1 !important;
+  }
+
+  .parameter-apply-button {
+    position: absolute !important;
+    height: 25px !important;
+    width: 50px;
+    top: 5px;
+    right: 26px;
   }
 }

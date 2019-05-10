@@ -171,9 +171,11 @@ export class ParameterValueInput extends React.Component {
     };
 
     return (
-      <React.Fragment>
+      <div
+        className={classNames('parameter-input-number', { 'parameter-input-number--apply-button': showApplyButton })}
+      >
         <InputNumber
-          className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
+          className={className}
           value={!isNaN(value) && value || 0}
           onChange={onChange}
           onKeyUp={showApplyButton ? (e) => {
@@ -184,7 +186,7 @@ export class ParameterValueInput extends React.Component {
           } : null}
         />
         {showApplyButton && this.renderApplyButton()}
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -201,9 +203,9 @@ export class ParameterValueInput extends React.Component {
     };
 
     return (
-      <React.Fragment>
+      <div className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton })}>
         <Input
-          className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton }, className)}
+          className={className}
           value={value || ''}
           data-test="TextParamInput"
           onChange={onChange}
@@ -214,7 +216,7 @@ export class ParameterValueInput extends React.Component {
           } : null}
         />
         {showApplyButton && this.renderApplyButton()}
-      </React.Fragment>
+      </div>
     );
   }
 
