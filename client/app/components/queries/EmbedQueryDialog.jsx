@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import Button from 'antd/lib/button';
 import Alert from 'antd/lib/alert';
 import Modal from 'antd/lib/modal';
-import Typography from 'antd/lib/typography';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { clientConfig } from '@/services/auth';
-
-const { Text } = Typography;
+import CodeBlock from '@/components/CodeBlock';
 
 function EmbedQueryDialog({ dialog, query, visualization }) {
   const embedUrl = `${clientConfig.basePath}embed/query/${query.id}/visualization/${
@@ -24,19 +22,21 @@ function EmbedQueryDialog({ dialog, query, visualization }) {
         <React.Fragment>
           <h5 className="m-t-0">Public URL</h5>
           <div className="m-b-10">
-            <Text copyable code>{embedUrl}</Text>
+            <CodeBlock copyable>
+              {embedUrl}
+            </CodeBlock>
           </div>
           <h5 className="m-t-0">IFrame Embed</h5>
           <div className="m-b-10">
-            <Text data-test="EmbedIframe" copyable code>
+            <CodeBlock copyable>
               {`<iframe src="${embedUrl}" width="720" height="391"></iframe>`}
-            </Text>
+            </CodeBlock>
           </div>
-          <Text type="secondary">(height should be adjusted)</Text>
+          (height should be adjusted)
           {snapshotUrl && (
             <React.Fragment>
               <h5>Image Embed</h5>
-              <Text copyable code>{snapshotUrl}</Text>
+              <CodeBlock copyable>{snapshotUrl}</CodeBlock>
             </React.Fragment>
           )}
         </React.Fragment>
