@@ -37,6 +37,7 @@ function getColumnFriendlyName(column) {
 
 function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
+  const QueryResultByQueryIdResource = $resource('api/queries/:queryId/results/:id.json', { queryId: '@queryId', id: '@id' });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
@@ -273,12 +274,12 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return this.deferred.promise;
     }
 
-    static getById(id) {
+    static getById(queryId, id) {
       const queryResult = new QueryResult();
 
       queryResult.isLoadingResult = true;
-      QueryResultResource.get(
-        { id },
+      QueryResultByQueryIdResource.get(
+        { queryId, id },
         (response) => {
           // Success handler
           queryResult.isLoadingResult = false;
