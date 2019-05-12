@@ -107,7 +107,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe('Sharing', () => {
+  describe.only('Sharing', () => {
     beforeEach(function () {
       createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
@@ -131,9 +131,10 @@ describe('Dashboard', () => {
         cy.getByTestId('AddWidgetDialog').within(() => {
           cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
         });
+        cy.contains('button', 'Add to Dashboard').click();
+        cy.getByTestId('AddWidgetDialog').should('not.exist');
         cy.clickThrough({ button: `
-          Add to Dashboard
-          Apply Changes
+          Done Editing
           Publish
         ` },
         `OpenShareForm
@@ -159,9 +160,10 @@ describe('Dashboard', () => {
         cy.getByTestId('AddWidgetDialog').within(() => {
           cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
         });
+        cy.contains('button', 'Add to Dashboard').click();
+        cy.getByTestId('AddWidgetDialog').should('not.exist');
         cy.clickThrough({ button: `
-          Add to Dashboard
-          Apply Changes
+          Done Editing
           Publish
         ` },
         `OpenShareForm
@@ -192,9 +194,10 @@ describe('Dashboard', () => {
         cy.getByTestId('AddWidgetDialog').within(() => {
           cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
         });
+        cy.contains('button', 'Add to Dashboard').click();
+        cy.getByTestId('AddWidgetDialog').should('not.exist');
         cy.clickThrough({ button: `
-          Add to Dashboard
-          Apply Changes
+          Done Editing
           Publish
         ` },
         'OpenShareForm');
