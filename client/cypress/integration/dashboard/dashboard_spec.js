@@ -109,7 +109,7 @@ describe('Dashboard', () => {
 
   describe('Sharing', () => {
     beforeEach(function () {
-      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+      createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboard/${slug}`;
       });
@@ -124,7 +124,7 @@ describe('Dashboard', () => {
       };
 
       const dashboardUrl = this.dashboardUrl;
-      addQueryByAPI({ options }).then(({ id: queryId }) => {
+      createQuery({ options }).then(({ id: queryId }) => {
         cy.visit(dashboardUrl);
         editDashboard();
         cy.contains('a', 'Add Widget').click();
@@ -152,7 +152,7 @@ describe('Dashboard', () => {
       };
 
       const dashboardUrl = this.dashboardUrl;
-      addQueryByAPI({ options }).then(({ id: queryId }) => {
+      createQuery({ options }).then(({ id: queryId }) => {
         cy.visit(dashboardUrl);
         editDashboard();
         cy.contains('a', 'Add Widget').click();
@@ -185,7 +185,7 @@ describe('Dashboard', () => {
       };
 
       const dashboardUrl = this.dashboardUrl;
-      addQueryByAPI({ options }).then(({ id: queryId }) => {
+      createQuery({ options }).then(({ id: queryId }) => {
         cy.visit(dashboardUrl);
         editDashboard();
         cy.contains('a', 'Add Widget').click();

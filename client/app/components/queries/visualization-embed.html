@@ -33,6 +33,7 @@
           <rd-timer from="$ctrl.refreshStartedAt" ng-if="$ctrl.loading"></rd-timer>
         </a>
       </div>
+      <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}} UTC</span>
       <div class="col-xs-6 text-right hidden-print">
         <a class="btn btn-default btn-sm" ng-href="{{$ctrl.query.getUrl()}}" target="_blank" tooltip="Open in Redash">
           <span class="zmdi zmdi-link"></span>
