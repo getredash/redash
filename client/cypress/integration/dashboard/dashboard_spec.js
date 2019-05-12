@@ -107,7 +107,7 @@ describe('Dashboard', () => {
     });
   });
 
-  describe.only('Sharing', () => {
+  describe('Sharing', () => {
     beforeEach(function () {
       createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
