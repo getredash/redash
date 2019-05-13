@@ -1,5 +1,6 @@
-
 import { includes, reduce, some } from 'lodash';
+
+// TODO: Revisit this implementation when migrating widget component to React
 
 const WIDGET_SELECTOR = '[data-widgetid="{0}"]';
 const WIDGET_CONTENT_SELECTOR = [
