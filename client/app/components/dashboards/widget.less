@@ -110,4 +110,12 @@ visualization-name {
   &.cssTransforms:not(.resizing) {
     transition-property: transform, height; // added ", height"
   }
+
+  // resize handle size
+  & > .react-resizable-handle::after {
+    width: 11px;
+    height: 11px;
+    right: 5px;
+    bottom: 5px;
+  }
 }
