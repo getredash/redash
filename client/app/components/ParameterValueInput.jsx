@@ -255,10 +255,10 @@ export default function init(ngModule) {
     controller($scope) {
       this.setValue = (value) => {
         this.param.setValue(value);
+        $scope.$apply();
         if (isFunction(this.onChange)) {
           this.onChange();
         }
-        $scope.$applyAsync();
       };
     },
   });
