@@ -1,8 +1,10 @@
 // based on https://github.com/outbrain/tech-companies-logos-in-css/pull/28
+
+@primary: #ff7964;
+@shadow: #ef6c58;
+@bar: white;
+
 #css-logo {
-  --primary: #ff7964;
-  --shadow: #ef6c58;
-  --bar: white;
   width: 100px;
   height: 100px;
   position: relative;
@@ -10,7 +12,7 @@
   #circle {
     width: 79px;
     height: 79px;
-    background-color: var(--shadow);
+    background-color: @shadow;
     border-radius: 50%;
     margin: auto;
     overflow: hidden;
@@ -19,7 +21,7 @@
     & > div {
       width: 79px;
       height: 73px;
-      background-color: var(--primary);
+      background-color: @primary;
       border-radius: 50%;
       position: absolute;
       top: 0;
@@ -36,8 +38,8 @@
     padding: 0 22px 0;
 
     .bar {
-      background: var(--bar);
-      box-shadow: 0px 2px 0 0 var(--shadow);
+      background: @bar;
+      box-shadow: 0px 2px 0 0 @shadow;
       display: inline-block;
       border-radius: 1px;
       align-self: flex-end;
@@ -68,7 +70,7 @@
     position: absolute;
     width: 0;
     height: 0;
-    border: 17px solid var(--shadow);
+    border: 17px solid @shadow;
     border-right-color: transparent !important;
     border-bottom-color: transparent !important;
     bottom: 0;
@@ -79,7 +81,7 @@
   
   #point > div {
     bottom: -12px;
-    border-color: var(--primary);
+    border-color: @primary;
     transform: scaleX(1.04);
     left: -17px;
   }
