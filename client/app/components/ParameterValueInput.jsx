@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
@@ -171,9 +170,7 @@ export class ParameterValueInput extends React.Component {
     };
 
     return (
-      <div
-        className={classNames('parameter-input-number', { 'parameter-input-number--apply-button': showApplyButton })}
-      >
+      <div className="parameter-input-number" data-dirty={showApplyButton || null}>
         <InputNumber
           className={className}
           value={!isNaN(value) && value || 0}
@@ -203,7 +200,7 @@ export class ParameterValueInput extends React.Component {
     };
 
     return (
-      <div className={classNames('parameter-input', { 'parameter-input--apply-button': showApplyButton })}>
+      <div className="parameter-input" data-dirty={showApplyButton || null}>
         <Input
           className={className}
           value={value || ''}
