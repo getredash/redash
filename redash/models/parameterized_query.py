@@ -1,6 +1,5 @@
 import pystache
 from functools import partial
-from flask_login import current_user
 from flask_restful import abort
 from numbers import Number
 from redash.utils import mustache_render, json_loads
@@ -17,27 +16,21 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": unicode(row[value_column])}
 
 
-def _load_result(query_id, should_require_access):
+def _load_result(query_id):
     from redash.authentication.org_resolving import current_org
     from redash import models
 
     query = models.Query.get_by_id_and_org(query_id, current_org)
 
-    if should_require_access:
-        require_access(query.data_source, current_user, view_only)
-
-    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
-
     if query.data_source:
-        require_access(query.data_source.groups, current_user, view_only)
         query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
         return json_loads(query_result.data)
     else:
         abort(400, message="This query is detached from any data source. Please select a different query.")
 
 
-def dropdown_values(query_id, should_require_access=True):
-    data = _load_result(query_id, should_require_access)
+def dropdown_values(query_id):
+    data = _load_result(query_id)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return map(pluck, data["rows"])

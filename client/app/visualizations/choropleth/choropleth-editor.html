@@ -14,14 +14,23 @@
     <div class="row">
       <div class="col-xs-6">
         <div class="form-group">
-          <label>Country code column</label>
+          <label>Map Type</label>
+          <select ng-options="key as value for (key, value) in $ctrl.mapTypes"
+            ng-model="$ctrl.options.mapType" class="form-control"></select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Key column</label>
           <select ng-options="col.name as col.name for col in $ctrl.data.columns"
             ng-model="$ctrl.options.countryCodeColumn" class="form-control"></select>
         </div>
       </div>
       <div class="col-xs-6">
         <div class="form-group">
-          <label>Country code type</label>
+          <label>Key type</label>
           <select ng-options="key as value for (key, value) in $ctrl.countryCodeTypes"
             ng-model="$ctrl.options.countryCodeType" class="form-control"></select>
         </div>

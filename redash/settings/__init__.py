@@ -4,7 +4,7 @@ from funcy import distinct, remove
 from flask_talisman import talisman
 
 from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
-from .organization import DATE_FORMAT  # noqa
+from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))

@@ -26,6 +26,10 @@ export const TYPES = {
     '/user-guide/dashboards/sharing-dashboards',
     'Guide: Sharing and Embedding Dashboards',
   ],
+  AUTHENTICATION_OPTIONS: [
+    '/user-guide/users/authentication-options',
+    'Guide: Authentication Options',
+  ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
     'Guide: Help Setting up Amazon Athena',
@@ -65,7 +69,7 @@ export class HelpTrigger extends React.Component {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
     children: PropTypes.node,
-  }
+  };
 
   static defaultProps = {
     className: null,
@@ -99,12 +103,12 @@ export class HelpTrigger extends React.Component {
     this.iframeLoadingTimeout = setTimeout(() => {
       this.setState({ error: url, loading: false });
     }, IFRAME_TIMEOUT); // safety
-  }
+  };
 
   onIframeLoaded = () => {
     this.setState({ loading: false });
     clearTimeout(this.iframeLoadingTimeout);
-  }
+  };
 
   openDrawer = () => {
     this.setState({ visible: true });
@@ -113,11 +117,11 @@ export class HelpTrigger extends React.Component {
 
     // wait for drawer animation to complete so there's no animation jank
     setTimeout(() => this.loadIframe(url), 300);
-  }
+  };
 
   closeDrawer = () => {
     this.setState({ visible: false });
-  }
+  };
 
   render() {
     const [, tooltip] = TYPES[this.props.type];

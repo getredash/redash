@@ -20,6 +20,7 @@ const DEFAULT_OPTIONS = {
   seriesOptions: {},
   valuesOptions: {},
   columnMapping: {},
+  direction: { type: 'counterclockwise' },
 
   // showDataLabels: false, // depends on chart type
   numberFormat: '0,0[.]00000',
@@ -125,6 +126,11 @@ const ChartEditor = {
     if (clientConfig.allowCustomJSVisualizations) {
       this.chartTypes.custom = { name: 'Custom', icon: 'code' };
     }
+
+    this.directions = [
+      { label: 'Counterclockwise', value: 'counterclockwise' },
+      { label: 'Clockwise', value: 'clockwise' },
+    ];
 
     this.xAxisScales = [
       { label: 'Auto Detect', value: '-' },

@@ -24,10 +24,12 @@ import template from './choropleth.html';
 import editorTemplate from './choropleth-editor.html';
 
 import countriesDataUrl from './countries.geo.json';
+import subdivJapanDataUrl from './japan.prefectures.geo.json';
 
 export const ChoroplethPalette = _.extend({}, AdditionalColors, ColorPalette);
 
 const DEFAULT_OPTIONS = {
+  mapType: 'countries',
   countryCodeColumn: '',
   countryCodeType: 'iso_a3',
   valueColumn: '',
@@ -109,6 +111,16 @@ const ChoroplethRenderer = {
       }
     };
 
+    const getDataUrl = (type) => {
+      switch (type) {
+        case 'countries': return countriesDataUrl;
+        case 'subdiv_japan': return subdivJapanDataUrl;
+        default: return '';
+      }
+    };
+
+    let dataUrl = getDataUrl(this.options.mapType);
+
     const render = () => {
       if (map) {
         map.remove();
@@ -154,7 +166,7 @@ const ChoroplethRenderer = {
             layer.bindTooltip($sanitize(formatSimpleTemplate(
               this.options.tooltip.template,
               featureData,
-            )));
+            )), { sticky: true });
           }
 
           if (this.options.popup.enabled) {
@@ -205,12 +217,17 @@ const ChoroplethRenderer = {
       updateBounds({ disableAnimation: true });
     };
 
-    loadCountriesData($http, countriesDataUrl).then((data) => {
-      if (_.isObject(data)) {
-        countriesData = data;
-        render();
-      }
-    });
+    const load = () => {
+      loadCountriesData($http, dataUrl).then((data) => {
+        if (_.isObject(data)) {
+          countriesData = data;
+          render();
+        }
+      });
+    };
+
+    load();
+
 
     $scope.handleResize = _.debounce(() => {
       if (map) {
@@ -220,8 +237,12 @@ const ChoroplethRenderer = {
     }, 50);
 
     $scope.$watch('$ctrl.data', render);
-    $scope.$watch(() => _.omit(this.options, 'bounds'), render, true);
+    $scope.$watch(() => _.omit(this.options, 'bounds', 'mapType'), render, true);
     $scope.$watch('$ctrl.options.bounds', updateBounds, true);
+    $scope.$watch('$ctrl.options.mapType', () => {
+      dataUrl = getDataUrl(this.options.mapType);
+      load();
+    }, true);
   },
 };
 
@@ -240,6 +261,11 @@ const ChoroplethEditor = {
 
     this.colors = ChoroplethPalette;
 
+    this.mapTypes = {
+      countries: 'Countries',
+      subdiv_japan: 'Japan/Prefectures',
+    };
+
     this.clusteringModes = {
       q: 'quantile',
       e: 'equidistant',
@@ -253,35 +279,64 @@ const ChoroplethEditor = {
       'bottom-right': 'bottom / right',
     };
 
-    this.countryCodeTypes = {
-      name: 'Short name',
-      name_long: 'Full name',
-      abbrev: 'Abbreviated name',
-      iso_a2: 'ISO code (2 letters)',
-      iso_a3: 'ISO code (3 letters)',
-      iso_n3: 'ISO code (3 digits)',
-    };
+    this.countryCodeTypes = {};
 
-    this.templateHint = `
+    this.templateHintFormatter = propDescription => `
       <div class="p-b-5">All query result columns can be referenced using <code>{{ column_name }}</code> syntax.</div>
       <div class="p-b-5">Use special names to access additional properties:</div>
       <div><code>{{ @@value }}</code> formatted value;</div>
-      <div><code>{{ @@name }}</code> short country name;</div>
-      <div><code>{{ @@name_long }}</code> full country name;</div>
-      <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
-      <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
-      <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
-      <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
+      ${propDescription}
       <div class="p-t-5">This syntax is applicable to tooltip and popup templates.</div>
     `;
 
     const updateCountryCodeType = () => {
       this.options.countryCodeType = inferCountryCodeType(
+        this.options.mapType,
         this.data ? this.data.rows : [],
         this.options.countryCodeColumn,
       ) || this.options.countryCodeType;
     };
 
+    const populateCountryCodeTypes = () => {
+      let propDescription = '';
+      switch (this.options.mapType) {
+        case 'subdiv_japan':
+          propDescription = `
+            <div><code>{{ @@name }}</code> Prefecture name in English;</div>
+            <div><code>{{ @@name_local }}</code> Prefecture name in Kanji;</div>
+            <div><code>{{ @@iso_3166_2 }}</code> five-letter ISO subdivision code (JP-xx);</div>
+          `;
+          this.countryCodeTypes = {
+            name: 'Name',
+            name_local: 'Name (local)',
+            iso_3166_2: 'ISO-3166-2',
+          };
+          break;
+        case 'countries':
+          propDescription = `
+           <div><code>{{ @@name }}</code> short country name;</div>
+             <div><code>{{ @@name_long }}</code> full country name;</div>
+             <div><code>{{ @@abbrev }}</code> abbreviated country name;</div>
+             <div><code>{{ @@iso_a2 }}</code> two-letter ISO country code;</div>
+             <div><code>{{ @@iso_a3 }}</code> three-letter ISO country code;</div>
+             <div><code>{{ @@iso_n3 }}</code> three-digit ISO country code.</div>
+          `;
+          this.countryCodeTypes = {
+            name: 'Short name',
+            name_long: 'Full name',
+            abbrev: 'Abbreviated name',
+            iso_a2: 'ISO code (2 letters)',
+            iso_a3: 'ISO code (3 letters)',
+            iso_n3: 'ISO code (3 digits)',
+          };
+          break;
+        default:
+          this.countryCodeTypes = {};
+      }
+      this.templateHint = this.templateHintFormatter(propDescription);
+    };
+
+    $scope.$watch('$ctrl.options.mapType', populateCountryCodeTypes);
     $scope.$watch('$ctrl.options.countryCodeColumn', updateCountryCodeType);
     $scope.$watch('$ctrl.data', updateCountryCodeType);
 

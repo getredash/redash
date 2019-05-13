@@ -262,6 +262,7 @@ function preparePieData(seriesList, options) {
       textposition: 'inside',
       textfont: { color: '#ffffff' },
       name: serie.name,
+      direction: options.direction.type,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
         y: [yPosition, yPosition + cellHeight - yPadding],
@@ -527,7 +528,7 @@ export function prepareLayout(element, seriesList, options, data) {
           y: yPosition + cellHeight - 0.015,
           xanchor: 'center',
           yanchor: 'top',
-          text: options.seriesOptions[series.name].name || series.name,
+          text: (options.seriesOptions[series.name] || {}).name || series.name,
           showarrow: false,
         };
       }));
