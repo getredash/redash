@@ -51,7 +51,7 @@ def transform_row(row, fields):
 
     for column_index, cell in enumerate(row["f"]):
         field = fields[column_index]
-        if field['mode'] == 'REPEATED':
+        if field.get('mode') == 'REPEATED':
             cell_value = [transform_cell(field['type'], item['v']) for item in cell['v']]
         else:
             cell_value = transform_cell(field['type'], cell['v'])
@@ -231,7 +231,7 @@ class BigQuery(BaseQueryRunner):
         columns = [{
             'name': f["name"],
             'friendly_name': f["name"],
-            'type': "string" if f['mode'] == "REPEATED"
+            'type': "string" if f.get('mode') == "REPEATED"
             else types_map.get(f['type'], "string")
         } for f in query_reply["schema"]["fields"]]
 
