@@ -515,7 +515,7 @@ function QueryResource(
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
       this.queryResult = execute();
