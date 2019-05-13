@@ -5,7 +5,7 @@
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
-  <div style="margin: -15px -15px 0" ng-if="$ctrl.dashboard.widgets.length > 0">
+  <div id="dashboard-container">
     <dashboard-grid
       dashboard="$ctrl.dashboard"
       widgets="$ctrl.dashboard.widgets"
