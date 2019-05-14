@@ -1,5 +1,4 @@
 import React from 'react';
-import { react2angular } from 'react2angular';
 import PropTypes from 'prop-types';
 import Table from 'antd/lib/table';
 import Popconfirm from 'antd/lib/popconfirm';
@@ -26,7 +25,7 @@ const components = {
   },
 };
 
-class SchemaTable extends React.Component {
+export default class SchemaTable extends React.Component {
   static propTypes = {
     schema: Schema, // eslint-disable-line react/no-unused-prop-types
     updateSchema: PropTypes.func.isRequired,
@@ -202,31 +201,33 @@ class SchemaTable extends React.Component {
       if (error) {
         return;
       }
-      const newData = [...this.state.data];
-      let spliceIndex = newData.findIndex(item => tableKey === item.key);
+      this.setState((prevState) => {
+        const newData = [...prevState.data];
+        let spliceIndex = newData.findIndex(item => tableKey === item.key);
 
-      if (spliceIndex < 0) {
-        return;
-      }
+        if (spliceIndex < 0) {
+          return;
+        }
 
-      const tableRow = newData[spliceIndex];
-      let dataToUpdate = newData;
-      let rowToUpdate = tableRow;
+        const tableRow = newData[spliceIndex];
+        let dataToUpdate = newData;
+        let rowToUpdate = tableRow;
 
-      const columnIndex = tableRow.columns.findIndex(item => columnKey === item.key);
-      const columnRow = tableRow.columns[columnIndex];
-      if (columnKey) {
-        dataToUpdate = tableRow.columns;
-        spliceIndex = columnIndex;
-        rowToUpdate = columnRow;
-      }
+        const columnIndex = tableRow.columns.findIndex(item => columnKey === item.key);
+        const columnRow = tableRow.columns[columnIndex];
+        if (columnKey) {
+          dataToUpdate = tableRow.columns;
+          spliceIndex = columnIndex;
+          rowToUpdate = columnRow;
+        }
 
-      dataToUpdate.splice(spliceIndex, 1, {
-        ...rowToUpdate,
-        ...editedFields,
+        dataToUpdate.splice(spliceIndex, 1, {
+          ...rowToUpdate,
+          ...editedFields,
+        });
+        this.props.updateSchema(editedFields, tableRow.key, columnRow ? columnRow.key : undefined);
+        return { data: newData, editingKey: '' };
       });
-      this.props.updateSchema(editedFields, tableRow.key, columnRow ? columnRow.key : undefined);
-      this.setState({ data: newData, editingKey: '' });
     });
   }
 
@@ -256,9 +257,3 @@ class SchemaTable extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('schemaTable', react2angular(SchemaTable, null, []));
-}
-
-init.init = true;

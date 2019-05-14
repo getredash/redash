@@ -42,7 +42,7 @@ export class EditableCell extends React.Component {
   }
 
   onChange = () => {
-    this.setState({ visible: !this.state.visible });
+    this.setState(prevState => ({ visible: !prevState.visible }));
   }
 
   getInput = () => {
@@ -51,7 +51,8 @@ export class EditableCell extends React.Component {
         <TableVisibilityCheckbox
           visible={this.state.visible}
           onChange={this.onChange}
-        />);
+        />
+      );
     }
     return <TextArea className="table-textarea" placeholder="Enter table description..." style={{ resize: 'vertical' }} />;
   };

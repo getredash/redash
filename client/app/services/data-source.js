@@ -33,14 +33,21 @@ function DataSourceService($q, $resource, $http) {
       isArray: false,
       url: 'api/data_sources/:id/test',
     },
+    schema: {
+      method: 'GET',
+      cache: false,
+      isArray: false,
+      url: 'api/data_sources/:id/schema',
+    },
+    updateSchema: {
+      method: 'POST',
+      cache: false,
+      isArray: false,
+      url: 'api/data_sources/:id/schema',
+    },
   };
 
   const DataSourceResource = $resource('api/data_sources/:id', { id: '@id' }, actions);
-
-  DataSourceResource.prototype.updateSchema = function updateSchema(schema, tableId, columnId) {
-    const data = { tableId, columnId, schema };
-    return $http.post(`api/data_sources/${this.id}/schema`, data);
-  };
 
   DataSourceResource.prototype.getSchema = function getSchema(refresh = false) {
     if (this._schema === undefined || refresh) {
