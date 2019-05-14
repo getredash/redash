@@ -392,11 +392,10 @@ def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
 
-    text = "We're sorry, but these queries failed lately:\n" + \
-        '\n'.join(['\nQuery: {}\nFailed at: {}\nFailure reason: {}'.format(e['query'], e['failed_at'], e['message']) for e in errors])
-    send_mail.delay([email_address], "Failed Queries", None, text)
-
-    redis_connection.delete(key)
+    html = "We're sorry, but these queries failed lately:<br><ol><li>{}</li></ol>".format(
+        '</li><li>'.join(['<b>Failed at</b>: {}<br><b>Failure reason</b>: {}<br><b>Query</b>: {}'.format(e['failed_at'], e['message'], e['query']) for e in errors])
+    )
+    send_mail.delay([email_address], "Uh-oh, Some Scheduled Queries Failed!", html, None)   redis_connection.delete(key)
 
 def notify_of_failure(self, exc, _, args, __, ___):
     scheduled_query_id = args[-2]
