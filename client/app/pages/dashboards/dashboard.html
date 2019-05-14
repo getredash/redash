@@ -103,6 +103,7 @@
 
   <div id="dashboard-container">
     <dashboard-grid
+      ng-if="$ctrl.dashboard"
       dashboard="$ctrl.dashboard"
       widgets="$ctrl.dashboard.widgets"
       filters="$ctrl.filters"
