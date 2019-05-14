@@ -399,16 +399,17 @@ def send_aggregated_errors(email_address):
     redis_connection.delete(key)
 
 def notify_of_failure(self, exc, _, args, __, ___):
-    if not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
+    scheduled_query_id = args[-2]
+    if scheduled_query_id is None or not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
         return
 
-    query, _, metadata = args[0:3]
-    email_address = metadata.get('Username')
+    query = models.Query.query.get(scheduled_query_id)
+    email_address = query.user.email
 
     if email_address:
         key = 'aggregated_failures:{}'.format(email_address)
         redis_connection.lpush(key, json_dumps({
-            'query': query,
+            'query': query.query_text,
             'message': exc.message,
             'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         }))
