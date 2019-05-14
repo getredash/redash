@@ -212,6 +212,8 @@ def email_server_is_configured():
 
 HOST = os.environ.get('REDASH_HOST', '')
 
+SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
+
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
 # How many requests are allowed per IP to the login page before
