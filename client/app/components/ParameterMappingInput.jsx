@@ -154,6 +154,10 @@ export class ParameterMappingInput extends React.Component {
   updateParamMapping = (update) => {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
+    if (newMapping.value !== mapping.value) {
+      newMapping.param = newMapping.param.clone();
+      newMapping.param.setValue(newMapping.value);
+    }
     onChange(newMapping);
   };
 
