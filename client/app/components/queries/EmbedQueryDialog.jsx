@@ -2,12 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
+import Checkbox from 'antd/lib/checkbox';
 import Form from 'antd/lib/form';
 import InputNumber from 'antd/lib/input-number';
 import Modal from 'antd/lib/modal';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { clientConfig } from '@/services/auth';
 import CodeBlock from '@/components/CodeBlock';
+import './EmbedQueryDialog.less';
 
 class EmbedQueryDialog extends React.Component {
   static propTypes = {
@@ -17,6 +19,7 @@ class EmbedQueryDialog extends React.Component {
   };
 
   state = {
+    enableChangeIframeSize: false,
     iframeWidth: 720,
     iframeHeight: 391,
   };
@@ -34,10 +37,15 @@ class EmbedQueryDialog extends React.Component {
 
   render() {
     const { query, dialog } = this.props;
-    const { iframeWidth, iframeHeight } = this.state;
+    const { enableChangeIframeSize, iframeWidth, iframeHeight } = this.state;
 
     return (
-      <Modal {...dialog.props} title="Embed Code" footer={(<Button onClick={dialog.dismiss}>Close</Button>)}>
+      <Modal
+        {...dialog.props}
+        className="embed-query-dialog"
+        title="Embed Query"
+        footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
+      >
         {query.is_safe ? (
           <React.Fragment>
             <h5 className="m-t-0">Public URL</h5>
@@ -47,21 +55,33 @@ class EmbedQueryDialog extends React.Component {
               </CodeBlock>
             </div>
             <h5 className="m-t-0">IFrame Embed</h5>
-            <div className="m-b-10">
+            <div>
               <CodeBlock copyable>
                 {`<iframe src="${this.embedUrl}" width="${iframeWidth}" height="${iframeHeight}"></iframe>`}
               </CodeBlock>
-              <Form className="m-t-10 m-l-5" layout="inline">
-                <Form.Item className="f-300" label="Width">
+              <Form className="m-t-10" layout="inline">
+                <Form.Item>
+                  <Checkbox
+                    checked={enableChangeIframeSize}
+                    onChange={e => this.setState({ enableChangeIframeSize: e.target.checked })}
+                  />
+                </Form.Item>
+                <Form.Item label="Width">
                   <InputNumber
+                    className="size-input"
                     value={iframeWidth}
                     onChange={value => this.setState({ iframeWidth: value })}
+                    size="small"
+                    disabled={!enableChangeIframeSize}
                   />
                 </Form.Item>
                 <Form.Item label="Height">
                   <InputNumber
+                    className="size-input"
                     value={iframeHeight}
                     onChange={value => this.setState({ iframeHeight: value })}
+                    size="small"
+                    disabled={!enableChangeIframeSize}
                   />
                 </Form.Item>
               </Form>
