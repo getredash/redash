@@ -528,17 +528,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         now = utils.utcnow()
         outdated_queries = {}
+        past_scheduled_queries = []
         scheduled_queries_executions.refresh()
 
         for query in queries:
             if query.schedule['interval'] is None:
                 continue
-
-            if query.schedule['until'] is not None:
-                schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule['until'], '%Y-%m-%d'))
-
-                if schedule_until <= now:
-                    continue
 
             if query.latest_query_data:
                 retrieved_at = query.latest_query_data.retrieved_at
@@ -547,12 +542,19 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
             retrieved_at = scheduled_queries_executions.get(query.id) or retrieved_at
 
+            if query.schedule['until'] is not None:
+                schedule_until = pytz.utc.localize(datetime.datetime.strptime(query.schedule['until'], '%Y-%m-%d'))
+
+                if schedule_until <= now:
+                    past_scheduled_queries.append(query)
+                    continue
+
             if should_schedule_next(retrieved_at, now, query.schedule['interval'], query.schedule['time'],
                                     query.schedule['day_of_week'], query.schedule_failures):
                 key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
 
-        return outdated_queries.values()
+        return outdated_queries.values(), past_scheduled_queries
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,

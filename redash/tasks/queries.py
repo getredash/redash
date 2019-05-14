@@ -158,6 +158,11 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
     return job
 
+@celery.task(name="redash.tasks.empty_schedules")
+def empty_schedules(queries):
+    for query in queries:
+        query.schedule = None
+    models.db.session.commit()
 
 @celery.task(name="redash.tasks.refresh_queries")
 def refresh_queries():
@@ -167,7 +172,8 @@ def refresh_queries():
     query_ids = []
 
     with statsd_client.timer('manager.outdated_queries_lookup'):
-        for query in models.Query.outdated_queries():
+        queries, past_scheduled_queries = models.Query.outdated_queries()
+        for query in queries:
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
@@ -206,6 +212,7 @@ def refresh_queries():
 
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
+    empty_schedules.apply_async(args=(past_scheduled_queries,))
 
 @celery.task(name="redash.tasks.cleanup_query_results")
 def cleanup_query_results():
