@@ -49,7 +49,7 @@ class EmbedQueryDialog extends React.Component {
         {query.is_safe ? (
           <React.Fragment>
             <h5 className="m-t-0">Public URL</h5>
-            <div className="m-b-10">
+            <div className="m-b-30">
               <CodeBlock data-test="EmbedIframe" copyable>
                 {this.embedUrl}
               </CodeBlock>
