@@ -45,6 +45,12 @@
 @zindex-picker: 2050;
 @zindex-tooltip: 2060;
 
+.@{drawer-prefix-cls} {
+  &.help-drawer {
+    z-index: 3000; // help drawer should be topmost
+  }
+}
+
 // Remove bold in labels for Ant checkboxes and radio buttons
 .ant-checkbox-wrapper,
 .ant-radio-wrapper {
@@ -297,10 +303,6 @@
   color: @text-color-secondary;
   font-weight: normal;
   margin-top: 4px;
-}
-
-.ant-popover {
-  z-index: 2000; // make sure it doesn't cover drawer
 }
 
 // Notification overrides
