@@ -392,7 +392,7 @@ def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
 
-    text = "We're sorry, but these queries failed over the past hour:\n" + \
+    text = "We're sorry, but these queries failed lately:\n" + \
         '\n'.join(['\nQuery: {}\nFailed at: {}\nFailure reason: {}'.format(e['query'], e['failed_at'], e['message']) for e in errors])
     send_mail.delay([email_address], "Failed Queries", None, text)
 
@@ -415,10 +415,9 @@ def notify_of_failure(self, exc, _, args, __, ___):
         }))
 
         if not redis_connection.exists('{}:pending'.format(key)):
-            delay = 10
-            send_aggregated_errors.apply_async(args=(email_address,), countdown=delay)
+            send_aggregated_errors.apply_async(args=(email_address,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
             redis_connection.set('{}:pending'.format(key), 1)
-            redis_connection.expire('{}:pending'.format(key), delay)
+            redis_connection.expire('{}:pending'.format(key), settings.SEND_FAILURE_EMAIL_INTERVAL)
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.

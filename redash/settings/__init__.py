@@ -213,6 +213,7 @@ def email_server_is_configured():
 HOST = os.environ.get('REDASH_HOST', '')
 
 SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 3600))
 
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
