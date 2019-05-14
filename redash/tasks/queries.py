@@ -1,6 +1,7 @@
 import logging
 import signal
 import time
+import datetime
 
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
@@ -11,7 +12,8 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
+from redash.tasks.general import send_mail
+from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
@@ -385,10 +387,41 @@ class QueryExecutor(object):
         logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
         return models.DataSource.query.get(self.data_source_id)
 
+@celery.task(name="redash.tasks.send_aggregated_errors")
+def send_aggregated_errors(email_address):
+    key = 'aggregated_failures:{}'.format(email_address)
+    errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
+
+    text = "We're sorry, but these queries failed over the past hour:\n" + \
+        '\n'.join(['\nQuery: {}\nFailed at: {}\nFailure reason: {}'.format(e['query'], e['failed_at'], e['message']) for e in errors])
+    send_mail.delay([email_address], "Failed Queries", None, text)
+
+    redis_connection.delete(key)
+
+def notify_of_failure(self, exc, _, args, __, ___):
+    if not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
+        return
+
+    query, _, metadata = args[0:3]
+    email_address = metadata.get('Username')
+
+    if email_address:
+        key = 'aggregated_failures:{}'.format(email_address)
+        redis_connection.lpush(key, json_dumps({
+            'query': query,
+            'message': exc.message,
+            'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        }))
+
+        if not redis_connection.exists('{}:pending'.format(key)):
+            delay = 10
+            send_aggregated_errors.apply_async(args=(email_address,), countdown=delay)
+            redis_connection.set('{}:pending'.format(key), 1)
+            redis_connection.expire('{}:pending'.format(key), delay)
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
-@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
+@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True, on_failure=notify_of_failure)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
                   scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
