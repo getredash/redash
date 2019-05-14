@@ -55,6 +55,8 @@ export default class CodeBlock extends React.Component {
   };
 
   render() {
+    const { copyable, children, ...props } = this.props;
+
     const copyButton = (
       <Tooltip title={this.state.copied || 'Copy'}>
         <Button
@@ -68,8 +70,8 @@ export default class CodeBlock extends React.Component {
 
     return (
       <div className="code-block">
-        <code ref={this.ref}>
-          {this.props.children}
+        <code {...props} ref={this.ref}>
+          {children}
         </code>
         {this.copyFeatureEnabled && copyButton}
       </div>

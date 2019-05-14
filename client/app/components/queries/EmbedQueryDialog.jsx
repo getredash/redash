@@ -42,7 +42,7 @@ class EmbedQueryDialog extends React.Component {
           <React.Fragment>
             <h5 className="m-t-0">Public URL</h5>
             <div className="m-b-10">
-              <CodeBlock copyable>
+              <CodeBlock data-test="EmbedIframe" copyable>
                 {this.embedUrl}
               </CodeBlock>
             </div>
@@ -77,6 +77,7 @@ class EmbedQueryDialog extends React.Component {
           <Alert
             message="Currently it is not possible to embed queries that contain text parameters."
             type="error"
+            data-test="EmbedErrorAlert"
           />
         )}
       </Modal>
