@@ -2,6 +2,7 @@ import logging
 import signal
 import time
 import datetime
+from collections import Counter
 
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
@@ -323,12 +324,10 @@ class QueryExecutor(object):
 
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
-        except SoftTimeLimitExceeded as error:
-            if self.scheduled_query:
+        except Exception as e:
+            if isinstance(e, SoftTimeLimitExceeded) and self.scheduled_query:
                 notify_of_failure(TIMEOUT_MESSAGE, self.scheduled_query.id)
 
-            raise error
-        except Exception as e:
             error = text_type(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
@@ -396,9 +395,21 @@ class QueryExecutor(object):
 def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
+    occurrences = Counter((e.get('query'), e.get('message')) for e in errors)
+    unique_errors = {(e.get('query'), e.get('message')): e for e in errors}
 
     html = "We're sorry, but these queries failed lately:<br><ol><li>{}</li></ol>".format(
-        '</li><li>'.join(['<b>Failed at</b>: {}<br><b>Failure reason</b>: {}<br><b>Query</b>: {}'.format(e['failed_at'], e['message'], e['query']) for e in errors])
+        '</li><li>'.join(["""
+            Failed at: {failed_at}<br>
+            Failure reason: {failure_reason}<br>
+            Failure count: {failure_count}<br>
+            Query: {query}<br>
+            <b>{comment}</b>""".format(
+            failed_at=v.get('failed_at'),
+            failure_reason=v.get('message'),
+            failure_count=occurrences[k],
+            comment=v.get('comment'),
+            query=v.get('query')) for k, v in unique_errors.iteritems()])
     )
     send_mail.delay([email_address], "Uh-oh, Some Scheduled Queries Failed!", html, None)
 
@@ -413,12 +424,18 @@ def notify_of_failure(message, scheduled_query_id):
 
     query = models.Query.query.get(scheduled_query_id)
     email_address = query.user.email
+    schedule_failures = query.schedule_failures + 1
 
-    if email_address:
+    if email_address and schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
         key = 'aggregated_failures:{}'.format(email_address)
+        reporting_will_soon_stop = schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
+        comment = 'This query is repeatedly failing. Reporting may stop when the query exceeds {} failures.'.format(settings.MAX_FAILURE_REPORTS_PER_QUERY) if reporting_will_soon_stop else ''
+
         redis_connection.lpush(key, json_dumps({
+            'id': query.id,
             'query': query.query_text,
             'message': message,
+            'comment': comment,
             'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         }))
 
