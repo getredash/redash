@@ -17,7 +17,7 @@ from redash.utils import gen_query_hash, json_dumps, json_loads, utcnow, mustach
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
-
+TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 def _job_lock_id(query_hash, data_source_id):
     return "query_hash_job:%s:%s" % (data_source_id, query_hash)
@@ -58,7 +58,7 @@ class QueryTask(object):
         status = self.STATUSES[task_status]
 
         if isinstance(result, (TimeLimitExceeded, SoftTimeLimitExceeded)):
-            error = "Query exceeded Redash query execution time limit."
+            error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
             error = result.message
@@ -144,7 +144,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 result = execute_query.apply_async(args=args,
                                                    argsrepr=argsrepr,
                                                    queue=queue_name,
-                                                   time_limit=time_limit)
+                                                   soft_time_limit=time_limit)
 
                 job = QueryTask(async_result=result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
@@ -323,6 +323,11 @@ class QueryExecutor(object):
 
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
+        except SoftTimeLimitExceeded as error:
+            if self.scheduled_query:
+                notify_of_failure(TIMEOUT_MESSAGE, self.scheduled_query.id)
+
+            raise error
         except Exception as e:
             error = text_type(e)
             data = None
@@ -399,8 +404,10 @@ def send_aggregated_errors(email_address):
 
     redis_connection.delete(key)
 
-def notify_of_failure(self, exc, _, args, __, ___):
-    scheduled_query_id = args[-2]
+def on_failure(self, exc, _, args, __, ___):
+    notify_of_failure(exc.message, args[-2])
+
+def notify_of_failure(message, scheduled_query_id):
     if scheduled_query_id is None or not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
         return
 
@@ -411,7 +418,7 @@ def notify_of_failure(self, exc, _, args, __, ___):
         key = 'aggregated_failures:{}'.format(email_address)
         redis_connection.lpush(key, json_dumps({
             'query': query.query_text,
-            'message': exc.message,
+            'message': message,
             'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         }))
 
@@ -422,12 +429,13 @@ def notify_of_failure(self, exc, _, args, __, ___):
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
-@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True, on_failure=notify_of_failure)
+@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True, on_failure=on_failure)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
                   scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
+
     return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
                          scheduled_query).run()
