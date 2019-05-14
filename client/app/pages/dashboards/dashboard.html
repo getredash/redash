@@ -98,7 +98,7 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
-    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
   <div ng-if="$ctrl.dashboard.widgets.length > 0"  id="dashboard-container" ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing, 'grid-enabled': !$ctrl.isGridDisabled}">
@@ -106,9 +106,10 @@
       is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper">
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}"  data-test="WidgetId{{ widget.id }}">
+        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}" data-test="WidgetId{{ widget.id }}">
         <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
+          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" filters="$ctrl.filters"
+            on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
     </div>
