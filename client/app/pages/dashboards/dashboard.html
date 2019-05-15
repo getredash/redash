@@ -94,7 +94,7 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
-    <parameters parameters="$ctrl.globalParameters"></parameters>
+    <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
