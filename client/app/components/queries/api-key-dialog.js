@@ -5,9 +5,9 @@ const ApiKeyDialog = {
 <div class="modal-body">
     <h5>API Key</h5>
     <div class="form-group">
-        <pre>{{query.api_key}}</pre>
-        <div ng-if="canEdit">
-            <button class="btn btn-default" ng-click="$ctrl.regenerateQueryApiKey()" ng-disabled="disableRegenerateApiKeyButton">Regenerate</button>
+        <pre>{{$ctrl.query.api_key}}</pre>
+        <div ng-if="$ctrl.canEdit">
+            <button class="btn btn-default" ng-click="$ctrl.regenerateQueryApiKey()" ng-disabled="$ctrl.disableRegenerateApiKeyButton">Regenerate</button>
         </div>
     </div>
 
@@ -23,25 +23,25 @@ const ApiKeyDialog = {
         <pre>{{$ctrl.jsonUrlBase + query.api_key}}</pre>
     </div>
 </div>`,
-  controller($scope, $http, clientConfig, currentUser) {
+  controller($http, clientConfig, currentUser) {
     'ngInject';
 
-    $scope.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission('admin');
-    $scope.disableRegenerateApiKeyButton = false;
-    $scope.query = this.resolve.query;
+    this.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission('admin');
+    this.disableRegenerateApiKeyButton = false;
+    this.query = this.resolve.query;
     this.csvUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.csv?api_key=`;
     this.jsonUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.json?api_key=`;
 
     this.regenerateQueryApiKey = () => {
-      $scope.disableRegenerateApiKeyButton = true;
+      this.disableRegenerateApiKeyButton = true;
       $http
         .post(`api/queries/${this.resolve.query.id}/regenerate_api_key`)
         .success((data) => {
-          $scope.query = data;
-          $scope.disableRegenerateApiKeyButton = false;
+          this.query = data;
+          this.disableRegenerateApiKeyButton = false;
         })
         .error(() => {
-          $scope.disableRegenerateApiKeyButton = false;
+          this.disableRegenerateApiKeyButton = false;
         });
     };
   },
