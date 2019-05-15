@@ -25,7 +25,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token, invite=True):
+def render_token_login_page(template, org_slug, token, invite):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -77,7 +77,7 @@ def render_token_login_page(template, org_slug, token, invite=True):
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
 def invite(token, org_slug=None):
-    return render_token_login_page("invite.html", org_slug, token)
+    return render_token_login_page("invite.html", org_slug, token, True)
 
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
@@ -193,13 +193,16 @@ def base_href():
     return base_href
 
 
-def date_format_config():
+def date_time_format_config():
     date_format = current_org.get_setting('date_format')
     date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    time_format = current_org.get_setting('time_format')
+    time_format_list = set(["HH:mm", "MM:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
     return {
         'dateFormat': date_format,
         'dateFormatList': list(date_format_list),
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
+        'timeFormatList': list(time_format_list),
+        'dateTimeFormat': "{0} {1}".format(date_format, time_format),
     }
 
 
@@ -237,7 +240,7 @@ def client_config():
     client_config.update({
         'basePath': base_href()
     })
-    client_config.update(date_format_config())
+    client_config.update(date_time_format_config())
     client_config.update(number_format_config())
 
     return client_config

@@ -115,6 +115,7 @@ export default function init(ngModule) {
       widget: '<',
       public: '<',
       dashboard: '<',
+      filters: '<',
       deleted: '&onDelete',
     },
   });

@@ -15,18 +15,29 @@
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
-          <div class="btn-group">
-            <button type="button" class="btn btn-primary btn-sm"
-              ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, true)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-check"></i> Apply Changes
-            </button>
-
-            <button type="button" class="btn btn-default btn-sm"
-              ng-disabled="$ctrl.isGridDisabled"
-              ng-click="$ctrl.editLayout(false, false)" ng-if="$ctrl.layoutEditing">
-              <i class="zmdi zmdi-close"></i> Cancel
-            </button>
+          <div ng-if="$ctrl.layoutEditing" ng-switch="$ctrl.isLayoutDirty">
+            <span ng-switch-when="true" ng-switch="$ctrl.saveInProgress || $ctrl.saveDelay">
+                <span ng-switch-when="true">
+                  <span class="save-status" data-saving>Saving</span>
+                  <button class="btn btn-primary btn-sm" ng-disabled="$ctrl.editBtnClickedWhileSaving" ng-click="$ctrl.editBtnClickedWhileSaving = true">
+                    <i class="fa fa-check" ng-class="{'fa-spinner fa-pulse': $ctrl.editBtnClickedWhileSaving}"></i> Done Editing
+                  </button>
+                </span>
+                <span ng-switch-default>
+                  <span class="save-status" data-error>Saving Failed</span>
+                  <button class="btn btn-primary btn-sm" ng-click="$ctrl.saveDashboardLayout()">
+                    Retry
+                  </button>
+                </span>
+            </span>
+            <span ng-switch-default>
+              <span class="save-status">Saved</span>
+              <button class="btn btn-primary btn-sm"
+                ng-disabled="$ctrl.isGridDisabled"
+                ng-click="$ctrl.editLayout(false)">
+                <i class="fa fa-check"></i> Done Editing
+              </button>
+            </span>
           </div>
 
           <button type="button" class="btn btn-default btn-sm" ng-click="$ctrl.togglePublished()" tooltip="Publish Dashboard" ng-if="$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
@@ -87,18 +98,18 @@
   </div>
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
-    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
-  <div style="padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="$ctrl.layoutEditing && !$ctrl.saveInProgress" batch-update="$ctrl.updateGridItems"
-      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper"
-      ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
+  <div ng-if="$ctrl.dashboard.widgets.length > 0"  id="dashboard-container" ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing, 'grid-enabled': !$ctrl.isGridDisabled}">
+    <div gridstack editing="$ctrl.layoutEditing" on-layout-changed="$ctrl.onLayoutChanged"
+      is-one-column-mode="$ctrl.isGridDisabled" class="dashboard-wrapper">
       <div class="dashboard-widget-wrapper"
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}"  data-test="WidgetId{{ widget.id }}">
+        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}" data-test="WidgetId{{ widget.id }}">
         <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
+          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" filters="$ctrl.filters"
+            on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
     </div>

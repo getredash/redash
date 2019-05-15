@@ -179,7 +179,7 @@ export default class UserEdit extends React.Component {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button
           className="w-100"

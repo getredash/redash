@@ -1,13 +1,14 @@
-import { pick, some, find, minBy, map, intersection, isArray, isObject } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
+import { Visualization } from '@/services/visualization';
 import Notifications from '@/services/notifications';
 import ScheduleDialog from '@/components/queries/ScheduleDialog';
+import { newVisualization } from '@/visualizations';
+import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import notification from '@/services/notification';
 import template from './query.html';
-
-const DEFAULT_TAB = 'table';
 
 function QueryViewCtrl(
   $scope,
@@ -25,8 +26,11 @@ function QueryViewCtrl(
   currentUser,
   Query,
   DataSource,
-  Visualization,
 ) {
+  // Should create it here since visualization registry might not be fulfilled when this file is loaded
+  const DEFAULT_VISUALIZATION = newVisualization('TABLE', { itemsPerPage: 50 });
+  DEFAULT_VISUALIZATION.id = 'table';
+
   function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
@@ -132,11 +136,15 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-  $scope.selectedTab = DEFAULT_TAB;
+  $scope.selectedVisualization = DEFAULT_VISUALIZATION;
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
+
+  $scope.$watch('selectedVisualization', () => {
+    $scope.selectedTab = $scope.selectedVisualization.id; // Needed for `<rd-tab>` to work
+  });
 
   const shortcuts = {
     'mod+enter': $scope.executeQuery,
@@ -356,7 +364,7 @@ function QueryViewCtrl(
   };
 
   $scope.setVisualizationTab = (visualization) => {
-    $scope.selectedTab = visualization.id;
+    $scope.selectedVisualization = visualization;
     $location.hash(visualization.id);
   };
 
@@ -371,9 +379,9 @@ function QueryViewCtrl(
       Visualization.delete(
         { id: vis.id },
         () => {
-          if ($scope.selectedTab === String(vis.id)) {
-            $scope.selectedTab = DEFAULT_TAB;
-            $location.hash($scope.selectedTab);
+          if ($scope.selectedVisualization.id === vis.id) {
+            $scope.selectedVisualization = DEFAULT_VISUALIZATION;
+            $location.hash($scope.selectedVisualization.id);
           }
           $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
         },
@@ -386,14 +394,6 @@ function QueryViewCtrl(
 
   $scope.$watch('query.name', () => {
     Title.set($scope.query.name);
-  });
-
-  $scope.$watch('queryResult && queryResult.getData()', (data) => {
-    if (!data) {
-      return;
-    }
-
-    $scope.filters = $scope.queryResult.getFilters();
   });
 
   $scope.$watch('queryResult && queryResult.getStatus()', (status) => {
@@ -428,18 +428,14 @@ function QueryViewCtrl(
   }
 
   $scope.openVisualizationEditor = (visId) => {
-    const visualization = getVisualization(visId);
-
     function openModal() {
-      $uibModal.open({
-        windowClass: 'modal-xl',
-        component: 'editVisualizationDialog',
-        resolve: {
-          query: $scope.query,
-          visualization,
-          queryResult: $scope.queryResult,
-          onNewSuccess: () => $scope.setVisualizationTab,
-        },
+      EditVisualizationDialog.showModal({
+        query: $scope.query,
+        visualization: getVisualization(visId),
+        queryResult: $scope.queryResult,
+      }).result.then((visualization) => {
+        $scope.setVisualizationTab(visualization);
+        $scope.$applyAsync();
       });
     }
 
@@ -510,13 +506,13 @@ function QueryViewCtrl(
   $scope.$watch(
     () => $location.hash(),
     (hash) => {
-      // eslint-disable-next-line eqeqeq
-      const exists = find($scope.query.visualizations, item => item.id == hash);
-      let visualization = minBy($scope.query.visualizations, viz => viz.id);
-      if (!isObject(visualization)) {
-        visualization = {};
-      }
-      $scope.selectedTab = (exists ? hash : visualization.id) || DEFAULT_TAB;
+      $scope.selectedVisualization =
+        // try to find by hash
+        find($scope.query.visualizations, item => item.id == hash) || // eslint-disable-line eqeqeq
+        // try first one (with smallest ID)
+        minBy($scope.query.visualizations, viz => viz.id) ||
+        // fallback to default
+        DEFAULT_VISUALIZATION;
     },
   );
 

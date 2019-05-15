@@ -51,7 +51,7 @@ def transform_row(row, fields):
 
     for column_index, cell in enumerate(row["f"]):
         field = fields[column_index]
-        if field['mode'] == 'REPEATED':
+        if field.get('mode') == 'REPEATED':
             cell_value = [transform_cell(field['type'], item['v']) for item in cell['v']]
         else:
             cell_value = transform_cell(field['type'], cell['v'])
@@ -172,8 +172,7 @@ class BigQuery(BaseQueryRunner):
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
-    def _get_query_result(self, jobs, query):
-        project_id = self._get_project_id()
+    def _get_job_data(self, query):
         job_data = {
             "configuration": {
                 "query": {
@@ -198,6 +197,11 @@ class BigQuery(BaseQueryRunner):
         if "maximumBillingTier" in self.configuration:
             job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
+        return job_data
+
+    def _get_query_result(self, jobs, query):
+        project_id = self._get_project_id()
+        job_data = self._get_job_data(query)
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
         query_reply = _get_query_results(jobs, project_id=project_id, location=self._get_location(),
@@ -227,7 +231,7 @@ class BigQuery(BaseQueryRunner):
         columns = [{
             'name': f["name"],
             'friendly_name': f["name"],
-            'type': "string" if f['mode'] == "REPEATED"
+            'type': "string" if f.get('mode') == "REPEATED"
             else types_map.get(f['type'], "string")
         } for f in query_reply["schema"]["fields"]]
 
@@ -303,7 +307,7 @@ class BigQuery(BaseQueryRunner):
             data = self._get_query_result(jobs, query)
             error = None
 
-            json_data = json_dumps(data)
+            json_data = json_dumps(data, ignore_nan=True)
         except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status == 400:

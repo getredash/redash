@@ -3,9 +3,17 @@ import time
 import mock
 from tests import BaseTestCase
 
-from redash import settings
+from redash import settings, limiter
 from redash.authentication.account import invite_token
 from redash.models import User
+
+
+class TestResetPassword(BaseTestCase):
+    def test_shows_reset_password_form(self):
+        user = self.factory.create_user(is_invitation_pending=False)
+        token = invite_token(user)
+        response = self.get_request('/reset/{}'.format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestInvite(BaseTestCase):
@@ -75,6 +83,7 @@ class TestInvitePost(BaseTestCase):
 
 class TestLogin(BaseTestCase):
     def test_throttle_login(self):
+        limiter.enabled = True
         # Extract the limit from settings (ex: '50/day')
         limit = settings.THROTTLE_LOGIN_PATTERN.split('/')[0]
         for _ in range(0, int(limit)):

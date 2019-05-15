@@ -341,11 +341,6 @@ function QueryResultErrorFactory($q) {
     getLog() {
       return null;
     }
-
-    // eslint-disable-next-line class-methods-use-this
-    getChartData() {
-      return null;
-    }
   }
 
   return QueryResultError;
@@ -478,6 +473,10 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
+  QueryService.prototype.hasParameters = function hasParameters() {
+    return this.getParametersDefs().length > 0;
+  };
+
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
@@ -516,7 +515,7 @@ function QueryResource(
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
       this.queryResult = execute();
