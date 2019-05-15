@@ -5,7 +5,7 @@ const ApiKeyDialog = {
 <div class="modal-body">
     <h5>API Key</h5>
     <div class="form-group">
-        <pre>{{$ctrl.api_key}}</pre>
+        <pre>{{$ctrl.query.api_key}}</pre>
         <div ng-if="$ctrl.canEdit">
             <button class="btn btn-default" ng-click="$ctrl.regenerateQueryApiKey()" ng-disabled="$ctrl.disableRegenerateApiKeyButton">Regenerate</button>
         </div>
@@ -16,11 +16,11 @@ const ApiKeyDialog = {
     <div>
         Results in CSV format:
 
-        <pre>{{$ctrl.csvUrlBase + $ctrl.api_key}}</pre>
+        <pre>{{$ctrl.csvUrlBase + $ctrl.query.api_key}}</pre>
 
         Results in JSON format:
 
-        <pre>{{$ctrl.jsonUrlBase + $ctrl.api_key}}</pre>
+        <pre>{{$ctrl.jsonUrlBase + $ctrl.query.api_key}}</pre>
     </div>
 </div>`,
   controller($http, clientConfig, currentUser) {
@@ -28,7 +28,7 @@ const ApiKeyDialog = {
 
     this.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission('admin');
     this.disableRegenerateApiKeyButton = false;
-    this.api_key = this.resolve.query.api_key;
+    this.query = this.resolve.query;
     this.csvUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.csv?api_key=`;
     this.jsonUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.json?api_key=`;
 
@@ -37,7 +37,7 @@ const ApiKeyDialog = {
       $http
         .post(`api/queries/${this.resolve.query.id}/regenerate_api_key`)
         .success((data) => {
-          this.api_key = data.api_key;
+          this.query.api_key = data.api_key;
           this.disableRegenerateApiKeyButton = false;
         })
         .error(() => {
