@@ -444,14 +444,12 @@ describe('Dashboard', () => {
           cy.route('GET', 'api/query_results/*').as('FreshResults');
 
           // start with 1 table row
-          cy.get('@paramInput').clear().type('1');
-          cy.get('@refreshButton').click();
+          cy.get('@paramInput').clear().type('1{enter}');
           cy.wait('@FreshResults', { timeout: 10000 });
           cy.get('@widget').invoke('height').should('eq', 285);
 
           // add 4 table rows
-          cy.get('@paramInput').clear().type('5');
-          cy.get('@refreshButton').click();
+          cy.get('@paramInput').clear().type('5{enter}');
           cy.wait('@FreshResults', { timeout: 10000 });
 
           // expect to height to grow by 1 grid grow
@@ -466,8 +464,7 @@ describe('Dashboard', () => {
           editDashboard();
 
           // start with 1 table row
-          cy.get('@paramInput').clear().type('1');
-          cy.get('@refreshButton').click();
+          cy.get('@paramInput').clear().type('1{enter}');
           cy.wait('@FreshResults');
           cy.get('@widget').invoke('height').should('eq', 285);
 
@@ -476,8 +473,7 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 335);
 
           // add 4 table rows
-          cy.get('@paramInput').clear().type('5');
-          cy.get('@refreshButton').click();
+          cy.get('@paramInput').clear().type('5{enter}');
           cy.wait('@FreshResults');
 
           // expect height to stay unchanged (would have been 435)

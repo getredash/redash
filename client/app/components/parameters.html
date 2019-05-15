@@ -18,14 +18,6 @@
     >
       <i class="zmdi zmdi-settings"></i>
     </button>
-    <parameter-value-input param="param"></parameter-value-input>
+    <parameter-value-input param="param" on-change="onValuesChange" apply-button="true"></parameter-value-input>
   </div>
-  <button
-    class="m-t-20 btn btn-primary hidden-print"
-    ng-if="onRefresh"
-    ng-click="onRefresh()"
-    title="Refresh Dataset"
-  >
-    <span class="zmdi zmdi-play"></span>
-  </button>
 </div>

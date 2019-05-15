@@ -33,13 +33,12 @@ describe('Embedded Queries', () => {
       .get('.ace_text-input')
       .type("SELECT name, slug FROM organizations WHERE id='{{}{{}id}}'{esc}", { force: true });
 
-    cy.getByTestId('TextParamInput').type('1');
+    cy.getByTestId('TextParamInput').type('1{enter}');
     cy.clickThrough(`
       ParameterSettings-id
       ParameterTypeSelect
       NumberParameterTypeOption
       SaveParameterSettings
-      ExecuteButton
       SaveButton
     `);
 
@@ -66,13 +65,12 @@ describe('Embedded Queries', () => {
       .get('.ace_text-input')
       .type("SELECT name, slug FROM organizations WHERE name='{{}{{}name}}'{esc}", { force: true });
 
-    cy.getByTestId('TextParamInput').type('Redash');
+    cy.getByTestId('TextParamInput').type('Redash{enter}');
     cy.clickThrough(`
       ParameterSettings-name
       ParameterTypeSelect
       TextParameterTypeOption
       SaveParameterSettings
-      ExecuteButton
       SaveButton
     `);
 

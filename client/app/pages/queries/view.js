@@ -49,7 +49,6 @@ function QueryViewCtrl(
     }
   }
 
-
   function getDataSourceId() {
     // Try to get the query's data source id
     let dataSourceId = $scope.query.data_source_id;
