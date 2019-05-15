@@ -401,7 +401,7 @@ class QueryRegenerateApiKeyResource(BaseResource):
             'object_type': 'query',
         })
 
-        result = QuerySerializer(query, with_visualizations=True).serialize()
+        result = QuerySerializer(query).serialize()
         return result
 
 
