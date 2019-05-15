@@ -5,7 +5,7 @@ describe('Embedded Queries', () => {
     cy.login();
   });
 
-  it('are shared without parameters', () => {
+  it('can be shared without parameters', () => {
     createQuery({ query: 'select name from users' })
       .then((query) => {
         cy.visit(`/queries/${query.id}/source`);
@@ -17,8 +17,7 @@ describe('Embedded Queries', () => {
         `);
         cy.getByTestId('EmbedIframe')
           .invoke('text')
-          .then((iframe) => {
-            const embedUrl = iframe.match(/"(.*?)"/)[1];
+          .then((embedUrl) => {
             cy.logout();
             cy.visit(embedUrl);
             cy.getByTestId('VisualizationEmbed', { timeout: 10000 }).should('exist');
@@ -28,7 +27,7 @@ describe('Embedded Queries', () => {
       });
   });
 
-  it('are shared with safe parameters', () => {
+  it('can be shared with safe parameters', () => {
     cy.visit('/queries/new');
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
@@ -52,8 +51,7 @@ describe('Embedded Queries', () => {
 
     cy.getByTestId('EmbedIframe')
       .invoke('text')
-      .then((iframe) => {
-        const embedUrl = iframe.match(/"(.*?)"/)[1];
+      .then((embedUrl) => {
         cy.logout();
         cy.visit(embedUrl);
         cy.getByTestId('VisualizationEmbed', { timeout: 10000 }).should('exist');
@@ -85,15 +83,8 @@ describe('Embedded Queries', () => {
     `);
 
     cy.getByTestId('EmbedIframe')
-      .invoke('text')
-      .then((iframe) => {
-        const embedUrl = iframe.match(/"(.*?)"/)[1];
-        cy.logout();
-        cy.visit(embedUrl, { failOnStatusCode: false }); // prevent 403 from failing test
-        cy.getByTestId('ErrorMessage', { timeout: 10000 })
-          .should('exist')
-          .contains("Can't embed");
-        cy.percySnapshot('Unsuccessfully Embedded Parameterized Query');
-      });
+      .should('not.exist');
+    cy.getByTestId('EmbedErrorAlert')
+      .should('exist');
   });
 });
