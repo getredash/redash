@@ -10,16 +10,12 @@ import { Moment } from '@/components/proptypes';
 const { RangePicker } = DatePicker;
 
 export const PRESETTED_RANGES = {
-  Today: [moment().startOf('day'), moment().endOf('day')],
-  Yesterday: [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
-  'This week': [moment().startOf('week'), moment().endOf('week')],
-  'This month': [moment().startOf('month'), moment().endOf('month')],
-  'This year': [moment().startOf('year'), moment().endOf('year')],
-  'Last week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
-  'Last month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-  'Last year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
-  'Last 7 days': [moment().subtract(7, 'days'), moment()],
-  'Last 30 days': [moment().subtract(30, 'days'), moment()],
+  Yesterday: () => [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+  'Last week': () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+  'Last month': () => [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+  'Last year': () => [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+  'Last 7 days': () => [moment().subtract(7, 'days'), moment()],
+  'Last 30 days': () => [moment().subtract(30, 'days'), moment()],
 };
 
 export function DateRangeInput({
