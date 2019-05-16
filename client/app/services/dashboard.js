@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
@@ -75,7 +76,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function DashboardService($resource, $http, $location, currentUser, Widget, dashboardGridOptions) {
+function DashboardService($resource, $http, $location, currentUser, Widget) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }

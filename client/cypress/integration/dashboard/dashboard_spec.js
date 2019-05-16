@@ -4,7 +4,7 @@ import { createDashboard, createQuery, addTextbox, addWidget } from '../../suppo
 
 const { get } = Cypress._;
 
-const RESIZE_HANDLE_SELECTOR = '.ui-resizable-se';
+const RESIZE_HANDLE_SELECTOR = '.react-resizable-handle';
 
 
 function getWidgetTestId(widget) {
@@ -31,17 +31,19 @@ function editDashboard() {
     });
 }
 
-function dragBy(wrapper, offsetLeft = 0, offsetTop = 0, force = false) {
-  let start;
+function dragBy(wrapper, offsetLeft, offsetTop, force = false) {
+  if (!offsetLeft) {
+    offsetLeft = 1;
+  }
+  if (!offsetTop) {
+    offsetTop = 1;
+  }
   return wrapper
-    .then(($el) => {
-      start = $el.offset();
-      return wrapper
-        .trigger('mouseover', { force })
-        .trigger('mousedown', { pageX: start.left, pageY: start.top, which: 1, force })
-        .trigger('mousemove', { pageX: start.left + offsetLeft, pageY: start.top + offsetTop, which: 1, force })
-        .trigger('mouseup', { force });
-    });
+    .trigger('mouseover', { force })
+    .trigger('mousedown', 'topLeft', { force })
+    .trigger('mousemove', 1, 1, { force }) // must have at least 2 mousemove events for react-grid-layout to trigger onLayoutChange
+    .trigger('mousemove', offsetLeft, offsetTop, { force })
+    .trigger('mouseup', { force });
 }
 
 function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
@@ -157,8 +159,7 @@ describe('Dashboard', () => {
       });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('allows opening menu after removal', function () {
+    it('allows opening menu after removal', function () {
       let elTestId1;
       addTextbox(this.dashboardId, 'txb 1')
         .then(getWidgetTestId)
@@ -235,7 +236,7 @@ describe('Dashboard', () => {
           const { top, left } = $el.offset();
           expect(top).to.eq(214);
           expect(left).to.eq(215);
-          expect($el.width()).to.eq(600);
+          expect($el.width()).to.eq(585);
           expect($el.height()).to.eq(185);
         });
     });
@@ -300,21 +301,21 @@ describe('Dashboard', () => {
           resizeBy(cy.get('@textboxEl'), 90)
             .then(() => cy.get('@textboxEl'))
             .invoke('width')
-            .should('eq', 600); // no change, 600 -> 600
+            .should('eq', 585); // no change, 585 -> 585
         });
 
         it('moves one column when dragged over snap threshold', () => {
           resizeBy(cy.get('@textboxEl'), 110)
             .then(() => cy.get('@textboxEl'))
             .invoke('width')
-            .should('eq', 800); // resized by 200, 600 -> 800
+            .should('eq', 785); // resized by 200, 585 -> 785
         });
 
         it('moves two columns when dragged over snap threshold', () => {
           resizeBy(cy.get('@textboxEl'), 400)
             .then(() => cy.get('@textboxEl'))
             .invoke('width')
-            .should('eq', 1000); // resized by 400, 600 -> 1000
+            .should('eq', 985); // resized by 400, 585 -> 985
         });
       });
 
@@ -342,7 +343,7 @@ describe('Dashboard', () => {
             .then($el => resizeBy(cy.get('@textboxEl'), -$el.width(), -$el.height())) // resize to 0,0
             .then(() => cy.get('@textboxEl'))
             .should(($el) => {
-              expect($el.width()).to.eq(200); // min textbox width
+              expect($el.width()).to.eq(185); // min textbox width
               expect($el.height()).to.eq(35); // min textbox height
             });
         });
@@ -433,7 +434,7 @@ describe('Dashboard', () => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
             });
             cy.getByTestId(`ParameterName${paramName}`).within(() => {
-              cy.get('input').as('paramInput');
+              cy.getByTestId('TextParamInput').as('paramInput');
             });
           });
         });
@@ -469,8 +470,10 @@ describe('Dashboard', () => {
           cy.get('@widget').invoke('height').should('eq', 285);
 
           // resize height by 1 grid row
-          resizeBy(cy.get('@widget'), 0, 5);
-          cy.get('@widget').invoke('height').should('eq', 335);
+          resizeBy(cy.get('@widget'), 0, 50)
+            .then(() => cy.get('@widget'))
+            .invoke('height')
+            .should('eq', 335); // resized by 50, , 135 -> 185
 
           // add 4 table rows
           cy.get('@paramInput').clear().type('5{enter}');
@@ -505,12 +508,12 @@ describe('Dashboard', () => {
 
     it('shows widgets with full width', () => {
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(785);
+        expect($el.width()).to.eq(770);
       });
 
       cy.viewport(801, 800);
       cy.get('@textboxEl').should(($el) => {
-        expect($el.width()).to.eq(393);
+        expect($el.width()).to.eq(378);
       });
     });
 
