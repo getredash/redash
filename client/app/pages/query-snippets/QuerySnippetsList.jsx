@@ -34,7 +34,7 @@ class QuerySnippetsList extends React.Component {
   listColumns = [
     Columns.custom.sortable((text, querySnippet) => (
       <div>
-        <a className="table-main-title" href={'query_snippets/' + querySnippet.id}>
+        <a className="table-main-title clickable" onClick={() => this.showSnippetDialog(querySnippet)}>
           {querySnippet.trigger}
         </a>
       </div>
@@ -140,7 +140,7 @@ class QuerySnippetsList extends React.Component {
         <div className="m-b-15">
           <Button
             type="primary"
-            href="query_snippets/new"
+            onClick={() => this.showSnippetDialog()}
             disabled={!policy.isCreateQuerySnippetEnabled()}
           >
             <i className="fa fa-plus m-r-5" />
