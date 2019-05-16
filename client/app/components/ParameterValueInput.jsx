@@ -1,14 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
+import { isFunction } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
+
+import './ParameterValueInput.less';
 
 const { Option } = Select;
 
@@ -19,6 +23,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    applyButton: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -29,9 +34,30 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
+    applyButton: false,
     onSelect: () => {},
     className: '',
   };
+
+  constructor(props) {
+    super(props);
+    this.state = { value: props.value };
+  }
+
+  renderApplyButton() {
+    const { onSelect } = this.props;
+    const { value } = this.state;
+    return (
+      <Button
+        className="parameter-apply-button"
+        type="primary"
+        size="small"
+        onClick={() => onSelect(value)}
+      >
+        Apply
+      </Button>
+    );
+  }
 
   renderDateTimeWithSecondsInput() {
     const { value, onSelect } = this.props;
@@ -132,25 +158,62 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderNumberInput() {
-    const { value, onSelect, className } = this.props;
+    const { className, onSelect, applyButton } = this.props;
+    const { value } = this.state;
+    const showApplyButton = applyButton && value !== this.props.value;
+
+    const onChange = (newValue) => {
+      this.setState({ value: newValue });
+      if (!applyButton) {
+        onSelect(newValue);
+      }
+    };
+
     return (
-      <InputNumber
-        className={'form-control ' + className}
-        defaultValue={!isNaN(value) && value || 0}
-        onChange={onSelect}
-      />
+      <div className="parameter-input-number" data-dirty={showApplyButton || null}>
+        <InputNumber
+          className={className}
+          value={!isNaN(value) && value || 0}
+          onChange={onChange}
+          onKeyUp={showApplyButton ? (e) => {
+            const keyNumber = e.which || e.keyCode;
+            if (keyNumber === 13 && !e.ctrlKey && !e.metaKey) { // enter key
+              onSelect(value);
+            }
+          } : null}
+        />
+        {showApplyButton && this.renderApplyButton()}
+      </div>
     );
   }
 
   renderTextInput() {
-    const { value, onSelect, className } = this.props;
+    const { className, onSelect, applyButton } = this.props;
+    const { value } = this.state;
+    const showApplyButton = applyButton && value !== this.props.value;
+
+    const onChange = (event) => {
+      this.setState({ value: event.target.value });
+      if (!applyButton) {
+        onSelect(event.target.value);
+      }
+    };
+
     return (
-      <Input
-        className={'form-control ' + className}
-        defaultValue={value || ''}
-        data-test="TextParamInput"
-        onChange={event => onSelect(event.target.value)}
-      />
+      <div className="parameter-input" data-dirty={showApplyButton || null}>
+        <Input
+          className={className}
+          value={value || ''}
+          data-test="TextParamInput"
+          onChange={onChange}
+          onPressEnter={showApplyButton ? (e) => {
+            if (!e.ctrlKey && !e.metaKey) {
+              onSelect(value);
+            }
+          } : null}
+        />
+        {showApplyButton && this.renderApplyButton()}
+      </div>
     );
   }
 
@@ -181,15 +244,21 @@ export default function init(ngModule) {
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
         on-select="$ctrl.setValue"
+        apply-button="$ctrl.applyButton"
       ></parameter-value-input-impl>
     `,
     bindings: {
       param: '<',
+      applyButton: '=?',
+      onChange: '=',
     },
     controller($scope) {
       this.setValue = (value) => {
         this.param.setValue(value);
-        $scope.$applyAsync();
+        $scope.$apply();
+        if (isFunction(this.onChange)) {
+          this.onChange();
+        }
       };
     },
   });

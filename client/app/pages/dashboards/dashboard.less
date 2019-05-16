@@ -1,4 +1,11 @@
 .dashboard-wrapper {
+  flex-grow: 1;
+  margin-bottom: 85px;
+
+  .layout {
+    margin: -15px -15px 0;
+  }
+
   .tile {
     display: flex;
     position: absolute;
@@ -17,7 +24,7 @@
     overflow: visible;
   }
 
-  .preview-mode & {
+  &.preview-mode {
     .widget-menu-regular {
       display: block;
     }
@@ -26,7 +33,25 @@
     }
   }
 
-  .editing-mode & {
+  &.editing-mode {
+    /* Y axis lines */
+    background: linear-gradient(to right, transparent, transparent 1px, #F6F8F9 1px, #F6F8F9), linear-gradient(to bottom, #B3BABF, #B3BABF 1px, transparent 1px, transparent);
+    background-size: 5px 50px;
+    background-position-y: -8px;
+
+    /* X axis lines */
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 85px;
+      right: 15px;
+      background: linear-gradient(to bottom, transparent, transparent 2px, #F6F8F9 2px, #F6F8F9 5px), linear-gradient(to left, #B3BABF, #B3BABF 1px, transparent 1px, transparent);
+      background-size: calc((100vw - 15px) / 6) 5px;
+      background-position: -7px 1px;
+    }
+
     .widget-menu-regular {
       display: none;
     }
@@ -179,7 +204,7 @@ public-dashboard-page {
 
   #footer {
     height: 95px;
-    text-align: center;  
+    text-align: center;
   }
 }
 
@@ -198,30 +223,12 @@ dashboard-page, dashboard-page .container {
 #dashboard-container {
   position: relative;
   flex-grow: 1;
-  margin-bottom: 50px; // but not ALL the way ಠ_ಠ
-
-  &.editing-mode.grid-enabled {
-    /* Y axis lines */
-    background: linear-gradient(to right, transparent, transparent 1px, #F6F8F9 1px, #F6F8F9), linear-gradient(to bottom, #B3BABF, #B3BABF 1px, transparent 1px, transparent);
-    background-size: 5px 50px;
-    background-position-y: -8px;
-
-    /* X axis lines */
-    &::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 15px;
-      background: linear-gradient(to bottom, transparent, transparent 2px, #F6F8F9 2px, #F6F8F9 5px), linear-gradient(to left, #B3BABF, #B3BABF 1px, transparent 1px, transparent);
-      background-size: calc((100vw - 15px) / 6) 5px;
-      background-position: -7px 1px;
-    }
-  }
+  display: flex;
 }
 
-// placeholder bg color
-.grid-stack-placeholder > .placeholder-content {
-  background-color: rgba(224, 230, 235, 0.5) !important;
+// soon deprecated
+dashboard-grid {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
