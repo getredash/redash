@@ -197,34 +197,53 @@ class BaseElasticSearch(BaseQueryRunner):
             add_column_if_needed(mappings, key, key, result_columns, result_columns_index)
             row[key] = value
 
-        def collect_aggregations(mappings, rows, parent_key, data, row, result_columns, result_columns_index):
-            if isinstance(data, dict):
-                for key, value in data.iteritems():
-                    val = collect_aggregations(mappings, rows, parent_key if key == 'buckets' else key, value, row, result_columns, result_columns_index)
-                    if val:
-                        row = get_row(rows, row)
-                        collect_value(mappings, row, key, val, 'long')
-
-                for data_key in ['value', 'doc_count']:
-                    if data_key not in data:
-                        continue
-                    if 'key' in data and len(data.keys()) == 2:
-                        key_is_string = 'key_as_string' in data
-                        collect_value(mappings, row, data['key'] if not key_is_string else data['key_as_string'], data[data_key], 'long' if not key_is_string else 'string')
+        def parse_bucket_to_row(mappings, data, row, agg_key):
+            sub_agg_key = ""
+            for key, item in data.iteritems():
+                if key == 'key_as_string':
+                    continue
+                if key == 'key':
+                    if 'key_as_string' in data:
+                        collect_value(mappings, row, agg_key, data['key_as_string'], 'string')
                     else:
-                        return data[data_key]
+                        collect_value(mappings, row, agg_key, data['key'], 'string')
+                    continue
 
-            elif isinstance(data, list):
-                for value in data:
-                    result_row = get_row(rows, row)
-                    collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
-                    if 'doc_count' in value:
-                        collect_value(mappings, result_row, 'doc_count', value['doc_count'], 'integer')
-                    if 'key' in value:
-                        if 'key_as_string' in value:
-                            collect_value(mappings, result_row, parent_key, value['key_as_string'], 'string')
-                        else:
-                            collect_value(mappings, result_row, parent_key, value['key'], 'string')
+                if isinstance(item, str):
+                    collect_value(mappings, row, agg_key + '>' + key, item, 'string')
+                if isinstance(item, int):
+                    collect_value(mappings, row, agg_key + '>' + key, item, 'integer')
+                if isinstance(item, float):
+                    collect_value(mappings, row, agg_key + '>' + key, item, 'float')
+                if isinstance(item, dict):
+                    if 'buckets' not in item:
+                        for subKey, subItem in item.iteritems():
+                            collect_value(mappings, row, agg_key + '>' + key + '>' + subKey, subItem, 'float')
+                    else:
+                        sub_agg_key = key
+
+            return sub_agg_key
+
+        def parse_buckets_list(mappings, rows, parent_key, data, row, depth):
+            if len(rows) > 0 and depth == 0:
+                row = rows.pop()
+
+            for value in data:
+                row = row.copy()
+                sub_agg_key = parse_bucket_to_row(mappings, value, row, parent_key)
+
+                if sub_agg_key == "":
+                    rows.append(row)
+                else:
+                    depth += 1
+                    parse_buckets_list(mappings, rows, sub_agg_key, value[sub_agg_key]['buckets'], row, depth)
+
+        def collect_aggregations(mappings, rows, parent_key, data, row, depth):
+            row = get_row(rows, row)
+            parse_bucket_to_row(mappings, data, row, parent_key)
+
+            if 'buckets' in data:
+                parse_buckets_list(mappings, rows, parent_key, data['buckets'], row, depth)
 
             return None
 
@@ -247,7 +266,7 @@ class BaseElasticSearch(BaseQueryRunner):
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
 
             for key, data in raw_result["aggregations"].iteritems():
-                collect_aggregations(mappings, result_rows, key, data, None, result_columns, result_columns_index)
+                collect_aggregations(mappings, result_rows, key, data, None, 0)
 
             logger.debug("result_rows %s", str(result_rows))
             logger.debug("result_columns %s", str(result_columns))
