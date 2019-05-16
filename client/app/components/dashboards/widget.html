@@ -1,7 +1,7 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
     ng-switch="$ctrl.widget.getQueryResult().getStatus()">
-    <div class="body-row">
+    <div class="body-row widget-header">
       <div class="t-header widget clearfix">
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
           <div class="actions">
@@ -12,7 +12,7 @@
           uib-dropdown dropdown-append-to-body="true"
         >
           <div class="actions">
-            <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more-vert"></i></a>
+            <a data-toggle="dropdown" uib-dropdown-toggle class="p-l-15 p-r-15"><i class="zmdi zmdi-more-vert"></i></a>
           </div>
 
           <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu>
@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
-        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+        <parameters parameters="$ctrl.localParametersDefs()" on-values-change="$ctrl.refresh"></parameters>
       </div>
     </div>
 
@@ -94,12 +94,13 @@
           <a class="actions" ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
         </div>
       </div>
-      <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()" uib-dropdown>
+      <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()"
+        uib-dropdown dropdown-append-to-body="true">
         <div class="dropdown-header">
-          <a data-toggle="dropdown" uib-dropdown-toggle class="actions"><i class="zmdi zmdi-more"></i></a>
+          <a data-toggle="dropdown" uib-dropdown-toggle class="actions p-l-15 p-r-15"><i class="zmdi zmdi-more-vert"></i></a>
         </div>
 
-        <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
+        <ul class="dropdown-menu dropdown-menu-right" uib-dropdown-menu style="z-index:1000000">
           <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.editTextBox()">Edit</a></li>
           <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
         </ul>

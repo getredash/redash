@@ -35,6 +35,22 @@
 @import "~antd/lib/notification/style/index";
 @import 'inc/ant-variables';
 
+// Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
+@zindex-modal: 2000;
+@zindex-modal-mask: 2000;
+@zindex-message: 2010;
+@zindex-notification: 2010;
+@zindex-popover: 2030;
+@zindex-dropdown: 2050;
+@zindex-picker: 2050;
+@zindex-tooltip: 2060;
+
+.@{drawer-prefix-cls} {
+  &.help-drawer {
+    z-index: 3000; // help drawer should be topmost
+  }
+}
+
 // Remove bold in labels for Ant checkboxes and radio buttons
 .ant-checkbox-wrapper,
 .ant-radio-wrapper {
@@ -59,6 +75,7 @@
 }
 
 // Fix for Ant dropdowns when they are used in Boootstrap modals
+// ANGULAR_REMOVE_ME Remove when all dialogs will be migrated to React (also search and remove usages)
 .ant-dropdown-in-bootstrap-modal {
   z-index: 1050;
 }
@@ -286,10 +303,6 @@
   color: @text-color-secondary;
   font-weight: normal;
   margin-top: 4px;
-}
-
-.ant-popover {
-  z-index: 1000; // make sure it doesn't cover drawer
 }
 
 // Notification overrides

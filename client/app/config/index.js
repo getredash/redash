@@ -29,7 +29,6 @@ import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
-import dashboardGridOptions from './dashboard-grid-options';
 import './antd-spinner';
 
 const logger = debug('redash:config');
@@ -57,8 +56,6 @@ const requirements = [
 ];
 
 const ngModule = angular.module('app', requirements);
-
-dashboardGridOptions(ngModule);
 
 function registerAll(context) {
   const modules = context
