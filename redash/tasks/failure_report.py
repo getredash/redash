@@ -20,7 +20,7 @@ def send_aggregated_errors(email_address):
     unique_errors = {(e.get('id'), e.get('message')): e for e in errors}
 
     html = "<h2>Failed Scheduled Query Executions</h2>{}".format(
-        ''.join(["""
+        '<hr>'.join(["""
             <p>
               <h3><a href="{base_url}/queries/{id}">{name}</a></h3>
               Last failed at: {failed_at} (failed {failure_count} times since last report)<br>
