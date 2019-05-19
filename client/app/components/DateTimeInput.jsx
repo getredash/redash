@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
@@ -17,6 +17,7 @@ export function DateTimeInput({
   if (value && value.isValid()) {
     additionalAttributes.defaultValue = value;
   }
+  const currentValueRef = useRef(additionalAttributes.defaultValue);
   return (
     <DatePicker
       className={className}
@@ -24,7 +25,15 @@ export function DateTimeInput({
       {...additionalAttributes}
       format={format}
       placeholder="Select Date and Time"
-      onChange={onSelect}
+      onChange={(newValue) => { currentValueRef.current = newValue; }}
+      onOpenChange={(status) => {
+        const currentValue = currentValueRef.current;
+        if (!status) { // on close picker
+          if (currentValue && currentValue.isValid()) {
+            onSelect(currentValue);
+          }
+        }
+      }}
     />
   );
 }

@@ -5,16 +5,14 @@
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
   </div>
 
-  <div style="padding-bottom: 5px" ng-if="$ctrl.dashboard.widgets.length > 0">
-    <div gridstack editing="false" class="dashboard-wrapper preview-mode">
-      <div class="dashboard-widget-wrapper"
-        ng-repeat="widget in $ctrl.dashboard.widgets"
-        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
-        <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" filters="$ctrl.filters" public="true"></dashboard-widget>
-        </div>
-      </div>
-    </div>
+  <div id="dashboard-container">
+    <dashboard-grid
+      ng-if="$ctrl.dashboard"
+      dashboard="$ctrl.dashboard"
+      widgets="$ctrl.dashboard.widgets"
+      filters="$ctrl.filters"
+      is-editing="false"
+    />
   </div>
 </div>
 

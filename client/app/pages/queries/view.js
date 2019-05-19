@@ -7,6 +7,7 @@ import Notifications from '@/services/notifications';
 import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
+import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
 import notification from '@/services/notification';
 import template from './query.html';
 
@@ -47,7 +48,6 @@ function QueryViewCtrl(
       $scope.queryResult = $scope.query.getQueryResult(maxAge);
     }
   }
-
 
   function getDataSourceId() {
     // Try to get the query's data source id
@@ -494,13 +494,7 @@ function QueryViewCtrl(
 
   $scope.showEmbedDialog = (query, visId) => {
     const visualization = getVisualization(visId);
-    $uibModal.open({
-      component: 'embedCodeDialog',
-      resolve: {
-        query,
-        visualization,
-      },
-    });
+    EmbedQueryDialog.showModal({ query, visualization });
   };
 
   $scope.$watch(
