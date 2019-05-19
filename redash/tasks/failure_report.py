@@ -19,8 +19,7 @@ def send_aggregated_errors(email_address):
     occurrences = Counter((e.get('id'), e.get('message')) for e in errors)
     unique_errors = {(e.get('id'), e.get('message')): e for e in errors}
 
-    html = "<h2>Failed Scheduled Query Executions</h2>{}".format(
-        '<hr>'.join(["""
+    html = '<hr>'.join(["""
             <p>
               <h3><a href="{base_url}/queries/{id}">{name}</a></h3>
               Last failed at: {failed_at} (failed {failure_count} times since last report)<br>
@@ -34,8 +33,8 @@ def send_aggregated_errors(email_address):
                 failure_reason=v.get('message'),
                 failure_count=occurrences[k],
                 comment=v.get('comment')) for k, v in unique_errors.iteritems()])
-    )
-    send_mail.delay([email_address], "Uh-oh, Some Scheduled Queries Failed!", html, None)
+
+    send_mail.delay([email_address], "Failed Scheduled Query Executions", html, None)
 
     redis_connection.delete(key)
 
