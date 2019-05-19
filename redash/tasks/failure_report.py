@@ -5,6 +5,7 @@ from redash.worker import celery
 from redash import redis_connection, settings
 from redash.utils import json_dumps, json_loads, base_url
 
+
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
@@ -17,7 +18,9 @@ def send_aggregated_errors(email_address):
             <p>
               <h3><a href="{base_url}/queries/{id}">{name}</a></h3>
               Last failed at: {failed_at} (failed {failure_count} times since last report)<br>
-              Error message: <pre style="border: 1px solid black; padding: 10px; background: #fbfbfb">{failure_reason}</pre>
+              Error message: <pre style="border: 1px solid black; padding: 10px; background: #fbfbfb">
+                  {failure_reason}
+              </pre>
               <b>{comment}</b>
             </p>""".format(
                 base_url=v.get('base_url'),
@@ -32,6 +35,7 @@ def send_aggregated_errors(email_address):
 
     redis_connection.delete(key)
 
+
 def notify_of_failure(message, query):
     if not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
         return
@@ -39,7 +43,8 @@ def notify_of_failure(message, query):
     if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
         key = 'aggregated_failures:{}'.format(query.user.email)
         reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
-        comment = 'This query has failed a total of {failure_count} times. Reporting may stop when the query exceeds {max_failure_reports} overall failures.'.format(
+        comment = """This query has failed a total of {failure_count} times.
+                     Reporting may stop when the query exceeds {max_failure_reports} overall failures.""".format(
             failure_count=query.schedule_failures,
             max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
         ) if reporting_will_soon_stop else ''
