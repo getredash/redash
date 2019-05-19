@@ -322,7 +322,11 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = text_type(e)
+            if isinstance(e, SoftTimeLimitExceeded):
+                error = TIMEOUT_MESSAGE
+            else:
+                error = text_type(e)
+
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
