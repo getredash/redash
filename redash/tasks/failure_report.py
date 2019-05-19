@@ -5,26 +5,35 @@ from redash.worker import celery
 from redash import redis_connection, settings
 from redash.utils import json_dumps, json_loads
 
+def base_url(org):
+    if settings.MULTI_ORG:
+        return "https://{}/{}".format(settings.HOST, org.slug)
+
+    return settings.HOST
+
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
     errors.reverse()
-    occurrences = Counter((e.get('query'), e.get('message')) for e in errors)
-    unique_errors = {(e.get('query'), e.get('message')): e for e in errors}
+    occurrences = Counter((e.get('id'), e.get('message')) for e in errors)
+    unique_errors = {(e.get('id'), e.get('message')): e for e in errors}
 
-    html = "We're sorry, but these queries failed lately:<br><ol><li>{}</li></ol>".format(
-        '</li><li>'.join(["""
-            Last failure at: {failed_at}<br>
-            Failure reason: <code>{failure_reason}</code><br>
-            Failures since last report: {failure_count}<br>
-            Query: <code>{query}</code><br>
-            <b>{comment}</b>""".format(
-            failed_at=v.get('failed_at'),
-            failure_reason=v.get('message'),
-            failure_count=occurrences[k],
-            comment=v.get('comment'),
-            query=v.get('query')) for k, v in unique_errors.iteritems()])
+    html = "<h2>Failed Scheduled Query Executions</h2>{}".format(
+        ''.join(["""
+            <p>
+              <h3><a href="{base_url}/queries/{id}">{name}</a></h3>
+              Last failed at: {failed_at} (failed {failure_count} times since last report)<br>
+              Error message: <pre style="border: 1px solid black; padding: 10px; background: #fbfbfb">{failure_reason}</pre>
+              <b>{comment}</b>
+            </p>""".format(
+                base_url=v.get('base_url'),
+                id=v.get('id'),
+                name=v.get('name'),
+                failed_at=v.get('failed_at'),
+                failure_reason=v.get('message'),
+                failure_count=occurrences[k],
+                comment=v.get('comment')) for k, v in unique_errors.iteritems()])
     )
     send_mail.delay([email_address], "Uh-oh, Some Scheduled Queries Failed!", html, None)
 
@@ -44,7 +53,8 @@ def notify_of_failure(message, query):
 
         redis_connection.lpush(key, json_dumps({
             'id': query.id,
-            'query': query.query_text,
+            'name': query.name,
+            'base_url': base_url(query.org),
             'message': message,
             'comment': comment,
             'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
