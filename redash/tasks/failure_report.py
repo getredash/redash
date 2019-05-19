@@ -3,13 +3,7 @@ from collections import Counter
 from redash.tasks.general import send_mail
 from redash.worker import celery
 from redash import redis_connection, settings
-from redash.utils import json_dumps, json_loads
-
-def base_url(org):
-    if settings.MULTI_ORG:
-        return "https://{}/{}".format(settings.HOST, org.slug)
-
-    return settings.HOST
+from redash.utils import json_dumps, json_loads, base_url
 
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(email_address):
