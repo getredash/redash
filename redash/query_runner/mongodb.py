@@ -251,7 +251,6 @@ class MongoDB(BaseQueryRunner):
                     step["$sort"] = SON(sort_list)
 
         if not aggregate:
-            s = None
             if "sort" in query_data and query_data["sort"]:
                 s = []
                 for field in query_data["sort"]:
