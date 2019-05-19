@@ -325,9 +325,6 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            if isinstance(e, SoftTimeLimitExceeded) and self.scheduled_query:
-                notify_of_failure(TIMEOUT_MESSAGE, self.scheduled_query.id)
-
             error = text_type(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
@@ -344,6 +341,7 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+                notify_of_failure(error, self.scheduled_query)
             models.db.session.commit()
             raise result
         else:
@@ -415,20 +413,13 @@ def send_aggregated_errors(email_address):
 
     redis_connection.delete(key)
 
-def on_failure(self, exc, _, args, __, ___):
-    notify_of_failure(exc.message, args[-2])
-
-def notify_of_failure(message, scheduled_query_id):
-    if scheduled_query_id is None or not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
+def notify_of_failure(message, query):
+    if not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
         return
 
-    query = models.Query.query.get(scheduled_query_id)
-    email_address = query.user.email
-    schedule_failures = query.schedule_failures + 1
-
-    if email_address and schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
-        key = 'aggregated_failures:{}'.format(email_address)
-        reporting_will_soon_stop = schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
+    if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
+        key = 'aggregated_failures:{}'.format(query.user.email)
+        reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
         comment = 'This query is repeatedly failing. Reporting may stop when the query exceeds {} failures.'.format(settings.MAX_FAILURE_REPORTS_PER_QUERY) if reporting_will_soon_stop else ''
 
         redis_connection.lpush(key, json_dumps({
@@ -440,13 +431,13 @@ def notify_of_failure(message, scheduled_query_id):
         }))
 
         if not redis_connection.exists('{}:pending'.format(key)):
-            send_aggregated_errors.apply_async(args=(email_address,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
+            send_aggregated_errors.apply_async(args=(query.user.email,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
             redis_connection.set('{}:pending'.format(key), 1)
             redis_connection.expire('{}:pending'.format(key), settings.SEND_FAILURE_EMAIL_INTERVAL)
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
-@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True, on_failure=on_failure)
+@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
                   scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
