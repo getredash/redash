@@ -57,7 +57,7 @@ def notify_of_failure(message, query):
             'base_url': base_url(query.org),
             'message': message,
             'comment': comment,
-            'failed_at': datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            'failed_at': datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
         }))
 
         if not redis_connection.exists('{}:pending'.format(key)):
