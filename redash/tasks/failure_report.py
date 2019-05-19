@@ -15,7 +15,7 @@ def send_aggregated_errors(email_address):
 
     html = "We're sorry, but these queries failed lately:<br><ol><li>{}</li></ol>".format(
         '</li><li>'.join(["""
-            Failed at: {failed_at}<br>
+            Last failure at: {failed_at}<br>
             Failure reason: {failure_reason}<br>
             Failures since last report: {failure_count}<br>
             Query: {query}<br>
@@ -37,7 +37,10 @@ def notify_of_failure(message, query):
     if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
         key = 'aggregated_failures:{}'.format(query.user.email)
         reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
-        comment = 'This query is repeatedly failing. Reporting may stop when the query exceeds {} overall failures.'.format(settings.MAX_FAILURE_REPORTS_PER_QUERY) if reporting_will_soon_stop else ''
+        comment = 'This query has failed a total of {failure_count} times. Reporting may stop when the query exceeds {max_failure_reports} overall failures.'.format(
+            failure_count=query.schedule_failures,
+            max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
+        ) if reporting_will_soon_stop else ''
 
         redis_connection.lpush(key, json_dumps({
             'id': query.id,
