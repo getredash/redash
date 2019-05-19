@@ -16,9 +16,9 @@ def send_aggregated_errors(email_address):
     html = "We're sorry, but these queries failed lately:<br><ol><li>{}</li></ol>".format(
         '</li><li>'.join(["""
             Last failure at: {failed_at}<br>
-            Failure reason: {failure_reason}<br>
+            Failure reason: <code>{failure_reason}</code><br>
             Failures since last report: {failure_count}<br>
-            Query: {query}<br>
+            Query: <code>{query}</code><br>
             <b>{comment}</b>""".format(
             failed_at=v.get('failed_at'),
             failure_reason=v.get('message'),
