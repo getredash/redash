@@ -9,6 +9,7 @@ from redash.utils import json_dumps, json_loads
 def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
+    errors.reverse()
     occurrences = Counter((e.get('query'), e.get('message')) for e in errors)
     unique_errors = {(e.get('query'), e.get('message')): e for e in errors}
 
@@ -16,7 +17,7 @@ def send_aggregated_errors(email_address):
         '</li><li>'.join(["""
             Failed at: {failed_at}<br>
             Failure reason: {failure_reason}<br>
-            Failure count: {failure_count}<br>
+            Failures since last report: {failure_count}<br>
             Query: {query}<br>
             <b>{comment}</b>""".format(
             failed_at=v.get('failed_at'),
@@ -36,7 +37,7 @@ def notify_of_failure(message, query):
     if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
         key = 'aggregated_failures:{}'.format(query.user.email)
         reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
-        comment = 'This query is repeatedly failing. Reporting may stop when the query exceeds {} failures.'.format(settings.MAX_FAILURE_REPORTS_PER_QUERY) if reporting_will_soon_stop else ''
+        comment = 'This query is repeatedly failing. Reporting may stop when the query exceeds {} overall failures.'.format(settings.MAX_FAILURE_REPORTS_PER_QUERY) if reporting_will_soon_stop else ''
 
         redis_connection.lpush(key, json_dumps({
             'id': query.id,
