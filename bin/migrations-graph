@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+"""
+A quick helper script to print the Alembic migration history
+via Graphiz and show it via GraphvizOnline on
+https://dreampuf.github.io/GraphvizOnline/.
+
+This requires the Graphviz Python library:
+
+   $ pip install --user graphviz
+
+Then run it with the path to the Alembic config file:
+
+   $ migrations-graph --config migrations/alembic.ini
+
+"""
+import os
+import sys
+import urllib.parse
+import urllib.request
+
+import click
+from alembic import util
+from alembic.script import ScriptDirectory
+from alembic.config import Config
+from alembic.util import CommandError
+from graphviz import Digraph
+
+# Make sure redash can be imported in the migration files
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+
+def get_revisions(config, rev_range=None):
+    script = ScriptDirectory.from_config(config)
+
+    if rev_range is not None:
+        if ":" not in rev_range:
+            raise util.CommandError(
+                "History range requires [start]:[end], [start]:, or :[end]"
+            )
+        base, head = rev_range.strip().split(":")
+    else:
+        base = head = None
+
+    return script.walk_revisions(base=base or "base", head=head or "heads")
+
+
+def generate_revision_graph(revisions):
+    dot = Digraph()
+    for revision in revisions:
+        dot.node(revision.revision)
+        if revision.down_revision is None:
+            dot.edge("base", revision.revision)
+            continue
+        if isinstance(revision.down_revision, str):
+            dot.edge(revision.down_revision, revision.revision)
+            continue
+        for down_revision in revision.down_revision:
+            dot.edge(down_revision, revision.revision)
+    return dot
+
+
+@click.command()
+@click.option("--config", default="alembic.ini", help="path to alembic config file")
+@click.option("--name", default="alembic", help="name of the alembic ini section")
+def cli(config, name):
+    """
+    Generates a simple Graphviz dot file and creates a link to
+    view it online via https://dreampuf.github.io/GraphvizOnline/.
+    """
+    alembic_config = Config(file_=config, ini_section=name)
+    try:
+        revisions = get_revisions(alembic_config)
+    except CommandError as e:
+        sys.exit(e)
+
+    dot = generate_revision_graph(revisions)
+    encoded_dot = urllib.parse.quote(bytes(dot.source, "utf-8"))
+    viz_url = "https://dreampuf.github.io/GraphvizOnline/#%s" % encoded_dot
+    print("Generated graph for migration history in %s: %s " % (config, viz_url))
+
+
+if __name__ == "__main__":
+    cli()
