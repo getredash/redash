@@ -175,7 +175,9 @@ class QueryResultResource(BaseResource):
 
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             query_result = run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
-            if not self.current_user.has_permissions('view_source'):
+            if isinstance(query_result, tuple) and query_result[1] != 200:
+                return query_result
+            if not self.current_user.has_permission('view_source'):
                 query_result['query'] = 'Query Source requires \'view_source\' permission.'
             return query_result
         else:

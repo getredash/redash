@@ -372,11 +372,12 @@ class QueryResource(BaseResource):
             'object_type': 'query',
         })
 
-        if not self.current_user.has_permissions('view_source'):
-            result['query'] = '\n'.join(
-                ['-- Query Source requires \'view_source\' permission.'] \
-                + list(map(lambda p: '-- {{{{{}}}}}'.format(p['name']), result['options']['parameters']))
-            )
+        if not self.current_user.has_permission('view_source'):
+            result['query'] = '-- Query Source requires \'view_source\' permission.'
+            if 'parameters' in result['options']:
+                result['query'] += '\n' + '\n'.join(
+                    [] + list(map(lambda p: '-- {{{{{}}}}}'.format(p['name']), result['options']['parameters']))
+                )
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
