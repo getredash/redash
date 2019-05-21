@@ -18,20 +18,23 @@
         <h1 style="font-size: 14px; font-weight: normal;">Redash failed to run the following queries:</h1>
 
         {% for failure in failures %}
-		<div style="background: white;padding: 5px 20px 20px 20px; border-radius: 3px; box-shadow: 0 4px 9px -3px rgba(102,136,153,.15); margin-top: 20px">
-			<h2 style="font-size: 16px; position: relative">{{failure.name}} <a href="{{failure.base_url}}/queries/{{failure.id}}" style="background-color: #ff7964;font-size: 13px;color:  white;text-decoration: none;padding: 0 5px;display: inline-block;border-radius: 3px;font-weight: normal;position: absolute;right: 0;top:-1px">Go
-					to Query</a></h2>
-			<div>
-				<p>
-					Last failed: {{failure.failed_at}}
-					<br />
-					<small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{failure.failure_count}} more failures since last report</small>
-				</p>
-				<h3 style="font-size: 14px; font-weight:normal; margin-bottom: 6px">Exception</h3>
-				<div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace;">{{failure.failure_reason}}</div>
-			</div>
-			<div style="margin-top: 25px;font-size: 13px;border-top: 1px solid #ececec;padding-top: 19px;">{{failure.comment}}</div>
-        </div>
+		    <div style="background: white;padding: 5px 20px 20px 20px; border-radius: 3px; box-shadow: 0 4px 9px -3px rgba(102,136,153,.15); margin-top: 20px">
+		    	<h2 style="font-size: 16px; position: relative">{{failure.name}} <a href="{{failure.base_url}}/queries/{{failure.id}}" style="background-color: #ff7964;font-size: 13px;color:  white;text-decoration: none;padding: 0 5px;display: inline-block;border-radius: 3px;font-weight: normal;position: absolute;right: 0;top:-1px">Go
+		    			to Query</a></h2>
+		    	<div>
+		    		<p>
+		    			Last failed: {{failure.failed_at}}
+		    			<br />
+		    			<small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{failure.failure_count}} more failures since last report</small>
+		    		</p>
+		    		<h3 style="font-size: 14px; font-weight:normal; margin-bottom: 6px">Exception</h3>
+		    		<div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace;">{{failure.failure_reason}}</div>
+                </div>
+
+                {% if failure.comment %}
+                    <div style="margin-top: 25px;font-size: 13px;border-top: 1px solid #ececec;padding-top: 19px;">{{failure.comment}}</div>
+                {% endif %}
+            </div>
         {% endfor %}
 
     </div>
