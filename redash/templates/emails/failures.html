@@ -30,7 +30,7 @@
                         {% endif %}
 		    		</p>
 		    		<h3 style="font-size: 14px; font-weight:normal; margin-bottom: 6px">Exception</h3>
-		    		<div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace;">{{failure.failure_reason}}</div>
+		    		<div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace; overflow: scroll;">{{failure.failure_reason}}</div>
                 </div>
 
                 {% if failure.comment %}
