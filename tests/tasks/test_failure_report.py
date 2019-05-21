@@ -4,12 +4,18 @@ import mock
 
 from tests import BaseTestCase
 from redash import redis_connection, models, settings
-from redash.tasks.failure_report import notify_of_failure
+from redash.tasks.failure_report import notify_of_failure, send_aggregated_errors
 from redash.utils import json_loads
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
-    def notify(self, message="Oh no, I failed!", **kwargs):
-        query = self.factory.create_query(**kwargs)
+    def setUp(self):
+        super(TestSendAggregatedErrorsTask, self).setUp()
+        redis_connection.flushall()
+
+    def notify(self, message="Oh no, I failed!", query=None, **kwargs):
+        if query is None:
+            query = self.factory.create_query(**kwargs)
+
         notify_of_failure(message, query)
         return "aggregated_failures:{}".format(query.user.email)
 
@@ -35,8 +41,29 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         comment = failure.get('comment')
         self.assertTrue(comment)
 
-    def test_aggregates_multiple_queries_in_a_single_report(self):
+    def test_aggregates_different_queries_in_a_single_report(self):
         key1 = self.notify(message="I'm a failure")
         key2 = self.notify(message="I'm simply not a success")
 
         self.assertEqual(key1, key2)
+
+    @mock.patch('redash.tasks.failure_report.render_template')
+    def test_counts_failures_for_each_reason(self, render_template):
+        query = self.factory.create_query()
+
+        self.notify(message="I'm a failure", query=query)
+        self.notify(message="I'm a failure", query=query)
+        self.notify(message="I'm a different type of failure", query=query)
+        self.notify(message="I'm a totally different query")
+
+        send_aggregated_errors(query.user.email)
+
+        _, context = render_template.call_args
+        failures = context['failures']
+
+        f1 = next(f for f in failures if f["failure_reason"] == "I'm a failure")
+        self.assertEqual(2, f1['failure_count'])
+        f2 = next(f for f in failures if f["failure_reason"] == "I'm a different type of failure")
+        self.assertEqual(1, f2['failure_count'])
+        f3 = next(f for f in failures if f["failure_reason"] == "I'm a totally different query")
+        self.assertEqual(1, f3['failure_count'])
