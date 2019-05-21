@@ -13,6 +13,11 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
     def setUp(self):
         super(TestSendAggregatedErrorsTask, self).setUp()
         redis_connection.flushall()
+        settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = True
+
+    def tearDown(self):
+        super(TestSendAggregatedErrorsTask, self).tearDown()
+        settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = False
 
     def notify(self, message="Oh no, I failed!", query=None, **kwargs):
         if query is None:
@@ -75,9 +80,9 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         query = self.factory.create_query()
 
         with freeze_time("2000-01-01"):
-            self.notify(message="I'm a failure", query=query)
+            self.notify(query=query)
 
-        self.notify(message="I'm a failure", query=query)
+        self.notify(query=query)
 
         send_aggregated_errors(query.user.email)
 
