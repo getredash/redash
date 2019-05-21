@@ -24,8 +24,10 @@
 		    	<div>
 		    		<p>
 		    			Last failed: {{failure.failed_at}}
-		    			<br />
-		    			<small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{failure.failure_count - 1}} more failures since last report</small>
+                        {% if failure.failure_count > 1 %}
+                            <br />
+                            <small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{failure.failure_count - 1}} more failures since last report</small>
+                        {% endif %}
 		    		</p>
 		    		<h3 style="font-size: 14px; font-weight:normal; margin-bottom: 6px">Exception</h3>
 		    		<div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace;">{{failure.failure_reason}}</div>
