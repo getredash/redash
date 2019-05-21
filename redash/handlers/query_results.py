@@ -171,11 +171,13 @@ class QueryResultResource(BaseResource):
         max_age = int(max_age)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
 
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
-            return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
+            query_result = run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
+            if not self.current_user.has_permissions('view_source'):
+                query_result['query'] = 'Query Source requires \'view_source\' permission.'
+            return query_result
         else:
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 

@@ -351,7 +351,7 @@ class QueryResource(BaseResource):
 
         return QuerySerializer(query, with_visualizations=True).serialize()
 
-    @require_permissions(('view_query', 'view_source'))
+    @require_permission('view_query')
     def get(self, query_id):
         """
         Retrieve a query.
@@ -372,6 +372,11 @@ class QueryResource(BaseResource):
             'object_type': 'query',
         })
 
+        if not self.current_user.has_permissions('view_source'):
+            result['query'] = '\n'.join(
+                ['-- Query Source requires \'view_source\' permission.'] \
+                + list(map(lambda p: '-- {{{{{}}}}}'.format(p['name']), result['options']['parameters']))
+            )
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
