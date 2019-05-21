@@ -11,25 +11,27 @@ from redash.utils import json_dumps, json_loads, base_url
 def send_aggregated_errors(email_address):
     key = 'aggregated_failures:{}'.format(email_address)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
-    errors.reverse()
-    occurrences = Counter((e.get('id'), e.get('message')) for e in errors)
-    unique_errors = {(e.get('id'), e.get('message')): e for e in errors}
 
-    context = {
-        'failures': [{
-                'base_url': v.get('base_url'),
-                'id': v.get('id'),
-                'name': v.get('name'),
-                'failed_at': v.get('failed_at'),
-                'failure_reason': v.get('message'),
-                'failure_count': occurrences[k],
-                'comment': v.get('comment')
-        } for k, v in unique_errors.iteritems()]
-    }
+    if errors:
+        errors.reverse()
+        occurrences = Counter((e.get('id'), e.get('message')) for e in errors)
+        unique_errors = {(e.get('id'), e.get('message')): e for e in errors}
 
-    html = render_template('emails/failures.html', **context)
+        context = {
+            'failures': [{
+                    'base_url': v.get('base_url'),
+                    'id': v.get('id'),
+                    'name': v.get('name'),
+                    'failed_at': v.get('failed_at'),
+                    'failure_reason': v.get('message'),
+                    'failure_count': occurrences[k],
+                    'comment': v.get('comment')
+            } for k, v in unique_errors.iteritems()]
+        }
 
-    send_mail.delay([email_address], "Redash failed to execute {} of your queries".format(len(unique_errors.keys())), html, None)
+        html = render_template('emails/failures.html', **context)
+
+        send_mail.delay([email_address], "Redash failed to execute {} of your queries".format(len(unique_errors.keys())), html, None)
 
     redis_connection.delete(key)
 
