@@ -1,6 +1,8 @@
 from unittest import TestCase
 
 import mock
+from freezegun import freeze_time
+import dateutil
 
 from tests import BaseTestCase
 from redash import redis_connection, models, settings
@@ -67,3 +69,18 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         self.assertEqual(1, f2['failure_count'])
         f3 = next(f for f in failures if f["failure_reason"] == "I'm a totally different query")
         self.assertEqual(1, f3['failure_count'])
+
+    @mock.patch('redash.tasks.failure_report.render_template')
+    def test_shows_latest_failure_time(self, render_template):
+        query = self.factory.create_query()
+
+        with freeze_time("2000-01-01"):
+            self.notify(message="I'm a failure", query=query)
+
+        self.notify(message="I'm a failure", query=query)
+
+        send_aggregated_errors(query.user.email)
+
+        _, context = render_template.call_args
+        latest_failure = dateutil.parser.parse(context['failures'][0]['failed_at'])
+        self.assertNotEqual(2000, latest_failure.year)
