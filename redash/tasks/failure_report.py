@@ -30,8 +30,8 @@ def send_aggregated_errors(email_address):
         }
 
         html = render_template('emails/failures.html', **context)
-
-        send_mail.delay([email_address], "Redash failed to execute {} of your queries".format(len(unique_errors.keys())), html, None)
+        subject = "Redash failed to execute {} of your queries".format(len(unique_errors.keys()))
+        send_mail.delay([email_address], subject, html, None)
 
     redis_connection.delete(key)
 
