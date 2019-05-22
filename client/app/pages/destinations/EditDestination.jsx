@@ -51,7 +51,7 @@ class EditDestination extends React.Component {
         errorCallback(message);
       },
     );
-  }
+  };
 
   deleteDestination = (callback) => {
     const { destination } = this.state;

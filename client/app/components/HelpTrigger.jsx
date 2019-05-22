@@ -76,9 +76,9 @@ export class HelpTrigger extends React.Component {
     children: <i className="fa fa-question-circle" />,
   };
 
-  iframeRef = null
+  iframeRef = null;
 
-  iframeLoadingTimeout = null
+  iframeLoadingTimeout = null;
 
   constructor(props) {
     super(props);
