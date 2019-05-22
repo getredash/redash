@@ -8,3 +8,13 @@ def query_time_limit(is_scheduled, user_id, org_id):
     adhoc_time_limit = int_or_none(os.environ.get('REDASH_ADHOC_QUERY_TIME_LIMIT', None))
 
     return scheduled_time_limit if is_scheduled else adhoc_time_limit
+
+
+# Provide any custom tasks you'd like to run periodically
+def custom_tasks():
+    return {
+        # 'key': {
+        #     'task': 'redash.task.example',
+        #     'schedule': timedelta(minutes=5)
+        # }
+    }
