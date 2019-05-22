@@ -44,7 +44,7 @@ def notify_of_failure(message, query):
     if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
         key = 'aggregated_failures:{}'.format(query.user.email)
         reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
-        comment = """This query has failed a total of {failure_count} times.
+        comment = """NOTICE: This query has failed a total of {failure_count} times.
                      Reporting may stop when the query exceeds {max_failure_reports} overall failures.""".format(
             failure_count=query.schedule_failures,
             max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
