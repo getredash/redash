@@ -250,12 +250,6 @@ class MongoDB(BaseQueryRunner):
 
                     step["$sort"] = SON(sort_list)
 
-        if not aggregate:
-            if "sort" in query_data and query_data["sort"]:
-                s = []
-                for field in query_data["sort"]:
-                    s.append((field["name"], field["direction"]))
-
         if "fields" in query_data:
             f = query_data["fields"]
 
