@@ -66,6 +66,34 @@ describe('Parameter', () => {
     });
   });
 
+  describe.only('Dropdown Parameter', () => {
+    beforeEach(() => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        ParameterTypeSelect
+        DropdownParameterTypeOption
+      `);
+
+      cy.getByTestId('DropdownValuesInput').type('value1{enter}value2{enter}value3');
+      cy.getByTestId('SaveParameterSettings').click();
+    });
+
+    afterEach(() => {
+      cy.clock().then(clock => clock.restore());
+    });
+
+    it('updates the results after selecting a value', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .click();
+
+      cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+        .click();
+
+      cy.getByTestId('DynamicTable')
+        .should('contain', 'value1');
+    });
+  });
+
   describe('Date Parameter', () => {
     beforeEach(() => {
       cy.clickThrough(`

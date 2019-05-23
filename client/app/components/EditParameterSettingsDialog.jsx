@@ -156,7 +156,7 @@ function EditParameterSettingsDialog(props) {
           <Select value={param.type} onChange={type => setParam({ ...param, type })} data-test="ParameterTypeSelect">
             <Option value="text" data-test="TextParameterTypeOption">Text</Option>
             <Option value="number" data-test="NumberParameterTypeOption">Number</Option>
-            <Option value="enum">Dropdown List</Option>
+            <Option value="enum" data-test="DropdownParameterTypeOption">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>
             <Option disabled key="dv1">
               <Divider className="select-option-divider" />
@@ -188,6 +188,7 @@ function EditParameterSettingsDialog(props) {
               rows={3}
               value={param.enumOptions}
               onChange={e => setParam({ ...param, enumOptions: e.target.value })}
+              data-test="DropdownValuesInput"
             />
           </Form.Item>
         )}
