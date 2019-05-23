@@ -8,7 +8,7 @@ const renderFunctions = {
 };
 
 export default function init(ngModule) {
-  ngModule.directive('dynamicTableDefaultCell', $sanitize => ({
+  ngModule.directive('dynamicTableDefaultCell', ($sce,$sanitize) => ({
     template,
     restrict: 'E',
     replace: true,
@@ -34,7 +34,7 @@ export default function init(ngModule) {
       const renderValue = renderFunctions[$scope.column.displayAs] || renderDefault;
 
       $scope.value = sanitize(renderValue($scope.column, $scope.row));
-
+      $scope.trustAsHtml = html  => $sce.trustAsHtml(html);
       $scope.$watch('row', (newValue, oldValue) => {
         if (newValue !== oldValue) {
           $scope.value = sanitize(renderValue($scope.column, $scope.row));
