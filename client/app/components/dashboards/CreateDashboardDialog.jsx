@@ -53,6 +53,7 @@ function CreateDashboardDialog({ dialog }) {
       okButtonProps={{
         disabled: !isValid || saveInProgress,
         loading: saveInProgress,
+        'data-test': 'DashboardSaveButton',
       }}
       cancelButtonProps={{
         disabled: saveInProgress,
@@ -60,6 +61,9 @@ function CreateDashboardDialog({ dialog }) {
       onOk={save}
       closable={!saveInProgress}
       maskClosable={!saveInProgress}
+      wrapProps={{
+        'data-test': 'CreateDashboardDialog',
+      }}
     >
       <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
         <Input
