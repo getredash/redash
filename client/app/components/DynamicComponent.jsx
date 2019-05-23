@@ -43,7 +43,7 @@ export default class DynamicComponent extends React.Component {
     const { name, children, ...props } = this.props;
     const RealComponent = componentsRegistry.get(name);
     if (!RealComponent) {
-      return null;
+      return children;
     }
     return <RealComponent {...props}>{children}</RealComponent>;
   }
