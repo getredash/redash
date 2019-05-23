@@ -52,7 +52,7 @@ class EditDataSource extends React.Component {
         errorCallback(message);
       },
     );
-  }
+  };
 
   deleteDataSource = (callback) => {
     const { dataSource } = this.state;
