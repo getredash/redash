@@ -66,7 +66,7 @@ describe('Parameter', () => {
     });
   });
 
-  describe.only('Dropdown Parameter', () => {
+  describe('Dropdown Parameter', () => {
     beforeEach(() => {
       cy.clickThrough(`
         ParameterSettings-test-parameter
