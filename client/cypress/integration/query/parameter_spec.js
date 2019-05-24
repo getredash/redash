@@ -124,4 +124,52 @@ describe('Parameter', () => {
         .should('contain', '15/01/19');
     });
   });
+
+  describe('Date and Time Parameter', () => {
+    beforeEach(() => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        ParameterTypeSelect
+        DateTimeParameterTypeOption
+        SaveParameterSettings
+      `);
+
+      const now = new Date(2019, 0, 1).getTime(); // January 1, 2019 timestamp
+      cy.clock(now);
+    });
+
+    afterEach(() => {
+      cy.clock().then(clock => clock.restore());
+    });
+
+    it('updates the results after selecting a date and clicking in ok', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .click();
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('.ant-calendar-date', '15')
+        .click();
+
+      cy.get('.ant-calendar-ok-btn')
+        .click()
+        .trigger('keydown', { keyCode: 13 });
+
+      cy.getByTestId('DynamicTable')
+        .should('contain', '2019-01-15 00:00');
+    });
+
+    it('shows the current datetime after clicking in Now', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .click();
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('Now')
+        .click();
+
+      cy.getByTestId('DynamicTable')
+        .should('contain', '2019-01-01 00:00');
+    });
+  });
 });
