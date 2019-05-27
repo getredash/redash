@@ -12,6 +12,7 @@ import CardsList from '@/components/cards-list/CardsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import recordEvent from '@/services/recordEvent';
 
 class DataSourcesList extends React.Component {
   state = {
@@ -56,6 +57,7 @@ class DataSourcesList extends React.Component {
   };
 
   showCreateSourceDialog = () => {
+    recordEvent('view', 'page', 'data_sources/new');
     CreateSourceDialog.showModal({
       types: this.state.dataSourceTypes,
       sourceType: 'Data Source',
