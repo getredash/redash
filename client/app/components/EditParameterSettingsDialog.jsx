@@ -188,7 +188,6 @@ function EditParameterSettingsDialog(props) {
               rows={3}
               value={param.enumOptions}
               onChange={e => setParam({ ...param, enumOptions: e.target.value })}
-              data-test="DropdownValuesInput"
             />
           </Form.Item>
         )}
