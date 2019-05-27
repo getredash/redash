@@ -338,9 +338,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       const loadResult = () => (Auth.isAuthenticated()
         ? this.loadResult()
         : this.loadLatestCachedResult(query, parameters));
+      const params = Auth.isAuthenticated() ? { id: this.job.id } : { queryId: query, id: this.job.id };
 
       resource.get(
-        { queryId: query, id: this.job.id },
+        params,
         (jobResponse) => {
           this.update(jobResponse);
 

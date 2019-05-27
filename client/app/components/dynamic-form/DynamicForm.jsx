@@ -94,7 +94,7 @@ class DynamicForm extends React.Component {
         );
       } else this.setState({ isSubmitting: false });
     });
-  }
+  };
 
   handleAction = (e) => {
     const actionName = e.target.dataset.action;
@@ -103,7 +103,7 @@ class DynamicForm extends React.Component {
     this.actionCallbacks[actionName](() => {
       this.setActionInProgress(actionName, false);
     });
-  }
+  };
 
   base64File = (fieldName, e) => {
     if (e && e.fileList[0]) {
@@ -111,7 +111,7 @@ class DynamicForm extends React.Component {
         this.props.form.setFieldsValue({ [fieldName]: value });
       });
     }
-  }
+  };
 
   renderUpload(field, props) {
     const { getFieldDecorator, getFieldValue } = this.props.form;
