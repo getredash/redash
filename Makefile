@@ -1,4 +1,4 @@
-.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
+.PHONY: compose_build up test_db create_database seed_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
 compose_build:
 	docker-compose build
@@ -15,6 +15,10 @@ test_db:
 
 create_database:
 	docker-compose run server create_db
+
+seed_database:
+	docker-compose exec server \
+		curl -d "name=Example Admin" -d "email=admin@redash.io" -d "password=password" -d "org_name=Redash" http://localhost:5000/setup
 
 clean:
 	docker-compose down && docker-compose rm
