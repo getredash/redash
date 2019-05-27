@@ -140,6 +140,16 @@
       </label>
     </div>
 
+    <label class="control-label" for="legendOrientation">Legend orientation:</label>
+
+    <input type="radio" id="legendOrientationVertical"
+     name="legendOrientation" value="v">
+    <label for="contactChoice1">Vertical</label>
+
+    <input type="radio" id="legendOrientationHorizontal"
+     name="legendOrientation" value="h">
+    <label for="contactChoice2">Horizontal</label>
+
     <div class="checkbox" ng-if="$ctrl.options.globalSeriesType == 'box'">
       <label>
         <input type="checkbox" ng-model="$ctrl.options.showpoints">
