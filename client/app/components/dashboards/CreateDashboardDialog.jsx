@@ -15,6 +15,8 @@ function CreateDashboardDialog({ dialog }) {
   const inputRef = useRef();
   const isCreateDashboardEnabled = policy.isCreateDashboardEnabled();
 
+  // ANGULAR_REMOVE_ME Replace all this with `autoFocus` attribute (it does not work
+  // if dialog is opened from Angular code, but works fine if open dialog from React code)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (inputRef.current) {
