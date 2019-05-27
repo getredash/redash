@@ -1,19 +1,21 @@
+import { createQuery } from '../../support/redash-api';
+
 describe('Parameter', () => {
   beforeEach(() => {
     cy.login();
-    cy.visit('/queries/new');
-
-    cy.getByTestId('QueryEditor')
-      .get('.ace_text-input')
-      .type("SELECT '{{}{{}test-parameter}}' AS parameter{esc}", { force: true });
-  });
-
-  afterEach(() => {
-    cy.getByTestId('SaveButton').click();
-    cy.url().should('match', /\/queries\/\d+\/source/);
   });
 
   describe('Text Parameter', () => {
+    beforeEach(() => {
+      const queryData = {
+        name: 'Text Parameter',
+        query: "SELECT '{{test-parameter}}' AS parameter",
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}`));
+    });
+
     it('updates the results after clicking in Apply or pressing enter', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
@@ -37,12 +39,18 @@ describe('Parameter', () => {
 
   describe('Number Parameter', () => {
     beforeEach(() => {
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        ParameterTypeSelect
-        NumberParameterTypeOption
-        SaveParameterSettings
-      `);
+      const queryData = {
+        name: 'Number Parameter',
+        query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'number' },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it('updates the results after clicking in Apply or pressing enter', () => {
@@ -68,22 +76,26 @@ describe('Parameter', () => {
 
   describe('Dropdown Parameter', () => {
     beforeEach(() => {
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        ParameterTypeSelect
-        DropdownParameterTypeOption
-      `);
+      const queryData = {
+        name: 'Number Parameter',
+        query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter',
+              title: 'Test Parameter',
+              type: 'enum',
+              enumOptions: 'value1\nvalue2\nvalue3' },
+          ],
+        },
+      };
 
-      cy.getByTestId('DropdownValuesInput').type('value1{enter}value2{enter}value3');
-      cy.getByTestId('SaveParameterSettings').click();
-    });
-
-    afterEach(() => {
-      cy.clock().then(clock => clock.restore());
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     it('updates the results after selecting a value', () => {
       cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-select')
         .click();
 
       cy.contains('li.ant-select-dropdown-menu-item', 'value1')
@@ -96,6 +108,14 @@ describe('Parameter', () => {
 
   describe('Date Parameter', () => {
     beforeEach(() => {
+      const queryData = {
+        name: 'Date Parameter',
+        query: "SELECT '{{test-parameter}}' AS parameter",
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+
       cy.clickThrough(`
         ParameterSettings-test-parameter
         ParameterTypeSelect
@@ -127,6 +147,14 @@ describe('Parameter', () => {
 
   describe('Date and Time Parameter', () => {
     beforeEach(() => {
+      const queryData = {
+        name: 'Date and Time Parameter',
+        query: "SELECT '{{test-parameter}}' AS parameter",
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+
       cy.clickThrough(`
         ParameterSettings-test-parameter
         ParameterTypeSelect
@@ -152,8 +180,7 @@ describe('Parameter', () => {
         .click();
 
       cy.get('.ant-calendar-ok-btn')
-        .click()
-        .trigger('keydown', { keyCode: 13 });
+        .click();
 
       cy.getByTestId('DynamicTable')
         .should('contain', '2019-01-15 00:00');
