@@ -12,7 +12,10 @@ import editorTemplate from './chart-editor.html';
 const DEFAULT_OPTIONS = {
   globalSeriesType: 'column',
   sortX: true,
-  legend: { enabled: true },
+  legend: {
+    enabled: true,
+    orientation: 'v',
+  },
   yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
   xAxis: { type: '-', labels: { enabled: true } },
   error_y: { type: 'data', visible: true },
