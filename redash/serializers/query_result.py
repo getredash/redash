@@ -10,6 +10,7 @@ from redash.authentication.org_resolving import current_org
 def convert_format(fmt):
     return fmt.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y').replace('YY', '%y').replace('HH', '%H').replace('mm', '%M').replace('ss', '%s')
 
+
 def serialize_query_result_to_csv(query_result):
     s = cStringIO.StringIO()
 
@@ -24,7 +25,7 @@ def serialize_query_result_to_csv(query_result):
         fieldnames.append(col['name'])
         if col['type'] == TYPE_BOOLEAN:
             bool_columns.append(col['name'])
-        
+     
         if col['type'] == TYPE_DATE:
             date_columns.append(col['name'])
 
@@ -34,13 +35,13 @@ def serialize_query_result_to_csv(query_result):
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
     writer.writer = UnicodeWriter(s)
     writer.writeheader()
-    for row in query_data['rows']:
 
+    for row in query_data['rows']:
         for col in bool_columns:
             if col in row:
-                if row[col] == True:
+                if row[col] is True:
                     row[col] = "true"
-                elif row[col] == False:
+                elif row[col] is False:
                     row[col] = "false"
         
         for col in date_columns:
@@ -61,7 +62,6 @@ def serialize_query_result_to_csv(query_result):
 
                 fmt = convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
                 row[col] = parsed.strftime(fmt)
-
 
         writer.writerow(row)
 
