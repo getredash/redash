@@ -1,4 +1,4 @@
-import { isArray, map, includes, every, some } from 'lodash';
+import { isArray, indexOf, map, includes, every, some, toNumber } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -23,14 +23,20 @@ export const FilterType = PropTypes.shape({
 export const FiltersType = PropTypes.arrayOf(FilterType);
 
 function createFilterChangeHandler(filters, onChange) {
-  return (filter, value) => {
-    if (filter.multiple && includes(value, ALL_VALUES)) {
-      value = [...filter.values];
+  return (filter, values) => {
+    if (isArray(values)) {
+      values = map(values, value => filter.values[toNumber(value.key)] || value.key);
+    } else {
+      values = filter.values[toNumber(values.key)] || values.key;
     }
-    if (filter.multiple && includes(value, NONE_VALUES)) {
-      value = [];
+
+    if (filter.multiple && includes(values, ALL_VALUES)) {
+      values = [...filter.values];
     }
-    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: value } : f));
+    if (filter.multiple && includes(values, NONE_VALUES)) {
+      values = [];
+    }
+    filters = map(filters, f => (f.name === filter.name ? { ...filter, current: values } : f));
     onChange(filters);
   };
 }
@@ -51,11 +57,7 @@ export function filterData(rows, filters = []) {
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
         return some(filterValues, (filterValue) => {
           if (moment.isMoment(rowValue)) {
-            if (moment.isMoment(filterValue)) {
-              return rowValue.isSame(filterValue);
-            }
-
-            return formatDateTime(rowValue) === filterValue;
+            return rowValue.isSame(filterValue);
           }
           // We compare with either the value or the String representation of the value,
           // because Select2 casts true/false to "true"/"false".
@@ -89,19 +91,23 @@ export function Filters({ filters, onChange }) {
         <div className="row">
           {map(filters, (filter) => {
             const options = map(filter.values, value => (
-              <Select.Option key={formatValue(value)}>{formatValue(value)}</Select.Option>
+              <Select.Option key={indexOf(filter.values, value)}>{formatValue(value)}</Select.Option>
             ));
 
             return (
               <div key={filter.name} className="col-sm-6 p-l-0 filter-container">
                 <label>{filter.friendlyName}</label>
                 <Select
+                  labelInValue
                   className="w-100"
                   mode={filter.multiple ? 'multiple' : 'default'}
-                  value={isArray(filter.current) ? map(filter.current, formatValue) : formatValue(filter.current)}
+                  value={isArray(filter.current) ?
+                    map(filter.current,
+                      value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
+                    ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
                   allowClear={filter.multiple}
                   showSearch
-                  onChange={value => onChange(filter, value)}
+                  onChange={values => onChange(filter, values)}
                 >
                   {!filter.multiple && options}
                   {filter.multiple && [
