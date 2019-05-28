@@ -4,6 +4,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
+import { clientConfig } from '@/services/auth';
+import { formatDateTime } from '@/filters/datetime';
 
 const ALL_VALUES = '###Redash::Filters::SelectAll###';
 const NONE_VALUES = '###Redash::Filters::Clear###';
@@ -50,7 +52,8 @@ export function filterData(rows, filters = []) {
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
         return some(filterValues, (filterValue) => {
           if (moment.isMoment(rowValue)) {
-            return rowValue.isSame(filterValue);
+            const formattedValue = rowValue.format(clientConfig.dateTimeFormat);
+            return formattedValue === filterValue;
           }
           // We compare with either the value or the String representation of the value,
           // because Select2 casts true/false to "true"/"false".
@@ -61,6 +64,14 @@ export function filterData(rows, filters = []) {
   }
 
   return result;
+}
+
+function formatValue(value) {
+  if (moment.isMoment(value)) {
+    return formatDateTime(value);
+  }
+
+  return value;
 }
 
 export function Filters({ filters, onChange }) {
@@ -76,7 +87,7 @@ export function Filters({ filters, onChange }) {
         <div className="row">
           {map(filters, (filter) => {
             const options = map(filter.values, value => (
-              <Select.Option key={value}>{value}</Select.Option>
+              <Select.Option key={formatValue(value)}>{formatValue(value)}</Select.Option>
             ));
 
             return (
@@ -85,7 +96,7 @@ export function Filters({ filters, onChange }) {
                 <Select
                   className="w-100"
                   mode={filter.multiple ? 'multiple' : 'default'}
-                  value={filter.current}
+                  value={formatValue(filter.current)}
                   allowClear={filter.multiple}
                   showSearch
                   onChange={value => onChange(filter, value)}
