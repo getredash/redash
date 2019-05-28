@@ -4,7 +4,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { clientConfig } from '@/services/auth';
 import { formatDateTime } from '@/filters/datetime';
 
 const ALL_VALUES = '###Redash::Filters::SelectAll###';
@@ -52,8 +51,11 @@ export function filterData(rows, filters = []) {
         const filterValues = isArray(filter.current) ? filter.current : [filter.current];
         return some(filterValues, (filterValue) => {
           if (moment.isMoment(rowValue)) {
-            const formattedValue = rowValue.format(clientConfig.dateTimeFormat);
-            return formattedValue === filterValue;
+            if (moment.isMoment(filterValue)) {
+              return rowValue.isSame(filterValue);
+            }
+
+            return formatDateTime(rowValue) === filterValue;
           }
           // We compare with either the value or the String representation of the value,
           // because Select2 casts true/false to "true"/"false".
@@ -96,7 +98,7 @@ export function Filters({ filters, onChange }) {
                 <Select
                   className="w-100"
                   mode={filter.multiple ? 'multiple' : 'default'}
-                  value={formatValue(filter.current)}
+                  value={isArray(filter.current) ? map(filter.current, formatValue) : formatValue(filter.current)}
                   allowClear={filter.multiple}
                   showSearch
                   onChange={value => onChange(filter, value)}
