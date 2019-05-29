@@ -11,17 +11,13 @@ def convert_format(fmt):
     return fmt.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y').replace('YY', '%y').replace('HH', '%H').replace('mm', '%M').replace('ss', '%s')
 
 
-def serialize_query_result_to_csv(query_result):
-    s = cStringIO.StringIO()
-
-    query_data = json_loads(query_result.data)
-
+def _get_column_lists(columns):
     fieldnames = []
     bool_columns = []
     date_columns = []
     datetime_columns = []
 
-    for col in query_data['columns']:
+    for col in columns:
         fieldnames.append(col['name'])
         if col['type'] == TYPE_BOOLEAN:
             bool_columns.append(col['name'])
@@ -31,8 +27,18 @@ def serialize_query_result_to_csv(query_result):
 
         if col['type'] == TYPE_DATETIME:
             datetime_columns.append(col['name'])
+    
+    return fieldnames, bool_columns, date_columns, datetime_columns
 
-    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
+
+def serialize_query_result_to_csv(query_result):
+    s = cStringIO.StringIO()
+
+    query_data = json_loads(query_result.data)
+
+    fieldnames, bool_columns, date_columns, datetime_columns = _get_column_lists(query_data['columns'])
+
+    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
     writer.writer = UnicodeWriter(s)
     writer.writeheader()
 
