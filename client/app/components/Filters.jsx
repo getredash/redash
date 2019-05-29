@@ -90,8 +90,8 @@ export function Filters({ filters, onChange }) {
       <div className="parameter-container container bg-white">
         <div className="row">
           {map(filters, (filter) => {
-            const options = map(filter.values, value => (
-              <Select.Option key={indexOf(filter.values, value)}>{formatValue(value)}</Select.Option>
+            const options = map(filter.values, (value, index) => (
+              <Select.Option key={index}>{formatValue(value)}</Select.Option>
             ));
 
             return (
@@ -106,6 +106,7 @@ export function Filters({ filters, onChange }) {
                       value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
                     ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
                   allowClear={filter.multiple}
+                  filterOption={(searchText, option) => includes(option.props.children, searchText)}
                   showSearch
                   onChange={values => onChange(filter, values)}
                 >
