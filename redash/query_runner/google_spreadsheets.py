@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
-    from gspread.httpsession import HTTPSession
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
@@ -166,9 +165,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
         key = json_loads(b64decode(self.configuration['jsonKeyFile']))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
 
-        timeout_session = HTTPSession()
+        timeout_session = Session()
         timeout_session.requests_session = TimeoutSession()
-        spreadsheetservice = gspread.Client(auth=creds, http_session=timeout_session)
+        spreadsheetservice = gspread.Client(auth=creds, session=timeout_session)
         spreadsheetservice.login()
         return spreadsheetservice
 
