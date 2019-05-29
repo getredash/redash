@@ -22,15 +22,14 @@ data = {
     ]
 }
 
-def get_csv_content(factory):
-    query_result = factory.create_query_result(data=json_dumps(data))
-    return serialize_query_result_to_csv(query_result)
-
-
 class CsvSerializationTest(BaseTestCase):
+    def get_csv_content(self):
+        query_result = self.factory.create_query_result(data=json_dumps(data))
+        return serialize_query_result_to_csv(query_result)
+
     def test_serializes_booleans_correctly(self):
         with self.app.test_request_context('/'):
-            parsed = csv.DictReader(cStringIO.StringIO(get_csv_content(self.factory)))
+            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
         rows = list(parsed)
 
         self.assertEqual(rows[0]['bool'], 'true')
@@ -39,7 +38,7 @@ class CsvSerializationTest(BaseTestCase):
 
     def test_serializes_datatime_with_correct_format(self):
         with self.app.test_request_context('/'):
-            parsed = csv.DictReader(cStringIO.StringIO(get_csv_content(self.factory)))
+            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
         rows = list(parsed)
 
         self.assertEqual(rows[0]['datetime'], '26/05/19 12:39')
