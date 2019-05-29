@@ -147,7 +147,9 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
     }
 
     cancelExecution() {
-      Job.delete({ id: this.job.id });
+      if (this.job.id) {
+        Job.delete({ id: this.job.id });
+      }
     }
 
     getStatus() {

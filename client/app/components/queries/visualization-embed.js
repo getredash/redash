@@ -27,6 +27,13 @@ const VisualizationEmbed = {
         });
     };
 
+    this.cancelPreviousAndRefresh = () => {
+      if (this.query.queryResults && this.query.queryResults.cancelExecution) {
+        this.query.queryResults.cancelExecution();
+      }
+      this.refreshQueryResults();
+    };
+
     const visualizationId = parseInt($routeParams.visualizationId, 10);
     this.visualization = find(this.query.visualizations, visualization => visualization.id === visualizationId);
     this.showQueryDescription = $routeParams.showDescription;

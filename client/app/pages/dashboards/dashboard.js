@@ -207,6 +207,15 @@ function DashboardCtrl(
     renderDashboard(this.dashboard, true);
   };
 
+  this.cancelPreviousAndRefresh = () => {
+    this.dashboard.widgets.forEach((widget) => {
+      if (widget.queryResults && widget.queryResults.cancelExecution) {
+        widget.queryResults.cancelExecution();
+      }
+    });
+    this.refreshDashboard();
+  };
+
   this.autoRefresh = () => {
     $timeout(() => {
       this.refreshDashboard();

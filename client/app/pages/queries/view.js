@@ -136,6 +136,13 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
+  $scope.cancelPreviousAndExecuteQuery = () => {
+    if ($scope.queryResult && $scope.queryResult.cancelExecution) {
+      $scope.queryResult.cancelExecution();
+    }
+    $scope.executeQuery();
+  };
+
   $scope.selectedVisualization = DEFAULT_VISUALIZATION;
   $scope.currentUser = currentUser;
   $scope.dataSource = {};

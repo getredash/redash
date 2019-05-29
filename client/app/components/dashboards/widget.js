@@ -96,6 +96,13 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
     this.load(true);
   };
 
+  this.cancelPreviousAndRefresh = () => {
+    if (this.widget.queryResults && this.widget.queryResults.cancelExecution) {
+      this.widget.queryResults.cancelExecution();
+    }
+    this.refresh();
+  };
+
   if (this.widget.visualization) {
     Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
     Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
