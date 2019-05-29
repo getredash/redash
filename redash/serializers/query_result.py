@@ -7,26 +7,56 @@ from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
 from redash.authentication.org_resolving import current_org
 
 
-def convert_format(fmt):
+def _convert_format(fmt):
     return fmt.replace('DD', '%d').replace('MM', '%m').replace('YYYY', '%Y').replace('YY', '%y').replace('HH', '%H').replace('mm', '%M').replace('ss', '%s')
+
+
+def _convert_bool(value):
+    if value is True:
+        return "true"
+    elif value is False:
+        return "false"
+
+    return value
+
+def _convert_date(value):
+    if not value:
+        return value
+
+    parsed = parse_date(value)
+
+    return parsed.strftime(_convert_format(current_org.get_setting('date_format')))
+
+
+def _convert_datetime(value):
+    if not value:
+        return value
+
+    parsed = parse_date(value)
+
+    fmt = _convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
+    return parsed.strftime(fmt)
+
+
+SPECIAL_TYPES = {
+    TYPE_BOOLEAN: _convert_bool,
+    TYPE_DATE: _convert_date,
+    TYPE_DATETIME: _convert_datetime
+}
 
 
 def _get_column_lists(columns):
     fieldnames = []
-    bool_columns = []
-    date_columns = []
-    datetime_columns = []
+    special_columns = dict()
 
     for col in columns:
         fieldnames.append(col['name'])
-        if col['type'] == TYPE_BOOLEAN:
-            bool_columns.append(col['name'])
-        elif col['type'] == TYPE_DATE:
-            date_columns.append(col['name'])
-        elif col['type'] == TYPE_DATETIME:
-            datetime_columns.append(col['name'])
+
+        for col_type in SPECIAL_TYPES.keys():
+            if col['type'] == col_type:
+                special_columns[col['name']] = SPECIAL_TYPES[col_type]
     
-    return fieldnames, bool_columns, date_columns, datetime_columns
+    return fieldnames, special_columns
 
 
 def serialize_query_result_to_csv(query_result):
@@ -34,38 +64,16 @@ def serialize_query_result_to_csv(query_result):
 
     query_data = json_loads(query_result.data)
 
-    fieldnames, bool_columns, date_columns, datetime_columns = _get_column_lists(query_data['columns'])
+    fieldnames, special_columns = _get_column_lists(query_data['columns'])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
     writer.writer = UnicodeWriter(s)
     writer.writeheader()
 
     for row in query_data['rows']:
-        for col in bool_columns:
-            if col in row:
-                if row[col] is True:
-                    row[col] = "true"
-                elif row[col] is False:
-                    row[col] = "false"
-        
-        for col in date_columns:
-            if not row[col]:
-                continue
-
-            if col in row:
-                parsed = parse_date(row[col])
-
-                row[col] = parsed.strftime(convert_format(current_org.get_setting('date_format')))
-
-        for col in datetime_columns:
-            if not row[col]:
-                continue
-
-            if col in row:
-                parsed = parse_date(row[col])
-
-                fmt = convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
-                row[col] = parsed.strftime(fmt)
+        for col_name, converter in special_columns.iteritems():
+            if col_name in row:
+                row[col_name] = converter(row[col_name])
 
         writer.writerow(row)
 
