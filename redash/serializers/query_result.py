@@ -21,11 +21,9 @@ def _get_column_lists(columns):
         fieldnames.append(col['name'])
         if col['type'] == TYPE_BOOLEAN:
             bool_columns.append(col['name'])
-     
-        if col['type'] == TYPE_DATE:
+        elif col['type'] == TYPE_DATE:
             date_columns.append(col['name'])
-
-        if col['type'] == TYPE_DATETIME:
+        elif col['type'] == TYPE_DATETIME:
             datetime_columns.append(col['name'])
     
     return fieldnames, bool_columns, date_columns, datetime_columns
