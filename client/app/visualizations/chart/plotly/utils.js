@@ -500,7 +500,7 @@ export function prepareLayout(element, seriesList, options, data) {
     cellsInRow, cellWidth, cellHeight, xPadding, hasY2,
   } = calculateDimensions(seriesList, options);
 
-  const result = {
+  const layout = {
     margin: {
       l: 10,
       r: 10,
@@ -518,9 +518,9 @@ export function prepareLayout(element, seriesList, options, data) {
     const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
 
     if (hasName) {
-      result.annotations = [];
+      layout.annotations = [];
     } else {
-      result.annotations = filter(map(seriesList, (series, index) => {
+      layout.annotations = filter(map(seriesList, (series, index) => {
         const xPosition = (index % cellsInRow) * cellWidth;
         const yPosition = Math.floor(index / cellsInRow) * cellHeight;
         return {
@@ -535,37 +535,37 @@ export function prepareLayout(element, seriesList, options, data) {
     }
   } else {
     if (options.globalSeriesType === 'box') {
-      result.boxmode = 'group';
-      result.boxgroupgap = 0.50;
+      layout.boxmode = 'group';
+      layout.boxgroupgap = 0.50;
     }
 
-    result.xaxis = {
+    layout.xaxis = {
       title: getTitle(options.xAxis),
       type: getScaleType(options.xAxis.type),
       automargin: true,
     };
 
-    if (options.sortX && result.xaxis.type === 'category') {
+    if (options.sortX && layout.xaxis.type === 'category') {
       if (options.reverseX) {
-        result.xaxis.categoryorder = 'category descending';
+        layout.xaxis.categoryorder = 'category descending';
       } else {
-        result.xaxis.categoryorder = 'category ascending';
+        layout.xaxis.categoryorder = 'category ascending';
       }
     }
 
     if (!isUndefined(options.xAxis.labels)) {
-      result.xaxis.showticklabels = options.xAxis.labels.enabled;
+      layout.xaxis.showticklabels = options.xAxis.labels.enabled;
     }
 
     if (isArray(options.yAxis)) {
-      result.yaxis = {
+      layout.yaxis = {
         title: getTitle(options.yAxis[0]),
         type: getScaleType(options.yAxis[0].type),
         automargin: true,
       };
 
       if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
-        result.yaxis.range = calculateAxisRange(
+        layout.yaxis.range = calculateAxisRange(
           data.filter(s => !s.yaxis !== 'y2'),
           options.yAxis[0].rangeMin,
           options.yAxis[0].rangeMax,
@@ -574,7 +574,7 @@ export function prepareLayout(element, seriesList, options, data) {
     }
 
     if (hasY2 && !isUndefined(options.yAxis)) {
-      result.yaxis2 = {
+      layout.yaxis2 = {
         title: getTitle(options.yAxis[1]),
         type: getScaleType(options.yAxis[1].type),
         overlaying: 'y',
@@ -583,7 +583,7 @@ export function prepareLayout(element, seriesList, options, data) {
       };
 
       if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
-        result.yaxis2.range = calculateAxisRange(
+        layout.yaxis2.range = calculateAxisRange(
           data.filter(s => s.yaxis === 'y2'),
           options.yAxis[1].rangeMin,
           options.yAxis[1].rangeMax,
@@ -592,11 +592,11 @@ export function prepareLayout(element, seriesList, options, data) {
     }
 
     if (options.series.stacking) {
-      result.barmode = 'relative';
+      layout.barmode = 'relative';
     }
   }
 
-  return result;
+  return layout;
 }
 
 function updateSeriesText(seriesList, options) {
