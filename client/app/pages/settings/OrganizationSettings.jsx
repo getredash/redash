@@ -36,7 +36,7 @@ class OrganizationSettings extends React.Component {
     });
   }
 
-  disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled)
+  disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
 
   handleSubmit = (e) => {
     e.preventDefault();

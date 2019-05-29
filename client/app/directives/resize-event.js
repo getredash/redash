@@ -4,20 +4,22 @@ const items = new Map();
 
 function checkItems() {
   items.forEach((item, node) => {
-    const offsetWidth = node.offsetWidth;
-    const offsetHeight = node.offsetHeight;
+    const bounds = node.getBoundingClientRect();
+    // convert to int (because these numbers needed for comparisons), but preserve 1 decimal point
+    const width = Math.round(bounds.width * 10);
+    const height = Math.round(bounds.height * 10);
 
     if (
-      (item.offsetWidth !== offsetWidth) ||
-      (item.offsetHeight !== offsetHeight)
+      (item.width !== width) ||
+      (item.height !== height)
     ) {
-      item.offsetWidth = offsetWidth;
-      item.offsetHeight = offsetHeight;
+      item.width = width;
+      item.height = height;
       item.callback(node);
     }
   });
 
-  setTimeout(checkItems, 50);
+  setTimeout(checkItems, 100);
 }
 
 checkItems(); // ensure it was called only once!

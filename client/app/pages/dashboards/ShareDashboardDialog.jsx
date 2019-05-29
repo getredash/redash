@@ -24,7 +24,7 @@ class ShareDashboardDialog extends React.Component {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
     style: { marginBottom: 7 },
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -66,7 +66,7 @@ class ShareDashboardDialog extends React.Component {
       .finally(() => {
         this.setState({ saving: false });
       });
-  }
+  };
 
   disableAccess = () => {
     const { dashboard } = this.props;
@@ -84,7 +84,7 @@ class ShareDashboardDialog extends React.Component {
       .finally(() => {
         this.setState({ saving: false });
       });
-  }
+  };
 
   onChange = (checked) => {
     if (checked) {

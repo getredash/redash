@@ -17,19 +17,11 @@ import notification from '@/services/notification';
 
 import './dashboard.less';
 
-function isWidgetPositionChanged(oldPosition, newPosition) {
-  const fields = ['col', 'row', 'sizeX', 'sizeY', 'autoHeight'];
-  oldPosition = _.pick(oldPosition, fields);
-  newPosition = _.pick(newPosition, fields);
-  return !!_.find(fields, key => newPosition[key] !== oldPosition[key]);
-}
-
-function getWidgetsWithChangedPositions(widgets) {
-  return _.filter(widgets, (widget) => {
-    if (!_.isObject(widget.$originalPosition)) {
-      return true;
-    }
-    return isWidgetPositionChanged(widget.$originalPosition, widget.options.position);
+function getChangedPositions(widgets, nextPositions = {}) {
+  return _.pickBy(nextPositions, (nextPos, widgetId) => {
+    const widget = _.find(widgets, { id: Number(widgetId) });
+    const prevPos = widget.options.position;
+    return !_.isMatch(prevPos, nextPos);
   });
 }
 
@@ -47,28 +39,29 @@ function DashboardCtrl(
   clientConfig,
   Events,
 ) {
-  this.saveInProgress = false;
-  this.saveDelay = false;
+  let recentPositions = [];
 
-  this.saveDashboardLayout = () => {
+  const saveDashboardLayout = (changedPositions) => {
     if (!this.dashboard.canEdit()) {
       return;
     }
 
-    this.isLayoutDirty = true;
-
-    // calc diff, bail if none
-    const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
-    if (!changedWidgets.length) {
-      this.isLayoutDirty = false;
-      $scope.$applyAsync();
-      return;
-    }
-
-    this.saveDelay = false;
     this.saveInProgress = true;
+
+    const saveChangedWidgets = _.map(changedPositions, (position, id) => {
+      // find widget
+      const widget = _.find(this.dashboard.widgets, { id: Number(id) });
+
+      // skip already deleted widget
+      if (!widget) {
+        return Promise.resolve();
+      }
+
+      return widget.save('options', { position });
+    });
+
     return $q
-      .all(_.map(changedWidgets, widget => widget.save()))
+      .all(saveChangedWidgets)
       .then(() => {
         this.isLayoutDirty = false;
         if (this.editBtnClickedWhileSaving) {
@@ -76,32 +69,42 @@ function DashboardCtrl(
         }
       })
       .catch(() => {
-        // in the off-chance that a widget got deleted mid-saving it's position, an error will occur
-        // currently left unhandled PR 3653#issuecomment-481699053
         notification.error('Error saving changes.');
       })
       .finally(() => {
         this.saveInProgress = false;
         this.editBtnClickedWhileSaving = false;
+        $scope.$applyAsync();
       });
   };
 
-  const saveDashboardLayoutDebounced = () => {
+  const saveDashboardLayoutDebounced = (...args) => {
     this.saveDelay = true;
-    return _.debounce(() => this.saveDashboardLayout(), 2000)();
+    return _.debounce(() => {
+      this.saveDelay = false;
+      saveDashboardLayout(...args);
+    }, 2000)();
   };
 
+  this.retrySaveDashboardLayout = () => {
+    this.onLayoutChange(recentPositions);
+  };
+
+  // grid vars
   this.saveDelay = false;
+  this.saveInProgress = false;
+  this.recentLayoutPositions = {};
   this.editBtnClickedWhileSaving = false;
   this.layoutEditing = false;
+  this.isLayoutDirty = false;
+  this.isGridDisabled = false;
+
+  // dashboard vars
   this.isFullscreen = false;
   this.refreshRate = null;
-  this.isGridDisabled = false;
-  this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
   this.isDashboardOwner = false;
-  this.isLayoutDirty = false;
   this.filters = [];
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
@@ -233,17 +236,35 @@ function DashboardCtrl(
     });
   };
 
-  this.onLayoutChanged = () => {
-    // prevent unnecessary save when gridstack is loaded
-    if (!this.layoutEditing) {
+  this.onLayoutChange = (positions) => {
+    recentPositions = positions; // required for retry if subsequent save fails
+
+    // determine position changes
+    const changedPositions = getChangedPositions(this.dashboard.widgets, positions);
+    if (_.isEmpty(changedPositions)) {
+      this.isLayoutDirty = false;
+      $scope.$applyAsync();
       return;
     }
+
     this.isLayoutDirty = true;
-    saveDashboardLayoutDebounced();
+    $scope.$applyAsync();
+
+    // debounce in edit mode, immediate in preview
+    if (this.layoutEditing) {
+      saveDashboardLayoutDebounced(changedPositions);
+    } else {
+      saveDashboardLayout(changedPositions);
+    }
   };
 
-  this.editLayout = (enableEditing) => {
-    this.layoutEditing = enableEditing;
+  this.onBreakpointChanged = (isSingleCol) => {
+    this.isGridDisabled = isSingleCol;
+    $scope.$applyAsync();
+  };
+
+  this.editLayout = (isEditing) => {
+    this.layoutEditing = isEditing;
   };
 
   this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
@@ -332,6 +353,7 @@ function DashboardCtrl(
     return widget.save()
       .then(() => {
         this.dashboard.widgets.push(widget);
+        this.dashboard.widgets = [...this.dashboard.widgets]; // ANGULAR_REMOVE_ME
         this.onWidgetAdded();
       });
   };
@@ -368,6 +390,7 @@ function DashboardCtrl(
     return Promise.all(widgetsToSave.map(w => w.save()))
       .then(() => {
         this.dashboard.widgets.push(widget);
+        this.dashboard.widgets = [...this.dashboard.widgets]; // ANGULAR_REMOVE_ME
         this.onWidgetAdded();
       });
   };
@@ -388,11 +411,6 @@ function DashboardCtrl(
     this.extractGlobalParameters();
     collectFilters(this.dashboard, false);
     $scope.$applyAsync();
-
-    if (!this.layoutEditing) {
-      // We need to wait a bit while `angular` updates widgets, and only then save new layout
-      $timeout(() => this.saveDashboardLayout(), 50);
-    }
   };
 
   this.toggleFullscreen = () => {

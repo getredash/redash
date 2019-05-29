@@ -1,10 +1,11 @@
 import moment from 'moment';
-import { each, pick, extend, isObject, truncate, keys, difference, filter, map } from 'lodash';
+import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from 'lodash';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 import { registeredVisualizations } from '@/visualizations';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
-function calculatePositionOptions(dashboardGridOptions, widget) {
+function calculatePositionOptions(widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
   const visualizationOptions = {
@@ -68,7 +69,7 @@ export const ParameterMappingType = {
   StaticValue: 'static-value',
 };
 
-function WidgetFactory($http, $location, Query, dashboardGridOptions) {
+function WidgetFactory($http, $location, Query) {
   class WidgetService {
     static MappingType = ParameterMappingType;
 
@@ -78,7 +79,7 @@ function WidgetFactory($http, $location, Query, dashboardGridOptions) {
         this[k] = v;
       });
 
-      const visualizationOptions = calculatePositionOptions(dashboardGridOptions, this);
+      const visualizationOptions = calculatePositionOptions(this);
 
       this.options = this.options || {};
       this.options.position = extend(
@@ -90,13 +91,6 @@ function WidgetFactory($http, $location, Query, dashboardGridOptions) {
       if (this.options.position.sizeY < 0) {
         this.options.position.autoHeight = true;
       }
-
-      this.updateOriginalPosition();
-    }
-
-    updateOriginalPosition() {
-      // Save original position (create a shallow copy)
-      this.$originalPosition = extend({}, this.options.position);
     }
 
     getQuery() {
@@ -151,8 +145,11 @@ function WidgetFactory($http, $location, Query, dashboardGridOptions) {
       return this.queryResult.toPromise();
     }
 
-    save() {
+    save(key, value) {
       const data = pick(this, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
+      if (key && value) {
+        data[key] = merge({}, data[key], value); // done like this so `this.options` doesn't get updated by side-effect
+      }
 
       let url = 'api/widgets';
       if (this.id) {
@@ -163,8 +160,6 @@ function WidgetFactory($http, $location, Query, dashboardGridOptions) {
         each(response.data, (v, k) => {
           this[k] = v;
         });
-
-        this.updateOriginalPosition();
 
         return this;
       });
