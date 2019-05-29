@@ -1,4 +1,4 @@
-import { isArray, indexOf, map, includes, every, some, toNumber } from 'lodash';
+import { isArray, indexOf, map, includes, every, some, toNumber, toLower } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -106,7 +106,7 @@ export function Filters({ filters, onChange }) {
                       value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
                     ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
                   allowClear={filter.multiple}
-                  filterOption={(searchText, option) => includes(option.props.children, searchText)}
+                  filterOption={(searchText, option) => includes(toLower(option.props.children), toLower(searchText))}
                   showSearch
                   onChange={values => onChange(filter, values)}
                 >
