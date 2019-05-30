@@ -158,16 +158,10 @@ function setType(series, type, options) {
   }
 }
 
-function calculateDimensions(series, options) {
-  const rows = series.length > 2 ? 2 : 1;
-  const cellsInRow = Math.ceil(series.length / rows);
-  const cellWidth = 1 / cellsInRow;
-  const cellHeight = 1 / rows;
-  const xPadding = 0.02;
-  const yPadding = 0.1;
-
+function checkAxesExist(seriesList, options) {
   const hasX = includes(values(options.columnMapping), 'x');
-  const hasY2 = !!find(series, (serie) => {
+
+  const hasY2 = !!find(seriesList, (serie) => {
     const seriesOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
     return (seriesOptions.yAxis === 1) && (
       (options.series.stacking === null) || (seriesOptions.type === 'line')
@@ -175,7 +169,21 @@ function calculateDimensions(series, options) {
   });
 
   return {
-    rows, cellsInRow, cellWidth, cellHeight, xPadding, yPadding, hasX, hasY2,
+    hasX,
+    hasY2,
+  };
+}
+
+function calculateDimensions(seriesList) {
+  const rows = seriesList.length > 2 ? 2 : 1;
+  const cellsInRow = Math.ceil(seriesList.length / rows);
+  const cellWidth = 1 / cellsInRow;
+  const cellHeight = 1 / rows;
+  const xPadding = 0.02;
+  const yPadding = 0.1;
+
+  return {
+    rows, cellsInRow, cellWidth, cellHeight, xPadding, yPadding,
   };
 }
 
@@ -199,8 +207,10 @@ function getUnifiedXAxisValues(seriesList, sorted) {
 
 function preparePieData(seriesList, options) {
   const {
-    cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
+    cellWidth, cellHeight, xPadding, yPadding, cellsInRow,
   } = calculateDimensions(seriesList, options);
+
+  const { hasX } = checkAxesExist(seriesList, options);
 
   const formatNumber = createFormatter({
     displayAs: 'number',
@@ -495,12 +505,118 @@ export function prepareData(seriesList, options) {
   return prepareChartData(seriesList, options);
 }
 
-export function prepareLayout(element, seriesList, options, data) {
+/**
+ * Configure pie chart annotations layout
+ *
+ * @param {*} layout - Plotly declarative layout object
+ * @param {*} options - options specified via Redash UI
+ * @param {*} seriesList - list of Plotly series objects
+ * @returns - modified Plotly layout object
+ */
+function preparePieChartAnnotations(layout, options, seriesList) {
   const {
-    cellsInRow, cellWidth, cellHeight, xPadding, hasY2,
+    cellsInRow, cellWidth, cellHeight, xPadding,
   } = calculateDimensions(seriesList, options);
 
-  const layout = {
+  const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
+
+  if (hasName) {
+    layout.annotations = [];
+  } else {
+    layout.annotations = filter(map(seriesList, (series, index) => {
+      const xPosition = (index % cellsInRow) * cellWidth;
+      const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+
+      return {
+        x: xPosition + ((cellWidth - xPadding) / 2),
+        y: yPosition + cellHeight - 0.015,
+        xanchor: 'center',
+        yanchor: 'top',
+        text: (options.seriesOptions[series.name] || {}).name || series.name,
+        showarrow: false,
+      };
+    }));
+  }
+
+  return layout;
+}
+
+/**
+ * Add common and chart-specific x-axis configuration.
+ *
+ * @param {object} layout - Plotly declarative layout object
+ * @param {object} options - options specified via Redash UI
+ * @return {object} - modified Plotly layout object
+ */
+function prepareXAxis(layout, options) {
+  // Common x-axis configuration settings
+  layout.xaxis = {
+    title: getTitle(options.xAxis),
+    type: getScaleType(options.xAxis.type),
+    automargin: true,
+  };
+
+  // categorical sorting
+  if (options.sortX && layout.xaxis.type === 'category') {
+    if (options.reverseX) {
+      layout.xaxis.categoryorder = 'category descending';
+    } else {
+      layout.xaxis.categoryorder = 'category ascending';
+    }
+  }
+
+  // labels
+  if (!isUndefined(options.xAxis.labels)) {
+    layout.xaxis.showticklabels = options.xAxis.labels.enabled;
+  }
+
+  return layout;
+}
+
+function prepareYAxis(layout, options, seriesList, data) {
+  // y-axis
+  if (isArray(options.yAxis)) {
+    layout.yaxis = {
+      title: getTitle(options.yAxis[0]),
+      type: getScaleType(options.yAxis[0].type),
+      automargin: true,
+    };
+
+    if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
+      layout.yaxis.range = calculateAxisRange(
+        data.filter(s => !s.yaxis !== 'y2'),
+        options.yAxis[0].rangeMin,
+        options.yAxis[0].rangeMax,
+      );
+    }
+  }
+
+  const { hasY2 } = checkAxesExist(seriesList, options);
+
+  if (hasY2 && !isUndefined(options.yAxis)) {
+    layout.yaxis2 = {
+      title: getTitle(options.yAxis[1]),
+      type: getScaleType(options.yAxis[1].type),
+      overlaying: 'y',
+      side: 'right',
+      automargin: true,
+    };
+
+    if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
+      layout.yaxis2.range = calculateAxisRange(
+        data.filter(s => s.yaxis === 'y2'),
+        options.yAxis[1].rangeMin,
+        options.yAxis[1].rangeMax,
+      );
+    }
+  }
+
+  return layout;
+}
+
+export function prepareLayout(element, seriesList, options, data) {
+  // default layout configuration
+  let layout = {
     margin: {
       l: 10,
       r: 10,
@@ -515,81 +631,16 @@ export function prepareLayout(element, seriesList, options, data) {
   };
 
   if (options.globalSeriesType === 'pie') {
-    const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
-
-    if (hasName) {
-      layout.annotations = [];
-    } else {
-      layout.annotations = filter(map(seriesList, (series, index) => {
-        const xPosition = (index % cellsInRow) * cellWidth;
-        const yPosition = Math.floor(index / cellsInRow) * cellHeight;
-        return {
-          x: xPosition + ((cellWidth - xPadding) / 2),
-          y: yPosition + cellHeight - 0.015,
-          xanchor: 'center',
-          yanchor: 'top',
-          text: (options.seriesOptions[series.name] || {}).name || series.name,
-          showarrow: false,
-        };
-      }));
-    }
+    layout = preparePieChartAnnotations(layout, options, seriesList);
   } else {
     if (options.globalSeriesType === 'box') {
       layout.boxmode = 'group';
       layout.boxgroupgap = 0.50;
     }
 
-    layout.xaxis = {
-      title: getTitle(options.xAxis),
-      type: getScaleType(options.xAxis.type),
-      automargin: true,
-    };
+    layout = prepareXAxis(layout, options);
 
-    if (options.sortX && layout.xaxis.type === 'category') {
-      if (options.reverseX) {
-        layout.xaxis.categoryorder = 'category descending';
-      } else {
-        layout.xaxis.categoryorder = 'category ascending';
-      }
-    }
-
-    if (!isUndefined(options.xAxis.labels)) {
-      layout.xaxis.showticklabels = options.xAxis.labels.enabled;
-    }
-
-    if (isArray(options.yAxis)) {
-      layout.yaxis = {
-        title: getTitle(options.yAxis[0]),
-        type: getScaleType(options.yAxis[0].type),
-        automargin: true,
-      };
-
-      if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
-        layout.yaxis.range = calculateAxisRange(
-          data.filter(s => !s.yaxis !== 'y2'),
-          options.yAxis[0].rangeMin,
-          options.yAxis[0].rangeMax,
-        );
-      }
-    }
-
-    if (hasY2 && !isUndefined(options.yAxis)) {
-      layout.yaxis2 = {
-        title: getTitle(options.yAxis[1]),
-        type: getScaleType(options.yAxis[1].type),
-        overlaying: 'y',
-        side: 'right',
-        automargin: true,
-      };
-
-      if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
-        layout.yaxis2.range = calculateAxisRange(
-          data.filter(s => s.yaxis === 'y2'),
-          options.yAxis[1].rangeMin,
-          options.yAxis[1].rangeMax,
-        );
-      }
-    }
+    layout = prepareYAxis(layout, options, seriesList, data);
 
     if (options.series.stacking) {
       layout.barmode = 'relative';
@@ -613,11 +664,14 @@ function updateSeriesText(seriesList, options) {
         // '@@x' is already in `item.$raw`
       };
       const item = series.sourceData.get(x);
+
       if (item) {
         text['@@y'] = includes(['bubble', 'scatter'], seriesOptions.type) ? item.y : series.formatNumber(item.y);
+
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
         }
+
         if (item.size !== undefined) {
           text['@@size'] = series.formatNumber(item.size);
         }
@@ -632,6 +686,7 @@ function updateSeriesText(seriesList, options) {
       series.text.push(series.formatText(text));
     });
   });
+
   return seriesList;
 }
 
@@ -710,15 +765,18 @@ export function updateData(seriesList, options) {
 
       // Calculate cumulative value for each x tick
       let prevSeries = null;
+
       each(seriesList, (series) => {
         if (prevSeries) {
           series.y = map(series.y, (y, i) => prevSeries.y[i] + y);
         }
+
         prevSeries = series;
       });
     }
   } else {
     const useUnifiedXAxis = sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
+
     if (useUnifiedXAxis) {
       updateUnifiedXAxisValues(seriesList, options, sortX);
     }
@@ -804,6 +862,7 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
         ));
         // offset the legend
         legend.style[transformName] = 'translate(0, ' + layout.height + 'px)';
+
         updatePlot(plotlyElement, pick(layout, ['height']));
       }
     });
