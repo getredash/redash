@@ -2,7 +2,6 @@ import json
 import urllib2
 from redash.query_runner import *
 
-
 try:
     from mixpanel_api import Mixpanel
     from ssl import SSLError
@@ -192,6 +191,8 @@ class MixpanelJql(BaseQueryRunner):
             else:
                 result["columns"] = [{"type": guess_type(data[0][k]), "name": k, "friendly_name": k} for k in range(len(data[0]))]
                 result["rows"] = data
+            # I don't know why, but without a print just before return, query doesn't show anything to Redash.
+            print("OK - Returned results")
             return json.dumps(result), None
 
 
