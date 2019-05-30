@@ -142,7 +142,7 @@ class MixpanelJql(BaseQueryRunner):
             'properties': {
                 'api_secret': {
                     'type': 'string',
-                    'title': 'Api Secret'
+                    'title': 'API Secret'
                 },
                 'api_token': {
                     'type': 'string',
