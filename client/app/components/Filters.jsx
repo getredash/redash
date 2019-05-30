@@ -16,7 +16,7 @@ export const FilterType = PropTypes.shape({
   current: PropTypes.oneOfType([
     PropTypes.any,
     PropTypes.arrayOf(PropTypes.any),
-  ]).isRequired,
+  ]),
   values: PropTypes.arrayOf(PropTypes.any).isRequired,
 });
 
@@ -97,26 +97,31 @@ export function Filters({ filters, onChange }) {
             return (
               <div key={filter.name} className="col-sm-6 p-l-0 filter-container">
                 <label>{filter.friendlyName}</label>
-                <Select
-                  labelInValue
-                  className="w-100"
-                  mode={filter.multiple ? 'multiple' : 'default'}
-                  value={isArray(filter.current) ?
-                    map(filter.current,
-                      value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
-                    ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
-                  allowClear={filter.multiple}
-                  filterOption={(searchText, option) => includes(toLower(option.props.children), toLower(searchText))}
-                  showSearch
-                  onChange={values => onChange(filter, values)}
-                >
-                  {!filter.multiple && options}
-                  {filter.multiple && [
-                    <Select.Option key={NONE_VALUES}><i className="fa fa-square-o m-r-5" />Clear</Select.Option>,
-                    <Select.Option key={ALL_VALUES}><i className="fa fa-check-square-o m-r-5" />Select All</Select.Option>,
-                    <Select.OptGroup key="Values" title="Values">{options}</Select.OptGroup>,
-                  ]}
-                </Select>
+                {(options.length === 0) && (
+                  <Select className="w-100" disabled value="No values" />
+                )}
+                {(options.length > 0) && (
+                  <Select
+                    labelInValue
+                    className="w-100"
+                    mode={filter.multiple ? 'multiple' : 'default'}
+                    value={isArray(filter.current) ?
+                      map(filter.current,
+                        value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
+                      ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
+                    allowClear={filter.multiple}
+                    filterOption={(searchText, option) => includes(toLower(option.props.children), toLower(searchText))}
+                    showSearch
+                    onChange={values => onChange(filter, values)}
+                  >
+                    {!filter.multiple && options}
+                    {filter.multiple && [
+                      <Select.Option key={NONE_VALUES}><i className="fa fa-square-o m-r-5" />Clear</Select.Option>,
+                      <Select.Option key={ALL_VALUES}><i className="fa fa-check-square-o m-r-5" />Select All</Select.Option>,
+                      <Select.OptGroup key="Values" title="Values">{options}</Select.OptGroup>,
+                    ]}
+                  </Select>
+                )}
               </div>
             );
           })}
