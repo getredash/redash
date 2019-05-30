@@ -37,10 +37,11 @@ const PublicDashboardPage = {
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
-    const refresh = () => {
+    this.refreshDashboard = () => {
       loadDashboard($http, $route).then((data) => {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+        this.dashboard.widgets.forEach(widget => widget.load());
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
         this.filtersOnChange = (allFilters) => {
           this.filters = allFilters;
@@ -49,13 +50,13 @@ const PublicDashboardPage = {
 
         this.extractGlobalParameters();
       });
+
+      if (refreshRate) {
+        $timeout(this.refreshDashboard, refreshRate * 1000.0);
+      }
     };
 
-    if (refreshRate) {
-      $timeout(refresh, refreshRate * 1000.0);
-    }
-
-    refresh();
+    this.refreshDashboard();
   },
 };
 
