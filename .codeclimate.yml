@@ -1,18 +1,18 @@
 version: "2"
 checks:
   complex-logic:
-    enabled: false
+    enabled: true
   file-lines:
     enabled: false
   method-complexity:
-    enabled: false
+    enabled: true
   method-count:
     enabled: false
   method-lines:
     config:
       threshold: 100
   nested-control-flow:
-    enabled: false
+    enabled: true
   identical-code:
     enabled: false
   similar-code:
