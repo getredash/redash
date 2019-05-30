@@ -142,15 +142,15 @@ class MixpanelJql(BaseQueryRunner):
             'properties': {
                 'api_secret': {
                     'type': 'string',
-                    'title': 'Api Secret'
+                    'title': 'API Secret'
                 },
                 'api_token': {
                     'type': 'string',
-                    'title': 'Api Token'
+                    'title': 'API Token'
                 }
             },
             "required": ["api_secret", "api_token"],
-            "secret": []
+            "secret": ["api_secret"]
         }
 
     @classmethod
@@ -168,7 +168,7 @@ class MixpanelJql(BaseQueryRunner):
             if hasattr(e, 'read'):
                 error = json.loads(e.read())['error']
             else:
-                error = str(e.reason)
+                error = unicode(e.reason)
             return None, error
         except Exception as e:
             return None, e
