@@ -433,7 +433,7 @@ describe('Dashboard', () => {
             cy.getByTestId(elTestId).as('widget').within(() => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
             });
-            cy.getByTestId(`ParameterName${paramName}`).within(() => {
+            cy.getByTestId(`ParameterName-${paramName}`).within(() => {
               cy.getByTestId('TextParamInput').as('paramInput');
             });
           });
