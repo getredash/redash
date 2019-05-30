@@ -1,9 +1,12 @@
 import angular from 'angular';
 import _ from 'lodash';
 import d3 from 'd3';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import d3sankey from '@/lib/visualizations/d3sankey';
-import editorTemplate from './sankey-editor.html';
+
+import Editor from './Editor';
 
 function getConnectedNodes(node) {
   // source link = this node is the source, I need the targets
@@ -23,12 +26,13 @@ function graph(data) {
   const links = {};
   const nodes = [];
 
+  // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
   const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
   const keys = _.sortBy(_.filter(_.keys(data[0]), validKey), _.identity);
 
   function normalizeName(name) {
-    if (name) {
-      return name;
+    if (!_.isNil(name)) {
+      return '' + name;
     }
 
     return 'Exit';
@@ -40,8 +44,7 @@ function graph(data) {
     let node = nodesDict[key];
     if (!node) {
       node = { name };
-      const id = nodes.push(node) - 1;
-      node.id = id;
+      node.id = nodes.push(node) - 1;
       nodesDict[key] = node;
     }
     return node;
@@ -69,10 +72,10 @@ function graph(data) {
   }
 
   data.forEach((row) => {
-    addLink(row[keys[0]], row[keys[1]], row.value, 1);
-    addLink(row[keys[1]], row[keys[2]], row.value, 2);
-    addLink(row[keys[2]], row[keys[3]], row.value, 3);
-    addLink(row[keys[3]], row[keys[4]], row.value, 4);
+    addLink(row[keys[0]], row[keys[1]], row.value || 0, 1);
+    addLink(row[keys[1]], row[keys[2]], row.value || 0, 2);
+    addLink(row[keys[2]], row[keys[3]], row.value || 0, 3);
+    addLink(row[keys[3]], row[keys[4]], row.value || 0, 4);
   });
 
   return { nodes, links: _.values(links) };
@@ -120,10 +123,7 @@ function createSankey(element, data) {
   const color = d3.scale.category20();
 
   data = graph(data);
-  data.nodes = _.map(data.nodes, d =>
-    _.extend(d, {
-      color: color(d.name.replace(/ .*/, '')),
-    }));
+  data.nodes = _.map(data.nodes, d => _.extend(d, { color: color(d.name.replace(/ .*/, '')) }));
 
   // append the svg canvas to the page
   const svg = d3
@@ -185,12 +185,7 @@ function createSankey(element, data) {
         if (d === currentNode) {
           return false;
         }
-
-        if (_.includes(nodes, d.id)) {
-          return false;
-        }
-
-        return true;
+        return !_.includes(nodes, d.id);
       })
       .style('opacity', 0.2);
     link
@@ -230,59 +225,49 @@ function createSankey(element, data) {
     .attr('text-anchor', 'start');
 }
 
-function sankeyRenderer() {
-  return {
-    restrict: 'E',
-    template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
-    link(scope, element) {
-      const container = element[0].querySelector('.sankey-visualization-container');
+function isDataValid(data) {
+  // data should contain column named 'value', otherwise no reason to render anything at all
+  return _.find(data.columns, c => c.name === 'value');
+}
 
-      function refreshData() {
-        const queryData = scope.queryResult.getData();
-        if (queryData) {
-          // do the render logic.
-          angular.element(container).empty();
-          createSankey(container, queryData);
+const SankeyRenderer = {
+  template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  controller($scope, $element) {
+    const container = $element[0].querySelector('.sankey-visualization-container');
+
+    const update = () => {
+      if (this.data) {
+        // do the render logic.
+        angular.element(container).empty();
+        if (isDataValid(this.data)) {
+          createSankey(container, this.data.rows);
         }
       }
-
-      scope.handleResize = _.debounce(refreshData, 50);
-      scope.$watch('queryResult && queryResult.getData()', refreshData);
-      scope.$watch('visualization.options.height', (oldValue, newValue) => {
-        if (oldValue !== newValue) {
-          refreshData();
-        }
-      });
-    },
-  };
-}
-
-function sankeyEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
-
-export default function init(ngModule) {
-  ngModule.directive('sankeyRenderer', sankeyRenderer);
-  ngModule.directive('sankeyEditor', sankeyEditor);
-
-  ngModule.config((VisualizationProvider) => {
-    const renderTemplate =
-      '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
-
-    const editTemplate = '<sankey-editor></sankey-editor>';
-    const defaultOptions = {
-      defaultRows: 7,
     };
 
-    VisualizationProvider.registerVisualization({
+    $scope.handleResize = _.debounce(update, 50);
+
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+export default function init(ngModule) {
+  ngModule.component('sankeyRenderer', SankeyRenderer);
+
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'SANKEY',
       name: 'Sankey',
-      renderTemplate,
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => ({ ...options }),
+      Renderer: angular2react('sankeyRenderer', SankeyRenderer, $injector),
+      Editor,
+
+      defaultRows: 7,
     });
   });
 }

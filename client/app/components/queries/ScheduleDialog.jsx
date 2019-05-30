@@ -1,74 +1,100 @@
-import { react2angular } from 'react2angular';
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import DatePicker from 'antd/lib/date-picker';
 import TimePicker from 'antd/lib/time-picker';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
-import { range, clone, isEqual } from 'lodash';
+import { capitalize, clone, isEqual } from 'lodash';
 import moment from 'moment';
-import { secondsToInterval, intervalToSeconds, IntervalEnum, localizeTime } from '@/filters';
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
+import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { RefreshScheduleType, RefreshScheduleDefault, Moment } from '../proptypes';
 
 import './ScheduleDialog.css';
 
 const WEEKDAYS_SHORT = moment.weekdaysShort();
 const WEEKDAYS_FULL = moment.weekdays();
-const INTERVAL_OPTIONS_MAP = {
-  [IntervalEnum.NEVER]: 1,
-  [IntervalEnum.MINUTES]: 60,
-  [IntervalEnum.HOURS]: 24,
-  [IntervalEnum.DAYS]: 7,
-  [IntervalEnum.WEEKS]: 5,
-};
-
 const DATE_FORMAT = 'YYYY-MM-DD';
 const HOUR_FORMAT = 'HH:mm';
-const Option = Select.Option;
+const { Option, OptGroup } = Select;
+
+export function TimeEditor(props) {
+  const [time, setTime] = useState(props.defaultValue);
+  const showUtc = time && !time.isUTC();
+
+  function onChange(newTime) {
+    setTime(newTime);
+    props.onChange(newTime);
+  }
+
+  return (
+    <React.Fragment>
+      <TimePicker
+        allowClear={false}
+        value={time}
+        format={HOUR_FORMAT}
+        minuteStep={5}
+        onChange={onChange}
+      />
+      {showUtc && (
+        <span className="utc" data-testid="utc">
+          ({ moment.utc(time).format(HOUR_FORMAT) } UTC)
+        </span>
+      )}
+    </React.Fragment>
+  );
+}
+
+TimeEditor.propTypes = {
+  defaultValue: Moment,
+  onChange: PropTypes.func.isRequired,
+};
+
+TimeEditor.defaultProps = {
+  defaultValue: null,
+};
 
 class ScheduleDialog extends React.Component {
   static propTypes = {
-    show: PropTypes.bool.isRequired,
-    // eslint-disable-next-line react/forbid-prop-types
-    query: PropTypes.object.isRequired,
+    schedule: RefreshScheduleType,
     refreshOptions: PropTypes.arrayOf(PropTypes.number).isRequired,
-    updateQuery: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
+    dialog: DialogPropType.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = this.initState;
-    this.modalRef = React.createRef(); // used by <Select>
-  }
+  static defaultProps = {
+    schedule: RefreshScheduleDefault,
+  };
 
-  get initState() {
-    const newSchedule = clone(this.props.query.schedule);
-    const { time, interval: secs, day_of_week: day } = newSchedule;
-    const interval = secs ? secondsToInterval(secs) : {};
+  state = this.getState();
+
+  getState() {
+    const newSchedule = clone(this.props.schedule || ScheduleDialog.defaultProps.schedule);
+    const { time, interval: seconds, day_of_week: day } = newSchedule;
+    const { interval } = secondsToInterval(seconds);
     const [hour, minute] = time ? localizeTime(time).split(':') : [null, null];
 
     return {
       hour,
       minute,
-      count: interval.count ? String(interval.count) : '1',
-      interval: interval.interval || IntervalEnum.NEVER,
+      seconds,
+      interval,
       dayOfWeek: day ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(day)] : null,
       newSchedule,
     };
   }
 
   get intervals() {
-    const ret = this.props.refreshOptions
-      .map((seconds) => {
-        const { count, interval } = secondsToInterval(seconds);
-        return count === 1 ? {
-          name: interval,
-          time: seconds,
-        } : null;
-      })
-      .filter(x => x !== null);
-    ret.unshift({ name: IntervalEnum.NEVER });
+    const ret = {
+      [IntervalEnum.NEVER]: [],
+    };
+    this.props.refreshOptions.forEach((seconds) => {
+      const { count, interval } = secondsToInterval(seconds);
+      if (!(interval in ret)) {
+        ret[interval] = [];
+      }
+      ret[interval].push([count, seconds]);
+    });
 
     Object.defineProperty(this, 'intervals', { value: ret }); // memoize
 
@@ -76,21 +102,22 @@ class ScheduleDialog extends React.Component {
   }
 
   set newSchedule(newProps) {
-    this.setState({
-      newSchedule: Object.assign(this.state.newSchedule, newProps),
-    });
+    this.setState(prevState => ({
+      newSchedule: Object.assign(prevState.newSchedule, newProps),
+    }));
   }
-
-  getCounts = interval => range(1, INTERVAL_OPTIONS_MAP[interval])
 
   setTime = (time) => {
     this.newSchedule = {
-      time: moment(time).utc().format(HOUR_FORMAT),
+      time: moment(time)
+        .utc()
+        .format(HOUR_FORMAT),
     };
   };
 
-  setInterval = (newInterval) => {
+  setInterval = (newSeconds) => {
     const { newSchedule } = this.state;
+    const { interval: newInterval } = secondsToInterval(newSeconds);
 
     // resets to defaults
     if (newInterval === IntervalEnum.NEVER) {
@@ -116,37 +143,19 @@ class ScheduleDialog extends React.Component {
       newSchedule.day_of_week = WEEKDAYS_FULL[0];
     }
 
-    // reset count if out of new interval count range
-    let count = this.state.count;
-    if (this.getCounts(newInterval).indexOf(Number(count)) === -1) {
-      count = '1';
-    }
+    newSchedule.interval = newSeconds;
 
-    newSchedule.interval = newInterval
-      ? intervalToSeconds(Number(count), newInterval)
-      : null;
-
-    const [hour, minute] = newSchedule.time ?
-      localizeTime(newSchedule.time).split(':')
-      : [null, null];
+    const [hour, minute] = newSchedule.time ? localizeTime(newSchedule.time).split(':') : [null, null];
 
     this.setState({
       interval: newInterval,
-      count,
+      seconds: newSeconds,
       hour,
       minute,
-      dayOfWeek: newSchedule.day_of_week
-        ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(newSchedule.day_of_week)]
-        : null,
+      dayOfWeek: newSchedule.day_of_week ? WEEKDAYS_SHORT[WEEKDAYS_FULL.indexOf(newSchedule.day_of_week)] : null,
     });
 
     this.newSchedule = newSchedule;
-  };
-
-  setCount = (newCount) => {
-    const totalSeconds = intervalToSeconds(parseInt(newCount, 10), this.state.interval);
-    this.setState({ count: newCount });
-    this.newSchedule = { interval: totalSeconds };
   };
 
   setScheduleUntil = (_, date) => {
@@ -164,54 +173,49 @@ class ScheduleDialog extends React.Component {
   setUntilToggle = (e) => {
     const date = e.target.value ? moment().format(DATE_FORMAT) : null;
     this.setScheduleUntil(null, date);
-  }
+  };
 
   save() {
-    // save if changed
-    if (!isEqual(this.state.newSchedule, this.props.query.schedule)) {
-      this.props.updateQuery({ schedule: clone(this.state.newSchedule) });
-    }
-    this.props.onClose();
-  }
+    const { newSchedule } = this.state;
 
-  cancel() {
-    // reset changes
-    this.setState(this.initState);
-    this.props.onClose();
+    // save if changed
+    if (!isEqual(newSchedule, this.props.schedule)) {
+      if (newSchedule.interval) {
+        this.props.dialog.close(clone(newSchedule));
+      } else {
+        this.props.dialog.close(null);
+      }
+    }
+    this.props.dialog.dismiss();
   }
 
   render() {
+    const { dialog } = this.props;
     const {
-      interval, minute, hour, count, newSchedule: { until },
+      interval,
+      minute,
+      hour,
+      seconds,
+      newSchedule: { until },
     } = this.state;
-    const fixZIndex = { getPopupContainer: () => this.modalRef.current };
-    const selectProps = {
-      ...fixZIndex,
-      className: 'input',
-      dropdownMatchSelectWidth: false,
-    };
 
     return (
-      <Modal
-        title="Refresh Schedule"
-        className="schedule"
-        visible={this.props.show}
-        onCancel={() => this.cancel()}
-        onOk={() => this.save()}
-      >
-        <div className="schedule-component" ref={this.modalRef}>
+      <Modal {...dialog.props} title="Refresh Schedule" className="schedule" onOk={() => this.save()}>
+        <div className="schedule-component">
           <h5>Refresh every</h5>
-          <div>
-            {interval !== IntervalEnum.NEVER ? (
-              <Select value={count} onChange={this.setCount} {...selectProps}>
-                {this.getCounts(this.state.interval).map(cnt => (
-                  <Option value={String(cnt)} key={cnt}>{cnt}</Option>
-                ))}
-              </Select>
-            ) : null}
-            <Select value={interval} onChange={this.setInterval} {...selectProps}>
-              {this.intervals.map(iv => (
-                <Option value={iv.name} key={iv.name}>{iv.name}</Option>
+          <div data-testid="interval">
+            <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
+              <Option value={null} key="never">
+                Never
+              </Option>
+              {Object.keys(this.intervals).map(int => (
+                <OptGroup label={capitalize(pluralize(int))} key={int}>
+                  {this.intervals[int].map(([cnt, secs]) => (
+                    <Option value={secs} key={cnt}>
+                      {durationHumanize(secs)}
+                    </Option>
+                  ))}
+                </OptGroup>
               ))}
             </Select>
           </div>
@@ -219,14 +223,10 @@ class ScheduleDialog extends React.Component {
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
             <h5>On time</h5>
-            <div>
-              <TimePicker
-                allowEmpty={false}
-                defaultValue={moment().hour(hour).minute(minute)}
-                format={HOUR_FORMAT}
-                minuteStep={5}
+            <div data-testid="time">
+              <TimeEditor
+                defaultValue={hour ? moment().hour(hour).minute(minute) : null}
                 onChange={this.setTime}
-                {...fixZIndex}
               />
             </div>
           </div>
@@ -234,28 +234,22 @@ class ScheduleDialog extends React.Component {
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
             <h5>On day</h5>
-            <Radio.Group
-              size="medium"
-              defaultValue={this.state.dayOfWeek}
-              onChange={this.setWeekday}
-            >
-              {WEEKDAYS_SHORT.map(day => (
-                <Radio.Button value={day} key={day} className="input">
-                  {day[0]}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
+            <div data-testid="weekday">
+              <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
+                {WEEKDAYS_SHORT.map(day => (
+                  <Radio.Button value={day} key={day} className="input">
+                    {day[0]}
+                  </Radio.Button>
+                ))}
+              </Radio.Group>
+            </div>
           </div>
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
             <h5>Ends</h5>
-            <div className="ends">
-              <Radio.Group
-                size="medium"
-                value={!!until}
-                onChange={this.setUntilToggle}
-              >
+            <div className="ends" data-testid="ends">
+              <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
                 <Radio value={false}>Never</Radio>
                 <Radio value>On</Radio>
               </Radio.Group>
@@ -277,8 +271,4 @@ class ScheduleDialog extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('scheduleDialog', react2angular(ScheduleDialog));
-}
-
-init.init = true;
+export default wrapDialog(ScheduleDialog);

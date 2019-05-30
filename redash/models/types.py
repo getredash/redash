@@ -2,6 +2,7 @@ import pytz
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.indexable import index_property
 from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy_utils import EncryptedType
 
 from redash.utils import json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
@@ -19,11 +20,22 @@ class Configuration(TypeDecorator):
         return ConfigurationContainer.from_json(value)
 
 
+class EncryptedConfiguration(EncryptedType):
+    def process_bind_param(self, value, dialect):
+        return super(EncryptedConfiguration, self).process_bind_param(value.to_json(), dialect)
+
+    def process_result_value(self, value, dialect):
+        return ConfigurationContainer.from_json(super(EncryptedConfiguration, self).process_result_value(value, dialect))
+
+
 # XXX replace PseudoJSON and MutableDict with real JSON field
 class PseudoJSON(TypeDecorator):
     impl = db.Text
 
     def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+
         return json_dumps(value)
 
     def process_result_value(self, value, dialect):
@@ -84,6 +96,7 @@ class json_cast_property(index_property):
     entity attribute as the specified cast type. Useful
     for JSON and JSONB colums for easier querying/filtering.
     """
+
     def __init__(self, cast_type, *args, **kwargs):
         super(json_cast_property, self).__init__(*args, **kwargs)
         self.cast_type = cast_type

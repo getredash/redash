@@ -1,9 +1,7 @@
 <div class="container">
+  <page-header title="$ctrl.alert.name || $ctrl.getDefaultName() || 'New Alert'"></page-header>
 
-  <page-header title='{{$ctrl.alert.name || $ctrl.getDefaultName() || "New Alert" }}'>
-  </page-header>
-
-  <email-settings-warning function="'alert emails'"></email-settings-warning>
+  <email-settings-warning feature-name="'alert emails'"></email-settings-warning>
 
   <div class="container">
     <div class="row bg-white tiled p-10">
@@ -11,14 +9,7 @@
         <form name="alertForm" class="form">
           <div class="form-group">
             <label>Query</label>
-            <ui-select ng-model="$ctrl.alert.query" reset-search-input="false" on-select="$ctrl.onQuerySelected($item)" ng-disabled="!$ctrl.canEdit">
-              <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
-              <ui-select-choices repeat="q in $ctrl.queries"
-                                 refresh="$ctrl.searchQueries($select.search)"
-                                 refresh-delay="0">
-                <div ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>
-              </ui-select-choices>
-            </ui-select>
+            <query-selector type="'select'" selected-query="$ctrl.alert.query" on-change="$ctrl.onQuerySelected" disabled="!$ctrl.canEdit" />
           </div>
 
           <div class="form-group" ng-show="$ctrl.selectedQuery">

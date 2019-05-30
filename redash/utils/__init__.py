@@ -15,7 +15,7 @@ from six import string_types
 import pystache
 import pytz
 import simplejson
-from funcy import distinct, select_values
+from funcy import select_values
 from redash import settings
 from sqlalchemy.orm.query import Query
 
@@ -82,7 +82,7 @@ class JSONEncoder(simplejson.JSONEncoder):
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
             result = str(o)
         # See "Date Time String Format" in the ECMA-262 specification.
-        if isinstance(o, datetime.datetime):
+        elif isinstance(o, datetime.datetime):
             result = o.isoformat()
             if o.microsecond:
                 result = result[:23] + result[26:]
@@ -167,41 +167,6 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-def _collect_key_names(nodes):
-    keys = []
-    for node in nodes._parse_tree:
-        if isinstance(node, pystache.parser._EscapeNode):
-            keys.append(node.key)
-        elif isinstance(node, pystache.parser._SectionNode):
-            keys.append(node.key)
-            keys.extend(_collect_key_names(node.parsed))
-
-    return distinct(keys)
-
-
-def collect_query_parameters(query):
-    nodes = pystache.parse(query)
-    keys = _collect_key_names(nodes)
-    return keys
-
-
-def parameter_names(parameter_values):
-    names = []
-    for key, value in parameter_values.iteritems():
-        if isinstance(value, dict):
-            for inner_key in value.keys():
-                names.append(u'{}.{}'.format(key, inner_key))
-        else:
-            names.append(key)
-
-    return names
-
-
-def find_missing_params(query_text, parameter_values):
-    query_parameters = set(collect_query_parameters(query_text))
-    return set(query_parameters) - set(parameter_names(parameter_values))
-
-
 def collect_parameters_from_request(args):
     parameters = {}
 
@@ -221,3 +186,9 @@ def base_url(org):
 
 def filter_none(d):
     return select_values(lambda v: v is not None, d)
+
+
+def to_filename(s):
+    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    return s.strip("_")

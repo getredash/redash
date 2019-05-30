@@ -7,6 +7,7 @@ from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
+                                           send_verify_email,
                                            validate_token)
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
@@ -24,7 +25,7 @@ def get_google_auth_url(next_path):
     return google_auth_url
 
 
-def render_token_login_page(template, org_slug, token):
+def render_token_login_page(template, org_slug, token, invite):
     try:
         user_id = validate_token(token)
         org = current_org._get_current_object()
@@ -37,7 +38,7 @@ def render_token_login_page(template, org_slug, token):
         return render_template("error.html",
                                error_message="Your invite link has expired. Please ask for a new one."), 400
 
-    if not user.is_invitation_pending:
+    if invite and user.details.get('is_invitation_pending') is False:
         return render_template("error.html",
                                error_message=("This invitation has already been accepted. "
                                               "Please try resetting your password instead.")), 400
@@ -54,7 +55,8 @@ def render_token_login_page(template, org_slug, token):
             flash('Password length is too short (<6).')
             status_code = 400
         else:
-            user.is_invitation_pending = False
+            if invite:
+                user.is_invitation_pending = False
             user.hash_password(request.form['password'])
             models.db.session.add(user)
             login_user(user)
@@ -75,12 +77,33 @@ def render_token_login_page(template, org_slug, token):
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
 def invite(token, org_slug=None):
-    return render_token_login_page("invite.html", org_slug, token)
+    return render_token_login_page("invite.html", org_slug, token, True)
 
 
 @routes.route(org_scoped_rule('/reset/<token>'), methods=['GET', 'POST'])
 def reset(token, org_slug=None):
-    return render_token_login_page("reset.html", org_slug, token)
+    return render_token_login_page("reset.html", org_slug, token, False)
+
+
+@routes.route(org_scoped_rule('/verify/<token>'), methods=['GET'])
+def verify(token, org_slug=None):
+    try:
+        user_id = validate_token(token)
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
+    except (BadSignature, NoResultFound):
+        logger.exception("Failed to verify email verification token: %s, org=%s", token, org_slug)
+        return render_template("error.html",
+                               error_message="Your verification link is invalid. Please ask for a new one."), 400
+
+    user.is_email_verified = True
+    models.db.session.add(user)
+    models.db.session.commit()
+
+    template_context = { "org_slug": org_slug } if settings.MULTI_ORG else {}
+    next_url = url_for('redash.index', **template_context)
+
+    return render_template("verify.html", next_url=next_url)
 
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
@@ -100,6 +123,16 @@ def forgot_password(org_slug=None):
             logging.error("No user found for forgot password: %s", email)
 
     return render_template("forgot.html", submitted=submitted)
+
+
+@routes.route(org_scoped_rule('/verification_email/'), methods=['POST'])
+def verification_email(org_slug=None):
+    if not current_user.is_email_verified:
+        send_verify_email(current_user, current_org)
+
+    return json_response({
+        "message": "Please check your email inbox in order to verify your email address."
+    })
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
@@ -160,13 +193,23 @@ def base_href():
     return base_href
 
 
-def date_format_config():
+def date_time_format_config():
     date_format = current_org.get_setting('date_format')
     date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    time_format = current_org.get_setting('time_format')
+    time_format_list = set(["HH:mm", "MM:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
     return {
         'dateFormat': date_format,
         'dateFormatList': list(date_format_list),
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
+        'timeFormatList': list(time_format_list),
+        'dateTimeFormat': "{0} {1}".format(date_format, time_format),
+    }
+
+
+def number_format_config():
+    return {
+        'integerFormat': current_org.get_setting('integer_format'),
+        'floatFormat': current_org.get_setting('float_format'),
     }
 
 
@@ -184,21 +227,35 @@ def client_config():
         'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
+        'mailSettingsMissing': not settings.email_server_is_configured(),
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
         'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
         'pageSize': settings.PAGE_SIZE,
         'pageSizeOptions': settings.PAGE_SIZE_OPTIONS,
+        'tableCellMaxJSONSize': settings.TABLE_CELL_MAX_JSON_SIZE,
     }
 
     client_config.update(defaults)
     client_config.update({
         'basePath': base_href()
     })
-    client_config.update(date_format_config())
+    client_config.update(date_time_format_config())
+    client_config.update(number_format_config())
 
     return client_config
+
+
+def messages():
+    messages = []
+
+    if not current_user.is_email_verified:
+        messages.append('email-not-verified')
+
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+        messages.append('using-deprecated-embed-feature')
+
+    return messages
 
 
 @routes.route('/api/config', methods=['GET'])
@@ -229,6 +286,7 @@ def session(org_slug=None):
 
     return json_response({
         'user': user,
+        'messages': messages(),
         'org_slug': current_org.slug,
         'client_config': client_config()
     })

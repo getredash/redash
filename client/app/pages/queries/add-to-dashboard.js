@@ -1,7 +1,8 @@
 import template from './add-to-dashboard.html';
+import notification from '@/services/notification';
 
 const AddToDashboardForm = {
-  controller($sce, Dashboard, currentUser, toastr, Widget) {
+  controller($sce, Dashboard, currentUser, Widget) {
     'ngInject';
 
     this.vis = this.resolve.vis;
@@ -21,10 +22,10 @@ const AddToDashboardForm = {
         .save()
         .then(() => {
           this.close();
-          toastr.success('Widget added to dashboard.');
+          notification.success('Widget added to dashboard.');
         })
         .catch(() => {
-          toastr.error('Widget not added.');
+          notification.error('Widget not added.');
         })
         .finally(() => {
           this.saveInProgress = false;
@@ -59,4 +60,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

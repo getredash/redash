@@ -117,6 +117,10 @@ def parse_spreadsheet(spreadsheet, worksheet_num):
     return parse_worksheet(worksheet)
 
 
+def is_url_key(key):
+    return key.startswith('https://')
+
+
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault('timeout', 300)
@@ -124,6 +128,9 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(GoogleSpreadsheet, self).__init__(configuration)
+        self.syntax = 'custom'
 
     @classmethod
     def annotate_query(cls):
@@ -168,11 +175,6 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def test_connection(self):
         self._get_spreadsheet_service()
 
-    def is_url_key(self, key):
-        if key.startswith('https://'):
-            return True
-        return False
-
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         key, worksheet_num = parse_query(query)
@@ -180,7 +182,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         try:
             spreadsheet_service = self._get_spreadsheet_service()
 
-            if self.is_url_key(key):
+            if is_url_key(key):
                 spreadsheet = spreadsheet_service.open_by_url(key)
             else:
                 spreadsheet = spreadsheet_service.open_by_key(key)

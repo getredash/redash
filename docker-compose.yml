@@ -1,5 +1,5 @@
-# This configuration file is for **development** setup. For production, refer to
-# docker-compose.production.yml.
+# This configuration file is for the **development** setup.
+# For a production example please refer to setup/docker-compose.yml.
 version: '3'
 services:
   server:
@@ -10,6 +10,7 @@ services:
       - redis
     ports:
       - "5000:5000"
+      - "5678:5678"
     volumes:
       - ".:/app"
     environment:
@@ -17,6 +18,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      REDASH_RATELIMIT_ENABLED: "false"
   worker:
     build: .
     command: scheduler
@@ -29,7 +31,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries,celery"
+      QUEUES: "queries,scheduled_queries,celery,schemas"
       WORKERS_COUNT: 2
   redis:
     image: redis:3-alpine

@@ -1,0 +1,3661 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Sets to correct interval 1`] = `
+<div
+  data-testid="interval"
+>
+  <Select
+    choiceTransitionName="zoom"
+    className="input"
+    dropdownMatchSelectWidth={false}
+    onChange={[Function]}
+    showSearch={false}
+    transitionName="slide-up"
+    value={86400}
+  >
+    <Select
+      allowClear={false}
+      autoClearSearchValue={true}
+      backfill={false}
+      choiceTransitionName="zoom"
+      className="input"
+      clearIcon={
+        <Icon
+          className="ant-select-clear-icon"
+          theme="filled"
+          type="close-circle"
+        />
+      }
+      combobox={false}
+      defaultActiveFirstOption={true}
+      defaultOpen={false}
+      dropdownMatchSelectWidth={false}
+      dropdownMenuStyle={Object {}}
+      dropdownRender={[Function]}
+      dropdownStyle={Object {}}
+      inputIcon={
+        <Icon
+          className="ant-select-arrow-icon"
+          type="down"
+        />
+      }
+      labelInValue={false}
+      menuItemSelectedIcon={
+        <Icon
+          className="ant-select-selected-icon"
+          type="check"
+        />
+      }
+      multiple={false}
+      notFoundContent={
+        <Context.Consumer>
+          [Function]
+        </Context.Consumer>
+      }
+      onBlur={[Function]}
+      onChange={[Function]}
+      onDeselect={[Function]}
+      onFocus={[Function]}
+      onInputKeyDown={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      optionFilterProp="value"
+      optionLabelProp="children"
+      placeholder=""
+      prefixCls="ant-select"
+      removeIcon={
+        <Icon
+          className="ant-select-remove-icon"
+          type="close"
+        />
+      }
+      showAction={
+        Array [
+          "click",
+        ]
+      }
+      showArrow={true}
+      showSearch={false}
+      tabIndex={0}
+      tags={false}
+      tokenSeparators={Array []}
+      transitionName="slide-up"
+      value={86400}
+    >
+      <SelectTrigger
+        ariaId="test-uuid"
+        backfillValue=""
+        combobox={false}
+        defaultActiveFirstOption={true}
+        dropdownMatchSelectWidth={false}
+        dropdownMenuStyle={Object {}}
+        dropdownRender={[Function]}
+        dropdownStyle={Object {}}
+        empty={false}
+        inputValue=""
+        menuItemSelectedIcon={
+          <Icon
+            className="ant-select-selected-icon"
+            type="check"
+          />
+        }
+        multiple={false}
+        onDropdownVisibleChange={[Function]}
+        onMenuDeselect={[Function]}
+        onMenuSelect={[Function]}
+        onPopupFocus={[Function]}
+        options={Array []}
+        prefixCls="ant-select"
+        showAction={
+          Array [
+            "click",
+          ]
+        }
+        showSearch={false}
+        transitionName="slide-up"
+        value={
+          Array [
+            86400,
+          ]
+        }
+        visible={false}
+      >
+        <Trigger
+          action={Array []}
+          afterPopupVisibleChange={[Function]}
+          ariaId="test-uuid"
+          backfillValue=""
+          blurDelay={0.15}
+          builtinPlacements={
+            Object {
+              "bottomLeft": Object {
+                "offset": Array [
+                  0,
+                  4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "tl",
+                  "bl",
+                ],
+              },
+              "topLeft": Object {
+                "offset": Array [
+                  0,
+                  -4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "bl",
+                  "tl",
+                ],
+              },
+            }
+          }
+          combobox={false}
+          defaultActiveFirstOption={true}
+          defaultPopupVisible={false}
+          destroyPopupOnHide={false}
+          dropdownMatchSelectWidth={false}
+          dropdownMenuStyle={Object {}}
+          dropdownRender={[Function]}
+          dropdownStyle={Object {}}
+          focusDelay={0}
+          getDocument={[Function]}
+          getPopupClassNameFromAlign={[Function]}
+          hideAction={
+            Array [
+              "click",
+            ]
+          }
+          inputValue=""
+          mask={false}
+          maskClosable={true}
+          menuItemSelectedIcon={
+            <Icon
+              className="ant-select-selected-icon"
+              type="check"
+            />
+          }
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0.1}
+          multiple={false}
+          onDropdownVisibleChange={[Function]}
+          onMenuDeselect={[Function]}
+          onMenuSelect={[Function]}
+          onPopupAlign={[Function]}
+          onPopupVisibleChange={[Function]}
+          options={Array []}
+          popup={
+            <DropdownMenu
+              ariaId="test-uuid"
+              backfillValue=""
+              defaultActiveFirstOption={true}
+              dropdownMenuStyle={Object {}}
+              inputValue=""
+              menuItemSelectedIcon={
+                <Icon
+                  className="ant-select-selected-icon"
+                  type="check"
+                />
+              }
+              menuItems={Array []}
+              multiple={false}
+              onMenuDeselect={[Function]}
+              onMenuSelect={[Function]}
+              onPopupFocus={[Function]}
+              prefixCls="ant-select-dropdown"
+              value={
+                Array [
+                  86400,
+                ]
+              }
+              visible={false}
+            />
+          }
+          popupAlign={Object {}}
+          popupClassName="ant-select-dropdown--single"
+          popupPlacement="bottomLeft"
+          popupStyle={Object {}}
+          popupTransitionName="slide-up"
+          popupVisible={false}
+          prefixCls="ant-select-dropdown"
+          showAction={
+            Array [
+              "click",
+            ]
+          }
+          showSearch={false}
+          transitionName="slide-up"
+          value={
+            Array [
+              86400,
+            ]
+          }
+          visible={false}
+        >
+          <div
+            className="input ant-select ant-select-enabled"
+            key="trigger"
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onMouseDown={[Function]}
+            onMouseOut={[Function]}
+            onMouseUp={[Function]}
+            onTouchStart={[Function]}
+          >
+            <div
+              aria-autocomplete="list"
+              aria-controls="test-uuid"
+              aria-expanded={false}
+              aria-haspopup="true"
+              className="ant-select-selection
+            ant-select-selection--single"
+              key="selection"
+              onKeyDown={[Function]}
+              role="combobox"
+              tabIndex={0}
+            >
+              <div
+                className="ant-select-selection__rendered"
+              >
+                <div
+                  className="ant-select-selection-selected-value"
+                  key="value"
+                  style={
+                    Object {
+                      "display": "block",
+                      "opacity": 1,
+                    }
+                  }
+                  title="1 day"
+                >
+                  1 day
+                </div>
+              </div>
+              <span
+                className="ant-select-arrow"
+                key="arrow"
+                onClick={[Function]}
+                style={
+                  Object {
+                    "WebkitUserSelect": "none",
+                    "userSelect": "none",
+                  }
+                }
+                unselectable="on"
+              >
+                <Icon
+                  className="ant-select-arrow-icon"
+                  type="down"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="down-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </div>
+          </div>
+        </Trigger>
+      </SelectTrigger>
+    </Select>
+  </Select>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Sets to correct time 1`] = `
+<div
+  data-testid="time"
+>
+  <TimeEditor
+    defaultValue={"1999-12-31T22:15:00.000Z"}
+    onChange={[Function]}
+  >
+    <TimePicker
+      align={
+        Object {
+          "offset": Array [
+            0,
+            -2,
+          ],
+        }
+      }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={"1999-12-31T22:15:00.000Z"}
+    >
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
+          Object {
+            "placeholder": "Select time",
+          }
+        }
+      >
+        <Picker
+          addon={[Function]}
+          align={
+            Object {
+              "offset": Array [
+                0,
+                -2,
+              ],
+            }
+          }
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
+            />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
+            <span
+              className="ant-time-picker-icon"
+            >
+              <Icon
+                className="ant-time-picker-clock-icon"
+                type="clock-circle"
+              />
+            </span>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={"1999-12-31T22:15:00.000Z"}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={"1999-12-31T22:15:00.000Z"}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value="00:15"
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+    <span
+      className="utc"
+      data-testid="utc"
+    >
+      (
+      22:15
+       UTC)
+    </span>
+  </TimeEditor>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
+<div
+  data-testid="interval"
+>
+  <Select
+    choiceTransitionName="zoom"
+    className="input"
+    dropdownMatchSelectWidth={false}
+    onChange={[Function]}
+    showSearch={false}
+    transitionName="slide-up"
+    value={7200}
+  >
+    <Select
+      allowClear={false}
+      autoClearSearchValue={true}
+      backfill={false}
+      choiceTransitionName="zoom"
+      className="input"
+      clearIcon={
+        <Icon
+          className="ant-select-clear-icon"
+          theme="filled"
+          type="close-circle"
+        />
+      }
+      combobox={false}
+      defaultActiveFirstOption={true}
+      defaultOpen={false}
+      dropdownMatchSelectWidth={false}
+      dropdownMenuStyle={Object {}}
+      dropdownRender={[Function]}
+      dropdownStyle={Object {}}
+      inputIcon={
+        <Icon
+          className="ant-select-arrow-icon"
+          type="down"
+        />
+      }
+      labelInValue={false}
+      menuItemSelectedIcon={
+        <Icon
+          className="ant-select-selected-icon"
+          type="check"
+        />
+      }
+      multiple={false}
+      notFoundContent={
+        <Context.Consumer>
+          [Function]
+        </Context.Consumer>
+      }
+      onBlur={[Function]}
+      onChange={[Function]}
+      onDeselect={[Function]}
+      onFocus={[Function]}
+      onInputKeyDown={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      optionFilterProp="value"
+      optionLabelProp="children"
+      placeholder=""
+      prefixCls="ant-select"
+      removeIcon={
+        <Icon
+          className="ant-select-remove-icon"
+          type="close"
+        />
+      }
+      showAction={
+        Array [
+          "click",
+        ]
+      }
+      showArrow={true}
+      showSearch={false}
+      tabIndex={0}
+      tags={false}
+      tokenSeparators={Array []}
+      transitionName="slide-up"
+      value={7200}
+    >
+      <SelectTrigger
+        ariaId="test-uuid"
+        backfillValue=""
+        combobox={false}
+        defaultActiveFirstOption={true}
+        dropdownMatchSelectWidth={false}
+        dropdownMenuStyle={Object {}}
+        dropdownRender={[Function]}
+        dropdownStyle={Object {}}
+        empty={false}
+        inputValue=""
+        menuItemSelectedIcon={
+          <Icon
+            className="ant-select-selected-icon"
+            type="check"
+          />
+        }
+        multiple={false}
+        onDropdownVisibleChange={[Function]}
+        onMenuDeselect={[Function]}
+        onMenuSelect={[Function]}
+        onPopupFocus={[Function]}
+        options={Array []}
+        prefixCls="ant-select"
+        showAction={
+          Array [
+            "click",
+          ]
+        }
+        showSearch={false}
+        transitionName="slide-up"
+        value={
+          Array [
+            7200,
+          ]
+        }
+        visible={false}
+      >
+        <Trigger
+          action={Array []}
+          afterPopupVisibleChange={[Function]}
+          ariaId="test-uuid"
+          backfillValue=""
+          blurDelay={0.15}
+          builtinPlacements={
+            Object {
+              "bottomLeft": Object {
+                "offset": Array [
+                  0,
+                  4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "tl",
+                  "bl",
+                ],
+              },
+              "topLeft": Object {
+                "offset": Array [
+                  0,
+                  -4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "bl",
+                  "tl",
+                ],
+              },
+            }
+          }
+          combobox={false}
+          defaultActiveFirstOption={true}
+          defaultPopupVisible={false}
+          destroyPopupOnHide={false}
+          dropdownMatchSelectWidth={false}
+          dropdownMenuStyle={Object {}}
+          dropdownRender={[Function]}
+          dropdownStyle={Object {}}
+          focusDelay={0}
+          getDocument={[Function]}
+          getPopupClassNameFromAlign={[Function]}
+          hideAction={
+            Array [
+              "click",
+            ]
+          }
+          inputValue=""
+          mask={false}
+          maskClosable={true}
+          menuItemSelectedIcon={
+            <Icon
+              className="ant-select-selected-icon"
+              type="check"
+            />
+          }
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0.1}
+          multiple={false}
+          onDropdownVisibleChange={[Function]}
+          onMenuDeselect={[Function]}
+          onMenuSelect={[Function]}
+          onPopupAlign={[Function]}
+          onPopupVisibleChange={[Function]}
+          options={Array []}
+          popup={
+            <DropdownMenu
+              ariaId="test-uuid"
+              backfillValue=""
+              defaultActiveFirstOption={true}
+              dropdownMenuStyle={Object {}}
+              inputValue=""
+              menuItemSelectedIcon={
+                <Icon
+                  className="ant-select-selected-icon"
+                  type="check"
+                />
+              }
+              menuItems={Array []}
+              multiple={false}
+              onMenuDeselect={[Function]}
+              onMenuSelect={[Function]}
+              onPopupFocus={[Function]}
+              prefixCls="ant-select-dropdown"
+              value={
+                Array [
+                  7200,
+                ]
+              }
+              visible={false}
+            />
+          }
+          popupAlign={Object {}}
+          popupClassName="ant-select-dropdown--single"
+          popupPlacement="bottomLeft"
+          popupStyle={Object {}}
+          popupTransitionName="slide-up"
+          popupVisible={false}
+          prefixCls="ant-select-dropdown"
+          showAction={
+            Array [
+              "click",
+            ]
+          }
+          showSearch={false}
+          transitionName="slide-up"
+          value={
+            Array [
+              7200,
+            ]
+          }
+          visible={false}
+        >
+          <div
+            className="input ant-select ant-select-enabled"
+            key="trigger"
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onMouseDown={[Function]}
+            onMouseOut={[Function]}
+            onMouseUp={[Function]}
+            onTouchStart={[Function]}
+          >
+            <div
+              aria-autocomplete="list"
+              aria-controls="test-uuid"
+              aria-expanded={false}
+              aria-haspopup="true"
+              className="ant-select-selection
+            ant-select-selection--single"
+              key="selection"
+              onKeyDown={[Function]}
+              role="combobox"
+              tabIndex={0}
+            >
+              <div
+                className="ant-select-selection__rendered"
+              >
+                <div
+                  className="ant-select-selection-selected-value"
+                  key="value"
+                  style={
+                    Object {
+                      "display": "block",
+                      "opacity": 1,
+                    }
+                  }
+                  title=""
+                >
+                  7200
+                </div>
+              </div>
+              <span
+                className="ant-select-arrow"
+                key="arrow"
+                onClick={[Function]}
+                style={
+                  Object {
+                    "WebkitUserSelect": "none",
+                    "userSelect": "none",
+                  }
+                }
+                unselectable="on"
+              >
+                <Icon
+                  className="ant-select-arrow-icon"
+                  type="down"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="down-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </div>
+          </div>
+        </Trigger>
+      </SelectTrigger>
+    </Select>
+  </Select>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tuesday" Sets to correct interval 1`] = `
+<div
+  data-testid="interval"
+>
+  <Select
+    choiceTransitionName="zoom"
+    className="input"
+    dropdownMatchSelectWidth={false}
+    onChange={[Function]}
+    showSearch={false}
+    transitionName="slide-up"
+    value={1209600}
+  >
+    <Select
+      allowClear={false}
+      autoClearSearchValue={true}
+      backfill={false}
+      choiceTransitionName="zoom"
+      className="input"
+      clearIcon={
+        <Icon
+          className="ant-select-clear-icon"
+          theme="filled"
+          type="close-circle"
+        />
+      }
+      combobox={false}
+      defaultActiveFirstOption={true}
+      defaultOpen={false}
+      dropdownMatchSelectWidth={false}
+      dropdownMenuStyle={Object {}}
+      dropdownRender={[Function]}
+      dropdownStyle={Object {}}
+      inputIcon={
+        <Icon
+          className="ant-select-arrow-icon"
+          type="down"
+        />
+      }
+      labelInValue={false}
+      menuItemSelectedIcon={
+        <Icon
+          className="ant-select-selected-icon"
+          type="check"
+        />
+      }
+      multiple={false}
+      notFoundContent={
+        <Context.Consumer>
+          [Function]
+        </Context.Consumer>
+      }
+      onBlur={[Function]}
+      onChange={[Function]}
+      onDeselect={[Function]}
+      onFocus={[Function]}
+      onInputKeyDown={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      optionFilterProp="value"
+      optionLabelProp="children"
+      placeholder=""
+      prefixCls="ant-select"
+      removeIcon={
+        <Icon
+          className="ant-select-remove-icon"
+          type="close"
+        />
+      }
+      showAction={
+        Array [
+          "click",
+        ]
+      }
+      showArrow={true}
+      showSearch={false}
+      tabIndex={0}
+      tags={false}
+      tokenSeparators={Array []}
+      transitionName="slide-up"
+      value={1209600}
+    >
+      <SelectTrigger
+        ariaId="test-uuid"
+        backfillValue=""
+        combobox={false}
+        defaultActiveFirstOption={true}
+        dropdownMatchSelectWidth={false}
+        dropdownMenuStyle={Object {}}
+        dropdownRender={[Function]}
+        dropdownStyle={Object {}}
+        empty={false}
+        inputValue=""
+        menuItemSelectedIcon={
+          <Icon
+            className="ant-select-selected-icon"
+            type="check"
+          />
+        }
+        multiple={false}
+        onDropdownVisibleChange={[Function]}
+        onMenuDeselect={[Function]}
+        onMenuSelect={[Function]}
+        onPopupFocus={[Function]}
+        options={Array []}
+        prefixCls="ant-select"
+        showAction={
+          Array [
+            "click",
+          ]
+        }
+        showSearch={false}
+        transitionName="slide-up"
+        value={
+          Array [
+            1209600,
+          ]
+        }
+        visible={false}
+      >
+        <Trigger
+          action={Array []}
+          afterPopupVisibleChange={[Function]}
+          ariaId="test-uuid"
+          backfillValue=""
+          blurDelay={0.15}
+          builtinPlacements={
+            Object {
+              "bottomLeft": Object {
+                "offset": Array [
+                  0,
+                  4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "tl",
+                  "bl",
+                ],
+              },
+              "topLeft": Object {
+                "offset": Array [
+                  0,
+                  -4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "bl",
+                  "tl",
+                ],
+              },
+            }
+          }
+          combobox={false}
+          defaultActiveFirstOption={true}
+          defaultPopupVisible={false}
+          destroyPopupOnHide={false}
+          dropdownMatchSelectWidth={false}
+          dropdownMenuStyle={Object {}}
+          dropdownRender={[Function]}
+          dropdownStyle={Object {}}
+          focusDelay={0}
+          getDocument={[Function]}
+          getPopupClassNameFromAlign={[Function]}
+          hideAction={
+            Array [
+              "click",
+            ]
+          }
+          inputValue=""
+          mask={false}
+          maskClosable={true}
+          menuItemSelectedIcon={
+            <Icon
+              className="ant-select-selected-icon"
+              type="check"
+            />
+          }
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0.1}
+          multiple={false}
+          onDropdownVisibleChange={[Function]}
+          onMenuDeselect={[Function]}
+          onMenuSelect={[Function]}
+          onPopupAlign={[Function]}
+          onPopupVisibleChange={[Function]}
+          options={Array []}
+          popup={
+            <DropdownMenu
+              ariaId="test-uuid"
+              backfillValue=""
+              defaultActiveFirstOption={true}
+              dropdownMenuStyle={Object {}}
+              inputValue=""
+              menuItemSelectedIcon={
+                <Icon
+                  className="ant-select-selected-icon"
+                  type="check"
+                />
+              }
+              menuItems={Array []}
+              multiple={false}
+              onMenuDeselect={[Function]}
+              onMenuSelect={[Function]}
+              onPopupFocus={[Function]}
+              prefixCls="ant-select-dropdown"
+              value={
+                Array [
+                  1209600,
+                ]
+              }
+              visible={false}
+            />
+          }
+          popupAlign={Object {}}
+          popupClassName="ant-select-dropdown--single"
+          popupPlacement="bottomLeft"
+          popupStyle={Object {}}
+          popupTransitionName="slide-up"
+          popupVisible={false}
+          prefixCls="ant-select-dropdown"
+          showAction={
+            Array [
+              "click",
+            ]
+          }
+          showSearch={false}
+          transitionName="slide-up"
+          value={
+            Array [
+              1209600,
+            ]
+          }
+          visible={false}
+        >
+          <div
+            className="input ant-select ant-select-enabled"
+            key="trigger"
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onMouseDown={[Function]}
+            onMouseOut={[Function]}
+            onMouseUp={[Function]}
+            onTouchStart={[Function]}
+          >
+            <div
+              aria-autocomplete="list"
+              aria-controls="test-uuid"
+              aria-expanded={false}
+              aria-haspopup="true"
+              className="ant-select-selection
+            ant-select-selection--single"
+              key="selection"
+              onKeyDown={[Function]}
+              role="combobox"
+              tabIndex={0}
+            >
+              <div
+                className="ant-select-selection__rendered"
+              >
+                <div
+                  className="ant-select-selection-selected-value"
+                  key="value"
+                  style={
+                    Object {
+                      "display": "block",
+                      "opacity": 1,
+                    }
+                  }
+                  title="2 weeks"
+                >
+                  2 weeks
+                </div>
+              </div>
+              <span
+                className="ant-select-arrow"
+                key="arrow"
+                onClick={[Function]}
+                style={
+                  Object {
+                    "WebkitUserSelect": "none",
+                    "userSelect": "none",
+                  }
+                }
+                unselectable="on"
+              >
+                <Icon
+                  className="ant-select-arrow-icon"
+                  type="down"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="down-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </div>
+          </div>
+        </Trigger>
+      </SelectTrigger>
+    </Select>
+  </Select>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tuesday" Sets to correct time 1`] = `
+<div
+  data-testid="time"
+>
+  <TimeEditor
+    defaultValue={"1999-12-31T22:15:00.000Z"}
+    onChange={[Function]}
+  >
+    <TimePicker
+      align={
+        Object {
+          "offset": Array [
+            0,
+            -2,
+          ],
+        }
+      }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={"1999-12-31T22:15:00.000Z"}
+    >
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
+          Object {
+            "placeholder": "Select time",
+          }
+        }
+      >
+        <Picker
+          addon={[Function]}
+          align={
+            Object {
+              "offset": Array [
+                0,
+                -2,
+              ],
+            }
+          }
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
+            />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
+            <span
+              className="ant-time-picker-icon"
+            >
+              <Icon
+                className="ant-time-picker-clock-icon"
+                type="clock-circle"
+              />
+            </span>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={"1999-12-31T22:15:00.000Z"}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={"1999-12-31T22:15:00.000Z"}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value="00:15"
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+    <span
+      className="utc"
+      data-testid="utc"
+    >
+      (
+      22:15
+       UTC)
+    </span>
+  </TimeEditor>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tuesday" Sets to correct weekday 1`] = `
+<div
+  data-testid="weekday"
+>
+  <RadioGroup
+    buttonStyle="outline"
+    defaultValue="Mon"
+    disabled={false}
+    onChange={[Function]}
+    size="medium"
+  >
+    <div
+      className="ant-radio-group ant-radio-group-outline ant-radio-group-medium"
+    >
+      <RadioButton
+        className="input"
+        key="Sun"
+        value="Sun"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Sun"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Sun"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Sun"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              S
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Mon"
+        value="Mon"
+      >
+        <Radio
+          checked={true}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Mon"
+        >
+          <label
+            className="input ant-radio-button-wrapper ant-radio-button-wrapper-checked"
+          >
+            <Checkbox
+              checked={true}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Mon"
+            >
+              <span
+                className="ant-radio-button ant-radio-button-checked"
+                style={Object {}}
+              >
+                <input
+                  checked={true}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Mon"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              M
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Tue"
+        value="Tue"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Tue"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Tue"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Tue"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              T
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Wed"
+        value="Wed"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Wed"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Wed"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Wed"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              W
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Thu"
+        value="Thu"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Thu"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Thu"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Thu"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              T
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Fri"
+        value="Fri"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Fri"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Fri"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Fri"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              F
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+      <RadioButton
+        className="input"
+        key="Sat"
+        value="Sat"
+      >
+        <Radio
+          checked={false}
+          className="input"
+          disabled={false}
+          prefixCls="ant-radio-button"
+          type="radio"
+          value="Sat"
+        >
+          <label
+            className="input ant-radio-button-wrapper"
+          >
+            <Checkbox
+              checked={false}
+              className=""
+              defaultChecked={false}
+              disabled={false}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              prefixCls="ant-radio-button"
+              style={Object {}}
+              type="radio"
+              value="Sat"
+            >
+              <span
+                className="ant-radio-button"
+                style={Object {}}
+              >
+                <input
+                  checked={false}
+                  className="ant-radio-button-input"
+                  disabled={false}
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  onFocus={[Function]}
+                  type="radio"
+                  value="Sat"
+                />
+                <span
+                  className="ant-radio-button-inner"
+                />
+              </span>
+            </Checkbox>
+            <span>
+              S
+            </span>
+          </label>
+        </Radio>
+      </RadioButton>
+    </div>
+  </RadioGroup>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] = `
+<div
+  data-testid="interval"
+>
+  <Select
+    choiceTransitionName="zoom"
+    className="input"
+    dropdownMatchSelectWidth={false}
+    onChange={[Function]}
+    showSearch={false}
+    transitionName="slide-up"
+    value={300}
+  >
+    <Select
+      allowClear={false}
+      autoClearSearchValue={true}
+      backfill={false}
+      choiceTransitionName="zoom"
+      className="input"
+      clearIcon={
+        <Icon
+          className="ant-select-clear-icon"
+          theme="filled"
+          type="close-circle"
+        />
+      }
+      combobox={false}
+      defaultActiveFirstOption={true}
+      defaultOpen={false}
+      dropdownMatchSelectWidth={false}
+      dropdownMenuStyle={Object {}}
+      dropdownRender={[Function]}
+      dropdownStyle={Object {}}
+      inputIcon={
+        <Icon
+          className="ant-select-arrow-icon"
+          type="down"
+        />
+      }
+      labelInValue={false}
+      menuItemSelectedIcon={
+        <Icon
+          className="ant-select-selected-icon"
+          type="check"
+        />
+      }
+      multiple={false}
+      notFoundContent={
+        <Context.Consumer>
+          [Function]
+        </Context.Consumer>
+      }
+      onBlur={[Function]}
+      onChange={[Function]}
+      onDeselect={[Function]}
+      onFocus={[Function]}
+      onInputKeyDown={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      optionFilterProp="value"
+      optionLabelProp="children"
+      placeholder=""
+      prefixCls="ant-select"
+      removeIcon={
+        <Icon
+          className="ant-select-remove-icon"
+          type="close"
+        />
+      }
+      showAction={
+        Array [
+          "click",
+        ]
+      }
+      showArrow={true}
+      showSearch={false}
+      tabIndex={0}
+      tags={false}
+      tokenSeparators={Array []}
+      transitionName="slide-up"
+      value={300}
+    >
+      <SelectTrigger
+        ariaId="test-uuid"
+        backfillValue=""
+        combobox={false}
+        defaultActiveFirstOption={true}
+        dropdownMatchSelectWidth={false}
+        dropdownMenuStyle={Object {}}
+        dropdownRender={[Function]}
+        dropdownStyle={Object {}}
+        empty={false}
+        inputValue=""
+        menuItemSelectedIcon={
+          <Icon
+            className="ant-select-selected-icon"
+            type="check"
+          />
+        }
+        multiple={false}
+        onDropdownVisibleChange={[Function]}
+        onMenuDeselect={[Function]}
+        onMenuSelect={[Function]}
+        onPopupFocus={[Function]}
+        options={Array []}
+        prefixCls="ant-select"
+        showAction={
+          Array [
+            "click",
+          ]
+        }
+        showSearch={false}
+        transitionName="slide-up"
+        value={
+          Array [
+            300,
+          ]
+        }
+        visible={false}
+      >
+        <Trigger
+          action={Array []}
+          afterPopupVisibleChange={[Function]}
+          ariaId="test-uuid"
+          backfillValue=""
+          blurDelay={0.15}
+          builtinPlacements={
+            Object {
+              "bottomLeft": Object {
+                "offset": Array [
+                  0,
+                  4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "tl",
+                  "bl",
+                ],
+              },
+              "topLeft": Object {
+                "offset": Array [
+                  0,
+                  -4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "bl",
+                  "tl",
+                ],
+              },
+            }
+          }
+          combobox={false}
+          defaultActiveFirstOption={true}
+          defaultPopupVisible={false}
+          destroyPopupOnHide={false}
+          dropdownMatchSelectWidth={false}
+          dropdownMenuStyle={Object {}}
+          dropdownRender={[Function]}
+          dropdownStyle={Object {}}
+          focusDelay={0}
+          getDocument={[Function]}
+          getPopupClassNameFromAlign={[Function]}
+          hideAction={
+            Array [
+              "click",
+            ]
+          }
+          inputValue=""
+          mask={false}
+          maskClosable={true}
+          menuItemSelectedIcon={
+            <Icon
+              className="ant-select-selected-icon"
+              type="check"
+            />
+          }
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0.1}
+          multiple={false}
+          onDropdownVisibleChange={[Function]}
+          onMenuDeselect={[Function]}
+          onMenuSelect={[Function]}
+          onPopupAlign={[Function]}
+          onPopupVisibleChange={[Function]}
+          options={Array []}
+          popup={
+            <DropdownMenu
+              ariaId="test-uuid"
+              backfillValue=""
+              defaultActiveFirstOption={true}
+              dropdownMenuStyle={Object {}}
+              inputValue=""
+              menuItemSelectedIcon={
+                <Icon
+                  className="ant-select-selected-icon"
+                  type="check"
+                />
+              }
+              menuItems={Array []}
+              multiple={false}
+              onMenuDeselect={[Function]}
+              onMenuSelect={[Function]}
+              onPopupFocus={[Function]}
+              prefixCls="ant-select-dropdown"
+              value={
+                Array [
+                  300,
+                ]
+              }
+              visible={false}
+            />
+          }
+          popupAlign={Object {}}
+          popupClassName="ant-select-dropdown--single"
+          popupPlacement="bottomLeft"
+          popupStyle={Object {}}
+          popupTransitionName="slide-up"
+          popupVisible={false}
+          prefixCls="ant-select-dropdown"
+          showAction={
+            Array [
+              "click",
+            ]
+          }
+          showSearch={false}
+          transitionName="slide-up"
+          value={
+            Array [
+              300,
+            ]
+          }
+          visible={false}
+        >
+          <div
+            className="input ant-select ant-select-enabled"
+            key="trigger"
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onMouseDown={[Function]}
+            onMouseOut={[Function]}
+            onMouseUp={[Function]}
+            onTouchStart={[Function]}
+          >
+            <div
+              aria-autocomplete="list"
+              aria-controls="test-uuid"
+              aria-expanded={false}
+              aria-haspopup="true"
+              className="ant-select-selection
+            ant-select-selection--single"
+              key="selection"
+              onKeyDown={[Function]}
+              role="combobox"
+              tabIndex={0}
+            >
+              <div
+                className="ant-select-selection__rendered"
+              >
+                <div
+                  className="ant-select-selection-selected-value"
+                  key="value"
+                  style={
+                    Object {
+                      "display": "block",
+                      "opacity": 1,
+                    }
+                  }
+                  title="5 minutes"
+                >
+                  5 minutes
+                </div>
+              </div>
+              <span
+                className="ant-select-arrow"
+                key="arrow"
+                onClick={[Function]}
+                style={
+                  Object {
+                    "WebkitUserSelect": "none",
+                    "userSelect": "none",
+                  }
+                }
+                unselectable="on"
+              >
+                <Icon
+                  className="ant-select-arrow-icon"
+                  type="down"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="down-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </div>
+          </div>
+        </Trigger>
+      </SelectTrigger>
+    </Select>
+  </Select>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
+<div
+  data-testid="interval"
+>
+  <Select
+    choiceTransitionName="zoom"
+    className="input"
+    dropdownMatchSelectWidth={false}
+    onChange={[Function]}
+    showSearch={false}
+    transitionName="slide-up"
+  >
+    <Select
+      allowClear={false}
+      autoClearSearchValue={true}
+      backfill={false}
+      choiceTransitionName="zoom"
+      className="input"
+      clearIcon={
+        <Icon
+          className="ant-select-clear-icon"
+          theme="filled"
+          type="close-circle"
+        />
+      }
+      combobox={false}
+      defaultActiveFirstOption={true}
+      defaultOpen={false}
+      dropdownMatchSelectWidth={false}
+      dropdownMenuStyle={Object {}}
+      dropdownRender={[Function]}
+      dropdownStyle={Object {}}
+      inputIcon={
+        <Icon
+          className="ant-select-arrow-icon"
+          type="down"
+        />
+      }
+      labelInValue={false}
+      menuItemSelectedIcon={
+        <Icon
+          className="ant-select-selected-icon"
+          type="check"
+        />
+      }
+      multiple={false}
+      notFoundContent={
+        <Context.Consumer>
+          [Function]
+        </Context.Consumer>
+      }
+      onBlur={[Function]}
+      onChange={[Function]}
+      onDeselect={[Function]}
+      onFocus={[Function]}
+      onInputKeyDown={[Function]}
+      onSearch={[Function]}
+      onSelect={[Function]}
+      optionFilterProp="value"
+      optionLabelProp="children"
+      placeholder=""
+      prefixCls="ant-select"
+      removeIcon={
+        <Icon
+          className="ant-select-remove-icon"
+          type="close"
+        />
+      }
+      showAction={
+        Array [
+          "click",
+        ]
+      }
+      showArrow={true}
+      showSearch={false}
+      tabIndex={0}
+      tags={false}
+      tokenSeparators={Array []}
+      transitionName="slide-up"
+    >
+      <SelectTrigger
+        ariaId="test-uuid"
+        backfillValue=""
+        combobox={false}
+        defaultActiveFirstOption={true}
+        dropdownMatchSelectWidth={false}
+        dropdownMenuStyle={Object {}}
+        dropdownRender={[Function]}
+        dropdownStyle={Object {}}
+        empty={false}
+        inputValue=""
+        menuItemSelectedIcon={
+          <Icon
+            className="ant-select-selected-icon"
+            type="check"
+          />
+        }
+        multiple={false}
+        onDropdownVisibleChange={[Function]}
+        onMenuDeselect={[Function]}
+        onMenuSelect={[Function]}
+        onPopupFocus={[Function]}
+        options={Array []}
+        prefixCls="ant-select"
+        showAction={
+          Array [
+            "click",
+          ]
+        }
+        showSearch={false}
+        transitionName="slide-up"
+        value={Array []}
+        visible={false}
+      >
+        <Trigger
+          action={Array []}
+          afterPopupVisibleChange={[Function]}
+          ariaId="test-uuid"
+          backfillValue=""
+          blurDelay={0.15}
+          builtinPlacements={
+            Object {
+              "bottomLeft": Object {
+                "offset": Array [
+                  0,
+                  4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "tl",
+                  "bl",
+                ],
+              },
+              "topLeft": Object {
+                "offset": Array [
+                  0,
+                  -4,
+                ],
+                "overflow": Object {
+                  "adjustX": 0,
+                  "adjustY": 1,
+                },
+                "points": Array [
+                  "bl",
+                  "tl",
+                ],
+              },
+            }
+          }
+          combobox={false}
+          defaultActiveFirstOption={true}
+          defaultPopupVisible={false}
+          destroyPopupOnHide={false}
+          dropdownMatchSelectWidth={false}
+          dropdownMenuStyle={Object {}}
+          dropdownRender={[Function]}
+          dropdownStyle={Object {}}
+          focusDelay={0}
+          getDocument={[Function]}
+          getPopupClassNameFromAlign={[Function]}
+          hideAction={
+            Array [
+              "click",
+            ]
+          }
+          inputValue=""
+          mask={false}
+          maskClosable={true}
+          menuItemSelectedIcon={
+            <Icon
+              className="ant-select-selected-icon"
+              type="check"
+            />
+          }
+          mouseEnterDelay={0}
+          mouseLeaveDelay={0.1}
+          multiple={false}
+          onDropdownVisibleChange={[Function]}
+          onMenuDeselect={[Function]}
+          onMenuSelect={[Function]}
+          onPopupAlign={[Function]}
+          onPopupVisibleChange={[Function]}
+          options={Array []}
+          popup={
+            <DropdownMenu
+              ariaId="test-uuid"
+              backfillValue=""
+              defaultActiveFirstOption={true}
+              dropdownMenuStyle={Object {}}
+              inputValue=""
+              menuItemSelectedIcon={
+                <Icon
+                  className="ant-select-selected-icon"
+                  type="check"
+                />
+              }
+              menuItems={Array []}
+              multiple={false}
+              onMenuDeselect={[Function]}
+              onMenuSelect={[Function]}
+              onPopupFocus={[Function]}
+              prefixCls="ant-select-dropdown"
+              value={Array []}
+              visible={false}
+            />
+          }
+          popupAlign={Object {}}
+          popupClassName="ant-select-dropdown--single"
+          popupPlacement="bottomLeft"
+          popupStyle={Object {}}
+          popupTransitionName="slide-up"
+          popupVisible={false}
+          prefixCls="ant-select-dropdown"
+          showAction={
+            Array [
+              "click",
+            ]
+          }
+          showSearch={false}
+          transitionName="slide-up"
+          value={Array []}
+          visible={false}
+        >
+          <div
+            className="input ant-select ant-select-enabled"
+            key="trigger"
+            onBlur={[Function]}
+            onClick={[Function]}
+            onFocus={[Function]}
+            onMouseDown={[Function]}
+            onMouseOut={[Function]}
+            onMouseUp={[Function]}
+            onTouchStart={[Function]}
+          >
+            <div
+              aria-autocomplete="list"
+              aria-controls="test-uuid"
+              aria-expanded={false}
+              aria-haspopup="true"
+              className="ant-select-selection
+            ant-select-selection--single"
+              key="selection"
+              onKeyDown={[Function]}
+              role="combobox"
+              tabIndex={0}
+            >
+              <div
+                className="ant-select-selection__rendered"
+              />
+              <span
+                className="ant-select-arrow"
+                key="arrow"
+                onClick={[Function]}
+                style={
+                  Object {
+                    "WebkitUserSelect": "none",
+                    "userSelect": "none",
+                  }
+                }
+                unselectable="on"
+              >
+                <Icon
+                  className="ant-select-arrow-icon"
+                  type="down"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: down"
+                      className="anticon anticon-down ant-select-arrow-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="down-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="down"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-down"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M884 256h-75c-5.1 0-9.9 2.5-12.9 6.6L512 654.2 227.9 262.6c-3-4.1-7.8-6.6-12.9-6.6h-75c-6.5 0-10.3 7.4-6.5 12.7l352.6 486.1c12.8 17.6 39 17.6 51.7 0l352.6-486.1c3.9-5.3.1-12.7-6.4-12.7z"
+                            key="svg-down-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </div>
+          </div>
+        </Trigger>
+      </SelectTrigger>
+    </Select>
+  </Select>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval with no time value Time is none 1`] = `
+<div
+  data-testid="time"
+>
+  <TimeEditor
+    defaultValue={null}
+    onChange={[Function]}
+  >
+    <TimePicker
+      align={
+        Object {
+          "offset": Array [
+            0,
+            -2,
+          ],
+        }
+      }
+      allowClear={false}
+      disabled={false}
+      focusOnOpen={true}
+      format="HH:mm"
+      hideDisabledOptions={false}
+      minuteStep={5}
+      onChange={[Function]}
+      placement="bottomLeft"
+      transitionName="slide-up"
+      value={null}
+    >
+      <LocaleReceiver
+        componentName="TimePicker"
+        defaultLocale={
+          Object {
+            "placeholder": "Select time",
+          }
+        }
+      >
+        <Picker
+          addon={[Function]}
+          align={
+            Object {
+              "offset": Array [
+                0,
+                -2,
+              ],
+            }
+          }
+          allowEmpty={false}
+          className=""
+          clearIcon={
+            <Icon
+              className="ant-time-picker-clear"
+              theme="filled"
+              type="close-circle"
+            />
+          }
+          clearText="clear"
+          defaultOpen={false}
+          defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+          disabled={false}
+          disabledHours={[Function]}
+          disabledMinutes={[Function]}
+          disabledSeconds={[Function]}
+          focusOnOpen={true}
+          format="HH:mm"
+          hideDisabledOptions={false}
+          id=""
+          inputIcon={
+            <span
+              className="ant-time-picker-icon"
+            >
+              <Icon
+                className="ant-time-picker-clock-icon"
+                type="clock-circle"
+              />
+            </span>
+          }
+          inputReadOnly={false}
+          minuteStep={5}
+          onAmPmChange={[Function]}
+          onBlur={[Function]}
+          onChange={[Function]}
+          onClose={[Function]}
+          onFocus={[Function]}
+          onKeyDown={[Function]}
+          onOpen={[Function]}
+          placeholder="Select time"
+          placement="bottomLeft"
+          popupClassName=""
+          popupStyle={Object {}}
+          prefixCls="ant-time-picker"
+          showHour={true}
+          showMinute={true}
+          showSecond={false}
+          style={Object {}}
+          transitionName="slide-up"
+          use12Hours={false}
+          value={null}
+        >
+          <Trigger
+            action={
+              Array [
+                "click",
+              ]
+            }
+            afterPopupVisibleChange={[Function]}
+            blurDelay={0.15}
+            builtinPlacements={
+              Object {
+                "bottomLeft": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tl",
+                    "tl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "bottomRight": Object {
+                  "offset": Array [
+                    0,
+                    -3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "tr",
+                    "tr",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topLeft": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "bl",
+                    "bl",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+                "topRight": Object {
+                  "offset": Array [
+                    0,
+                    3,
+                  ],
+                  "overflow": Object {
+                    "adjustX": 1,
+                    "adjustY": 1,
+                  },
+                  "points": Array [
+                    "br",
+                    "br",
+                  ],
+                  "targetOffset": Array [
+                    0,
+                    0,
+                  ],
+                },
+              }
+            }
+            defaultPopupVisible={false}
+            destroyPopupOnHide={true}
+            focusDelay={0}
+            getDocument={[Function]}
+            getPopupClassNameFromAlign={[Function]}
+            hideAction={Array []}
+            mask={false}
+            maskClosable={true}
+            mouseEnterDelay={0}
+            mouseLeaveDelay={0.1}
+            onPopupAlign={[Function]}
+            onPopupVisibleChange={[Function]}
+            popup={
+              <Panel
+                addon={[Function]}
+                allowEmpty={false}
+                clearIcon={
+                  <Icon
+                    className="ant-time-picker-clear"
+                    theme="filled"
+                    type="close-circle"
+                  />
+                }
+                clearText="clear"
+                defaultOpenValue={"2000-01-01T00:00:00.000Z"}
+                disabledHours={[Function]}
+                disabledMinutes={[Function]}
+                disabledSeconds={[Function]}
+                focusOnOpen={true}
+                format="HH:mm"
+                hideDisabledOptions={false}
+                inputReadOnly={false}
+                minuteStep={5}
+                onAmPmChange={[Function]}
+                onChange={[Function]}
+                onEsc={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                prefixCls="ant-time-picker-panel"
+                showHour={true}
+                showMinute={true}
+                showSecond={false}
+                use12Hours={false}
+                value={null}
+              />
+            }
+            popupAlign={
+              Object {
+                "offset": Array [
+                  0,
+                  -2,
+                ],
+              }
+            }
+            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupPlacement="bottomLeft"
+            popupStyle={Object {}}
+            popupTransitionName="slide-up"
+            popupVisible={false}
+            prefixCls="ant-time-picker-panel"
+            showAction={Array []}
+          >
+            <span
+              className="ant-time-picker "
+              key="trigger"
+              onClick={[Function]}
+              onMouseDown={[Function]}
+              onTouchStart={[Function]}
+              style={Object {}}
+            >
+              <input
+                className="ant-time-picker-input"
+                disabled={false}
+                id=""
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                onKeyDown={[Function]}
+                placeholder="Select time"
+                readOnly={false}
+                type="text"
+                value=""
+              />
+              <span
+                className="ant-time-picker-icon"
+              >
+                <Icon
+                  className="ant-time-picker-clock-icon"
+                  type="clock-circle"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: clock-circle"
+                      className="anticon anticon-clock-circle ant-time-picker-clock-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="clock-circle-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="clock-circle"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-clock-circle"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z"
+                            key="svg-clock-circle-svg-0"
+                          />
+                          <path
+                            d="M686.7 638.6L544.1 535.5V288c0-4.4-3.6-8-8-8H488c-4.4 0-8 3.6-8 8v275.4c0 2.6 1.2 5 3.3 6.5l165.4 120.6c3.6 2.6 8.6 1.8 11.2-1.7l28.6-39c2.6-3.7 1.8-8.7-1.8-11.2z"
+                            key="svg-clock-circle-svg-1"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </span>
+            </span>
+          </Trigger>
+        </Picker>
+      </LocaleReceiver>
+    </TimePicker>
+  </TimeEditor>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Until feature Until is set 1`] = `
+<div
+  className="ends"
+  data-testid="ends"
+>
+  <RadioGroup
+    buttonStyle="outline"
+    disabled={false}
+    onChange={[Function]}
+    size="medium"
+    value={true}
+  >
+    <div
+      className="ant-radio-group ant-radio-group-outline ant-radio-group-medium"
+    >
+      <Radio
+        type="radio"
+        value={false}
+      >
+        <label
+          className="ant-radio-wrapper"
+        >
+          <Checkbox
+            checked={false}
+            className=""
+            defaultChecked={false}
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            prefixCls="ant-radio"
+            style={Object {}}
+            type="radio"
+            value={false}
+          >
+            <span
+              className="ant-radio"
+              style={Object {}}
+            >
+              <input
+                checked={false}
+                className="ant-radio-input"
+                disabled={false}
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                type="radio"
+                value={false}
+              />
+              <span
+                className="ant-radio-inner"
+              />
+            </span>
+          </Checkbox>
+          <span>
+            Never
+          </span>
+        </label>
+      </Radio>
+      <Radio
+        type="radio"
+        value={true}
+      >
+        <label
+          className="ant-radio-wrapper ant-radio-wrapper-checked"
+        >
+          <Checkbox
+            checked={true}
+            className=""
+            defaultChecked={false}
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            prefixCls="ant-radio"
+            style={Object {}}
+            type="radio"
+            value={true}
+          >
+            <span
+              className="ant-radio ant-radio-checked"
+              style={Object {}}
+            >
+              <input
+                checked={true}
+                className="ant-radio-input"
+                disabled={false}
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                type="radio"
+                value={true}
+              />
+              <span
+                className="ant-radio-inner"
+              />
+            </span>
+          </Checkbox>
+          <span>
+            On
+          </span>
+        </label>
+      </Radio>
+    </div>
+  </RadioGroup>
+  <PickerWrapper
+    allowClear={false}
+    className="datepicker"
+    format="YYYY-MM-DD"
+    locale={Object {}}
+    onChange={[Function]}
+    onOk={[Function]}
+    onOpenChange={[Function]}
+    popupStyle={Object {}}
+    size="small"
+    transitionName="slide-up"
+    value={"2029-12-31T22:00:00.000Z"}
+  >
+    <LocaleReceiver
+      componentName="DatePicker"
+      defaultLocale={[Function]}
+    >
+      <CalenderWrapper
+        allowClear={false}
+        className="datepicker"
+        format="YYYY-MM-DD"
+        locale={
+          Object {
+            "lang": Object {
+              "backToToday": "Back to today",
+              "clear": "Clear",
+              "dateFormat": "M/D/YYYY",
+              "dateSelect": "select date",
+              "dateTimeFormat": "M/D/YYYY HH:mm:ss",
+              "dayFormat": "D",
+              "decadeSelect": "Choose a decade",
+              "month": "Month",
+              "monthBeforeYear": true,
+              "monthSelect": "Choose a month",
+              "nextCentury": "Next century",
+              "nextDecade": "Next decade",
+              "nextMonth": "Next month (PageDown)",
+              "nextYear": "Next year (Control + right)",
+              "now": "Now",
+              "ok": "Ok",
+              "placeholder": "Select date",
+              "previousCentury": "Last century",
+              "previousDecade": "Last decade",
+              "previousMonth": "Previous month (PageUp)",
+              "previousYear": "Last year (Control + left)",
+              "rangePlaceholder": Array [
+                "Start date",
+                "End date",
+              ],
+              "timeSelect": "select time",
+              "today": "Today",
+              "weekSelect": "Choose a week",
+              "year": "Year",
+              "yearFormat": "YYYY",
+              "yearSelect": "Choose a year",
+            },
+            "timePickerLocale": Object {
+              "placeholder": "Select time",
+            },
+          }
+        }
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        onOk={[Function]}
+        onOpenChange={[Function]}
+        pickerClass="ant-calendar-picker ant-calendar-picker-small"
+        pickerInputClass="ant-calendar-picker-input ant-input ant-input-sm"
+        popupStyle={Object {}}
+        showToday={true}
+        size="small"
+        timePicker={null}
+        transitionName="slide-up"
+        value={"2029-12-31T22:00:00.000Z"}
+      >
+        <span
+          className="datepicker ant-calendar-picker ant-calendar-picker-small"
+          onBlur={[Function]}
+          onFocus={[Function]}
+          onMouseEnter={[Function]}
+          onMouseLeave={[Function]}
+          style={Object {}}
+        >
+          <Picker
+            align={Object {}}
+            allowClear={false}
+            calendar={
+              <CalendarMixinWrapper
+                className=""
+                dateInputPlaceholder="Select date"
+                defaultValue={"2000-01-01T00:00:00.000Z"}
+                disabledTime={null}
+                focusablePanel={true}
+                format="YYYY-MM-DD"
+                locale={
+                  Object {
+                    "backToToday": "Back to today",
+                    "clear": "Clear",
+                    "dateFormat": "M/D/YYYY",
+                    "dateSelect": "select date",
+                    "dateTimeFormat": "M/D/YYYY HH:mm:ss",
+                    "dayFormat": "D",
+                    "decadeSelect": "Choose a decade",
+                    "month": "Month",
+                    "monthBeforeYear": true,
+                    "monthSelect": "Choose a month",
+                    "nextCentury": "Next century",
+                    "nextDecade": "Next decade",
+                    "nextMonth": "Next month (PageDown)",
+                    "nextYear": "Next year (Control + right)",
+                    "now": "Now",
+                    "ok": "Ok",
+                    "placeholder": "Select date",
+                    "previousCentury": "Last century",
+                    "previousDecade": "Last decade",
+                    "previousMonth": "Previous month (PageUp)",
+                    "previousYear": "Last year (Control + left)",
+                    "rangePlaceholder": Array [
+                      "Start date",
+                      "End date",
+                    ],
+                    "timeSelect": "select time",
+                    "today": "Today",
+                    "weekSelect": "Choose a week",
+                    "year": "Year",
+                    "yearFormat": "YYYY",
+                    "yearSelect": "Choose a year",
+                  }
+                }
+                onChange={[Function]}
+                onClear={[Function]}
+                onKeyDown={[Function]}
+                onOk={[Function]}
+                onPanelChange={[Function]}
+                onSelect={[Function]}
+                prefixCls="ant-calendar"
+                renderFooter={[Function]}
+                renderSidebar={[Function]}
+                showDateInput={true}
+                showToday={true}
+                style={Object {}}
+                timePicker={null}
+                value={"2029-12-31T22:00:00.000Z"}
+                visible={true}
+              />
+            }
+            className="datepicker"
+            defaultOpen={false}
+            format="YYYY-MM-DD"
+            locale={
+              Object {
+                "lang": Object {
+                  "backToToday": "Back to today",
+                  "clear": "Clear",
+                  "dateFormat": "M/D/YYYY",
+                  "dateSelect": "select date",
+                  "dateTimeFormat": "M/D/YYYY HH:mm:ss",
+                  "dayFormat": "D",
+                  "decadeSelect": "Choose a decade",
+                  "month": "Month",
+                  "monthBeforeYear": true,
+                  "monthSelect": "Choose a month",
+                  "nextCentury": "Next century",
+                  "nextDecade": "Next decade",
+                  "nextMonth": "Next month (PageDown)",
+                  "nextYear": "Next year (Control + right)",
+                  "now": "Now",
+                  "ok": "Ok",
+                  "placeholder": "Select date",
+                  "previousCentury": "Last century",
+                  "previousDecade": "Last decade",
+                  "previousMonth": "Previous month (PageUp)",
+                  "previousYear": "Last year (Control + left)",
+                  "rangePlaceholder": Array [
+                    "Start date",
+                    "End date",
+                  ],
+                  "timeSelect": "select time",
+                  "today": "Today",
+                  "weekSelect": "Choose a week",
+                  "year": "Year",
+                  "yearFormat": "YYYY",
+                  "yearSelect": "Choose a year",
+                },
+                "timePickerLocale": Object {
+                  "placeholder": "Select time",
+                },
+              }
+            }
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+            onOk={[Function]}
+            onOpenChange={[Function]}
+            open={false}
+            pickerClass="ant-calendar-picker ant-calendar-picker-small"
+            pickerInputClass="ant-calendar-picker-input ant-input ant-input-sm"
+            placement="bottomLeft"
+            popupStyle={Object {}}
+            prefixCls="ant-calendar-picker-container"
+            showToday={true}
+            size="small"
+            style={Object {}}
+            timePicker={null}
+            transitionName="slide-up"
+            value={"2029-12-31T22:00:00.000Z"}
+          >
+            <Trigger
+              action={
+                Array [
+                  "click",
+                ]
+              }
+              afterPopupVisibleChange={[Function]}
+              blurDelay={0.15}
+              builtinPlacements={
+                Object {
+                  "bottomLeft": Object {
+                    "offset": Array [
+                      0,
+                      -3,
+                    ],
+                    "overflow": Object {
+                      "adjustX": 1,
+                      "adjustY": 1,
+                    },
+                    "points": Array [
+                      "tl",
+                      "tl",
+                    ],
+                    "targetOffset": Array [
+                      0,
+                      0,
+                    ],
+                  },
+                  "bottomRight": Object {
+                    "offset": Array [
+                      0,
+                      -3,
+                    ],
+                    "overflow": Object {
+                      "adjustX": 1,
+                      "adjustY": 1,
+                    },
+                    "points": Array [
+                      "tr",
+                      "tr",
+                    ],
+                    "targetOffset": Array [
+                      0,
+                      0,
+                    ],
+                  },
+                  "topLeft": Object {
+                    "offset": Array [
+                      0,
+                      3,
+                    ],
+                    "overflow": Object {
+                      "adjustX": 1,
+                      "adjustY": 1,
+                    },
+                    "points": Array [
+                      "bl",
+                      "bl",
+                    ],
+                    "targetOffset": Array [
+                      0,
+                      0,
+                    ],
+                  },
+                  "topRight": Object {
+                    "offset": Array [
+                      0,
+                      3,
+                    ],
+                    "overflow": Object {
+                      "adjustX": 1,
+                      "adjustY": 1,
+                    },
+                    "points": Array [
+                      "br",
+                      "br",
+                    ],
+                    "targetOffset": Array [
+                      0,
+                      0,
+                    ],
+                  },
+                }
+              }
+              defaultPopupVisible={false}
+              destroyPopupOnHide={true}
+              focusDelay={0}
+              getDocument={[Function]}
+              getPopupClassNameFromAlign={[Function]}
+              hideAction={Array []}
+              mask={false}
+              maskClosable={true}
+              mouseEnterDelay={0}
+              mouseLeaveDelay={0.1}
+              onPopupAlign={[Function]}
+              onPopupVisibleChange={[Function]}
+              popup={
+                <CalendarMixinWrapper
+                  className=""
+                  dateInputPlaceholder="Select date"
+                  defaultValue={"2029-12-31T22:00:00.000Z"}
+                  disabledTime={null}
+                  focusablePanel={true}
+                  format="YYYY-MM-DD"
+                  locale={
+                    Object {
+                      "backToToday": "Back to today",
+                      "clear": "Clear",
+                      "dateFormat": "M/D/YYYY",
+                      "dateSelect": "select date",
+                      "dateTimeFormat": "M/D/YYYY HH:mm:ss",
+                      "dayFormat": "D",
+                      "decadeSelect": "Choose a decade",
+                      "month": "Month",
+                      "monthBeforeYear": true,
+                      "monthSelect": "Choose a month",
+                      "nextCentury": "Next century",
+                      "nextDecade": "Next decade",
+                      "nextMonth": "Next month (PageDown)",
+                      "nextYear": "Next year (Control + right)",
+                      "now": "Now",
+                      "ok": "Ok",
+                      "placeholder": "Select date",
+                      "previousCentury": "Last century",
+                      "previousDecade": "Last decade",
+                      "previousMonth": "Previous month (PageUp)",
+                      "previousYear": "Last year (Control + left)",
+                      "rangePlaceholder": Array [
+                        "Start date",
+                        "End date",
+                      ],
+                      "timeSelect": "select time",
+                      "today": "Today",
+                      "weekSelect": "Choose a week",
+                      "year": "Year",
+                      "yearFormat": "YYYY",
+                      "yearSelect": "Choose a year",
+                    }
+                  }
+                  onChange={[Function]}
+                  onClear={[Function]}
+                  onKeyDown={[Function]}
+                  onOk={[Function]}
+                  onPanelChange={[Function]}
+                  onSelect={[Function]}
+                  prefixCls="ant-calendar"
+                  renderFooter={[Function]}
+                  renderSidebar={[Function]}
+                  selectedValue={"2029-12-31T22:00:00.000Z"}
+                  showDateInput={true}
+                  showToday={true}
+                  style={Object {}}
+                  timePicker={null}
+                  value={"2029-12-31T22:00:00.000Z"}
+                  visible={true}
+                />
+              }
+              popupAlign={Object {}}
+              popupClassName=""
+              popupPlacement="bottomLeft"
+              popupStyle={Object {}}
+              popupTransitionName="slide-up"
+              popupVisible={false}
+              prefixCls="ant-calendar-picker-container"
+              showAction={Array []}
+            >
+              <div
+                key="trigger"
+                onClick={[Function]}
+                onKeyDown={[Function]}
+                onMouseDown={[Function]}
+                onTouchStart={[Function]}
+              >
+                <input
+                  className="ant-calendar-picker-input ant-input ant-input-sm"
+                  placeholder="Select date"
+                  readOnly={true}
+                  value="2030-01-01"
+                />
+                <Icon
+                  className="ant-calendar-picker-icon"
+                  type="calendar"
+                >
+                  <LocaleReceiver
+                    componentName="Icon"
+                  >
+                    <i
+                      aria-label="icon: calendar"
+                      className="anticon anticon-calendar ant-calendar-picker-icon"
+                    >
+                      <IconReact
+                        className=""
+                        type="calendar-o"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className=""
+                          data-icon="calendar"
+                          fill="currentColor"
+                          height="1em"
+                          key="svg-calendar"
+                          viewBox="64 64 896 896"
+                          width="1em"
+                        >
+                          <path
+                            d="M880 184H712v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H384v-64c0-4.4-3.6-8-8-8h-56c-4.4 0-8 3.6-8 8v64H144c-17.7 0-32 14.3-32 32v664c0 17.7 14.3 32 32 32h736c17.7 0 32-14.3 32-32V216c0-17.7-14.3-32-32-32zm-40 656H184V460h656v380zM184 392V256h128v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h256v48c0 4.4 3.6 8 8 8h56c4.4 0 8-3.6 8-8v-48h128v136H184z"
+                            key="svg-calendar-svg-0"
+                          />
+                        </svg>
+                      </IconReact>
+                    </i>
+                  </LocaleReceiver>
+                </Icon>
+              </div>
+            </Trigger>
+          </Picker>
+        </span>
+      </CalenderWrapper>
+    </LocaleReceiver>
+  </PickerWrapper>
+</div>
+`;
+
+exports[`ScheduleDialog Sets correct schedule settings Until feature Until not set 1`] = `
+<div
+  className="ends"
+  data-testid="ends"
+>
+  <RadioGroup
+    buttonStyle="outline"
+    disabled={false}
+    onChange={[Function]}
+    size="medium"
+    value={false}
+  >
+    <div
+      className="ant-radio-group ant-radio-group-outline ant-radio-group-medium"
+    >
+      <Radio
+        type="radio"
+        value={false}
+      >
+        <label
+          className="ant-radio-wrapper ant-radio-wrapper-checked"
+        >
+          <Checkbox
+            checked={true}
+            className=""
+            defaultChecked={false}
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            prefixCls="ant-radio"
+            style={Object {}}
+            type="radio"
+            value={false}
+          >
+            <span
+              className="ant-radio ant-radio-checked"
+              style={Object {}}
+            >
+              <input
+                checked={true}
+                className="ant-radio-input"
+                disabled={false}
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                type="radio"
+                value={false}
+              />
+              <span
+                className="ant-radio-inner"
+              />
+            </span>
+          </Checkbox>
+          <span>
+            Never
+          </span>
+        </label>
+      </Radio>
+      <Radio
+        type="radio"
+        value={true}
+      >
+        <label
+          className="ant-radio-wrapper"
+        >
+          <Checkbox
+            checked={false}
+            className=""
+            defaultChecked={false}
+            disabled={false}
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            prefixCls="ant-radio"
+            style={Object {}}
+            type="radio"
+            value={true}
+          >
+            <span
+              className="ant-radio"
+              style={Object {}}
+            >
+              <input
+                checked={false}
+                className="ant-radio-input"
+                disabled={false}
+                onBlur={[Function]}
+                onChange={[Function]}
+                onFocus={[Function]}
+                type="radio"
+                value={true}
+              />
+              <span
+                className="ant-radio-inner"
+              />
+            </span>
+          </Checkbox>
+          <span>
+            On
+          </span>
+        </label>
+      </Radio>
+    </div>
+  </RadioGroup>
+</div>
+`;

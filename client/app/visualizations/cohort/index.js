@@ -3,6 +3,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import 'cornelius/src/cornelius';
 import 'cornelius/src/cornelius.css';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import editorTemplate from './cohort-editor.html';
 
@@ -19,9 +21,6 @@ const DEFAULT_OPTIONS = {
   stageColumn: 'day_number',
   totalColumn: 'total',
   valueColumn: 'value',
-
-  autoHeight: true,
-  defaultRows: 8,
 };
 
 function groupData(sortedData) {
@@ -115,125 +114,111 @@ function prepareSimpleData(sortedData, options) {
 function prepareData(rawData, options) {
   rawData = _.map(rawData, item => ({
     date: item[options.dateColumn],
-    stage: item[options.stageColumn],
-    total: item[options.totalColumn],
-    value: item[options.valueColumn],
+    stage: parseInt(item[options.stageColumn], 10),
+    total: parseFloat(item[options.totalColumn]),
+    value: parseFloat(item[options.valueColumn]),
   }));
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.stage, 10));
+  const sortedData = _.sortBy(rawData, r => r.date + r.stage);
   const initialDate = moment(sortedData[0].date).toDate();
 
   let data;
   switch (options.mode) {
-    case 'simple': data = prepareSimpleData(sortedData, options); break;
-    default: data = prepareDiagonalData(sortedData, options); break;
+    case 'simple':
+      data = prepareSimpleData(sortedData, options);
+      break;
+    default:
+      data = prepareDiagonalData(sortedData, options);
+      break;
   }
 
   return { data, initialDate };
 }
 
-function cohortRenderer() {
-  return {
-    restrict: 'E',
-    scope: {
-      queryResult: '=',
-      options: '=',
-    },
-    template: '',
-    replace: false,
-    link($scope, element) {
-      $scope.options = _.extend({}, DEFAULT_OPTIONS, $scope.options);
+const CohortRenderer = {
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  template: '',
+  replace: false,
+  controller($scope, $element) {
+    $scope.options = _.extend({}, DEFAULT_OPTIONS, $scope.options);
 
-      function updateCohort() {
-        element.empty();
+    const update = () => {
+      $element.empty();
 
-        if ($scope.queryResult.getData() === null) {
-          return;
-        }
-
-        const columnNames = _.map($scope.queryResult.getColumns(), i => i.name);
-        if (
-          !_.includes(columnNames, $scope.options.dateColumn) ||
-          !_.includes(columnNames, $scope.options.stageColumn) ||
-          !_.includes(columnNames, $scope.options.totalColumn) ||
-          !_.includes(columnNames, $scope.options.valueColumn)
-        ) {
-          return;
-        }
-
-        const { data, initialDate } = prepareData(
-          $scope.queryResult.getData(),
-          $scope.options,
-        );
-
-        Cornelius.draw({
-          initialDate,
-          container: element[0],
-          cohort: data,
-          title: null,
-          timeInterval: $scope.options.timeInterval,
-          labels: {
-            time: 'Time',
-            people: 'Users',
-            weekOf: 'Week of',
-          },
-        });
+      if (this.data.rows.length === 0) {
+        return;
       }
 
-      $scope.$watch('queryResult && queryResult.getData()', updateCohort);
-      $scope.$watch('options', updateCohort, true);
-    },
-  };
-}
+      const options = this.options;
 
-function cohortEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-    link: ($scope) => {
-      $scope.visualization.options = _.extend({}, DEFAULT_OPTIONS, $scope.visualization.options);
-
-      $scope.currentTab = 'columns';
-      $scope.setCurrentTab = (tab) => {
-        $scope.currentTab = tab;
-      };
-
-      function refreshColumns() {
-        $scope.columns = $scope.queryResult.getColumns();
-        $scope.columnNames = _.map($scope.columns, i => i.name);
+      const columnNames = _.map(this.data.columns, i => i.name);
+      if (
+        !_.includes(columnNames, options.dateColumn) ||
+        !_.includes(columnNames, options.stageColumn) ||
+        !_.includes(columnNames, options.totalColumn) ||
+        !_.includes(columnNames, options.valueColumn)
+      ) {
+        return;
       }
 
-      refreshColumns();
+      const { data, initialDate } = prepareData(this.data.rows, options);
 
-      $scope.$watch(
-        () => [$scope.queryResult.getId(), $scope.queryResult.status],
-        (changed) => {
-          if (!changed[0] || changed[1] !== 'done') {
-            return;
-          }
-          refreshColumns();
+      Cornelius.draw({
+        initialDate,
+        container: $element[0],
+        cohort: data,
+        title: null,
+        timeInterval: options.timeInterval,
+        labels: {
+          time: 'Time',
+          people: 'Users',
+          weekOf: 'Week of',
         },
-        true,
-      );
-    },
-  };
-}
+      });
+    };
+
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const CohortEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    this.currentTab = 'columns';
+    this.setCurrentTab = (tab) => {
+      this.currentTab = tab;
+    };
+
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
 
 export default function init(ngModule) {
-  ngModule.directive('cohortRenderer', cohortRenderer);
-  ngModule.directive('cohortEditor', cohortEditor);
+  ngModule.component('cohortRenderer', CohortRenderer);
+  ngModule.component('cohortEditor', CohortEditor);
 
-  ngModule.config((VisualizationProvider) => {
-    const editTemplate = '<cohort-editor></cohort-editor>';
-
-    VisualizationProvider.registerVisualization({
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'COHORT',
       name: 'Cohort',
-      renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>',
-      editorTemplate: editTemplate,
-      defaultOptions: DEFAULT_OPTIONS,
+      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      Renderer: angular2react('cohortRenderer', CohortRenderer, $injector),
+      Editor: angular2react('cohortEditor', CohortEditor, $injector),
+
+      autoHeight: true,
+      defaultRows: 8,
     });
   });
 }
 
 init.init = true;
-

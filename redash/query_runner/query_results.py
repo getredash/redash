@@ -1,14 +1,10 @@
 import logging
-import numbers
 import re
 import sqlite3
 
-from dateutil import parser
-from six import text_type
-
 from redash import models
 from redash.permissions import has_access, not_view_only
-from redash.query_runner import guess_type, TYPE_STRING, BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner, TYPE_STRING, guess_type, register
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -38,7 +34,7 @@ def _load_query(user, query_id):
     if user.org_id != query.org_id:
         raise PermissionError("Query id {} not found.".format(query.id))
 
-    if not has_access(query.data_source.groups, user, not_view_only):
+    if not has_access(query.data_source, user, not_view_only):
         raise PermissionError(u"You are not allowed to execute queries on {} data source (used for query id {}).".format(
             query.data_source.name, query.id))
 
@@ -73,7 +69,7 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
 
 
 def fix_column_name(name):
-    return u'"{}"'.format(name.replace(':', '_').replace('.', '_').replace(' ', '_'))
+    return u'"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
 
 
 def create_table(connection, table_name, query_results):

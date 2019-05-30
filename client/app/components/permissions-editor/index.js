@@ -1,4 +1,5 @@
 import { includes, each, filter } from 'lodash';
+import notification from '@/services/notification';
 import template from './permissions-editor.html';
 
 const PermissionsEditorComponent = {
@@ -8,7 +9,7 @@ const PermissionsEditorComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller($http, User, toastr) {
+  controller($http, User) {
     'ngInject';
 
     this.grantees = [];
@@ -58,9 +59,9 @@ const PermissionsEditorComponent = {
         loadGrantees();
       }).catch((error) => {
         if (error.status === 403) {
-          toastr.error('You cannot add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+          notification.error('You cannot add a user to this dashboard.', 'Ask the dashboard owner to grant them permissions.');
         } else {
-          toastr.error('Something went wrong.');
+          notification.error('Something went wrong.');
         }
       });
     };
@@ -93,4 +94,3 @@ export default function init(ngModule) {
 }
 
 init.init = true;
-

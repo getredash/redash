@@ -10,17 +10,14 @@ const handler = new ErrorHandler();
 const layouts = {
   default: {
     showHeader: true,
-    showFooter: true,
     bodyClass: false,
   },
   fixed: {
     showHeader: true,
-    showFooter: false,
     bodyClass: 'fixed-layout',
   },
   defaultSignedOut: {
     showHeader: false,
-    showFooter: false,
   },
 };
 
@@ -37,9 +34,12 @@ function selectLayout(route) {
 class AppViewComponent {
   constructor($rootScope, $route, Auth) {
     this.$rootScope = $rootScope;
-    this.showHeaderAndFooter = false;
     this.layout = layouts.defaultSignedOut;
     this.handler = handler;
+
+    // remove when fix lands
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=914844#c36
+    $rootScope.platform = navigator.platform;
 
     $rootScope.$on('$routeChangeStart', (event, route) => {
       this.handler.reset();
@@ -84,10 +84,9 @@ class AppViewComponent {
 export default function init(ngModule) {
   ngModule.factory(
     '$exceptionHandler',
-    () =>
-      function exceptionHandler(exception) {
-        handler.process(exception);
-      },
+    () => function exceptionHandler(exception) {
+      handler.process(exception);
+    },
   );
 
   ngModule.component('appView', {

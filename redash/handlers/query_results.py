@@ -8,92 +8,18 @@ from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
-from redash.tasks import QueryTask, record_event
+from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, find_missing_params, gen_query_hash, json_dumps, utcnow)
-from redash.utils.sql_query import SQLInjectionError, SQLQuery
+from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.serializers import serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
 
-def apply_parameters(template, parameters, data_source):
-    query = SQLQuery(template).apply(parameters)
-
-    # for now we only log `SQLInjectionError` to detect false positives
-    try:
-        text = query.text
-    except SQLInjectionError:
-        record_event({
-            'action': 'sql_injection',
-            'object_type': 'query',
-            'query': template,
-            'parameters': parameters,
-            'timestamp': time.time(),
-            'org_id': data_source.org_id
-        })
-    except Exception as e:
-        logging.info(u"Failed applying parameters for query %s: %s", gen_query_hash(query.query), e.message)
-    finally:
-        text = query.query
-
-    return text
-
-
-#
-# Run a parameterized query synchronously and return the result
-# DISCLAIMER: Temporary solution to support parameters in queries. Should be
-#             removed once we refactor the query results API endpoints and handling
-#             on the client side. Please don't reuse in other API handlers.
-#
-def run_query_sync(data_source, parameter_values, query_text, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
-
-    query_text = apply_parameters(query_text, parameter_values, data_source)
-
-    if max_age <= 0:
-        query_result = None
-    else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
-
-    query_hash = gen_query_hash(query_text)
-
-    if query_result:
-        logging.info("Returning cached result for query %s" % query_hash)
-        return query_result
-
-    try:
-        started_at = time.time()
-        data, error = data_source.query_runner.run_query(query_text, current_user)
-
-        if error:
-            logging.info('got bak error')
-            logging.info(error)
-            return None
-
-        run_time = time.time() - started_at
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
-                                                                              query_hash, query_text, data,
-                                                                              run_time, utcnow())
-
-        models.db.session.commit()
-        return query_result
-    except Exception as e:
-        if max_age > 0:
-            abort(404, message="Unable to get result from the database, and no cached query result found.")
-        else:
-            abort(503, message="Unable to get result from the database.")
-        return None
-
-
-def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
-    missing_params = find_missing_params(query_text, parameter_values)
-    if missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(missing_params)))
-
+def run_query(query, parameters, data_source, query_id, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
@@ -102,18 +28,36 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
 
         return error_response(message)
 
-    query_text = apply_parameters(query_text, parameter_values, data_source)
+    try:
+        query.apply(parameters)
+    except InvalidParameterError as e:
+        abort(400, message=e.message)
+
+    if query.missing_params:
+        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
 
     if max_age == 0:
         query_result = None
     else:
-        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+        query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
+            "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
+            "Query ID": query_id
+        })
         return {'job': job.to_dict()}
+
+
+def get_download_filename(query_result, query, filetype):
+    retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
+    if query:
+        filename = to_filename(query.name) if query.name != '' else str(query.id)
+    else:
+        filename = str(query_result.id)
+    return u"{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):
@@ -134,13 +78,19 @@ class QueryResultListResource(BaseResource):
         params = request.get_json(force=True)
 
         query = params['query']
-        max_age = int(params.get('max_age', -1))
+        max_age = params.get('max_age', -1)
+        # max_age might have the value of None, in which case calling int(None) will fail
+        if max_age is None:
+            max_age = -1
+        max_age = int(max_age)
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
+        parameterized_query = ParameterizedQuery(query)
+
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if not has_access(data_source.groups, self.current_user, not_view_only):
+        if not has_access(data_source, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
         self.record_event({
@@ -151,10 +101,30 @@ class QueryResultListResource(BaseResource):
             'query_id': query_id,
             'parameters': parameters
         })
-        return run_query(data_source, parameters, query, query_id, max_age)
+        return run_query(parameterized_query, parameters, data_source, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
+
+
+class QueryResultDropdownResource(BaseResource):
+    def get(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source, current_user, view_only)
+        return dropdown_values(query_id)
+
+
+class QueryDropdownsResource(BaseResource):
+    def get(self, query_id, dropdown_query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query, current_user, view_only)
+
+        related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
+        if int(dropdown_query_id) not in related_queries_ids:
+            dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
+            require_access(dropdown_query.data_source, current_user, view_only)
+
+        return dropdown_values(dropdown_query_id)
 
 
 class QueryResultResource(BaseResource):
@@ -179,6 +149,36 @@ class QueryResultResource(BaseResource):
             headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
 
         return make_response("", 200, headers)
+
+    @require_permission('view_query')
+    def post(self, query_id):
+        """
+        Execute a saved query.
+
+        :param number query_id: The ID of the query whose results should be fetched.
+        :param object parameters: The parameter values to apply to the query.
+        :qparam number max_age: If query results less than `max_age` seconds old are available,
+                                return them, otherwise execute the query; if omitted or -1, returns
+                                any cached result, or executes if not available. Set to zero to
+                                always execute.
+        """
+        params = request.get_json(force=True)
+        parameter_values = params.get('parameters')
+
+        max_age = params.get('max_age', -1)
+        # max_age might have the value of None, in which case calling int(None) will fail
+        if max_age is None:
+            max_age = -1
+        max_age = int(max_age)
+
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+        allow_executing_with_view_only_permissions = query.parameterized.is_safe
+
+        if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
+            return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
+        else:
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
@@ -207,6 +207,7 @@ class QueryResultResource(BaseResource):
         max_age = int(request.args.get('maxAge', 0))
 
         query_result = None
+        query = None
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
@@ -214,18 +215,17 @@ class QueryResultResource(BaseResource):
         if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-            if query_result is None and query is not None:
-                if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
-                elif query.latest_query_data_id is not None:
-                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
+            if query_result is None and query is not None and query.latest_query_data_id is not None:
+                query_result = get_object_or_404(models.QueryResult.get_by_id_and_org,
+                                                 query.latest_query_data_id,
+                                                 self.current_org)
 
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
 
         if query_result:
-            require_access(query_result.data_source.groups, self.current_user, view_only)
+            require_access(query_result.data_source, self.current_user, view_only)
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {
@@ -260,6 +260,13 @@ class QueryResultResource(BaseResource):
             if should_cache:
                 response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
 
+            filename = get_download_filename(query_result, query, filetype)
+
+            response.headers.add_header(
+                "Content-Disposition",
+                'attachment; filename="{}"'.format(filename.encode("utf-8"))
+            )
+
             return response
 
         else:
@@ -273,16 +280,16 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
-        return make_response(query_result.make_csv_content(), 200, headers)
+        return make_response(serialize_query_result_to_csv(query_result), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-        return make_response(query_result.make_excel_content(), 200, headers)
+        return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
 
 
 class JobResource(BaseResource):
-    def get(self, job_id):
+    def get(self, job_id, query_id=None):
         """
         Retrieve info about a running query job.
         """

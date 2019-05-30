@@ -1,12 +1,9 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniqBy, values, some, each, isArray, isNumber, isString, includes, forOwn } from 'lodash';
+import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
-
-const ALL_VALUES = '*';
-const NONE_VALUES = '-';
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -38,21 +35,11 @@ function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-function addPointToSeries(point, seriesCollection, seriesName) {
-  if (seriesCollection[seriesName] === undefined) {
-    seriesCollection[seriesName] = {
-      name: seriesName,
-      type: 'column',
-      data: [],
-    };
-  }
-
-  seriesCollection[seriesName].data.push(point);
-}
-
-function QueryResultService($resource, $timeout, $q, QueryResultError) {
+function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
+  const QueryResultByQueryIdResource = $resource('api/queries/:queryId/results/:id.json', { queryId: '@queryId', id: '@id' });
   const Job = $resource('api/jobs/:id', { id: '@id' });
+  const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
     1: 'waiting',
     2: 'processing',
@@ -69,7 +56,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       logger('Unknown error', response);
       queryResult.update({
         job: {
-          error: 'unknown error occurred. Please try again later.',
+          error: response.data.message || 'unknown error occurred. Please try again later.',
           status: 4,
         },
       });
@@ -82,8 +69,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       this.job = {};
       this.query_result = {};
       this.status = 'waiting';
-      this.filters = undefined;
-      this.filterFreeze = undefined;
 
       this.updatedAt = moment();
 
@@ -96,12 +81,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     update(props) {
-      Object.assign(this, props);
+      extend(this, props);
 
       if ('query_result' in props) {
         this.status = 'done';
-        this.filters = undefined;
-        this.filterFreeze = undefined;
 
         const columnTypes = {};
 
@@ -208,145 +191,11 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     getData() {
-      if (!this.query_result.data) {
-        return null;
-      }
-
-      function filterValues(filters) {
-        if (!filters) {
-          return null;
-        }
-
-        return filters.reduce((str, filter) => str + filter.current, '');
-      }
-
-      const filters = this.getFilters();
-      const filterFreeze = filterValues(filters);
-
-      if (this.filterFreeze !== filterFreeze) {
-        this.filterFreeze = filterFreeze;
-
-        if (filters) {
-          filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
-            }
-
-            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
-              filter.current = [];
-            }
-          });
-
-          this.filteredData = this.query_result.data.rows.filter(row =>
-            filters.reduce((memo, filter) => {
-              if (!isArray(filter.current)) {
-                filter.current = [filter.current];
-              }
-
-              return (
-                memo &&
-                some(filter.current, (v) => {
-                  const value = row[filter.name];
-                  if (moment.isMoment(value)) {
-                    return value.isSame(v);
-                  }
-                  // We compare with either the value or the String representation of the value,
-                  // because Select2 casts true/false to "true"/"false".
-                  return v === value || String(value) === v;
-                })
-              );
-            }, true));
-        } else {
-          this.filteredData = this.query_result.data.rows;
-        }
-      }
-
-      return this.filteredData;
+      return this.query_result.data ? this.query_result.data.rows : null;
     }
 
     isEmpty() {
       return this.getData() === null || this.getData().length === 0;
-    }
-
-    getChartData(mapping) {
-      const series = {};
-
-      this.getData().forEach((row) => {
-        let point = { $raw: row };
-        let seriesName;
-        let xValue = 0;
-        const yValues = {};
-        let eValue = null;
-        let sizeValue = null;
-        let zValue = null;
-
-        forOwn(row, (v, definition) => {
-          definition = '' + definition;
-          const definitionParts = definition.split('::') || definition.split('__');
-          const name = definitionParts[0];
-          const type = mapping ? mapping[definition] : definitionParts[1];
-          let value = v;
-
-          if (type === 'unused') {
-            return;
-          }
-
-          if (type === 'x') {
-            xValue = value;
-            point[type] = value;
-          }
-          if (type === 'y') {
-            if (value == null) {
-              value = 0;
-            }
-            yValues[name] = value;
-            point[type] = value;
-          }
-          if (type === 'yError') {
-            eValue = value;
-            point[type] = value;
-          }
-
-          if (type === 'series') {
-            seriesName = String(value);
-          }
-
-          if (type === 'size') {
-            point[type] = value;
-            sizeValue = value;
-          }
-
-          if (type === 'zVal') {
-            point[type] = value;
-            zValue = value;
-          }
-
-          if (type === 'multiFilter' || type === 'multi-filter') {
-            seriesName = String(value);
-          }
-        });
-
-        if (seriesName === undefined) {
-          each(yValues, (yValue, ySeriesName) => {
-            point = { x: xValue, y: yValue, $raw: point.$raw };
-            if (eValue !== null) {
-              point.yError = eValue;
-            }
-
-            if (sizeValue !== null) {
-              point.size = sizeValue;
-            }
-
-            if (zValue !== null) {
-              point.zVal = zValue;
-            }
-            addPointToSeries(point, series, ySeriesName);
-          });
-        } else {
-          addPointToSeries(point, series, seriesName);
-        }
-      });
-      return sortBy(values(series), 'name');
     }
 
     getColumns() {
@@ -374,16 +223,8 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
     }
 
     getFilters() {
-      if (!this.filters) {
-        this.prepareFilters();
-      }
-
-      return this.filters;
-    }
-
-    prepareFilters() {
       if (!this.getColumns()) {
-        return;
+        return [];
       }
 
       const filters = [];
@@ -418,13 +259,6 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       });
 
       filters.forEach((filter) => {
-        if (filter.multiple) {
-          filter.values.unshift(ALL_VALUES);
-          filter.values.unshift(NONE_VALUES);
-        }
-      });
-
-      filters.forEach((filter) => {
         filter.values = uniqBy(filter.values, (v) => {
           if (moment.isMoment(v)) {
             return v.unix();
@@ -433,19 +267,19 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         });
       });
 
-      this.filters = filters;
+      return filters;
     }
 
     toPromise() {
       return this.deferred.promise;
     }
 
-    static getById(id) {
+    static getById(queryId, id) {
       const queryResult = new QueryResult();
 
       queryResult.isLoadingResult = true;
-      QueryResultResource.get(
-        { id },
+      QueryResultByQueryIdResource.get(
+        { queryId, id },
         (response) => {
           // Success handler
           queryResult.isLoadingResult = false;
@@ -459,6 +293,13 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       );
 
       return queryResult;
+    }
+
+    loadLatestCachedResult(queryId, parameters) {
+      $resource('api/queries/:id/results', { id: '@queryId' }, { post: { method: 'POST' } })
+        .post({ queryId, parameters },
+          (response) => { this.update(response); },
+          (error) => { handleErrorResponse(this, error); });
     }
 
     loadResult(tryCount) {
@@ -492,18 +333,24 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       );
     }
 
-    refreshStatus(query, tryNumber = 1) {
-      Job.get(
-        { id: this.job.id },
+    refreshStatus(query, parameters, tryNumber = 1) {
+      const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
+      const loadResult = () => (Auth.isAuthenticated()
+        ? this.loadResult()
+        : this.loadLatestCachedResult(query, parameters));
+      const params = Auth.isAuthenticated() ? { id: this.job.id } : { queryId: query, id: this.job.id };
+
+      resource.get(
+        params,
         (jobResponse) => {
           this.update(jobResponse);
 
           if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-            this.loadResult();
+            loadResult();
           } else if (this.getStatus() !== 'failed') {
             const waitTime = tryNumber > 10 ? 3000 : 500;
             $timeout(() => {
-              this.refreshStatus(query, tryNumber + 1);
+              this.refreshStatus(query, parameters, tryNumber + 1);
             }, waitTime);
           }
         },
@@ -532,6 +379,30 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
+    static getByQueryId(id, parameters, maxAge) {
+      const queryResult = new QueryResult();
+
+      $resource('api/queries/:id/results', { id: '@id' }, { post: { method: 'POST' } }).post(
+        {
+          id,
+          parameters,
+          max_age: maxAge,
+        },
+        (response) => {
+          queryResult.update(response);
+
+          if ('job' in response) {
+            queryResult.refreshStatus(id, parameters);
+          }
+        },
+        (error) => {
+          handleErrorResponse(queryResult, error);
+        },
+      );
+
+      return queryResult;
+    }
+
     static get(dataSourceId, query, parameters, maxAge, queryId) {
       const queryResult = new QueryResult();
 
@@ -552,7 +423,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
           queryResult.update(response);
 
           if ('job' in response) {
-            queryResult.refreshStatus(query);
+            queryResult.refreshStatus(query, parameters);
           }
         },
         (error) => {

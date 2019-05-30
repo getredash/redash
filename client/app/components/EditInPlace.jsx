@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import { trim } from 'lodash';
 
 export class EditInPlace extends React.Component {
   static propTypes = {
@@ -18,6 +19,7 @@ export class EditInPlace extends React.Component {
     placeholder: '',
     value: '',
   };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +41,7 @@ export class EditInPlace extends React.Component {
   };
 
   stopEditing = () => {
-    const newValue = this.inputRef.current.value;
+    const newValue = trim(this.inputRef.current.value);
     const ignorableBlank = this.props.ignoreBlanks && newValue === '';
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
@@ -67,14 +69,13 @@ export class EditInPlace extends React.Component {
     </span>
   );
 
-  renderEdit = () =>
-    React.createElement(this.props.editor, {
-      ref: this.inputRef,
-      className: 'rd-form-control',
-      defaultValue: this.props.value,
-      onBlur: this.stopEditing,
-      onKeyDown: this.keyDown,
-    });
+  renderEdit = () => React.createElement(this.props.editor, {
+    ref: this.inputRef,
+    className: 'rd-form-control',
+    defaultValue: this.props.value,
+    onBlur: this.stopEditing,
+    onKeyDown: this.keyDown,
+  });
 
   render() {
     return (

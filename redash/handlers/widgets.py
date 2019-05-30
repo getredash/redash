@@ -34,7 +34,7 @@ class WidgetListResource(BaseResource):
         visualization_id = widget_properties.pop('visualization_id')
         if visualization_id:
             visualization = models.Visualization.get_by_id_and_org(visualization_id, self.current_org)
-            require_access(visualization.query_rel.groups, self.current_user, view_only)
+            require_access(visualization.query_rel, self.current_user, view_only)
         else:
             visualization = None
 

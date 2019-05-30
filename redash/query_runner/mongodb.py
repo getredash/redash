@@ -13,6 +13,7 @@ try:
     import pymongo
     from bson.objectid import ObjectId
     from bson.timestamp import Timestamp
+    from bson.decimal128 import Decimal128
     from bson.son import SON
     from bson.json_util import object_hook as bson_object_hook
     enabled = True
@@ -38,7 +39,8 @@ class MongoDBJSONEncoder(JSONEncoder):
             return str(o)
         elif isinstance(o, Timestamp):
             return super(MongoDBJSONEncoder, self).default(o.as_datetime())
-
+        elif isinstance(o, Decimal128):
+            return o.to_decimal()
         return super(MongoDBJSONEncoder, self).default(o)
 
 
@@ -175,11 +177,10 @@ class MongoDB(BaseQueryRunner):
                   columns.append(property)
 
     def _is_collection_a_view(self, db, collection_name):
-        try:
-            db.command('collstats', collection_name)
-            return False
-        except Exception:
+        if 'viewOn' in db[collection_name].options():
             return True
+        else:
+            return False
 
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have

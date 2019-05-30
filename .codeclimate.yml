@@ -1,22 +1,32 @@
-engines:
+version: "2"
+checks:
+  complex-logic:
+    enabled: false
+  file-lines:
+    enabled: false
+  method-complexity:
+    enabled: false
+  method-count:
+    enabled: false
+  method-lines:
+    config:
+      threshold: 100
+  nested-control-flow:
+    enabled: false
+  identical-code:
+    enabled: false
+  similar-code:
+    enabled: false
+plugins:
   pep8:
     enabled: true
   eslint:
-    enabled: true
-    channel: "eslint-3"
-    config:
-      config: client/.eslintrc.js
-    checks:
-      import/no-unresolved:
-        enabled: false
-ratings:
-  paths:
-  - "redash/**/*.py"
-  - "client/**/*.js"
-exclude_paths:
-- tests/**/*.py
-- migrations/**/*.py
-- old_migrations/**/*.py
-- setup/**/*
-- bin/**/*
-
+    enabled: false
+exclude_patterns:
+  - "tests/**/*.py"
+  - "migrations/**/*.py"
+  - "setup/**/*"
+  - "bin/**/*"
+  - "**/node_modules/"
+  - "client/dist/"
+  - "**/*.pyc"

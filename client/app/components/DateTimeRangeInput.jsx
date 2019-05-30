@@ -1,16 +1,18 @@
-import moment from 'moment';
 import { isArray } from 'lodash';
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { RangePicker } from 'antd/lib/date-picker';
+import DatePicker from 'antd/lib/date-picker';
+import { clientConfig } from '@/services/auth';
+import { Moment } from '@/components/proptypes';
 
-function DateTimeRangeInput({
+const { RangePicker } = DatePicker;
+
+export function DateTimeRangeInput({
   value,
   withSeconds,
   onSelect,
-  // eslint-disable-next-line react/prop-types
-  clientConfig,
+  className,
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
@@ -18,42 +20,42 @@ function DateTimeRangeInput({
   if (isArray(value) && value[0].isValid() && value[1].isValid()) {
     additionalAttributes.defaultValue = value;
   }
+  const currentValueRef = useRef(additionalAttributes.defaultValue);
   return (
     <RangePicker
+      className={className}
       showTime
       {...additionalAttributes}
       format={format}
-      onChange={onSelect}
+      onChange={(newValue) => { currentValueRef.current = newValue; }}
+      onOpenChange={(status) => {
+        const currentValue = currentValueRef.current;
+        if (!status) { // on close picker
+          if (isArray(currentValue) && currentValue[0].isValid() && currentValue[1].isValid()) {
+            onSelect(currentValue);
+          }
+        }
+      }}
     />
   );
 }
 
 DateTimeRangeInput.propTypes = {
-  value: (props, propName, componentName) => {
-    const value = props[propName];
-    if (
-      (value !== null) && !(
-        isArray(value) && (value.length === 2) &&
-        moment.isMoment(value[0]) && moment.isMoment(value[1])
-      )
-    ) {
-      return new Error('Prop `' + propName + '` supplied to `' + componentName +
-        '` should be an array of two Moment.js instances.');
-    }
-  },
+  value: PropTypes.arrayOf(Moment),
   withSeconds: PropTypes.bool,
   onSelect: PropTypes.func,
+  className: PropTypes.string,
 };
 
 DateTimeRangeInput.defaultProps = {
   value: null,
   withSeconds: false,
   onSelect: () => {},
+  className: '',
 };
 
 export default function init(ngModule) {
-  ngModule.component('dateTimeRangeInput', react2angular(DateTimeRangeInput, null, ['clientConfig']));
+  ngModule.component('dateTimeRangeInput', react2angular(DateTimeRangeInput));
 }
 
 init.init = true;
-
