@@ -68,7 +68,7 @@ describe('Dashboard', () => {
     cy.server();
     cy.route('POST', 'api/dashboards').as('NewDashboard');
 
-    cy.getByTestId('EditDashboardDialog').within(() => {
+    cy.getByTestId('CreateDashboardDialog').within(() => {
       cy.getByTestId('DashboardSaveButton').should('be.disabled');
       cy.get('input').type('Foo Bar');
       cy.getByTestId('DashboardSaveButton').click();

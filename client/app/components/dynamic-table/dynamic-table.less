@@ -1,6 +1,13 @@
 .dynamic-table-container {
   overflow-x: auto;
 
+  // remove when fix lands
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=914844#c36
+  body[data-platform^="Mac"] & {
+    padding-bottom: 10px; // workaround for Mac browser's scrollbar obscuring content
+    margin-bottom: -10px; // compensation for above
+  }
+
   th {
     white-space: nowrap;
     span {

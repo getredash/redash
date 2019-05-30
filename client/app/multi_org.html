@@ -5,25 +5,14 @@
     <meta charset="UTF-8">
     <base href="{{base_href}}">
     <title>Redash</title>
-    <script>
-      function onIE() {
-        window.location.href = '/static/unsupported';
-      }
-      if (
-        navigator.userAgent.match('MSIE') || // IE10
-        navigator.appVersion.match('Trident/') // IE11
-      ){
-        onIE();
-      }
-    </script>
-    <!--[if IE]><script>onIE()</script><![endif]-->
+    <script src="/static/unsupportedRedirect.js" async></script>
 
     <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
   </head>
 
-  <body ng-class="bodyClass">
+  <body ng-class="bodyClass" ng-attr-data-platform="{{platform}}">
     <section>
       <app-view></app-view>
       <div class="loading-indicator">

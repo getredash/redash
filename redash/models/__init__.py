@@ -1,12 +1,9 @@
-import cStringIO
-import csv
 import datetime
 import calendar
 import logging
 import time
 import pytz
 
-import xlsxwriter
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
@@ -25,7 +22,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
-                                 get_query_runner)
+                                 get_query_runner, TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
 from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
@@ -321,41 +318,6 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     @property
     def groups(self):
         return self.data_source.groups
-
-    def make_csv_content(self):
-        s = cStringIO.StringIO()
-
-        query_data = json_loads(self.data)
-        writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
-        writer.writer = utils.UnicodeWriter(s)
-        writer.writeheader()
-        for row in query_data['rows']:
-            writer.writerow(row)
-
-        return s.getvalue()
-
-    def make_excel_content(self):
-        s = cStringIO.StringIO()
-
-        query_data = json_loads(self.data)
-        book = xlsxwriter.Workbook(s, {'constant_memory': True})
-        sheet = book.add_worksheet("result")
-
-        column_names = []
-        for (c, col) in enumerate(query_data['columns']):
-            sheet.write(0, c, col['name'])
-            column_names.append(col['name'])
-
-        for (r, row) in enumerate(query_data['rows']):
-            for (c, name) in enumerate(column_names):
-                v = row.get(name)
-                if isinstance(v, list) or isinstance(v, dict):
-                    v = str(v).encode('utf-8')
-                sheet.write(r + 1, c, v)
-
-        book.close()
-
-        return s.getvalue()
 
 
 def should_schedule_next(previous_iteration, now, interval, time=None, day_of_week=None, failures=0):
