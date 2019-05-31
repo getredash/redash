@@ -1,9 +1,8 @@
 <div>
   <ul class="tab-nav">
     <li ng-class="{active: $ctrl.currentTab == 'general'}"><a ng-click="$ctrl.setCurrentTab('general')">General</a></li>
-    <li ng-class="{active: $ctrl.currentTab == 'design'}"><a ng-click="$ctrl.setCurrentTab('design')">Design</a></li>
     <li ng-class="{active: $ctrl.currentTab == 'groups'}"><a ng-click="$ctrl.setCurrentTab('groups')">Groups</a></li>
-    <li ng-class="{active: $ctrl.currentTab == 'map'}"><a ng-click="$ctrl.setCurrentTab('map')">Map Settings</a></li>
+    <li ng-class="{active: $ctrl.currentTab == 'style'}"><a ng-click="$ctrl.setCurrentTab('style')">Style</a></li>
   </ul>
 
   <div ng-show="$ctrl.currentTab == 'general'" class="m-t-10 m-b-10">
@@ -41,13 +40,48 @@
     </div>
   </div>
 
-  <div ng-show="$ctrl.currentTab == 'design'" class="m-b-10">
+  <div ng-show="$ctrl.currentTab == 'groups'" class="m-b-10">
+    <table class="table table-condensed col-table">
+      <thead>
+      <th>Name</th>
+      <th>Color</th>
+      </thead>
+      <tbody>
+      <tr ng-repeat="(name, options) in $ctrl.options.groups">
+        <td>{{name}}</td>
+        <td>
+          <input class="form-control" type="color" ng-model="options.color"/>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div ng-show="$ctrl.currentTab == 'style'" class="m-t-10 m-b-10">
+    <h4>Tile</h4>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="$ctrl.options.clusterMarkers">
+        <i class="input-helper"></i> Cluster Markers
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">Map Tiles</label>
+      <select ng-options="tile.url as tile.name for tile in $ctrl.mapTiles"
+        ng-model="$ctrl.options.mapTileUrl" class="form-control"></select>
+    </div>
+
+    <h4>Marker</h4>
+
     <div class="checkbox">
       <label>
         <input type="checkbox" ng-model="$ctrl.options.customizeMarkers">
         <i class="input-helper"></i> Customize Markers
       </label>
     </div>
+
     <div class="row">
       <div class="col-xs-6">
         <div class="form-group">
@@ -63,6 +97,7 @@
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-xs-6">
         <div class="form-group">
@@ -93,6 +128,7 @@
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-xs-6">
         <div class="form-group">
@@ -110,37 +146,4 @@
       </div>
     </div>
   </div>
-
-  <div ng-show="$ctrl.currentTab == 'groups'" class="m-b-10">
-    <table class="table table-condensed col-table">
-      <thead>
-      <th>Name</th>
-      <th>Color</th>
-      </thead>
-      <tbody>
-      <tr ng-repeat="(name, options) in $ctrl.options.groups">
-        <td>{{name}}</td>
-        <td>
-          <input class="form-control" type="color" ng-model="options.color"/>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div ng-show="$ctrl.currentTab == 'map'" class="m-t-10 m-b-10">
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" ng-model="$ctrl.options.clusterMarkers">
-        <i class="input-helper"></i> Cluster Markers
-      </label>
-    </div>
-
-    <div class="form-group">
-      <label class="control-label">Map Tiles</label>
-      <select ng-options="tile.url as tile.name for tile in $ctrl.mapTiles"
-        ng-model="$ctrl.options.mapTileUrl" class="form-control"></select>
-    </div>
-  </div>
-
 </div>
