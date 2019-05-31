@@ -78,7 +78,7 @@
     <div class="checkbox">
       <label>
         <input type="checkbox" ng-model="$ctrl.options.customizeMarkers">
-        <i class="input-helper"></i> Customize Markers
+        <i class="input-helper"></i>Override default style
       </label>
     </div>
 
@@ -87,13 +87,15 @@
         <div class="form-group">
           <label>Shape</label>
           <select ng-options="key as value for (key, value) in $ctrl.iconShapes"
-            ng-model="$ctrl.options.iconShape" class="form-control"></select>
+            ng-model="$ctrl.options.iconShape" class="form-control"
+            ng-disabled="!$ctrl.options.customizeMarkers"></select>
         </div>
       </div>
       <div class="col-xs-6">
         <div class="form-group">
           <label>Icon Font</label>
-          <input ng-model="$ctrl.options.iconFont" type="text" class="form-control"></select>
+          <input ng-model="$ctrl.options.iconFont" type="text" class="form-control"
+            ng-disabled="!$ctrl.options.customizeMarkers"></select>
         </div>
       </div>
     </div>
@@ -102,7 +104,8 @@
       <div class="col-xs-6">
         <div class="form-group">
           <label class="control-label">Foreground Color</label>
-          <ui-select ng-model="$ctrl.options.foregroundColor">
+          <ui-select ng-model="$ctrl.options.foregroundColor"
+            ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
             </ui-select-match>
@@ -116,7 +119,8 @@
       <div class="col-xs-6">
         <div class="form-group">
           <label class="control-label">Background Color</label>
-          <ui-select ng-model="$ctrl.options.backgroundColor">
+          <ui-select ng-model="$ctrl.options.backgroundColor"
+            ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
             </ui-select-match>
@@ -133,7 +137,8 @@
       <div class="col-xs-6">
         <div class="form-group">
           <label class="control-label">Border Color</label>
-          <ui-select ng-model="$ctrl.options.borderColor">
+          <ui-select ng-model="$ctrl.options.borderColor"
+            ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
             </ui-select-match>
