@@ -13,11 +13,11 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
     def setUp(self):
         super(TestSendAggregatedErrorsTask, self).setUp()
         redis_connection.flushall()
-        settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = True
+        settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = True
 
     def tearDown(self):
         super(TestSendAggregatedErrorsTask, self).tearDown()
-        settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = False
+        settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = False
 
     def notify(self, message="Oh no, I failed!", query=None, **kwargs):
         if query is None:

@@ -212,7 +212,6 @@ def email_server_is_configured():
 
 HOST = os.environ.get('REDASH_HOST', '')
 
-SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
 SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 3600))
 MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 100))
 

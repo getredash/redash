@@ -30,6 +30,7 @@ JWT_AUTH_COOKIE_NAME = os.environ.get("REDASH_JWT_AUTH_COOKIE_NAME", "")
 JWT_AUTH_HEADER_NAME = os.environ.get("REDASH_JWT_AUTH_HEADER_NAME", "")
 
 FEATURE_SHOW_PERMISSIONS_CONTROL = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_PERMISSIONS_CONTROL", "false"))
+SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
 
 settings = {
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
@@ -49,4 +50,5 @@ settings = {
     "auth_jwt_auth_cookie_name": JWT_AUTH_COOKIE_NAME,
     "auth_jwt_auth_header_name": JWT_AUTH_HEADER_NAME,
     "feature_show_permissions_control": FEATURE_SHOW_PERMISSIONS_CONTROL,
+    "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES
 }

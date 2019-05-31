@@ -38,7 +38,7 @@ def send_aggregated_errors(email_address):
 
 
 def notify_of_failure(message, query):
-    if not settings.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
+    if not settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
         return
 
     if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
