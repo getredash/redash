@@ -93,7 +93,12 @@
       </div>
       <div class="col-xs-6">
         <div class="form-group">
-          <label>Icon Font</label>
+          <label>Icon Font
+            <span class="m-1-5" uib-popover-html="'Available <a href=&quot;https://fontawesome.com/v4.7.0/icons/&quot; target=&quot;_blank&quot;>icons.</a>'"
+              popover-trigger="'click outsideClick'">
+              <i class="fa fa-question-circle"></i>
+            </span>
+          </label>
           <input ng-model="$ctrl.options.iconFont" type="text" class="form-control"
             ng-disabled="!$ctrl.options.customizeMarkers"></select>
         </div>
