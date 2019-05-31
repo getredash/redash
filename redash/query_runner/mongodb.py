@@ -250,7 +250,6 @@ class MongoDB(BaseQueryRunner):
 
                     step["$sort"] = SON(sort_list)
 
-
         if "fields" in query_data:
             f = query_data["fields"]
 
