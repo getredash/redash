@@ -93,7 +93,7 @@ const DEFAULT_OPTIONS = {
   clusterMarkers: true,
   iconShape: 'marker',
   iconFont: 'circle',
-  textColor: '#ffffff',
+  foregroundColor: '#ffffff',
   backgroundColor: '#356AFF',
   borderColor: '#356AFF',
 };
@@ -254,7 +254,7 @@ const MapRenderer = {
               iconSize: this.options.iconShape === 'rectangle' ? [22, 22] : false,
               iconAnchor: iconAnchors[this.options.iconShape],
               prefix: 'fa',
-              textColor: this.options.textColor,
+              textColor: this.options.foregroundColor,
               backgroundColor: this.options.backgroundColor,
               borderColor: this.options.borderColor,
             });
