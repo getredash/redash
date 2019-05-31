@@ -113,6 +113,7 @@
             ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
             </ui-select-match>
             <ui-select-choices repeat="color.value as (key, color) in $ctrl.colors">
               <color-box color="color.value"></color-box>
@@ -128,6 +129,7 @@
             ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
             </ui-select-match>
             <ui-select-choices repeat="color.value as (key, color) in $ctrl.colors">
               <color-box color="color.value"></color-box>
@@ -146,6 +148,7 @@
             ng-disabled="!$ctrl.options.customizeMarkers">
             <ui-select-match>
               <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
             </ui-select-match>
             <ui-select-choices repeat="color.value as (key, color) in $ctrl.colors">
               <color-box color="color.value"></color-box>
