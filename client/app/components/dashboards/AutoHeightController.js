@@ -65,8 +65,15 @@ export default class AutoHeightController {
   };
 
   remove = (id) => {
+    id = id.toString();
+
+    // ignore if not an active autoHeight widget
+    if (!this.widgets[id]) {
+      return;
+    }
+
     // not actually deleting from this.widgets to prevent case of unwanted re-adding
-    this.widgets[id.toString()] = false;
+    this.widgets[id] = false;
 
     if (this.isEmpty()) {
       this.stop();
@@ -78,14 +85,17 @@ export default class AutoHeightController {
   isEmpty = () => !some(this.widgets);
 
   checkHeightChanges = () => {
-    Object.keys(this.widgets).forEach((id) => {
-      const [getHeight, prevHeight] = this.widgets[id];
-      const height = getHeight();
-      if (height && height !== prevHeight) {
-        this.widgets[id][1] = height; // save
-        this.onHeightChange(id, height); // dispatch
-      }
-    });
+    Object
+      .keys(this.widgets)
+      .filter(id => !!this.widgets[id]) // filter already removed items
+      .forEach((id) => {
+        const [getHeight, prevHeight] = this.widgets[id];
+        const height = getHeight();
+        if (height && height !== prevHeight) {
+          this.widgets[id][1] = height; // save
+          this.onHeightChange(id, height); // dispatch
+        }
+      });
   };
 
   start = () => {
