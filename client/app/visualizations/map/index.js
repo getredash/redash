@@ -79,6 +79,15 @@ const MAP_TILES = [
   },
 ];
 
+const iconAnchors = {
+  marker: [14, 32],
+  circle: [10, 10],
+  rectangle: [11, 11],
+  'circle-dot': [1, 2],
+  'rectangle-dot': [1, 2],
+  doughnut: [8, 8],
+};
+
 const DEFAULT_OPTIONS = {
   classify: 'none',
   clusterMarkers: true,
@@ -242,6 +251,8 @@ const MapRenderer = {
             const icon = L.BeautifyIcon.icon({
               iconShape: this.options.iconShape,
               icon: this.options.iconFont,
+              iconSize: this.options.iconShape === 'rectangle' ? [22, 22] : false,
+              iconAnchor: iconAnchors[this.options.iconShape],
               prefix: 'fa',
               textColor: this.options.textColor,
               backgroundColor: this.options.backgroundColor,
@@ -331,8 +342,9 @@ const MapEditor = {
 
     this.iconShapes = {
       marker: 'Marker',
-      'circle-dot': 'Circle Dot',
+      circle: 'Circle',
       rectangle: 'Rectangle',
+      'circle-dot': 'Circle Dot',
       'rectangle-dot': 'Rectangle Dot',
       doughnut: 'Doughnut',
     };
