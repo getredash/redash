@@ -120,6 +120,7 @@ describe('Parameter', () => {
         ParameterSettings-test-parameter
         ParameterTypeSelect
         DateParameterTypeOption
+        UseCurrentDateTimeCheckbox
         SaveParameterSettings 
       `);
 
@@ -159,6 +160,7 @@ describe('Parameter', () => {
         ParameterSettings-test-parameter
         ParameterTypeSelect
         DateTimeParameterTypeOption
+        UseCurrentDateTimeCheckbox
         SaveParameterSettings
       `);
 
