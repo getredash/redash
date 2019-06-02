@@ -14,7 +14,7 @@ from statsd import StatsClient
 from . import settings
 from .app import create_app  # noqa
 
-__version__ = '8.0.0-beta'
+__version__ = '7.0.0'
 
 
 if os.environ.get("REMOTE_DEBUG"):
