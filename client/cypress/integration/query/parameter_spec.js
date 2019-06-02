@@ -120,14 +120,12 @@ describe('Parameter', () => {
         ParameterSettings-test-parameter
         ParameterTypeSelect
         DateParameterTypeOption
+        UseCurrentDateTimeCheckbox
         SaveParameterSettings 
       `);
 
       const now = new Date(2019, 0, 1).getTime(); // January 1, 2019 timestamp
       cy.clock(now);
-
-      // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
     });
 
     afterEach(() => {
