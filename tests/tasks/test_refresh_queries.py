@@ -1,7 +1,7 @@
 import datetime
 from mock import patch, call, ANY
 from tests import BaseTestCase
-from redash.tasks import refresh_queries
+from redash.tasks import refresh_queries, empty_schedules
 from redash.models import Query
 from redash.utils import utcnow
 
@@ -16,7 +16,7 @@ class TestRefreshQuery(BaseTestCase):
         query2 = self.factory.create_query(
             query_text="select 42;",
             data_source=self.factory.create_data_source())
-        oq = staticmethod(lambda: ([query1, query2], []))
+        oq = staticmethod(lambda: [query1, query2])
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock, \
                 patch.object(Query, 'outdated_queries', oq):
             refresh_queries()
@@ -33,7 +33,7 @@ class TestRefreshQuery(BaseTestCase):
         data source is paused.
         """
         query = self.factory.create_query()
-        oq = staticmethod(lambda: ([query], []))
+        oq = staticmethod(lambda: [query])
         query.data_source.pause()
         with patch.object(Query, 'outdated_queries', oq):
             with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
@@ -60,7 +60,7 @@ class TestRefreshQuery(BaseTestCase):
                 "name": "n",
                 "value": "42",
                 "title": "n"}]})
-        oq = staticmethod(lambda: ([query], []))
+        oq = staticmethod(lambda: [query])
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock, \
                 patch.object(Query, 'outdated_queries', oq):
             refresh_queries()
@@ -68,19 +68,10 @@ class TestRefreshQuery(BaseTestCase):
                 "select 42", query.data_source, query.user_id,
                 scheduled_query=query, metadata=ANY)
 
-    def test_with_schedule_until(self):
+    def test_empty_schedules(self):
         one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        query1 = self.factory.create_query(
-            query_text="select 42;",
-            data_source=self.factory.create_data_source())
-        query2 = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
-        oq = staticmethod(lambda: ([query1], [query2]))
-        with patch('redash.tasks.queries.enqueue_query') as add_job_mock, \
-                patch.object(Query, 'outdated_queries', oq), \
-                patch('redash.tasks.queries.empty_schedules.apply_async') as empty_schedules_mock :
-            refresh_queries()
-            self.assertEqual(add_job_mock.call_count, 1)
-            add_job_mock.assert_has_calls([
-                call(query1.query_text, query1.data_source, query1.user_id,
-                     scheduled_query=query1, metadata=ANY)], any_order=True)
-            empty_schedules_mock.assert_has_calls([call(args=([query2],))], any_order=True)
+        query = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
+        oq = staticmethod(lambda: [query])
+        with patch.object(Query, 'past_scheduled_queries', oq):
+            empty_schedules()
+            self.assertEqual(query.schedule, None)

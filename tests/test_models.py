@@ -138,7 +138,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query = self.factory.create_query(schedule={'interval':None, 'time': None, 'until':None, 'day_of_week':None})
         query_with_none = self.factory.create_query(schedule=None)
 
-        queries = models.Query.outdated_queries()[0]
+        queries = models.Query.outdated_queries()
 
         self.assertNotIn(query, queries)
         self.assertNotIn(query_with_none, queries)
@@ -149,7 +149,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
-        queries = models.Query.outdated_queries()[0]
+        queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
 
     def test_outdated_queries_works_scheduled_queries_tracker(self):
@@ -160,7 +160,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         models.scheduled_queries_executions.update(query.id)
 
-        queries = models.Query.outdated_queries()[0]
+        queries = models.Query.outdated_queries()
         self.assertNotIn(query, queries)
 
     def test_skips_fresh_queries(self):
@@ -169,7 +169,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago)
         query.latest_query_data = query_result
 
-        queries = models.Query.outdated_queries()[0]
+        queries = models.Query.outdated_queries()
         self.assertNotIn(query, queries)
 
     def test_outdated_queries_works_with_specific_time_schedule(self):
@@ -178,7 +178,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago - datetime.timedelta(days=1))
         query.latest_query_data = query_result
 
-        queries = models.Query.outdated_queries()[0]
+        queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
 
     def test_enqueues_query_only_once(self):
@@ -197,7 +197,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query.latest_query_data = query_result
         query2.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()[0]), [query2])
+        self.assertEqual(list(models.Query.outdated_queries()), [query2])
 
     def test_enqueues_query_with_correct_data_source(self):
         """
@@ -216,7 +216,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query.latest_query_data = query_result
         query2.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()[0]),
+        self.assertEqual(list(models.Query.outdated_queries()),
                          [query2, query])
 
     def test_enqueues_only_for_relevant_data_source(self):
@@ -235,7 +235,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query.latest_query_data = query_result
         query2.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()[0]), [query])
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
 
     def test_failure_extends_schedule(self):
         """
@@ -249,10 +249,10 @@ class QueryOutdatedQueriesTest(BaseTestCase):
             query_hash=query.query_hash)
         query.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()[0]), [])
+        self.assertEqual(list(models.Query.outdated_queries()), [])
 
         query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=17)
-        self.assertEqual(list(models.Query.outdated_queries()[0]), [query])
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
 
     def test_schedule_until_after(self):
         """
@@ -265,9 +265,8 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
-        queries, past_scheduled_queries = models.Query.outdated_queries()
+        queries = models.Query.outdated_queries()
         self.assertNotIn(query, queries)
-        self.assertIn(query, past_scheduled_queries)
 
     def test_schedule_until_before(self):
         """
@@ -280,8 +279,22 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
-        queries, _ = models.Query.outdated_queries()
+        queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
+
+    def test_past_scheduled_queries(self):
+        """
+        Queries with non-null ``schedule['until']`` are reported by
+        Query.past_scheduled_queries() before the given time is past.
+        """
+        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule={'interval':'3600', 'until':one_day_ago, 'time': None, 'day_of_week':None})
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        queries = models.Query.past_scheduled_queries()
+        self.assertIn(query, queries)      
 
 
 class QueryArchiveTest(BaseTestCase):
@@ -302,12 +315,12 @@ class QueryArchiveTest(BaseTestCase):
         query.latest_query_data = query_result
         groups = list(models.Group.query.filter(models.Group.id.in_(query.groups)))
         self.assertIn(query, list(models.Query.all_queries([g.id for g in groups])))
-        self.assertIn(query, models.Query.outdated_queries()[0])
+        self.assertIn(query, models.Query.outdated_queries())
         db.session.flush()
         query.archive()
 
         self.assertNotIn(query, list(models.Query.all_queries([g.id for g in groups])))
-        self.assertNotIn(query, models.Query.outdated_queries()[0])
+        self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
         widget = self.factory.create_widget()
