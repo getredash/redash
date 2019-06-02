@@ -47,10 +47,7 @@ def load_user(user_id_with_identity):
 
     try:
         user = models.User.get_by_id_and_org(user_id, org)
-        if user.is_disabled:
-            return None
-
-        if user.get_id() != user_id_with_identity:
+        if user.is_disabled or user.get_id() != user_id_with_identity:
             return None
 
         return user
