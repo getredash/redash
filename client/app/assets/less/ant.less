@@ -33,6 +33,7 @@
 @import "~antd/lib/spin/style/index";
 @import "~antd/lib/tabs/style/index";
 @import "~antd/lib/notification/style/index";
+@import "~antd/lib/collapse/style/index";
 @import "~antd/lib/progress/style/index";
 @import 'inc/ant-variables';
 
@@ -321,4 +322,26 @@
 
 .@{btn-prefix-cls} .@{iconfont-css-prefix}-ellipsis {
   margin: 0 -7px;
+}
+
+// Collapse
+
+.@{collapse-prefix-cls} {
+  &&-headerless {
+    border: 0;
+    background: none;
+
+    .@{collapse-prefix-cls}-header {
+      display: none;
+    }
+
+    .@{collapse-prefix-cls}-item,
+    .@{collapse-prefix-cls}-content {
+      border: 0;
+    }
+
+    .@{collapse-prefix-cls}-content-box {
+      padding: 0;
+    }
+  }
 }
