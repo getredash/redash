@@ -43,15 +43,14 @@ def sign(key, path, expires):
 def load_user(user_id_with_identity):
     org = current_org._get_current_object()
 
-    user_id, _ = user_id_with_identity.split("-")
-
     try:
+        user_id, _ = user_id_with_identity.split("-")
         user = models.User.get_by_id_and_org(user_id, org)
         if user.is_disabled or user.get_id() != user_id_with_identity:
             return None
 
         return user
-    except models.NoResultFound:
+    except (models.NoResultFound, Exception):
         return None
 
 
