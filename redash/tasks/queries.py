@@ -175,8 +175,7 @@ def refresh_queries():
     query_ids = []
 
     with statsd_client.timer('manager.outdated_queries_lookup'):
-        queries = models.Query.outdated_queries()
-        for query in queries:
+        for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:

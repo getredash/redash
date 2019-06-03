@@ -1,9 +1,8 @@
 import datetime
 from mock import patch, call, ANY
 from tests import BaseTestCase
-from redash.tasks import refresh_queries, empty_schedules
+from redash.tasks import refresh_queries
 from redash.models import Query
-from redash.utils import utcnow
 
 
 class TestRefreshQuery(BaseTestCase):
