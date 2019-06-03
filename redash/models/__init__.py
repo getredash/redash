@@ -16,7 +16,6 @@ from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
-from sqlalchemy import cast, DATE
 
 from redash import redis_connection, utils, settings
 from redash.destinations import (get_configuration_schema_for_destination_type,
