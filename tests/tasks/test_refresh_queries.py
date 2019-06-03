@@ -67,11 +67,3 @@ class TestRefreshQuery(BaseTestCase):
             add_job_mock.assert_called_with(
                 "select 42", query.data_source, query.user_id,
                 scheduled_query=query, metadata=ANY)
-
-    def test_empty_schedules(self):
-        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        query = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
-        oq = staticmethod(lambda: [query])
-        with patch.object(Query, 'past_scheduled_queries', oq):
-            empty_schedules()
-            self.assertEqual(query.schedule, None)

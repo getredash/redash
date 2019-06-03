@@ -16,6 +16,7 @@ from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
+from sqlalchemy import cast, DATE
 
 from redash import redis_connection, utils, settings
 from redash.destinations import (get_configuration_schema_for_destination_type,
@@ -522,7 +523,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         now = utils.utcnow()
         queries = (
             Query.query
-            .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
         )
