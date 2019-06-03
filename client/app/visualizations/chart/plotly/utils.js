@@ -30,35 +30,44 @@ function defaultFormatSeriesTextForPie(item) {
   return item['@@yPercent'] + ' (' + item['@@y'] + ')';
 }
 
+/**
+ * Make sure font color contrasts with background color
+ *
+ * @param {string} bgcolor - background color hex value (either three or six characters)
+ * @returns {string} -font color to with highest contrast from background color
+ */
 function getFontColor(bgcolor) {
-  let result = '#333333';
+  let fontColor = '#333333';
   if (isString(bgcolor)) {
     let matches = /#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(bgcolor);
     let r;
     let g;
     let b;
+
     if (matches) {
       r = parseInt(matches[1], 16);
       g = parseInt(matches[2], 16);
       b = parseInt(matches[3], 16);
     } else {
       matches = /#?([0-9a-f])([0-9a-f])([0-9a-f])/i.exec(bgcolor);
+
       if (matches) {
         r = parseInt(matches[1] + matches[1], 16);
         g = parseInt(matches[2] + matches[2], 16);
         b = parseInt(matches[3] + matches[3], 16);
       } else {
-        return result;
+        return fontColor;
       }
     }
 
     const lightness = r * 0.299 + g * 0.587 + b * 0.114;
+
     if (lightness < 170) {
-      result = '#ffffff';
+      fontColor = '#ffffff';
     }
   }
 
-  return result;
+  return fontColor;
 }
 
 function getPieHoverInfoPattern(options) {
