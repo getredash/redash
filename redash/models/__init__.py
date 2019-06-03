@@ -525,12 +525,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
         )
-        queries = filter(lambda x: x.schedule["until"] is not None, queries)
-        return filter( \
-                lambda x: \
-                    x.schedule["until"] is not None and pytz.utc.localize( \
-                        datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d') \
-                    ) <= now, \
+        return filter(
+                lambda x:
+                x.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+                ) <= now,
                 queries
                 )
 
