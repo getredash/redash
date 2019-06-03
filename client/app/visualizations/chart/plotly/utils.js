@@ -214,6 +214,44 @@ function getUnifiedXAxisValues(seriesList, sorted) {
   return sorted ? sortBy(result, identity) : result;
 }
 
+function preparePieSourceData(serie, options) {
+  const sourceData = new Map();
+
+  const seriesTotal = reduce(serie.data, (result, row) => {
+    const y = cleanNumber(row.y);
+    return result + Math.abs(y);
+  }, 0);
+
+  each(serie.data, (row) => {
+    const x = normalizeValue(row.x);
+    const y = cleanNumber(row.y);
+
+    sourceData.set(x, {
+      x,
+      y,
+      yPercent: y / seriesTotal * 100,
+      raw: extend({}, row.$raw, {
+        // use custom display format - see also `updateSeriesText`
+        '@@x': normalizeValue(row.x, options.xAxis.type, options.dateTimeFormat),
+      }),
+    });
+  });
+
+  return sourceData;
+}
+
+function preparePieValuesColors(options) {
+  const valuesColors = {};
+
+  each(options.valuesOptions, (item, key) => {
+    if (isString(item.color) && (item.color !== '')) {
+      valuesColors[key] = item.color;
+    }
+  });
+
+  return valuesColors;
+}
+
 function preparePieData(seriesList, options) {
   const {
     cellWidth, cellHeight, xPadding, yPadding, cellsInRow,
@@ -237,35 +275,13 @@ function preparePieData(seriesList, options) {
 
   // we will use this to assign colors for values that have not explicitly set color
   const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
-  const valuesColors = {};
-  each(options.valuesOptions, (item, key) => {
-    if (isString(item.color) && (item.color !== '')) {
-      valuesColors[key] = item.color;
-    }
-  });
+  const valuesColors = preparePieValuesColors(options);
 
   return map(seriesList, (serie, index) => {
     const xPosition = (index % cellsInRow) * cellWidth;
     const yPosition = Math.floor(index / cellsInRow) * cellHeight;
 
-    const sourceData = new Map();
-    const seriesTotal = reduce(serie.data, (result, row) => {
-      const y = cleanNumber(row.y);
-      return result + Math.abs(y);
-    }, 0);
-    each(serie.data, (row) => {
-      const x = normalizeValue(row.x);
-      const y = cleanNumber(row.y);
-      sourceData.set(x, {
-        x,
-        y,
-        yPercent: y / seriesTotal * 100,
-        raw: extend({}, row.$raw, {
-          // use custom display format - see also `updateSeriesText`
-          '@@x': normalizeValue(row.x, options.xAxis.type, options.dateTimeFormat),
-        }),
-      });
-    });
+    const sourceData = preparePieSourceData(serie, options);
 
     return {
       values: map(serie.data, i => i.y),
