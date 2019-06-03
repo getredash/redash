@@ -6,6 +6,8 @@ export default class PromiseRejectionError extends Error {
         message = "It seems like the page you're looking for cannot be found.";
       } else if (rejection.status === 403 || rejection.status === 401) {
         message = 'It seems like you don’t have permission to see this page.';
+      } else if (rejection.data && rejection.data.error) {
+        message = rejection.data.error;
       }
     }
 
