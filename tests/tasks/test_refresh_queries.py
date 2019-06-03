@@ -1,4 +1,3 @@
-import datetime
 from mock import patch, call, ANY
 from tests import BaseTestCase
 from redash.tasks import refresh_queries
