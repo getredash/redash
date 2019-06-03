@@ -50,7 +50,7 @@ def load_user(user_id_with_identity):
             return None
 
         return user
-    except (models.NoResultFound, Exception):
+    except (models.NoResultFound, ValueError, AttributeError):
         return None
 
 
