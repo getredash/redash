@@ -1,4 +1,3 @@
-import datetime
 from unittest import TestCase
 from collections import namedtuple
 import uuid
@@ -9,7 +8,6 @@ from tests import BaseTestCase
 from redash import redis_connection, models
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks.queries import QueryExecutionError, enqueue_query, execute_query
-from redash.utils import utcnow
 
 
 FakeResult = namedtuple('FakeResult', 'id')
@@ -126,15 +124,3 @@ class QueryExecutorTests(BaseTestCase):
                           scheduled_query_id=q.id)
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
-
-    def test_past_scheduled_queries(self):
-        query = self.factory.create_query()
-        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        one_day_later = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        query1 = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
-        query2 = self.factory.create_query(schedule={'interval':'3600','until':one_day_later})
-        oq = staticmethod(lambda: [query1, query2])
-        with mock.patch.object(query.query.filter(), 'order_by', oq):
-            res = query.past_scheduled_queries()
-            self.assertTrue(query1 in res)
-            self.assertFalse(query2 in res)
