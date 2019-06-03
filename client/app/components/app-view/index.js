@@ -37,10 +37,6 @@ class AppViewComponent {
     this.layout = layouts.defaultSignedOut;
     this.handler = handler;
 
-    // remove when fix lands
-    // https://bugs.chromium.org/p/chromium/issues/detail?id=914844#c36
-    $rootScope.platform = navigator.platform;
-
     $rootScope.$on('$routeChangeStart', (event, route) => {
       this.handler.reset();
 
