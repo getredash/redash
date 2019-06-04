@@ -177,6 +177,7 @@ function EditParameterSettingsDialog(props) {
             <Checkbox
               defaultChecked={param.useCurrentDateTime}
               onChange={e => setParam({ ...param, useCurrentDateTime: e.target.checked })}
+              data-test="UseCurrentDateTimeCheckbox"
             >
               Default to Today/Now if no other value is set
             </Checkbox>
