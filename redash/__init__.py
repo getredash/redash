@@ -50,9 +50,6 @@ def create_redis_connection():
     else:
         use_ssl = redis_url.scheme == 'rediss'
 
-        if redis_url.scheme == 'rediss':
-            use_ssl = True
-
         if redis_url.path:
             redis_db = redis_url.path[1]
         else:
