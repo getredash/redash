@@ -1,5 +1,6 @@
 import os
 import importlib
+import ssl
 from funcy import distinct, remove
 from flask_talisman import talisman
 
@@ -30,6 +31,12 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_RESULT_EXPIRES = int(os.environ.get(
     "REDASH_CELERY_RESULT_EXPIRES",
     os.environ.get("REDASH_CELERY_TASK_RESULT_EXPIRES", 3600 * 4)))
+CELERY_SSL_CONFIG = {
+    'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL if CELERY_BROKER.startswith('rediss') else ssl.CERT_NONE)),
+    'ssl_ca_certs': os.environ.get("REDASH_CELERY_BROKER_SSL_CA_CERTS"),
+    'ssl_certfile': os.environ.get("REDASH_CELERY_BROKER_SSL_CERTFILE"),
+    'ssl_keyfilefile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
+}
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
