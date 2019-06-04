@@ -48,7 +48,7 @@ def create_redis_connection():
 
         client = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
     else:
-        use_ssl = False
+        use_ssl = redis_url.scheme == 'rediss'
 
         if redis_url.scheme == 'rediss':
             use_ssl = True
