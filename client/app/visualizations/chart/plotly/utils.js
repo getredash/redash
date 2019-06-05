@@ -536,7 +536,7 @@ export function prepareData(seriesList, options) {
  * @param {*} layout - Plotly declarative layout object
  * @param {*} options - options specified via Redash UI
  * @param {*} seriesList - list of Plotly series objects
- * @returns - modified Plotly layout object
+ * @returns modified Plotly layout object
  */
 function preparePieChartAnnotations(layout, options, seriesList) {
   const {
@@ -598,42 +598,61 @@ function prepareXAxis(layout, options) {
   return layout;
 }
 
-function prepareYAxis(layout, options, seriesList, data) {
-  // y-axis
-  if (isArray(options.yAxis)) {
-    layout.yaxis = {
-      title: getTitle(options.yAxis[0]),
-      type: getScaleType(options.yAxis[0].type),
-      automargin: true,
-    };
+/**
+ * Prepare title, scale, margin, and range for given axis.
+ *
+ * @param {*} yAxisOptions - configuration options passed in via UI
+ * @param {*} data - data for the given axis
+ * @returns configuration object for given axis
+ */
+function prepareYAxis(yAxisOptions, data) {
+  const yAxis = {
+    title: getTitle(yAxisOptions),
+    type: getScaleType(yAxisOptions.type),
+    automargin: true,
+  };
 
-    if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
-      layout.yaxis.range = calculateAxisRange(
-        data.filter(s => !s.yaxis !== 'y2'),
-        options.yAxis[0].rangeMin,
-        options.yAxis[0].rangeMax,
-      );
-    }
+  if (isNumber(yAxisOptions.rangeMin) || isNumber(yAxisOptions.rangeMax)) {
+    yAxis.range = calculateAxisRange(
+      data,
+      yAxisOptions.rangeMin,
+      yAxisOptions.rangeMax,
+    );
   }
 
+  return yAxis;
+}
+
+/**
+ * Configure one or both chart axes
+ *
+ * @param {*} layout - Plotly declarative layout object
+ * @param {*} options - options specified via Redash UI
+ * @param {*} seriesList - list of Plotly series objects
+ * @param {*} data - chart data
+ * @returns layout configuration for one or more y-axes
+ */
+function prepareYAxes(layout, options, seriesList, data) {
+  // y-axis
+  if (isArray(options.yAxis)) {
+    const yAxisOptions = options.yAxis[0];
+    const yAxisData = data.filter(s => !s.yaxis !== 'y2');
+
+    layout.yaxis = prepareYAxis(yAxisOptions, yAxisData);
+  }
+
+  // y-axis 2
   const { hasY2 } = checkAxesExist(seriesList, options);
 
   if (hasY2 && !isUndefined(options.yAxis)) {
-    layout.yaxis2 = {
-      title: getTitle(options.yAxis[1]),
-      type: getScaleType(options.yAxis[1].type),
-      overlaying: 'y',
-      side: 'right',
-      automargin: true,
-    };
+    const yAxisOptions2 = options.yAxis[1];
+    const yAxisData = data.filter(s => s.yaxis === 'y2');
 
-    if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
-      layout.yaxis2.range = calculateAxisRange(
-        data.filter(s => s.yaxis === 'y2'),
-        options.yAxis[1].rangeMin,
-        options.yAxis[1].rangeMax,
-      );
-    }
+    layout.yaxis2 = prepareYAxis(yAxisOptions2, yAxisData);
+
+    // y-axis 2 specific configuration
+    layout.yaxis2.overlaying = 'y';
+    layout.yaxis2.side = 'right';
   }
 
   return layout;
@@ -665,7 +684,7 @@ export function prepareLayout(element, seriesList, options, data) {
 
     layout = prepareXAxis(layout, options);
 
-    layout = prepareYAxis(layout, options, seriesList, data);
+    layout = prepareYAxes(layout, options, seriesList, data);
 
     if (options.series.stacking) {
       layout.barmode = 'relative';
