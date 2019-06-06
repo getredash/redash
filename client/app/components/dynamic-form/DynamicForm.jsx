@@ -7,7 +7,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes, isFunction } from 'lodash';
+import { includes, isFunction, pickBy } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
 import { Field, Action, AntdForm } from '../proptypes';
@@ -80,7 +80,7 @@ class DynamicForm extends React.Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         this.props.onSubmit(
-          values,
+          pickBy(values, v => v !== ''),
           (msg) => {
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
