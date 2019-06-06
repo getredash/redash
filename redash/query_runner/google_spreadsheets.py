@@ -134,6 +134,10 @@ class GoogleSpreadsheet(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
+    
+    @classmethod
+    def name(cls):
+        return "Google Sheets"
 
     @classmethod
     def type(cls):
