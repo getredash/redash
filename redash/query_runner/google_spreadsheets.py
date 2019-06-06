@@ -216,4 +216,5 @@ class GoogleSpreadsheet(BaseQueryRunner):
         except APIError as e:
             return None, parse_api_error(e)
 
+
 register(GoogleSpreadsheet)
