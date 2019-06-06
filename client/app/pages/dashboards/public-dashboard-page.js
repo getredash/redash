@@ -34,6 +34,7 @@ const PublicDashboardPage = {
         loadDashboard($http, $route).then((data) => {
           this.dashboard = data;
           this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+          this.dashboard.widgets.forEach(widget => widget.load());
 
           this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
           this.filtersOnChange = (allFilters) => {
