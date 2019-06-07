@@ -36,7 +36,7 @@ CELERY_SSL_CONFIG = {
     'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL)),
     'ssl_ca_certs': os.environ.get("REDASH_CELERY_BROKER_SSL_CA_CERTS"),
     'ssl_certfile': os.environ.get("REDASH_CELERY_BROKER_SSL_CERTFILE"),
-    'ssl_keyfilefile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
+    'ssl_keyfile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
 } if CELERY_BROKER_USE_SSL else None
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
