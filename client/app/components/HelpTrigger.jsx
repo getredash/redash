@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
 import Drawer from 'antd/lib/drawer';
+import Icon from 'antd/lib/icon';
 import { BigMessage } from '@/components/BigMessage';
 import DynamicComponent from '@/components/DynamicComponent';
 
@@ -119,7 +120,10 @@ export class HelpTrigger extends React.Component {
     setTimeout(() => this.loadIframe(url), 300);
   };
 
-  closeDrawer = () => {
+  closeDrawer = (event) => {
+    if (event) {
+      event.preventDefault();
+    }
     this.setState({ visible: false });
   };
 
@@ -136,6 +140,7 @@ export class HelpTrigger extends React.Component {
         </Tooltip>
         <Drawer
           placement="right"
+          closable={false}
           onClose={this.closeDrawer}
           visible={this.state.visible}
           className="help-drawer"
@@ -143,6 +148,14 @@ export class HelpTrigger extends React.Component {
           width={400}
         >
           <div className="drawer-wrapper">
+            <div className="drawer-menu">
+              <Tooltip title="Close" placement="bottom">
+                <a href="#" onClick={this.closeDrawer}>
+                  <Icon type="close" />
+                </a>
+              </Tooltip>
+            </div>
+
             {/* iframe */}
             {!this.state.error && (
               <iframe
