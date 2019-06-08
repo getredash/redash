@@ -13,6 +13,7 @@ import './HelpTrigger.less';
 const DOMAIN = 'https://redash.io';
 const HELP_PATH = '/help';
 const IFRAME_TIMEOUT = 20000;
+const IFRAME_URL_UPDATE_MESSAGE = 'iframe_url';
 
 export const TYPES = {
   HOME: [
@@ -90,9 +91,15 @@ export class HelpTrigger extends React.Component {
     visible: false,
     loading: false,
     error: false,
+    currentUrl: null,
   };
 
+  componentDidMount() {
+    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+  }
+
   componentWillUnmount() {
+    window.removeEventListener('message', this.onPostMessageReceived);
     clearTimeout(this.iframeLoadingTimeout);
   }
 
@@ -111,6 +118,15 @@ export class HelpTrigger extends React.Component {
     clearTimeout(this.iframeLoadingTimeout);
   };
 
+  onPostMessageReceived = (event) => {
+    const { type, message: url } = event.data || {};
+    if (type !== IFRAME_URL_UPDATE_MESSAGE) {
+      return;
+    }
+
+    this.setState({ currentUrl: url });
+  }
+
   openDrawer = () => {
     this.setState({ visible: true });
     const [pagePath] = TYPES[this.props.type];
@@ -125,11 +141,13 @@ export class HelpTrigger extends React.Component {
       event.preventDefault();
     }
     this.setState({ visible: false });
+    this.setState({ visible: false, currentUrl: null });
   };
 
   render() {
     const [, tooltip] = TYPES[this.props.type];
     const className = cx('help-trigger', this.props.className);
+    const url = this.state.currentUrl;
 
     return (
       <React.Fragment>
@@ -149,6 +167,14 @@ export class HelpTrigger extends React.Component {
         >
           <div className="drawer-wrapper">
             <div className="drawer-menu">
+              {url && (
+                <Tooltip title="Open page in a new window" placement="left">
+                  {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                  <a href={url} target="_blank">
+                    <i className="fa fa-external-link" />
+                  </a>
+                </Tooltip>
+              )}
               <Tooltip title="Close" placement="bottom">
                 <a href="#" onClick={this.closeDrawer}>
                   <Icon type="close" />
