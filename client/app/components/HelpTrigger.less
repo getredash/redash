@@ -52,6 +52,23 @@
       .anticon {
         font-size: 15px;
       }
+
+      .fa-external-link {
+        position: relative;
+        top: 1px;
+        font-size: 14px;
+      }
+
+      // divider
+      &:not(:first-child):before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        height: 9px;
+        left: 0;
+        top: 9px;
+        border-left: 1px dotted rgba(0,0,0,.12);
+      }
     }
   }
 
