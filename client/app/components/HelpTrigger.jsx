@@ -119,7 +119,7 @@ export class HelpTrigger extends React.Component {
   };
 
   onPostMessageReceived = (event) => {
-    const { type, message: url } = event.data || {};
+    const { type, message: currentUrl } = event.data || {};
     if (type !== IFRAME_URL_UPDATE_MESSAGE) {
       return;
     }
