@@ -124,7 +124,7 @@ export class HelpTrigger extends React.Component {
       return;
     }
 
-    this.setState({ currentUrl: url });
+    this.setState({ currentUrl });
   }
 
   openDrawer = () => {
