@@ -22,7 +22,7 @@ export function QueryControlDropdown(props) {
       {!props.query.isNew() && (
         <Menu.Item>
           <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
-            <Icon type="share-alt" /> Embed elsewhere
+            <Icon type="share-alt" /> Embed Elsewhere
           </a>
         </Menu.Item>
       )}

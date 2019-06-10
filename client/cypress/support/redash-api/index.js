@@ -19,11 +19,11 @@ export function createQuery(data, shouldPublish = true) {
   }, data);
 
   // eslint-disable-next-line cypress/no-assigning-return-values
-  let request = cy.request('POST', '/api/queries', merged);
+  let request = cy.request('POST', '/api/queries', merged).then(({ body }) => body);
   if (shouldPublish) {
-    request = request.then(({ body }) => (
-      cy.request('POST', `/api/queries/${body.id}`, { is_draft: false })
-        .then(() => body)
+    request = request.then(query => (
+      cy.request('POST', `/api/queries/${query.id}`, { is_draft: false })
+        .then(() => query)
     ));
   }
 
