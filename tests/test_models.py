@@ -282,20 +282,6 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
 
-    def test_past_scheduled_queries(self):
-        """
-        Queries with non-null ``schedule['until']`` are reported by
-        Query.past_scheduled_queries() before the given time is past.
-        """
-        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
-        query = self.factory.create_query(schedule={'interval':'3600', 'until':one_day_ago, 'time': None, 'day_of_week':None})
-        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
-        query.latest_query_data = query_result
-
-        queries = models.Query.past_scheduled_queries()
-        self.assertIn(query, queries)      
-
 
 class QueryArchiveTest(BaseTestCase):
     def test_archive_query_sets_flag(self):
