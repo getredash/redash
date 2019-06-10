@@ -164,22 +164,23 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def _schema_key(self):
         return "data_source:schema:{}".format(self.id)
 
+    @property
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
 
     @property
     def paused(self):
-        return redis_connection.exists(self._pause_key())
+        return redis_connection.exists(self._pause_key)
 
     @property
     def pause_reason(self):
-        return redis_connection.get(self._pause_key())
+        return redis_connection.get(self._pause_key)
 
     def pause(self, reason=None):
-        redis_connection.set(self._pause_key(), reason or '')
+        redis_connection.set(self._pause_key, reason or '')
 
     def resume(self):
-        redis_connection.delete(self._pause_key())
+        redis_connection.delete(self._pause_key)
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
