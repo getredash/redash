@@ -140,24 +140,29 @@ class DataSource(BelongsToOrgMixin, db.Model):
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
         db.session.commit()
+
+        redis_connection.delete(self._schema_key)
+
         return res
 
     def get_schema(self, refresh=False):
-        key = "data_source:schema:{}".format(self.id)
-
         cache = None
         if not refresh:
-            cache = redis_connection.get(key)
+            cache = redis_connection.get(self._schema_key)
 
         if cache is None:
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
-            redis_connection.set(key, json_dumps(schema))
+            redis_connection.set(self._schema_key, json_dumps(schema))
         else:
             schema = json_loads(cache)
 
         return schema
+
+    @property
+    def _schema_key(self):
+        return "data_source:schema:{}".format(self.id)
 
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)

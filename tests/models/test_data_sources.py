@@ -1,4 +1,5 @@
 import mock
+from mock import patch
 from tests import BaseTestCase
 
 from redash.models import DataSource, Query, QueryResult
@@ -96,3 +97,10 @@ class TestDataSourceDelete(BaseTestCase):
         data_source.delete()
         self.assertIsNone(DataSource.query.get(data_source.id))
         self.assertEqual(0, QueryResult.query.filter(QueryResult.data_source == data_source).count())
+
+    @patch('redash.redis_connection.delete')
+    def test_deletes_schema(self, mock_redis):
+        data_source = self.factory.create_data_source()
+        data_source.delete()
+
+        mock_redis.assert_called_with(data_source._schema_key)
