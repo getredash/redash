@@ -102,7 +102,7 @@ class TestCreateTable(TestCase):
         self.assertEquals(
             len(list(connection.execute('SELECT * FROM query_123'))), 2)
 
-    def test_loads_array_and_dict_results(self):
+    def test_loads_list_and_dict_results(self):
         connection = sqlite3.connect(':memory:')
         rows = [{'test1': [1,2,3]}, {'test2': {'a': 'b'}}]
         results = {'columns': [{'name': 'test1'},
