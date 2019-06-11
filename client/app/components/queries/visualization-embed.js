@@ -31,6 +31,7 @@ const VisualizationEmbed = {
     this.visualization = find(this.query.visualizations, visualization => visualization.id === visualizationId);
     this.showQueryDescription = $routeParams.showDescription;
     this.logoUrl = logoUrl;
+    this.apiKey = $routeParams.api_key;
 
     document.querySelector('body').classList.add('headless');
 
