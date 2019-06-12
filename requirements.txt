@@ -24,7 +24,7 @@ psycopg2==2.7.3.2
 python-dateutil==2.7.5
 pytz==2016.7
 PyYAML==3.12
-redis==3.0.1
+redis==3.2.1
 requests==2.21.0
 six==1.11.0
 SQLAlchemy==1.2.12
@@ -36,8 +36,8 @@ SQLAlchemy-Utils==0.33.11
 sqlparse==0.2.4
 statsd==2.1.2
 gunicorn==19.7.1
-celery==4.2.1
-kombu==4.2.2.post1
+celery==4.3.0
+kombu==4.5.0
 jsonschema==2.4.0
 RestrictedPython==3.6.0
 pysaml2==4.5.0
