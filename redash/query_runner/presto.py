@@ -74,26 +74,36 @@ class Presto(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         schema = {}
-        query = """
-        SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        """
 
-        results, error = self.run_query(query, None)
-
+        results, error = self.run_query("SHOW SCHEMAS", None)
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json_loads(results)
+        for schema_row in json_loads(results)['rows']:
 
-        for row in results['rows']:
-            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+            if schema_row['Schema'] in ['pg_catalog', 'information_schema']:
+                continue
 
-            if table_name not in schema:
+            query_tables = 'SHOW TABLES FROM "{}"'.format(schema_row['Schema'])
+            results, error = self.run_query(query_tables, None)
+            if error is not None:
+                raise Exception("Failed getting schema. Failed executing {}".format(query_tables))
+
+            for table_row in json_loads(results)['rows']:
+
+                table_name = '{}.{}'.format(schema_row['Schema'], table_row['Table'])
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+                query_columns = 'SHOW COLUMNS FROM "{}"."{}"'.format(schema_row['Schema'], table_row['Table'])
+                results, error = self.run_query(query_columns, None)
+                if error is not None:
+                    schema.pop(table_name)
+                    logger.warning(
+                        "Failed getting columns for table {}, so skipping it. (probably it's an hive view :)".format(
+                            table_name))
+                else:
+                    for column_row in json_loads(results)['rows']:
+                        schema[table_name]['columns'].append(column_row['Column'])
 
         return schema.values()
 
