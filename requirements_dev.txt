@@ -10,3 +10,4 @@ botocore==1.12.115
 PyAthena>=1.5.0
 ptvsd==4.2.3
 freezegun==0.3.11
+watchdog==0.9.0

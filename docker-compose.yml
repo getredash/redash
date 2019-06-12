@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to setup/docker-compose.yml.
-version: '3'
+version: '3.7'
 services:
   server:
     build: .
@@ -23,7 +23,9 @@ services:
     build: .
     command: scheduler
     volumes:
-      - ".:/app"
+      - type: bind
+        source: .
+        target: /app
     depends_on:
       - server
     environment:
@@ -33,6 +35,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery,schemas"
       WORKERS_COUNT: 2
+      AUTO_RELOAD: "true"
   redis:
     image: redis:3-alpine
     restart: unless-stopped

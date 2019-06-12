@@ -14,10 +14,14 @@ scheduler() {
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
   SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+  if [[ -n "$AUTO_RELOAD" ]]; then
+    WATCHER="watchmedo auto-restart --directory=./ --pattern=*.py --recursive --"
+  fi
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+  CMD="${WATCHER} /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair"
+  exec $CMD
 }
 
 server() {
