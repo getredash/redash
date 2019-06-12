@@ -387,6 +387,24 @@ class QueryResource(BaseResource):
         models.db.session.commit()
 
 
+class QueryRegenerateApiKeyResource(BaseResource):
+    @require_permission('edit_query')
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_admin_or_owner(query.user_id)
+        query.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
+        result = QuerySerializer(query).serialize()
+        return result
+
+
 class QueryForkResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
