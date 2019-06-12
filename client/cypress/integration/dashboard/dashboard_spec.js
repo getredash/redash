@@ -68,7 +68,7 @@ describe('Dashboard', () => {
     cy.server();
     cy.route('POST', 'api/dashboards').as('NewDashboard');
 
-    cy.getByTestId('EditDashboardDialog').within(() => {
+    cy.getByTestId('CreateDashboardDialog').within(() => {
       cy.getByTestId('DashboardSaveButton').should('be.disabled');
       cy.get('input').type('Foo Bar');
       cy.getByTestId('DashboardSaveButton').click();
@@ -433,7 +433,7 @@ describe('Dashboard', () => {
             cy.getByTestId(elTestId).as('widget').within(() => {
               cy.getByTestId('RefreshIndicator').as('refreshButton');
             });
-            cy.getByTestId(`ParameterName${paramName}`).within(() => {
+            cy.getByTestId(`ParameterName-${paramName}`).within(() => {
               cy.getByTestId('TextParamInput').as('paramInput');
             });
           });

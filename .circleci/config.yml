@@ -39,7 +39,7 @@ jobs:
           name: Copy Test Results
           command: |
             mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
           path: /tmp/test-results
@@ -61,6 +61,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt install python-pip
+      - run: sudo pip install -r requirements_bundles.txt
       - run: npm install
       - run: npm run bundle
       - run: npm test
@@ -95,6 +96,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt install python-pip
+      - run: sudo pip install -r requirements_bundles.txt
       - run: npm install
       - run: .circleci/update_version
       - run: npm run bundle
@@ -105,11 +107,14 @@ jobs:
           path: /tmp/artifacts/
   build-docker-image:
     docker:
-      - image: circleci/buildpack-deps:xenial
+      - image: circleci/node:8
     steps:
       - setup_remote_docker
       - checkout
+      - run: sudo apt install python-pip
+      - run: sudo pip install -r requirements_bundles.txt
       - run: .circleci/update_version
+      - run: npm run bundle
       - run: .circleci/docker_build
 workflows:
   version: 2

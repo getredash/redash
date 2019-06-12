@@ -102,6 +102,16 @@ class TestCreateTable(TestCase):
         self.assertEquals(
             len(list(connection.execute('SELECT * FROM query_123'))), 2)
 
+    def test_loads_list_and_dict_results(self):
+        connection = sqlite3.connect(':memory:')
+        rows = [{'test1': [1,2,3]}, {'test2': {'a': 'b'}}]
+        results = {'columns': [{'name': 'test1'},
+                               {'name': 'test2'}], 'rows': rows}
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        self.assertEquals(
+            len(list(connection.execute('SELECT * FROM query_123'))), 2)
+
 
 class TestGetQuery(BaseTestCase):
     # test query from different account

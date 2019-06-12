@@ -12,6 +12,7 @@ from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.serializers import serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
 def error_response(message):
@@ -279,12 +280,12 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
-        return make_response(query_result.make_csv_content(), 200, headers)
+        return make_response(serialize_query_result_to_csv(query_result), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-        return make_response(query_result.make_excel_content(), 200, headers)
+        return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
 
 
 class JobResource(BaseResource):

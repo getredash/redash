@@ -747,14 +747,6 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
   layout.width = Math.floor(plotlyElement.offsetWidth);
   layout.height = Math.floor(plotlyElement.offsetHeight);
 
-  const transformName = find([
-    'transform',
-    'webkitTransform',
-    'mozTransform',
-    'msTransform',
-    'oTransform',
-  ], prop => has(plotlyElement.style, prop));
-
   if (layout.width <= 600) {
     // change legend orientation to horizontal; plotly has a bug with this
     // legend alignment - it does not preserve enough space under the plot;
@@ -802,9 +794,9 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
           layout.height / 2,
           layout.height - (bounds.bottom - bounds.top),
         ));
-        // offset the legend
-        legend.style[transformName] = 'translate(0, ' + layout.height + 'px)';
         updatePlot(plotlyElement, pick(layout, ['height']));
+        // offset the legend
+        legend.setAttribute('transform', 'translate(0, ' + layout.height + ')');
       }
     });
   } else {
@@ -817,12 +809,6 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
       xanchor: 'left',
       yanchor: 'top',
     };
-
-    const legend = plotlyElement.querySelector('.legend');
-    if (legend) {
-      legend.style[transformName] = null;
-    }
-
     updatePlot(plotlyElement, pick(layout, ['width', 'height', 'legend']));
   }
 }
