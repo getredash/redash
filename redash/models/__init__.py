@@ -518,6 +518,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.api_key == api_key).one()
 
     @classmethod
+    def past_scheduled_queries(cls):
+        now = utils.utcnow()
+        queries = (
+            Query.query
+            .filter(Query.schedule.isnot(None))
+            .order_by(Query.id)
+        )
+        return filter(
+                lambda x:
+                x.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+                ) <= now,
+                queries
+                )
+
+    @classmethod
     def outdated_queries(cls):
         queries = (
             Query.query
