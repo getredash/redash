@@ -41,6 +41,10 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id_with_identity):
+    user = api_key_load_user_from_request(request)
+    if user:
+        return user
+
     org = current_org._get_current_object()
 
     try:
