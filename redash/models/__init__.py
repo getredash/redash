@@ -421,6 +421,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         if user:
             self.record_changes(user)
 
+    def regenerate_api_key(self):
+        self.api_key = generate_token(40)
+
     @classmethod
     def create(cls, **kwargs):
         query = cls(**kwargs)
