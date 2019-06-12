@@ -12,12 +12,13 @@ from celery.utils.log import get_logger
 from redash import create_app, extensions, settings
 from redash.metrics import celery as celery_metrics  # noqa
 
-
 logger = get_logger(__name__)
 
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
+                broker_use_ssl=settings.CELERY_SSL_CONFIG,
+                redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
                 include='redash.tasks')
 
 # The internal periodic Celery tasks to automatically schedule.
