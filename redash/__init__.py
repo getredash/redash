@@ -48,13 +48,17 @@ def create_redis_connection():
 
         client = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
     else:
+        use_ssl = redis_url.scheme == 'rediss'
+
         if redis_url.path:
             redis_db = redis_url.path[1]
         else:
             redis_db = 0
         # Redis passwords might be quoted with special characters
         redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        client = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
+        client = redis.StrictRedis(
+            host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password,
+            ssl=use_ssl)
 
     return client
 

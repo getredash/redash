@@ -140,41 +140,47 @@ class DataSource(BelongsToOrgMixin, db.Model):
         QueryResult.query.filter(QueryResult.data_source == self).delete()
         res = db.session.delete(self)
         db.session.commit()
+
+        redis_connection.delete(self._schema_key)
+
         return res
 
     def get_schema(self, refresh=False):
-        key = "data_source:schema:{}".format(self.id)
-
         cache = None
         if not refresh:
-            cache = redis_connection.get(key)
+            cache = redis_connection.get(self._schema_key)
 
         if cache is None:
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
-            redis_connection.set(key, json_dumps(schema))
+            redis_connection.set(self._schema_key, json_dumps(schema))
         else:
             schema = json_loads(cache)
 
         return schema
 
+    @property
+    def _schema_key(self):
+        return "data_source:schema:{}".format(self.id)
+
+    @property
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
 
     @property
     def paused(self):
-        return redis_connection.exists(self._pause_key())
+        return redis_connection.exists(self._pause_key)
 
     @property
     def pause_reason(self):
-        return redis_connection.get(self._pause_key())
+        return redis_connection.get(self._pause_key)
 
     def pause(self, reason=None):
-        redis_connection.set(self._pause_key(), reason or '')
+        redis_connection.set(self._pause_key, reason or '')
 
     def resume(self):
-        redis_connection.delete(self._pause_key())
+        redis_connection.delete(self._pause_key)
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
@@ -415,6 +421,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         if user:
             self.record_changes(user)
 
+    def regenerate_api_key(self):
+        self.api_key = generate_token(40)
+
     @classmethod
     def create(cls, **kwargs):
         query = cls(**kwargs)
@@ -510,6 +519,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def by_api_key(cls, api_key):
         return cls.query.filter(cls.api_key == api_key).one()
+
+    @classmethod
+    def past_scheduled_queries(cls):
+        now = utils.utcnow()
+        queries = (
+            Query.query
+            .filter(Query.schedule.isnot(None))
+            .order_by(Query.id)
+        )
+        return filter(
+                lambda x:
+                x.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+                ) <= now,
+                queries
+                )
 
     @classmethod
     def outdated_queries(cls):
