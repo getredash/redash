@@ -14,14 +14,20 @@ scheduler() {
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
   SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
-  if [[ -n "$AUTO_RELOAD" ]]; then
-    WATCHER="watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive --"
-  fi
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  CMD="${WATCHER} /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair"
-  exec $CMD
+  /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+}
+
+dev_scheduler() {
+  WORKERS_COUNT=${WORKERS_COUNT:-1}
+  QUEUES=${QUEUES:-celery}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+
+  echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
 }
 
 server() {
@@ -45,6 +51,7 @@ help() {
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start Celery worker"
   echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo "dev_scheduler -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
   echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
@@ -78,6 +85,10 @@ case "$1" in
   scheduler)
     shift
     scheduler
+    ;;
+  dev_scheduler)
+    shift
+    dev_scheduler
     ;;
   dev_server)
     export FLASK_DEBUG=1

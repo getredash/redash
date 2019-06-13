@@ -21,7 +21,7 @@ services:
       REDASH_RATELIMIT_ENABLED: "false"
   worker:
     build: .
-    command: scheduler
+    command: dev_scheduler
     volumes:
       - type: bind
         source: .
@@ -35,7 +35,6 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery,schemas"
       WORKERS_COUNT: 2
-      AUTO_RELOAD: "true"
   redis:
     image: redis:3-alpine
     restart: unless-stopped
