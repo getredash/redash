@@ -15,7 +15,7 @@ scheduler() {
   QUEUES=${QUEUES:-celery}
   SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
   if [[ -n "$AUTO_RELOAD" ]]; then
-    WATCHER="watchmedo auto-restart --directory=./ --pattern=*.py --recursive --"
+    WATCHER="watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive --"
   fi
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
