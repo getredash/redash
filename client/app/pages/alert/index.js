@@ -1,6 +1,8 @@
 import { template as templateBuilder } from 'lodash';
 import notification from '@/services/notification';
+import Modal from 'antd/lib/modal';
 import template from './alert.html';
+import navigateTo from '@/services/navigateTo';
 
 function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
@@ -73,16 +75,26 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
     );
   };
 
-  this.delete = () => {
-    this.alert.$delete(
-      () => {
-        $location.path('/alerts');
-        notification.success('Alert deleted.');
-      },
-      () => {
-        notification.error('Failed deleting alert.');
-      },
-    );
+  this.delete = (callback) => {
+    const doDelete = () => {
+      this.alert.$delete(() => {
+        notification.success('Alert destination deleted successfully.');
+        navigateTo('/alerts', true);
+      }, () => {
+        callback();
+      });
+    };
+
+    Modal.confirm({
+      title: 'Delete Alert',
+      content: 'Are you sure you want to delete this alert?',
+      okText: 'Delete',
+      okType: 'danger',
+      onOk: doDelete,
+      onCancel: callback,
+      maskClosable: true,
+      autoFocusButton: null,
+    });
   };
 }
 
