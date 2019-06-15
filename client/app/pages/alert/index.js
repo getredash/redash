@@ -81,7 +81,7 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
         notification.success('Alert destination deleted successfully.');
         navigateTo('/alerts', true);
       }, () => {
-        callback();
+        notification.error('Failed deleting alert.');
       });
     };
 
