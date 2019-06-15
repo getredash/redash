@@ -75,7 +75,7 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
     );
   };
 
-  this.delete = (callback) => {
+  this.delete = () => {
     const doDelete = () => {
       this.alert.$delete(() => {
         notification.success('Alert destination deleted successfully.');
