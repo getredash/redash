@@ -91,7 +91,6 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
       okText: 'Delete',
       okType: 'danger',
       onOk: doDelete,
-      onCancel: callback,
       maskClosable: true,
       autoFocusButton: null,
     });
