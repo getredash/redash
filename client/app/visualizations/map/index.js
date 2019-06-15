@@ -88,6 +88,11 @@ const iconAnchors = {
   doughnut: [8, 8],
 };
 
+const popupAnchors = {
+  rectangle: [0, -3],
+  circle: [1, -3],
+};
+
 const DEFAULT_OPTIONS = {
   classify: 'none',
   clusterMarkers: true,
@@ -253,6 +258,7 @@ const MapRenderer = {
               icon: this.options.iconFont,
               iconSize: this.options.iconShape === 'rectangle' ? [22, 22] : false,
               iconAnchor: iconAnchors[this.options.iconShape],
+              popupAnchor: popupAnchors[this.options.iconShape],
               prefix: 'fa',
               textColor: this.options.foregroundColor,
               backgroundColor: this.options.backgroundColor,
