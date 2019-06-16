@@ -354,7 +354,10 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
         next_iteration = (previous_iteration + datetime.timedelta(days=days_delay) +
                           datetime.timedelta(days=days_to_add)).replace(hour=hour, minute=minute)
     if failures:
-        next_iteration += datetime.timedelta(minutes=2**failures)
+        try:
+            next_iteration += datetime.timedelta(minutes=2**failures)
+        except OverflowError:
+            return False
     return now > next_iteration
 
 
