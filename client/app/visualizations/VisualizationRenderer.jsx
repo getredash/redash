@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import useQueryResult from '@/lib/hooks/useQueryResult';
-import { Filters, FiltersType, filterData } from '@/components/Filters';
+import { Filters, FiltersType, filterData, setFilterDefaults } from '@/components/Filters';
 import { registeredVisualizations, VisualizationType } from './index';
 
 function combineFilters(localFilters, globalFilters) {
@@ -38,14 +38,17 @@ export function VisualizationRenderer(props) {
     setFilters(combineFilters(filters, props.filters));
   }, [props.filters]);
 
-  const filteredData = useMemo(() => ({
-    columns: data.columns,
-    rows: filterData(data.rows, filters),
-  }), [data, filters]);
 
   const { showFilters, visualization } = props;
   const { Renderer, getOptions } = registeredVisualizations[visualization.type];
   const options = getOptions(visualization.options, data);
+
+  setFilterDefaults(filters, options.columns);
+
+  const filteredData = useMemo(() => ({
+    columns: data.columns,
+    rows: filterData(data.rows, filters),
+  }), [data, filters]);
 
   return (
     <React.Fragment>

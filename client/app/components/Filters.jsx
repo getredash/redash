@@ -41,6 +41,31 @@ function createFilterChangeHandler(filters, onChange) {
   };
 }
 
+export function setFilterDefaults(filters, columnOptions) {
+  const multiFilterDefaults = {};
+  columnOptions.forEach((column) => {
+    multiFilterDefaults[column.name] = column.multiFilterDefault;
+  });
+
+  filters.forEach((filter) => {
+    if (filter.current) {
+      return;
+    }
+
+    if (filter.multiple) {
+      if (multiFilterDefaults[filter.name] === 'all') {
+        filter.current = filter.values;
+      } else if (multiFilterDefaults[filter.name] === 'none') {
+        filter.current = [];
+      } else {
+        filter.current = [filter.values[0]];
+      }
+    } else {
+      filter.current = filter.values[0];
+    }
+  });
+}
+
 export function filterData(rows, filters = []) {
   if (!isArray(rows)) {
     return [];

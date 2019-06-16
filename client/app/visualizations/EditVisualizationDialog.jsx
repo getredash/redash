@@ -6,7 +6,7 @@ import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import * as Grid from 'antd/lib/grid';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { Filters, filterData } from '@/components/Filters';
+import { Filters, filterData, setFilterDefaults } from '@/components/Filters';
 import notification from '@/services/notification';
 import { Visualization } from '@/services/visualization';
 import recordEvent from '@/services/recordEvent';
@@ -68,11 +68,6 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   const data = useQueryResult(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
-  const filteredData = useMemo(() => ({
-    columns: data.columns,
-    rows: filterData(data.rows, filters),
-  }), [data, filters]);
-
   const defaultState = useMemo(
     () => {
       const config = visualization ? registeredVisualizations[visualization.type] : getDefaultVisualization();
@@ -91,6 +86,14 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   const [name, setName] = useState(defaultState.name);
   const [nameChanged, setNameChanged] = useState(false);
   const [options, setOptions] = useState(defaultState.options);
+
+  setFilterDefaults(filters, options.columns);
+
+  const filteredData = useMemo(() => ({
+    columns: data.columns,
+    rows: filterData(data.rows, filters),
+  }), [data, filters]);
+
 
   const [saveInProgress, setSaveInProgress] = useState(false);
 

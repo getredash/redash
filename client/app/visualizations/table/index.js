@@ -46,6 +46,7 @@ function getDefaultColumnsOptions(columns) {
     title: getColumnCleanName(col.name),
     allowSearch: false,
     alignContent: getColumnContentAlignment(col.type),
+    multiFilterDefault: 'first',
     // `string` cell options
     allowHTML: true,
     highlightLinks: false,
@@ -171,6 +172,8 @@ const GridEditor = {
     this.setCurrentTab = (tab) => {
       this.currentTab = tab;
     };
+
+    this.isMultiFilter = name => !!name.match(/(::|__)multi(F|-f)ilter$/);
 
     $scope.$watch('$ctrl.options', (options) => {
       this.onOptionsChange(options);

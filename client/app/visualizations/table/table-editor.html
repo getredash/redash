@@ -44,6 +44,15 @@
         <label class="ui-sortable-bypass"><input type="checkbox" ng-model="column.allowSearch"> Use for search</label>
       </div>
 
+      <div class="form-group" ng-if="$ctrl.isMultiFilter(column.name)">
+        <label>Filter default:</label>
+        <select ng-model="column.multiFilterDefault" class="form-control">
+          <option value="all">All</option>
+          <option value="none">None</option>
+          <option value="first">First</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label>Display as:</label>
         <select ng-options="item.value as item.name for item in $ctrl.displayAsOptions"
