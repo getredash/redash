@@ -7,7 +7,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes, isFunction, pickBy } from 'lodash';
+import { includes, isFunction } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
 import { Field, Action, AntdForm } from '../proptypes';
@@ -77,12 +77,18 @@ class DynamicForm extends React.Component {
   handleSubmit = (e) => {
     this.setState({ isSubmitting: true });
     e.preventDefault();
-    const notEmpty = (value, key) => !(this.props.fields.find(f => f.name === key).initialValue === undefined && value === ''); // rejects empty values, unless they are intentionally set to empty
 
     this.props.form.validateFieldsAndScroll((err, values) => {
+      Object.entries(values).forEach(([key, value]) => {
+        const initialValue = this.props.fields.find(f => f.name === key).initialValue;
+        if ((initialValue === undefined || initialValue === '') && value === '') {
+          values[key] = null;
+        }
+      });
+
       if (!err) {
         this.props.onSubmit(
-          pickBy(values, notEmpty),
+          values,
           (msg) => {
             const { setFieldsValue, getFieldsValue } = this.props.form;
             this.setState({ isSubmitting: false });
