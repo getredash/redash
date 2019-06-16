@@ -55,6 +55,7 @@ export class Parameter {
     this.name = parameter.name;
     this.type = parameter.type;
     this.useCurrentDateTime = parameter.useCurrentDateTime;
+    this.dynamicDateTime = parameter.dynamicDateTime;
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
@@ -88,8 +89,14 @@ export class Parameter {
   }
 
   static getValue(param) {
-    const { value, type, useCurrentDateTime } = param;
+    const { value, type, useCurrentDateTime, dynamicDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
+    if (isDateRangeParameter(type) && dynamicDateTime) {
+      return {
+        start: moment().subtract(dynamicDateTime.start).format(DATETIME_FORMATS[type]),
+        end: moment().add(dynamicDateTime.end).format(DATETIME_FORMATS[type]),
+      };
+    }
     if (isEmptyValue) {
       if (
         includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&

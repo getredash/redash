@@ -13,6 +13,7 @@ export function DateTimeRangeInput({
   withSeconds,
   onSelect,
   className,
+  ...props
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
@@ -36,6 +37,7 @@ export function DateTimeRangeInput({
           }
         }
       }}
+      {...props}
     />
   );
 }

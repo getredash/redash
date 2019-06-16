@@ -1,11 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import moment from 'moment';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
-import { isFunction } from 'lodash';
+import Icon from 'antd/lib/icon';
+import Tag from 'antd/lib/tag';
+import Tooltip from 'antd/lib/tooltip';
+import EditDateParameterDialog from '@/components/EditDateParameterDialog';
+import { defer, isFunction, includes } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -41,8 +46,25 @@ export class ParameterValueInput extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { value: props.value };
+    this.state = {
+      value: props.value,
+      hasDynamicDateTime: !!(props.parameter && props.parameter.dynamicDateTime),
+    };
   }
+
+  openDateParameterDialog = (e) => {
+    e.stopPropagation();
+
+    const { onSelect, parameter } = this.props;
+    EditDateParameterDialog.showModal({ defaultOption: parameter.dynamicDateTime }).result
+      .then((datePeriod) => {
+        parameter.dynamicDateTime = datePeriod;
+        if (datePeriod) {
+          onSelect([moment().subtract(datePeriod.start), moment().add(datePeriod.end)]);
+        }
+        this.setState({ hasDynamicDateTime: !!datePeriod });
+      });
+  };
 
   renderApplyButton() {
     const { onSelect } = this.props;
@@ -56,6 +78,19 @@ export class ParameterValueInput extends React.Component {
       >
         Apply
       </Button>
+    );
+  }
+
+  renderDynamicOptionButton() {
+    return (
+      <Tooltip title="Dynamic Options">
+        <Icon
+          className="clickable"
+          type="thunderbolt"
+          theme="twoTone"
+          onClick={this.openDateParameterDialog}
+        />
+      </Tooltip>
     );
   }
 
@@ -101,6 +136,8 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         withSeconds
+        suffixIcon={this.renderDynamicOptionButton()}
+        allowClear={false}
       />
     );
   }
@@ -112,6 +149,8 @@ export class ParameterValueInput extends React.Component {
         className={this.props.className}
         value={value}
         onSelect={onSelect}
+        suffixIcon={this.renderDynamicOptionButton()}
+        allowClear={false}
       />
     );
   }
@@ -123,7 +162,19 @@ export class ParameterValueInput extends React.Component {
         className={this.props.className}
         value={value}
         onSelect={onSelect}
+        suffixIcon={this.renderDynamicOptionButton()}
+        allowClear={false}
       />
+    );
+  }
+
+  renderDynamicDateRangeTag() {
+    const { parameter } = this.props;
+    return (
+      <div className="d-inline-flex align-items-center" style={{ height: 35 }}>
+        <Tag onClick={this.openDateParameterDialog}>{parameter.dynamicDateTime.name}</Tag>
+        {this.renderDynamicOptionButton()}
+      </div>
     );
   }
 
@@ -219,6 +270,12 @@ export class ParameterValueInput extends React.Component {
 
   render() {
     const { type } = this.props;
+    const isDateRangeType = includes(['datetime-range-with-seconds', 'datetime-range', 'date-range'], type);
+
+    if (this.state.hasDynamicDateTime && isDateRangeType) {
+      return this.renderDynamicDateRangeTag();
+    }
+
     switch (type) {
       case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
       case 'datetime-local': return this.renderDateTimeInput();
@@ -255,10 +312,12 @@ export default function init(ngModule) {
     controller($scope) {
       this.setValue = (value) => {
         this.param.setValue(value);
-        $scope.$apply();
-        if (isFunction(this.onChange)) {
-          this.onChange();
-        }
+        defer(() => {
+          $scope.$apply();
+          if (isFunction(this.onChange)) {
+            this.onChange();
+          }
+        });
       };
     },
   });

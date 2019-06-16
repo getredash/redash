@@ -12,6 +12,7 @@ export function DateRangeInput({
   value,
   onSelect,
   className,
+  ...props
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
@@ -24,6 +25,7 @@ export function DateRangeInput({
       {...additionalAttributes}
       format={format}
       onChange={onSelect}
+      {...props}
     />
   );
 }
