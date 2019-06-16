@@ -347,12 +347,12 @@ const MapEditor = {
     this.mapTiles = MAP_TILES;
 
     this.iconShapes = {
-      marker: 'Marker',
-      circle: 'Circle',
-      rectangle: 'Rectangle',
+      marker: 'Marker + Icon',
+      doughnut: 'Circle',
       'circle-dot': 'Circle Dot',
-      'rectangle-dot': 'Rectangle Dot',
-      doughnut: 'Doughnut',
+      circle: 'Circle + Icon',
+      'rectangle-dot': 'Square Dot',
+      rectangle: 'Square + Icon',
     };
 
     this.colors = {
