@@ -59,6 +59,8 @@ export class ParameterValueInput extends React.Component {
       .then((datePeriod) => {
         if (datePeriod) {
           onSelect(datePeriod.value);
+        } else {
+          onSelect(parameter.getValue());
         }
         this.setState({ hasDynamicDateTime: parameter.hasDynamicValue });
       });
