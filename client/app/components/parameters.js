@@ -50,6 +50,7 @@ function ParametersDirective($location) {
         if (isDirty) {
           scope.dirtyParams[key] = () => {
             param.setValue(newValue);
+            scope.$apply();
           };
         } else {
           delete scope.dirtyParams[key];
