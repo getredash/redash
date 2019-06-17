@@ -60,7 +60,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeWithSecondsInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateTimeInput
         className={this.props.className}
@@ -72,7 +72,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateTimeInput
         className={this.props.className}
@@ -83,7 +83,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateInput
         className={this.props.className}
@@ -94,7 +94,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeRangeWithSecondsInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateTimeRangeInput
         className={this.props.className}
@@ -106,7 +106,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeRangeInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateTimeRangeInput
         className={this.props.className}
@@ -117,7 +117,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateRangeInput() {
-    const { value } = this.props;
+    const { value } = this.state;
     return (
       <DateRangeInput
         className={this.props.className}
@@ -145,7 +145,8 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { value, queryId, parameter } = this.props;
+    const { queryId, parameter } = this.props;
+    const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
