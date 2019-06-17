@@ -1,11 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
-import { isFunction } from 'lodash';
+import { isFunction, toString } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -23,8 +22,8 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    applyButton: PropTypes.bool,
     onSelect: PropTypes.func,
+    onApply: PropTypes.func,
     className: PropTypes.string,
   };
 
@@ -34,108 +33,109 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
-    applyButton: false,
     onSelect: () => {},
+    onApply: () => {},
     className: '',
   };
 
   constructor(props) {
     super(props);
-    this.state = { value: props.value };
+    this.state = {
+      value: props.value,
+      isDirty: false,
+    };
   }
 
-  renderApplyButton() {
-    const { onSelect } = this.props;
-    const { value } = this.state;
-    return (
-      <Button
-        className="parameter-apply-button"
-        type="primary"
-        size="small"
-        onClick={() => onSelect(value)}
-      >
-        Apply
-      </Button>
-    );
+  componentDidUpdate = (_prev) => {
+    // if value prop updated, reset dirty
+    if (_prev.value !== this.props.value) {
+      this.setState({ isDirty: false });
+    }
+  };
+
+  onSelect = (value) => {
+    const isDirty = toString(value) !== toString(this.props.value);
+    this.setState({ value, isDirty });
+    this.props.onSelect(value, isDirty);
   }
 
   renderDateTimeWithSecondsInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
         withSeconds
       />
     );
   }
 
   renderDateTimeInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
       />
     );
   }
 
   renderDateInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
       />
     );
   }
 
   renderDateTimeRangeWithSecondsInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
         withSeconds
       />
     );
   }
 
   renderDateTimeRangeInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
       />
     );
   }
 
   renderDateRangeInput() {
-    const { value, onSelect } = this.props;
+    const { value } = this.props;
     return (
       <DateRangeInput
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
       />
     );
   }
 
   renderEnumInput() {
-    const { value, onSelect, enumOptions } = this.props;
+    const { value, enumOptions } = this.props;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
         className={this.props.className}
         disabled={enumOptionsArray.length === 0}
         defaultValue={value}
-        onChange={onSelect}
+        onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
       >
@@ -145,81 +145,58 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { value, onSelect, queryId, parameter } = this.props;
+    const { value, queryId, parameter } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
         parameter={parameter}
         value={value}
         queryId={queryId}
-        onSelect={onSelect}
+        onSelect={this.onSelect}
       />
     );
   }
 
   renderNumberInput() {
-    const { className, onSelect, applyButton } = this.props;
-    const { value } = this.state;
-    const showApplyButton = applyButton && value !== this.props.value;
-
-    const onChange = (newValue) => {
-      this.setState({ value: newValue });
-      if (!applyButton) {
-        onSelect(newValue);
-      }
-    };
+    const { className, onApply } = this.props;
+    const { value, isDirty } = this.state;
 
     return (
-      <div className="parameter-input-number" data-dirty={showApplyButton || null}>
-        <InputNumber
-          className={className}
-          value={!isNaN(value) && value || 0}
-          onChange={onChange}
-          onKeyUp={showApplyButton ? (e) => {
-            const keyNumber = e.which || e.keyCode;
-            if (keyNumber === 13 && !e.ctrlKey && !e.metaKey) { // enter key
-              onSelect(value);
-            }
-          } : null}
-        />
-        {showApplyButton && this.renderApplyButton()}
-      </div>
+      <InputNumber
+        className={className}
+        value={!isNaN(value) && value || 0}
+        onChange={this.onSelect}
+        onKeyUp={isDirty ? (e) => {
+          const keyNumber = e.which || e.keyCode;
+          if (keyNumber === 13 && !e.ctrlKey && !e.metaKey) { // enter key
+            onApply();
+          }
+        } : null}
+      />
     );
   }
 
   renderTextInput() {
-    const { className, onSelect, applyButton } = this.props;
-    const { value } = this.state;
-    const showApplyButton = applyButton && value !== this.props.value;
-
-    const onChange = (event) => {
-      this.setState({ value: event.target.value });
-      if (!applyButton) {
-        onSelect(event.target.value);
-      }
-    };
+    const { className, onApply } = this.props;
+    const { value, isDirty } = this.state;
 
     return (
-      <div className="parameter-input" data-dirty={showApplyButton || null}>
-        <Input
-          className={className}
-          value={value || ''}
-          data-test="TextParamInput"
-          onChange={onChange}
-          onPressEnter={showApplyButton ? (e) => {
-            if (!e.ctrlKey && !e.metaKey) {
-              onSelect(value);
-            }
-          } : null}
-        />
-        {showApplyButton && this.renderApplyButton()}
-      </div>
+      <Input
+        className={className}
+        value={value || ''}
+        data-test="TextParamInput"
+        onChange={e => this.onSelect(e.target.value)}
+        onPressEnter={isDirty ? (e) => {
+          if (!e.ctrlKey && !e.metaKey) {
+            onApply();
+          }
+        } : null}
+      />
     );
   }
 
-  render() {
-    const { type } = this.props;
-    switch (type) {
+  renderInput() {
+    switch (this.props.type) {
       case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
       case 'datetime-local': return this.renderDateTimeInput();
       case 'date': return this.renderDateInput();
@@ -231,6 +208,16 @@ export class ParameterValueInput extends React.Component {
       case 'number': return this.renderNumberInput();
       default: return this.renderTextInput();
     }
+  }
+
+  render() {
+    const { isDirty } = this.state;
+
+    return (
+      <div className="parameter-input" data-dirty={isDirty || null}>
+        {this.renderInput()}
+      </div>
+    );
   }
 }
 
@@ -244,20 +231,18 @@ export default function init(ngModule) {
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
         on-select="$ctrl.setValue"
-        apply-button="$ctrl.applyButton"
+        on-apply="$ctrl.onApply"
       ></parameter-value-input-impl>
     `,
     bindings: {
       param: '<',
-      applyButton: '=?',
       onChange: '=',
+      onApply: '=',
     },
-    controller($scope) {
-      this.setValue = (value) => {
-        this.param.setValue(value);
-        $scope.$apply();
+    controller() {
+      this.setValue = (value, isDirty) => {
         if (isFunction(this.onChange)) {
-          this.onChange();
+          this.onChange(this.param, value, isDirty);
         }
       };
     },
