@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import moment from 'moment';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
@@ -48,7 +47,7 @@ export class ParameterValueInput extends React.Component {
     super(props);
     this.state = {
       value: props.value,
-      hasDynamicDateTime: !!(props.parameter && props.parameter.dynamicDateTime),
+      hasDynamicDateTime: !!(props.parameter && props.parameter.hasDynamicValue),
     };
   }
 
@@ -56,13 +55,12 @@ export class ParameterValueInput extends React.Component {
     e.stopPropagation();
 
     const { onSelect, parameter } = this.props;
-    EditDateParameterDialog.showModal({ defaultOption: parameter.dynamicDateTime }).result
+    EditDateParameterDialog.showModal({ defaultValue: parameter.value }).result
       .then((datePeriod) => {
-        parameter.dynamicDateTime = datePeriod;
         if (datePeriod) {
-          onSelect([moment().subtract(datePeriod.start), moment().add(datePeriod.end)]);
+          onSelect(datePeriod.value);
         }
-        this.setState({ hasDynamicDateTime: !!datePeriod });
+        this.setState({ hasDynamicDateTime: parameter.hasDynamicValue });
       });
   };
 
@@ -172,7 +170,7 @@ export class ParameterValueInput extends React.Component {
     const { parameter } = this.props;
     return (
       <div className="d-inline-flex align-items-center" style={{ height: 35 }}>
-        <Tag onClick={this.openDateParameterDialog}>{parameter.dynamicDateTime.name}</Tag>
+        <Tag onClick={this.openDateParameterDialog}>{parameter.dynamicValue.name}</Tag>
         {this.renderDynamicOptionButton()}
       </div>
     );

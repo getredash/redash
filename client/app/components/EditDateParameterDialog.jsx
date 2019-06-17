@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { findIndex, isEqual } from 'lodash';
+import { findIndex } from 'lodash';
 import InputNumber from 'antd/lib/input-number';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
@@ -8,19 +8,20 @@ import Radio from 'antd/lib/radio';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 
 const DATE_INTERVAL_OPTIONS = [
-  { name: 'Last week', start: 7 * 24 * 60 * 60 * 1000, end: 0 },
-  { name: 'Last month', start: 30 * 24 * 60 * 60 * 1000, end: 0 },
-  { name: 'Last year', start: 365 * 24 * 60 * 60 * 1000, end: 0 },
+  { name: 'Last week', value: 'd_last_week' },
+  { name: 'Last month', value: 'd_last_month' },
+  { name: 'Last year', value: 'd_last_year' },
+  { name: 'Last 7 days', value: 'd_last_7_days' },
 ];
 
 class EditDateParameterDialog extends React.Component {
   static propTypes = {
     dialog: DialogPropType.isRequired,
-    defaultOption: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+    defaultValue: PropTypes.any, // eslint-disable-line react/forbid-prop-types
   };
 
   static defaultProps = {
-    defaultOption: null,
+    defaultValue: null,
   };
 
   state = {
@@ -34,7 +35,7 @@ class EditDateParameterDialog extends React.Component {
 
   constructor(props) {
     super(props);
-    const currentOption = findIndex(DATE_INTERVAL_OPTIONS, v => isEqual(v, props.defaultOption));
+    const currentOption = findIndex(DATE_INTERVAL_OPTIONS, v => v.value === props.defaultValue);
     this.state = {
       currentOption: currentOption === -1 ? 'static' : currentOption,
     };

@@ -4,6 +4,7 @@ import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
   isNull, isUndefined, isArray, isObject, identity, extend, each,
+  startsWith,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -21,6 +22,31 @@ const DATETIME_FORMATS = {
   'datetime-with-seconds': 'YYYY-MM-DD HH:mm:ss',
   'datetime-range-with-seconds': 'YYYY-MM-DD HH:mm:ss',
 };
+
+const DYNAMIC_DATE_PREFIX = 'd_';
+
+const DYNAMIC_DATE_RANGES = {
+  last_week: {
+    name: 'Last week',
+    value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+  },
+  last_month: {
+    name: 'Last month',
+    value: () => [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+  },
+  last_year: {
+    name: 'Last year',
+    value: () => [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+  },
+  last_7_days: {
+    name: 'Last 7 days',
+    value: () => [moment().subtract(7, 'days'), moment()],
+  },
+};
+
+function isDynamicValue(value) {
+  return startsWith(value, DYNAMIC_DATE_PREFIX);
+}
 
 function normalizeNumericValue(value, defaultValue = null) {
   const result = parseFloat(value);
@@ -55,7 +81,6 @@ export class Parameter {
     this.name = parameter.name;
     this.type = parameter.type;
     this.useCurrentDateTime = parameter.useCurrentDateTime;
-    this.dynamicDateTime = parameter.dynamicDateTime;
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
@@ -84,18 +109,31 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
+  get hasDynamicValue() {
+    return isDynamicValue(this.value);
+  }
+
+  get dynamicValue() {
+    return this.hasDynamicValue ? DYNAMIC_DATE_RANGES[this.value.substring(DYNAMIC_DATE_PREFIX.length)] : null;
+  }
+
   getValue() {
     return this.constructor.getValue(this);
   }
 
   static getValue(param) {
-    const { value, type, useCurrentDateTime, dynamicDateTime } = param;
+    const { value, type, useCurrentDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
-    if (isDateRangeParameter(type) && dynamicDateTime) {
-      return {
-        start: moment().subtract(dynamicDateTime.start).format(DATETIME_FORMATS[type]),
-        end: moment().add(dynamicDateTime.end).format(DATETIME_FORMATS[type]),
-      };
+    if (isDateRangeParameter(type) && startsWith(value, DYNAMIC_DATE_PREFIX)) {
+      const dynamicValue = value.substring(DYNAMIC_DATE_PREFIX.length);
+      if (DYNAMIC_DATE_RANGES[dynamicValue]) {
+        const dateRange = DYNAMIC_DATE_RANGES[dynamicValue].value();
+        return {
+          start: dateRange[0].format(DATETIME_FORMATS[type]),
+          end: dateRange[1].format(DATETIME_FORMATS[type]),
+        };
+      }
+      return null;
     }
     if (isEmptyValue) {
       if (
@@ -129,6 +167,12 @@ export class Parameter {
             end: value[1].format(DATETIME_FORMATS[this.type]),
           };
           this.$$value = value;
+        }
+      } else if (isDynamicValue(value)) {
+        const dynamicValue = DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_DATE_PREFIX.length)].value();
+        if (dynamicValue) {
+          this.value = value;
+          this.$$value = [dynamicValue[0], dynamicValue[1]];
         }
       }
     } else if (isDateParameter(this.type)) {
@@ -175,23 +219,29 @@ export class Parameter {
       return {};
     }
     const prefix = this.urlPrefix;
-    if (isDateRangeParameter(this.type)) {
+    if (isDateRangeParameter(this.type) && isObject(this.value)) {
       return {
         [`${prefix}${this.name}.start`]: this.value.start,
         [`${prefix}${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}`]: null,
       };
     }
     return {
       [`${prefix}${this.name}`]: this.value,
+      [`${prefix}${this.name}.start`]: null,
+      [`${prefix}${this.name}.end`]: null,
     };
   }
 
   fromUrlParams(query) {
     const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
+      const key = `${prefix}${this.name}`;
       const keyStart = `${prefix}${this.name}.start`;
       const keyEnd = `${prefix}${this.name}.end`;
-      if (has(query, keyStart) && has(query, keyEnd)) {
+      if (has(query, key) && isDynamicValue(query[key])) {
+        this.setValue(query[key]);
+      } else if (has(query, keyStart) && has(query, keyEnd)) {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
