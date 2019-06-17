@@ -60,7 +60,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeWithSecondsInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
@@ -72,7 +72,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateTimeInput
         className={this.props.className}
@@ -83,7 +83,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateInput
         className={this.props.className}
@@ -94,7 +94,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeRangeWithSecondsInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
@@ -106,7 +106,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateTimeRangeInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateTimeRangeInput
         className={this.props.className}
@@ -117,7 +117,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateRangeInput() {
-    const { value } = this.state;
+    const { value } = this.props;
     return (
       <DateRangeInput
         className={this.props.className}
