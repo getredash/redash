@@ -50,7 +50,6 @@ function ParametersDirective($location) {
         if (isDirty) {
           scope.dirtyParams[key] = () => {
             param.setValue(newValue);
-            scope.$apply();
           };
         } else {
           delete scope.dirtyParams[key];
@@ -58,13 +57,17 @@ function ParametersDirective($location) {
         scope.$apply();
       };
 
-      scope.onApply = () => {
+      scope.applyChanges = () => {
         // set new values for each param
         forEach(scope.dirtyParams, setValue => setValue());
-        // execute query with new params
-        scope.onValuesChange();
         // reset
         scope.dirtyParams = {};
+      };
+
+      scope.onApply = () => {
+        scope.$apply(scope.applyChanges);
+        // execute query with new params
+        scope.onValuesChange();
       };
     },
   };
