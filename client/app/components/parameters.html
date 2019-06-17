@@ -18,6 +18,7 @@
     >
       <i class="zmdi zmdi-settings"></i>
     </button>
-    <parameter-value-input param="param" on-change="onValuesChange" apply-button="true"></parameter-value-input>
+    <parameter-value-input param="param" on-change="onParamValueChanged" on-apply="onApply"></parameter-value-input>
   </div>
+  <parameter-apply-button on-click="onApply" param-count="dirtyParams | size" />
 </div>

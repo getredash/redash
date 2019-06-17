@@ -1,6 +1,8 @@
 import moment from 'moment';
 import { capitalize as _capitalize, isEmpty } from 'lodash';
 
+export { size } from 'lodash';
+
 export const IntervalEnum = {
   NEVER: 'Never',
   SECONDS: 'second',

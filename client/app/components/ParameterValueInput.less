@@ -1,50 +1,69 @@
 @import '~antd/lib/input-number/style/index'; // for ant @vars
 
+@input-dirty: #fffce1;
+
 .parameter-input {
   display: inline-block;
   position: relative;
-  width: 195px;
 
-  &[data-dirty] {
-    .@{ant-prefix}-input {
-      padding-right: 58px !important;
-    }
+  .@{ant-prefix}-input {
+    width: 195px;
   }
 
-  .parameter-apply-button {
-    position: absolute !important;
-    height: 25px !important;
-    width: 50px;
-    top: 5px;
-    right: 5px;
+  &[data-dirty] {
+    .@{ant-prefix}-input, // covers also ant date component
+    .@{ant-prefix}-input-number,
+    .@{ant-prefix}-select-selection {
+      background-color: @input-dirty;
+    }
   }
 }
 
-.parameter-input-number {
-  display: inline-block;
+.parameter-container {
   position: relative;
-  width: 195px;
-
-  .@{ant-prefix}-input-number {
-    width: 100% !important;
-  }
-
-  &[data-dirty] {
-    .@{ant-prefix}-input-number {
-      padding-right: 68px !important;
-    }
-  }
-
-  // Make Input Number spinners always visible
-  .@{input-number-prefix-cls}-handler-wrap {
-    opacity: 1 !important;
-  }
 
   .parameter-apply-button {
-    position: absolute !important;
-    height: 25px !important;
-    width: 50px;
-    top: 5px;
-    right: 27px;
+    position: absolute;
+    bottom: -42px;
+    left: -15px;
+    border-radius: 2px;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
+    background-color: #ffffff;
+    padding: 4px;
+    padding-left: 16px;
+  
+    &[data-show="true"] {
+      opacity: 1;
+    }
+
+    button {
+      height: 27px;
+      padding: 0 8px 0 6px;
+      font-size: 12px;
+      color: #2096f3;
+      border-color: #50acf6;
+
+      &:hover, &:focus, &:active {
+        background-color: #eef7fe;
+      }
+
+      i {
+        margin-right: 3px;
+      }
+    }
+
+    .ant-badge-count {
+      min-width: 15px;
+      height: 15px;
+      padding: 0 5px;
+      font-size: 10px;
+      line-height: 15px;
+      background: #f77b74;
+      border-radius: 7px;
+      box-shadow: 0px 0px 0 1px white, -1px 1px 0 1px #5d6f7d85;
+    }
   }
 }
