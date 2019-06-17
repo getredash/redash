@@ -4,6 +4,9 @@ import logging
 import socket
 import time
 
+from celery.concurrency import asynpool
+asynpool.PROC_ALIVE_TIMEOUT = 10.0
+
 from celery.signals import task_postrun, task_prerun
 from redash import settings, statsd_client
 from redash.utils import json_dumps
