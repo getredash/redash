@@ -149,6 +149,7 @@ class QueryEditor extends React.Component {
     editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
     // Lineup only mac
     editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
+    editor.commands.bindKey({ win: 'Ctrl+Shift+F', mac: 'Cmd+Shift+F' }, this.formatQuery);
 
     // Reset Completer in case dot is pressed
     editor.commands.on('afterExec', (e) => {
