@@ -267,7 +267,7 @@ class QueryEditor extends React.Component {
                   &#123;&#123;&nbsp;&#125;&#125;
                 </button>
               </Tooltip>
-              <Tooltip placement="top" title="Format Query">
+              <Tooltip placement="top" title={<>Format Query (<i>{modKey} + Shift + F</i>)</>}>
                 <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
