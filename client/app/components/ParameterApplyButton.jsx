@@ -21,7 +21,7 @@ export function ParameterApplyButton({ paramCount, onClick }) {
   }, [paramCount]);
 
   return (
-    <div className="parameter-apply-button" data-show={!!paramCount}>
+    <div className="parameter-apply-button" data-show={!!paramCount} data-test="ParameterApplyButton">
       <Badge count={paramCount}>
         <Button onClick={_onClick}>
           <i className={`fa fa-${icon}`} /> Apply Changes
