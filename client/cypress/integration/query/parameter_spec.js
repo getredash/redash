@@ -26,8 +26,7 @@ describe('Parameter', () => {
         .find('input')
         .type('Redash');
 
-      cy.getByTestId('ParameterName-test-parameter')
-        .contains('Apply')
+      cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
@@ -63,8 +62,7 @@ describe('Parameter', () => {
         .find('input')
         .type('{selectall}42');
 
-      cy.getByTestId('ParameterName-test-parameter')
-        .contains('Apply')
+      cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
@@ -104,6 +102,9 @@ describe('Parameter', () => {
         .click();
 
       cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
@@ -151,6 +152,9 @@ describe('Parameter', () => {
       cy.get('.ant-calendar-date-panel')
         .click() // workaround for datepicker display bug
         .contains('.ant-calendar-date', '15')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
@@ -207,6 +211,9 @@ describe('Parameter', () => {
       // workaround for datepicker display bug
       cy.get('@SelectedDate').click();
 
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
       cy.get('@Input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
         cy.getByTestId('DynamicTable')
@@ -224,6 +231,9 @@ describe('Parameter', () => {
         .contains('Now')
         .click()
         .click(); // workaround for datepicker display bug
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
 
       cy.get('@Input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
