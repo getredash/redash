@@ -86,15 +86,19 @@
       <div class="col-xs-6">
         <div class="form-group">
           <label>Shape</label>
-          <select ng-options="key as value for (key, value) in $ctrl.iconShapes"
-            ng-model="$ctrl.options.iconShape" class="form-control"
-            ng-disabled="!$ctrl.options.customizeMarkers"></select>
+          <ui-select ng-model="$ctrl.options.iconShape"
+            ng-disabled="!$ctrl.options.customizeMarkers">
+            <ui-select-match>{{$select.selected.value}}</ui-select-match>
+            <ui-select-choices repeat="shapes.key as (key, shapes) in $ctrl.iconShapes">
+              {{shapes.value}}
+            </ui-select-choices>
+          </ui-select>
         </div>
       </div>
       <div class="col-xs-6">
         <div class="form-group">
           <label>Icon Font
-		  <span class="m-1-5" uib-popover-html="'Enter an icon name from <a href=&quot;https://fontawesome.com/v4.7.0/icons/&quot; target=&quot;_blank&quot;>Font-Awesome 4.7.</a><br/>(e.g. check, times-circle, flag)<br/>Leave blank to remove.'"
+                  <span class="m-1-5" uib-popover-html="'Enter an icon name from<br/><a href=&quot;https://fontawesome.com/v4.7.0/icons/&quot; target=&quot;_blank&quot;>Font-Awesome 4.7.</a><br/>(e.g. check, times-circle, flag)<br/>Leave blank to remove.'"
               popover-trigger="'click outsideClick'">
               <i class="fa fa-question-circle"></i>
             </span>
