@@ -161,7 +161,7 @@ class OrganizationSettings extends React.Component {
             checked={formValues.multi_byte_search_enabled}
             onChange={e => this.handleChange('multi_byte_search_enabled', e.target.checked)}
           >
-          Enable multi-byte search for query names and descriptions (slower)
+          Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
         <Form.Item label="Feature Flags">
