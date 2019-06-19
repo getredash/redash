@@ -27,7 +27,8 @@ function createFilterChangeHandler(filters, onChange) {
     if (isArray(values)) {
       values = map(values, value => filter.values[toNumber(value.key)] || value.key);
     } else {
-      values = filter.values[toNumber(values.key)] || values.key;
+      const _values = filter.values[toNumber(values.key)];
+      values = _values !== undefined ? _values : values.key;
     }
 
     if (filter.multiple && includes(values, ALL_VALUES)) {
@@ -73,6 +74,10 @@ export function filterData(rows, filters = []) {
 function formatValue(value) {
   if (moment.isMoment(value)) {
     return formatDateTime(value);
+  }
+
+  if (typeof value === 'boolean') {
+    return value.toString();
   }
 
   return value;
