@@ -23,28 +23,39 @@
   position: relative;
 
   .parameter-apply-button {
-    position: absolute;
-    bottom: -42px;
-    left: -15px;
-    border-radius: 2px;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 150ms ease-out;
-    box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-    background-color: #ffffff;
-    padding: 4px;
-    padding-left: 16px;
+    display: none; // default for mobile
+    
+    // "floating" on desktop
+    @media (min-width: 768px) {
+      position: absolute;
+      bottom: -42px;
+      left: -15px;
+      border-radius: 2px;
+      z-index: 1;
+      transition: opacity 150ms ease-out;
+      box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
+      background-color: #ffffff;
+      padding: 4px;
+      padding-left: 16px;
+      opacity: 0;
+      display: block;
+    }
   
     &[data-show="true"] {
       opacity: 1;
+      display: block;
     }
 
     button {
-      height: 27px;
       padding: 0 8px 0 6px;
-      font-size: 12px;
       color: #2096f3;
       border-color: #50acf6;
+
+      // smaller on desktop
+      @media (min-width: 768px) {
+        font-size: 12px;
+        height: 27px;
+      }
 
       &:hover, &:focus, &:active {
         background-color: #eef7fe;
