@@ -45,7 +45,7 @@ class DataSourceResource(BaseResource):
         try:
             data_source.options.set_schema(schema)
             data_source.options.update(filter_none(req['options']))
-        except ValidationError:
+        except ValidationError, e:
             abort(400)
 
         data_source.type = req['type']

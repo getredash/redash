@@ -59,8 +59,17 @@ class Presto(BaseQueryRunner):
                 'password': {
                     'type': 'string'
                 },
+                'extras': {
+                    'type': 'object',
+                    'default': '{ "requests_kwargs": null }',
+                    'props': {
+                        'rows': 2,
+                        'extra': 'Extra kwargs passed to presto.connect(...)',
+                    }
+                }
             },
-            'order': ['host', 'protocol', 'port', 'username', 'password', 'schema', 'catalog'],
+            'order': ['host', 'protocol', 'port', 'username', 'password',
+                      'schema', 'catalog', 'extras'],
             'required': ['host']
         }
 
@@ -105,7 +114,8 @@ class Presto(BaseQueryRunner):
             username=self.configuration.get('username', 'redash'),
             password=(self.configuration.get('password') or None),
             catalog=self.configuration.get('catalog', 'hive'),
-            schema=self.configuration.get('schema', 'default'))
+            schema=self.configuration.get('schema', 'default'),
+            **self.configuration.get('extras', {}))
 
         cursor = connection.cursor()
 

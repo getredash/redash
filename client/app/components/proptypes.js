@@ -43,11 +43,13 @@ export const Field = PropTypes.shape({
     'file',
     'select',
     'content',
+    'json',
   ]).isRequired,
   initialValue: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
     PropTypes.bool,
+    PropTypes.object,
     PropTypes.arrayOf(PropTypes.string),
     PropTypes.arrayOf(PropTypes.number),
   ]),
