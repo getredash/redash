@@ -79,10 +79,11 @@ class Presto(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-        """
+        SELECT
+            table_schem, table_name, column_name
+        FROM system.jdbc.columns
+        WHERE table_cat = '{}'
+        """.format(self.configuration.get('catalog', 'hive'))
 
         results, error = self.run_query(query, None)
 
@@ -92,7 +93,7 @@ class Presto(BaseQueryRunner):
         results = json_loads(results)
 
         for row in results['rows']:
-            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+            table_name = '{}.{}'.format(row['table_schem'], row['table_name'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
