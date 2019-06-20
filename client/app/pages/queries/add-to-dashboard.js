@@ -8,18 +8,30 @@ const AddToDashboardForm = {
     this.vis = this.resolve.vis;
     this.saveInProgress = false;
     this.trustAsHtml = html => $sce.trustAsHtml(html);
-    this.onDashboardSelected = (dash) => {
+    this.onDashboardSelected = ({ slug }) => {
       this.saveInProgress = true;
       this.selected_query = this.resolve.query.id;
-      const widget = new Widget({
-        visualization_id: this.vis && this.vis.id,
-        dashboard_id: dash.id,
-        options: {},
-        width: 1,
-        type: 'visualization',
-      });
-      widget
-        .save()
+      // Load dashboard with all widgets
+      Dashboard.get({ slug }).$promise
+        .then((dashboard) => {
+          const widget = new Widget({
+            visualization_id: this.vis && this.vis.id,
+            dashboard_id: dashboard.id,
+            options: {
+              isHidden: false,
+              position: {},
+            },
+            width: 1,
+            type: 'visualization',
+            visualization: this.vis, // `Widget` constructor uses it to compute default dimensions based on viz config
+          });
+
+          const position = dashboard.calculateNewWidgetPosition(widget);
+          widget.options.position.col = position.col;
+          widget.options.position.row = position.row;
+
+          return widget.save();
+        })
         .then(() => {
           this.close();
           notification.success('Widget added to dashboard.');
