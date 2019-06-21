@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
-import { isFunction, toString } from 'lodash';
+import { toString } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -23,7 +23,6 @@ export class ParameterValueInput extends React.Component {
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
-    onApply: PropTypes.func,
     className: PropTypes.string,
   };
 
@@ -34,7 +33,6 @@ export class ParameterValueInput extends React.Component {
     queryId: null,
     parameter: null,
     onSelect: () => {},
-    onApply: () => {},
     className: '',
   };
 
@@ -46,12 +44,12 @@ export class ParameterValueInput extends React.Component {
     };
   }
 
-  componentDidUpdate = (_prev) => {
-    // if value prop updated, reset dirty
-    if (_prev.value !== this.props.value) {
+  componentDidUpdate = (prevProps) => {
+    // if value prop updated, reset dirty state
+    if (prevProps.value !== this.props.value) {
       this.setState({ isDirty: false });
     }
-  };
+  }
 
   onSelect = (value) => {
     const isDirty = toString(value) !== toString(this.props.value);
@@ -159,39 +157,30 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderNumberInput() {
-    const { className, onApply } = this.props;
-    const { value, isDirty } = this.state;
+    const { className } = this.props;
+    const { value } = this.state;
+
+    const normalize = val => !isNaN(val) && val || 0;
 
     return (
       <InputNumber
         className={className}
-        value={!isNaN(value) && value || 0}
-        onChange={this.onSelect}
-        onKeyUp={isDirty ? (e) => {
-          const keyNumber = e.which || e.keyCode;
-          if (keyNumber === 13 && !e.ctrlKey && !e.metaKey) { // enter key
-            onApply();
-          }
-        } : null}
+        value={normalize(value)}
+        onChange={val => this.onSelect(normalize(val))}
       />
     );
   }
 
   renderTextInput() {
-    const { className, onApply } = this.props;
-    const { value, isDirty } = this.state;
+    const { className } = this.props;
+    const { value } = this.state;
 
     return (
       <Input
         className={className}
-        value={value || ''}
+        value={value}
         data-test="TextParamInput"
         onChange={e => this.onSelect(e.target.value)}
-        onPressEnter={isDirty ? (e) => {
-          if (!e.ctrlKey && !e.metaKey) {
-            onApply();
-          }
-        } : null}
       />
     );
   }
@@ -232,19 +221,19 @@ export default function init(ngModule) {
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
         on-select="$ctrl.setValue"
-        on-apply="$ctrl.onApply"
       ></parameter-value-input-impl>
     `,
     bindings: {
       param: '<',
-      onChange: '=',
-      onApply: '=',
     },
-    controller() {
+    controller($scope) {
       this.setValue = (value, isDirty) => {
-        if (isFunction(this.onChange)) {
-          this.onChange(this.param, value, isDirty);
+        if (isDirty) {
+          this.param.setPendingValue(value);
+        } else {
+          this.param.clearPendingValue();
         }
+        $scope.$apply();
       };
     },
   });

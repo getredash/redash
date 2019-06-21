@@ -1,4 +1,4 @@
-import { extend, forEach } from 'lodash';
+import { extend, filter, forEach, size } from 'lodash';
 import template from './parameters.html';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
@@ -43,30 +43,26 @@ function ParametersDirective($location) {
           });
       };
 
-      scope.dirtyParams = {}; // when populated, apply button appears
+      scope.dirtyParamCount = 0;
+      scope.$watch(
+        'parameters',
+        () => {
+          scope.dirtyParamCount = size(filter(scope.parameters, 'hasPendingValue'));
+        },
+        true,
+      );
 
-      scope.onParamValueChanged = (param, newValue, isDirty) => {
-        const key = param.name;
-        if (isDirty) {
-          scope.dirtyParams[key] = () => {
-            param.setValue(newValue);
-          };
-        } else {
-          delete scope.dirtyParams[key];
-        }
-        scope.$apply();
-      };
-
+      scope.isApplying = false;
       scope.applyChanges = () => {
-        // set new values for each param
-        forEach(scope.dirtyParams, setValue => setValue());
-        // reset
-        scope.dirtyParams = {};
+        forEach(scope.parameters, p => p.applyPendingValue());
+        scope.isApplying = false;
       };
 
       scope.onApply = () => {
+        scope.isApplying = true;
+        scope.$apply();
+
         scope.$apply(scope.applyChanges);
-        // execute query with new params
         scope.onValuesChange();
       };
     },
