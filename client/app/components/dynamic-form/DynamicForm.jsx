@@ -28,7 +28,7 @@ const fieldRules = ({ type, required, minLength }) => {
     jsonRule && {
       type: 'object',
       transform(x) {
-        if (x.trim()) {
+        if (x && x.trim()) {
           try {
             JSON.parse(x);
           } catch {
@@ -93,7 +93,12 @@ class DynamicForm extends React.Component {
   parseValues = (values) => {
     this.props.fields.forEach((field) => {
       if (field.type === 'json' && field.name in values) {
-        values[field.name] = JSON.parse(values[field.name]);
+        try {
+          values[field.name] = JSON.parse(values[field.name]);
+        } catch {
+          // Invalid JSON must be discarded
+          values[field.name] = null;
+        }
       }
     });
     return values;
