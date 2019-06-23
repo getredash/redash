@@ -4,7 +4,8 @@ WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
 RUN npm install
 
-COPY . /frontend
+COPY client /frontend/client
+COPY webpack.config.js /frontend/
 RUN npm run build
 
 FROM redash/base:debian
