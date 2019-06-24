@@ -2,7 +2,7 @@ import template from './add-to-dashboard.html';
 import notification from '@/services/notification';
 
 const AddToDashboardForm = {
-  controller($sce, Dashboard, currentUser, Widget) {
+  controller($sce, Dashboard) {
     'ngInject';
 
     this.vis = this.resolve.vis;
@@ -13,25 +13,7 @@ const AddToDashboardForm = {
       this.selected_query = this.resolve.query.id;
       // Load dashboard with all widgets
       Dashboard.get({ slug }).$promise
-        .then((dashboard) => {
-          const widget = new Widget({
-            visualization_id: this.vis && this.vis.id,
-            dashboard_id: dashboard.id,
-            options: {
-              isHidden: false,
-              position: {},
-            },
-            width: 1,
-            type: 'visualization',
-            visualization: this.vis, // `Widget` constructor uses it to compute default dimensions based on viz config
-          });
-
-          const position = dashboard.calculateNewWidgetPosition(widget);
-          widget.options.position.col = position.col;
-          widget.options.position.row = position.row;
-
-          return widget.save();
-        })
+        .then(dashboard => dashboard.addWidget(this.vis))
         .then(() => {
           this.close();
           notification.success('Widget added to dashboard.');
