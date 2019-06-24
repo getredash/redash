@@ -31,6 +31,8 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_RESULT_EXPIRES = int(os.environ.get(
     "REDASH_CELERY_RESULT_EXPIRES",
     os.environ.get("REDASH_CELERY_TASK_RESULT_EXPIRES", 3600 * 4)))
+CELERY_INIT_TIMEOUT = int(os.environ.get(
+    "REDASH_CELERY_INIT_TIMEOUT", 10))
 CELERY_BROKER_USE_SSL = CELERY_BROKER.startswith('rediss')
 CELERY_SSL_CONFIG = {
     'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL)),

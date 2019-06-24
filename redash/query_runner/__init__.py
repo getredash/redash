@@ -271,7 +271,18 @@ def import_query_runners(query_runner_imports):
         __import__(runner_import)
 
 
-def guess_type(string_value):
+def guess_type(value):
+    if isinstance(value, bool):
+        return TYPE_BOOLEAN
+    elif isinstance(value, int):
+        return TYPE_INTEGER
+    elif isinstance(value, float):
+        return TYPE_FLOAT
+
+    return guess_type_from_string(value)
+
+
+def guess_type_from_string(string_value):
     if string_value == '' or string_value is None:
         return TYPE_STRING
 
