@@ -81,7 +81,7 @@ class DynamicForm extends React.Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       Object.entries(values).forEach(([key, value]) => {
         const initialValue = this.props.fields.find(f => f.name === key).initialValue;
-        if ((initialValue === undefined || initialValue === '') && value === '') {
+        if ((initialValue === null || initialValue === undefined || initialValue === '') && value === '') {
           values[key] = null;
         }
       });
