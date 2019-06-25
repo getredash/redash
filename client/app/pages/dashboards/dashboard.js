@@ -2,7 +2,6 @@ import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
-import { Widget } from '@/services/widget';
 import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
@@ -330,69 +329,23 @@ function DashboardCtrl(
   this.showAddTextboxDialog = () => {
     TextboxDialog.showModal({
       dashboard: this.dashboard,
-      onConfirm: this.addTextbox,
+      onConfirm: text => this.dashboard.addWidget(text).then(this.onWidgetAdded),
     });
-  };
-
-  this.addTextbox = (text) => {
-    const widget = new Widget({
-      dashboard_id: this.dashboard.id,
-      options: {
-        isHidden: false,
-        position: {},
-      },
-      text,
-      visualization: null,
-      visualization_id: null,
-    });
-
-    const position = this.dashboard.calculateNewWidgetPosition(widget);
-    widget.options.position.col = position.col;
-    widget.options.position.row = position.row;
-
-    return widget.save()
-      .then(() => {
-        this.dashboard.widgets.push(widget);
-        this.dashboard.widgets = [...this.dashboard.widgets]; // ANGULAR_REMOVE_ME
-        this.onWidgetAdded();
-      });
   };
 
   this.showAddWidgetDialog = () => {
     AddWidgetDialog.showModal({
       dashboard: this.dashboard,
-      onConfirm: this.addWidget,
-    });
-  };
-
-  this.addWidget = (selectedVis, parameterMappings) => {
-    const widget = new Widget({
-      visualization_id: selectedVis && selectedVis.id,
-      dashboard_id: this.dashboard.id,
-      options: {
-        isHidden: false,
-        position: {},
+      onConfirm: (visualization, parameterMappings) => this.dashboard.addWidget(visualization, {
         parameterMappings: editableMappingsToParameterMappings(parameterMappings),
-      },
-      visualization: selectedVis,
-      text: '',
+      }).then((widget) => {
+        const widgetsToSave = [
+          widget,
+          ...synchronizeWidgetTitles(widget.options.parameterMappings, this.dashboard.widgets),
+        ];
+        return Promise.all(widgetsToSave.map(w => w.save())).then(this.onWidgetAdded);
+      }),
     });
-
-    const position = this.dashboard.calculateNewWidgetPosition(widget);
-    widget.options.position.col = position.col;
-    widget.options.position.row = position.row;
-
-    const widgetsToSave = [
-      widget,
-      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.dashboard.widgets),
-    ];
-
-    return Promise.all(widgetsToSave.map(w => w.save()))
-      .then(() => {
-        this.dashboard.widgets.push(widget);
-        this.dashboard.widgets = [...this.dashboard.widgets]; // ANGULAR_REMOVE_ME
-        this.onWidgetAdded();
-      });
   };
 
   this.onWidgetAdded = () => {
