@@ -12,12 +12,13 @@ from celery.utils.log import get_logger
 from redash import create_app, extensions, settings
 from redash.metrics import celery as celery_metrics  # noqa
 
-
 logger = get_logger(__name__)
 
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
+                broker_use_ssl=settings.CELERY_SSL_CONFIG,
+                redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
                 include='redash.tasks')
 
 # The internal periodic Celery tasks to automatically schedule.
@@ -25,6 +26,10 @@ celery_schedule = {
     'refresh_queries': {
         'task': 'redash.tasks.refresh_queries',
         'schedule': timedelta(seconds=30)
+    },
+    'empty_schedules': {
+        'task': 'redash.tasks.empty_schedules',
+        'schedule': timedelta(minutes=60)
     },
     'refresh_schemas': {
         'task': 'redash.tasks.refresh_schemas',

@@ -22,7 +22,7 @@ export function QueryControlDropdown(props) {
       {!props.query.isNew() && (
         <Menu.Item>
           <a onClick={() => props.showEmbedDialog(props.query, props.selectedTab)} data-test="ShowEmbedDialogButton">
-            <Icon type="share-alt" /> Embed elsewhere
+            <Icon type="share-alt" /> Embed Elsewhere
           </a>
         </Menu.Item>
       )}
@@ -53,7 +53,11 @@ export function QueryControlDropdown(props) {
   );
 
   return (
-    <Dropdown trigger={['click']} overlay={menu}>
+    <Dropdown
+      trigger={['click']}
+      overlay={menu}
+      overlayClassName="query-control-dropdown-overlay"
+    >
       <Button data-test="QueryControlDropdownButton">
         <Icon type="ellipsis" rotate={90} />
       </Button>

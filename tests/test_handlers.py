@@ -27,17 +27,17 @@ class TestAuthentication(BaseTestCase):
 
             self.assertEquals(200, rv.status_code)
 
-    def test_responds_with_success_for_signed_in_user_with_a_legacy_identity_session(self):
-        with self.client as c:
-            with c.session_transaction() as sess:
-                sess['user_id'] = str(self.factory.user.id)
-            rv = self.client.get("/default/")
-
-            self.assertEquals(200, rv.status_code)
-
     def test_redirects_for_nonsigned_in_user(self):
         rv = self.client.get("/default/")
         self.assertEquals(302, rv.status_code)
+         
+    def test_redirects_for_invalid_session_identifier(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess['user_id'] = 100
+            rv = self.client.get("/default/")
+
+            self.assertEquals(302, rv.status_code)
 
 
 class PingTest(BaseTestCase):
