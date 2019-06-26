@@ -30,6 +30,7 @@ function wrapComponentWithSettings(WrappedComponent) {
         "tableCellMaxJSONSize",
         "allowCustomJSVisualizations",
         "hidePlotlyModeBar",
+        "basePath",
       ]),
     });
 

@@ -74,6 +74,7 @@
     "numeral": "^2.0.6",
     "path-to-regexp": "^3.1.0",
     "prop-types": "^15.6.1",
+    "qs": "^6.9.4",
     "query-string": "^6.9.0",
     "react": "^16.13.1",
     "react-ace": "^9.1.3",

@@ -1,0 +1,63 @@
+@import "../variables.less";
+
+.vega-help-link() {
+  display: inline-block;
+  &,
+  &:visited {
+    color: @visualizations-gray;
+  }
+  &:hover {
+    color: darken(@visualizations-gray, 20%);
+  }
+}
+
+.vega-spec-editor {
+  .ant-select {
+    margin-right: 10px;
+  }
+  .vega-help-link {
+    .vega-help-link();
+  }
+}
+
+.widget-wrapper .vega-visualization-container .ant-alert {
+  margin: 20px;
+}
+
+.vega-visualization-container {
+  overflow: hidden;
+  max-height: 100%; /* make sure there is no scroll bar */
+  text-align: center;
+}
+
+.vega-canvas-container.vega-embed {
+  min-height: 100px;
+  margin: 0 auto;
+  display: block;
+  font-size: 0; /* make sure blank space doesn't increase container height */
+}
+
+.ant-modal-body,
+.modal-body {
+  .vega-canvas-container {
+    min-height: 10vh;
+  }
+}
+
+.vega-external-link {
+  text-align: center;
+  margin-top: 10px;
+  a {
+    .vega-help-link();
+  }
+}
+
+#vg-tooltip-element {
+  z-index: 2001;
+  font-size: 12px;
+  border-radius: 1px;
+  border: 0;
+  table {
+    background: transparent;
+  }
+}

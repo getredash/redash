@@ -235,7 +235,12 @@ export default function VisualizationEmbed({ queryId, visualizationId, apiKey, o
         )}
         {error && <div className="alert alert-danger" data-test="ErrorMessage">{`Error: ${error}`}</div>}
         {!error && queryResults && (
-          <VisualizationRenderer visualization={visualization} queryResult={queryResults} context="widget" />
+          <VisualizationRenderer
+            visualization={visualization}
+            queryResult={queryResults}
+            context="widget"
+            query={query}
+          />
         )}
         {!queryResults && refreshStartedAt && (
           <div className="d-flex justify-content-center">

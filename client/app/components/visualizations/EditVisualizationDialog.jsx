@@ -201,6 +201,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             <Editor
               type={type}
               data={data}
+              query={query}
               options={options}
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
@@ -214,9 +215,11 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
             <Renderer
+              context="editor"
               type={type}
-              data={filteredData}
               options={options}
+              data={filteredData}
+              query={query}
               visualizationName={name}
               onOptionsChange={onOptionsChanged}
             />

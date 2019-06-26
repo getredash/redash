@@ -5,7 +5,7 @@ import Editor from "./Editor";
 export default {
   type: "CHART",
   name: "Chart",
-  isDefault: true,
+  // isDefault: true,
   getOptions,
   Renderer,
   Editor,

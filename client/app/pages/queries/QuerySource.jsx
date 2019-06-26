@@ -372,6 +372,7 @@ function QuerySource(props) {
                     <QueryVisualizationTabs
                       queryResult={queryResult}
                       visualizations={query.visualizations}
+                      query={query}
                       showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
                       canDeleteVisualizations={queryFlags.canEdit}
                       selectedTab={selectedVisualization}
