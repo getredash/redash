@@ -42,6 +42,19 @@ class TestHasAccess(BaseTestCase):
         self.assertFalse(has_access({2: view_only}, user, view_only))
         self.assertFalse(has_access({2: not view_only, 1: view_only}, user, not view_only))
 
+    def test_allows_access_to_query_by_query_api_key(self):
+        query = self.factory.create_query()
+        user = models.ApiUser(query.api_key, None, [])
+
+        self.assertTrue(has_access(query, user, view_only))
+
+    def test_doesnt_allow_access_to_query_by_different_api_key(self):
+        query = self.factory.create_query()
+        other_query = self.factory.create_query()
+        user = models.ApiUser(other_query.api_key, None, [])
+
+        self.assertFalse(has_access(query, user, view_only))
+
     def test_allows_access_to_query_by_dashboard_api_key(self):
         dashboard = self.factory.create_dashboard()
         visualization = self.factory.create_visualization()

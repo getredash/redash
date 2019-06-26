@@ -24,9 +24,11 @@ def has_access(obj, user, need_view_only):
 def has_access_to_object(obj, api_key, need_view_only):
     if obj.api_key == api_key:
         return need_view_only
-    else:
+    elif hasattr(obj, 'dashboard_api_keys'):
         # check if api_key belongs to a dashboard containing this query
         return api_key in obj.dashboard_api_keys and need_view_only
+    else:
+        return False
 
 
 def has_access_to_groups(obj, user, need_view_only):
