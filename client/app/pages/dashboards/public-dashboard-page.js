@@ -31,10 +31,6 @@ const PublicDashboardPage = {
       this.globalParameters = this.dashboard.getParametersDefs();
     };
 
-    $scope.$on('dashboard.update-parameters', () => {
-      this.extractGlobalParameters();
-    });
-
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
     this.refreshDashboard = () => {
