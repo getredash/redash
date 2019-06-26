@@ -448,7 +448,7 @@ function DashboardCtrl(
   this.openShareForm = () => {
     const hasOnlySafeQueries = _.every(
       this.dashboard.widgets,
-      w => w.getQuery() && w.getQuery().is_safe,
+      w => (w.getQuery() ? w.getQuery().is_safe : true),
     );
 
     ShareDashboardDialog.showModal({
