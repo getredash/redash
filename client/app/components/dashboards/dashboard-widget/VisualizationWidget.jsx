@@ -25,8 +25,9 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   const widgetQueryResult = widget.getQueryResult();
   const isQueryResultEmpty = !widgetQueryResult || !widgetQueryResult.isEmpty || widgetQueryResult.isEmpty();
 
-  const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
-  const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
+  const query = widget.getQuery();
+  const downloadLink = fileType => query.getDataUrl(fileType);
+  const downloadName = fileType => widgetQueryResult.getName(query.name, fileType);
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -256,6 +257,7 @@ class VisualizationWidget extends React.Component {
         return (
           <div className="body-row-auto scrollbox">
             <VisualizationRenderer
+              query={widget.getQuery()}
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}

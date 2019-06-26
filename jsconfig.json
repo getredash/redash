@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./client/app/*"],
+      "extensions/*": ["./client/app/extensions/*"],
+    }
+  },
+  "exclude": ["./client/dist", "node_modules"]
+}

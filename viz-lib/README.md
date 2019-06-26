@@ -66,7 +66,13 @@ function Example() {
         data={exampleData}
         onChange={setOptions}
       />
-      <Renderer type="COUNTER" visualizationName="Example Visualization" options={options} data={exampleData} />
+      <Renderer
+        context="editor"
+        type="COUNTER"
+        visualizationName="Example Visualization"
+        options={options}
+        data={exampleData}
+      />
     </div>
   );
 }

@@ -155,6 +155,7 @@ function QueryView(props) {
           {loadedInitialResults && (
             <QueryVisualizationTabs
               queryResult={queryResult}
+              query={query}
               visualizations={query.visualizations}
               showNewVisualizationButton={queryFlags.canEdit && queryResultData.status === ExecutionStatus.DONE}
               canDeleteVisualizations={queryFlags.canEdit}

@@ -91,6 +91,7 @@ export default function QueryVisualizationTabs({
   onAddVisualization,
   onDeleteVisualization,
   refreshButton,
+  query,
   ...props
 }) {
   const visualizations = useMemo(
@@ -143,7 +144,12 @@ export default function QueryVisualizationTabs({
             />
           }>
           {queryResult ? (
-            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+            <VisualizationRenderer
+              query={query}
+              visualization={visualization}
+              queryResult={queryResult}
+              context="query"
+            />
           ) : (
             <EmptyState
               title="Query Has no Result"
@@ -159,6 +165,7 @@ export default function QueryVisualizationTabs({
 
 QueryVisualizationTabs.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object,
   visualizations: PropTypes.arrayOf(PropTypes.object),
   selectedTab: PropTypes.number,
   showNewVisualizationButton: PropTypes.bool,
@@ -171,6 +178,7 @@ QueryVisualizationTabs.propTypes = {
 
 QueryVisualizationTabs.defaultProps = {
   queryResult: null,
+  query: null,
   visualizations: [],
   selectedTab: null,
   showNewVisualizationButton: false,

@@ -65,6 +65,8 @@ export default function VisualizationRenderer(props) {
       type={visualization.type}
       options={options}
       data={filteredData}
+      query={props.query}
+      context={props.context}
       visualizationName={visualization.name}
       addonBefore={showFilters && <Filters filters={filters} onChange={setFilters} />}
     />
@@ -74,6 +76,7 @@ export default function VisualizationRenderer(props) {
 VisualizationRenderer.propTypes = {
   visualization: VisualizationType.isRequired,
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  query: PropTypes.object,
   filters: FiltersType,
   showFilters: PropTypes.bool,
   context: PropTypes.oneOf(["query", "widget"]).isRequired,

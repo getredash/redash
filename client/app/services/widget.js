@@ -111,7 +111,6 @@ class Widget {
     if (!this.query && this.visualization) {
       this.query = new Query(this.visualization.query);
     }
-
     return this.query;
   }
 
