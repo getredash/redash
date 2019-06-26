@@ -57,7 +57,6 @@ export class Parameter {
     this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
-    this.queryId = parameter.queryId;
     this.parentQueryId = parentQueryId;
 
     // Used for meta-parameters (i.e. dashboard-level params)
@@ -175,7 +174,7 @@ export class Parameter {
       };
     }
     return {
-      [`${prefix}${this.name}_${this.queryId}`]: this.value,
+      [`${prefix}${this.name}_${this.parentQueryId}`]: this.value,
     };
   }
 
@@ -188,7 +187,7 @@ export class Parameter {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `${prefix}${this.name}_${this.queryId}`;
+      const key = `${prefix}${this.name}_${this.parentQueryId}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }
