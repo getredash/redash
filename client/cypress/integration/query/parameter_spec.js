@@ -10,6 +10,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Text Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'text' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
