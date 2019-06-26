@@ -116,6 +116,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Date Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'date' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
@@ -156,6 +161,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Date and Time Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'datetime-local' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
