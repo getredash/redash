@@ -1,14 +1,14 @@
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import { map, min, max, values } from 'lodash';
-import React from 'react';
+import { map, min, max, values, sortBy } from 'lodash';
+import React, { useMemo, useState, useEffect } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 
-function findWordFrequencies(data, columnName) {
+function computeWordFrequencies(rows, column) {
   const wordsHash = {};
 
-  data.forEach((row) => {
-    const wordsList = row[columnName].toString().split(' ');
+  rows.forEach((row) => {
+    const wordsList = row[column].toString().split(' ');
     wordsList.forEach((d) => {
       if (d in wordsHash) {
         wordsHash[d] += 1;
@@ -21,101 +21,106 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
-// target domain: [t1, t2]
-const MIN_WORD_SIZE = 10;
-const MAX_WORD_SIZE = 100;
+function prepareWords(rows, options) {
+  let result = [];
 
-function createScale(wordCounts) {
-  wordCounts = values(wordCounts);
-
-  // source domain: [s1, s2]
-  const minCount = min(wordCounts);
-  const maxCount = max(wordCounts);
-
-  // Edge case - if all words have the same count; just set middle size for all
-  if (minCount === maxCount) {
-    return () => (MAX_WORD_SIZE + MIN_WORD_SIZE) / 2;
-  }
-
-  // v is value from source domain:
-  //    s1 <= v <= s2.
-  // We need to fit it target domain:
-  //    t1 <= v" <= t2
-  // 1. offset source value to zero point:
-  //    v' = v - s1
-  // 2. offset source and target domains to zero point:
-  //    s' = s2 - s1
-  //    t' = t2 - t1
-  // 3. compute fraction:
-  //    f = v' / s';
-  //    0 <= f <= 1
-  // 4. map f to target domain:
-  //    v" = f * t' + t1;
-  //    t1 <= v" <= t' + t1;
-  //    t1 <= v" <= t2 (because t' = t2 - t1, so t2 = t' + t1)
-
-  const sourceScale = maxCount - minCount;
-  const targetScale = MAX_WORD_SIZE - MIN_WORD_SIZE;
-
-  return value => ((value - minCount) / sourceScale) * targetScale + MIN_WORD_SIZE;
-}
-
-function render(container, data, options) {
-  let wordsHash = {};
   if (options.column) {
-    wordsHash = findWordFrequencies(data.rows, options.column);
+    result = computeWordFrequencies(rows, options.column);
   }
 
-  const scaleValue = createScale(wordsHash);
+  const counts = values(result);
+  const wordSize = d3.scale.linear()
+    .domain([min(counts), max(counts)])
+    .range([10, 100]); // min/max word size
 
-  const wordList = map(wordsHash, (count, key) => ({
+  const color = d3.scale.category20();
+
+  result = map(result, (count, key) => ({
     text: key,
-    size: scaleValue(count),
+    size: wordSize(count),
   }));
 
-  const fill = d3.scale.category20();
-  const layout = cloud()
-    .size([500, 500])
-    .words(wordList)
-    .padding(5)
-    .rotate(() => Math.floor(Math.random() * 2) * 90)
+  // add some attributes
+  result = map(result, (word, i) => ({
+    ...word,
+    color: color(i),
+    angle: i % 2 * 90, // make it stable between renderings
+  }));
+
+  return sortBy(
+    result,
+    [({ size }) => -size, ({ text }) => -text.length], // "size" desc, length("text") desc
+  );
+}
+
+function scaleElement(node, container) {
+  node.style.transform = null;
+  const { width: nodeWidth, height: nodeHeight } = node.getBoundingClientRect();
+  const { width: containerWidth, height: containerHeight } = container.getBoundingClientRect();
+
+  const scaleX = containerWidth / nodeWidth;
+  const scaleY = containerHeight / nodeHeight;
+
+  node.style.transform = `scale(${Math.min(scaleX, scaleY)})`;
+  node.style.transformOrigin = 'left top';
+}
+
+function createLayout() {
+  return cloud()
+  // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
+    .size([10000, 10000])
+    .padding(3)
     .font('Impact')
-    .fontSize(d => d.size);
+    .rotate(d => d.angle)
+    .fontSize(d => d.size)
+    .random(() => 0.5); // do not place words randomly - use compact layout
+}
 
-  function draw(words) {
-    d3.select(container).selectAll('*').remove();
+function render(container, words) {
+  container = d3.select(container);
+  container.selectAll('*').remove();
 
-    d3.select(container)
-      .append('svg')
-      .attr('width', layout.size()[0])
-      .attr('height', layout.size()[1])
-      .append('g')
-      .attr('transform', `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
-      .selectAll('text')
-      .data(words)
-      .enter()
-      .append('text')
-      .style('font-size', d => `${d.size}px`)
-      .style('font-family', 'Impact')
-      .style('fill', (d, i) => fill(i))
-      .attr('text-anchor', 'middle')
-      .attr('transform', d => `translate(${[d.x, d.y]})rotate(${d.rotate})`)
-      .text(d => d.text);
-  }
+  const svg = container.append('svg');
+  const g = svg.append('g');
+  g.selectAll('text')
+    .data(words)
+    .enter()
+    .append('text')
+    .style('font-size', d => `${d.size}px`)
+    .style('font-family', d => d.font)
+    .style('fill', d => d.color)
+    .attr('text-anchor', 'middle')
+    .attr('transform', d => `translate(${[d.x, d.y]}) rotate(${d.rotate})`)
+    .text(d => d.text);
 
-  layout.on('end', draw);
+  // get real bounds of words and add some padding to ensure that everything is visible
+  const bounds = g.node().getBoundingClientRect();
+  const width = bounds.width + 10;
+  const height = bounds.height + 10;
 
-  layout.start();
+  svg.attr('width', width).attr('height', height);
+  g.attr('transform', `translate(${width / 2},${height / 2})`);
+
+  scaleElement(svg.node(), container.node());
 }
 
 export default function Renderer({ data, options }) {
-  const containerRef = (container) => {
-    if (container) {
-      render(container, data, options);
-    }
-  };
+  const [container, setContainer] = useState(null);
+  const [words, setWords] = useState([]);
+  const layout = useMemo(createLayout, []);
 
-  return (<div ref={containerRef} />);
+  useEffect(() => {
+    layout.words(prepareWords(data.rows, options)).on('end', w => setWords(w)).start();
+    return () => layout.on('end', null).stop();
+  }, [layout, data, options, setWords]);
+
+  useEffect(() => {
+    if (container) {
+      render(container, words);
+    }
+  }, [container, words]);
+
+  return (<div className="word-cloud-visualization-container" ref={setContainer} />);
 }
 
 Renderer.propTypes = RendererPropTypes;
