@@ -1,31 +1,45 @@
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import { map, min, max, values, sortBy } from 'lodash';
+import { each, map, min, max, values, sortBy } from 'lodash';
 import React, { useMemo, useState, useEffect } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 
 function computeWordFrequencies(rows, column) {
-  const wordsHash = {};
+  const result = {};
 
-  rows.forEach((row) => {
-    const wordsList = row[column].toString().split(' ');
-    wordsList.forEach((d) => {
-      if (d in wordsHash) {
-        wordsHash[d] += 1;
-      } else {
-        wordsHash[d] = 1;
-      }
+  each(rows, (row) => {
+    const wordsList = row[column].toString().split(/\s/g);
+    each(wordsList, (d) => {
+      result[d] = (result[d] || 0) + 1;
     });
   });
 
-  return wordsHash;
+  return result;
+}
+
+function getWordsWithFrequencies(rows, wordColumn, frequencyColumn) {
+  const result = {};
+
+  each(rows, (row) => {
+    const count = parseFloat(row[frequencyColumn]);
+    if (Number.isFinite(count) && (count > 0)) {
+      const word = row[wordColumn];
+      result[word] = count;
+    }
+  });
+
+  return result;
 }
 
 function prepareWords(rows, options) {
   let result = [];
 
   if (options.column) {
-    result = computeWordFrequencies(rows, options.column);
+    if (options.frequenciesColumn) {
+      result = getWordsWithFrequencies(rows, options.column, options.frequenciesColumn);
+    } else {
+      result = computeWordFrequencies(rows, options.column);
+    }
   }
 
   const counts = values(result);
