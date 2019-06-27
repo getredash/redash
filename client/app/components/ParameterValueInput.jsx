@@ -5,11 +5,9 @@ import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
+import DateParameter from '@/components/dynamic-parameters/DateParameter';
 import DateRangeParameter from '@/components/dynamic-parameters/DateRangeParameter';
 import { defer, isFunction } from 'lodash';
-import { DateInput } from './DateInput';
-import { DateTimeInput } from './DateTimeInput';
-import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
 
 import './ParameterValueInput.less';
@@ -59,58 +57,14 @@ export class ParameterValueInput extends React.Component {
     );
   }
 
-  renderDateTimeWithSecondsInput() {
-    const { value, onSelect } = this.props;
+  renderDateParameter() {
+    const { type, value, parameter, onSelect } = this.props;
     return (
-      <DateTimeInput
+      <DateParameter
+        type={type}
         className={this.props.className}
         value={value}
-        onSelect={onSelect}
-        withSeconds
-      />
-    );
-  }
-
-  renderDateTimeInput() {
-    const { value, onSelect } = this.props;
-    return (
-      <DateTimeInput
-        className={this.props.className}
-        value={value}
-        onSelect={onSelect}
-      />
-    );
-  }
-
-  renderDateInput() {
-    const { value, onSelect } = this.props;
-    return (
-      <DateInput
-        className={this.props.className}
-        value={value}
-        onSelect={onSelect}
-      />
-    );
-  }
-
-  renderDateTimeRangeWithSecondsInput() {
-    const { value, onSelect } = this.props;
-    return (
-      <DateTimeRangeInput
-        className={this.props.className}
-        value={value}
-        onSelect={onSelect}
-        withSeconds
-      />
-    );
-  }
-
-  renderDateTimeRangeInput() {
-    const { value, onSelect } = this.props;
-    return (
-      <DateTimeRangeInput
-        className={this.props.className}
-        value={value}
+        parameter={parameter}
         onSelect={onSelect}
       />
     );
@@ -222,9 +176,9 @@ export class ParameterValueInput extends React.Component {
   render() {
     const { type } = this.props;
     switch (type) {
-      case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
-      case 'datetime-local': return this.renderDateTimeInput();
-      case 'date': return this.renderDateInput();
+      case 'datetime-with-seconds': return this.renderDateParameter();
+      case 'datetime-local': return this.renderDateParameter();
+      case 'date': return this.renderDateParameter();
       case 'datetime-range-with-seconds': return this.renderDateRangeParameter();
       case 'datetime-range': return this.renderDateRangeParameter();
       case 'date-range': return this.renderDateRangeParameter();
