@@ -210,13 +210,15 @@ describe('Parameter', () => {
         .find('input')
         .click();
 
-      const now = Cypress.moment();
       cy.get('.ant-calendar-date-panel')
         .contains('Now')
         .click();
 
-      cy.getByTestId('DynamicTable')
-        .should('contain', now.format('YYYY-MM-01 HH:mm'));
+      cy.get('.ant-calendar-input').then(($input) => {
+        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
+        cy.getByTestId('DynamicTable')
+          .should('contain', now.format('YYYY-MM-01 HH:mm'));
+      });
     });
   });
 });
