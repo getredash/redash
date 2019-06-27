@@ -81,8 +81,9 @@ function scaleElement(node, container) {
 
 function createLayout() {
   return cloud()
-  // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
-    .size([10000, 10000])
+    // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
+    // TODO: dimensions probably should be larger, but `d3-cloud` has some performance issues related to these values
+    .size([5000, 5000])
     .padding(3)
     .font('Impact')
     .rotate(d => d.angle)
@@ -107,13 +108,11 @@ function render(container, words) {
     .attr('transform', d => `translate(${[d.x, d.y]}) rotate(${d.rotate})`)
     .text(d => d.text);
 
-  // get real bounds of words and add some padding to ensure that everything is visible
-  const bounds = g.node().getBoundingClientRect();
-  const width = bounds.width + 10;
-  const height = bounds.height + 10;
+  const svgBounds = svg.node().getBoundingClientRect();
+  const gBounds = g.node().getBoundingClientRect();
 
-  svg.attr('width', width).attr('height', height);
-  g.attr('transform', `translate(${width / 2},${height / 2})`);
+  svg.attr('width', Math.ceil(gBounds.width)).attr('height', Math.ceil(gBounds.height));
+  g.attr('transform', `translate(${svgBounds.left - gBounds.left},${svgBounds.top - gBounds.top})`);
 
   scaleElement(svg.node(), container.node());
 }
