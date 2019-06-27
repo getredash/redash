@@ -25,7 +25,7 @@ const DATETIME_FORMATS = {
 
 const DYNAMIC_DATE_PREFIX = 'd_';
 
-const DYNAMIC_DATE_RANGES = {
+export const DYNAMIC_DATE_RANGES = {
   last_week: {
     name: 'Last week',
     value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],

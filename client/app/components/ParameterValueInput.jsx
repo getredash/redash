@@ -6,12 +6,10 @@ import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import Icon from 'antd/lib/icon';
-import Tag from 'antd/lib/tag';
 import Tooltip from 'antd/lib/tooltip';
-import EditDateParameterDialog from '@/components/EditDateParameterDialog';
-import { defer, isFunction, includes } from 'lodash';
+import DateRangeParameter from '@/components/parameters/DateRangeParameter';
+import { defer, isFunction } from 'lodash';
 import { DateInput } from './DateInput';
-import { DateRangeInput } from './DateRangeInput';
 import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
@@ -45,26 +43,8 @@ export class ParameterValueInput extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      value: props.value,
-      hasDynamicDateTime: !!(props.parameter && props.parameter.hasDynamicValue),
-    };
+    this.state = { value: props.value };
   }
-
-  openDateParameterDialog = (e) => {
-    e.stopPropagation();
-
-    const { onSelect, parameter } = this.props;
-    EditDateParameterDialog.showModal({ defaultValue: parameter.value }).result
-      .then((datePeriod) => {
-        if (datePeriod) {
-          onSelect(datePeriod.value);
-        } else {
-          onSelect(parameter.getValue());
-        }
-        this.setState({ hasDynamicDateTime: parameter.hasDynamicValue });
-      });
-  };
 
   renderApplyButton() {
     const { onSelect } = this.props;
@@ -136,8 +116,6 @@ export class ParameterValueInput extends React.Component {
         value={value}
         onSelect={onSelect}
         withSeconds
-        suffixIcon={this.renderDynamicOptionButton()}
-        allowClear={false}
       />
     );
   }
@@ -149,32 +127,19 @@ export class ParameterValueInput extends React.Component {
         className={this.props.className}
         value={value}
         onSelect={onSelect}
-        suffixIcon={this.renderDynamicOptionButton()}
-        allowClear={false}
       />
     );
   }
 
   renderDateRangeInput() {
-    const { value, onSelect } = this.props;
+    const { value, parameter, onSelect } = this.props;
     return (
-      <DateRangeInput
+      <DateRangeParameter
         className={this.props.className}
         value={value}
+        parameter={parameter}
         onSelect={onSelect}
-        suffixIcon={this.renderDynamicOptionButton()}
-        allowClear={false}
       />
-    );
-  }
-
-  renderDynamicDateRangeTag() {
-    const { parameter } = this.props;
-    return (
-      <div className="d-inline-flex align-items-center" style={{ height: 35 }}>
-        <Tag onClick={this.openDateParameterDialog}>{parameter.dynamicValue.name}</Tag>
-        {this.renderDynamicOptionButton()}
-      </div>
     );
   }
 
@@ -270,12 +235,6 @@ export class ParameterValueInput extends React.Component {
 
   render() {
     const { type } = this.props;
-    const isDateRangeType = includes(['datetime-range-with-seconds', 'datetime-range', 'date-range'], type);
-
-    if (this.state.hasDynamicDateTime && isDateRangeType) {
-      return this.renderDynamicDateRangeTag();
-    }
-
     switch (type) {
       case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
       case 'datetime-local': return this.renderDateTimeInput();
