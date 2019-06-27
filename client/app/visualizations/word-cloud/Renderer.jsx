@@ -4,6 +4,8 @@ import { each, map, min, max, values, sortBy } from 'lodash';
 import React, { useMemo, useState, useEffect } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 
+import './renderer.less';
+
 function computeWordFrequencies(rows, column) {
   const result = {};
 
@@ -31,6 +33,40 @@ function getWordsWithFrequencies(rows, wordColumn, frequencyColumn) {
   return result;
 }
 
+function applyLimitsToWords(wordsHash, { wordLength, wordCount }) {
+  const result = {};
+
+  wordLength.min = Number.isFinite(wordLength.min) ? wordLength.min : null;
+  wordLength.max = Number.isFinite(wordLength.max) ? wordLength.max : null;
+  if (wordLength.min && wordLength.max && (wordLength.min > wordLength.max)) {
+    wordLength = { min: wordLength.max, max: wordLength.min }; // swap
+  }
+
+  wordCount.min = Number.isFinite(wordCount.min) ? wordCount.min : null;
+  wordCount.max = Number.isFinite(wordCount.max) ? wordCount.max : null;
+  if (wordCount.min && wordCount.max && (wordCount.min > wordCount.max)) {
+    wordCount = { min: wordCount.max, max: wordCount.min }; // swap
+  }
+
+  each(wordsHash, (count, word) => {
+    if (wordLength.min && (word.length < wordLength.min)) {
+      return;
+    }
+    if (wordLength.max && (word.length > wordLength.max)) {
+      return;
+    }
+    if (wordCount.min && (count < wordCount.min)) {
+      return;
+    }
+    if (wordCount.max && (count > wordCount.max)) {
+      return;
+    }
+    result[word] = count;
+  });
+
+  return result;
+}
+
 function prepareWords(rows, options) {
   let result = [];
 
@@ -41,6 +77,11 @@ function prepareWords(rows, options) {
       result = computeWordFrequencies(rows, options.column);
     }
   }
+
+  result = applyLimitsToWords(result, {
+    wordLength: options.wordLengthLimit,
+    wordCount: options.wordCountLimit,
+  });
 
   const counts = values(result);
   const wordSize = d3.scale.linear()
@@ -76,7 +117,6 @@ function scaleElement(node, container) {
   const scaleY = containerHeight / nodeHeight;
 
   node.style.transform = `scale(${Math.min(scaleX, scaleY)})`;
-  node.style.transformOrigin = 'left top';
 }
 
 function createLayout() {
