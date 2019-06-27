@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { createQuery } from '../../support/redash-api';
 
 describe('Parameter', () => {
@@ -154,7 +153,7 @@ describe('Parameter', () => {
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', moment().format('15/MM/YY'));
+        .should('contain', Cypress.moment().format('15/MM/YY'));
     });
   });
 
@@ -203,7 +202,7 @@ describe('Parameter', () => {
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', moment().format('YYYY-MM-15 HH:mm'));
+        .should('contain', Cypress.moment().format('YYYY-MM-15 HH:mm'));
     });
 
     it('shows the current datetime after clicking in Now', () => {
@@ -216,7 +215,7 @@ describe('Parameter', () => {
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', moment().format('YYYY-MM-01 HH:mm'));
+        .should('contain', Cypress.moment().format('YYYY-MM-01 HH:mm'));
     });
   });
 });
