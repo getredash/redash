@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { includes } from 'lodash';
 import { DYNAMIC_DATE_RANGES } from '@/services/query';
 import { DateRangeInput } from '@/components/DateRangeInput';
-import DynamicButton from '@/components/parameters/DynamicButton';
+import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
+import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
 
-import './DateRangeParameter.less';
+import './DynamicParameters.less';
 
-const DYNAMIC_OPTIONS = [
-  { name: 'Static value', value: 'static' },
+const DYNAMIC_DATE_OPTIONS = [
   { name: 'Last week',
     value: 'd_last_week',
     label: () => DYNAMIC_DATE_RANGES.last_week.value()[0].format('MMM D') + ' - ' +
@@ -20,8 +21,19 @@ const DYNAMIC_OPTIONS = [
     label: () => DYNAMIC_DATE_RANGES.last_7_days.value()[0].format('MMM D') + ' - Today' },
 ];
 
+const DYNAMIC_DATETIME_OPTIONS = [
+  { name: 'Today',
+    value: 'd_today',
+    label: () => DYNAMIC_DATE_RANGES.today.value()[0].format('MMM D') },
+  { name: 'Yesterday',
+    value: 'd_yesterday',
+    label: () => DYNAMIC_DATE_RANGES.yesterday.value()[0].format('MMM D') },
+  ...DYNAMIC_DATE_OPTIONS,
+];
+
 export default class DateRangeParameter extends React.Component {
   static propTypes = {
+    type: PropTypes.string,
     className: PropTypes.string,
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -29,6 +41,7 @@ export default class DateRangeParameter extends React.Component {
   };
 
   static defaultProps = {
+    type: '',
     className: '',
     value: null,
     parameter: null,
@@ -38,6 +51,16 @@ export default class DateRangeParameter extends React.Component {
   constructor(props) {
     super(props);
     this.state = { dynamicValue: !!(props.parameter && props.parameter.hasDynamicValue) };
+  }
+
+  dynamicOptions = () => {
+    const isDateTimeRange = includes(this.props.type, 'datetime-range');
+    const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
+
+    return [
+      { name: 'Static value', value: 'static' },
+      ...options,
+    ];
   }
 
   onDynamicValueSelect = (dynamicValue) => {
@@ -57,10 +80,19 @@ export default class DateRangeParameter extends React.Component {
   };
 
   render() {
-    const { value, parameter, className } = this.props;
+    const { type, value, parameter, className } = this.props;
     const { dynamicValue } = this.state;
+    const isDateTime = includes(type, 'datetime-range');
 
     const additionalAttributes = {};
+
+    let DateRangeComponent = DateRangeInput;
+    if (isDateTime) {
+      DateRangeComponent = DateTimeRangeInput;
+      if (includes(type, 'with-seconds')) {
+        additionalAttributes.withSeconds = true;
+      }
+    }
 
     if (dynamicValue) {
       additionalAttributes.placeholder = [parameter.dynamicValue && parameter.dynamicValue.name];
@@ -68,13 +100,13 @@ export default class DateRangeParameter extends React.Component {
     }
 
     return (
-      <DateRangeInput
+      <DateRangeComponent
         className={classNames('redash-datepicker', { 'dynamic-value': dynamicValue }, className)}
         value={value}
         onSelect={this.onSelect}
         suffixIcon={(
           <DynamicButton
-            options={DYNAMIC_OPTIONS}
+            options={this.dynamicOptions()}
             enabled={dynamicValue}
             onSelect={this.onDynamicValueSelect}
           />

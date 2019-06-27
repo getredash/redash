@@ -26,6 +26,14 @@ const DATETIME_FORMATS = {
 const DYNAMIC_DATE_PREFIX = 'd_';
 
 export const DYNAMIC_DATE_RANGES = {
+  today: {
+    name: 'Today',
+    value: () => [moment().startOf('day'), moment().endOf('day')],
+  },
+  yesterday: {
+    name: 'Yesterday',
+    value: () => [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+  },
   last_week: {
     name: 'Last week',
     value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],

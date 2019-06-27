@@ -5,9 +5,7 @@ import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
-import Icon from 'antd/lib/icon';
-import Tooltip from 'antd/lib/tooltip';
-import DateRangeParameter from '@/components/parameters/DateRangeParameter';
+import DateRangeParameter from '@/components/dynamic-parameters/DateRangeParameter';
 import { defer, isFunction } from 'lodash';
 import { DateInput } from './DateInput';
 import { DateTimeInput } from './DateTimeInput';
@@ -58,19 +56,6 @@ export class ParameterValueInput extends React.Component {
       >
         Apply
       </Button>
-    );
-  }
-
-  renderDynamicOptionButton() {
-    return (
-      <Tooltip title="Dynamic Options">
-        <Icon
-          className="clickable"
-          type="thunderbolt"
-          theme="twoTone"
-          onClick={this.openDateParameterDialog}
-        />
-      </Tooltip>
     );
   }
 
@@ -131,10 +116,11 @@ export class ParameterValueInput extends React.Component {
     );
   }
 
-  renderDateRangeInput() {
-    const { value, parameter, onSelect } = this.props;
+  renderDateRangeParameter() {
+    const { type, value, parameter, onSelect } = this.props;
     return (
       <DateRangeParameter
+        type={type}
         className={this.props.className}
         value={value}
         parameter={parameter}
@@ -239,9 +225,9 @@ export class ParameterValueInput extends React.Component {
       case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
       case 'datetime-local': return this.renderDateTimeInput();
       case 'date': return this.renderDateInput();
-      case 'datetime-range-with-seconds': return this.renderDateTimeRangeWithSecondsInput();
-      case 'datetime-range': return this.renderDateTimeRangeInput();
-      case 'date-range': return this.renderDateRangeInput();
+      case 'datetime-range-with-seconds': return this.renderDateRangeParameter();
+      case 'datetime-range': return this.renderDateRangeParameter();
+      case 'date-range': return this.renderDateRangeParameter();
       case 'enum': return this.renderEnumInput();
       case 'query': return this.renderQueryBasedInput();
       case 'number': return this.renderNumberInput();
