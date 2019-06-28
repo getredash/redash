@@ -120,7 +120,7 @@ class Hive(BaseSQLQueryRunner):
 
         if isinstance(query, str):
             query_result = self._run_query_internal(query)
-        elif isinstance():
+        elif isinstance(query, list):
             query_result = query
 
         return filter(
