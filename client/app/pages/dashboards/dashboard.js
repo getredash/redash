@@ -303,27 +303,9 @@ function DashboardCtrl(
 
   this.updateDashboardFiltersState = () => {
     collectFilters(this.dashboard, false);
-    Dashboard.save(
-      {
-        slug: this.dashboard.id,
-        version: this.dashboard.version,
-        dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
-      },
-      (dashboard) => {
-        this.dashboard = dashboard;
-      },
-      (error) => {
-        if (error.status === 403) {
-          notification.error('Name update failed', 'Permission denied.');
-        } else if (error.status === 409) {
-          notification.error(
-            'It seems like the dashboard has been modified by another user. ',
-            'Please copy/backup your changes and reload this page.',
-            { duration: null },
-          );
-        }
-      },
-    );
+    updateDashboard({
+      dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
+    });
   };
 
   this.showAddTextboxDialog = () => {
