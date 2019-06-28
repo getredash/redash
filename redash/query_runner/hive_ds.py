@@ -86,15 +86,16 @@ class Hive(BaseSQLQueryRunner):
         schemas_query_result = self._run_query_internal(schemas_query)
 
         # This tests to see if we are dealing with SparkSQL as they have different column names
-        # if it does we change them
+        # if it does we change them so that the schema refresh doesn't fail
         if len(schemas_query_result) > 0 and 'databaseName' in schemas_query_result[0]:
             database_name_col = 'databaseName'
             database_tablename_col = 'tableName'
             column_name_col = 'col_name'
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a[database_name_col]), schemas_query_result)):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a[database_tablename_col]), self._run_query_internal(tables_query % schema_name))):
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a[column_name_col]), self._run_query_internal(columns_query % (schema_name, table_name))))
+        for schema_name in self._extract_column(schemas_query, database_name_col):
+            for table_name in self._extract_column(tables_query % schema_name, database_tablename_col):
+                columns_query_templated = columns_query % (schema_name, table_name)
+                columns = self._extract_column(columns_query_templated, database_tablename_col)
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
@@ -113,7 +114,15 @@ class Hive(BaseSQLQueryRunner):
         )
         
         return connection
-
+    
+    def _extract_column(self, query, column_name):
+        filter(
+            lambda a: len(a) > 0,
+            map(
+                lambda a: str(a[column_name]), 
+                self._run_query_internal(query)
+            )
+        )
 
     def run_query(self, query, user):
         connection = None
