@@ -92,7 +92,7 @@ class Hive(BaseSQLQueryRunner):
             database_tablename_col = 'tableName'
             column_name_col = 'col_name'
 
-        for schema_name in self._extract_column(schemas_query, database_name_col):
+        for schema_name in self._extract_column(schemas_query_result, database_name_col):
             for table_name in self._extract_column(tables_query % schema_name, database_tablename_col):
                 columns_query_templated = columns_query % (schema_name, table_name)
                 columns = self._extract_column(columns_query_templated, database_tablename_col)
@@ -116,11 +116,18 @@ class Hive(BaseSQLQueryRunner):
         return connection
     
     def _extract_column(self, query, column_name):
-        filter(
+        query_result = []
+
+        if isinstance(query, str):
+            query_result = self._run_query_internal(query)
+        elif isinstance():
+            query_result = query
+
+        return filter(
             lambda a: len(a) > 0,
             map(
                 lambda a: str(a[column_name]), 
-                self._run_query_internal(query)
+                query_result
             )
         )
 
