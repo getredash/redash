@@ -79,9 +79,22 @@ class Hive(BaseSQLQueryRunner):
 
         columns_query = "show columns in %s.%s"
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
+        database_name_col = 'database_name'
+        database_tablename_col = 'tab_name'
+        column_name_col = 'field'
+
+        schemas_query_result = self._run_query_internal(schemas_query)
+
+        # This tests to see if we are dealing with SparkSQL as they have different column names
+        # if it does we change them
+        if len(schemas_query_result) > 0 and 'databaseName' in schemas_query_result[0]:
+            database_name_col = 'databaseName'
+            database_tablename_col = 'tableName'
+            column_name_col = 'col_name'
+
+        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a[database_name_col]), schemas_query_result)):
+            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a[database_tablename_col]), self._run_query_internal(tables_query % schema_name))):
+                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a[column_name_col]), self._run_query_internal(columns_query % (schema_name, table_name))))
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
