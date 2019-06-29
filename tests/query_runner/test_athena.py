@@ -188,3 +188,125 @@ class TestGlueSchema(TestCase):
         )
         with self.stubber:
             assert query_runner.get_schema() == [{'columns': ['region'], 'name': 'test1.csv'}]
+
+    def test_filter_database_with_hide_option(self):
+        """
+        When turn on hide flag, get some tables of filtered schema / database
+        """
+        query_runner = Athena({'glue': True, 'hide_other_schemas': True,
+                               'schema': 'db1', 'region': 'mars-east-1'})
+
+        self.stubber.add_response(
+            'get_databases',
+            {
+                'DatabaseList': [
+                    {'Name': 'db0'},
+                    {'Name': 'db1'},
+                ]
+            }, {})
+        self.stubber.add_response(
+            'get_tables',
+            {
+                'TableList': [
+                    {
+                        'Name': 'jdbc_table',
+                        'StorageDescriptor': {
+                            'Columns': [{'Name': 'row_id', 'Type': 'int'}],
+                            'Location': 'Database.Schema.Table',
+                            'Compressed': False,
+                            'NumberOfBuckets': -1,
+                            'SerdeInfo': {'Parameters': {}},
+                            'BucketColumns': [],
+                            'SortColumns': [],
+                            'Parameters': {
+                            },
+                            'StoredAsSubDirectories': False,
+                        },
+                        'PartitionKeys': [],
+                        'TableType': 'EXTERNAL_TABLE',
+                        'Parameters': {
+                        },
+                    }
+                ]
+            },
+            {'DatabaseName': 'db1'},
+        )
+        with self.stubber:
+            assert query_runner.get_schema() == [{'columns': ['row_id'], 'name': 'db1.jdbc_table'}]
+
+    def test_multiple_databases_schema_without_hide_option(self):
+        """
+        If there are multiple databases and hide flag is off, can get all schema tables even if specify schema
+        """
+        query_runner = Athena({'glue': True, 'hide_other_schemas': False,
+                               'schema': 'db1', 'region': 'mars-east-1'})
+
+        self.stubber.add_response(
+            'get_databases',
+            {
+                'DatabaseList': [
+                    {'Name': 'db0'},
+                    {'Name': 'db1'},
+                ]
+            }, {})
+        self.stubber.add_response(
+            'get_tables',
+            {
+                'TableList': [
+                    {
+                        'Name': 'table0',
+                        'StorageDescriptor': {
+                            'Columns': [{'Name': 'row_zero', 'Type': 'int'}],
+                            'Location': 'Database.Schema.Table',
+                            'Compressed': False,
+                            'NumberOfBuckets': -1,
+                            'SerdeInfo': {'Parameters': {}},
+                            'BucketColumns': [],
+                            'SortColumns': [],
+                            'Parameters': {
+                            },
+                            'StoredAsSubDirectories': False,
+                        },
+                        'PartitionKeys': [],
+                        'TableType': 'EXTERNAL_TABLE',
+                        'Parameters': {
+                        },
+                    }
+                ]
+            },
+            {'DatabaseName': 'db0'},
+        )
+        self.stubber.add_response(
+            'get_tables',
+            {
+                'TableList': [
+                    {
+                        'Name': 'table1',
+                        'StorageDescriptor': {
+                            'Columns': [{'Name': 'row_one', 'Type': 'int'}],
+                            'Location': 'Database.Schema.Table',
+                            'Compressed': False,
+                            'NumberOfBuckets': -1,
+                            'SerdeInfo': {'Parameters': {}},
+                            'BucketColumns': [],
+                            'SortColumns': [],
+                            'Parameters': {
+                            },
+                            'StoredAsSubDirectories': False,
+                        },
+                        'PartitionKeys': [],
+                        'TableType': 'EXTERNAL_TABLE',
+                        'Parameters': {
+                        },
+                    }
+                ]
+            },
+            {'DatabaseName': 'db1'},
+        )
+        with self.stubber:
+            sorted_schema = sorted(query_runner.get_schema(),
+                                   key=lambda s: s['name'])
+            assert sorted_schema == [
+                {'columns': ['row_zero'], 'name': 'db0.table0'},
+                {'columns': ['row_one'], 'name': 'db1.table1'}
+            ]

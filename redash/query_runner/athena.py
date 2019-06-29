@@ -89,7 +89,8 @@ class Athena(BaseQueryRunner):
                 },
             },
             'required': ['region', 's3_staging_dir'],
-            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'glue', 'hide_other_schemas', 'work_group'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir',
+                      'schema', 'glue', 'hide_other_schemas', 'work_group'],
             'secret': ['aws_secret_key']
         }
 
