@@ -201,8 +201,11 @@ describe('Parameter', () => {
       cy.get('.ant-calendar-ok-btn')
         .click();
 
-      cy.getByTestId('DynamicTable')
-        .should('contain', Cypress.moment().format('YYYY-MM-15 HH:mm'));
+      cy.get('.ant-calendar-input').then(($input) => {
+        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
+        cy.getByTestId('DynamicTable')
+          .should('contain', now.format('YYYY-MM-15 HH:mm'));
+      });
     });
 
     it('shows the current datetime after clicking in Now', () => {
