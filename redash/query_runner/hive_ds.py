@@ -95,7 +95,7 @@ class Hive(BaseSQLQueryRunner):
         for schema_name in self._extract_column(schemas_query_result, database_name_col):
             for table_name in self._extract_column(tables_query % schema_name, database_tablename_col):
                 columns_query_templated = columns_query % (schema_name, table_name)
-                columns = self._extract_column(columns_query_templated, database_tablename_col)
+                columns = self._extract_column(columns_query_templated, column_name_col)
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
