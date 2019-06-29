@@ -13,6 +13,13 @@ import { $http } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
 
+function stateName(state) {
+  if (state === 'waiting_in_queue') {
+    return 'waiting';
+  }
+  return state;
+}
+
 class Tasks extends React.Component {
   state = {
     isLoading: true,
@@ -46,6 +53,7 @@ class Tasks extends React.Component {
     const counters = { active: 0, reserved: 0, waiting: 0 };
 
     each(tasks, (task) => {
+      task.state = stateName(task.state);
       queues[task.queue] = queues[task.queue] || { name: task.queue, active: 0, reserved: 0, waiting: 0 };
       queues[task.queue][task.state] += 1;
 
