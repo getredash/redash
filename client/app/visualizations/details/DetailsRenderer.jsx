@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import map from 'lodash/map';
+import { RendererPropTypes } from '@/visualizations';
 import Pagination from 'antd/lib/pagination';
 
 import './details.less';
@@ -7,7 +8,7 @@ import './details.less';
 export default function DetailsRenderer({ data }) {
   const [page, setPage] = useState(0);
 
-  if (!data || !data.rows) {
+  if (!data || !data.rows || data.rows.length === 0) {
     return null;
   }
 
@@ -35,3 +36,5 @@ export default function DetailsRenderer({ data }) {
     </div>
   );
 }
+
+DetailsRenderer.propTypes = RendererPropTypes;
