@@ -78,6 +78,10 @@ class Athena(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Use Glue Data Catalog',
                 },
+                'hide_other_schemas': {
+                    'type': 'boolean',
+                    'title': 'Hide Other Schemas',
+                },
                 'work_group': {
                     'type': 'string',
                     'title': 'Athena Work Group',
@@ -85,7 +89,7 @@ class Athena(BaseQueryRunner):
                 },
             },
             'required': ['region', 's3_staging_dir'],
-            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'work_group'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'glue', 'hide_other_schemas', 'work_group'],
             'secret': ['aws_secret_key']
         }
 
@@ -130,16 +134,21 @@ class Athena(BaseQueryRunner):
         database_paginator = client.get_paginator('get_databases')
         table_paginator = client.get_paginator('get_tables')
 
-        for databases in database_paginator.paginate():
-            for database in databases['DatabaseList']:
-                iterator = table_paginator.paginate(DatabaseName=database['Name'])
-                for table in iterator.search('TableList[]'):
-                    table_name = '%s.%s' % (database['Name'], table['Name'])
-                    if table_name not in schema:
-                        column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
-                        schema[table_name] = {'name': table_name, 'columns': column}
-                        for partition in table.get('PartitionKeys', []):
-                            schema[table_name]['columns'].append(partition['Name'])
+        query = 'DatabaseList[*]'
+        if self.configuration.get('hide_other_schemas', False):
+            query = 'DatabaseList[?Name==`{}`]'.format(
+                self.configuration.get('schema', 'default'))
+
+        for database in database_paginator.paginate().search(query):
+            iterator = table_paginator.paginate(DatabaseName=database['Name'])
+            for table in iterator.search('TableList[]'):
+                table_name = '%s.%s' % (database['Name'], table['Name'])
+                if table_name not in schema:
+                    column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
+                    schema[table_name] = {'name': table_name, 'columns': column}
+                    for partition in table.get('PartitionKeys', []):
+                        schema[table_name]['columns'].append(partition['Name'])
+
         return schema.values()
 
     def get_schema(self, get_stats=False):
@@ -147,11 +156,19 @@ class Athena(BaseQueryRunner):
             return self.__get_schema_from_glue()
 
         schema = {}
-        query = """
-        SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('information_schema')
-        """
+
+        if self.configuration.get('hide_other_schemas', False):
+            query = """
+            SELECT table_schema, table_name, column_name
+            FROM information_schema.columns
+            WHERE table_schema = '{}'
+            """.format(self.configuration.get('schema', 'default'))
+        else:
+            query = """
+            SELECT table_schema, table_name, column_name
+            FROM information_schema.columns
+            WHERE table_schema NOT IN ('information_schema')
+            """
 
         results, error = self.run_query(query, None)
         if error is not None:
