@@ -10,7 +10,6 @@ import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
 import './DynamicParameters.less';
 
 const DYNAMIC_DATE_OPTIONS = [
-  { name: 'Static value', value: 'static' },
   { name: 'Today/Now',
     value: 'd_now',
     label: () => DYNAMIC_DATES.now.value().format('MMM D') },
@@ -43,7 +42,7 @@ export default class DateParameter extends React.Component {
 
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
-    if (dynamicValue.value === 'static') {
+    if (dynamicValue === 'static') {
       this.setState({ dynamicValue: false });
       onSelect(parameter.getValue());
     } else {
@@ -85,6 +84,7 @@ export default class DateParameter extends React.Component {
         suffixIcon={(
           <DynamicButton
             options={DYNAMIC_DATE_OPTIONS}
+            selectedDynamicValue={dynamicValue ? parameter.value : null}
             enabled={dynamicValue}
             onSelect={this.onDynamicValueSelect}
           />

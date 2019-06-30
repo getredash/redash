@@ -53,19 +53,9 @@ export default class DateRangeParameter extends React.Component {
     this.state = { dynamicValue: !!(props.parameter && props.parameter.hasDynamicValue) };
   }
 
-  dynamicOptions = () => {
-    const isDateTimeRange = includes(this.props.type, 'datetime-range');
-    const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
-
-    return [
-      { name: 'Static value', value: 'static' },
-      ...options,
-    ];
-  }
-
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
-    if (dynamicValue.value === 'static') {
+    if (dynamicValue === 'static') {
       this.setState({ dynamicValue: false });
       onSelect(parameter.getValue());
     } else {
@@ -83,6 +73,7 @@ export default class DateRangeParameter extends React.Component {
     const { type, value, parameter, className } = this.props;
     const { dynamicValue } = this.state;
     const isDateTimeRange = includes(type, 'datetime-range');
+    const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
 
     const additionalAttributes = {};
 
@@ -106,7 +97,8 @@ export default class DateRangeParameter extends React.Component {
         onSelect={this.onSelect}
         suffixIcon={(
           <DynamicButton
-            options={this.dynamicOptions()}
+            options={options}
+            selectedDynamicValue={dynamicValue ? parameter.value : null}
             enabled={dynamicValue}
             onSelect={this.onDynamicValueSelect}
           />
