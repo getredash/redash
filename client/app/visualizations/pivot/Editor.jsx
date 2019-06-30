@@ -1,21 +1,9 @@
 import { merge } from 'lodash';
-import React, { useState } from 'react';
+import React from 'react';
 import Switch from 'antd/lib/switch';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function Editor({ options, onOptionsChange }) {
-  const [hideRowTotals, setHideRowTotals] = useState(
-    options.rendererOptions &&
-      options.rendererOptions.table &&
-      options.rendererOptions.table.rowTotals === false,
-  );
-
-  const [hideColTotals, setHideColTotals] = useState(
-    options.rendererOptions &&
-      options.rendererOptions.table &&
-      options.rendererOptions.table.colTotals === false,
-  );
-
   const updateOptions = (updates) => {
     onOptionsChange(merge({}, options, updates));
   };
@@ -34,24 +22,18 @@ export default function Editor({ options, onOptionsChange }) {
       <label className="d-flex align-items-center" htmlFor="pivot-show-row-totals">
         <Switch
           id="pivot-show-row-totals"
-          checked={hideRowTotals}
-          onChange={(rowTotals) => {
-            updateOptions({ rendererOptions: { table: { rowTotals: !rowTotals } } });
-            setHideRowTotals(rowTotals);
-          }}
+          checked={options.rendererOptions.table.rowTotals}
+          onChange={rowTotals => updateOptions({ rendererOptions: { table: { rowTotals } } })}
         />
-        <span className="m-l-10">Hide Row Totals</span>
+        <span className="m-l-10">Show Row Totals</span>
       </label>
       <label className="d-flex align-items-center" htmlFor="pivot-show-col-totals">
         <Switch
           id="pivot-show-row-totals"
-          checked={hideColTotals}
-          onChange={(colTotals) => {
-            updateOptions({ rendererOptions: { table: { colTotals: !colTotals } } });
-            setHideColTotals(colTotals);
-          }}
+          checked={options.rendererOptions.table.colTotals}
+          onChange={colTotals => updateOptions({ rendererOptions: { table: { colTotals } } })}
         />
-        <span className="m-l-10">Hide Column Totals</span>
+        <span className="m-l-10">Show Column Totals</span>
       </label>
     </div>
   );
