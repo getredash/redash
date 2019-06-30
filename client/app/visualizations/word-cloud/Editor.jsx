@@ -13,7 +13,7 @@ export default function Editor({ options, data, onOptionsChange }) {
   return (
     <React.Fragment>
       <div className="form-group">
-        <label className="control-label" htmlFor="word-cloud-words-column">Words column</label>
+        <label className="control-label" htmlFor="word-cloud-words-column">Words Column</label>
         <Select
           id="word-cloud-words-column"
           className="w-100"
@@ -26,7 +26,7 @@ export default function Editor({ options, data, onOptionsChange }) {
         </Select>
       </div>
       <div className="form-group">
-        <label className="control-label" htmlFor="word-cloud-frequencies-column">Frequencies column</label>
+        <label className="control-label" htmlFor="word-cloud-frequencies-column">Frequencies Column</label>
         <Select
           id="word-cloud-frequencies-column"
           className="w-100"
@@ -41,13 +41,13 @@ export default function Editor({ options, data, onOptionsChange }) {
       </div>
       <div className="form-group">
         <label className="control-label" htmlFor="word-cloud-word-length-limit">
-          Show only words with length between
+          Words Length Limit
         </label>
         <Grid.Row gutter={15} type="flex">
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="no limit"
+              placeholder="No Limit"
               min={0}
               value={options.wordLengthLimit.min}
               onChange={value => optionsChanged({ wordLengthLimit: { min: value > 0 ? value : null } })}
@@ -56,7 +56,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="no limit"
+              placeholder="No Limit"
               min={0}
               value={options.wordLengthLimit.max}
               onChange={value => optionsChanged({ wordLengthLimit: { max: value > 0 ? value : null } })}
@@ -66,13 +66,13 @@ export default function Editor({ options, data, onOptionsChange }) {
       </div>
       <div className="form-group">
         <label className="control-label" htmlFor="word-cloud-word-length-limit">
-          Show only words with count between
+          Frequencies Limit
         </label>
         <Grid.Row gutter={15} type="flex">
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="no limit"
+              placeholder="No Limit"
               min={0}
               value={options.wordCountLimit.min}
               onChange={value => optionsChanged({ wordCountLimit: { min: value > 0 ? value : null } })}
@@ -81,7 +81,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="no limit"
+              placeholder="No Limit"
               min={0}
               value={options.wordCountLimit.max}
               onChange={value => optionsChanged({ wordCountLimit: { max: value > 0 ? value : null } })}

@@ -1,6 +1,6 @@
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import { each, map, min, max, values, sortBy } from 'lodash';
+import { each, map, min, max, values, sortBy, toString } from 'lodash';
 import React, { useMemo, useState, useEffect } from 'react';
 import resizeObserver from '@/services/resizeObserver';
 import { RendererPropTypes } from '@/visualizations';
@@ -11,7 +11,7 @@ function computeWordFrequencies(rows, column) {
   const result = {};
 
   each(rows, (row) => {
-    const wordsList = row[column].toString().split(/\s/g);
+    const wordsList = toString(row[column]).split(/\s/g);
     each(wordsList, (d) => {
       result[d] = (result[d] || 0) + 1;
     });
