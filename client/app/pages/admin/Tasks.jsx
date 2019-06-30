@@ -13,6 +13,8 @@ import { $http } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
 
+// Converting name coming from API to the one the UI expects.
+// TODO: update the UI components to use `waiting_in_queue` instead of `waiting`.
 function stateName(state) {
   if (state === 'waiting_in_queue') {
     return 'waiting';
