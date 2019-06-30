@@ -1,6 +1,6 @@
 import d3 from 'd3';
 import cloud from 'd3-cloud';
-import { each, map, min, max, values, sortBy, toString } from 'lodash';
+import { each, filter, map, min, max, sortBy, toString } from 'lodash';
 import React, { useMemo, useState, useEffect } from 'react';
 import resizeObserver from '@/services/resizeObserver';
 import { RendererPropTypes } from '@/visualizations';
@@ -26,7 +26,7 @@ function getWordsWithFrequencies(rows, wordColumn, frequencyColumn) {
   each(rows, (row) => {
     const count = parseFloat(row[frequencyColumn]);
     if (Number.isFinite(count) && (count > 0)) {
-      const word = row[wordColumn];
+      const word = toString(row[wordColumn]);
       result[word] = count;
     }
   });
@@ -34,9 +34,7 @@ function getWordsWithFrequencies(rows, wordColumn, frequencyColumn) {
   return result;
 }
 
-function applyLimitsToWords(wordsHash, { wordLength, wordCount }) {
-  const result = {};
-
+function applyLimitsToWords(words, { wordLength, wordCount }) {
   wordLength.min = Number.isFinite(wordLength.min) ? wordLength.min : null;
   wordLength.max = Number.isFinite(wordLength.max) ? wordLength.max : null;
   if (wordLength.min && wordLength.max && (wordLength.min > wordLength.max)) {
@@ -49,23 +47,17 @@ function applyLimitsToWords(wordsHash, { wordLength, wordCount }) {
     wordCount = { min: wordCount.max, max: wordCount.min }; // swap
   }
 
-  each(wordsHash, (count, word) => {
-    if (wordLength.min && (word.length < wordLength.min)) {
-      return;
-    }
-    if (wordLength.max && (word.length > wordLength.max)) {
-      return;
-    }
-    if (wordCount.min && (count < wordCount.min)) {
-      return;
-    }
-    if (wordCount.max && (count > wordCount.max)) {
-      return;
-    }
-    result[word] = count;
+  return filter(words, ({ text, count }) => {
+    const wordLengthFits = (
+      (!wordLength.min || (text.length >= wordLength.min)) &&
+      (!wordLength.max || (text.length <= wordLength.max))
+    );
+    const wordCountFits = (
+      (!wordCount.min || (count >= wordCount.min)) &&
+      (!wordCount.max || (count <= wordCount.max))
+    );
+    return wordLengthFits && wordCountFits;
   });
-
-  return result;
 }
 
 function prepareWords(rows, options) {
@@ -77,36 +69,29 @@ function prepareWords(rows, options) {
     } else {
       result = computeWordFrequencies(rows, options.column);
     }
+    result = sortBy(
+      map(result, (count, text) => ({ text, count })),
+      [({ count }) => -count, ({ text }) => -text.length], // "count" desc, length("text") desc
+    );
   }
 
-  result = applyLimitsToWords(result, {
-    wordLength: options.wordLengthLimit,
-    wordCount: options.wordCountLimit,
-  });
-
-  const counts = values(result);
+  // Add additional attributes
+  const counts = map(result, item => item.count);
   const wordSize = d3.scale.linear()
     .domain([min(counts), max(counts)])
     .range([10, 100]); // min/max word size
-
   const color = d3.scale.category20();
 
-  result = map(result, (count, key) => ({
-    text: key,
-    size: wordSize(count),
-  }));
+  each(result, (item, index) => {
+    item.size = wordSize(item.count);
+    item.color = color(index);
+    item.angle = index % 2 * 90; // make it stable between renderings
+  });
 
-  // add some attributes
-  result = map(result, (word, i) => ({
-    ...word,
-    color: color(i),
-    angle: i % 2 * 90, // make it stable between renderings
-  }));
-
-  return sortBy(
-    result,
-    [({ size }) => -size, ({ text }) => -text.length], // "size" desc, length("text") desc
-  );
+  return applyLimitsToWords(result, {
+    wordLength: options.wordLengthLimit,
+    wordCount: options.wordCountLimit,
+  });
 }
 
 function scaleElement(node, container) {
