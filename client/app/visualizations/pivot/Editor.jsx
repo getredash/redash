@@ -14,10 +14,10 @@ export default function Editor({ options, onOptionsChange }) {
         <Switch
           data-test="PivotEditor.HideControls"
           id="pivot-show-controls"
-          checked={options.controls.enabled}
-          onChange={enabled => updateOptions({ controls: { enabled } })}
+          checked={!options.controls.enabled}
+          onChange={enabled => updateOptions({ controls: { enabled: !enabled } })}
         />
-        <span className="m-l-10">Hide Pivot Controls</span>
+        <span className="m-l-10">Show Pivot Controls</span>
       </label>
       <label className="d-flex align-items-center" htmlFor="pivot-show-row-totals">
         <Switch
