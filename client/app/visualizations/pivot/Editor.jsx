@@ -9,7 +9,7 @@ export default function Editor({ options, onOptionsChange }) {
   };
 
   return (
-    <div className="form-group">
+    <div className="form-group m-t-30">
       <label className="d-flex align-items-center" htmlFor="pivot-show-controls">
         <Switch
           data-test="PivotEditor.HideControls"
