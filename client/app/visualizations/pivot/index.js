@@ -14,6 +14,12 @@ const DEFAULT_OPTIONS = {
   controls: {
     enabled: false, // `false` means "show controls" o_O
   },
+  rendererOptions: {
+    table: {
+      colTotals: true,
+      rowTotals: true,
+    },
+  },
 };
 
 const PivotTableRenderer = {
