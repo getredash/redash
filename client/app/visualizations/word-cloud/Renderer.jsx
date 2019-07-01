@@ -37,15 +37,9 @@ function getWordsWithFrequencies(rows, wordColumn, frequencyColumn) {
 function applyLimitsToWords(words, { wordLength, wordCount }) {
   wordLength.min = Number.isFinite(wordLength.min) ? wordLength.min : null;
   wordLength.max = Number.isFinite(wordLength.max) ? wordLength.max : null;
-  if (wordLength.min && wordLength.max && (wordLength.min > wordLength.max)) {
-    wordLength = { min: wordLength.max, max: wordLength.min }; // swap
-  }
 
   wordCount.min = Number.isFinite(wordCount.min) ? wordCount.min : null;
   wordCount.max = Number.isFinite(wordCount.max) ? wordCount.max : null;
-  if (wordCount.min && wordCount.max && (wordCount.min > wordCount.max)) {
-    wordCount = { min: wordCount.max, max: wordCount.min }; // swap
-  }
 
   return filter(words, ({ text, count }) => {
     const wordLengthFits = (
@@ -159,12 +153,16 @@ export default function Renderer({ data, options }) {
     }
   }, [container, words]);
 
-  useEffect(() => resizeObserver(container, () => {
-    const svg = container.querySelector('svg');
-    if (svg) {
-      scaleElement(svg, container);
+  useEffect(() => {
+    if (container) {
+      return resizeObserver(container, () => {
+        const svg = container.querySelector('svg');
+        if (svg) {
+          scaleElement(svg, container);
+        }
+      });
     }
-  }), [container]);
+  }, [container]);
 
   return (<div className="word-cloud-visualization-container" ref={setContainer} />);
 }

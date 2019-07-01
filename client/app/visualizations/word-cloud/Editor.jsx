@@ -47,7 +47,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="No Limit"
+              placeholder="Min"
               min={0}
               value={options.wordLengthLimit.min}
               onChange={value => optionsChanged({ wordLengthLimit: { min: value > 0 ? value : null } })}
@@ -56,7 +56,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="No Limit"
+              placeholder="Max"
               min={0}
               value={options.wordLengthLimit.max}
               onChange={value => optionsChanged({ wordLengthLimit: { max: value > 0 ? value : null } })}
@@ -72,7 +72,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="No Limit"
+              placeholder="Min"
               min={0}
               value={options.wordCountLimit.min}
               onChange={value => optionsChanged({ wordCountLimit: { min: value > 0 ? value : null } })}
@@ -81,7 +81,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Grid.Col span={12}>
             <InputNumber
               className="w-100"
-              placeholder="No Limit"
+              placeholder="Max"
               min={0}
               value={options.wordCountLimit.max}
               onChange={value => optionsChanged({ wordCountLimit: { max: value > 0 ? value : null } })}
