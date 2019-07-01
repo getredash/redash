@@ -15,19 +15,21 @@ export default function Editor({ options, data, onOptionsChange }) {
       <div className="form-group">
         <label className="control-label" htmlFor="word-cloud-words-column">Words Column</label>
         <Select
+          data-test="WordCloud.WordsColumn"
           id="word-cloud-words-column"
           className="w-100"
           value={options.column}
           onChange={column => optionsChanged({ column })}
         >
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={'WordCloud.WordsColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
       </div>
       <div className="form-group">
         <label className="control-label" htmlFor="word-cloud-frequencies-column">Frequencies Column</label>
         <Select
+          data-test="WordCloud.FrequenciesColumn"
           id="word-cloud-frequencies-column"
           className="w-100"
           value={options.frequenciesColumn}
@@ -35,7 +37,7 @@ export default function Editor({ options, data, onOptionsChange }) {
         >
           <Select.Option key="none" value=""><i>(count word frequencies automatically)</i></Select.Option>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={'column-' + name} value={name}>{name}</Select.Option>
+            <Select.Option key={'column-' + name} value={name} data-test={'WordCloud.FrequenciesColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
       </div>
@@ -46,6 +48,7 @@ export default function Editor({ options, data, onOptionsChange }) {
         <Grid.Row gutter={15} type="flex">
           <Grid.Col span={12}>
             <InputNumber
+              data-test="WordCloud.WordLengthLimit.Min"
               className="w-100"
               placeholder="Min"
               min={0}
@@ -55,6 +58,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           </Grid.Col>
           <Grid.Col span={12}>
             <InputNumber
+              data-test="WordCloud.WordLengthLimit.Max"
               className="w-100"
               placeholder="Max"
               min={0}
@@ -71,6 +75,7 @@ export default function Editor({ options, data, onOptionsChange }) {
         <Grid.Row gutter={15} type="flex">
           <Grid.Col span={12}>
             <InputNumber
+              data-test="WordCloud.WordCountLimit.Min"
               className="w-100"
               placeholder="Min"
               min={0}
@@ -80,6 +85,7 @@ export default function Editor({ options, data, onOptionsChange }) {
           </Grid.Col>
           <Grid.Col span={12}>
             <InputNumber
+              data-test="WordCloud.WordCountLimit.Max"
               className="w-100"
               placeholder="Max"
               min={0}
