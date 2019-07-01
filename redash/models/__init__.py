@@ -578,8 +578,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,
-               limit=None, include_archived=False):
-        from redash.authentication.org_resolving import current_org
+               limit=None, include_archived=False, multi_byte_search=False):
         all_queries = cls.all_queries(
             group_ids,
             user_id=user_id,
@@ -587,7 +586,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             include_archived=include_archived,
         )
 
-        if current_org.get_setting("multi_byte_search_enabled"):
+        if multi_byte_search:
             # Since tsvector doesn't work well with CJK languages, use `ilike` too
             pattern = u'%{}%'.format(term)
             return all_queries.filter(
