@@ -526,6 +526,13 @@ describe('Dashboard', () => {
         const paramName = 'count';
         const queryData = {
           query: `select s.a FROM generate_series(1,{{ ${paramName} }}) AS s(a)`,
+          options: {
+            parameters: [{
+              title: paramName,
+              name: paramName,
+              type: 'text',
+            }],
+          },
         };
 
         beforeEach(function () {
