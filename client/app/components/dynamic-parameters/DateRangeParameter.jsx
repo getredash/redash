@@ -10,6 +10,12 @@ import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
 import './DynamicParameters.less';
 
 const DYNAMIC_DATE_OPTIONS = [
+  { name: 'This week',
+    value: 'd_this_week',
+    label: () => DYNAMIC_DATE_RANGES.this_week.value()[0].format('MMM D') + ' - ' +
+                 DYNAMIC_DATE_RANGES.this_week.value()[1].format('MMM D') },
+  { name: 'This month', value: 'd_this_month', label: () => DYNAMIC_DATE_RANGES.this_month.value()[0].format('MMMM') },
+  { name: 'This year', value: 'd_this_year', label: () => DYNAMIC_DATE_RANGES.this_year.value()[0].format('YYYY') },
   { name: 'Last week',
     value: 'd_last_week',
     label: () => DYNAMIC_DATE_RANGES.last_week.value()[0].format('MMM D') + ' - ' +

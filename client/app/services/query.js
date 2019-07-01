@@ -34,6 +34,18 @@ export const DYNAMIC_DATE_RANGES = {
     name: 'Yesterday',
     value: () => [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
   },
+  this_week: {
+    name: 'This week',
+    value: () => [moment().startOf('week'), moment().endOf('week')],
+  },
+  this_month: {
+    name: 'This month',
+    value: () => [moment().startOf('month'), moment().endOf('month')],
+  },
+  this_year: {
+    name: 'This year',
+    value: () => [moment().startOf('year'), moment().endOf('year')],
+  },
   last_week: {
     name: 'Last week',
     value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
