@@ -4,7 +4,7 @@ import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
   isNull, isUndefined, isArray, isObject, identity, extend, each,
-  startsWith, invoke,
+  startsWith,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -94,6 +94,16 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
+function getDynamicValue(value, paramType) {
+  if (isDateParameter(paramType) && isDynamicValue(value)) {
+    return DYNAMIC_DATES[value.substring(DYNAMIC_DATE_PREFIX.length)];
+  }
+  if (isDateRangeParameter(paramType) && isDynamicValue(value)) {
+    return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_DATE_PREFIX.length)];
+  }
+  return null;
+}
+
 export class Parameter {
   constructor(parameter, parentQueryId) {
     this.title = parameter.title;
@@ -133,8 +143,7 @@ export class Parameter {
   }
 
   get dynamicValue() {
-    const DYNAMIC_VALUES = isDateParameter(this.type) ? DYNAMIC_DATES : DYNAMIC_DATE_RANGES;
-    return this.hasDynamicValue ? DYNAMIC_VALUES[this.value.substring(DYNAMIC_DATE_PREFIX.length)] : null;
+    return getDynamicValue(this.value, this.type);
   }
 
   getValue() {
@@ -144,10 +153,10 @@ export class Parameter {
   static getValue(param) {
     const { value, type, useCurrentDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
-    if (isDateRangeParameter(type) && isDynamicValue(value)) {
-      const dynamicValue = value.substring(DYNAMIC_DATE_PREFIX.length);
-      if (DYNAMIC_DATE_RANGES[dynamicValue]) {
-        const dateRange = DYNAMIC_DATE_RANGES[dynamicValue].value();
+    if (isDateRangeParameter(type) && param.hasDynamicValue) {
+      const dynamicValue = param.dynamicValue;
+      if (dynamicValue) {
+        const dateRange = dynamicValue.value();
         return {
           start: dateRange[0].format(DATETIME_FORMATS[type]),
           end: dateRange[1].format(DATETIME_FORMATS[type]),
@@ -156,10 +165,10 @@ export class Parameter {
       return null;
     }
 
-    if (isDateParameter(type) && isDynamicValue(value)) {
-      const dynamicValue = value.substring(DYNAMIC_DATE_PREFIX.length);
-      if (DYNAMIC_DATES[dynamicValue]) {
-        return DYNAMIC_DATES[dynamicValue].value().format(DATETIME_FORMATS[type]);
+    if (isDateParameter(type) && param.hasDynamicValue) {
+      const dynamicValue = param.dynamicValue;
+      if (dynamicValue) {
+        return dynamicValue.value().format(DATETIME_FORMATS[type]);
       }
       return null;
     }
@@ -198,10 +207,10 @@ export class Parameter {
           this.$$value = value;
         }
       } else if (isDynamicValue(value)) {
-        const dynamicValue = invoke(DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_DATE_PREFIX.length)], 'value');
+        const dynamicValue = getDynamicValue(value, this.type);
         if (dynamicValue) {
           this.value = value;
-          this.$$value = [dynamicValue[0], dynamicValue[1]];
+          this.$$value = [dynamicValue.value()[0], dynamicValue.value()[1]];
         }
       }
     } else if (isDateParameter(this.type)) {
@@ -209,10 +218,10 @@ export class Parameter {
       this.$$value = null;
 
       if (isDynamicValue(value)) {
-        const dynamicValue = invoke(DYNAMIC_DATES[value.substring(DYNAMIC_DATE_PREFIX.length)], 'value');
+        const dynamicValue = getDynamicValue(value, this.type);
         if (dynamicValue) {
           this.value = value;
-          this.$$value = dynamicValue;
+          this.$$value = dynamicValue.value();
         }
       } else {
         value = moment(value);
