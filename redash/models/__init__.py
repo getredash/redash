@@ -592,7 +592,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             pattern = u'%{}%'.format(term)
             return all_queries.filter(
                 or_(
-                    cls.search_vector.match(term),
                     cls.name.ilike(pattern),
                     cls.description.ilike(pattern)
                 )
