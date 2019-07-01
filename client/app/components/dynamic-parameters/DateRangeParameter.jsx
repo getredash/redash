@@ -93,13 +93,12 @@ export default class DateRangeParameter extends React.Component {
 
     if (dynamicValue) {
       additionalAttributes.placeholder = [parameter.dynamicValue && parameter.dynamicValue.name];
-      additionalAttributes.hideValue = true;
     }
 
     return (
       <DateRangeComponent
         className={classNames('redash-datepicker', { 'dynamic-value': dynamicValue }, className)}
-        value={value}
+        value={dynamicValue ? null : value}
         onSelect={this.onSelect}
         suffixIcon={(
           <DynamicButton
@@ -109,7 +108,6 @@ export default class DateRangeParameter extends React.Component {
             onSelect={this.onDynamicValueSelect}
           />
         )}
-        allowClear={false}
         {...additionalAttributes}
       />
     );

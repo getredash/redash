@@ -10,7 +10,6 @@ export function DateInput({
   value,
   onSelect,
   className,
-  hideValue,
   ...props
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
@@ -18,11 +17,8 @@ export function DateInput({
   if (defaultValue && defaultValue.isValid()) {
     additionalAttributes.defaultValue = defaultValue;
   }
-  if (value && value.isValid()) {
+  if (value !== undefined) {
     additionalAttributes.value = value;
-  }
-  if (hideValue) {
-    additionalAttributes.value = null;
   }
   return (
     <DatePicker
@@ -41,15 +37,13 @@ DateInput.propTypes = {
   value: Moment,
   onSelect: PropTypes.func,
   className: PropTypes.string,
-  hideValue: PropTypes.bool,
 };
 
 DateInput.defaultProps = {
   defaultValue: null,
-  value: null,
+  value: undefined,
   onSelect: () => {},
   className: '',
-  hideValue: false,
 };
 
 export default function init(ngModule) {

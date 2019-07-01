@@ -13,7 +13,6 @@ export function DateRangeInput({
   value,
   onSelect,
   className,
-  hideValue,
   ...props
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
@@ -21,11 +20,8 @@ export function DateRangeInput({
   if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {
     additionalAttributes.defaultValue = defaultValue;
   }
-  if (isArray(value) && value[0].isValid() && value[1].isValid()) {
+  if (value !== undefined) {
     additionalAttributes.value = value;
-  }
-  if (hideValue) {
-    additionalAttributes.value = null;
   }
   return (
     <RangePicker
@@ -43,15 +39,13 @@ DateRangeInput.propTypes = {
   value: PropTypes.arrayOf(Moment),
   onSelect: PropTypes.func,
   className: PropTypes.string,
-  hideValue: PropTypes.bool,
 };
 
 DateRangeInput.defaultProps = {
   defaultValue: null,
-  value: null,
+  value: undefined,
   onSelect: () => {},
   className: '',
-  hideValue: false,
 };
 
 export default function init(ngModule) {

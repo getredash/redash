@@ -11,7 +11,6 @@ export function DateTimeInput({
   withSeconds,
   onSelect,
   className,
-  hideValue,
   ...props
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
@@ -20,11 +19,8 @@ export function DateTimeInput({
   if (defaultValue && defaultValue.isValid()) {
     additionalAttributes.defaultValue = defaultValue;
   }
-  if (value && value.isValid()) {
+  if (value !== undefined) {
     additionalAttributes.value = value;
-  }
-  if (hideValue) {
-    additionalAttributes.value = null;
   }
   return (
     <DatePicker
@@ -45,16 +41,14 @@ DateTimeInput.propTypes = {
   withSeconds: PropTypes.bool,
   onSelect: PropTypes.func,
   className: PropTypes.string,
-  hideValue: PropTypes.bool,
 };
 
 DateTimeInput.defaultProps = {
   defaultValue: null,
-  value: null,
+  value: undefined,
   withSeconds: false,
   onSelect: () => {},
   className: '',
-  hideValue: false,
 };
 
 export default function init(ngModule) {
