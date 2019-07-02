@@ -105,7 +105,7 @@ function createLayout() {
     // TODO: dimensions probably should be larger, but `d3-cloud` has some performance issues related to these values
     .size([5000, 5000])
     .padding(3)
-    .font('Impact')
+    .font('"Roboto Regular", sans-serif')
     .rotate(d => d.angle)
     .fontSize(d => d.size)
     .random(() => 0.5); // do not place words randomly - use compact layout
