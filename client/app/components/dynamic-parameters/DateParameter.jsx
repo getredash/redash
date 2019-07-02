@@ -72,7 +72,7 @@ export default class DateParameter extends React.Component {
       }
     }
 
-    if (moment.isMoment(value)) {
+    if (moment.isMoment(value) || value === null) {
       additionalAttributes.value = value;
     }
 

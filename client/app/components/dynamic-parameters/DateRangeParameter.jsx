@@ -96,7 +96,7 @@ export default class DateRangeParameter extends React.Component {
       }
     }
 
-    if (isValidDateRangeValue(value)) {
+    if (isValidDateRangeValue(value) || value === null) {
       additionalAttributes.value = value;
     }
 
