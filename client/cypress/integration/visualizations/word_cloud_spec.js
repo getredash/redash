@@ -29,9 +29,12 @@ describe('Word Cloud', () => {
       WordCloud.WordsColumn.a
     `);
 
+    // Wait for proper initialization of visualization
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 11);
 
-    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)');
+    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)', { widths: [1280] });
   });
 
   it('creates visualization with word frequencies from another column', () => {
@@ -46,6 +49,9 @@ describe('Word Cloud', () => {
       WordCloud.FrequenciesColumn
       WordCloud.FrequenciesColumn.c
     `);
+
+    // Wait for proper initialization of visualization
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 5);
 
@@ -71,6 +77,9 @@ describe('Word Cloud', () => {
       'WordCloud.WordCountLimit.Min': '1',
       'WordCloud.WordCountLimit.Max': '3',
     });
+
+    // Wait for proper initialization of visualization
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 2);
 
