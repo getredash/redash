@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { includes } from 'lodash';
+import moment from 'moment';
+import { includes, isArray, isString } from 'lodash';
 import { DYNAMIC_DATE_RANGES } from '@/services/query';
 import { DateRangeInput } from '@/components/DateRangeInput';
 import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
@@ -37,6 +38,10 @@ const DYNAMIC_DATETIME_OPTIONS = [
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
+function isValidDateRangeValue(value) {
+  return isArray(value) && value.length === 2 && moment.isMoment(value[0]) && moment.isMoment(value[1]);
+}
+
 export default class DateRangeParameter extends React.Component {
   static propTypes = {
     type: PropTypes.string,
@@ -56,28 +61,28 @@ export default class DateRangeParameter extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { dynamicValue: !!(props.parameter && props.parameter.hasDynamicValue) };
+    this.state = { hasDynamicValue: !!(props.parameter && props.parameter.hasDynamicDateRange) };
   }
 
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      this.setState({ dynamicValue: false });
+      this.setState({ hasDynamicValue: false });
       onSelect(parameter.getValue());
     } else {
-      this.setState({ dynamicValue: true });
+      this.setState({ hasDynamicValue: true });
       onSelect(dynamicValue.value);
     }
   };
 
   onSelect = (value) => {
     const { onSelect } = this.props;
-    this.setState({ dynamicValue: false }, () => onSelect(value));
+    this.setState({ hasDynamicValue: false }, () => onSelect(value));
   };
 
   render() {
     const { type, value, parameter, className } = this.props;
-    const { dynamicValue } = this.state;
+    const { hasDynamicValue } = this.state;
     const isDateTimeRange = includes(type, 'datetime-range');
     const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
 
@@ -91,20 +96,24 @@ export default class DateRangeParameter extends React.Component {
       }
     }
 
-    if (dynamicValue) {
-      additionalAttributes.placeholder = [parameter.dynamicValue && parameter.dynamicValue.name];
+    if (isValidDateRangeValue(value)) {
+      additionalAttributes.value = value;
+    }
+
+    if (hasDynamicValue) {
+      additionalAttributes.placeholder = [parameter.dynamicDateRange && parameter.dynamicDateRange.name];
+      additionalAttributes.value = null;
     }
 
     return (
       <DateRangeComponent
-        className={classNames('redash-datepicker', { 'dynamic-value': dynamicValue }, className)}
-        value={dynamicValue ? null : value}
+        className={classNames('redash-datepicker', { 'dynamic-value hide-end-value': hasDynamicValue }, className)}
         onSelect={this.onSelect}
         suffixIcon={(
           <DynamicButton
             options={options}
-            selectedDynamicValue={dynamicValue ? parameter.value : null}
-            enabled={dynamicValue}
+            selectedDynamicValue={(hasDynamicValue && isString(parameter.value)) ? parameter.value : null}
+            enabled={hasDynamicValue}
             onSelect={this.onDynamicValueSelect}
           />
         )}

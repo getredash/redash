@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import moment from 'moment';
 import { includes } from 'lodash';
 import { DYNAMIC_DATES } from '@/services/query';
 import { DateInput } from '@/components/DateInput';
@@ -37,28 +38,28 @@ export default class DateParameter extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { dynamicValue: !!(props.parameter && props.parameter.hasDynamicValue) };
+    this.state = { hasDynamicValue: !!(props.parameter && props.parameter.hasDynamicDate) };
   }
 
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      this.setState({ dynamicValue: false });
+      this.setState({ hasDynamicValue: false });
       onSelect(parameter.getValue());
     } else {
-      this.setState({ dynamicValue: true });
+      this.setState({ hasDynamicValue: true });
       onSelect(dynamicValue.value);
     }
   };
 
   onSelect = (value) => {
     const { onSelect } = this.props;
-    this.setState({ dynamicValue: false }, () => onSelect(value));
+    this.setState({ hasDynamicValue: false }, () => onSelect(value));
   };
 
   render() {
     const { type, value, parameter, className } = this.props;
-    const { dynamicValue } = this.state;
+    const { hasDynamicValue } = this.state;
     const isDateTime = includes(type, 'datetime');
 
     const additionalAttributes = {};
@@ -71,20 +72,24 @@ export default class DateParameter extends React.Component {
       }
     }
 
-    if (dynamicValue) {
-      additionalAttributes.placeholder = parameter.dynamicValue && parameter.dynamicValue.name;
+    if (moment.isMoment(value)) {
+      additionalAttributes.value = value;
+    }
+
+    if (hasDynamicValue) {
+      additionalAttributes.placeholder = parameter.dynamicDate && parameter.dynamicDate.name;
+      additionalAttributes.value = null;
     }
 
     return (
       <DateComponent
-        className={classNames('redash-datepicker', { 'dynamic-value': dynamicValue }, className)}
-        value={dynamicValue ? null : value}
+        className={classNames('redash-datepicker', { 'dynamic-value': hasDynamicValue }, className)}
         onSelect={this.onSelect}
         suffixIcon={(
           <DynamicButton
             options={DYNAMIC_DATE_OPTIONS}
-            selectedDynamicValue={dynamicValue ? parameter.value : null}
-            enabled={dynamicValue}
+            selectedDynamicValue={hasDynamicValue ? parameter.value : null}
+            enabled={hasDynamicValue}
             onSelect={this.onDynamicValueSelect}
           />
         )}

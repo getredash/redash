@@ -23,7 +23,7 @@ const DATETIME_FORMATS = {
   'datetime-range-with-seconds': 'YYYY-MM-DD HH:mm:ss',
 };
 
-const DYNAMIC_DATE_PREFIX = 'd_';
+const DYNAMIC_PREFIX = 'd_';
 
 export const DYNAMIC_DATE_RANGES = {
   today: {
@@ -75,10 +75,6 @@ export const DYNAMIC_DATES = {
   },
 };
 
-function isDynamicValue(value) {
-  return startsWith(value, DYNAMIC_DATE_PREFIX);
-}
-
 function normalizeNumericValue(value, defaultValue = null) {
   const result = parseFloat(value);
   return isFinite(result) ? result : defaultValue;
@@ -106,14 +102,32 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
-function getDynamicValue(value, paramType) {
-  if (isDateParameter(paramType) && isDynamicValue(value)) {
-    return DYNAMIC_DATES[value.substring(DYNAMIC_DATE_PREFIX.length)];
+function isDynamicDate(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
   }
-  if (isDateRangeParameter(paramType) && isDynamicValue(value)) {
-    return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_DATE_PREFIX.length)];
+  return !!DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+function isDynamicDateRange(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
   }
-  return null;
+  return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+function getDynamicDate(value) {
+  if (!isDynamicDate(value)) {
+    return null;
+  }
+  return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+function getDynamicDateRange(value) {
+  if (!isDynamicDateRange(value)) {
+    return null;
+  }
+  return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
 export class Parameter {
@@ -150,12 +164,20 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
-  get hasDynamicValue() {
-    return (isDateParameter(this.type) || isDateRangeParameter(this.type)) && isDynamicValue(this.value);
+  get hasDynamicDate() {
+    return isDateParameter(this.type) && isDynamicDate(this.value);
   }
 
-  get dynamicValue() {
-    return getDynamicValue(this.value, this.type);
+  get dynamicDate() {
+    return getDynamicDate(this.value);
+  }
+
+  get hasDynamicDateRange() {
+    return isDateRangeParameter(this.type) && isDynamicDateRange(this.value);
+  }
+
+  get dynamicDateRange() {
+    return getDynamicDateRange(this.value);
   }
 
   getValue() {
@@ -165,10 +187,10 @@ export class Parameter {
   static getValue(param) {
     const { value, type, useCurrentDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
-    if (isDateRangeParameter(type) && param.hasDynamicValue) {
-      const dynamicValue = param.dynamicValue;
-      if (dynamicValue) {
-        const dateRange = dynamicValue.value();
+    if (param.hasDynamicDateRange) {
+      const { dynamicDateRange } = param;
+      if (dynamicDateRange) {
+        const dateRange = dynamicDateRange.value();
         return {
           start: dateRange[0].format(DATETIME_FORMATS[type]),
           end: dateRange[1].format(DATETIME_FORMATS[type]),
@@ -177,10 +199,10 @@ export class Parameter {
       return null;
     }
 
-    if (isDateParameter(type) && param.hasDynamicValue) {
-      const dynamicValue = param.dynamicValue;
-      if (dynamicValue) {
-        return dynamicValue.value().format(DATETIME_FORMATS[type]);
+    if (param.hasDynamicDate) {
+      const dynamicDate = param.dynamicDate;
+      if (dynamicDate) {
+        return dynamicDate.value().format(DATETIME_FORMATS[type]);
       }
       return null;
     }
@@ -218,22 +240,22 @@ export class Parameter {
           };
           this.$$value = value;
         }
-      } else if (isDynamicValue(value)) {
-        const dynamicValue = getDynamicValue(value, this.type);
-        if (dynamicValue) {
+      } else if (isDynamicDateRange(value)) {
+        const dynamicDateRange = getDynamicDateRange(value, this.type);
+        if (dynamicDateRange) {
           this.value = value;
-          this.$$value = [dynamicValue.value()[0], dynamicValue.value()[1]];
+          this.$$value = [dynamicDateRange.value()[0], dynamicDateRange.value()[1]];
         }
       }
     } else if (isDateParameter(this.type)) {
       this.value = null;
       this.$$value = null;
 
-      if (isDynamicValue(value)) {
-        const dynamicValue = getDynamicValue(value, this.type);
-        if (dynamicValue) {
+      if (isDynamicDate(value)) {
+        const dynamicDate = getDynamicDate(value);
+        if (dynamicDate) {
           this.value = value;
-          this.$$value = dynamicValue.value();
+          this.$$value = dynamicDate.value();
         }
       } else {
         value = moment(value);
@@ -297,7 +319,7 @@ export class Parameter {
       const key = `${prefix}${this.name}`;
       const keyStart = `${prefix}${this.name}.start`;
       const keyEnd = `${prefix}${this.name}.end`;
-      if (has(query, key) && isDynamicValue(query[key])) {
+      if (has(query, key)) {
         this.setValue(query[key]);
       } else if (has(query, keyStart) && has(query, keyEnd)) {
         this.setValue([query[keyStart], query[keyEnd]]);

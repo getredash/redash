@@ -3,14 +3,16 @@
     color: #1890ff !important
   }
 
-  .ant-calendar-range-picker-input {
-    width: 100%;
-    text-align: left;
-  }
-
-  .ant-calendar-range-picker-separator,
-  .ant-calendar-range-picker-input:not(:first-child) {
-    display: none;
+  &.hide-end-value {
+    .ant-calendar-range-picker-input {
+      width: 100%;
+      text-align: left;
+    }
+  
+    .ant-calendar-range-picker-separator,
+    .ant-calendar-range-picker-input:not(:first-child) {
+      display: none;
+    }
   }
 }
 
