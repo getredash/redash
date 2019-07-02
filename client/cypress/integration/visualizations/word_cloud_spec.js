@@ -20,64 +20,60 @@ describe('Word Cloud', () => {
   });
 
   it('creates visualization with automatic word frequencies', () => {
-    const visualizationName = 'Word Cloud (auto)';
+    cy.clickThrough(`
+      NewVisualization
+      VisualizationType
+      VisualizationType.WORD_CLOUD
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.WORD_CLOUD').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-
-    cy.getByTestId('WordCloud.WordsColumn').click();
-    cy.getByTestId('WordCloud.WordsColumn.a').click();
+      WordCloud.WordsColumn
+      WordCloud.WordsColumn.a
+    `);
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 11);
 
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)');
   });
 
   it('creates visualization with word frequencies from another column', () => {
-    const visualizationName = 'Word Cloud (frequencies)';
+    cy.clickThrough(`
+      NewVisualization
+      VisualizationType
+      VisualizationType.WORD_CLOUD
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.WORD_CLOUD').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
+      WordCloud.WordsColumn
+      WordCloud.WordsColumn.b
 
-    cy.getByTestId('WordCloud.WordsColumn').click();
-    cy.getByTestId('WordCloud.WordsColumn.b').click();
-
-    cy.getByTestId('WordCloud.FrequenciesColumn').click();
-    cy.getByTestId('WordCloud.FrequenciesColumn.c').click();
+      WordCloud.FrequenciesColumn
+      WordCloud.FrequenciesColumn.c
+    `);
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 5);
 
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.percySnapshot('Visualizations - Word Cloud (Frequencies from another column)');
   });
 
   it('creates visualization with word length and frequencies limits', () => {
-    const visualizationName = 'Word Cloud (filters)';
+    cy.clickThrough(`
+      NewVisualization
+      VisualizationType
+      VisualizationType.WORD_CLOUD
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.WORD_CLOUD').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
+      WordCloud.WordsColumn
+      WordCloud.WordsColumn.b
 
-    cy.getByTestId('WordCloud.WordsColumn').click();
-    cy.getByTestId('WordCloud.WordsColumn.b').click();
+      WordCloud.FrequenciesColumn
+      WordCloud.FrequenciesColumn.c
+    `);
 
-    cy.getByTestId('WordCloud.FrequenciesColumn').click();
-    cy.getByTestId('WordCloud.FrequenciesColumn.c').click();
-
-    cy.getByTestId('WordCloud.WordLengthLimit.Min').clear().type('4');
-    cy.getByTestId('WordCloud.WordLengthLimit.Max').clear().type('5');
-    cy.getByTestId('WordCloud.WordCountLimit.Min').clear().type('1');
-    cy.getByTestId('WordCloud.WordCountLimit.Max').clear().type('3');
+    cy.fillInputs({
+      'WordCloud.WordLengthLimit.Min': '4',
+      'WordCloud.WordLengthLimit.Max': '5',
+      'WordCloud.WordCountLimit.Min': '1',
+      'WordCloud.WordCountLimit.Max': '3',
+    });
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 2);
 
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.percySnapshot('Visualizations - Word Cloud (With filters)');
   });
 });
