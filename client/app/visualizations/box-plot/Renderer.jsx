@@ -163,9 +163,10 @@ export default function Renderer({ data, options }) {
   useEffect(() => {
     if (container) {
       render(container, data, options);
-      return resizeObserver(container, () => {
+      const unwatch = resizeObserver(container, () => {
         render(container, data, options);
       });
+      return unwatch;
     }
   }, [container, data, options]);
 

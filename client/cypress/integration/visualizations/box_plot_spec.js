@@ -58,11 +58,11 @@ describe('Box Plot', () => {
       'BoxPlot.YAxisLabel': 'Y Axis',
     });
 
-    // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
 
-    cy.percySnapshot('Visualizations - Box Plot');
+    cy.viewport(1280, 1024);
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.screenshot();
+    cy.percySnapshot('Visualizations - Box Plot', { widths: [1280] });
   });
 });
