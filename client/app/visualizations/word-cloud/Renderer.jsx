@@ -100,12 +100,14 @@ function scaleElement(node, container) {
 }
 
 function createLayout() {
+  const fontFamily = window.getComputedStyle(document.body).fontFamily;
+
   return cloud()
     // make the area large enough to contain even very long words; word cloud will be placed in the center of the area
     // TODO: dimensions probably should be larger, but `d3-cloud` has some performance issues related to these values
     .size([5000, 5000])
     .padding(3)
-    .font('"Roboto Regular", sans-serif')
+    .font(fontFamily)
     .rotate(d => d.angle)
     .fontSize(d => d.size)
     .random(() => 0.5); // do not place words randomly - use compact layout
