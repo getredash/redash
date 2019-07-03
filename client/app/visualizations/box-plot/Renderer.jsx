@@ -162,6 +162,7 @@ export default function Renderer({ data, options }) {
 
   useEffect(() => {
     if (container) {
+      render(container, data, options);
       return resizeObserver(container, () => {
         render(container, data, options);
       });
