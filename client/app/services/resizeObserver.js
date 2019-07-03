@@ -1,14 +1,3 @@
-/* global ResizeObserver */
-
-function observeNative(node, callback) {
-  if ((typeof ResizeObserver === 'function') && node) {
-    const observer = new ResizeObserver(() => callback()); // eslint-disable-line compat/compat
-    observer.observe(node);
-    return () => observer.disconnect();
-  }
-  return null;
-}
-
 const items = new Map();
 
 function checkItems() {
@@ -33,7 +22,7 @@ function checkItems() {
   }
 }
 
-function observeFallback(node, callback) {
+export default function observe(node, callback) {
   if (node && !items.has(node)) {
     const shouldTrigger = items.size === 0;
     items.set(node, { callback });
@@ -42,9 +31,5 @@ function observeFallback(node, callback) {
     }
     return () => items.delete(node);
   }
-  return null;
-}
-
-export default function observe(node, callback) {
-  return observeNative(node, callback) || observeFallback(node, callback) || (() => {});
+  return () => {};
 }
