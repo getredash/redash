@@ -23,6 +23,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    allowMultipleValues: PropTypes.bool,
     applyButton: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
@@ -34,6 +35,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
+    allowMultipleValues: false,
     applyButton: false,
     onSelect: () => {},
     className: '',
@@ -128,11 +130,12 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { value, onSelect, enumOptions } = this.props;
+    const { value, onSelect, enumOptions, allowMultipleValues } = this.props;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
         className={this.props.className}
+        mode={allowMultipleValues ? 'multiple' : 'default'}
         disabled={enumOptionsArray.length === 0}
         defaultValue={value}
         onChange={onSelect}
@@ -243,6 +246,7 @@ export default function init(ngModule) {
         parameter="$ctrl.param"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
+        allow-multiple-values="$ctrl.param.allowMultipleValues"
         on-select="$ctrl.setValue"
         apply-button="$ctrl.applyButton"
       ></parameter-value-input-impl>

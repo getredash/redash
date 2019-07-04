@@ -55,6 +55,7 @@ export class Parameter {
     this.name = parameter.name;
     this.type = parameter.type;
     this.useCurrentDateTime = parameter.useCurrentDateTime;
+    this.allowMultipleValues = parameter.allowMultipleValues;
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
@@ -174,6 +175,9 @@ export class Parameter {
         [`${prefix}${this.name}.end`]: this.value.end,
       };
     }
+    if (this.allowMultipleValues && isArray(this.value)) {
+      return { [`${prefix}${this.name}`]: JSON.stringify(this.value) };
+    }
     return {
       [`${prefix}${this.name}`]: this.value,
     };
@@ -190,7 +194,15 @@ export class Parameter {
     } else {
       const key = `${prefix}${this.name}`;
       if (has(query, key)) {
-        this.setValue(query[key]);
+        if (this.allowMultipleValues) {
+          try {
+            this.setValue(JSON.parse(query[key]));
+          } catch (e) {
+            this.setValue(query[key]);
+          }
+        } else {
+          this.setValue(query[key]);
+        }
       }
     }
   }

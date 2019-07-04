@@ -201,6 +201,16 @@ function EditParameterSettingsDialog(props) {
             />
           </Form.Item>
         )}
+        {param.type === 'enum' && (
+          <Form.Item label=" " colon={false} {...formItemProps}>
+            <Checkbox
+              defaultChecked={param.allowMultipleValues}
+              onChange={e => setParam({ ...param, allowMultipleValues: e.target.checked })}
+            >
+            Allow multiple values
+            </Checkbox>
+          </Form.Item>
+        )}
       </Form>
     </Modal>
   );

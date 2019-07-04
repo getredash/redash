@@ -36,6 +36,12 @@ def dropdown_values(query_id):
     return map(pluck, data["rows"])
 
 
+def resolve_parameter_values(parameters):
+    resolved_parameters = {}
+    for (key, value) in parameters.iteritems():
+        resolved_parameters[key] = ','.join(value) if isinstance(value, list) else value
+    return resolved_parameters
+
 def _collect_key_names(nodes):
     keys = []
     for node in nodes._parse_tree:
@@ -92,6 +98,12 @@ def _is_date_range(obj):
         return False
 
 
+def _is_dropdown_value_valid(value, dropdown_options):
+    if isinstance(value, list):
+        return all(v in dropdown_options for v in value)
+    return value in dropdown_options
+
+
 class ParameterizedQuery(object):
     def __init__(self, template, schema=None):
         self.schema = schema or []
@@ -105,7 +117,7 @@ class ParameterizedQuery(object):
             raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
-            self.query = mustache_render(self.template, self.parameters)
+            self.query = mustache_render(self.template, resolve_parameter_values(parameters))
 
         return self
 
@@ -121,7 +133,7 @@ class ParameterizedQuery(object):
         validators = {
             "text": lambda value: isinstance(value, basestring),
             "number": _is_number,
-            "enum": lambda value: value in definition["enumOptions"],
+            "enum": lambda value: _is_dropdown_value_valid(value, definition["enumOptions"]),
             "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
             "datetime-local": _is_date,
