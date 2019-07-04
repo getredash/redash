@@ -18,6 +18,7 @@ export default function Editor({ options, onOptionsChange }) {
       <div className="form-group">
         <label className="control-label" htmlFor="box-plot-x-axis-label">X Axis Label</label>
         <Input
+          data-test="BoxPlot.XAxisLabel"
           id="box-plot-x-axis-label"
           value={options.xAxisLabel}
           onChange={event => onXAxisLabelChanged(event.target.value)}
@@ -27,6 +28,7 @@ export default function Editor({ options, onOptionsChange }) {
       <div className="form-group">
         <label className="control-label" htmlFor="box-plot-y-axis-label">Y Axis Label</label>
         <Input
+          data-test="BoxPlot.YAxisLabel"
           id="box-plot-y-axis-label"
           value={options.yAxisLabel}
           onChange={event => onYAxisLabelChanged(event.target.value)}
