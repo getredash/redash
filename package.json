@@ -136,7 +136,7 @@
     "webpack-manifest-plugin": "^2.0.4"
   },
   "optionalDependencies": {
-    "fsevents": "^1.2.4"
+    "fsevents": "^1.2.9"
   },
   "jest": {
     "setupFiles": [
