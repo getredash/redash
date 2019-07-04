@@ -1,4 +1,4 @@
-/* global cy */
+/* global cy, Cypress */
 
 import { createQuery } from '../../support/redash-api';
 
@@ -38,6 +38,8 @@ const SQL = `
 `;
 
 describe('Box Plot', () => {
+  const viewportWidth = Cypress.config('viewportWidth');
+
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
@@ -63,6 +65,6 @@ describe('Box Plot', () => {
 
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
 
-    cy.percySnapshot('Visualizations - Box Plot');
+    cy.percySnapshot('Visualizations - Box Plot', { widths: [viewportWidth] });
   });
 });

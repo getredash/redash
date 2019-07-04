@@ -53,6 +53,8 @@ function injectFont(document) {
 }
 
 describe('Word Cloud', () => {
+  const viewportWidth = Cypress.config('viewportWidth');
+
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
@@ -77,7 +79,7 @@ describe('Word Cloud', () => {
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 11);
 
-    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)');
+    cy.percySnapshot('Visualizations - Word Cloud (Automatic word frequencies)', { widths: [viewportWidth] });
   });
 
   it('creates visualization with word frequencies from another column', () => {
@@ -98,7 +100,7 @@ describe('Word Cloud', () => {
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 5);
 
-    cy.percySnapshot('Visualizations - Word Cloud (Frequencies from another column)');
+    cy.percySnapshot('Visualizations - Word Cloud (Frequencies from another column)', { widths: [viewportWidth] });
   });
 
   it('creates visualization with word length and frequencies limits', () => {
@@ -126,6 +128,6 @@ describe('Word Cloud', () => {
 
     cy.getByTestId('VisualizationPreview').find('svg text').should('have.length', 2);
 
-    cy.percySnapshot('Visualizations - Word Cloud (With filters)');
+    cy.percySnapshot('Visualizations - Word Cloud (With filters)', { widths: [viewportWidth] });
   });
 });
