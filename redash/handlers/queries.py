@@ -1,21 +1,45 @@
-from itertools import chain
-
 import sqlparse
-from flask import jsonify, request
+from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
-from funcy import distinct, take
 from sqlalchemy.orm.exc import StaleDataError
+from funcy import partial
 
 from redash import models, settings
-from redash.handlers.base import (BaseResource, get_object_or_404,
-                                  org_scoped_rule, paginate, routes)
+from redash.authentication.org_resolving import current_org
+from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
+                                  org_scoped_rule, paginate, routes, order_results as _order_results)
 from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
+from redash.serializers import QuerySerializer
+from redash.models.parameterized_query import ParameterizedQuery
+
+
+# Ordering map for relationships
+order_map = {
+    'name': 'lowercase_name',
+    '-name': '-lowercase_name',
+    'created_at': 'created_at',
+    '-created_at': '-created_at',
+    'schedule': 'schedule',
+    '-schedule': '-schedule',
+    'runtime': 'query_results-runtime',
+    '-runtime': '-query_results-runtime',
+    'executed_at': 'query_results-retrieved_at',
+    '-executed_at': '-query_results-retrieved_at',
+    'created_by': 'users-name',
+    '-created_by': '-users-name',
+}
+
+order_results = partial(
+    _order_results,
+    default_order='-created_at',
+    allowed_orders=order_map,
+)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -30,7 +54,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return jsonify({'query': sqlparse.format(query, reindent=True, keyword_case='upper')})
+    return jsonify({'query': sqlparse.format(query, **settings.SQLPARSE_FORMAT_OPTIONS)})
 
 
 class QuerySearchResource(BaseResource):
@@ -40,6 +64,7 @@ class QuerySearchResource(BaseResource):
         Search query text, names, and descriptions.
 
         :qparam string q: Search term
+        :qparam number include_drafts: Whether to include draft in results
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
@@ -49,39 +74,118 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False)
-                for q in models.Query.search(term,
-                                             self.current_user.group_ids,
-                                             include_drafts=include_drafts,
-                                             limit=None)]
+        self.record_event({
+            'action': 'search',
+            'object_type': 'query',
+            'term': term,
+        })
+
+        # this redirects to the new query list API that is aware of search
+        new_location = url_for(
+            'queries',
+            q=term,
+            org_slug=current_org.slug,
+            drafts='true' if include_drafts else 'false',
+        )
+        return {}, 301, {'Location': new_location}
 
 
 class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         """
-        Retrieve up to 20 queries modified in the last 7 days.
+        Retrieve up to 10 queries recently modified by the user.
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
 
-        if settings.FEATURE_DUMB_RECENTS:
-            results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
-            queries = [q.to_dict(with_last_modified_by=False, with_user=False) for q in results]
+        results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
+
+
+class BaseQueryListResource(BaseResource):
+
+    def get_queries(self, search_term):
+        if search_term:
+            results = models.Query.search(
+                search_term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=True,
+            )
         else:
-            queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
-            recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in queries]
+            results = models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=True,
+            )
+        return filter_by_tags(results, models.Query.tags)
 
-            global_recent = []
-            if len(recent) < 10:
-                global_recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in models.Query.recent(self.current_user.group_ids)]
+    @require_permission('view_query')
+    def get(self):
+        """
+        Retrieve a list of queries.
 
-            queries = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
+        :qparam number page_size: Number of queries to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
 
-        return queries
+        Responds with an array of :ref:`query <query-response-label>` objects.
+        """
+        # See if we want to do full-text search or just regular queries
+        search_term = request.args.get('q', '')
+
+        queries = self.get_queries(search_term)
+
+        results = filter_by_tags(queries, models.Query.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=not bool(search_term))
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+
+        response = paginate(
+            ordered_results,
+            page=page,
+            page_size=page_size,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False
+        )
+
+        if search_term:
+            self.record_event({
+                'action': 'search',
+                'object_type': 'query',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'query',
+            })
+
+        return response
 
 
-class QueryListResource(BaseResource):
+def require_access_to_dropdown_queries(user, query_def):
+    parameters = query_def.get('options', {}).get('parameters', [])
+    dropdown_query_ids = set([str(p['queryId']) for p in parameters if p['type'] == 'query'])
+
+    if dropdown_query_ids:
+        groups = models.Query.all_groups_for_query_ids(dropdown_query_ids)
+
+        if len(groups) < len(dropdown_query_ids):
+            abort(400, message="You are trying to associate a dropdown query that does not have a matching group. "
+                               "Please verify the dropdown query id you are trying to associate with this query.")
+
+        require_access(dict(groups), user, view_only)
+
+class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
     def post(self):
         """
@@ -118,7 +222,8 @@ class QueryListResource(BaseResource):
         """
         query_def = request.get_json(force=True)
         data_source = models.DataSource.get_by_id_and_org(query_def.pop('data_source_id'), self.current_org)
-        require_access(data_source.groups, self.current_user, not_view_only)
+        require_access(data_source, self.current_user, not_view_only)
+        require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
             query_def.pop(field, None)
@@ -138,23 +243,27 @@ class QueryListResource(BaseResource):
             'object_type': 'query'
         })
 
-        return query.to_dict()
+        return QuerySerializer(query, with_visualizations=True).serialize()
 
-    @require_permission('view_query')
-    def get(self):
-        """
-        Retrieve a list of queries.
 
-        :qparam number page_size: Number of queries to return
-        :qparam number page: Page number to retrieve
+class QueryArchiveResource(BaseQueryListResource):
 
-        Responds with an array of :ref:`query <query-response-label>` objects.
-        """
-
-        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+    def get_queries(self, search_term):
+        if search_term:
+            return models.Query.search(
+                search_term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=False,
+                include_archived=True,
+            )
+        else:
+            return models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=False,
+                include_archived=True,
+            )
 
 
 class MyQueriesResource(BaseResource):
@@ -163,16 +272,36 @@ class MyQueriesResource(BaseResource):
         """
         Retrieve a list of queries created by the current user.
 
-        :qparam number page_size: Number of queries to return
+        :qparam number page_size: Number of queries to return per page
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        drafts = request.args.get('drafts') is not None
-        results = models.Query.by_user(self.current_user)
+        search_term = request.args.get('q', '')
+        if search_term:
+            results = models.Query.search_by_user(search_term, self.current_user)
+        else:
+            results = models.Query.by_user(self.current_user)
+
+        results = filter_by_tags(results, models.Query.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_results = order_results(results, fallback=not bool(search_term))
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        return paginate(
+            ordered_results,
+            page,
+            page_size,
+            QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
 
 
 class QueryResource(BaseResource):
@@ -195,12 +324,16 @@ class QueryResource(BaseResource):
         query_def = request.get_json(force=True)
 
         require_object_modify_permission(query, self.current_user)
+        require_access_to_dropdown_queries(self.current_user, query_def)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
         if 'query' in query_def:
             query_def['query_text'] = query_def.pop('query')
+
+        if 'tags' in query_def:
+            query_def['tags'] = filter(None, query_def['tags'])
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
@@ -216,7 +349,7 @@ class QueryResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        return query.to_dict(with_visualizations=True)
+        return QuerySerializer(query, with_visualizations=True).serialize()
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -228,10 +361,17 @@ class QueryResource(BaseResource):
         Responds with the :ref:`query <query-response-label>` contents.
         """
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(q.groups, self.current_user, view_only)
+        require_access(q, self.current_user, view_only)
 
-        result = q.to_dict(with_visualizations=True)
+        result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -247,6 +387,24 @@ class QueryResource(BaseResource):
         models.db.session.commit()
 
 
+class QueryRegenerateApiKeyResource(BaseResource):
+    @require_permission('edit_query')
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_admin_or_owner(query.user_id)
+        query.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
+        result = QuerySerializer(query).serialize()
+        return result
+
+
 class QueryForkResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
@@ -258,10 +416,17 @@ class QueryForkResource(BaseResource):
         Responds with created :ref:`query <query-response-label>` object.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.data_source.groups, self.current_user, not_view_only)
+        require_access(query.data_source, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
-        return forked_query.to_dict(with_visualizations=True)
+
+        self.record_event({
+            'action': 'fork',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
+        return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 
 class QueryRefreshResource(BaseResource):
@@ -280,8 +445,67 @@ class QueryRefreshResource(BaseResource):
             abort(403, message="Please use a user API key.")
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.groups, self.current_user, not_view_only)
+        require_access(query, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
+        parameterized_query = ParameterizedQuery(query.query_text)
 
-        return run_query(query.data_source, parameter_values, query.query_text, query.id)
+        return run_query(parameterized_query, parameter_values, query.data_source, query.id)
+
+
+class QueryTagsResource(BaseResource):
+    def get(self):
+        """
+        Returns all query tags including those for drafts.
+        """
+        tags = models.Query.all_tags(self.current_user, include_drafts=True)
+        return {
+            'tags': [
+                {
+                    'name': name,
+                    'count': count,
+                }
+                for name, count in tags
+            ]
+        }
+
+
+class QueryFavoriteListResource(BaseResource):
+    def get(self):
+        search_term = request.args.get('q')
+
+        if search_term:
+            base_query = models.Query.search(search_term, self.current_user.group_ids, include_drafts=True, limit=None)
+            favorites = models.Query.favorites(self.current_user, base_query=base_query)
+        else:
+            favorites = models.Query.favorites(self.current_user)
+
+        favorites = filter_by_tags(favorites, models.Query.tags)
+
+        # order results according to passed order parameter,
+        # special-casing search queries where the database
+        # provides an order by search rank
+        ordered_favorites = order_results(favorites, fallback=not bool(search_term))
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        response = paginate(
+            ordered_favorites,
+            page,
+            page_size,
+            QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
+
+        self.record_event({
+            'action': 'load_favorites',
+            'object_type': 'query',
+            'params': {
+                'q': search_term,
+                'tags': request.args.getlist('tags'),
+                'page': page
+            }
+        })
+
+        return response

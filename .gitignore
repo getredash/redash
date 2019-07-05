@@ -1,3 +1,5 @@
+.venv
+venv/
 .cache
 .coverage.*
 .coveralls.yml
@@ -21,3 +23,6 @@ node_modules
 .tmp
 .sass-cache
 npm-debug.log
+
+client/cypress/screenshots
+client/cypress/videos

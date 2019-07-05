@@ -1,7 +1,5 @@
 {
   "variables": {
-    "aws_access_key": "",
-    "aws_secret_key": "",
     "redash_version": "",
     "image_version": ""
   },
@@ -9,19 +7,16 @@
     {
       "name": "redash-us-east-1",
       "type": "amazon-ebs",
-      "access_key": "{{user `aws_access_key`}}",
-      "secret_key": "{{user `aws_secret_key`}}",
       "region": "us-east-1",
-      "source_ami": "ami-4dd2575b",
+      "source_ami": "ami-0ac019f4fcb7cb7e6",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "redash-{{user `image_version`}}-us-east-1"
     },
     {
       "type": "googlecompute",
-      "account_file": "account.json",
       "project_id": "redash-bird-123",
-      "source_image_family": "ubuntu-1604-lts",
+      "source_image_family": "ubuntu-1804-lts",
       "zone": "us-central1-a",
       "ssh_username": "arik"
     }
@@ -35,7 +30,7 @@
     },
     {
       "type": "shell",
-      "script": "ubuntu/bootstrap.sh",
+      "script": "setup.sh",
       "execute_command": "{{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "environment_vars": ["REDASH_VERSION={{user `redash_version`}}"]
     },
@@ -46,6 +41,15 @@
     {
       "type": "shell",
       "inline": "sudo rm /home/ubuntu/.ssh/authorized_keys || true"
+    },
+    {
+      "type": "file",
+      "source": "generate_key.sh",
+      "destination": "/tmp/rc.local"
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo mv /tmp/rc.local /etc/rc.local", "sudo chown root /etc/rc.local", "sudo chmod 755 /etc/rc.local"]
     }
   ],
   "post-processors": [

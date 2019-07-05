@@ -1,14 +1,14 @@
-import json
 import logging
 import sys
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
 try:
     from dql import Engine, FragmentEngine
+    from dynamo3 import DynamoDBError
     from pyparsing import ParseException
     enabled = True
 except ImportError as e:
@@ -69,9 +69,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def name(cls):
         return "DynamoDB (with DQL)"
 
-    def __init__(self, configuration):
-        super(DynamoDBSQL, self).__init__(configuration)
-
     def _connect(self):
         engine = FragmentEngine()
         config = self.configuration.to_dict()
@@ -89,15 +86,24 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         engine = self._connect()
 
-        for table in engine.describe_all():
-            schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
+        # We can't use describe_all because sometimes a user might give List permission
+        # for * (all tables), but describe permission only for some of them.
+        tables = engine.connection.list_tables()
+        for table_name in tables:
+            try:
+                table = engine.describe(table_name, True)
+                schema[table.name] = {'name': table.name,
+                                      'columns': table.attrs.keys()}
+            except DynamoDBError:
+                pass
 
     def run_query(self, query, user):
         engine = None
         try:
             engine = self._connect()
 
-            result = engine.execute(query if str(query).endswith(';') else str(query)+';')
+            result = engine.execute(query if str(
+                query).endswith(';') else str(query) + ';')
 
             columns = []
             rows = []
@@ -105,7 +111,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             # When running a count query it returns the value as a string, in which case
             # we transform it into a dictionary to be the same as regular queries.
             if isinstance(result, basestring):
-                result = [{"value": result}]
+                # when count < scanned_count, dql returns a string with number of rows scanned
+                value = result.split(" (")[0]
+                if value:
+                    value = int(value)
+                result = [{"value": value}]
 
             for item in result:
                 if not columns:
@@ -118,10 +128,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 rows.append(item)
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except ParseException as e:
-            error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
+            error = u"Error parsing query at line {} (column {}):\n{}".format(
+                e.lineno, e.column, e.line)
             json_data = None
         except (SyntaxError, RuntimeError) as e:
             error = e.message
@@ -131,9 +142,8 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 engine.connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
+
 
 register(DynamoDBSQL)

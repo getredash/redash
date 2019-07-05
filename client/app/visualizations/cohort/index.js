@@ -1,9 +1,10 @@
 /* global Cornelius */
-import _ from 'underscore';
+import _ from 'lodash';
 import moment from 'moment';
-import angular from 'angular';
 import 'cornelius/src/cornelius';
 import 'cornelius/src/cornelius.css';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
 import editorTemplate from './cohort-editor.html';
 
@@ -13,117 +14,211 @@ const momentInterval = {
   monthly: 'months',
 };
 
-function prepareData(rawData, timeInterval) {
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.day_number, 10));
-  const grouped = _.groupBy(sortedData, 'date');
-  const initialDate = moment(sortedData[0].date).toDate();
-  const lastDate = moment(sortedData[sortedData.length - 1].date);
-  const zeroBased = _.min(_.pluck(rawData, 'day_number')) === 0;
+const DEFAULT_OPTIONS = {
+  timeInterval: 'daily',
+  mode: 'diagonal',
+  dateColumn: 'date',
+  stageColumn: 'day_number',
+  totalColumn: 'total',
+  valueColumn: 'value',
+};
 
-  let previousDay = null;
+function groupData(sortedData) {
+  const result = {};
+
+  _.each(sortedData, (item) => {
+    const groupKey = item.date + 0;
+    result[groupKey] = result[groupKey] || {
+      date: moment(item.date),
+      total: parseInt(item.total, 10),
+      values: {},
+    };
+    result[groupKey].values[item.stage] = parseInt(item.value, 10);
+  });
+
+  return _.values(result);
+}
+
+function prepareDiagonalData(sortedData, options) {
+  const timeInterval = options.timeInterval;
+  const grouped = groupData(sortedData);
+  const firstStage = _.min(_.map(sortedData, i => i.stage));
+  const stageCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
+  let lastStage = firstStage + stageCount;
+
+  let previousDate = null;
+
   const data = [];
+  _.each(grouped, (group) => {
+    if (previousDate !== null) {
+      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
+      while (diff > 1) {
+        const row = [0];
+        for (let stage = firstStage; stage <= lastStage; stage += 1) {
+          row.push(group.values[stage] || 0);
+        }
+        data.push(row);
+        // It should be diagonal, so decrease count of stages for each next row
+        lastStage -= 1;
+        diff -= 1;
+      }
+    }
 
-  _.each(grouped, (values) => {
-    if (previousDay !== null) {
-      let diff = Math.abs(previousDay.diff(values[0].date, momentInterval[timeInterval]));
+    previousDate = group.date;
+
+    const row = [group.total];
+    for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      row.push(group.values[stage] || 0);
+    }
+    // It should be diagonal, so decrease count of stages for each next row
+    lastStage -= 1;
+
+    data.push(row);
+  });
+
+  return data;
+}
+
+function prepareSimpleData(sortedData, options) {
+  const timeInterval = options.timeInterval;
+  const grouped = groupData(sortedData);
+  const stages = _.map(sortedData, i => i.stage);
+  const firstStage = _.min(stages);
+  const lastStage = _.max(stages);
+
+  let previousDate = null;
+
+  const data = [];
+  _.each(grouped, (group) => {
+    if (previousDate !== null) {
+      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
         data.push([0]);
         diff -= 1;
       }
     }
 
-    previousDay = moment(values[0].date);
+    previousDate = group.date;
 
-    const row = [parseInt(values[0].total, 10)];
-    let maxDays = lastDate.diff(moment(values[0].date), momentInterval[timeInterval]);
-    if (zeroBased) {
-      maxDays += 1;
-    }
-
-    _.each(values, (value) => {
-      const index = zeroBased ? value.day_number + 1 : value.day_number;
-      row[index] = parseInt(value.value, 10);
-    });
-
-    for (let i = 0; i <= maxDays; i += 1) {
-      if (row[i] === undefined) {
-        row[i] = 0;
-      }
+    const row = [group.total];
+    for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      row.push(group.values[stage]);
     }
 
     data.push(row);
   });
 
+  return data;
+}
+
+function prepareData(rawData, options) {
+  rawData = _.map(rawData, item => ({
+    date: item[options.dateColumn],
+    stage: parseInt(item[options.stageColumn], 10),
+    total: parseFloat(item[options.totalColumn]),
+    value: parseFloat(item[options.valueColumn]),
+  }));
+  const sortedData = _.sortBy(rawData, r => r.date + r.stage);
+  const initialDate = moment(sortedData[0].date).toDate();
+
+  let data;
+  switch (options.mode) {
+    case 'simple':
+      data = prepareSimpleData(sortedData, options);
+      break;
+    default:
+      data = prepareDiagonalData(sortedData, options);
+      break;
+  }
+
   return { data, initialDate };
 }
 
-function cohortRenderer() {
-  return {
-    restrict: 'E',
-    scope: {
-      queryResult: '=',
-      options: '=',
-    },
-    template: '',
-    replace: false,
-    link($scope, element) {
-      $scope.options.timeInterval = $scope.options.timeInterval || 'daily';
+const CohortRenderer = {
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  template: '',
+  replace: false,
+  controller($scope, $element) {
+    $scope.options = _.extend({}, DEFAULT_OPTIONS, $scope.options);
 
-      function updateCohort() {
-        if ($scope.queryResult.getData() === null) {
-          return;
-        }
+    const update = () => {
+      $element.empty();
 
-        const { data, initialDate } = prepareData(
-          $scope.queryResult.getData(),
-          $scope.options.timeInterval,
-        );
-
-        const container = angular.element(element)[0];
-
-        Cornelius.draw({
-          initialDate,
-          container,
-          cohort: data,
-          title: null,
-          timeInterval: $scope.options.timeInterval,
-          labels: {
-            time: 'Time',
-            people: 'Users',
-            weekOf: 'Week of',
-          },
-        });
+      if (this.data.rows.length === 0) {
+        return;
       }
 
-      $scope.$watch('queryResult && queryResult.getData()', updateCohort);
-      $scope.$watch('options.timeInterval', updateCohort);
-    },
-  };
-}
+      const options = this.options;
 
-function cohortEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
+      const columnNames = _.map(this.data.columns, i => i.name);
+      if (
+        !_.includes(columnNames, options.dateColumn) ||
+        !_.includes(columnNames, options.stageColumn) ||
+        !_.includes(columnNames, options.totalColumn) ||
+        !_.includes(columnNames, options.valueColumn)
+      ) {
+        return;
+      }
 
-export default function init(ngModule) {
-  ngModule.directive('cohortRenderer', cohortRenderer);
-  ngModule.directive('cohortEditor', cohortEditor);
+      const { data, initialDate } = prepareData(this.data.rows, options);
 
-  ngModule.config((VisualizationProvider) => {
-    const editTemplate = '<cohort-editor></cohort-editor>';
-    const defaultOptions = {
-      timeInterval: 'daily',
+      Cornelius.draw({
+        initialDate,
+        container: $element[0],
+        cohort: data,
+        title: null,
+        timeInterval: options.timeInterval,
+        labels: {
+          time: 'Time',
+          people: 'Users',
+          weekOf: 'Week of',
+        },
+      });
     };
 
-    VisualizationProvider.registerVisualization({
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const CohortEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    this.currentTab = 'columns';
+    this.setCurrentTab = (tab) => {
+      this.currentTab = tab;
+    };
+
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
+
+export default function init(ngModule) {
+  ngModule.component('cohortRenderer', CohortRenderer);
+  ngModule.component('cohortEditor', CohortEditor);
+
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'COHORT',
       name: 'Cohort',
-      renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>',
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+      Renderer: angular2react('cohortRenderer', CohortRenderer, $injector),
+      Editor: angular2react('cohortEditor', CohortEditor, $injector),
+
+      autoHeight: true,
+      defaultRows: 8,
     });
   });
 }
+
+init.init = true;

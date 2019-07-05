@@ -1,48 +1,92 @@
 import moment from 'moment';
-import _capitalize from 'underscore.string/capitalize';
-import { isEmpty } from 'underscore';
+import { capitalize as _capitalize, isEmpty } from 'lodash';
 
-export function durationHumanize(duration) {
-  let humanized = '';
+export const IntervalEnum = {
+  NEVER: 'Never',
+  SECONDS: 'second',
+  MINUTES: 'minute',
+  HOURS: 'hour',
+  DAYS: 'day',
+  WEEKS: 'week',
+};
 
-  if (duration === undefined) {
-    humanized = '-';
-  } else if (duration < 60) {
-    const seconds = Math.round(duration);
-    humanized = `${seconds}s`;
-  } else if (duration > 3600 * 24) {
-    const days = Math.round(parseFloat(duration) / 60.0 / 60.0 / 24.0);
-    humanized = `${days}days`;
-  } else if (duration >= 3600) {
-    const hours = Math.round(parseFloat(duration) / 60.0 / 60.0);
-    humanized = `${hours}h`;
-  } else {
-    const minutes = Math.round(parseFloat(duration) / 60.0);
-    humanized = `${minutes}m`;
-  }
-  return humanized;
+export function localizeTime(time) {
+  const [hrs, mins] = time.split(':');
+  return moment
+    .utc()
+    .hour(hrs)
+    .minute(mins)
+    .local()
+    .format('HH:mm');
 }
 
-export function scheduleHumanize(schedule) {
-  if (schedule === null) {
-    return 'Never';
-  } else if (schedule.match(/\d\d:\d\d/) !== null) {
-    const parts = schedule.split(':');
-    const localTime = moment.utc()
-      .hour(parts[0])
-      .minute(parts[1])
-      .local()
-      .format('HH:mm');
-
-    return `Every day at ${localTime}`;
+export function secondsToInterval(count) {
+  if (!count) {
+    return { interval: IntervalEnum.NEVER };
   }
 
-  return `Every ${durationHumanize(parseInt(schedule, 10))}`;
+  let interval = IntervalEnum.SECONDS;
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.MINUTES;
+  }
+  if (count >= 60) {
+    count /= 60;
+    interval = IntervalEnum.HOURS;
+  }
+  if (count >= 24 && interval === IntervalEnum.HOURS) {
+    count /= 24;
+    interval = IntervalEnum.DAYS;
+  }
+  if (count >= 7 && !(count % 7) && interval === IntervalEnum.DAYS) {
+    count /= 7;
+    interval = IntervalEnum.WEEKS;
+  }
+  return { count, interval };
+}
+
+export function intervalToSeconds(count, interval) {
+  let intervalInSeconds = 0;
+  switch (interval) {
+    case IntervalEnum.MINUTES:
+      intervalInSeconds = 60;
+      break;
+    case IntervalEnum.HOURS:
+      intervalInSeconds = 3600;
+      break;
+    case IntervalEnum.DAYS:
+      intervalInSeconds = 86400;
+      break;
+    case IntervalEnum.WEEKS:
+      intervalInSeconds = 604800;
+      break;
+    default:
+      return null;
+  }
+  return intervalInSeconds * count;
+}
+
+export function pluralize(text, count) {
+  const should = count !== 1;
+  return text + (should ? 's' : '');
+}
+
+export function durationHumanize(duration, options = {}) {
+  if (!duration) {
+    return '-';
+  }
+  let ret = '';
+  const { interval, count } = secondsToInterval(duration);
+  const rounded = Math.round(count);
+  if (rounded !== 1 || !options.omitSingleValueNumber) {
+    ret = `${rounded} `;
+  }
+  ret += pluralize(interval, rounded);
+  return ret;
 }
 
 export function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a =>
-    a.toUpperCase());
+  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
 export function colWidth(widgetWidth) {
@@ -93,6 +137,34 @@ export function notEmpty(collection) {
 }
 
 export function showError(field) {
+  // In case of booleans, we get an undefined here.
+  if (field === undefined) {
+    return false;
+  }
   return field.$touched && field.$invalid;
 }
 
+const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+export function prettySize(bytes) {
+  if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
+    return '?';
+  }
+
+  let unit = 0;
+
+  while (bytes >= 1024) {
+    bytes /= 1024;
+    unit += 1;
+  }
+
+  return bytes.toFixed(3) + ' ' + units[unit];
+}
+
+export function join(arr) {
+  if (arr === undefined || arr === null) {
+    return '';
+  }
+
+  return arr.join(' / ');
+}

@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import json
 
 try:
     import snowflake.connector
@@ -10,7 +9,7 @@ except ImportError:
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
@@ -46,8 +45,13 @@ class Snowflake(BaseQueryRunner):
                 },
                 "database": {
                     "type": "string"
+                },
+                "region": {
+                    "type": "string",
+                    "default": "us-west"
                 }
             },
+            "order": ["account", "user", "password", "warehouse", "database", "region"],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"]
         }
@@ -57,22 +61,32 @@ class Snowflake(BaseQueryRunner):
         return enabled
 
     def run_query(self, query, user):
+        region = self.configuration.get('region')
+
+        # for us-west we don't need to pass a region (and if we do, it fails to connect)
+        if region == 'us-west':
+            region = None
+
         connection = snowflake.connector.connect(
             user=self.configuration['user'],
             password=self.configuration['password'],
             account=self.configuration['account'],
+            region=region
         )
 
         cursor = connection.cursor()
 
         try:
-            cursor.execute("USE WAREHOUSE {}".format(self.configuration['warehouse']))
+            cursor.execute("USE WAREHOUSE {}".format(
+                self.configuration['warehouse']))
             cursor.execute("USE {}".format(self.configuration['database']))
 
             cursor.execute(query)
 
-            columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+            columns = self.fetch_columns(
+                [(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
+            rows = [dict(zip((c['name'] for c in columns), row))
+                    for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             error = None
@@ -98,7 +112,7 @@ class Snowflake(BaseQueryRunner):
             raise Exception("Failed getting schema.")
 
         schema = {}
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
@@ -109,5 +123,6 @@ class Snowflake(BaseQueryRunner):
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
         return schema.values()
+
 
 register(Snowflake)

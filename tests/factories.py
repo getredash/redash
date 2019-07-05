@@ -1,3 +1,4 @@
+from passlib.apps import custom_app_context as pwd_context
 import redash.models
 from redash.models import db
 from redash.permissions import ACCESS_TYPE_MODIFY
@@ -40,7 +41,8 @@ class Sequence(object):
 
 
 user_factory = ModelFactory(redash.models.User,
-                            name='John Doe', email=Sequence('test{}@example.com'),
+                            name='John Doe', email=Sequence(u'test{}@example.com'),
+                            password_hash=pwd_context.encrypt('test1234'),
                             group_ids=[2],
                             org_id=1)
 
@@ -84,7 +86,7 @@ query_with_params_factory = ModelFactory(redash.models.Query,
                              user=user_factory.create,
                              is_archived=False,
                              is_draft=False,
-                             schedule=None,
+                             schedule={},
                              data_source=data_source_factory.create,
                              org_id=1)
 
@@ -118,7 +120,6 @@ visualization_factory = ModelFactory(redash.models.Visualization,
                                      options='{}')
 
 widget_factory = ModelFactory(redash.models.Widget,
-                              type='chart',
                               width=1,
                               options='{}',
                               dashboard=dashboard_factory.create,

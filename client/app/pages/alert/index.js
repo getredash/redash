@@ -1,23 +1,26 @@
-import { template as templateBuilder } from 'underscore';
+import { template as templateBuilder } from 'lodash';
+import notification from '@/services/notification';
+import Modal from 'antd/lib/modal';
 import template from './alert.html';
+import navigateTo from '@/services/navigateTo';
 
-function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
-  } else {
-    Events.record('view', 'alert', this.alertId);
   }
 
   this.trustAsHtml = html => $sce.trustAsHtml(html);
 
   this.onQuerySelected = (item) => {
-    this.selectedQuery = item;
-    item.getQueryResultPromise().then((result) => {
+    this.alert.query = item;
+    this.selectedQuery = new Query(item);
+    this.selectedQuery.getQueryResultPromise().then((result) => {
       this.queryResult = result;
       this.alert.options.column = this.alert.options.column || result.getColumnNames()[0];
     });
+    $scope.$applyAsync();
   };
 
   if (this.alertId === 'new') {
@@ -25,7 +28,7 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     this.canEdit = true;
   } else {
     this.alert = Alert.get({ id: this.alertId }, (alert) => {
-      this.onQuerySelected(new Query(alert.query));
+      this.onQuerySelected(alert.query);
       this.canEdit = currentUser.canEdit(this.alert);
     });
   }
@@ -47,8 +50,8 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
       return;
     }
 
-    Query.search({ q: term }, (results) => {
-      this.queries = results;
+    Query.query({ q: term }, (results) => {
+      this.queries = results.results;
     });
   };
 
@@ -61,27 +64,36 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     }
     this.alert.$save(
       (alert) => {
-        toastr.success('Saved.');
+        notification.success('Saved.');
         if (this.alertId === 'new') {
           $location.path(`/alerts/${alert.id}`).replace();
         }
       },
       () => {
-        toastr.error('Failed saving alert.');
+        notification.error('Failed saving alert.');
       },
     );
   };
 
   this.delete = () => {
-    this.alert.$delete(
-      () => {
-        $location.path('/alerts');
-        toastr.success('Alert deleted.');
-      },
-      () => {
-        toastr.error('Failed deleting alert.');
-      },
-    );
+    const doDelete = () => {
+      this.alert.$delete(() => {
+        notification.success('Alert destination deleted successfully.');
+        navigateTo('/alerts', true);
+      }, () => {
+        notification.error('Failed deleting alert.');
+      });
+    };
+
+    Modal.confirm({
+      title: 'Delete Alert',
+      content: 'Are you sure you want to delete this alert?',
+      okText: 'Delete',
+      okType: 'danger',
+      onOk: doDelete,
+      maskClosable: true,
+      autoFocusButton: null,
+    });
   };
 }
 
@@ -98,3 +110,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

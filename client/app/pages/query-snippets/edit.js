@@ -1,9 +1,9 @@
 import 'brace/mode/snippets';
+import notification from '@/services/notification';
 import template from './edit.html';
 
-function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events, QuerySnippet) {
+function SnippetCtrl($routeParams, $http, $location, currentUser, AlertDialog, QuerySnippet) {
   this.snippetId = $routeParams.snippetId;
-  Events.record('view', 'query_snippet', this.snippetId);
 
   this.editorOptions = {
     mode: 'snippets',
@@ -21,22 +21,30 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events
 
   this.saveChanges = () => {
     this.snippet.$save((snippet) => {
-      toastr.success('Saved.');
+      notification.success('Saved.');
       if (this.snippetId === 'new') {
         $location.path(`/query_snippets/${snippet.id}`).replace();
       }
     }, () => {
-      toastr.error('Failed saving snippet.');
+      notification.error('Failed saving snippet.');
     });
   };
 
   this.delete = () => {
-    this.snippet.$delete(() => {
-      $location.path('/query_snippets');
-      toastr.sucess('Query snippet deleted.');
-    }, () => {
-      toastr.error('Failed deleting query snippet.');
-    });
+    const doDelete = () => {
+      this.snippet.$delete(() => {
+        $location.path('/query_snippets');
+        notification.success('Query snippet deleted.');
+      }, () => {
+        notification.error('Failed deleting query snippet.');
+      });
+    };
+
+    const title = 'Delete Snippet';
+    const message = `Are you sure you want to delete the "${this.snippet.trigger}" snippet?`;
+    const confirm = { class: 'btn-warning', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(doDelete);
   };
 
   if (this.snippetId === 'new') {
@@ -62,3 +70,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

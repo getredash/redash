@@ -1,5 +1,14 @@
-import { pick, any, some, find, min, isObject } from 'underscore';
+import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
+import getTags from '@/services/getTags';
+import { policy } from '@/services/policy';
+import { Visualization } from '@/services/visualization';
+import Notifications from '@/services/notifications';
+import ScheduleDialog from '@/components/queries/ScheduleDialog';
+import { newVisualization } from '@/visualizations';
+import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
+import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
+import notification from '@/services/notification';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -13,15 +22,17 @@ function QueryViewCtrl(
   KeyboardShortcuts,
   Title,
   AlertDialog,
-  Notifications,
   clientConfig,
-  toastr,
   $uibModal,
   currentUser,
   Query,
   DataSource,
 ) {
-  function getQueryResult(maxAge) {
+  // Should create it here since visualization registry might not be fulfilled when this file is loaded
+  const DEFAULT_VISUALIZATION = newVisualization('TABLE', { itemsPerPage: 50 });
+  DEFAULT_VISUALIZATION.id = 'table';
+
+  function getQueryResult(maxAge, selectedQueryText) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
     }
@@ -31,7 +42,11 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    if ($scope.isDirty) {
+      $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
+    } else {
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    }
   }
 
   function getDataSourceId() {
@@ -68,9 +83,9 @@ function QueryViewCtrl(
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         $scope.schema = undefined;
       } else if (data.error.code === SCHEMA_LOAD_ERROR) {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       } else {
-        toastr.error('Schema refresh failed. Please try again later.');
+        notification.error('Schema refresh failed.', 'Please try again later.');
       }
     });
   }
@@ -95,10 +110,14 @@ function QueryViewCtrl(
 
     $scope.dataSource = find(dataSources, ds => ds.id === $scope.query.data_source_id);
 
-    $scope.canCreateQuery = any(dataSources, ds => !ds.view_only);
+    $scope.canCreateQuery = some(dataSources, ds => !ds.view_only);
 
     getSchema();
   }
+
+  $scope.updateSelectedQuery = (selectedQueryText) => {
+    $scope.selectedQueryText = selectedQueryText;
+  };
 
   $scope.executeQuery = () => {
     if (!$scope.canExecuteQuery()) {
@@ -109,7 +128,7 @@ function QueryViewCtrl(
       return;
     }
 
-    getQueryResult(0);
+    getQueryResult(0, $scope.selectedQueryText);
     $scope.lockButton(true);
     $scope.cancelling = false;
     Events.record('execute', 'query', $scope.query.id);
@@ -117,14 +136,19 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-  $scope.selectedTab = 'table';
+  $scope.selectedVisualization = DEFAULT_VISUALIZATION;
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
+  $scope.$watch('selectedVisualization', () => {
+    $scope.selectedTab = $scope.selectedVisualization.id; // Needed for `<rd-tab>` to work
+  });
+
   const shortcuts = {
     'mod+enter': $scope.executeQuery,
+    'alt+enter': $scope.executeQuery,
   };
 
   KeyboardShortcuts.bind(shortcuts);
@@ -133,7 +157,6 @@ function QueryViewCtrl(
     KeyboardShortcuts.unbind(shortcuts);
   });
 
-  Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
     getQueryResult();
   }
@@ -143,7 +166,9 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+  $scope.canExecuteQuery = () => $scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only);
+
+  $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
   $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
 
@@ -171,6 +196,24 @@ function QueryViewCtrl(
       },
     });
   };
+
+  $scope.duplicateQuery = () => {
+    // To prevent opening the same tab, name must be unique for each browser
+    const tabName = 'duplicatedQueryTab' + Math.random().toString();
+
+    $window.open('', tabName);
+    Query.fork({ id: $scope.query.id }, (newQuery) => {
+      const queryUrl = newQuery.getUrl(true);
+      $window.open(queryUrl, tabName);
+    });
+  };
+
+  $scope.saveTags = (tags) => {
+    $scope.query.tags = tags;
+    $scope.saveQuery({}, { tags: $scope.query.tags });
+  };
+
+  $scope.loadTags = () => getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
@@ -206,28 +249,44 @@ function QueryViewCtrl(
       customOptions,
     );
 
+    if (options.force) {
+      delete request.version;
+    }
+
+    function overwrite() {
+      options.force = true;
+      $scope.saveQuery(options, data);
+    }
+
     return Query.save(
       request,
       (updatedQuery) => {
-        toastr.success(options.successMessage);
+        notification.success(options.successMessage);
         $scope.query.version = updatedQuery.version;
       },
       (error) => {
         if (error.status === 409) {
-          toastr.error(
-            'It seems like the query has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
-          );
+          const errorMessage = 'It seems like the query has been modified by another user.';
+
+          if ($scope.isQueryOwner) {
+            const title = 'Overwrite Query';
+            const message = errorMessage + '<br>Are you sure you want to overwrite the query with your version?';
+            const confirm = { class: 'btn-warning', title: 'Overwrite' };
+
+            AlertDialog.open(title, message, confirm).then(overwrite);
+          } else {
+            notification.error(
+              'Changes not saved',
+              errorMessage + ' Please copy/backup your changes and reload this page.',
+              { duration: null },
+            );
+          }
         } else {
-          toastr.error(options.errorMessage);
+          notification.error(options.errorMessage);
         }
       },
     ).$promise;
   };
-
-  // toastr.success('It seems like the query has been modified by another user. ' +
-  //   'Please copy/backup your changes and reload this page.', { timeOut: 0 });
 
   $scope.togglePublished = () => {
     Events.record('toggle_published', 'query', $scope.query.id);
@@ -235,14 +294,15 @@ function QueryViewCtrl(
     $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };
 
-  $scope.saveDescription = () => {
+  $scope.saveDescription = (desc) => {
+    $scope.query.description = desc;
     Events.record('edit_description', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { description: $scope.query.description });
   };
 
-  $scope.saveName = () => {
+  $scope.saveName = (name) => {
+    $scope.query.name = name;
     Events.record('edit_name', 'query', $scope.query.id);
-
     if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries && $scope.query.name !== 'New Query') {
       $scope.query.is_draft = false;
     }
@@ -265,7 +325,7 @@ function QueryViewCtrl(
           $scope.query.schedule = null;
         },
         () => {
-          toastr.error('Query could not be archived.');
+          notification.error('Query could not be archived.');
         },
       );
     }
@@ -286,13 +346,16 @@ function QueryViewCtrl(
     $scope.query.latest_query_data_id = null;
 
     if ($scope.query.id) {
-      Query.save({
-        id: $scope.query.id,
-        data_source_id: $scope.query.data_source_id,
-        latest_query_data_id: null,
-      }, (updatedQuery) => {
-        $scope.query.version = updatedQuery.version;
-      });
+      Query.save(
+        {
+          id: $scope.query.id,
+          data_source_id: $scope.query.data_source_id,
+          latest_query_data_id: null,
+        },
+        (updatedQuery) => {
+          $scope.query.version = updatedQuery.version;
+        },
+      );
     }
 
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
@@ -301,20 +364,36 @@ function QueryViewCtrl(
   };
 
   $scope.setVisualizationTab = (visualization) => {
-    $scope.selectedTab = visualization.id;
+    $scope.selectedVisualization = visualization;
     $location.hash(visualization.id);
+  };
+
+  $scope.deleteVisualization = ($e, vis) => {
+    $e.preventDefault();
+
+    const title = undefined;
+    const message = `Are you sure you want to delete ${vis.name} ?`;
+    const confirm = { class: 'btn-danger', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(() => {
+      Visualization.delete(
+        { id: vis.id },
+        () => {
+          if ($scope.selectedVisualization.id === vis.id) {
+            $scope.selectedVisualization = DEFAULT_VISUALIZATION;
+            $location.hash($scope.selectedVisualization.id);
+          }
+          $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
+        },
+        () => {
+          notification.error('Error deleting visualization.', 'Maybe it\'s used in a dashboard?');
+        },
+      );
+    });
   };
 
   $scope.$watch('query.name', () => {
     Title.set($scope.query.name);
-  });
-
-  $scope.$watch('queryResult && queryResult.getData()', (data) => {
-    if (!data) {
-      return;
-    }
-
-    $scope.filters = $scope.queryResult.getFilters();
   });
 
   $scope.$watch('queryResult && queryResult.getStatus()', (status) => {
@@ -323,8 +402,11 @@ function QueryViewCtrl(
     }
 
     if (status === 'done') {
-      $scope.query.latest_query_data_id = $scope.queryResult.getId();
-      $scope.query.queryResult = $scope.queryResult;
+      const ranSelectedQuery = $scope.query.query !== $scope.queryResult.query_result.query;
+      if (!ranSelectedQuery) {
+        $scope.query.latest_query_data_id = $scope.queryResult.getId();
+        $scope.query.queryResult = $scope.queryResult;
+      }
 
       Notifications.showNotification('Redash', `${$scope.query.name} updated.`);
     } else if (status === 'failed') {
@@ -340,17 +422,20 @@ function QueryViewCtrl(
     }
   });
 
-  $scope.openVisualizationEditor = (visualization) => {
+  function getVisualization(visId) {
+    // eslint-disable-next-line eqeqeq
+    return find($scope.query.visualizations, item => item.id == visId);
+  }
+
+  $scope.openVisualizationEditor = (visId) => {
     function openModal() {
-      $uibModal.open({
-        windowClass: 'modal-xl',
-        component: 'editVisualizationDialog',
-        resolve: {
-          query: $scope.query,
-          visualization,
-          queryResult: $scope.queryResult,
-          onNewSuccess: () => $scope.setVisualizationTab,
-        },
+      EditVisualizationDialog.showModal({
+        query: $scope.query,
+        visualization: getVisualization(visId),
+        queryResult: $scope.queryResult,
+      }).result.then((visualization) => {
+        $scope.setVisualizationTab(visualization);
+        $scope.$applyAsync();
       });
     }
 
@@ -358,6 +443,9 @@ function QueryViewCtrl(
       $scope.saveQuery().then((query) => {
         // Because we have a path change, we need to "signal" the next page to
         // open the visualization editor.
+        // TODO: we don't really need this. Just need to assign query to $scope.query
+        // and maybe a few more small changes. Not worth handling this now, but also
+        // we shouldn't copy this bizzare method to the React codebase.
         $location.path(query.getSourceLink()).hash('add');
       });
     } else {
@@ -369,42 +457,56 @@ function QueryViewCtrl(
     $location.hash(null);
     $scope.openVisualizationEditor();
   }
+  const intervals = clientConfig.queryRefreshIntervals;
+  const allowedIntervals = policy.getQueryRefreshIntervals();
+  $scope.refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
 
-  $scope.openScheduleForm = () => {
+  $scope.showScheduleForm = false;
+  $scope.editSchedule = () => {
     if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
+    ScheduleDialog.showModal({
+      schedule: $scope.query.schedule,
+      refreshOptions: $scope.refreshOptions,
+    }).result.then((schedule) => {
+      $scope.query.schedule = schedule;
+      $scope.saveQuery();
+    });
+  };
+  $scope.closeScheduleForm = () => {
+    $scope.$apply(() => {
+      $scope.showScheduleForm = false;
+    });
+  };
 
+  $scope.openAddToDashboardForm = (visId) => {
+    const visualization = getVisualization(visId);
     $uibModal.open({
-      component: 'scheduleDialog',
+      component: 'addToDashboardDialog',
       size: 'sm',
       resolve: {
         query: $scope.query,
-        saveQuery: () => $scope.saveQuery,
+        vis: visualization,
       },
     });
   };
 
-  $scope.showEmbedDialog = (query, visualization) => {
-    $uibModal.open({
-      component: 'embedCodeDialog',
-      resolve: {
-        query,
-        visualization,
-      },
-    });
+  $scope.showEmbedDialog = (query, visId) => {
+    const visualization = getVisualization(visId);
+    EmbedQueryDialog.showModal({ query, visualization });
   };
 
   $scope.$watch(
     () => $location.hash(),
     (hash) => {
-      // eslint-disable-next-line eqeqeq
-      const exists = find($scope.query.visualizations, item => item.id == hash);
-      let visualization = min($scope.query.visualizations, viz => viz.id);
-      if (!isObject(visualization)) {
-        visualization = {};
-      }
-      $scope.selectedTab = (exists ? hash : visualization.id) || 'table';
+      $scope.selectedVisualization =
+        // try to find by hash
+        find($scope.query.visualizations, item => item.id == hash) || // eslint-disable-line eqeqeq
+        // try first one (with smallest ID)
+        minBy($scope.query.visualizations, viz => viz.id) ||
+        // fallback to default
+        DEFAULT_VISUALIZATION;
     },
   );
 
@@ -413,6 +515,7 @@ function QueryViewCtrl(
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
+        owner: $scope.query.user,
       },
     });
   };
@@ -424,6 +527,7 @@ export default function init(ngModule) {
   return {
     '/queries/:queryId': {
       template,
+      layout: 'fixed',
       controller: 'QueryViewCtrl',
       reloadOnSearch: false,
       resolve: {
@@ -436,3 +540,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

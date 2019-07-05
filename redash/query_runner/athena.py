@@ -1,10 +1,9 @@
-import json
 import logging
 import os
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
@@ -68,7 +67,7 @@ class Athena(BaseQueryRunner):
                 },
                 's3_staging_dir': {
                     'type': 'string',
-                    'title': 'S3 Staging Path'
+                    'title': 'S3 Staging (Query Results) Bucket Path'
                 },
                 'schema': {
                     'type': 'string',
@@ -79,9 +78,14 @@ class Athena(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Use Glue Data Catalog',
                 },
+                'work_group': {
+                    'type': 'string',
+                    'title': 'Athena Work Group',
+                    'default': 'primary'
+                },
             },
             'required': ['region', 's3_staging_dir'],
-            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'work_group'],
             'secret': ['aws_secret_key']
         }
 
@@ -114,9 +118,6 @@ class Athena(BaseQueryRunner):
     def type(cls):
         return "athena"
 
-    def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
-
     def __get_schema_from_glue(self):
         client = boto3.client(
                 'glue',
@@ -126,15 +127,19 @@ class Athena(BaseQueryRunner):
                 )
         schema = {}
 
-        for database in client.get_databases()['DatabaseList']:
-            for table in client.get_tables(DatabaseName=database['Name'])['TableList']:
-                table_name = '%s.%s' % (database['Name'], table['Name'])
-                if table_name not in schema:
-                    column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
-                    schema[table_name] = {'name': table_name, 'columns': column}
-                    for partition in table['PartitionKeys']:
-                        schema[table_name]['columns'].append(partition['Name'])
+        database_paginator = client.get_paginator('get_databases')
+        table_paginator = client.get_paginator('get_tables')
 
+        for databases in database_paginator.paginate():
+            for database in databases['DatabaseList']:
+                iterator = table_paginator.paginate(DatabaseName=database['Name'])
+                for table in iterator.search('TableList[]'):
+                    table_name = '%s.%s' % (database['Name'], table['Name'])
+                    if table_name not in schema:
+                        column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
+                        schema[table_name] = {'name': table_name, 'columns': column}
+                        for partition in table.get('PartitionKeys', []):
+                            schema[table_name]['columns'].append(partition['Name'])
         return schema.values()
 
     def get_schema(self, get_stats=False):
@@ -152,7 +157,7 @@ class Athena(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
         for row in results['rows']:
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
@@ -170,6 +175,7 @@ class Athena(BaseQueryRunner):
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
             kms_key=self.configuration.get('kms_key', None),
+            work_group=self.configuration.get('work_group', 'primary'),
             formatter=SimpleFormatter()).cursor()
 
         try:
@@ -178,14 +184,26 @@ class Athena(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             qbytes = None
+            athena_query_id = None
             try:
                 qbytes = cursor.data_scanned_in_bytes
             except AttributeError as e:
                 logger.debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
-            data = {'columns': columns, 'rows': rows, 'metadata': {'data_scanned': qbytes}}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            try:
+                athena_query_id = cursor.query_id
+            except AttributeError as e:
+                logger.debug("Athena Upstream can't get query_id: %s", e)
+            data = {
+                'columns': columns,
+                'rows': rows,
+                'metadata': {
+                    'data_scanned': qbytes,
+                    'athena_query_id': athena_query_id
+                }
+            }
+            json_data = json_dumps(data, ignore_nan=True)
             error = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, InterruptException):
             if cursor.query_id:
                 cursor.cancel()
             error = "Query cancelled by user."

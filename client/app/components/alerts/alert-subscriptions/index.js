@@ -1,7 +1,8 @@
-import { contains, without, compact } from 'underscore';
+import { includes, without, compact } from 'lodash';
+import notification from '@/services/notification';
 import template from './alert-subscriptions.html';
 
-function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination, toastr) {
+function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination) {
   'ngInject';
 
   $scope.newSubscription = {};
@@ -23,9 +24,9 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
       const subscribedUsers = compact(subscribers.map(s => !s.destination && s.user.id));
 
-      $scope.destinations = destinations.filter(d => !contains(subscribedDestinations, d.id));
+      $scope.destinations = destinations.filter(d => !includes(subscribedDestinations, d.id));
 
-      if (!contains(subscribedUsers, currentUser.id)) {
+      if (!includes(subscribedUsers, currentUser.id)) {
         $scope.destinations.unshift({ user: { name: currentUser.name } });
       }
 
@@ -60,7 +61,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
     sub.$save(
       () => {
-        toastr.success('Subscribed.');
+        notification.success('Subscribed.');
         $scope.subscribers.push(sub);
         $scope.destinations = without($scope.destinations, $scope.newSubscription.destination);
         if ($scope.destinations.length > 0) {
@@ -70,7 +71,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
         }
       },
       () => {
-        toastr.error('Failed saving subscription.');
+        notification.error('Failed saving subscription.');
       },
     );
   };
@@ -81,7 +82,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
     subscriber.$delete(
       () => {
-        toastr.success('Unsubscribed');
+        notification.success('Unsubscribed');
         $scope.subscribers = without($scope.subscribers, subscriber);
         if (destination) {
           $scope.destinations.push(destination);
@@ -94,7 +95,7 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
         }
       },
       () => {
-        toastr.error('Failed unsubscribing.');
+        notification.error('Failed unsubscribing.');
       },
     );
   };
@@ -111,3 +112,5 @@ export default function init(ngModule) {
     controller,
   }));
 }
+
+init.init = true;

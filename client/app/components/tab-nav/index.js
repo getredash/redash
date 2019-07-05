@@ -1,11 +1,9 @@
-import startsWith from 'underscore.string/startsWith';
-
 function controller($location) {
   this.tabs.forEach((tab) => {
     if (tab.isActive) {
       tab.active = tab.isActive($location.path());
     } else {
-      tab.active = startsWith($location.path(), `/${tab.path}`);
+      tab.active = $location.path().startsWith(`/${tab.path}`);
     }
   });
 }
@@ -21,3 +19,5 @@ export default function init(ngModule) {
     },
   });
 }
+
+init.init = true;

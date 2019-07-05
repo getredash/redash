@@ -1,22 +1,26 @@
 import template from './home.html';
+import notification from '@/services/notification';
 
-function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages) {
   Events.record('view', 'page', 'personal_homepage');
 
-  // todo: maybe this should come from some serivce as we have this logic elsewhere.
-  this.canCreateQuery = currentUser.hasPermission('create_query');
-  this.canCreateDashboard = currentUser.hasPermission('create_dashboard');
-  this.canCreateAlert = currentUser.hasPermission('list_alerts');
+  this.noDashboards = false;
+  this.noQueries = false;
 
-  this.recentQueries = Query.recent();
-  this.recentDashboards = Dashboard.recent();
+  this.messages = messages;
 
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
+  Dashboard.favorites().$promise.then((data) => {
+    this.favoriteDashboards = data.results;
+    this.noDashboards = data.results.length === 0;
+  });
+  Query.favorites().$promise.then((data) => {
+    this.favoriteQueries = data.results;
+    this.noQueries = data.results.length === 0;
+  });
+
+  this.verifyEmail = () => {
+    $http.post('verification_email/').success(({ message }) => {
+      notification.success(message);
     });
   };
 }
@@ -34,3 +38,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

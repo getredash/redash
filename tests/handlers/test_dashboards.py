@@ -1,7 +1,9 @@
-import json
 from tests import BaseTestCase
+
 from redash.models import ApiKey, Dashboard, AccessPermission, db
 from redash.permissions import ACCESS_TYPE_MODIFY
+from redash.serializers import serialize_dashboard
+from redash.utils import json_loads
 
 
 class TestDashboardListResource(BaseTestCase):
@@ -14,14 +16,44 @@ class TestDashboardListResource(BaseTestCase):
         self.assertEquals(rv.json['layout'], [])
 
 
+class TestDashboardListGetResource(BaseTestCase):
+    def test_returns_dashboards(self):
+        d1 = self.factory.create_dashboard()
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        rv = self.make_request('get', '/api/dashboards')
+
+        assert len(rv.json['results']) == 3
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id, d3.id])
+
+    def test_filters_with_tags(self):
+        d1 = self.factory.create_dashboard(tags=[u'test'])
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        rv = self.make_request('get', '/api/dashboards?tags=test')
+        assert len(rv.json['results']) == 1
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id])
+
+    def test_search_term(self):
+        d1 = self.factory.create_dashboard(name="Sales")
+        d2 = self.factory.create_dashboard(name="Q1 sales")
+        d3 = self.factory.create_dashboard(name="Ops")
+
+        rv = self.make_request('get', '/api/dashboards?q=sales')
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id])
+
+
 class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()
         rv = self.make_request('get', '/api/dashboards/{0}'.format(d1.slug))
         self.assertEquals(rv.status_code, 200)
 
-        expected = d1.to_dict(with_widgets=True)
-        actual = json.loads(rv.data)
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
 
         self.assertResponseEqual(expected, actual)
 
@@ -38,8 +70,8 @@ class TestDashboardResourceGet(BaseTestCase):
 
         rv = self.make_request('get', '/api/dashboards/{0}'.format(dashboard.slug))
         self.assertEquals(rv.status_code, 200)
-        self.assertTrue(rv.json['widgets'][0][1]['restricted'])
-        self.assertNotIn('restricted', rv.json['widgets'][0][0])
+        self.assertTrue(rv.json['widgets'][0]['restricted'])
+        self.assertNotIn('restricted', rv.json['widgets'][1])
 
     def test_get_non_existing_dashboard(self):
         rv = self.make_request('get', '/api/dashboards/not_existing')

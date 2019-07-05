@@ -1,35 +1,38 @@
 # -*- coding: utf-8 -*-
-
+import datetime
 from unittest import TestCase
 
-from mock import Mock, MagicMock
+from mock import MagicMock
 
-from redash.query_runner.google_spreadsheets import _guess_type, _value_eval_list, TYPE_STRING, TYPE_BOOLEAN
-from redash.query_runner.google_spreadsheets import parse_worksheet, parse_spreadsheet, WorksheetNotFoundError
-
-
-class TestGuessType(TestCase):
-    def test_handles_unicode(self):
-        self.assertEqual(_guess_type(u'יוניקוד'), TYPE_STRING)
-
-    def test_detects_booleans(self):
-        self.assertEqual(_guess_type('true'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('True'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('TRUE'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('false'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('False'), TYPE_BOOLEAN)
-        self.assertEqual(_guess_type('FALSE'), TYPE_BOOLEAN)
+from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
+from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _get_columns_and_column_names, _value_eval_list, is_url_key, parse_query
+from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, parse_spreadsheet, parse_worksheet
 
 
 class TestValueEvalList(TestCase):
     def test_handles_unicode(self):
         values = [u'יוניקוד', 'test', 'value']
-        self.assertEqual(values, _value_eval_list(values))
+        self.assertEqual(values, _value_eval_list(values, [TYPE_STRING]*len(values)))
 
     def test_handles_boolean(self):
         values = ['true', 'false', 'True', 'False', 'TRUE', 'FALSE']
         converted_values = [True, False, True, False, True, False]
-        self.assertEqual(converted_values, _value_eval_list(values))
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_BOOLEAN]*len(values)))
+
+    def test_handles_empty_values(self):
+        values = ['', None]
+        converted_values = [None, None]
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_STRING, TYPE_STRING]))
+
+    def test_handles_float(self):
+        values = ['3.14', '-273.15']
+        converted_values = [3.14, -273.15]
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_FLOAT, TYPE_FLOAT]))
+
+    def test_handles_datetime(self):
+        values = ['2018-06-28', '2020-2-29']
+        converted_values = [datetime.datetime(2018, 6, 28, 0, 0), datetime.datetime(2020, 2, 29, 0, 0)]
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_DATETIME, TYPE_DATETIME]))
 
 
 class TestParseSpreadsheet(TestCase):
@@ -72,3 +75,37 @@ class TestParseWorksheet(TestCase):
         self.assertEqual(True, parsed['rows'][0]['Another Column'])
         self.assertEqual(1, parsed['rows'][0]['Column1'])
 
+
+class TestParseQuery(TestCase):
+    def test_parse_query(self):
+        parsed = parse_query('key|0')
+        self.assertEqual(('key', 0), parsed)
+
+
+class TestGetColumnsAndColumnNames(TestCase):
+    def test_get_columns(self):
+        _columns = ['foo', 'bar', 'baz']
+        columns, column_names = _get_columns_and_column_names(_columns)
+
+        self.assertEqual(_columns, column_names)
+
+    def test_get_columns_with_duplicated(self):
+        _columns = ['foo', 'bar', 'baz', 'foo', 'baz']
+        columns, column_names = _get_columns_and_column_names(_columns)
+
+        self.assertEqual(['foo', 'bar', 'baz', 'foo1', 'baz2'], column_names)
+
+    def test_get_columns_with_blank(self):
+        _columns = ['foo', '', 'baz', '']
+        columns, column_names = _get_columns_and_column_names(_columns)
+
+        self.assertEqual(['foo', 'column_B', 'baz', 'column_D'], column_names)
+
+
+class TestIsUrlKey(TestCase):
+    def test_is_url_key(self):
+        _key = 'https://docs.google.com/spreadsheets/d/key/edit#gid=12345678'
+        self.assertTrue(is_url_key(_key))
+
+        _key = 'key|0'
+        self.assertFalse(is_url_key(_key))

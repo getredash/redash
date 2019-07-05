@@ -1,12 +1,14 @@
 import debug from 'debug';
+import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 
 import logoUrl from '@/assets/images/redash_icon_small.png';
+import frontendVersion from '@/version.json';
 import template from './app-header.html';
 import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
-function controller($rootScope, $location, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
+function controller($rootScope, $location, $route, $uibModal, Auth, currentUser, clientConfig, Dashboard, Query) {
   this.logoUrl = logoUrl;
   this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
@@ -16,26 +18,29 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
 
-  this.reloadDashboards = () => {
-    logger('Reloading dashboards.');
-    this.dashboards = Dashboard.recent();
-  };
+  this.frontendVersion = frontendVersion;
+  this.backendVersion = clientConfig.version;
+  this.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
 
-  this.reloadDashboards();
-
-  $rootScope.$on('reloadDashboards', this.reloadDashboards);
-
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
+  this.reload = () => {
+    logger('Reloading dashboards and queries.');
+    Dashboard.favorites().$promise.then((data) => {
+      this.dashboards = data.results;
+    });
+    Query.favorites().$promise.then((data) => {
+      this.queries = data.results;
     });
   };
 
+  this.reload();
+
+  $rootScope.$on('reloadFavorites', this.reload);
+
+  this.newDashboard = () => CreateDashboardDialog.showModal();
+
   this.searchQueries = () => {
-    $location.path('/queries/search').search({ q: this.term });
+    $location.path('/queries').search({ q: this.searchTerm });
+    $route.reload();
   };
 
   this.logout = () => {
@@ -49,3 +54,5 @@ export default function init(ngModule) {
     controller,
   });
 }
+
+init.init = true;

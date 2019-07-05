@@ -1,29 +1,53 @@
-import * as _ from 'underscore';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 import './dashboard.less';
+
+function loadDashboard($http, $route) {
+  const token = $route.current.params.token;
+  return $http.get(`api/dashboards/public/${token}`).then(response => response.data);
+}
 
 const PublicDashboardPage = {
   template,
   bindings: {
     dashboard: '<',
   },
-  controller($routeParams, dashboardGridOptions, Dashboard) {
+  controller($scope, $timeout, $location, $http, $route, Dashboard) {
     'ngInject';
 
-    this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
+    this.filters = [];
+
+    this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
       draggable: { enabled: false },
     });
 
-    // embed in params == headless
     this.logoUrl = logoUrl;
-    this.headless = $routeParams.embed;
-    if (this.headless) {
-      document.querySelector('body').classList.add('headless');
-    }
     this.public = true;
     this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+
+    const refreshRate = Math.max(30, parseFloat($location.search().refresh));
+
+    if (refreshRate) {
+      const refresh = () => {
+        loadDashboard($http, $route).then((data) => {
+          this.dashboard = data;
+          this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+          this.dashboard.widgets.forEach(widget => widget.load());
+
+          this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+          this.filtersOnChange = (allFilters) => {
+            this.filters = allFilters;
+            $scope.$applyAsync();
+          };
+
+          $timeout(refresh, refreshRate * 1000.0);
+        });
+      };
+
+      $timeout(refresh, refreshRate * 1000.0);
+    }
   },
 };
 
@@ -33,8 +57,7 @@ export default function init(ngModule) {
   function loadPublicDashboard($http, $route) {
     'ngInject';
 
-    const token = $route.current.params.token;
-    return $http.get(`api/dashboards/public/${token}`).then(response => response.data);
+    return loadDashboard($http, $route);
   }
 
   function session($http, $route, Auth) {
@@ -56,3 +79,5 @@ export default function init(ngModule) {
 
   return [];
 }
+
+init.init = true;

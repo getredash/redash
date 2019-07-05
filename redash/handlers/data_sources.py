@@ -3,10 +3,11 @@ import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
+from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, require_fields
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
@@ -25,7 +26,13 @@ class DataSourceResource(BaseResource):
     @require_admin
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        return data_source.to_dict(all=True)
+        ds = data_source.to_dict(all=True)
+        self.record_event({
+            'action': 'view',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+        return ds
 
     @require_admin
     def post(self, data_source_id):
@@ -53,12 +60,24 @@ class DataSourceResource(BaseResource):
 
             abort(400)
 
+        self.record_event({
+            'action': 'edit',
+            'object_id': data_source.id,
+            'object_type': 'datasource',
+        })
+
         return data_source.to_dict(all=True)
 
     @require_admin
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete()
+
+        self.record_event({
+            'action': 'delete',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
 
         return make_response('', 204)
 
@@ -83,15 +102,18 @@ class DataSourceListResource(BaseResource):
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
-        return sorted(response.values(), key=lambda d: d['id'])
+        self.record_event({
+            'action': 'list',
+            'object_id': 'admin/data_sources',
+            'object_type': 'datasource',
+        })
+
+        return sorted(response.values(), key=lambda d: d['name'].lower())
 
     @require_admin
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
-        for f in required_fields:
-            if f not in req:
-                abort(400)
+        require_fields(req, ('options', 'name', 'type'))
 
         schema = get_configuration_schema_for_query_runner_type(req['type'])
         if schema is None:
@@ -128,7 +150,7 @@ class DataSourceListResource(BaseResource):
 class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
-        require_access(data_source.groups, self.current_user, view_only)
+        require_access(data_source, self.current_user, view_only)
         refresh = request.args.get('refresh') is not None
 
         response = {}
@@ -186,9 +208,18 @@ class DataSourceTestResource(BaseResource):
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
 
+        response = {}
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
-            return {"message": unicode(e), "ok": False}
+            response = {"message": text_type(e), "ok": False}
         else:
-            return {"message": "success", "ok": True}
+            response = {"message": "success", "ok": True}
+
+        self.record_event({
+            'action': 'test',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+            'result': response,
+        })
+        return response

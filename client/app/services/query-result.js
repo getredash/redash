@@ -1,12 +1,9 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
-
-const ALL_VALUES = '*';
-const NONE_VALUES = '-';
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -23,7 +20,7 @@ function getColumnNameWithoutType(column) {
     return parts[1];
   }
 
-  if (!contains(filterTypes, parts[1])) {
+  if (!includes(filterTypes, parts[1])) {
     return column;
   }
 
@@ -31,31 +28,18 @@ function getColumnNameWithoutType(column) {
 }
 
 export function getColumnCleanName(column) {
-  const name = getColumnNameWithoutType(column);
-  return name;
+  return getColumnNameWithoutType(column);
 }
 
 function getColumnFriendlyName(column) {
-  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
-    a.toUpperCase());
+  return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-function addPointToSeries(point, seriesCollection, seriesName) {
-  if (seriesCollection[seriesName] === undefined) {
-    seriesCollection[seriesName] = {
-      name: seriesName,
-      type: 'column',
-      data: [],
-    };
-  }
-
-  seriesCollection[seriesName].data.push(point);
-}
-
-
-function QueryResultService($resource, $timeout, $q) {
+function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
+  const QueryResultByQueryIdResource = $resource('api/queries/:queryId/results/:id.json', { queryId: '@queryId', id: '@id' });
   const Job = $resource('api/jobs/:id', { id: '@id' });
+  const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
     1: 'waiting',
     2: 'processing',
@@ -63,16 +47,33 @@ function QueryResultService($resource, $timeout, $q) {
     4: 'failed',
   };
 
+  function handleErrorResponse(queryResult, response) {
+    if (response.status === 403) {
+      queryResult.update(response.data);
+    } else if (response.status === 400 && 'job' in response.data) {
+      queryResult.update(response.data);
+    } else {
+      logger('Unknown error', response);
+      queryResult.update({
+        job: {
+          error: response.data.message || 'unknown error occurred. Please try again later.',
+          status: 4,
+        },
+      });
+    }
+  }
+
   class QueryResult {
     constructor(props) {
       this.deferred = $q.defer();
       this.job = {};
       this.query_result = {};
       this.status = 'waiting';
-      this.filters = undefined;
-      this.filterFreeze = undefined;
 
       this.updatedAt = moment();
+
+      // extended status flags
+      this.isLoadingResult = false;
 
       if (props) {
         this.update(props);
@@ -80,12 +81,10 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     update(props) {
-      Object.assign(this, props);
+      extend(this, props);
 
       if ('query_result' in props) {
         this.status = 'done';
-        this.filters = undefined;
-        this.filterFreeze = undefined;
 
         const columnTypes = {};
 
@@ -93,7 +92,7 @@ function QueryResultService($resource, $timeout, $q) {
         // on the column type set by the backend. This logic is prone to errors,
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
-          each(row, (v, k) => {
+          forOwn(row, (v, k) => {
             let newType = null;
             if (isNumber(v)) {
               newType = 'float';
@@ -103,7 +102,7 @@ function QueryResultService($resource, $timeout, $q) {
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
               newType = 'date';
-            } else if (typeof (v) === 'object' && v !== null) {
+            } else if (typeof v === 'object' && v !== null) {
               row[k] = JSON.stringify(v);
             } else {
               newType = 'string';
@@ -120,6 +119,7 @@ function QueryResultService($resource, $timeout, $q) {
         });
 
         each(this.query_result.data.columns, (column) => {
+          column.name = '' + column.name;
           if (columnTypes[column.name]) {
             if (column.type == null || column.type === 'string') {
               column.type = columnTypes[column.name];
@@ -130,6 +130,9 @@ function QueryResultService($resource, $timeout, $q) {
         this.deferred.resolve(this);
       } else if (this.job.status === 3) {
         this.status = 'processing';
+      } else if (this.job.status === 4) {
+        this.status = statuses[this.job.status];
+        this.deferred.reject(new QueryResultError(this.job.error));
       } else {
         this.status = undefined;
       }
@@ -148,6 +151,9 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getStatus() {
+      if (this.isLoadingResult) {
+        return 'loading-result';
+      }
       return this.status || statuses[this.job.status];
     }
 
@@ -161,9 +167,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getLog() {
-      if (!this.query_result.data ||
-          !this.query_result.data.log ||
-          this.query_result.data.log.length === 0) {
+      if (!this.query_result.data || !this.query_result.data.log || this.query_result.data.log.length === 0) {
         return null;
       }
 
@@ -183,143 +187,15 @@ function QueryResultService($resource, $timeout, $q) {
         return null;
       }
 
-      const data = this.query_result.data.rows;
-
-      return data;
+      return this.query_result.data.rows;
     }
 
     getData() {
-      if (!this.query_result.data) {
-        return null;
-      }
-
-      function filterValues(filters) {
-        if (!filters) {
-          return null;
-        }
-
-        return filters.reduce(
-          (str, filter) =>
-            str + filter.current
-          , '',
-        );
-      }
-
-      const filters = this.getFilters();
-      const filterFreeze = filterValues(filters);
-
-      if (this.filterFreeze !== filterFreeze) {
-        this.filterFreeze = filterFreeze;
-
-        if (filters) {
-          filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
-            }
-
-            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
-              filter.current = [];
-            }
-          });
-
-          this.filteredData = this.query_result.data.rows.filter(row =>
-            filters.reduce((memo, filter) => {
-              if (!isArray(filter.current)) {
-                filter.current = [filter.current];
-              }
-
-              return (memo && some(filter.current, (v) => {
-                const value = row[filter.name];
-                if (moment.isMoment(value)) {
-                  return value.isSame(v);
-                }
-                // We compare with either the value or the String representation of the value,
-                // because Select2 casts true/false to "true"/"false".
-                return (v === value || String(value) === v);
-              }));
-            }, true));
-        } else {
-          this.filteredData = this.query_result.data.rows;
-        }
-      }
-
-      return this.filteredData;
+      return this.query_result.data ? this.query_result.data.rows : null;
     }
 
     isEmpty() {
       return this.getData() === null || this.getData().length === 0;
-    }
-
-    getChartData(mapping) {
-      const series = {};
-
-      this.getData().forEach((row) => {
-        let point = {};
-        let seriesName;
-        let xValue = 0;
-        const yValues = {};
-        let eValue = null;
-        let sizeValue = null;
-
-        each(row, (v, definition) => {
-          const name = definition.split('::')[0] || definition.split('__')[0];
-          let value = v;
-          let type = definition.split('::')[1] || definition.split('__')[1];
-          if (mapping) {
-            type = mapping[definition];
-          }
-
-          if (type === 'unused') {
-            return;
-          }
-
-          if (type === 'x') {
-            xValue = value;
-            point[type] = value;
-          }
-          if (type === 'y') {
-            if (value == null) {
-              value = 0;
-            }
-            yValues[name] = value;
-            point[type] = value;
-          }
-          if (type === 'yError') {
-            eValue = value;
-            point[type] = value;
-          }
-
-          if (type === 'series') {
-            seriesName = String(value);
-          }
-
-          if (type === 'size') {
-            point[type] = value;
-            sizeValue = value;
-          }
-
-          if (type === 'multiFilter' || type === 'multi-filter') {
-            seriesName = String(value);
-          }
-        });
-
-        if (seriesName === undefined) {
-          each(yValues, (yValue, ySeriesName) => {
-            point = { x: xValue, y: yValue };
-            if (eValue !== null) {
-              point.yError = eValue;
-            }
-
-            if (sizeValue !== null) {
-              point.size = sizeValue;
-            }
-            addPointToSeries(point, series, ySeriesName);
-          });
-        } else {
-          addPointToSeries(point, series, seriesName);
-        }
-      });
-      return sortBy(values(series), 'name');
     }
 
     getColumns() {
@@ -338,7 +214,6 @@ function QueryResultService($resource, $timeout, $q) {
       return this.columnNames;
     }
 
-
     getColumnCleanNames() {
       return this.getColumnNames().map(col => getColumnCleanName(col));
     }
@@ -348,16 +223,8 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getFilters() {
-      if (!this.filters) {
-        this.prepareFilters();
-      }
-
-      return this.filters;
-    }
-
-    prepareFilters() {
       if (!this.getColumns()) {
-        return;
+        return [];
       }
 
       const filters = [];
@@ -365,14 +232,14 @@ function QueryResultService($resource, $timeout, $q) {
       this.getColumns().forEach((col) => {
         const name = col.name;
         const type = name.split('::')[1] || name.split('__')[1];
-        if (contains(filterTypes, type)) {
+        if (includes(filterTypes, type)) {
           // filter found
           const filter = {
             name,
             friendlyName: getColumnFriendlyName(name),
             column: col,
             values: [],
-            multiple: (type === 'multiFilter') || (type === 'multi-filter'),
+            multiple: type === 'multiFilter' || type === 'multi-filter',
           };
           filters.push(filter);
         }
@@ -392,14 +259,7 @@ function QueryResultService($resource, $timeout, $q) {
       });
 
       filters.forEach((filter) => {
-        if (filter.multiple) {
-          filter.values.unshift(ALL_VALUES);
-          filter.values.unshift(NONE_VALUES);
-        }
-      });
-
-      filters.forEach((filter) => {
-        filter.values = uniq(filter.values, (v) => {
+        filter.values = uniqBy(filter.values, (v) => {
           if (moment.isMoment(v)) {
             return v.unix();
           }
@@ -407,28 +267,48 @@ function QueryResultService($resource, $timeout, $q) {
         });
       });
 
-      this.filters = filters;
+      return filters;
     }
 
     toPromise() {
       return this.deferred.promise;
     }
 
-    static getById(id) {
+    static getById(queryId, id) {
       const queryResult = new QueryResult();
 
-      QueryResultResource.get({ id }, (response) => {
-        queryResult.update(response);
-      });
+      queryResult.isLoadingResult = true;
+      QueryResultByQueryIdResource.get(
+        { queryId, id },
+        (response) => {
+          // Success handler
+          queryResult.isLoadingResult = false;
+          queryResult.update(response);
+        },
+        (error) => {
+          // Error handler
+          queryResult.isLoadingResult = false;
+          handleErrorResponse(queryResult, error);
+        },
+      );
 
       return queryResult;
     }
 
+    loadLatestCachedResult(queryId, parameters) {
+      $resource('api/queries/:id/results', { id: '@queryId' }, { post: { method: 'POST' } })
+        .post({ queryId, parameters },
+          (response) => { this.update(response); },
+          (error) => { handleErrorResponse(this, error); });
+    }
+
     loadResult(tryCount) {
+      this.isLoadingResult = true;
       QueryResultResource.get(
         { id: this.job.query_result_id },
         (response) => {
           this.update(response);
+          this.isLoadingResult = false;
         },
         (error) => {
           if (tryCount === undefined) {
@@ -443,6 +323,7 @@ function QueryResultService($resource, $timeout, $q) {
                 status: 4,
               },
             });
+            this.isLoadingResult = false;
           } else {
             $timeout(() => {
               this.loadResult(tryCount + 1);
@@ -452,22 +333,38 @@ function QueryResultService($resource, $timeout, $q) {
       );
     }
 
-    refreshStatus(query) {
-      Job.get({ id: this.job.id }, (jobResponse) => {
-        this.update(jobResponse);
+    refreshStatus(query, parameters, tryNumber = 1) {
+      const resource = Auth.isAuthenticated() ? Job : JobWithApiKey;
+      const loadResult = () => (Auth.isAuthenticated()
+        ? this.loadResult()
+        : this.loadLatestCachedResult(query, parameters));
+      const params = Auth.isAuthenticated() ? { id: this.job.id } : { queryId: query, id: this.job.id };
 
-        if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-          this.loadResult();
-        } else if (this.getStatus() !== 'failed') {
-          $timeout(() => {
-            this.refreshStatus(query);
-          }, 3000);
-        }
-      }, (error) => {
-        logger('Connection error', error);
-        // TODO: use QueryResultError, or better yet: exception/reject of promise.
-        this.update({ job: { error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4 } });
-      });
+      resource.get(
+        params,
+        (jobResponse) => {
+          this.update(jobResponse);
+
+          if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
+            loadResult();
+          } else if (this.getStatus() !== 'failed') {
+            const waitTime = tryNumber > 10 ? 3000 : 500;
+            $timeout(() => {
+              this.refreshStatus(query, parameters, tryNumber + 1);
+            }, waitTime);
+          }
+        },
+        (error) => {
+          logger('Connection error', error);
+          // TODO: use QueryResultError, or better yet: exception/reject of promise.
+          this.update({
+            job: {
+              error: 'failed communicating with server. Please check your Internet connection and try again.',
+              status: 4,
+            },
+          });
+        },
+      );
     }
 
     getLink(queryId, fileType, apiKey) {
@@ -479,38 +376,64 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getName(queryName, fileType) {
-      return `${queryName.replace(' ', '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
+      return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
-    static get(dataSourceId, query, maxAge, queryId) {
+    static getByQueryId(id, parameters, maxAge) {
       const queryResult = new QueryResult();
 
-      const params = { data_source_id: dataSourceId, query, max_age: maxAge };
+      $resource('api/queries/:id/results', { id: '@id' }, { post: { method: 'POST' } }).post(
+        {
+          id,
+          parameters,
+          max_age: maxAge,
+        },
+        (response) => {
+          queryResult.update(response);
+
+          if ('job' in response) {
+            queryResult.refreshStatus(id, parameters);
+          }
+        },
+        (error) => {
+          handleErrorResponse(queryResult, error);
+        },
+      );
+
+      return queryResult;
+    }
+
+    static get(dataSourceId, query, parameters, maxAge, queryId) {
+      const queryResult = new QueryResult();
+
+      const params = {
+        data_source_id: dataSourceId,
+        parameters,
+        query,
+        max_age: maxAge,
+      };
+
       if (queryId !== undefined) {
         params.query_id = queryId;
       }
 
-      QueryResultResource.post(params, (response) => {
-        queryResult.update(response);
+      QueryResultResource.post(
+        params,
+        (response) => {
+          queryResult.update(response);
 
-        if ('job' in response) {
-          queryResult.refreshStatus(query);
-        }
-      }, (error) => {
-        if (error.status === 403) {
-          queryResult.update(error.data);
-        } else if (error.status === 400 && 'job' in error.data) {
-          queryResult.update(error.data);
-        } else {
-          logger('Unknown error', error);
-          queryResult.update({ job: { error: 'unknown error occurred. Please try again later.', status: 4 } });
-        }
-      });
+          if ('job' in response) {
+            queryResult.refreshStatus(query, parameters);
+          }
+        },
+        (error) => {
+          handleErrorResponse(queryResult, error);
+        },
+      );
 
       return queryResult;
     }
   }
-
 
   return QueryResult;
 }
@@ -518,3 +441,5 @@ function QueryResultService($resource, $timeout, $q) {
 export default function init(ngModule) {
   ngModule.factory('QueryResult', QueryResultService);
 }
+
+init.init = true;

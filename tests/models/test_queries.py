@@ -4,6 +4,7 @@ from tests import BaseTestCase
 import datetime
 from redash.models import Query, Group, Event, db
 from redash.utils import utcnow
+import mock
 
 
 class QueryTest(BaseTestCase):
@@ -14,6 +15,21 @@ class QueryTest(BaseTestCase):
         q.query_text = "SELECT 2;"
         db.session.flush()
         self.assertNotEquals(old_hash, q.query_hash)
+
+    def create_tagged_query(self, tags):
+        ds = self.factory.create_data_source(group=self.factory.default_group)
+        query = self.factory.create_query(data_source=ds, tags=tags)
+        return query
+
+    def test_all_tags(self):
+        self.create_tagged_query(tags=[u'tag1'])
+        self.create_tagged_query(tags=[u'tag1', u'tag2'])
+        self.create_tagged_query(tags=[u'tag1', u'tag2', u'tag3'])
+
+        self.assertEqual(
+            list(Query.all_tags(self.factory.user)),
+            [(u'tag1', 3), (u'tag2', 2), (u'tag3', 1)]
+        )
 
     def test_search_finds_in_name(self):
         q1 = self.factory.create_query(name=u"Testing seåřċħ")
@@ -37,9 +53,9 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q3, queries)
 
     def test_search_by_id_returns_query(self):
-        q1 = self.factory.create_query(description="Testing search")
-        q2 = self.factory.create_query(description="Testing searching")
-        q3 = self.factory.create_query(description="Testing sea rch")
+        q1 = self.factory.create_query(description=u"Testing search")
+        q2 = self.factory.create_query(description=u"Testing searching")
+        q3 = self.factory.create_query(description=u"Testing sea rch")
         db.session.flush()
         queries = Query.search(str(q3.id), [self.factory.default_group.id])
 
@@ -48,20 +64,20 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q2, queries)
 
     def test_search_by_number(self):
-        q = self.factory.create_query(description="Testing search 12345")
+        q = self.factory.create_query(description=u"Testing search 12345")
         db.session.flush()
         queries = Query.search('12345', [self.factory.default_group.id])
 
         self.assertIn(q, queries)
 
     def test_search_respects_groups(self):
-        other_group = Group(org=self.factory.org, name="Other Group")
+        other_group = Group(org=self.factory.org, name=u"Other Group")
         db.session.add(other_group)
         ds = self.factory.create_data_source(group=other_group)
 
-        q1 = self.factory.create_query(description="Testing search", data_source=ds)
-        q2 = self.factory.create_query(description="Testing searching")
-        q3 = self.factory.create_query(description="Testing sea rch")
+        q1 = self.factory.create_query(description=u"Testing search", data_source=ds)
+        q2 = self.factory.create_query(description=u"Testing searching")
+        q3 = self.factory.create_query(description=u"Testing sea rch")
 
         queries = list(Query.search("Testing", [self.factory.default_group.id]))
 
@@ -154,6 +170,18 @@ class QueryTest(BaseTestCase):
         queries = list(Query.search('johndoe', [self.factory.default_group.id]))
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
+
+    def test_past_scheduled_queries(self):
+        query = self.factory.create_query()
+        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        one_day_later = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        query1 = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
+        query2 = self.factory.create_query(schedule={'interval':'3600','until':one_day_later})
+        oq = staticmethod(lambda: [query1, query2])
+        with mock.patch.object(query.query.filter(), 'order_by', oq):
+            res = query.past_scheduled_queries()
+            self.assertTrue(query1 in res)
+            self.assertFalse(query2 in res)
 
 
 class QueryRecentTest(BaseTestCase):
@@ -263,6 +291,11 @@ class TestQueryFork(BaseTestCase):
             group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source,
                                           description="this is description")
+
+        # create default TABLE - query factory does not create it
+        self.factory.create_visualization(
+            query_rel=query, name="Table", description='', type="TABLE", options="{}")
+
         visualization_chart = self.factory.create_visualization(
             query_rel=query, description="chart vis", type="CHART",
             options="""{"yAxis": [{"type": "linear"}, {"type": "linear", "opposite": true}], "series": {"stacking": null}, "globalSeriesType": "line", "sortX": true, "seriesOptions": {"count": {"zIndex": 0, "index": 0, "type": "line", "yAxis": 0}}, "xAxis": {"labels": {"enabled": true}, "type": "datetime"}, "columnMapping": {"count": "y", "created_at": "x"}, "bottomMargin": 50, "legend": {"enabled": true}}""")
@@ -285,6 +318,7 @@ class TestQueryFork(BaseTestCase):
             if v.type == "TABLE":
                 count_table += 1
                 forked_table = v
+
         self.assert_visualizations(query, visualization_chart, forked_query,
                                    forked_visualization_chart)
         self.assert_visualizations(query, visualization_box, forked_query,
@@ -312,6 +346,11 @@ class TestQueryFork(BaseTestCase):
             group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source,
                                           description="this is description")
+
+        # create default TABLE - query factory does not create it
+        self.factory.create_visualization(
+            query_rel=query, name="Table", description='', type="TABLE", options="{}")
+
         fork_user = self.factory.create_user()
 
         forked_query = query.fork(fork_user)

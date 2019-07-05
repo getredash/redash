@@ -1,4 +1,8 @@
 .dynamic-table-container {
+  &[data-has-pagination="true"] {
+    overflow-x: auto; // enable internal scroll so pagination stays put
+  }
+
   th {
     white-space: nowrap;
     span {
@@ -34,5 +38,27 @@
     &.content-align-center {
       text-align: center;
     }
+  }
+
+  .table {
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th.dynamic-table-spacer,
+        > td.dynamic-table-spacer {
+          padding-left: 0;
+          padding-right: 5px;
+        }
+      }
+    }
+  }
+
+  .display-as-number,
+  .display-as-boolean,
+  .display-as-datetime,
+  .display-as-image {
+    width: 1%;
+    white-space: nowrap;
   }
 }

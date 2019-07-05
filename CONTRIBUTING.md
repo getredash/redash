@@ -6,11 +6,9 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
-- [Gitter Chat](https://gitter.im/getredash/redash) or [Slack](https://slack.redash.io)
 - [Documentation](https://redash.io/help/)
-- [Blog](http://blog.redash.io/)
+- [Blog](https://blog.redash.io/)
 - [Twitter](https://twitter.com/getredash)
 
 ---
@@ -56,17 +54,19 @@ If you would like to suggest an enhancement or ask for a new feature:
 - **Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
 - Include screenshots and animated GIFs in your pull request whenever possible.
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
-- Please follow existing code style. We use PEP8 for Python and sensible style for JavaScript.
+- Please follow existing code style:
+  - Python: we use PEP8 for Python.
+  - Javascript: we use Airbnb's style guides for [JavaScript](https://github.com/airbnb/javascript#naming-conventions) and [React](https://github.com/airbnb/javascript/blob/master/react) (currently we don't follow Airbnb's convention for naming files, but we're gradually fixing this). To make it automatic and easy, we recommend using [Prettier](https://github.com/prettier/prettier).
 
 ### Documentation
 
-The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/user-guide) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
+The project's documentation can be found at [https://redash.io/help/](https://redash.io/help/). The [documentation sources](https://github.com/getredash/website/tree/master/src/pages/kb) are hosted on GitHub. To contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
 
 ## Additional Notes
 
 ### Release Method
 
-We publish a stable release every ~2 months, although the goal is to get to a stable release every month. You can see the change log on [GitHub releases page](http://github.com/getredash/redash/releases).
+We publish a stable release every ~2 months, although the goal is to get to a stable release every month. You can see the change log on [GitHub releases page](https://github.com/getredash/redash/releases).
 
 Every build of the master branch updates the latest *RC release*. These releases are usually stable, but might contain regressions and therefore recommended for "advanced users" only.
 
@@ -74,4 +74,4 @@ When we release a new stable release, we also update the *latest* Docker image t
 
 ## Code of Conduct
 
-This project adheres to the Contributor Covenant [code of conduct](http://redash.io/community/code_of_conduct). By participating, you are expected to uphold this code. Please report unacceptable behavior to team@redash.io.
+This project adheres to the Contributor Covenant [code of conduct](https://redash.io/community/code_of_conduct). By participating, you are expected to uphold this code. Please report unacceptable behavior to team@redash.io.

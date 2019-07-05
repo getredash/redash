@@ -1,7 +1,6 @@
 import os
-import logging
 import datetime
-import json
+import logging
 from unittest import TestCase
 from contextlib import contextmanager
 
@@ -14,10 +13,13 @@ os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
-from redash import create_app
-from redash import redis_connection
+# Make sure rate limit is enabled
+os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
+
+from redash import limiter, redis_connection
+from redash.app import create_app
 from redash.models import db
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 from tests.factories import Factory, user_factory
 
 
@@ -27,7 +29,7 @@ logging.getLogger("metrics").setLevel("ERROR")
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.id
+        sess['user_id'] = user.get_id()
 
 
 @contextmanager
@@ -45,6 +47,8 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config['TESTING'] = True
+        self.app.config['SERVER_NAME'] = 'localhost'
+        limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
         db.session.close()
@@ -60,7 +64,7 @@ class BaseTestCase(TestCase):
         redis_connection.flushdb()
 
     def make_request(self, method, path, org=None, user=None, data=None,
-                     is_json=True):
+                     is_json=True, follow_redirects=False):
         if user is None:
             user = self.factory.user
 
@@ -84,28 +88,35 @@ class BaseTestCase(TestCase):
         else:
             content_type = None
 
-        response = method_fn(path, data=data, headers=headers, content_type=content_type)
+        response = method_fn(
+            path,
+            data=data,
+            headers=headers,
+            content_type=content_type,
+            follow_redirects=follow_redirects,
+        )
 
         if response.data and is_json:
-            response.json = json.loads(response.data)
+            response.json = json_loads(response.data)
 
         return response
 
-    def get_request(self, path, org=None):
+    def get_request(self, path, org=None, headers=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.get(path)
+        return self.client.get(path, headers=headers)
 
-    def post_request(self, path, data=None, org=None):
+    def post_request(self, path, data=None, org=None, headers=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.post(path, data=data)
+        return self.client.post(path, data=data, headers=headers)
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
-            if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
+            if isinstance(v, datetime.datetime) or isinstance(actual[k],
+                                                              datetime.datetime):
                 continue
 
             if isinstance(v, list):

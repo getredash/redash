@@ -1,6 +1,6 @@
 import logging
-from flask import redirect, url_for, Blueprint, request
-from redash.authentication.google_oauth import create_and_login_user
+from flask import flash, redirect, url_for, Blueprint, request
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
@@ -20,7 +20,7 @@ def get_saml_client(org):
     """
     metadata_url = org.get_setting("auth_saml_metadata_url")
     entity_id = org.get_setting("auth_saml_entity_id")
-    acs_url = url_for("saml_auth.idp_initiated", _external=True)
+    acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
         'metadata': {
@@ -61,15 +61,21 @@ def get_saml_client(org):
 
 
 @blueprint.route(org_scoped_rule('/saml/callback'), methods=['POST'])
-def idp_initiated():
+def idp_initiated(org_slug=None):
     if not current_org.get_setting("auth_saml_enabled"):
         logger.error("SAML Login is not enabled")
-        return redirect(url_for('redash.index'))
+        return redirect(url_for('redash.index', org_slug=org_slug))
 
     saml_client = get_saml_client(current_org)
-    authn_response = saml_client.parse_authn_request_response(
-        request.form['SAMLResponse'],
-        entity.BINDING_HTTP_POST)
+    try:
+        authn_response = saml_client.parse_authn_request_response(
+            request.form['SAMLResponse'],
+            entity.BINDING_HTTP_POST)
+    except Exception:
+        logger.error('Failed to parse SAML response', exc_info=True)
+        flash('SAML login failed. Please try again later.')
+        return redirect(url_for('redash.login', org_slug=org_slug))
+
     authn_response.get_identity()
     user_info = authn_response.get_subject()
     email = user_info.text
@@ -79,21 +85,23 @@ def idp_initiated():
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
     user = create_and_login_user(current_org, name, email)
+    if user is None:
+        return logout_and_redirect_to_index()
 
     if 'RedashGroups' in authn_response.ava:
         group_names = authn_response.ava.get('RedashGroups')
         user.update_group_assignments(group_names)
 
-    url = url_for('redash.index')
+    url = url_for('redash.index', org_slug=org_slug)
 
     return redirect(url)
 
 
 @blueprint.route(org_scoped_rule("/saml/login"))
-def sp_initiated():
+def sp_initiated(org_slug=None):
     if not current_org.get_setting("auth_saml_enabled"):
         logger.error("SAML Login is not enabled")
-        return redirect(url_for('redash.index'))
+        return redirect(url_for('redash.index', org_slug=org_slug))
 
     saml_client = get_saml_client(current_org)
     nameid_format = current_org.get_setting('auth_saml_nameid_format')
@@ -111,7 +119,7 @@ def sp_initiated():
 
     # NOTE:
     #   I realize I _technically_ don't need to set Cache-Control or Pragma:
-    #     http://stackoverflow.com/a/5494469
+    #     https://stackoverflow.com/a/5494469
     #   However, Section 3.2.3.2 of the SAML spec suggests they are set:
     #     http://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf
     #   We set those headers here as a "belt and suspenders" approach,

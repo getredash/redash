@@ -1,64 +1,74 @@
-import * as _ from 'underscore';
+import { filter } from 'lodash';
+import { angular2react } from 'angular2react';
 import template from './widget.html';
-import editTextBoxTemplate from './edit-text-box.html';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
+import widgetDialogTemplate from './widget-dialog.html';
+import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
+import './widget-dialog.less';
 
-const EditTextBoxComponent = {
-  template: editTextBoxTemplate,
+const WidgetDialog = {
+  template: widgetDialogTemplate,
   bindings: {
     resolve: '<',
     close: '&',
     dismiss: '&',
   },
-  controller(toastr) {
-    'ngInject';
-
-    this.saveInProgress = false;
+  controller() {
     this.widget = this.resolve.widget;
-    this.saveWidget = () => {
-      this.saveInProgress = true;
-      if (this.widget.new_text !== this.widget.existing_text) {
-        this.widget.text = this.widget.new_text;
-        this.widget.$save().then(() => {
-          this.close();
-        }).catch(() => {
-          toastr.error('Widget can not be updated');
-        }).finally(() => {
-          this.saveInProgress = false;
-        });
-      } else {
-        this.close();
-      }
-    };
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser) {
+export let DashboardWidget = null; // eslint-disable-line import/no-mutable-exports
+
+function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
-    this.widget.existing_text = this.widget.text;
-    this.widget.new_text = this.widget.text;
-    $uibModal.open({
-      component: 'editTextBox',
-      resolve: {
-        widget: this.widget,
+    TextboxDialog.showModal({
+      dashboard: this.dashboard,
+      text: this.widget.text,
+      onConfirm: (text) => {
+        this.widget.text = text;
+        return this.widget.save();
       },
     });
   };
 
-  this.getWidgetStyles = () => {
-    if (_.isObject(this.widget) && _.isObject(this.widget.visualization)) {
-      const visualization = this.widget.visualization;
-      if (visualization.type === 'PIVOT') {
-        return { overflow: 'visible' };
+  this.expandVisualization = () => {
+    $uibModal.open({
+      component: 'widgetDialog',
+      resolve: {
+        widget: this.widget,
+      },
+      size: 'lg',
+    });
+  };
+
+  this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
+
+  this.editParameterMappings = () => {
+    EditParameterMappingsDialog.showModal({
+      dashboard: this.dashboard,
+      widget: this.widget,
+    }).result.then((valuesChanged) => {
+      this.localParameters = null;
+
+      // refresh widget if any parameter value has been updated
+      if (valuesChanged) {
+        $timeout(() => this.refresh());
       }
-    }
+      $scope.$applyAsync();
+      $rootScope.$broadcast('dashboard.update-parameters');
+    });
   };
 
   this.localParametersDefs = () => {
     if (!this.localParameters) {
-      this.localParameters = this.widget.getQuery().getParametersDefs().filter(p => !p.global);
+      this.localParameters = filter(
+        this.widget.getParametersDefs(),
+        param => !this.widget.isStaticParam(param),
+      );
     }
     return this.localParameters;
   };
@@ -68,11 +78,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       return;
     }
 
-    Events.record('delete', 'widget', this.widget.id);
-
-    this.widget.$delete((response) => {
-      this.dashboard.widgets = this.dashboard.widgets.filter(widget => widget.id !== undefined);
-      this.dashboard.version = response.version;
+    this.widget.delete().then(() => {
       if (this.deleted) {
         this.deleted({});
       }
@@ -81,22 +87,21 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   Events.record('view', 'widget', this.widget.id);
 
-  this.reload = (force) => {
-    let maxAge = $location.search().maxAge;
-    if (force) {
-      maxAge = 0;
-    }
-    this.queryResult = this.query.getQueryResult(maxAge);
+  this.load = (refresh = false) => {
+    const maxAge = $location.search().maxAge;
+    this.widget.load(refresh, maxAge);
+  };
+
+  this.refresh = () => {
+    this.load(true);
   };
 
   if (this.widget.visualization) {
     Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
     Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
 
-    this.query = this.widget.getQuery();
-    this.reload(false);
-
     this.type = 'visualization';
+    this.load();
   } else if (this.widget.restricted) {
     this.type = 'restricted';
   } else {
@@ -104,16 +109,24 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   }
 }
 
+const DashboardWidgetOptions = {
+  template,
+  controller: DashboardWidgetCtrl,
+  bindings: {
+    widget: '<',
+    public: '<',
+    dashboard: '<',
+    filters: '<',
+    deleted: '<',
+  },
+};
+
 export default function init(ngModule) {
-  ngModule.component('editTextBox', EditTextBoxComponent);
-  ngModule.component('dashboardWidget', {
-    template,
-    controller: DashboardWidgetCtrl,
-    bindings: {
-      widget: '<',
-      public: '<',
-      dashboard: '<',
-      deleted: '&onDelete',
-    },
-  });
+  ngModule.component('widgetDialog', WidgetDialog);
+  ngModule.component('dashboardWidget', DashboardWidgetOptions);
+  ngModule.run(['$injector', ($injector) => {
+    DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, $injector);
+  }]);
 }
+
+init.init = true;

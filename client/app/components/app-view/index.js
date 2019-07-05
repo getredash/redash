@@ -7,42 +7,88 @@ const logger = debug('redash:app-view');
 
 const handler = new ErrorHandler();
 
+const layouts = {
+  default: {
+    showHeader: true,
+    bodyClass: false,
+  },
+  fixed: {
+    showHeader: true,
+    bodyClass: 'fixed-layout',
+  },
+  defaultSignedOut: {
+    showHeader: false,
+  },
+};
+
+function selectLayout(route) {
+  let layout = layouts.default;
+  if (route.layout) {
+    layout = layouts[route.layout] || layouts.default;
+  } else if (!route.authenticated) {
+    layout = layouts.defaultSignedOut;
+  }
+  return layout;
+}
+
+class AppViewComponent {
+  constructor($rootScope, $route, Auth) {
+    this.$rootScope = $rootScope;
+    this.layout = layouts.defaultSignedOut;
+    this.handler = handler;
+
+    $rootScope.$on('$routeChangeStart', (event, route) => {
+      this.handler.reset();
+
+      // In case we're handling $routeProvider.otherwise call, there will be no
+      // $$route.
+      const $$route = route.$$route || { authenticated: true };
+
+      if ($$route.authenticated) {
+        // For routes that need authentication, check if session is already
+        // loaded, and load it if not.
+        logger('Requested authenticated route: ', route);
+        if (!Auth.isAuthenticated()) {
+          event.preventDefault();
+          // Auth.requireSession resolves only if session loaded
+          Auth.requireSession().then(() => {
+            this.applyLayout($$route);
+            $route.reload();
+          });
+        }
+      }
+    });
+
+    $rootScope.$on('$routeChangeSuccess', (event, route) => {
+      const $$route = route.$$route || { authenticated: true };
+      this.applyLayout($$route);
+    });
+
+    $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
+      const $$route = current.$$route || { authenticated: true };
+      this.applyLayout($$route);
+      throw new PromiseRejectionError(rejection);
+    });
+  }
+
+  applyLayout(route) {
+    this.layout = selectLayout(route);
+    this.$rootScope.bodyClass = this.layout.bodyClass;
+  }
+}
+
 export default function init(ngModule) {
-  ngModule.factory('$exceptionHandler', () => function exceptionHandler(exception) {
-    handler.process(exception);
-  });
+  ngModule.factory(
+    '$exceptionHandler',
+    () => function exceptionHandler(exception) {
+      handler.process(exception);
+    },
+  );
 
   ngModule.component('appView', {
     template,
-    controller($rootScope, $route, Auth) {
-      this.showHeaderAndFooter = false;
-
-      this.handler = handler;
-
-      $rootScope.$on('$routeChangeStart', (event, route) => {
-        this.handler.reset();
-        if (route.$$route.authenticated) {
-          // For routes that need authentication, check if session is already
-          // loaded, and load it if not.
-          logger('Requested authenticated route: ', route);
-          if (Auth.isAuthenticated()) {
-            this.showHeaderAndFooter = true;
-          } else {
-            event.preventDefault();
-            // Auth.requireSession resolves only if session loaded
-            Auth.requireSession().then(() => {
-              this.showHeaderAndFooter = true;
-              $route.reload();
-            });
-          }
-        } else {
-          this.showHeaderAndFooter = false;
-        }
-      });
-
-      $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
-        throw new PromiseRejectionError(rejection);
-      });
-    },
+    controller: AppViewComponent,
   });
 }
+
+init.init = true;
