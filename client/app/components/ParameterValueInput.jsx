@@ -136,11 +136,15 @@ export class ParameterValueInput extends React.Component {
       <Select
         className={this.props.className}
         mode={allowMultipleValues ? 'multiple' : 'default'}
+        optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
         defaultValue={value}
         onChange={onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
+        maxTagCount={3}
+        maxTagTextLength={10}
+        maxTagPlaceholder={num => `+${num.length} more`}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
       </Select>
@@ -148,14 +152,19 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { value, onSelect, queryId, parameter } = this.props;
+    const { value, onSelect, queryId, allowMultipleValues, parameter } = this.props;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
+        mode={allowMultipleValues ? 'multiple' : 'default'}
+        optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
         onSelect={onSelect}
+        maxTagCount={3}
+        maxTagTextLength={10}
+        maxTagPlaceholder={num => `+${num.length} more`}
       />
     );
   }
