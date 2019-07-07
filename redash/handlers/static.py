@@ -7,6 +7,7 @@ from redash.handlers.authentication import base_href
 from redash.handlers.base import org_scoped_rule
 from redash.security import csp_allows_embeding
 
+
 def render_index():
     if settings.MULTI_ORG:
         response = render_template("multi_org.html", base_href=base_href())
@@ -15,6 +16,7 @@ def render_index():
         response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
     return response
+
 
 @routes.route(org_scoped_rule('/dashboard/<slug>'), methods=['GET'])
 @login_required
