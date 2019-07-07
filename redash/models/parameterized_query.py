@@ -36,11 +36,11 @@ def dropdown_values(query_id):
     return map(pluck, data["rows"])
 
 
-def resolve_parameter_values(parameters):
-    resolved_parameters = {}
+def join_parameter_list_values(parameters):
+    updated_parameters = {}
     for (key, value) in parameters.iteritems():
-        resolved_parameters[key] = ','.join(value) if isinstance(value, list) else value
-    return resolved_parameters
+        updated_parameters[key] = ','.join(value) if isinstance(value, list) else value
+    return updated_parameters
 
 
 def _collect_key_names(nodes):
@@ -99,9 +99,9 @@ def _is_date_range(obj):
         return False
 
 
-def _is_dropdown_value_valid(value, dropdown_options):
+def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
-        return all(unicode(v) in dropdown_options for v in value)
+        return allow_list and set(map(unicode, value)).issubset(set(dropdown_options))
     return unicode(value) in dropdown_options
 
 
@@ -118,7 +118,7 @@ class ParameterizedQuery(object):
             raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
-            self.query = mustache_render(self.template, resolve_parameter_values(parameters))
+            self.query = mustache_render(self.template, join_parameter_list_values(parameters))
 
         return self
 
@@ -134,8 +134,11 @@ class ParameterizedQuery(object):
         validators = {
             "text": lambda value: isinstance(value, basestring),
             "number": _is_number,
-            "enum": lambda value: _is_dropdown_value_valid(value, definition["enumOptions"]),
-            "query": lambda value: _is_dropdown_value_valid(value, [v["value"] for v in dropdown_values(definition["queryId"])]),
+            "enum": lambda value: _is_value_within_options(value,\
+                definition["enumOptions"].split('\n'), definition["allowMultipleValues"]),
+            "query": lambda value: _is_value_within_options(value,\
+                [v["value"] for v in dropdown_values(definition["queryId"])],\
+                definition["allowMultipleValues"]),
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,
