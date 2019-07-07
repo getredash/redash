@@ -23,27 +23,19 @@ def _convert_date(value):
     if not value:
         return value
 
-    try:
-        parsed = parse_date(value)
-        ret = parsed.strftime(_convert_format(current_org.get_setting('date_format')))
-    except Exception:
-        return value
+    parsed = parse_date(value)
 
-    return ret
+    return parsed.strftime(_convert_format(current_org.get_setting('date_format')))
 
 
 def _convert_datetime(value):
     if not value:
         return value
 
-    try:
-        parsed = parse_date(value)
-        fmt = _convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
-        ret = parsed.strftime(fmt)
-    except Exception:
-        return value
+    parsed = parse_date(value)
 
-    return ret
+    fmt = _convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
+    return parsed.strftime(fmt)
 
 
 SPECIAL_TYPES = {
