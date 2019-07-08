@@ -20,7 +20,7 @@ scheduler() {
   /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
 }
 
-dev_scheduler() {
+dev_worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
   SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
@@ -51,7 +51,7 @@ help() {
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start Celery worker"
   echo "scheduler -- start Celery worker with a beat (scheduler) process"
-  echo "dev_scheduler -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
+  echo "dev_worker  -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
   echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
@@ -86,9 +86,9 @@ case "$1" in
     shift
     scheduler
     ;;
-  dev_scheduler)
+  dev_worker)
     shift
-    dev_scheduler
+    dev_worker
     ;;
   dev_server)
     export FLASK_DEBUG=1

@@ -21,7 +21,7 @@ services:
       REDASH_RATELIMIT_ENABLED: "false"
   worker:
     build: .
-    command: dev_scheduler
+    command: dev_worker
     volumes:
       - type: bind
         source: .
