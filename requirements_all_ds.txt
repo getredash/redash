@@ -30,3 +30,4 @@ snowflake_connector_python==1.6.10
 phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi
+pydgraph==1.2.0
