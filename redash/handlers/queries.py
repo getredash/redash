@@ -112,6 +112,7 @@ class BaseQueryListResource(BaseResource):
                 self.current_user.group_ids,
                 self.current_user.id,
                 include_drafts=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             results = models.Query.all_queries(
@@ -256,6 +257,7 @@ class QueryArchiveResource(BaseQueryListResource):
                 self.current_user.id,
                 include_drafts=False,
                 include_archived=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             return models.Query.all_queries(
@@ -385,6 +387,24 @@ class QueryResource(BaseResource):
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
         models.db.session.commit()
+
+
+class QueryRegenerateApiKeyResource(BaseResource):
+    @require_permission('edit_query')
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_admin_or_owner(query.user_id)
+        query.regenerate_api_key()
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'regnerate_api_key',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
+        result = QuerySerializer(query).serialize()
+        return result
 
 
 class QueryForkResource(BaseResource):

@@ -354,7 +354,10 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
         next_iteration = (previous_iteration + datetime.timedelta(days=days_delay) +
                           datetime.timedelta(days=days_to_add)).replace(hour=hour, minute=minute)
     if failures:
-        next_iteration += datetime.timedelta(minutes=2**failures)
+        try:
+            next_iteration += datetime.timedelta(minutes=2**failures)
+        except OverflowError:
+            return False
     return now > next_iteration
 
 
@@ -420,6 +423,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         if user:
             self.record_changes(user)
+
+    def regenerate_api_key(self):
+        self.api_key = generate_token(40)
 
     @classmethod
     def create(cls, **kwargs):
@@ -518,6 +524,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.api_key == api_key).one()
 
     @classmethod
+    def past_scheduled_queries(cls):
+        now = utils.utcnow()
+        queries = (
+            Query.query
+            .filter(Query.schedule.isnot(None))
+            .order_by(Query.id)
+        )
+        return filter(
+                lambda x:
+                x.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+                ) <= now,
+                queries
+                )
+
+    @classmethod
     def outdated_queries(cls):
         queries = (
             Query.query
@@ -556,13 +578,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,
-               limit=None, include_archived=False):
+               limit=None, include_archived=False, multi_byte_search=False):
         all_queries = cls.all_queries(
             group_ids,
             user_id=user_id,
             include_drafts=include_drafts,
             include_archived=include_archived,
         )
+
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = u'%{}%'.format(term)
+            return all_queries.filter(
+                or_(
+                    cls.name.ilike(pattern),
+                    cls.description.ilike(pattern)
+                )
+            ).order_by(Query.id).limit(limit)
+
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
 

@@ -1,10 +1,10 @@
-import { isArray, indexOf, map, includes, every, some, toNumber, toLower } from 'lodash';
+import { isArray, indexOf, get, map, includes, every, some, toNumber, toLower } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { formatDateTime } from '@/filters/datetime';
+import { formatDateTime, formatDate } from '@/filters/datetime';
 
 const ALL_VALUES = '###Redash::Filters::SelectAll###';
 const NONE_VALUES = '###Redash::Filters::Clear###';
@@ -27,7 +27,8 @@ function createFilterChangeHandler(filters, onChange) {
     if (isArray(values)) {
       values = map(values, value => filter.values[toNumber(value.key)] || value.key);
     } else {
-      values = filter.values[toNumber(values.key)] || values.key;
+      const _values = filter.values[toNumber(values.key)];
+      values = _values !== undefined ? _values : values.key;
     }
 
     if (filter.multiple && includes(values, ALL_VALUES)) {
@@ -70,9 +71,16 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-function formatValue(value) {
+function formatValue(value, columnType) {
   if (moment.isMoment(value)) {
+    if (columnType === 'date') {
+      return formatDate(value);
+    }
     return formatDateTime(value);
+  }
+
+  if (typeof value === 'boolean') {
+    return value.toString();
   }
 
   return value;
@@ -91,7 +99,7 @@ export function Filters({ filters, onChange }) {
         <div className="row">
           {map(filters, (filter) => {
             const options = map(filter.values, (value, index) => (
-              <Select.Option key={index}>{formatValue(value)}</Select.Option>
+              <Select.Option key={index}>{formatValue(value, get(filter, 'column.type'))}</Select.Option>
             ));
 
             return (

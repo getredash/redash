@@ -9,5 +9,7 @@
   "videosFolder": "client/cypress/videos",
   "supportFile": "client/cypress/support/index.js",
   "defaultCommandTimeout": 20000,
-  "requestTimeout": 15000
+  "requestTimeout": 15000,
+  "viewportWidth": 1280,
+  "viewportHeight": 1024
 }

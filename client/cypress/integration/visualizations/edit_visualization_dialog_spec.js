@@ -22,8 +22,23 @@ describe('Edit visualization dialog', () => {
   it('opens Edit Visualization dialog', () => {
     cy.getByTestId('EditVisualization').click();
     cy.getByTestId('EditVisualizationDialog').should('exist');
-    // Default visualization should be selected
+    // Default `Table` visualization should be selected
     cy.getByTestId('VisualizationType').should('exist').should('contain', 'Table');
     cy.getByTestId('VisualizationName').should('exist').should('have.value', 'Table');
+  });
+
+  it('creates visualization with custom name', () => {
+    const visualizationName = 'Custom name';
+
+    cy.clickThrough(`
+      NewVisualization
+      VisualizationType
+      VisualizationType.TABLE
+    `);
+
+    cy.getByTestId('VisualizationName').clear().type(visualizationName);
+
+    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
+    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
   });
 });
