@@ -1,19 +1,6 @@
 import moment from 'moment';
 import { clientConfig } from '@/services/auth';
 
-export function formatDate(value) {
-  if (!value) {
-    return '';
-  }
-
-  const parsed = moment(value);
-  if (!parsed.isValid()) {
-    return '-';
-  }
-
-  return parsed.format(clientConfig.dateFormat);
-}
-
 export function formatDateTime(value) {
   if (!value) {
     return '';
