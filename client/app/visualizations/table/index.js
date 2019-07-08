@@ -8,6 +8,8 @@ import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
+import Renderer from './Renderer';
+
 const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DISPLAY_AS_OPTIONS = [
@@ -200,7 +202,7 @@ export default function init(ngModule) {
         );
         return options;
       },
-      Renderer: angular2react('gridRenderer', GridRenderer, $injector),
+      Renderer,
       Editor: angular2react('gridEditor', GridEditor, $injector),
 
       autoHeight: true,
