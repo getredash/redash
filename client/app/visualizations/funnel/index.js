@@ -1,17 +1,20 @@
-import { debounce, sortBy, isNumber, every, difference } from 'lodash';
+import { debounce, sortBy, isFinite, every, difference, merge, map } from 'lodash';
 import d3 from 'd3';
 import angular from 'angular';
+import { angular2react } from 'angular2react';
+import { registerVisualization } from '@/visualizations';
 
-import { ColorPalette, normalizeValue } from '@/visualizations/chart/plotly/utils';
+import { normalizeValue } from '@/visualizations/chart/plotly/utils';
+import ColorPalette from '@/visualizations/ColorPalette';
 import editorTemplate from './funnel-editor.html';
 import './funnel.less';
 
-function isNoneNaNNum(val) {
-  if (!isNumber(val) || isNaN(val)) {
-    return false;
-  }
-  return true;
-}
+const DEFAULT_OPTIONS = {
+  stepCol: { colName: '', displayAs: 'Steps' },
+  valueCol: { colName: '', displayAs: 'Value' },
+  sortKeyCol: { colName: '' },
+  autoSort: true,
+};
 
 function normalizePercentage(num) {
   if (num < 0.01) {
@@ -27,7 +30,7 @@ function Funnel(scope, element) {
   this.element = element;
   this.watches = [];
   const vis = d3.select(element);
-  const options = scope.visualization.options;
+  const options = scope.$ctrl.options;
 
   function drawFunnel(data) {
     const maxToPrevious = d3.max(data, d => d.pctPrevious);
@@ -62,9 +65,7 @@ function Funnel(scope, element) {
     trs
       .append('td')
       .attr('class', 'col-xs-3 step')
-      .text(d => d.step)
-      .append('div')
-      .attr('class', 'step-name')
+      .attr('title', d => d.step)
       .text(d => d.step);
 
     // Funnel bars
@@ -116,6 +117,9 @@ function Funnel(scope, element) {
   }
 
   function prepareData(queryData) {
+    if (queryData.length === 0) {
+      return [];
+    }
     const data = queryData.map(
       row => ({
         step: normalizeValue(row[options.stepCol.colName]),
@@ -132,7 +136,7 @@ function Funnel(scope, element) {
     }
 
     // Column validity
-    if (sortedData[0].value === 0 || !every(sortedData, d => isNoneNaNNum(d.value))) {
+    if (sortedData[0].value === 0 || !every(sortedData, d => isFinite(d.value))) {
       return;
     }
     const maxVal = d3.max(data, d => d.value);
@@ -144,15 +148,12 @@ function Funnel(scope, element) {
   }
 
   function invalidColNames() {
-    const colNames = scope.queryResult.getColumnNames();
+    const colNames = map(scope.$ctrl.data.columns, col => col.name);
     const colToCheck = [options.stepCol.colName, options.valueCol.colName];
     if (!options.autoSort) {
       colToCheck.push(options.sortKeyCol.colName);
     }
-    if (difference(colToCheck, colNames).length > 0) {
-      return true;
-    }
-    return false;
+    return difference(colToCheck, colNames).length > 0;
   }
 
   function refresh() {
@@ -161,79 +162,74 @@ function Funnel(scope, element) {
       return;
     }
 
-    const queryData = scope.queryResult.getData();
+    const queryData = scope.$ctrl.data.rows;
     const data = prepareData(queryData, options);
-    if (data) {
+    if (data.length > 0) {
       createVisualization(data); // draw funnel
     }
   }
 
   refresh();
-  this.watches.push(scope.$watch('visualization.options', refresh, true));
-  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refresh));
+  this.watches.push(scope.$watch('$ctrl.data', refresh));
+  this.watches.push(scope.$watch('$ctrl.options', refresh, true));
 }
 
 Funnel.prototype.remove = function remove() {
   this.watches.forEach((unregister) => {
     unregister();
   });
-  angular.element(this.element).empty('.vis-container');
+  angular.element(this.element).empty();
 };
 
-function funnelRenderer() {
-  return {
-    restrict: 'E',
-    template: '<div class="funnel-visualization-container resize-event="handleResize()"></div>',
-    link(scope, element) {
-      const container = element[0].querySelector('.funnel-visualization-container');
-      let funnel = new Funnel(scope, container);
+const FunnelRenderer = {
+  template: '<div class="funnel-visualization-container" resize-event="handleResize()"></div>',
+  bindings: {
+    data: '<',
+    options: '<',
+  },
+  controller($scope, $element) {
+    const container = $element[0].querySelector('.funnel-visualization-container');
+    let funnel = new Funnel($scope, container);
 
-      function resize() {
-        funnel.remove();
-        funnel = new Funnel(scope, container);
-      }
-
-      scope.handleResize = debounce(resize, 50);
-
-      scope.$watch('visualization.options', (oldValue, newValue) => {
-        if (oldValue !== newValue) {
-          resize();
-        }
-      });
-    },
-  };
-}
-
-function funnelEditor() {
-  return {
-    restrict: 'E',
-    template: editorTemplate,
-  };
-}
-
-export default function init(ngModule) {
-  ngModule.directive('funnelRenderer', funnelRenderer);
-  ngModule.directive('funnelEditor', funnelEditor);
-
-  ngModule.config((VisualizationProvider) => {
-    const renderTemplate =
-      '<funnel-renderer options="visualization.options" query-result="queryResult"></funnel-renderer>';
-
-    const editTemplate = '<funnel-editor></funnel-editor>';
-    const defaultOptions = {
-      stepCol: { colName: '', displayAs: 'Steps' },
-      valueCol: { colName: '', displayAs: 'Value' },
-      sortKeyCol: { colName: '' },
-      autoSort: true,
-      defaultRows: 10,
+    const update = () => {
+      funnel.remove();
+      funnel = new Funnel($scope, container);
     };
 
-    VisualizationProvider.registerVisualization({
+    $scope.handleResize = debounce(update, 50);
+
+    $scope.$watch('$ctrl.data', update);
+    $scope.$watch('$ctrl.options', update, true);
+  },
+};
+
+const FunnelEditor = {
+  template: editorTemplate,
+  bindings: {
+    data: '<',
+    options: '<',
+    onOptionsChange: '<',
+  },
+  controller($scope) {
+    $scope.$watch('$ctrl.options', (options) => {
+      this.onOptionsChange(options);
+    }, true);
+  },
+};
+
+export default function init(ngModule) {
+  ngModule.component('funnelRenderer', FunnelRenderer);
+  ngModule.component('funnelEditor', FunnelEditor);
+
+  ngModule.run(($injector) => {
+    registerVisualization({
       type: 'FUNNEL',
       name: 'Funnel',
-      renderTemplate,
-      editorTemplate: editTemplate,
-      defaultOptions,
+      getOptions: options => merge({}, DEFAULT_OPTIONS, options),
+      Renderer: angular2react('funnelRenderer', FunnelRenderer, $injector),
+      Editor: angular2react('funnelEditor', FunnelEditor, $injector),
+
+      defaultRows: 10,
     });
   });
 }

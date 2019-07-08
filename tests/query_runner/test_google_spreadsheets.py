@@ -5,7 +5,7 @@ from unittest import TestCase
 from mock import MagicMock
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT
-from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _get_columns_and_column_names, _value_eval_list, parse_query
+from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _get_columns_and_column_names, _value_eval_list, is_url_key, parse_query
 from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, parse_spreadsheet, parse_worksheet
 
 
@@ -100,3 +100,12 @@ class TestGetColumnsAndColumnNames(TestCase):
         columns, column_names = _get_columns_and_column_names(_columns)
 
         self.assertEqual(['foo', 'column_B', 'baz', 'column_D'], column_names)
+
+
+class TestIsUrlKey(TestCase):
+    def test_is_url_key(self):
+        _key = 'https://docs.google.com/spreadsheets/d/key/edit#gid=12345678'
+        self.assertTrue(is_url_key(_key))
+
+        _key = 'key|0'
+        self.assertFalse(is_url_key(_key))

@@ -4,6 +4,7 @@ from tests import BaseTestCase
 import datetime
 from redash.models import Query, Group, Event, db
 from redash.utils import utcnow
+import mock
 
 
 class QueryTest(BaseTestCase):
@@ -21,13 +22,13 @@ class QueryTest(BaseTestCase):
         return query
 
     def test_all_tags(self):
-        self.create_tagged_query(tags=['tag1'])
-        self.create_tagged_query(tags=['tag1', 'tag2'])
-        self.create_tagged_query(tags=['tag1', 'tag2', 'tag3'])
+        self.create_tagged_query(tags=[u'tag1'])
+        self.create_tagged_query(tags=[u'tag1', u'tag2'])
+        self.create_tagged_query(tags=[u'tag1', u'tag2', u'tag3'])
 
         self.assertEqual(
             list(Query.all_tags(self.factory.user)),
-            [('tag1', 3), ('tag2', 2), ('tag3', 1)]
+            [(u'tag1', 3), (u'tag2', 2), (u'tag3', 1)]
         )
 
     def test_search_finds_in_name(self):
@@ -51,10 +52,21 @@ class QueryTest(BaseTestCase):
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
+    def test_search_finds_in_multi_byte_name_and_description(self):
+        q1 = self.factory.create_query(name="日本語の名前テスト")
+        q2 = self.factory.create_query(description=u"日本語の説明文テスト")
+        q3 = self.factory.create_query(description=u"Testing search")
+
+        queries = Query.search(u"テスト", [self.factory.default_group.id], multi_byte_search=True)
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
     def test_search_by_id_returns_query(self):
-        q1 = self.factory.create_query(description="Testing search")
-        q2 = self.factory.create_query(description="Testing searching")
-        q3 = self.factory.create_query(description="Testing sea rch")
+        q1 = self.factory.create_query(description=u"Testing search")
+        q2 = self.factory.create_query(description=u"Testing searching")
+        q3 = self.factory.create_query(description=u"Testing sea rch")
         db.session.flush()
         queries = Query.search(str(q3.id), [self.factory.default_group.id])
 
@@ -63,20 +75,20 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q2, queries)
 
     def test_search_by_number(self):
-        q = self.factory.create_query(description="Testing search 12345")
+        q = self.factory.create_query(description=u"Testing search 12345")
         db.session.flush()
         queries = Query.search('12345', [self.factory.default_group.id])
 
         self.assertIn(q, queries)
 
     def test_search_respects_groups(self):
-        other_group = Group(org=self.factory.org, name="Other Group")
+        other_group = Group(org=self.factory.org, name=u"Other Group")
         db.session.add(other_group)
         ds = self.factory.create_data_source(group=other_group)
 
-        q1 = self.factory.create_query(description="Testing search", data_source=ds)
-        q2 = self.factory.create_query(description="Testing searching")
-        q3 = self.factory.create_query(description="Testing sea rch")
+        q1 = self.factory.create_query(description=u"Testing search", data_source=ds)
+        q2 = self.factory.create_query(description=u"Testing searching")
+        q3 = self.factory.create_query(description=u"Testing sea rch")
 
         queries = list(Query.search("Testing", [self.factory.default_group.id]))
 
@@ -169,6 +181,18 @@ class QueryTest(BaseTestCase):
         queries = list(Query.search('johndoe', [self.factory.default_group.id]))
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
+
+    def test_past_scheduled_queries(self):
+        query = self.factory.create_query()
+        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        one_day_later = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        query1 = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
+        query2 = self.factory.create_query(schedule={'interval':'3600','until':one_day_later})
+        oq = staticmethod(lambda: [query1, query2])
+        with mock.patch.object(query.query.filter(), 'order_by', oq):
+            res = query.past_scheduled_queries()
+            self.assertTrue(query1 in res)
+            self.assertFalse(query2 in res)
 
 
 class QueryRecentTest(BaseTestCase):

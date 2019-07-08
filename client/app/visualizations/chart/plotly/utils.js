@@ -6,36 +6,7 @@ import moment from 'moment';
 import d3 from 'd3';
 import plotlyCleanNumber from 'plotly.js/src/lib/clean_number';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
-
-// The following colors will be used if you pick "Automatic" color.
-const BaseColors = {
-  Blue: '#356AFF',
-  Red: '#E92828',
-  Green: '#3BD973',
-  Purple: '#604FE9',
-  Cyan: '#50F5ED',
-  Orange: '#FB8D3D',
-  'Light Blue': '#799CFF',
-  Lilac: '#B554FF',
-  'Light Green': '#8CFFB4',
-  Brown: '#A55F2A',
-  Black: '#000000',
-  Gray: '#494949',
-  Pink: '#FF7DE3',
-  'Dark Blue': '#002FB4',
-};
-
-// Additional colors for the user to choose from:
-export const ColorPalette = Object.assign({}, BaseColors, {
-  'Indian Red': '#981717',
-  'Green 2': '#17BF51',
-  'Green 3': '#049235',
-  DarkTurquoise: '#00B6EB',
-  'Dark Violet': '#A58AFF',
-  'Pink 2': '#C63FA9',
-});
-
-const ColorPaletteArray = values(BaseColors);
+import { ColorPaletteArray } from '@/visualizations/ColorPalette';
 
 function cleanNumber(value) {
   return isUndefined(value) ? value : (plotlyCleanNumber(value) || 0.0);
@@ -291,6 +262,7 @@ function preparePieData(seriesList, options) {
       textposition: 'inside',
       textfont: { color: '#ffffff' },
       name: serie.name,
+      direction: options.direction.type,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
         y: [yPosition, yPosition + cellHeight - yPadding],
@@ -556,7 +528,7 @@ export function prepareLayout(element, seriesList, options, data) {
           y: yPosition + cellHeight - 0.015,
           xanchor: 'center',
           yanchor: 'top',
-          text: options.seriesOptions[series.name].name || series.name,
+          text: (options.seriesOptions[series.name] || {}).name || series.name,
           showarrow: false,
         };
       }));
@@ -775,14 +747,6 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
   layout.width = Math.floor(plotlyElement.offsetWidth);
   layout.height = Math.floor(plotlyElement.offsetHeight);
 
-  const transformName = find([
-    'transform',
-    'webkitTransform',
-    'mozTransform',
-    'msTransform',
-    'oTransform',
-  ], prop => has(plotlyElement.style, prop));
-
   if (layout.width <= 600) {
     // change legend orientation to horizontal; plotly has a bug with this
     // legend alignment - it does not preserve enough space under the plot;
@@ -830,9 +794,9 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
           layout.height / 2,
           layout.height - (bounds.bottom - bounds.top),
         ));
-        // offset the legend
-        legend.style[transformName] = 'translate(0, ' + layout.height + 'px)';
         updatePlot(plotlyElement, pick(layout, ['height']));
+        // offset the legend
+        legend.setAttribute('transform', 'translate(0, ' + layout.height + ')');
       }
     });
   } else {
@@ -845,12 +809,6 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
       xanchor: 'left',
       yanchor: 'top',
     };
-
-    const legend = plotlyElement.querySelector('.legend');
-    if (legend) {
-      legend.style[transformName] = null;
-    }
-
     updatePlot(plotlyElement, pick(layout, ['width', 'height', 'legend']));
   }
 }

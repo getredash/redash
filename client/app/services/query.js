@@ -294,6 +294,18 @@ class Parameters {
     const params = this.get();
     return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
   }
+
+  toUrlParams() {
+    if (this.get().length === 0) {
+      return '';
+    }
+
+    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
+    return Object
+      .keys(params)
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
+  }
 }
 
 function QueryResultErrorFactory($q) {
@@ -327,11 +339,6 @@ function QueryResultErrorFactory($q) {
 
     // eslint-disable-next-line class-methods-use-this
     getLog() {
-      return null;
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    getChartData() {
       return null;
     }
   }
@@ -466,6 +473,10 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
+  QueryService.prototype.hasParameters = function hasParameters() {
+    return this.getParametersDefs().length > 0;
+  };
+
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     if (!this.query) {
       return new QueryResultError("Can't execute empty query.");
@@ -504,7 +515,7 @@ function QueryResource(
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
       this.queryResult = execute();

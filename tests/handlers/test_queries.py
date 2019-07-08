@@ -19,8 +19,7 @@ class TestQueryResourceGet(BaseTestCase):
         self.assertResponseEqual(expected, rv.json)
 
     def test_get_all_queries(self):
-        queries = [self.factory.create_query() for _ in range(10)]
-
+        [self.factory.create_query() for _ in range(10)]
         rv = self.make_request('get', '/api/queries')
 
         self.assertEquals(rv.status_code, 200)
@@ -123,6 +122,11 @@ class TestQueryResourcePost(BaseTestCase):
 
         options = {
             'parameters': [{
+                'name': 'foo',
+                'type': 'query',
+                'queryId': other_query.id
+            }, {
+                'name': 'bar',
                 'type': 'query',
                 'queryId': other_query.id
             }]
@@ -252,6 +256,11 @@ class TestQueryListResourcePost(BaseTestCase):
             'data_source_id': self.factory.data_source.id,
             'options': {
                 'parameters': [{
+                    'name': 'foo',
+                    'type': 'query',
+                    'queryId': other_query.id
+                }, {
+                    'name': 'bar',
                     'type': 'query',
                     'queryId': other_query.id
                 }]
@@ -362,6 +371,55 @@ class QueryRefreshTest(BaseTestCase):
 
         response = self.make_request('post', '{}?api_key={}'.format(self.path, self.factory.user.api_key), user=False)
         self.assertEqual(200, response.status_code)
+
+
+class TestQueryRegenerateApiKey(BaseTestCase):
+    def test_non_admin_cannot_regenerate_api_key_of_other_user(self):
+        query_creator = self.factory.create_user()
+        query = self.factory.create_query(user=query_creator)
+        other_user = self.factory.create_user()
+        orig_api_key = query.api_key
+
+        rv = self.make_request('post', "/api/queries/{}/regenerate_api_key".format(query.id), user=other_user)
+        self.assertEqual(rv.status_code, 403)
+
+        reloaded_query = models.Query.query.get(query.id)
+        self.assertEquals(orig_api_key, reloaded_query.api_key)
+
+    def test_admin_can_regenerate_api_key_of_other_user(self):
+        query_creator = self.factory.create_user()
+        query = self.factory.create_query(user=query_creator)
+        admin_user = self.factory.create_admin()
+        orig_api_key = query.api_key
+
+        rv = self.make_request('post', "/api/queries/{}/regenerate_api_key".format(query.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        reloaded_query = models.Query.query.get(query.id)
+        self.assertNotEquals(orig_api_key, reloaded_query.api_key)
+
+    def test_admin_can_regenerate_api_key_of_myself(self):
+        query_creator = self.factory.create_user()
+        admin_user = self.factory.create_admin()
+        query = self.factory.create_query(user=query_creator)
+        orig_api_key = query.api_key
+
+        rv = self.make_request('post', "/api/queries/{}/regenerate_api_key".format(query.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        updated_query = models.Query.query.get(query.id)
+        self.assertNotEquals(orig_api_key, updated_query.api_key)
+
+    def test_user_can_regenerate_api_key_of_myself(self):
+        user = self.factory.create_user()
+        query = self.factory.create_query(user=user)
+        orig_api_key = query.api_key
+
+        rv = self.make_request('post', "/api/queries/{}/regenerate_api_key".format(query.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        updated_query = models.Query.query.get(query.id)
+        self.assertNotEquals(orig_api_key, updated_query.api_key)
 
 
 class TestQueryForkResourcePost(BaseTestCase):

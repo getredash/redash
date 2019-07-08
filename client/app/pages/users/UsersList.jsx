@@ -194,6 +194,7 @@ class UsersList extends React.Component {
             />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.PageSizeSelect
+              className="m-b-10"
               options={controller.pageSizeOptions}
               value={controller.itemsPerPage}
               onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}

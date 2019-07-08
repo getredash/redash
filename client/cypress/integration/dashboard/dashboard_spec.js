@@ -1,8 +1,24 @@
-const DRAG_PLACEHOLDER_SELECTOR = '.grid-stack-placeholder';
+/* global cy, Cypress */
 
-function createNewDashboardByAPI(name) {
-  return cy.request('POST', 'api/dashboards', { name })
-    .then(({ body }) => body);
+import { createDashboard, createQuery, addTextbox, addWidget } from '../../support/redash-api';
+
+const { get } = Cypress._;
+
+const RESIZE_HANDLE_SELECTOR = '.react-resizable-handle';
+
+
+function getWidgetTestId(widget) {
+  return `WidgetId${widget.id}`;
+}
+
+function createQueryAndAddWidget(dashboardId, queryData = {}) {
+  return createQuery(queryData)
+    .then((query) => {
+      const visualizationId = get(query, 'visualizations.0.id');
+      assert.isDefined(visualizationId, 'Query api call returns at least one visualization with id');
+      return addWidget(dashboardId, visualizationId);
+    })
+    .then(getWidgetTestId);
 }
 
 function editDashboard() {
@@ -15,90 +31,26 @@ function editDashboard() {
     });
 }
 
-function addTextboxByAPI(text, dashId) {
-  const data = {
-    width: 1,
-    dashboard_id: dashId,
-    visualization_id: null,
-    text: 'text',
-    options: {
-      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    },
-  };
-
-  return cy.request('POST', 'api/widgets', data)
-    .then(({ body }) => {
-      const id = Cypress._.get(body, 'id');
-      assert.isDefined(id, 'Widget api call returns widget id');
-      return `WidgetId${id}`;
-    });
-}
-
-function addQueryByAPI(data, shouldPublish = true) {
-  const merged = Object.assign({
-    name: 'Test Query',
-    query: 'select 1',
-    data_source_id: 1,
-    options: {
-      parameters: [],
-    },
-    schedule: null,
-  }, data);
-
-  const request = cy.request('POST', '/api/queries', merged);
-  if (shouldPublish) {
-    request.then(({ body }) => cy.request('POST', `/api/queries/${body.id}`, { is_draft: false }));
+function dragBy(wrapper, offsetLeft, offsetTop, force = false) {
+  if (!offsetLeft) {
+    offsetLeft = 1;
   }
-
-  return request.then(({ body }) => body);
-}
-
-function addWidgetByAPI(dashId, queryData = {}) {
-  const data = {
-    width: 1,
-    dashboard_id: dashId,
-    visualization_id: null,
-    options: {
-      position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
-    },
-  };
-
-  return addQueryByAPI(queryData)
-    .then((query) => {
-      const visId = Cypress._.get(query, 'visualizations.0.id');
-      assert.isDefined(visId, 'Query api call returns at least one visualization with id');
-      data.visualization_id = visId;
-
-      return cy.request('POST', 'api/widgets', data);
-    })
-    .then(({ body }) => {
-      const id = Cypress._.get(body, 'id');
-      assert.isDefined(id, 'Widget api call returns widget id');
-      return `WidgetId${id}`;
-    });
-}
-
-function dragBy(wrapper, offsetTop = 0, offsetLeft = 0) {
-  let start;
-  let end;
+  if (!offsetTop) {
+    offsetTop = 1;
+  }
   return wrapper
-    .then(($el) => {
-      start = $el.offset();
-      return wrapper
-        .trigger('mousedown', { pageX: start.left, pageY: start.top, which: 1 })
-        .trigger('mousemove', { pageX: start.left + offsetLeft, pageY: start.top + offsetTop, which: 1 });
-    })
-    .then(() => {
-      // getting end position from placeholder instead of $el
-      // cause on mouseup, $el animates back to position
-      // and this is simpler than waiting for animationend
-      end = Cypress.$(DRAG_PLACEHOLDER_SELECTOR).offset();
-      return wrapper.trigger('mouseup');
-    })
-    .then(() => ({
-      left: end.left - start.left,
-      top: end.top - start.top,
-    }));
+    .trigger('mouseover', { force })
+    .trigger('mousedown', 'topLeft', { force })
+    .trigger('mousemove', 1, 1, { force }) // must have at least 2 mousemove events for react-grid-layout to trigger onLayoutChange
+    .trigger('mousemove', offsetLeft, offsetTop, { force })
+    .trigger('mouseup', { force });
+}
+
+function resizeBy(wrapper, offsetLeft = 0, offsetTop = 0) {
+  return wrapper
+    .within(() => {
+      dragBy(cy.get(RESIZE_HANDLE_SELECTOR), offsetLeft, offsetTop, true);
+    });
 }
 
 describe('Dashboard', () => {
@@ -109,12 +61,14 @@ describe('Dashboard', () => {
   it('creates new dashboard', () => {
     cy.visit('/dashboards');
     cy.getByTestId('CreateButton').click();
-    cy.get('li[role="menuitem"]').contains('Dashboard').click();
+    cy.get('li[role="menuitem"]')
+      .contains('Dashboard')
+      .click();
 
     cy.server();
     cy.route('POST', 'api/dashboards').as('NewDashboard');
 
-    cy.getByTestId('EditDashboardDialog').within(() => {
+    cy.getByTestId('CreateDashboardDialog').within(() => {
       cy.getByTestId('DashboardSaveButton').should('be.disabled');
       cy.get('input').type('Foo Bar');
       cy.getByTestId('DashboardSaveButton').click();
@@ -132,7 +86,7 @@ describe('Dashboard', () => {
   });
 
   it('archives dashboard', () => {
-    createNewDashboardByAPI('Foo Bar').then(({ slug }) => {
+    createDashboard('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
       cy.getByTestId('DashboardMoreMenu')
@@ -157,7 +111,7 @@ describe('Dashboard', () => {
 
   describe('Textbox', () => {
     beforeEach(function () {
-      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+      createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboard/${slug}`;
       });
@@ -167,16 +121,16 @@ describe('Dashboard', () => {
       cy.visit(this.dashboardUrl);
       editDashboard();
       cy.contains('a', 'Add Textbox').click();
-      cy.get('.add-textbox').within(() => {
+      cy.getByTestId('TextboxDialog').within(() => {
         cy.get('textarea').type('Hello World!');
       });
       cy.contains('button', 'Add to Dashboard').click();
-      cy.get('.add-textbox').should('not.exist');
+      cy.getByTestId('TextboxDialog').should('not.exist');
       cy.get('.textbox').should('exist');
     });
 
     it('removes textbox by X button', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
 
@@ -189,25 +143,29 @@ describe('Dashboard', () => {
     });
 
     it('removes textbox by menu', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         cy.getByTestId(elTestId)
           .within(() => {
-            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-              cy.get('li a').contains('Remove From Dashboard').click({ force: true });
-            });
+            cy.get('.widget-menu-regular')
+              .click({ force: true })
+              .within(() => {
+                cy.get('li a')
+                  .contains('Remove From Dashboard')
+                  .click({ force: true });
+              });
           })
           .should('not.exist');
       });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('allows opening menu after removal', function () {
+    it('allows opening menu after removal', function () {
       let elTestId1;
-      addTextboxByAPI('txb 1', this.dashboardId)
+      addTextbox(this.dashboardId, 'txb 1')
+        .then(getWidgetTestId)
         .then((elTestId) => {
           elTestId1 = elTestId;
-          return addTextboxByAPI('txb 2', this.dashboardId);
+          return addTextbox(this.dashboardId, 'txb 2').then(getWidgetTestId);
         })
         .then((elTestId2) => {
           cy.visit(this.dashboardUrl);
@@ -233,33 +191,64 @@ describe('Dashboard', () => {
     });
 
     it('edits textbox', function () {
-      addTextboxByAPI('Hello World!', this.dashboardId).then((elTestId) => {
+      addTextbox(this.dashboardId, 'Hello World!').then(getWidgetTestId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId).as('textboxEl')
+        cy.getByTestId(elTestId)
+          .as('textboxEl')
           .within(() => {
-            cy.get('.widget-menu-regular').click({ force: true }).within(() => {
-              cy.get('li a').contains('Edit').click({ force: true });
-            });
+            cy.get('.widget-menu-regular')
+              .click({ force: true })
+              .within(() => {
+                cy.get('li a')
+                  .contains('Edit')
+                  .click({ force: true });
+              });
           });
 
         const newContent = '[edited]';
-        cy.get('edit-text-box').should('exist').within(() => {
-          cy.get('textarea').clear().type(newContent);
-          cy.contains('button', 'Save').click();
-        });
+        cy.getByTestId('TextboxDialog')
+          .should('exist')
+          .within(() => {
+            cy.get('textarea')
+              .clear()
+              .type(newContent);
+            cy.contains('button', 'Save').click();
+          });
 
         cy.get('@textboxEl').should('contain', newContent);
       });
+    });
+
+    it('renders textbox according to position configuration', function () {
+      const id = this.dashboardId;
+      const txb1Pos = { col: 0, row: 0, sizeX: 3, sizeY: 2 };
+      const txb2Pos = { col: 1, row: 1, sizeX: 3, sizeY: 4 };
+
+      cy.viewport(1215, 800);
+      addTextbox(id, 'x', { position: txb1Pos })
+        .then(() => addTextbox(id, 'x', { position: txb2Pos }))
+        .then(getWidgetTestId)
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          return cy.getByTestId(elTestId);
+        })
+        .should(($el) => {
+          const { top, left } = $el.offset();
+          expect(top).to.eq(214);
+          expect(left).to.eq(215);
+          expect($el.width()).to.eq(585);
+          expect($el.height()).to.eq(185);
+        });
     });
   });
 
   describe('Grid compliant widgets', () => {
     beforeEach(function () {
       cy.viewport(1215, 800);
-      createNewDashboardByAPI('Foo Bar')
+      createDashboard('Foo Bar')
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
-          return addTextboxByAPI('Hello World!', id);
+          return addTextbox(id, 'Hello World!').then(getWidgetTestId);
         })
         .then((elTestId) => {
           cy.visit(this.dashboardUrl);
@@ -269,83 +258,118 @@ describe('Dashboard', () => {
 
     describe('Draggable', () => {
       describe('Grid snap', () => {
-        beforeEach(function () {
+        beforeEach(() => {
           editDashboard();
         });
 
         it('stays put when dragged under snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 90).then((delta) => {
-            expect(delta.left).to.eq(0);
-          });
+          dragBy(cy.get('@textboxEl'), 90)
+            .invoke('offset')
+            .should('have.property', 'left', 15); // no change, 15 -> 15
         });
 
         it('moves one column when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 110).then((delta) => {
-            expect(delta.left).to.eq(200);
-          });
+          dragBy(cy.get('@textboxEl'), 110)
+            .invoke('offset')
+            .should('have.property', 'left', 215); //  moved by 200, 15 -> 215
         });
 
         it('moves two columns when dragged over snap threshold', () => {
-          dragBy(cy.get('@textboxEl'), 0, 330).then((delta) => {
-            expect(delta.left).to.eq(400);
-          });
+          dragBy(cy.get('@textboxEl'), 330)
+            .invoke('offset')
+            .should('have.property', 'left', 415); //  moved by 400, 15 -> 415
         });
       });
 
-      it('discards drag on cancel', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // cancel
-          .then(() => {
-            cy.get('.dashboard-header').within(() => {
-              cy.contains('button', 'Cancel').click();
-            });
-            return cy.get('@textboxEl');
-          })
-          // verify returned to original position
-          .then(($el) => {
-            expect($el.offset()).to.deep.eq(start);
-          });
+      it('auto saves after drag', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
+
+        editDashboard();
+        dragBy(cy.get('@textboxEl'), 330);
+        cy.wait('@WidgetSave');
+      });
+    });
+
+    describe('Resizeable', () => {
+      describe('Column snap', () => {
+        beforeEach(() => {
+          editDashboard();
+        });
+
+        it('stays put when dragged under snap threshold', () => {
+          resizeBy(cy.get('@textboxEl'), 90)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 585); // no change, 585 -> 585
+        });
+
+        it('moves one column when dragged over snap threshold', () => {
+          resizeBy(cy.get('@textboxEl'), 110)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 785); // resized by 200, 585 -> 785
+        });
+
+        it('moves two columns when dragged over snap threshold', () => {
+          resizeBy(cy.get('@textboxEl'), 400)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('width')
+            .should('eq', 985); // resized by 400, 585 -> 985
+        });
       });
 
-      it('saves drag on apply', () => {
-        let start;
-        cy.get('@textboxEl')
-          // save initial position, drag textbox 1 col
-          .then(($el) => {
-            start = $el.offset();
-            editDashboard();
-            return dragBy(cy.get('@textboxEl'), 0, 200);
-          })
-          // apply
-          .then(() => {
-            cy.contains('button', 'Apply Changes').click();
-            return cy.get('@textboxEl');
-          })
-          // verify move
-          .then(($el) => {
-            expect($el.offset()).to.not.deep.eq(start);
-          });
+      describe('Row snap', () => {
+        beforeEach(() => {
+          editDashboard();
+        });
+
+        it('stays put when dragged under snap threshold', () => {
+          resizeBy(cy.get('@textboxEl'), 0, 10)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('height')
+            .should('eq', 135); // no change, 135 -> 135
+        });
+
+        it('moves one row when dragged over snap threshold', () => {
+          resizeBy(cy.get('@textboxEl'), 0, 30)
+            .then(() => cy.get('@textboxEl'))
+            .invoke('height')
+            .should('eq', 185); // resized by 50, , 135 -> 185
+        });
+
+        it('shrinks to minimum', () => {
+          cy.get('@textboxEl')
+            .then($el => resizeBy(cy.get('@textboxEl'), -$el.width(), -$el.height())) // resize to 0,0
+            .then(() => cy.get('@textboxEl'))
+            .should(($el) => {
+              expect($el.width()).to.eq(185); // min textbox width
+              expect($el.height()).to.eq(35); // min textbox height
+            });
+        });
+      });
+
+      it('auto saves after resize', () => {
+        cy.server();
+        cy.route('POST', 'api/widgets/*').as('WidgetSave');
+
+        editDashboard();
+        resizeBy(cy.get('@textboxEl'), 200);
+        cy.wait('@WidgetSave');
       });
     });
   });
 
   describe('Widget', () => {
     beforeEach(function () {
-      createNewDashboardByAPI('Foo Bar').then(({ slug, id }) => {
+      createDashboard('Foo Bar').then(({ slug, id }) => {
         this.dashboardId = id;
         this.dashboardUrl = `/dashboard/${slug}`;
       });
     });
 
     it('adds widget', function () {
-      addQueryByAPI().then(({ id: queryId }) => {
+      createQuery().then(({ id: queryId }) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
         cy.contains('a', 'Add Widget').click();
@@ -359,7 +383,7 @@ describe('Dashboard', () => {
     });
 
     it('removes widget', function () {
-      addWidgetByAPI(this.dashboardId).then((elTestId) => {
+      createQueryAndAddWidget(this.dashboardId).then((elTestId) => {
         cy.visit(this.dashboardUrl);
         editDashboard();
         cy.getByTestId(elTestId)
@@ -376,7 +400,7 @@ describe('Dashboard', () => {
           query: 'select s.a FROM generate_series(1,2) AS s(a)',
         };
 
-        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
@@ -389,13 +413,155 @@ describe('Dashboard', () => {
           query: 'select s.a FROM generate_series(1,5) AS s(a)',
         };
 
-        addWidgetByAPI(this.dashboardId, queryData).then((elTestId) => {
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
             .should('eq', 335);
         });
       });
+
+      describe('Height behavior on refresh', () => {
+        const paramName = 'count';
+        const queryData = {
+          query: `select s.a FROM generate_series(1,{{ ${paramName} }}) AS s(a)`,
+        };
+
+        beforeEach(function () {
+          createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+            cy.visit(this.dashboardUrl);
+            cy.getByTestId(elTestId).as('widget').within(() => {
+              cy.getByTestId('RefreshIndicator').as('refreshButton');
+            });
+            cy.getByTestId(`ParameterName-${paramName}`).within(() => {
+              cy.getByTestId('TextParamInput').as('paramInput');
+            });
+          });
+        });
+
+        it('grows when dynamically adding table rows', () => {
+          // listen to results
+          cy.server();
+          cy.route('GET', 'api/query_results/*').as('FreshResults');
+
+          // start with 1 table row
+          cy.get('@paramInput').clear().type('1{enter}');
+          cy.wait('@FreshResults', { timeout: 10000 });
+          cy.get('@widget').invoke('height').should('eq', 285);
+
+          // add 4 table rows
+          cy.get('@paramInput').clear().type('5{enter}');
+          cy.wait('@FreshResults', { timeout: 10000 });
+
+          // expect to height to grow by 1 grid grow
+          cy.get('@widget').invoke('height').should('eq', 435);
+        });
+
+        it('revokes auto height after manual height adjustment', () => {
+          // listen to results
+          cy.server();
+          cy.route('GET', 'api/query_results/*').as('FreshResults');
+
+          editDashboard();
+
+          // start with 1 table row
+          cy.get('@paramInput').clear().type('1{enter}');
+          cy.wait('@FreshResults');
+          cy.get('@widget').invoke('height').should('eq', 285);
+
+          // resize height by 1 grid row
+          resizeBy(cy.get('@widget'), 0, 50)
+            .then(() => cy.get('@widget'))
+            .invoke('height')
+            .should('eq', 335); // resized by 50, , 135 -> 185
+
+          // add 4 table rows
+          cy.get('@paramInput').clear().type('5{enter}');
+          cy.wait('@FreshResults');
+
+          // expect height to stay unchanged (would have been 435)
+          cy.get('@widget').invoke('height').should('eq', 335);
+        });
+      });
+    });
+  });
+
+  context('viewport width is at 800px', () => {
+    before(function () {
+      cy.login();
+      createDashboard('Foo Bar')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          this.dashboardEditUrl = `/dashboard/${slug}?edit`;
+          return addTextbox(id, 'Hello World!').then(getWidgetTestId);
+        })
+        .then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId).as('textboxEl');
+        });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(800, 800);
+    });
+
+    it('shows widgets with full width', () => {
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(770);
+      });
+
+      cy.viewport(801, 800);
+      cy.get('@textboxEl').should(($el) => {
+        expect($el.width()).to.eq(378);
+      });
+    });
+
+    it('hides edit option', () => {
+      cy.getByTestId('DashboardMoreMenu')
+        .click()
+        .should('be.visible')
+        .within(() => {
+          cy.get('li')
+            .contains('Edit')
+            .as('editButton')
+            .should('not.be.visible');
+        });
+
+      cy.viewport(801, 800);
+      cy.get('@editButton').should('be.visible');
+    });
+
+    it('disables edit mode', function () {
+      cy.visit(this.dashboardEditUrl);
+      cy.contains('button', 'Done Editing')
+        .as('saveButton')
+        .should('be.disabled');
+
+      cy.viewport(801, 800);
+      cy.get('@saveButton').should('not.be.disabled');
+    });
+  });
+
+  context('viewport width is at 767px', () => {
+    before(function () {
+      cy.login();
+      createDashboard('Foo Bar').then(({ slug }) => {
+        this.dashboardUrl = `/dashboard/${slug}`;
+      });
+    });
+
+    beforeEach(function () {
+      cy.visit(this.dashboardUrl);
+      cy.viewport(767, 800);
+    });
+
+    it('hides menu button', () => {
+      cy.get('.dashboard__control').should('exist');
+      cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
+
+      cy.viewport(768, 800);
+      cy.getByTestId('DashboardMoreMenu').should('be.visible');
     });
   });
 });

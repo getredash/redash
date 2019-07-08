@@ -4,7 +4,7 @@ describe('Create Query', () => {
     cy.visit('/queries/new');
   });
 
-  it('executes the query', () => {
+  it('executes and saves a query', () => {
     cy.getByTestId('SelectDataSource')
       .click()
       .contains('Test PostgreSQL').click();
@@ -17,5 +17,8 @@ describe('Create Query', () => {
 
     cy.getByTestId('DynamicTable').should('exist');
     cy.percySnapshot('Edit Query');
+
+    cy.getByTestId('SaveButton').click();
+    cy.url().should('match', /\/queries\/\d+\/source/);
   });
 });

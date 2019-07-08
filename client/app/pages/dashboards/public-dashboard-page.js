@@ -1,5 +1,6 @@
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
+import dashboardGridOptions from '@/config/dashboard-grid-options';
 import './dashboard.less';
 
 function loadDashboard($http, $route) {
@@ -12,8 +13,10 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($timeout, $location, $http, $route, dashboardGridOptions, Dashboard) {
+  controller($scope, $timeout, $location, $http, $route, Dashboard) {
     'ngInject';
+
+    this.filters = [];
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
@@ -31,6 +34,13 @@ const PublicDashboardPage = {
         loadDashboard($http, $route).then((data) => {
           this.dashboard = data;
           this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
+          this.dashboard.widgets.forEach(widget => widget.load());
+
+          this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
+          this.filtersOnChange = (allFilters) => {
+            this.filters = allFilters;
+            $scope.$applyAsync();
+          };
 
           $timeout(refresh, refreshRate * 1000.0);
         });

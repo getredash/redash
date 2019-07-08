@@ -131,7 +131,7 @@ function EditParameterSettingsDialog(props) {
       footer={[(
         <Button key="cancel" onClick={props.dialog.dismiss}>Cancel</Button>
       ), (
-        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm">
+        <Button key="submit" htmlType="submit" disabled={!isFulfilled()} type="primary" form="paramForm" data-test="SaveParameterSettings">
           {isNew ? 'Add Parameter' : 'OK'}
         </Button>
       )]}
@@ -153,16 +153,16 @@ function EditParameterSettingsDialog(props) {
           />
         </Form.Item>
         <Form.Item label="Type" {...formItemProps}>
-          <Select value={param.type} onChange={type => setParam({ ...param, type })}>
-            <Option value="text">Text</Option>
-            <Option value="number">Number</Option>
+          <Select value={param.type} onChange={type => setParam({ ...param, type })} data-test="ParameterTypeSelect">
+            <Option value="text" data-test="TextParameterTypeOption">Text</Option>
+            <Option value="number" data-test="NumberParameterTypeOption">Number</Option>
             <Option value="enum">Dropdown List</Option>
             <Option value="query">Query Based Dropdown List</Option>
             <Option disabled key="dv1">
               <Divider className="select-option-divider" />
             </Option>
-            <Option value="date">Date</Option>
-            <Option value="datetime-local">Date and Time</Option>
+            <Option value="date" data-test="DateParameterTypeOption">Date</Option>
+            <Option value="datetime-local" data-test="DateTimeParameterTypeOption">Date and Time</Option>
             <Option value="datetime-with-seconds">Date and Time (with seconds)</Option>
             <Option disabled key="dv2">
               <Divider className="select-option-divider" />
@@ -177,6 +177,7 @@ function EditParameterSettingsDialog(props) {
             <Checkbox
               defaultChecked={param.useCurrentDateTime}
               onChange={e => setParam({ ...param, useCurrentDateTime: e.target.checked })}
+              data-test="UseCurrentDateTimeCheckbox"
             >
               Default to Today/Now if no other value is set
             </Checkbox>

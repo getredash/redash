@@ -33,13 +33,27 @@ function stopServer() {
 }
 
 function runCypressCI() {
-  const { PERCY_TOKEN_ENCODED, CIRCLE_REPOSITORY_URL } = process.env;
+  const {
+    PERCY_TOKEN_ENCODED,
+    CYPRESS_PROJECT_ID_ENCODED,
+    CYPRESS_RECORD_KEY_ENCODED,
+    CIRCLE_REPOSITORY_URL,
+  } = process.env;
 
-  if (PERCY_TOKEN_ENCODED && CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
-    process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
+  if (CIRCLE_REPOSITORY_URL && CIRCLE_REPOSITORY_URL.includes('getredash/redash')) {
+    if (PERCY_TOKEN_ENCODED) {
+      process.env.PERCY_TOKEN = atob(`${PERCY_TOKEN_ENCODED}`);
+    }
+    if (CYPRESS_PROJECT_ID_ENCODED) {
+      process.env.CYPRESS_PROJECT_ID = atob(`${CYPRESS_PROJECT_ID_ENCODED}`);
+    }
+    if (CYPRESS_RECORD_KEY_ENCODED) {
+      process.env.CYPRESS_RECORD_KEY = atob(`${CYPRESS_RECORD_KEY_ENCODED}`);
+    }
   }
+
   execSync(
-    'docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser chrome',
+    'docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record',
     { stdio: 'inherit' },
   );
 }
@@ -54,7 +68,7 @@ switch (command) {
     seedDatabase(seedData);
     break;
   case 'run':
-    execSync('cypress run --browser chrome', { stdio: 'inherit' });
+    execSync('cypress run', { stdio: 'inherit' });
     break;
   case 'open':
     execSync('cypress open', { stdio: 'inherit' });
@@ -68,7 +82,7 @@ switch (command) {
   case 'all':
     startServer();
     seedDatabase(seedData);
-    execSync('cypress run --browser chrome', { stdio: 'inherit' });
+    execSync('cypress run', { stdio: 'inherit' });
     stopServer();
     break;
   default:

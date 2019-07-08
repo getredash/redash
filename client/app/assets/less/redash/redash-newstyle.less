@@ -23,14 +23,9 @@ body {
 
   &.headless {
     padding-top: 10px;
-    padding-bottom: 15px;
 
     .navbar {
       display: none !important;
-    }
-
-    div#footer {
-      display: none;
     }
   }
 }
@@ -242,10 +237,8 @@ body {
   float: right;
 }
 
-.database-source {
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.visual-card-list {
+  margin: -5px 0 0 -5px; // compensate for .visual-card spacing
 }
 
 .visual-card {
@@ -262,7 +255,6 @@ body {
   transition-property: box-shadow;
 
   display: flex;
-  //flex-direction: row;
   align-items: center;
 
   &:hover {
@@ -281,31 +273,6 @@ body {
     margin: 0 !important;
     text-overflow: ellipsis;
     overflow: hidden;
-  }
-}
-
-.visual-card--selected {
-  background: fade(@redash-gray, 3%);
-  border: 1px solid fade(@redash-gray, 15%);
-  border-radius: 3px;
-  padding: 0 15px;
-  box-shadow: none;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-
-  justify-content: space-around;
-  margin-bottom: 15px;
-  width: 100%;
-
-  img {
-    width: 64px;
-    height: 64px;
-  }
-
-  a {
-    cursor: pointer;
   }
 }
 
@@ -336,7 +303,6 @@ body {
   .visual-card {
     width: 100%;
     padding: 5px;
-    margin: 5px 0;
 
     img {
       width: 48px;
@@ -353,12 +319,6 @@ body {
     margin-bottom: 0;
     line-height: 2.2;
   }
-}
-
-#footer {
-  height: auto;
-  line-height: 3;
-  padding: 20px;
 }
 
 .page-header-wrapper, .page-header--new {
@@ -975,4 +935,64 @@ text.slicetext {
 .table-data .label-tag {
   display: inline-block;
   max-width: 135px;
+}
+
+.markdown strong {
+  font-weight: bold;
+}
+
+.markdown img {
+  max-width: 100%;
+}
+
+.loading-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  margin: -50px 0 0 -50px; // center
+  width: 100px;
+  height: 100px;
+  transition-duration: 150ms;
+  transition-timing-function: linear;
+  transition-property: opacity, transform;
+
+  #css-logo {
+    animation: hover 2s infinite;
+  }
+
+  #shadow {
+    width: 33px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: black;
+    opacity: 0.25;
+    display: block;
+    position: absolute;
+    left: 34px;
+    top: 115px;
+    animation: shadow 2s infinite;
+  }
+
+  @keyframes hover {
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  @keyframes shadow {
+    50% {
+      transform: scaleX(0.9);
+      opacity: 0.2;
+    }
+  }
+}
+
+// hide indicator when app-view has content
+app-view:not(:empty) ~ .loading-indicator {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+
+  * {
+    animation: none !important;
+  }
 }

@@ -1,6 +1,6 @@
 import pystache
 from functools import partial
-from flask_login import current_user
+from flask_restful import abort
 from numbers import Number
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
@@ -16,22 +16,21 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": unicode(row[value_column])}
 
 
-def _load_result(query_id, should_require_access):
+def _load_result(query_id):
     from redash.authentication.org_resolving import current_org
     from redash import models
 
     query = models.Query.get_by_id_and_org(query_id, current_org)
 
-    if should_require_access:
-        require_access(query.data_source.groups, current_user, view_only)
+    if query.data_source:
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
+        return json_loads(query_result.data)
+    else:
+        abort(400, message="This query is detached from any data source. Please select a different query.")
 
-    query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
 
-    return json_loads(query_result.data)
-
-
-def dropdown_values(query_id, should_require_access=True):
-    data = _load_result(query_id, should_require_access)
+def dropdown_values(query_id):
+    data = _load_result(query_id)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return map(pluck, data["rows"])
@@ -65,6 +64,17 @@ def _parameter_names(parameter_values):
             names.append(key)
 
     return names
+
+
+def _is_number(string):
+    if isinstance(string, Number):
+        return True
+    else:
+        try:
+            float(string)
+            return True
+        except ValueError:
+            return False
 
 
 def _is_date(string):
@@ -110,7 +120,7 @@ class ParameterizedQuery(object):
 
         validators = {
             "text": lambda value: isinstance(value, basestring),
-            "number": lambda value: isinstance(value, Number),
+            "number": _is_number,
             "enum": lambda value: value in definition["enumOptions"],
             "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
             "date": _is_date,
@@ -142,5 +152,6 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        message = u"The following parameter values are incompatible with their definitions: {}".format(", ".join(parameters))
+        parameter_names = u", ".join(parameters)
+        message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)

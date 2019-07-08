@@ -149,6 +149,7 @@ class QueryEditor extends React.Component {
     editor.commands.bindKey({ win: 'Ctrl+P', mac: null }, null);
     // Lineup only mac
     editor.commands.bindKey({ win: null, mac: 'Ctrl+P' }, 'golineup');
+    editor.commands.bindKey({ win: 'Ctrl+Shift+F', mac: 'Cmd+Shift+F' }, this.formatQuery);
 
     // Reset Completer in case dot is pressed
     editor.commands.on('afterExec', (e) => {
@@ -266,7 +267,7 @@ class QueryEditor extends React.Component {
                   &#123;&#123;&nbsp;&#125;&#125;
                 </button>
               </Tooltip>
-              <Tooltip placement="top" title="Format Query">
+              <Tooltip placement="top" title={<>Format Query (<i>{modKey} + Shift + F</i>)</>}>
                 <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
@@ -289,7 +290,13 @@ class QueryEditor extends React.Component {
               </select>
               {this.props.canEdit ? (
                 <Tooltip placement="top" title={modKey + ' + S'}>
-                  <button type="button" className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
+                  <button
+                    type="button"
+                    className="btn btn-default m-l-5"
+                    onClick={this.props.saveQuery}
+                    data-test="SaveButton"
+                    title="Save"
+                  >
                     <span className="fa fa-floppy-o" />
                     <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
