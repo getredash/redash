@@ -21,8 +21,8 @@ scheduler() {
 }
 
 dev_worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-1}
-  QUEUES=${QUEUES:-celery}
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
   SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
 
   echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
