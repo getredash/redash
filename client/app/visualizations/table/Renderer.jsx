@@ -4,16 +4,48 @@ import Table from 'antd/lib/table';
 import { RendererPropTypes } from '@/visualizations';
 
 import './renderer.less';
+import TextColumn from './columns/TextColumn';
+import NumberColumn from './columns/NumberColumn';
+import DateTimeColumn from './columns/DateTimeColumn';
+import BooleanColumn from './columns/BooleanColumn';
+import ImageColumn from './columns/ImageColumn';
+import LinkColumn from './columns/LinkColumn';
+
+const ColumnRenderers = {
+  string: TextColumn,
+  number: NumberColumn,
+  datetime: DateTimeColumn,
+  boolean: BooleanColumn,
+  // json:
+  image: ImageColumn,
+  link: LinkColumn,
+};
 
 function prepareColumns(columns) {
   columns = filter(columns, 'visible');
   columns = sortBy(columns, 'order');
 
-  return map(columns, col => ({
-    dataIndex: 'item[' + JSON.stringify(col.name) + ']',
-    title: col.title,
-    align: col.alignContent,
-  }));
+  return map(columns, (column) => {
+    const result = {
+      dataIndex: 'item[' + JSON.stringify(column.name) + ']',
+      title: column.title,
+      align: column.alignContent,
+    };
+
+    const Component = ColumnRenderers[column.displayAs];
+    if (Component) {
+      result.render = (value, row) => (<Component column={column} row={row.item} />);
+    }
+
+    return result;
+  });
+}
+
+function prepareRows(rows) {
+  return map(
+    rows,
+    (item, index) => ({ key: 'row' + index, item }),
+  );
 }
 
 export default function Renderer({ options, data }) {
@@ -25,13 +57,11 @@ export default function Renderer({ options, data }) {
     <div className="table-visualization-container">
       <Table
         columns={prepareColumns(options.columns)}
-        dataSource={map(
-          data.rows,
-          (item, index) => ({ key: 'row' + index, item }),
-        )}
+        dataSource={prepareRows(data.rows)}
         pagination={{
           position: 'bottom',
           pageSize: options.itemsPerPage,
+          hideOnSinglePage: true,
         }}
       />
     </div>

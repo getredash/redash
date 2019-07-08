@@ -1,9 +1,5 @@
-import { isFunction, extend } from 'lodash';
+import { isFunction, extend, trim } from 'lodash';
 import { formatSimpleTemplate } from '@/lib/value-format';
-
-function trim(str) {
-  return str.replace(/^\s+|\s+$/g, '');
-}
 
 function processTags(str, data, defaultColumn) {
   return formatSimpleTemplate(str, extend({
