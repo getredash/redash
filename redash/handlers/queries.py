@@ -112,6 +112,7 @@ class BaseQueryListResource(BaseResource):
                 self.current_user.group_ids,
                 self.current_user.id,
                 include_drafts=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             results = models.Query.all_queries(
@@ -256,6 +257,7 @@ class QueryArchiveResource(BaseQueryListResource):
                 self.current_user.id,
                 include_drafts=False,
                 include_archived=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             return models.Query.all_queries(
