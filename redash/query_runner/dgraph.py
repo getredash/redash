@@ -1,17 +1,11 @@
-from __future__ import absolute_import
-
+import json
 import re
-import logging
-
-logger = logging.getLogger(__name__)
 
 try:
     import pydgraph
     enabled = True
 except ImportError:
     enabled = False
-
-import json
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
@@ -67,9 +61,10 @@ class Dgraph(BaseQueryRunner):
 
     @classmethod
     def remove_comments(cls, s):
-        """From https://stackoverflow.com/a/2319116"""
-        s = re.sub(re.compile("/\*.*?\*/", re.DOTALL),"", s)  # remove all occurrences streamed comments (/*COMMENT */) from string
-        s = re.sub(re.compile("//.*?\n"), "",s)  # remove all occurrence single-line comments (//COMMENT\n ) from string
+        """From https://stackoverflow.com/a/2319116
+
+        Remove all occurrences streamed comments (/*COMMENT */) from string"""
+        s = re.sub(re.compile("/\*.*?\*/", re.DOTALL), "", s)
         return s
 
     def run_query(self, query, user):
