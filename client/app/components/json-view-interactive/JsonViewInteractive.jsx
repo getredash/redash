@@ -7,75 +7,24 @@ import PropTypes from 'prop-types';
 
 import './json-view-interactive.less';
 
-function JsonArray({ value, children }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const count = value.length;
-  const toggle = (
-    <span className="jvi-toggle" onClick={() => setIsExpanded(!isExpanded)}>
-      <i className={cx('fa', { 'fa-caret-right': !isExpanded, 'fa-caret-down': isExpanded })} />
-    </span>
-  );
-  const openingBrace = <span className="jvi-punctuation jvi-braces">[</span>;
-  const closingBrace = <span className="jvi-punctuation jvi-braces">]</span>;
-
-  if (isExpanded) {
-    return (
-      <React.Fragment>
-        {toggle}
-        {openingBrace}
-        <span className="jvi-block">
-          {map(value, (item, index) => {
-            const isFirst = index === 0;
-            const isLast = index === count - 1;
-            const comma = isLast ? null : <span className="jvi-punctuation jvi-comma">,</span>;
-            return (
-              <span
-                key={'item' + index}
-                className={cx('jvi-item', { 'jvi-nested-first': isFirst, 'jvi-nested-last': isLast })}
-              >
-                <JsonValue value={item}>{comma}</JsonValue>
-              </span>
-            );
-          })}
-        </span>
-        {closingBrace}
-        {children}
-      </React.Fragment>
-    );
-  }
-
-  return (
-    <React.Fragment>
-      {toggle}
-      {openingBrace}
-      <span className="jvi-punctuation jvi-ellipsis" onClick={() => setIsExpanded(true)}>&hellip;</span>
-      {closingBrace}
-      {children}
-      <span className="jvi-comment">{' // ' + count + ' ' + (count === 1 ? 'item' : 'items')}</span>
-    </React.Fragment>
-  );
-}
-
-function JsonObject({ value, children }) {
+function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const objectKeys = keys(value);
-
   const count = objectKeys.length;
-  const toggle = (
-    <span className="jvi-toggle" onClick={() => setIsExpanded(!isExpanded)}>
-      <i className={cx('fa', { 'fa-caret-right': !isExpanded, 'fa-caret-down': isExpanded })} />
-    </span>
-  );
-  const openingBrace = <span className="jvi-punctuation jvi-braces">{'{'}</span>;
-  const closingBrace = <span className="jvi-punctuation jvi-braces">{'}'}</span>;
 
-  if (isExpanded) {
-    return (
-      <React.Fragment>
-        {toggle}
-        {openingBrace}
+  return (
+    <React.Fragment>
+      {(count > 0) && (
+        <span className="jvi-toggle" onClick={() => setIsExpanded(!isExpanded)}>
+          <i className={cx('fa', { 'fa-caret-right': !isExpanded, 'fa-caret-down': isExpanded })} />
+        </span>
+      )}
+      <span className="jvi-punctuation jvi-braces">{openingBrace}</span>
+      {!isExpanded && (count > 0) && (
+        <span className="jvi-punctuation jvi-ellipsis" onClick={() => setIsExpanded(true)}>&hellip;</span>
+      )}
+      {isExpanded && (
         <span className="jvi-block">
           {map(objectKeys, (key, index) => {
             const isFirst = index === 0;
@@ -83,33 +32,27 @@ function JsonObject({ value, children }) {
             const comma = isLast ? null : <span className="jvi-punctuation jvi-comma">,</span>;
             return (
               <span
-                key={key}
+                key={'item-' + key}
                 className={cx('jvi-item', { 'jvi-nested-first': isFirst, 'jvi-nested-last': isLast })}
               >
-                <span className="jvi-object-key">
-                  <JsonValue value={key}>
-                    <span className="jvi-punctuation">: </span>
-                  </JsonValue>
-                </span>
+                {withKeys && (
+                  <span className="jvi-object-key">
+                    <JsonValue value={key}>
+                      <span className="jvi-punctuation">: </span>
+                    </JsonValue>
+                  </span>
+                )}
                 <JsonValue value={value[key]}>{comma}</JsonValue>
               </span>
             );
           })}
         </span>
-        {closingBrace}
-        {children}
-      </React.Fragment>
-    );
-  }
-
-  return (
-    <React.Fragment>
-      {toggle}
-      {openingBrace}
-      <span className="jvi-punctuation jvi-ellipsis" onClick={() => setIsExpanded(true)}>&hellip;</span>
-      {closingBrace}
+      )}
+      <span className="jvi-punctuation jvi-braces">{closingBrace}</span>
       {children}
-      <span className="jvi-comment">{' // ' + count + ' ' + (count === 1 ? 'item' : 'items')}</span>
+      {!isExpanded && (
+        <span className="jvi-comment">{' // ' + count + ' ' + (count === 1 ? 'item' : 'items')}</span>
+      )}
     </React.Fragment>
   );
 }
@@ -134,17 +77,17 @@ function JsonValue({ value, children }) {
     );
   }
   if (isArray(value)) {
-    return <JsonArray value={value}>{children}</JsonArray>;
+    return <JsonBlock value={value} openingBrace="[" closingBrace="]">{children}</JsonBlock>;
   }
   if (isObject(value)) {
-    return <JsonObject value={value}>{children}</JsonObject>;
+    return <JsonBlock value={value} openingBrace="{" closingBrace="}" withKeys>{children}</JsonBlock>;
   }
   return null;
 }
 
 export default function JsonViewInteractive({ value }) {
   return (
-    <span className="jvi-item">
+    <span className="jvi-item jvi-root">
       <JsonValue value={value} />
     </span>
   );
@@ -155,5 +98,6 @@ JsonViewInteractive.propTypes = {
 };
 
 JsonViewInteractive.defaultProps = {
-  value: undefined, // `null` will be rendered as "null" is it is a valid JSON value, so use `undefined` for no value
+  // `null` will be rendered as "null" because it is a valid JSON value, so use `undefined` for no value
+  value: undefined,
 };

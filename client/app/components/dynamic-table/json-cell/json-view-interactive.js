@@ -1,6 +1,6 @@
 import { isFunction, isArray, isObject, isString, isNumber, isUndefined, each, keys, filter } from 'lodash';
 import $ from 'jquery';
-import './json-view-interactive.less';
+// import './json-view-interactive.less';
 
 function isPrimitive(value) {
   return (value === null) || (value === false) || (value === true) ||
