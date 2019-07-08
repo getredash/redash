@@ -17,6 +17,7 @@ export default function BooleanColumn({ column, row }) {
 
 BooleanColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     booleanValues: PropTypes.arrayOf(PropTypes.string).isRequired,
   }).isRequired,
   row: PropTypes.object, // eslint-disable-line react/forbid-prop-types

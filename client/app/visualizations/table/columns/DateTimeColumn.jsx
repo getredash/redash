@@ -17,6 +17,7 @@ export default function DateTimeColumn({ column, row }) {
 
 DateTimeColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     dateTimeFormat: PropTypes.string.isRequired,
   }).isRequired,
   row: PropTypes.object, // eslint-disable-line react/forbid-prop-types

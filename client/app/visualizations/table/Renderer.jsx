@@ -10,13 +10,14 @@ import DateTimeColumn from './columns/DateTimeColumn';
 import BooleanColumn from './columns/BooleanColumn';
 import ImageColumn from './columns/ImageColumn';
 import LinkColumn from './columns/LinkColumn';
+import JsonColumn from './columns/JsonColumn';
 
 const ColumnRenderers = {
   string: TextColumn,
   number: NumberColumn,
   datetime: DateTimeColumn,
   boolean: BooleanColumn,
-  // json:
+  json: JsonColumn,
   image: ImageColumn,
   link: LinkColumn,
 };
@@ -34,7 +35,12 @@ function prepareColumns(columns) {
 
     const Component = ColumnRenderers[column.displayAs];
     if (Component) {
-      result.render = (value, row) => (<Component column={column} row={row.item} />);
+      result.render = (value, row) => ({
+        children: <Component column={column} row={row.item} />,
+        props: {
+          className: 'display-as-' + column.displayAs,
+        },
+      });
     }
 
     return result;

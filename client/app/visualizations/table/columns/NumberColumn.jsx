@@ -17,6 +17,7 @@ export default function NumberColumn({ column, row }) {
 
 NumberColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     numberFormat: PropTypes.string.isRequired,
   }).isRequired,
   row: PropTypes.object, // eslint-disable-line react/forbid-prop-types

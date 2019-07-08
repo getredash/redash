@@ -20,6 +20,7 @@ export default function TextColumn({ column, row }) {
 
 TextColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     allowHTML: PropTypes.bool,
     highlightLinks: PropTypes.bool,
   }).isRequired,

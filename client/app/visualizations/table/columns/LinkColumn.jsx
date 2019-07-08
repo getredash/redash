@@ -28,9 +28,11 @@ export default function LinkColumn({ column, row }) {
 
 LinkColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     linkUrlTemplate: PropTypes.string.isRequired,
     linkTitleTemplate: PropTypes.string.isRequired,
     linkTextTemplate: PropTypes.string.isRequired,
+    linkOpenInNewTab: PropTypes.bool,
   }).isRequired,
   row: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 };

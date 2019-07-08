@@ -33,6 +33,7 @@ export default function ImageColumn({ column, row }) {
 
 ImageColumn.propTypes = {
   column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
     imageUrlTemplate: PropTypes.string.isRequired,
     imageWidth: PropTypes.string.isRequired,
     imageHeight: PropTypes.string.isRequired,
