@@ -52,6 +52,17 @@ class QueryTest(BaseTestCase):
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
+    def test_search_finds_in_multi_byte_name_and_description(self):
+        q1 = self.factory.create_query(name="日本語の名前テスト")
+        q2 = self.factory.create_query(description=u"日本語の説明文テスト")
+        q3 = self.factory.create_query(description=u"Testing search")
+
+        queries = Query.search(u"テスト", [self.factory.default_group.id], multi_byte_search=True)
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
     def test_search_by_id_returns_query(self):
         q1 = self.factory.create_query(description=u"Testing search")
         q2 = self.factory.create_query(description=u"Testing searching")
