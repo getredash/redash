@@ -44,6 +44,7 @@ const VisualizationConfig = PropTypes.shape({
   type: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   getOptions: PropTypes.func.isRequired, // (existingOptions: object, data: { columns[], rows[] }) => object
+  isDefault: PropTypes.bool,
   isDeprecated: PropTypes.bool,
   Renderer: PropTypes.func.isRequired,
   Editor: PropTypes.func,
@@ -66,7 +67,10 @@ function validateVisualizationConfig(config) {
 
 export function registerVisualization(config) {
   validateVisualizationConfig(config);
-  config = { ...config }; // clone
+  config = {
+    ...config,
+    isDefault: config.isDefault && !config.isDeprecated,
+  };
 
   if (registeredVisualizations[config.type]) {
     throw new Error(`Visualization ${config.type} already registered.`);
@@ -80,7 +84,9 @@ export function registerVisualization(config) {
 -----------------------------------------------------------*/
 
 export function getDefaultVisualization() {
-  return find(registeredVisualizations, visualization => !visualization.isDeprecated);
+  // return any visualization explicitly marked as default, or any non-deprecated otherwise
+  return find(registeredVisualizations, visualization => visualization.isDefault) ||
+    find(registeredVisualizations, visualization => !visualization.isDeprecated);
 }
 
 export function newVisualization(type = null, options = {}) {
