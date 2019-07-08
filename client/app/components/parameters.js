@@ -1,4 +1,4 @@
-import { extend, forEach } from 'lodash';
+import { extend, forEach, isObject } from 'lodash';
 import template from './parameters.html';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
@@ -10,6 +10,7 @@ function ParametersDirective($location) {
       parameters: '=',
       syncValues: '=?',
       editable: '=?',
+      updateFunction: '=?',
       changed: '&onChange',
       onUpdated: '=',
       onValuesChange: '=',
@@ -63,6 +64,10 @@ function ParametersDirective($location) {
         // reset
         scope.dirtyParams = {};
       };
+
+      if (isObject(scope.updateFunction)) {
+        scope.updateFunction.update = scope.applyChanges;
+      }
 
       scope.onApply = () => {
         scope.$apply(scope.applyChanges);

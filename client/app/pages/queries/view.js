@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray, isFunction } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -115,11 +115,17 @@ function QueryViewCtrl(
     getSchema();
   }
 
+  $scope.parametersTest = {};
+
   $scope.updateSelectedQuery = (selectedQueryText) => {
     $scope.selectedQueryText = selectedQueryText;
   };
 
   $scope.executeQuery = () => {
+    if (isFunction($scope.parametersTest.update)) {
+      $scope.parametersTest.update();
+    }
+
     if (!$scope.canExecuteQuery()) {
       return;
     }
