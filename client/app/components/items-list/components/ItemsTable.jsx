@@ -6,7 +6,7 @@ import Table from 'antd/lib/table';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { TimeAgo } from '@/components/TimeAgo';
 import { durationHumanize } from '@/filters';
-import { formatDateTime } from '@/filters/datetime';
+import { formatDate, formatDateTime } from '@/filters/datetime';
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
@@ -35,6 +35,11 @@ export const Columns = {
       ),
     }, overrides);
   },
+  date(overrides) {
+    return extend({
+      render: text => formatDate(text),
+    }, overrides);
+  },
   dateTime(overrides) {
     return extend({
       render: text => formatDateTime(text),
@@ -59,6 +64,7 @@ export const Columns = {
   },
 };
 
+Columns.date.sortable = sortable;
 Columns.dateTime.sortable = sortable;
 Columns.duration.sortable = sortable;
 Columns.timeAgo.sortable = sortable;
