@@ -65,7 +65,6 @@ export class Parameter {
 
     // validate value and init internal state
     this.setValue(parameter.value);
-    this.clearPendingValue();
 
     // Used for URL serialization
     Object.defineProperty(this, 'urlPrefix', {
