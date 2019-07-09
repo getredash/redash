@@ -50,7 +50,10 @@ describe('Parameter', () => {
 
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
-        .type('{selectall}New value{enter}');
+        .type('{selectall}New value');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
 
       cy.getByTestId('DynamicTable')
         .should('contain', 'New value');
@@ -94,7 +97,10 @@ describe('Parameter', () => {
 
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
-        .type('{selectall}31415{enter}');
+        .type('{selectall}31415');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
 
       cy.getByTestId('DynamicTable')
         .should('contain', 31415);
@@ -319,12 +325,10 @@ describe('Parameter', () => {
 
       createQuery(queryData, false)
         .then(({ id }) => cy.visit(`/queries/${id}/source`));
-
-      cy.getByTestId('ParameterApplyButton').as('ApplyButton');
     });
 
     it('shows and hides according to parameter dirty state', () => {
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .should('not.be', 'visible');
 
       cy.getByTestId('ParameterName-test-parameter-1')
@@ -332,13 +336,13 @@ describe('Parameter', () => {
         .as('Param')
         .type('Redash');
 
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .should('be', 'visible');
 
       cy.get('@Param')
         .clear();
 
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .should('not.be', 'visible');
     });
 
@@ -347,7 +351,7 @@ describe('Parameter', () => {
         .find('input')
         .type('Redash');
 
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .find('.ant-badge-count p.current')
         .should('contain', '1');
 
@@ -355,7 +359,7 @@ describe('Parameter', () => {
         .find('input')
         .type('Redash');
 
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .find('.ant-badge-count p.current')
         .should('contain', '2');
     });
@@ -375,7 +379,7 @@ describe('Parameter', () => {
       cy.server();
       cy.route('POST', 'api/queries/*/results').as('Results');
 
-      cy.get('@ApplyButton')
+      cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.location('search').should('contain', 'Redash');
