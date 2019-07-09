@@ -14,6 +14,19 @@ export function formatDateTime(value) {
   return parsed.format(clientConfig.dateTimeFormat);
 }
 
+export function formatDate(value) {
+  if (!value) {
+    return '';
+  }
+
+  const parsed = moment(value);
+  if (!parsed.isValid()) {
+    return '-';
+  }
+
+  return parsed.format(clientConfig.dateFormat);
+}
+
 export default function init(ngModule) {
   ngModule.filter('toMilliseconds', () => value => value * 1000.0);
   ngModule.filter('dateTime', () => formatDateTime);

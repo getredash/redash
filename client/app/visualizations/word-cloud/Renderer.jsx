@@ -157,12 +157,13 @@ export default function Renderer({ data, options }) {
 
   useEffect(() => {
     if (container) {
-      return resizeObserver(container, () => {
+      const unwatch = resizeObserver(container, () => {
         const svg = container.querySelector('svg');
         if (svg) {
           scaleElement(svg, container);
         }
       });
+      return unwatch;
     }
   }, [container]);
 

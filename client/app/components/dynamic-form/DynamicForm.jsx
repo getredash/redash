@@ -174,6 +174,8 @@ class DynamicForm extends React.Component {
       return field.content;
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
+    } else if (type === 'textarea') {
+      return getFieldDecorator(name, options)(<Input.TextArea {...props} />);
     }
     return getFieldDecorator(name, options)(<Input {...props} />);
   }

@@ -578,13 +578,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,
-               limit=None, include_archived=False):
+               limit=None, include_archived=False, multi_byte_search=False):
         all_queries = cls.all_queries(
             group_ids,
             user_id=user_id,
             include_drafts=include_drafts,
             include_archived=include_archived,
         )
+
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = u'%{}%'.format(term)
+            return all_queries.filter(
+                or_(
+                    cls.name.ilike(pattern),
+                    cls.description.ilike(pattern)
+                )
+            ).order_by(Query.id).limit(limit)
+
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
 
