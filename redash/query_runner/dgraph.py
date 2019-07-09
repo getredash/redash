@@ -1,5 +1,4 @@
 import json
-import re
 
 try:
     import pydgraph
@@ -8,19 +7,7 @@ except ImportError:
     enabled = False
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
-
-TYPES_MAP = {
-    0: TYPE_INTEGER,
-    1: TYPE_FLOAT,
-    2: TYPE_STRING,
-    3: TYPE_DATE,
-    4: TYPE_DATETIME,
-    5: TYPE_STRING,
-    6: TYPE_DATETIME,
-    13: TYPE_BOOLEAN
-}
 
 
 class Dgraph(BaseQueryRunner):
@@ -60,17 +47,12 @@ class Dgraph(BaseQueryRunner):
         return enabled
 
     @classmethod
-    def remove_comments(cls, s):
-        """From https://stackoverflow.com/a/2319116
-
-        Remove all occurrences streamed comments (/*COMMENT */) from string"""
-        s = re.sub(re.compile("/\*.*?\*/", re.DOTALL), "", s)
-        return s
+    def annotate_query(cls):
+        """Dgraph uses '#' as a comment delimiter, not '/* */'"""
+        return False
 
     def run_query(self, query, user):
 
-        # gotta remove comments because Dgraph uses '#' as a comment delimiter, not '/* */'
-        query = Dgraph.remove_comments(query)
         servers = self.configuration.get('servers')
 
         client_stub = pydgraph.DgraphClientStub(servers)
