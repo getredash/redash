@@ -255,7 +255,7 @@ export default function init(ngModule) {
         parameter="$ctrl.param"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
-        allow-multiple-values="$ctrl.param.allowMultipleValues"
+        allow-multiple-values="!!$ctrl.param.multipleValues"
         on-select="$ctrl.setValue"
         apply-button="$ctrl.applyButton"
       ></parameter-value-input-impl>

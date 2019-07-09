@@ -36,10 +36,18 @@ def dropdown_values(query_id):
     return map(pluck, data["rows"])
 
 
-def join_parameter_list_values(parameters):
+def join_parameter_list_values(parameters, schema):
     updated_parameters = {}
     for (key, value) in parameters.iteritems():
-        updated_parameters[key] = ','.join(value) if isinstance(value, list) else value
+        if isinstance(value, list):
+            definition = next((definition for definition in schema if definition["name"] == key), {})
+            multi_values_options = definition.get('multipleValues', {})
+            separator = multi_values_options.get('separator', ',')
+            prefix = multi_values_options.get('prefix', '')
+            suffix = multi_values_options.get('suffix', '')
+            updated_parameters[key] = separator.join(map(lambda v: prefix + v + suffix, value))
+        else:
+            updated_parameters[key] = value
     return updated_parameters
 
 
@@ -118,7 +126,7 @@ class ParameterizedQuery(object):
             raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
-            self.query = mustache_render(self.template, join_parameter_list_values(parameters))
+            self.query = mustache_render(self.template, join_parameter_list_values(parameters, self.schema))
 
         return self
 
@@ -131,14 +139,21 @@ class ParameterizedQuery(object):
         if not definition:
             return False
 
+        enum_options = definition.get('enumOptions')
+        allow_multiple_values = isinstance(definition.get('multipleValues'), dict)
+
+        if isinstance(enum_options, basestring):
+            enum_options = enum_options.split('\n')
+
         validators = {
             "text": lambda value: isinstance(value, basestring),
             "number": _is_number,
-            "enum": lambda value: _is_value_within_options(value,\
-                definition["enumOptions"].split('\n'), definition["allowMultipleValues"]),
-            "query": lambda value: _is_value_within_options(value,\
-                [v["value"] for v in dropdown_values(definition["queryId"])],\
-                definition["allowMultipleValues"]),
+            "enum": lambda value: _is_value_within_options(value,
+                                                           enum_options,
+                                                           allow_multiple_values),
+            "query": lambda value: _is_value_within_options(value,
+                                                            [v["value"] for v in dropdown_values(definition["queryId"])],
+                                                            allow_multiple_values),
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,

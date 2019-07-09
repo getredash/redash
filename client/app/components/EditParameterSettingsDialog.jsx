@@ -204,8 +204,13 @@ function EditParameterSettingsDialog(props) {
         {(param.type === 'enum' || param.type === 'query') && (
           <Form.Item label=" " colon={false} {...formItemProps}>
             <Checkbox
-              defaultChecked={param.allowMultipleValues}
-              onChange={e => setParam({ ...param, allowMultipleValues: e.target.checked })}
+              defaultChecked={!!param.multipleValues}
+              onChange={e => setParam({ ...param,
+                multipleValues: e.target.checked ? {
+                  prefix: '',
+                  suffix: '',
+                  separator: ',',
+                } : null })}
             >
             Allow multiple values
             </Checkbox>
