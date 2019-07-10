@@ -41,10 +41,10 @@ def join_parameter_list_values(parameters, schema):
     for (key, value) in parameters.iteritems():
         if isinstance(value, list):
             definition = next((definition for definition in schema if definition["name"] == key), {})
-            multi_values_options = definition.get('multipleValues', {})
-            separator = multi_values_options.get('separator', ',')
-            prefix = multi_values_options.get('prefix', '')
-            suffix = multi_values_options.get('suffix', '')
+            multi_values_options = definition.get('multiValuesOptions', {})
+            separator = str(multi_values_options.get('separator', ','))
+            prefix = str(multi_values_options.get('prefix', ''))
+            suffix = str(multi_values_options.get('suffix', ''))
             updated_parameters[key] = separator.join(map(lambda v: prefix + v + suffix, value))
         else:
             updated_parameters[key] = value
@@ -140,7 +140,7 @@ class ParameterizedQuery(object):
             return False
 
         enum_options = definition.get('enumOptions')
-        allow_multiple_values = isinstance(definition.get('multipleValues'), dict)
+        allow_multiple_values = isinstance(definition.get('multiValuesOptions'), dict)
 
         if isinstance(enum_options, basestring):
             enum_options = enum_options.split('\n')
