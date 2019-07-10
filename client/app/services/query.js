@@ -316,7 +316,7 @@ class Parameters {
   }
 
   applyPendingValues() {
-    this.get().map(p => p.applyPendingValue());
+    each(this.get(), p => p.applyPendingValue());
   }
 
   toUrlParams() {

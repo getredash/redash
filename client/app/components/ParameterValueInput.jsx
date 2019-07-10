@@ -186,7 +186,8 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderInput() {
-    switch (this.props.type) {
+    const { type } = this.props;
+    switch (type) {
       case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
       case 'datetime-local': return this.renderDateTimeInput();
       case 'date': return this.renderDateInput();
