@@ -1,73 +1,83 @@
 import { map, filter, sortBy } from 'lodash';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import Table from 'antd/lib/table';
+import Input from 'antd/lib/input';
 import { RendererPropTypes } from '@/visualizations';
 
+import ColumnTypes from './columns';
 import './renderer.less';
-import TextColumn from './columns/TextColumn';
-import NumberColumn from './columns/NumberColumn';
-import DateTimeColumn from './columns/DateTimeColumn';
-import BooleanColumn from './columns/BooleanColumn';
-import ImageColumn from './columns/ImageColumn';
-import LinkColumn from './columns/LinkColumn';
-import JsonColumn from './columns/JsonColumn';
 
-const ColumnRenderers = {
-  string: TextColumn,
-  number: NumberColumn,
-  datetime: DateTimeColumn,
-  boolean: BooleanColumn,
-  json: JsonColumn,
-  image: ImageColumn,
-  link: LinkColumn,
-};
-
-function prepareColumns(columns) {
+function prepareColumns(columns, searchInput = null) {
   columns = filter(columns, 'visible');
   columns = sortBy(columns, 'order');
 
-  return map(columns, (column) => {
+  let tableColumns = map(columns, (column) => {
     const result = {
-      dataIndex: 'item[' + JSON.stringify(column.name) + ']',
+      // Column name may contain any characters (or be empty at all), therefore
+      // we cannot use `dataIndex` since it has special syntax and will not work
+      // for all possible column names. Instead, we'll generate `dataIndex` dynamically
+      // based on row index
+      dataIndex: null,
       title: column.title,
       align: column.alignContent,
     };
 
-    const Component = ColumnRenderers[column.displayAs];
-    if (Component) {
-      result.render = (value, row) => ({
-        children: <Component column={column} row={row.item} />,
-        props: {
-          className: 'display-as-' + column.displayAs,
-        },
-      });
-    }
+    const initColumn = ColumnTypes[column.displayAs];
+    const Component = initColumn(column);
+    result.render = (unused, row) => ({
+      children: <Component row={row} />,
+      props: {
+        className: 'display-as-' + column.displayAs,
+      },
+    });
 
     return result;
   });
-}
 
-function prepareRows(rows) {
-  return map(
-    rows,
-    (item, index) => ({ key: 'row' + index, item }),
-  );
+  if (searchInput) {
+    // We need a merged head cell through entire row. With Ant's Table the only way to do it
+    // is to add a single child to every column move `dataIndex` property to it and set
+    // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
+    tableColumns = map(tableColumns, ({ dataIndex, ...rest }, index) => ({
+      ...rest,
+      children: [{
+        dataIndex,
+        colSpan: index === 0 ? tableColumns.length : 0,
+        title: index === 0 ? searchInput : null,
+      }],
+    }));
+  }
+
+  return tableColumns;
 }
 
 export default function Renderer({ options, data }) {
+  const [rowKeyPrefix, setRowKeyPrefix] = useState(0);
+
+  const searchColumns = useMemo(
+    () => filter(options.columns, 'allowSearch'),
+    [options.columns],
+  );
+
   if (data.rows.length === 0) {
     return null;
   }
 
+  const searchInput = searchColumns.length > 0 ? (
+    <Input.Search placeholder="Search..." />
+  ) : null;
+
   return (
     <div className="table-visualization-container">
       <Table
-        columns={prepareColumns(options.columns)}
-        dataSource={prepareRows(data.rows)}
+        columns={prepareColumns(options.columns, searchInput)}
+        dataSource={data.rows}
+        rowKey={(record, index) => rowKeyPrefix + index}
         pagination={{
           position: 'bottom',
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
+          onChange: (page, pageSize) => setRowKeyPrefix(`row:${page}:${pageSize}:`),
         }}
       />
     </div>

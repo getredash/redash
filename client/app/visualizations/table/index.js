@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { angular2react } from 'angular2react';
 import { getColumnCleanName } from '@/services/query-result';
 import { clientConfig } from '@/services/auth';
-import { createFormatter } from '@/lib/value-format';
 import { registerVisualization } from '@/visualizations';
 import template from './table.html';
 import editorTemplate from './table-editor.html';
@@ -123,15 +122,11 @@ function getColumnsOptions(columns, visualizationColumns) {
 
 function getColumnsToDisplay(columns, options) {
   columns = _.fromPairs(_.map(columns, col => [col.name, col]));
-  let result = _.map(options, col => _.extend(
+  const result = _.map(options, col => _.extend(
     getDefaultFormatOptions(col),
     col,
     columns[col.name],
   ));
-
-  result = _.map(result, col => _.extend(col, {
-    formatFunction: createFormatter(col),
-  }));
 
   return _.sortBy(_.filter(result, 'visible'), 'order');
 }
