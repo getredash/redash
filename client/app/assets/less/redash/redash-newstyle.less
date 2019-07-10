@@ -461,6 +461,7 @@ body {
   }
 
   #topRefreshIndicator {
+    transition-duration: 0s;
     .topRefreshIndicator-mini();
   }
 }
@@ -485,20 +486,26 @@ body {
 }
 
 #topRefreshIndicator {
-  position: absolute;
-  top: 9px;
-  right: 13px;
   font-size: 18px;
   color: #499cde;
   transition: all 100ms linear;
-  transition-delay: 200ms;
+  transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
+  float: right;
+  margin-top: -8px;
+  margin-right: 2px;
+  transform: translateX(22px);
+
+  // don't show on widget init
+  .widget-visualization:not([data-result-status]) & {
+    display: none;
+  }
 }
 
 .topRefreshIndicator-mini() {
-  right: 37px;
   font-size: 14px;
   transition-delay: 0s;
   color: #bbbbbb;
+  transform: translateY(-1px);
 }
 
 .tiled {

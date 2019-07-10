@@ -1,9 +1,8 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
-    ng-switch="$ctrl.widget.getQueryResult().getStatus()">
+    ng-switch="$ctrl.widget.getQueryResult().getStatus()" ng-attr-data-result-status="{{ $ctrl.widget.getQueryResult().getStatus() }}">
     <div class="body-row widget-header">
       <div class="t-header widget clearfix">
-        <i ng-if="$ctrl.widget.loading" class="zmdi zmdi-refresh zmdi-hc-spin" id="topRefreshIndicator" />
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
           <div class="actions">
             <a ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
@@ -29,6 +28,9 @@
             <li ng-if="$ctrl.dashboard.canEdit()" class="divider"></li>
             <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
           </ul>
+        </div>
+        <div ng-if="$ctrl.widget.loading" id="topRefreshIndicator">
+          <i class="zmdi zmdi-refresh zmdi-hc-spin" />
         </div>
         <div class="th-title">
           <p>
