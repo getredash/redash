@@ -37,7 +37,7 @@ describe('Parameter', () => {
         .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
-    it('updates the results after clicking in Apply or pressing enter', () => {
+    it('updates the results after clicking Apply', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .type('Redash');
@@ -84,7 +84,7 @@ describe('Parameter', () => {
         .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
-    it('updates the results after clicking in Apply or pressing enter', () => {
+    it('updates the results after clicking Apply', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .type('{selectall}42');
@@ -199,9 +199,9 @@ describe('Parameter', () => {
         .click();
 
       cy.get('.ant-calendar-date-panel')
-        .click() // workaround for datepicker display bug
         .contains('.ant-calendar-date', '15')
-        .click();
+        .click()
+        .click(); // workaround for datepicker display bug
 
       cy.getByTestId('ParameterApplyButton')
         .click();
