@@ -215,7 +215,13 @@ function DashboardCtrl(
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete();
+      // this API call will not modify widgets, but will reload them, so they will
+      // loose their internal state. So we'll save widgets before doing API call and
+      // restore them after.
+      const widgets = this.dashboard.widgets;
+      this.dashboard.$delete().then(() => {
+        this.dashboard.widgets = widgets;
+      });
     };
 
     const title = 'Archive Dashboard';
