@@ -487,13 +487,26 @@ body {
 
 #topRefreshIndicator {
   font-size: 18px;
-  color: #499cde;
+  color: #86a1af;
   transition: all 100ms linear;
   transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
   float: right;
   margin-top: -8px;
   margin-right: 2px;
   transform: translateX(22px);
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: -6px;
+    width: 24px;
+    background-color: #e8ecf0;
+    height: 24px;
+    border-radius: 50%;
+    transition: opacity 100ms linear;
+    transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
+  }
 
   // don't show on widget init
   .widget-visualization:not([data-result-status]) & {
@@ -506,6 +519,11 @@ body {
   transition-delay: 0s;
   color: #bbbbbb;
   transform: translateY(-1px);
+
+  &:before {
+    transition-delay: 0s;
+    opacity: 0;
+  }
 }
 
 .tiled {
