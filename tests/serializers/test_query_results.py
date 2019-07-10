@@ -46,7 +46,6 @@ class CsvSerializationTest(BaseTestCase):
         self.assertEqual(rows[0]['datetime'], '26/05/19 12:39')
         self.assertEqual(rows[1]['datetime'], '')
         self.assertEqual(rows[2]['datetime'], '')
-        self.assertEqual(rows[2]['date'], '')
         self.assertEqual(rows[0]['date'], '26/05/19')
         self.assertEqual(rows[1]['date'], '')
         self.assertEqual(rows[2]['date'], '')
