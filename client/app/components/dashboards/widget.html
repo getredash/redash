@@ -3,6 +3,7 @@
     ng-switch="$ctrl.widget.getQueryResult().getStatus()">
     <div class="body-row widget-header">
       <div class="t-header widget clearfix">
+        <i ng-if="$ctrl.widget.loading" class="zmdi zmdi-refresh zmdi-hc-spin" id="topRefreshIndicator" />
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
           <div class="actions">
             <a ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>

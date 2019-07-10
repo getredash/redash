@@ -459,6 +459,10 @@ body {
   .th-title {
     cursor: move;
   }
+
+  #topRefreshIndicator {
+    .topRefreshIndicator-mini();
+  }
 }
 
 .dashboard-header {
@@ -478,6 +482,23 @@ body {
 
 .bg-ace {
   background-color: fade(@redash-gray, 12%) !important;
+}
+
+#topRefreshIndicator {
+  position: absolute;
+  top: 9px;
+  right: 13px;
+  font-size: 18px;
+  color: #499cde;
+  transition: all 100ms linear;
+  transition-delay: 200ms;
+}
+
+.topRefreshIndicator-mini() {
+  right: 37px;
+  font-size: 14px;
+  transition-delay: 0s;
+  color: #bbbbbb;
 }
 
 .tiled {
@@ -522,6 +543,10 @@ body {
     .widget-menu-regular, .btn__refresh {
       opacity: 1 !important;
       transition: opacity 0.35s ease-in-out;
+    }
+
+    #topRefreshIndicator {
+      .topRefreshIndicator-mini();
     }
   }
 
