@@ -1,7 +1,8 @@
 import cStringIO
 import csv
 import xlsxwriter
-from dateutil.parser import parse as parse_date
+from funcy import rpartial
+from dateutil.parser import isoparse as parse_date
 from redash.utils import json_loads, UnicodeWriter
 from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
 from redash.authentication.org_resolving import current_org
@@ -19,42 +20,39 @@ def _convert_bool(value):
 
     return value
 
-def _convert_date(value):
+
+def _convert_datetime(value, fmt):
     if not value:
         return value
 
-    parsed = parse_date(value)
-
-    return parsed.strftime(_convert_format(current_org.get_setting('date_format')))
-
-
-def _convert_datetime(value):
-    if not value:
+    try:
+        parsed = parse_date(value)
+        ret = parsed.strftime(fmt)
+    except Exception:
         return value
 
-    parsed = parse_date(value)
-
-    fmt = _convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
-    return parsed.strftime(fmt)
-
-
-SPECIAL_TYPES = {
-    TYPE_BOOLEAN: _convert_bool,
-    TYPE_DATE: _convert_date,
-    TYPE_DATETIME: _convert_datetime
-}
+    return ret
 
 
 def _get_column_lists(columns):
+    date_format = _convert_format(current_org.get_setting('date_format'))
+    datetime_format = _convert_format('{} {}'.format(current_org.get_setting('date_format'), current_org.get_setting('time_format')))
+
+    special_types = {
+        TYPE_BOOLEAN: _convert_bool,
+        TYPE_DATE: rpartial(_convert_datetime, date_format),
+        TYPE_DATETIME: rpartial(_convert_datetime, datetime_format)
+    }
+
     fieldnames = []
     special_columns = dict()
 
     for col in columns:
         fieldnames.append(col['name'])
 
-        for col_type in SPECIAL_TYPES.keys():
+        for col_type in special_types.keys():
             if col['type'] == col_type:
-                special_columns[col['name']] = SPECIAL_TYPES[col_type]
+                special_columns[col['name']] = special_types[col_type]
     
     return fieldnames, special_columns
 
