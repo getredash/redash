@@ -219,20 +219,27 @@ class Parameters {
   }
 
   parseQuery() {
+    const fallback = () => map(this.query.options.parameters, i => i.name);
+
     let parameters = [];
-    try {
-      const parts = Mustache.parse(this.query.query);
-      parameters = uniq(collectParams(parts));
-    } catch (e) {
-      logger('Failed parsing parameters: ', e);
-      // Return current parameters so we don't reset the list
-      parameters = map(this.query.options.parameters, i => i.name);
+    if (this.query.query) {
+      try {
+        const parts = Mustache.parse(this.query.query);
+        parameters = uniq(collectParams(parts));
+      } catch (e) {
+        logger('Failed parsing parameters: ', e);
+        // Return current parameters so we don't reset the list
+        parameters = fallback();
+      }
+    } else {
+      parameters = fallback();
     }
+
     return parameters;
   }
 
   updateParameters(update) {
-    if (this.query.query === this.cachedQueryText) {
+    if (this.query.query && this.query.query === this.cachedQueryText) {
       return;
     }
 
@@ -478,10 +485,6 @@ function QueryResource(
   };
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
-    if (!this.query) {
-      return new QueryResultError("Can't execute empty query.");
-    }
-
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -531,6 +534,10 @@ function QueryResource(
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
+    if (!queryText) {
+      return new QueryResultError("Can't execute empty query.");
+    }
+
     const parameters = this.getParameters().getValues();
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);

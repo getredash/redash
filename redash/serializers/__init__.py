@@ -36,7 +36,6 @@ def public_widget(widget):
             'created_at': v.created_at,
             'query': {
                 'id': v.query_rel.id,
-                'query': ' ',  # workaround, as otherwise the query data won't be loaded.
                 'name': v.query_rel.name,
                 'description': v.query_rel.description,
                 'options': v.query_rel.options
