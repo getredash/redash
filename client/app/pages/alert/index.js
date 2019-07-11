@@ -3,12 +3,14 @@ import notification from '@/services/notification';
 import Modal from 'antd/lib/modal';
 import template from './alert.html';
 import AlertTemplate from '@/services/alert-template';
+import { clientConfig } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
 
 function AlertCtrl($scope, $routeParams, $location, $sce, $sanitize, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
   this.hidePreview = false;
   this.alertTemplate = new AlertTemplate();
+  this.showExtendedOptions = clientConfig.extendedAlertOptions;
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');

@@ -47,11 +47,11 @@
               </div>
             </div>
           </div>
-          <div class="form-group" ng-show="$ctrl.selectedQuery">
+          <div class="form-group" ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
             <label>Custom subject</label>
             <input type="string" class="form-control" ng-model="$ctrl.alert.options.subject" ng-disabled="!$ctrl.canEdit">
           </div>
-          <div ng-show="$ctrl.selectedQuery">
+          <div ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
             <div class="form-group" ng-show="$ctrl.selectedQuery">
               <label>Description template</label>
               <i class="fa fa-question-circle" uib-tooltip="{{$ctrl.alertTemplate.helpMessage}}"></i>
