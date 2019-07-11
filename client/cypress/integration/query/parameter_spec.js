@@ -306,7 +306,7 @@ describe('Parameter', () => {
     });
   });
 
-  describe.only('Apply Changes', () => {
+  describe('Apply Changes', () => {
     const expectAppliedChanges = (apply) => {
       cy.getByTestId('ParameterName-test-parameter-1')
         .find('input')
