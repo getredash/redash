@@ -37,8 +37,11 @@ class Webhook(BaseDestination):
                 'event': 'alert_state_change',
                 'alert': serialize_alert(alert, full=False),
                 'url_base': host,
-                "description": alert.render_template()
             }
+
+            data['alert']['description'] = alert.render_template()
+            data['alert']['title'] = alert.custom_subject
+
             headers = {'Content-Type': 'application/json'}
             auth = HTTPBasicAuth(options.get('username'), options.get('password')) if options.get('username') else None
             resp = requests.post(options.get('url'), data=json_dumps(data), auth=auth, headers=headers, timeout=5.0)
