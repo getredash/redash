@@ -389,7 +389,7 @@ describe('Parameter', () => {
 
     it('applies changes from "meta+enter" keyboard shortcut', () => {
       expectAppliedChanges((input) => {
-        input.type('{meta}{enter}');
+        input.type('{ctrl}{enter}');
       });
     });
   });
