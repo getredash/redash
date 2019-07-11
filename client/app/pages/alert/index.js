@@ -2,10 +2,15 @@ import { template as templateBuilder } from 'lodash';
 import notification from '@/services/notification';
 import Modal from 'antd/lib/modal';
 import template from './alert.html';
+import AlertTemplate from '@/services/alert-template';
+import { clientConfig } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
 
-function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, $sanitize, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
+  this.hidePreview = false;
+  this.alertTemplate = new AlertTemplate();
+  this.showExtendedOptions = clientConfig.extendedAlertOptions;
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
@@ -62,6 +67,9 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
     if (this.alert.rearm === '' || this.alert.rearm === 0) {
       this.alert.rearm = null;
     }
+    if (this.alert.template === undefined || this.alert.template === '') {
+      this.alert.template = null;
+    }
     this.alert.$save(
       (alert) => {
         notification.success('Saved.');
@@ -73,6 +81,22 @@ function AlertCtrl($scope, $routeParams, $location, $sce, currentUser, Query, Ev
         notification.error('Failed saving alert.');
       },
     );
+  };
+
+  this.preview = () => {
+    const notifyError = () => notification.error('Unable to render description. please confirm your template.');
+    try {
+      const result = this.alertTemplate.render(this.alert, this.queryResult.query_result.data);
+      this.alert.preview = $sce.trustAsHtml(result.escaped);
+      this.alert.previewHTML = $sce.trustAsHtml($sanitize(result.raw));
+      if (!result.raw) {
+        notifyError();
+      }
+    } catch (e) {
+      notifyError();
+      this.alert.preview = e.message;
+      this.alert.previewHTML = e.message;
+    }
   };
 
   this.delete = () => {
