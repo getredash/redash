@@ -149,6 +149,7 @@ describe('Parameter', () => {
         .click();
 
       cy.get('.ant-calendar-date-panel')
+        .click() // workaround for datepicker display bug
         .contains('.ant-calendar-date', '15')
         .click();
 
@@ -192,16 +193,21 @@ describe('Parameter', () => {
     it('updates the results after selecting a date and clicking in ok', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
+        .as('Input')
         .click();
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', '15')
+        .as('SelectedDate')
         .click();
 
       cy.get('.ant-calendar-ok-btn')
         .click();
 
-      cy.get('.ant-calendar-input').then(($input) => {
+      // workaround for datepicker display bug
+      cy.get('@SelectedDate').click();
+
+      cy.get('@Input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
         cy.getByTestId('DynamicTable')
           .should('contain', now.format('YYYY-MM-15 HH:mm'));
@@ -211,13 +217,15 @@ describe('Parameter', () => {
     it('shows the current datetime after clicking in Now', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
+        .as('Input')
         .click();
 
       cy.get('.ant-calendar-date-panel')
         .contains('Now')
-        .click();
+        .click()
+        .click(); // workaround for datepicker display bug
 
-      cy.get('.ant-calendar-input').then(($input) => {
+      cy.get('@Input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
         cy.getByTestId('DynamicTable')
           .should('contain', now.format('YYYY-MM-01 HH:mm'));

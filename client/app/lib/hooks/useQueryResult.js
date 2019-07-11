@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 
 function getQueryResultData(queryResult) {
   return {
-    columns: queryResult ? queryResult.getColumns() : [],
-    rows: queryResult ? queryResult.getData() : [],
-    filters: queryResult ? queryResult.getFilters() : [],
+    columns: (queryResult && queryResult.getColumns()) || [],
+    rows: (queryResult && queryResult.getData()) || [],
+    filters: (queryResult && queryResult.getFilters()) || [],
   };
 }
 

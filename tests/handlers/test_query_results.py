@@ -135,6 +135,14 @@ class TestQueryResultAPI(BaseTestCase):
 
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
+    
+    def test_execute_with_no_parameter_values(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id))
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
 
     def test_prevents_execution_of_unsafe_queries_on_view_only_data_sources(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
