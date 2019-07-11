@@ -81,7 +81,7 @@ function ParametersDirective($location, KeyboardShortcuts) {
       };
 
       scope.onApply = () => {
-        if (scope.dirtyParamCount) {
+        if (!scope.dirtyParamCount) {
           return false; // so keyboard shortcut doesn't run needlessly
         }
 
