@@ -19,7 +19,7 @@ const DYNAMIC_DATE_OPTIONS = [
     label: () => DYNAMIC_DATES.yesterday.value().format('MMM D') },
 ];
 
-export default class DateParameter extends React.Component {
+class DateParameter extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     className: PropTypes.string,
@@ -98,3 +98,5 @@ export default class DateParameter extends React.Component {
     );
   }
 }
+
+export default DateParameter;

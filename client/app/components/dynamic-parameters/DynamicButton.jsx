@@ -10,7 +10,7 @@ import './DynamicButton.less';
 
 const { Text } = Typography;
 
-export default function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
+function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
   const menu = (
     <Menu
       className="dynamic-menu"
@@ -66,3 +66,5 @@ DynamicButton.defaultProps = {
   onSelect: () => {},
   enabled: false,
 };
+
+export default DynamicButton;

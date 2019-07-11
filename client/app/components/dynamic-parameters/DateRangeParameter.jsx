@@ -42,7 +42,7 @@ function isValidDateRangeValue(value) {
   return isArray(value) && value.length === 2 && moment.isMoment(value[0]) && moment.isMoment(value[1]);
 }
 
-export default class DateRangeParameter extends React.Component {
+class DateRangeParameter extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     className: PropTypes.string,
@@ -122,3 +122,5 @@ export default class DateRangeParameter extends React.Component {
     );
   }
 }
+
+export default DateRangeParameter;
