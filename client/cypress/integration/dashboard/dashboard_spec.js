@@ -151,6 +151,7 @@ describe('Dashboard', () => {
         parameters: [{
           name: 'foo',
           type: 'number',
+          value: 1,
         }],
       };
 
