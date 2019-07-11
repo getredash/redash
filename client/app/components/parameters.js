@@ -54,14 +54,12 @@ function ParametersDirective($location) {
 
       scope.isApplying = false;
       scope.applyChanges = () => {
+        scope.isApplying = true;
         forEach(scope.parameters, p => p.applyPendingValue());
         scope.isApplying = false;
       };
 
       scope.onApply = () => {
-        scope.isApplying = true;
-        scope.$apply();
-
         scope.$apply(scope.applyChanges);
         scope.onValuesChange();
       };

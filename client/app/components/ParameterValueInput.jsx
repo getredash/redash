@@ -45,9 +45,10 @@ export class ParameterValueInput extends React.Component {
   }
 
   componentDidUpdate = (prevProps) => {
+    const { value } = this.props;
     // if value prop updated, reset dirty state
-    if (prevProps.value !== this.props.value) {
-      this.setState({ isDirty: false });
+    if (prevProps.value !== value) {
+      this.setState({ value, isDirty: false });
     }
   }
 
