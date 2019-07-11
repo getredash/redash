@@ -47,16 +47,6 @@ describe('Parameter', () => {
 
       cy.getByTestId('DynamicTable')
         .should('contain', 'Redash');
-
-      cy.getByTestId('ParameterName-test-parameter')
-        .find('input')
-        .type('{selectall}New value');
-
-      cy.getByTestId('ParameterApplyButton')
-        .click();
-
-      cy.getByTestId('DynamicTable')
-        .should('contain', 'New value');
     });
 
     it('sets dirty state when edited', () => {
@@ -316,7 +306,28 @@ describe('Parameter', () => {
     });
   });
 
-  describe('Apply Button', () => {
+  describe.only('Apply Changes', () => {
+    const expectAppliedChanges = (apply) => {
+      cy.getByTestId('ParameterName-test-parameter-1')
+        .find('input')
+        .as('Input')
+        .type('Redash');
+
+      cy.getByTestId('ParameterName-test-parameter-2')
+        .find('input')
+        .type('Redash');
+
+      cy.location('search').should('not.contain', 'Redash');
+
+      cy.server();
+      cy.route('POST', 'api/queries/*/results').as('Results');
+
+      apply(cy.get('@Input'));
+
+      cy.location('search').should('contain', 'Redash');
+      cy.wait('@Results');
+    };
+
     beforeEach(() => {
       const queryData = {
         name: 'Testing Apply Button',
@@ -364,26 +375,22 @@ describe('Parameter', () => {
         .should('contain', '2');
     });
 
-    it('applies parameter changes', () => {
-      cy.getByTestId('ParameterName-test-parameter-1')
-        .find('input')
-        .type('Redash');
+    it('applies changes from "Apply Changes" button', () => {
+      expectAppliedChanges(() => {
+        cy.getByTestId('ParameterApplyButton').click();
+      });
+    });
 
-      cy.getByTestId('ParameterName-test-parameter-2')
-        .find('input')
-        .type('Redash');
+    it('applies changes from "Execute" button', () => {
+      expectAppliedChanges(() => {
+        cy.getByTestId('ExecuteButton').click();
+      });
+    });
 
-      cy.location('search').should('not.contain', 'Redash');
-
-      // listen to results
-      cy.server();
-      cy.route('POST', 'api/queries/*/results').as('Results');
-
-      cy.getByTestId('ParameterApplyButton')
-        .click();
-
-      cy.location('search').should('contain', 'Redash');
-      cy.wait('@Results');
+    it('applies changes from "meta+enter" keyboard shortcut', () => {
+      expectAppliedChanges((input) => {
+        input.type('{meta}{enter}');
+      });
     });
   });
 });
