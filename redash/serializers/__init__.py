@@ -38,7 +38,6 @@ def public_widget(widget):
                 'id': v.query_rel.id,
                 'query': ' ',  # workaround, as otherwise the query data won't be loaded.
                 'name': v.query_rel.name,
-                'data_source_id': v.query_rel.data_source_id,
                 'description': v.query_rel.description,
                 'options': v.query_rel.options
             }

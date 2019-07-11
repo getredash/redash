@@ -517,10 +517,8 @@ function QueryResource(
       if (!this.queryResult) {
         this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
-    } else if (this.data_source_id) {
-      this.queryResult = execute();
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      this.queryResult = execute();
     }
 
     return this.queryResult;

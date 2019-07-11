@@ -88,7 +88,11 @@ class QueryResultListResource(BaseResource):
 
         parameterized_query = ParameterizedQuery(query)
 
-        data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        data_source_id = params.get('data_source_id')
+        if data_source_id:
+            data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        else:
+            return {'job': {'status': 4, 'error': 'Please select data source to run this query.'}}, 401
 
         if not has_access(data_source, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403

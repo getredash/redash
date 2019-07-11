@@ -105,6 +105,15 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertNotIn('query_result', rv.json)
         self.assertIn('job', rv.json)
 
+    def test_execute_without_data_source(self):
+        rv = self.make_request('post', '/api/query_results',
+                               data={'query': 'SELECT 1',
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 401)
+        self.assertNotIn('query_result', rv.json)
+        self.assertIn('job', rv.json)
+
 
 class TestQueryResultAPI(BaseTestCase):
     def test_has_no_access_to_data_source(self):
