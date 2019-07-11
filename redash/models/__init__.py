@@ -23,7 +23,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner, TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
-from redash.utils import generate_token, json_dumps, json_loads
+from redash.utils import generate_token, json_dumps, json_loads, mustache_render
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -795,6 +795,21 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
+
+    def render_template(self):
+        if not self.template:
+            return ''
+        data = json_loads(self.query_rel.latest_query_data.data)
+        context = {'rows': data['rows'], 'cols': data['columns'], 'state': self.state}
+        return mustache_render(self.template, context)
+
+    @property
+    def template(self):
+        return self.options.get('template', '')
+
+    @property
+    def custom_subject(self):
+        return self.options.get('subject', '')
 
     @property
     def groups(self):

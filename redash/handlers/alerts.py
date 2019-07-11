@@ -9,6 +9,7 @@ from redash.handlers.base import (BaseResource, get_object_or_404,
                                   require_fields)
 from redash.permissions import (require_access, require_admin_or_owner,
                                 require_permission, view_only)
+from redash.utils import json_dumps
 
 
 class AlertResource(BaseResource):
@@ -60,7 +61,7 @@ class AlertListResource(BaseResource):
             query_rel=query,
             user=self.current_user,
             rearm=req.get('rearm'),
-            options=req['options']
+            options=req['options'],
         )
 
         models.db.session.add(alert)
