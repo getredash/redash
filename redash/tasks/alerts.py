@@ -40,6 +40,7 @@ def check_alerts_for_query(query_id):
     query = models.Query.query.get(query_id)
 
     for alert in query.alerts:
+        logger.info("Checking alert (%d) of query %d.", alert.id, query_id)
         new_state = alert.evaluate()
 
         if should_notify(alert, new_state):
