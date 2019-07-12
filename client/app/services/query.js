@@ -2,8 +2,8 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity, extend, each,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has, get,
+  isNull, isUndefined, isArray, isObject, identity, extend, each, join,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -84,12 +84,12 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
-  getValue() {
-    return this.constructor.getValue(this);
+  getValue(joinListValue = false) {
+    return this.constructor.getValue(this, joinListValue);
   }
 
-  static getValue(param) {
-    const { value, type, useCurrentDateTime } = param;
+  static getValue(param, joinListValue = false) {
+    const { value, type, useCurrentDateTime, multiValuesOptions } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
     if (isEmptyValue) {
       if (
@@ -102,6 +102,13 @@ export class Parameter {
     }
     if (type === 'number') {
       return normalizeNumericValue(value, null); // normalize empty value
+    }
+    if (multiValuesOptions && isArray(value) && joinListValue) {
+      const separator = get(multiValuesOptions, 'separator', ',');
+      const prefix = get(multiValuesOptions, 'prefix', '');
+      const suffix = get(multiValuesOptions, 'suffix', '');
+      const parameterValues = map(value, v => `${prefix}${v}${suffix}`);
+      return join(parameterValues, separator);
     }
     return value;
   }
@@ -302,9 +309,9 @@ class Parameters {
     return !isEmpty(this.get());
   }
 
-  getValues() {
+  getValues(joinListValues = false) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
+    return zipObject(map(params, i => i.name), map(params, i => i.getValue(joinListValues)));
   }
 
   toUrlParams() {
@@ -545,7 +552,7 @@ function QueryResource(
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
-    const parameters = this.getParameters().getValues();
+    const parameters = this.getParameters().getValues(true);
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
