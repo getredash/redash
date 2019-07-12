@@ -78,7 +78,6 @@ class QuerySnippetDialog extends React.Component {
           fields={formFields}
           onSubmit={this.handleSubmit}
           hideSubmitButton
-          feedbackIcons
         />
       </Modal>
     );
