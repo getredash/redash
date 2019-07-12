@@ -12,6 +12,7 @@ function AceEditorInput(props, ref) {
         theme="textmate"
         height="100px"
         editorProps={{ $blockScrolling: Infinity }}
+        showPrintMargin={false}
         {...props}
       />
     </div>
