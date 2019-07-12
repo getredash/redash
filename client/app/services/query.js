@@ -103,7 +103,7 @@ export class Parameter {
     if (type === 'number') {
       return normalizeNumericValue(value, null); // normalize empty value
     }
-    if (multiValuesOptions && isArray(value) && joinListValue) {
+    if (includes(['enum', 'query'], type) && multiValuesOptions && isArray(value) && joinListValue) {
       const separator = get(multiValuesOptions, 'separator', ',');
       const prefix = get(multiValuesOptions, 'prefix', '');
       const suffix = get(multiValuesOptions, 'suffix', '');
