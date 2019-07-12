@@ -1,6 +1,8 @@
 import React, { forwardRef } from 'react';
 import AceEditor from 'react-ace';
 
+import './AceEditorInput.less';
+
 function AceEditorInput(props, ref) {
   return (
     <div className="ace-editor-input">
