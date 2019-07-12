@@ -202,7 +202,7 @@ function EditParameterSettingsDialog(props) {
           </Form.Item>
         )}
         {(param.type === 'enum' || param.type === 'query') && (
-          <Form.Item label=" " colon={false} {...formItemProps}>
+          <Form.Item className="m-b-0" label=" " colon={false} {...formItemProps}>
             <Checkbox
               defaultChecked={!!param.multiValuesOptions}
               onChange={e => setParam({ ...param,
@@ -214,6 +214,23 @@ function EditParameterSettingsDialog(props) {
             >
             Allow multiple values
             </Checkbox>
+          </Form.Item>
+        )}
+        {(param.type === 'enum' || param.type === 'query') && param.multiValuesOptions && (
+          <Form.Item label="Quote Option" colon={false} {...formItemProps}>
+            <Select
+              value={param.multiValuesOptions.prefix}
+              onChange={quoteOption => setParam({ ...param,
+                multiValuesOptions: {
+                  ...param.multiValuesOptions,
+                  prefix: quoteOption,
+                  suffix: quoteOption,
+                } })}
+            >
+              <Option value="">value</Option>
+              <Option value="'">{'\''}value{'\''}</Option>
+              <Option value={'"'}>{'"'}value{'"'}</Option>
+            </Select>
           </Form.Item>
         )}
       </Form>
