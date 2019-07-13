@@ -39,11 +39,13 @@
       padding-left: 16px;
       opacity: 0;
       display: block;
+      pointer-events: none; // so tooltip doesn't remain after button hides
     }
   
     &[data-show="true"] {
       opacity: 1;
       display: block;
+      pointer-events: auto;
     }
 
     button {
