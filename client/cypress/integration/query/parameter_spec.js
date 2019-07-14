@@ -387,9 +387,9 @@ describe('Parameter', () => {
       });
     });
 
-    it('applies changes from "meta+enter" keyboard shortcut', () => {
+    it('applies changes from "alt+enter" keyboard shortcut', () => {
       expectAppliedChanges((input) => {
-        input.type('{ctrl}{enter}');
+        input.type('{alt}{enter}');
       });
     });
   });
