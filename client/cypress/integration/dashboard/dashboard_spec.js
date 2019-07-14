@@ -170,11 +170,11 @@ describe('Dashboard', () => {
         });
       };
 
-      it('when there are no parameters', function () {
+      it.only('when there are no parameters', function () {
         addWidgetAndShareDashboard(this.dashboardUrl, 'select 1', {}, (secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
-          cy.getByTestId('PublicDashboard', { timeout: 10000 }).should('exist');
+          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
           cy.percySnapshot('Successfully Shared Unparameterized Dashboard');
         });
       });
@@ -189,7 +189,7 @@ describe('Dashboard', () => {
         }, (secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
-          cy.getByTestId('PublicDashboard', { timeout: 10000 }).should('exist');
+          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
           cy.percySnapshot('Successfully Shared Parameterized Dashboard');
         });
       });
@@ -220,7 +220,7 @@ describe('Dashboard', () => {
             cy.contains('button', 'Done Editing').click();
             cy.logout();
             cy.visit(secretAddress);
-            cy.getByTestId('PublicDashboard', { timeout: 10000 }).should('exist');
+            cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
             cy.percySnapshot('Successfully Shared Parameterized Dashboard With Some Unsafe Queries');
           });
         });
