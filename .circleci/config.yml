@@ -51,7 +51,7 @@ jobs:
     steps:
       - checkout
       - run: mkdir -p /tmp/test-results/eslint
-      - run: npm install
+      - run: CYPRESS_INSTALL_BINARY=0 npm install
       - run: npm run lint:ci
       - store_test_results:
           path: /tmp/test-results
@@ -62,7 +62,7 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
+      - run: CYPRESS_INSTALL_BINARY=0 npm install
       - run: npm run bundle
       - run: npm test
       - run: npm run lint
@@ -81,7 +81,7 @@ jobs:
       - run:
           name: Install npm dependencies
           command: |
-            npm install
+            CYPRESS_INSTALL_BINARY=0 npm install
       - run:
           name: Setup Redash server
           command: |
@@ -97,7 +97,7 @@ jobs:
       - checkout
       - run: sudo apt install python-pip
       - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
+      - run: CYPRESS_INSTALL_BINARY=0 npm install
       - run: .circleci/update_version
       - run: npm run bundle
       - run: npm run build
