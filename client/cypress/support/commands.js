@@ -1,4 +1,8 @@
+/* global Cypress */
+
 import '@percy/cypress'; // eslint-disable-line import/no-extraneous-dependencies, import/no-unresolved
+
+const { each } = Cypress._;
 
 Cypress.Commands.add('login', (email = 'admin@redash.io', password = 'password') => cy.request({
   url: '/login',
@@ -19,4 +23,10 @@ Cypress.Commands.add('clickThrough', (elements) => {
     .filter(Boolean)
     .forEach(element => cy.getByTestId(element).click());
   return undefined;
+});
+
+Cypress.Commands.add('fillInputs', (elements) => {
+  each(elements, (value, testId) => {
+    cy.getByTestId(testId).clear().type(value);
+  });
 });

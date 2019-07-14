@@ -43,7 +43,9 @@ class PagerDuty(BaseDestination):
 
         default_desc = self.DESCRIPTION_STR.format(query_id=query.id, query_name=query.name)
 
-        if options.get('description'):
+        if alert.custom_subject:
+            default_desc = alert.custom_subject
+        elif options.get('description'):
             default_desc = options.get('description')
 
         incident_key = self.KEY_STRING.format(alert_id=alert.id, query_id=query.id)
@@ -57,6 +59,9 @@ class PagerDuty(BaseDestination):
                 'source': 'redash',
             }
         }
+
+        if alert.template:
+            data['payload']['custom_details'] = alert.render_template()
 
         if new_state == 'triggered':
             data['event_action'] = 'trigger'

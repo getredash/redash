@@ -10,6 +10,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Text Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'text' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
@@ -111,6 +116,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Date Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'date' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
@@ -124,7 +134,8 @@ describe('Parameter', () => {
         SaveParameterSettings 
       `);
 
-      const now = new Date(2019, 0, 1).getTime(); // January 1, 2019 timestamp
+      const now = new Date();
+      now.setDate(1);
       cy.clock(now);
     });
 
@@ -138,11 +149,12 @@ describe('Parameter', () => {
         .click();
 
       cy.get('.ant-calendar-date-panel')
+        .click() // workaround for datepicker display bug
         .contains('.ant-calendar-date', '15')
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', '15/01/19');
+        .should('contain', Cypress.moment().format('15/MM/YY'));
     });
   });
 
@@ -151,6 +163,11 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Date and Time Parameter',
         query: "SELECT '{{test-parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Test Parameter', type: 'datetime-local' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
@@ -164,8 +181,9 @@ describe('Parameter', () => {
         SaveParameterSettings
       `);
 
-      const now = new Date(2019, 0, 1).getTime(); // January 1, 2019 timestamp
-      cy.clock(now);
+      const now = new Date();
+      now.setDate(1);
+      cy.clock(now.getTime());
     });
 
     afterEach(() => {
@@ -175,30 +193,43 @@ describe('Parameter', () => {
     it('updates the results after selecting a date and clicking in ok', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
+        .as('Input')
         .click();
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', '15')
+        .as('SelectedDate')
         .click();
 
       cy.get('.ant-calendar-ok-btn')
         .click();
 
-      cy.getByTestId('DynamicTable')
-        .should('contain', '2019-01-15 00:00');
+      // workaround for datepicker display bug
+      cy.get('@SelectedDate').click();
+
+      cy.get('@Input').then(($input) => {
+        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
+        cy.getByTestId('DynamicTable')
+          .should('contain', now.format('YYYY-MM-15 HH:mm'));
+      });
     });
 
     it('shows the current datetime after clicking in Now', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
+        .as('Input')
         .click();
 
       cy.get('.ant-calendar-date-panel')
         .contains('Now')
-        .click();
+        .click()
+        .click(); // workaround for datepicker display bug
 
-      cy.getByTestId('DynamicTable')
-        .should('contain', '2019-01-01 00:00');
+      cy.get('@Input').then(($input) => {
+        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
+        cy.getByTestId('DynamicTable')
+          .should('contain', now.format('YYYY-MM-01 HH:mm'));
+      });
     });
   });
 });

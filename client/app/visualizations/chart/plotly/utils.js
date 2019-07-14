@@ -749,11 +749,11 @@ export function updateLayout(plotlyElement, layout, updatePlot) {
 
   const transformName = find([
     'transform',
-    'webkitTransform',
-    'mozTransform',
-    'msTransform',
-    'oTransform',
-  ], prop => has(plotlyElement.style, prop));
+    'WebkitTransform',
+    'MozTransform',
+    'MsTransform',
+    'OTransform',
+  ], prop => prop in plotlyElement.style);
 
   if (layout.width <= 600) {
     // change legend orientation to horizontal; plotly has a bug with this

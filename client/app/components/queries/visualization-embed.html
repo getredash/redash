@@ -1,5 +1,5 @@
-<div class="tile m-l-10 m-r-10 embed__vis" data-test="VisualizationEmbed">
-  <div class="embed-heading p-t-10 p-b-10 p-r-15 p-l-15">
+<div class="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
+  <div class="embed-heading p-b-10 p-r-15 p-l-15" ng-if="!$ctrl.hideHeader">
     <h3>
       <img ng-src="{{$ctrl.logoUrl}}" style="height: 24px;"/>
       <visualization-name visualization="$ctrl.visualization"/>
@@ -12,7 +12,7 @@
   </div>
 
   <div class="col-md-12 query__vis">
-    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.hasParameters()">
+    <div class="p-t-15 p-b-5" ng-if="$ctrl.query.hasParameters() && !$ctrl.hideParametersUI">
       <parameters parameters="$ctrl.query.getParametersDefs()" on-values-change="$ctrl.refreshQueryResults"></parameters>
     </div>
 
@@ -32,9 +32,9 @@
           <span am-time-ago="$ctrl.queryResult.getUpdatedAt()" ng-if="!$ctrl.loading"></span>
           <rd-timer from="$ctrl.refreshStartedAt" ng-if="$ctrl.loading"></rd-timer>
         </a>
+        <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}} UTC</span>
       </div>
-      <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}} UTC</span>
-      <div class="col-xs-6 text-right hidden-print">
+      <div class="col-xs-6 text-right hidden-print" ng-if="!$ctrl.hideQueryLink">
         <a class="btn btn-default btn-sm" ng-href="{{$ctrl.query.getUrl()}}" target="_blank" tooltip="Open in Redash">
           <span class="zmdi zmdi-link"></span>
         </a>

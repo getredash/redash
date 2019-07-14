@@ -3,6 +3,10 @@ from __future__ import absolute_import
 import logging
 import socket
 import time
+from redash import settings
+
+from celery.concurrency import asynpool
+asynpool.PROC_ALIVE_TIMEOUT = settings.CELERY_INIT_TIMEOUT
 
 from celery.signals import task_postrun, task_prerun
 from redash import settings, statsd_client

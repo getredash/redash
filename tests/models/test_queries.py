@@ -4,6 +4,7 @@ from tests import BaseTestCase
 import datetime
 from redash.models import Query, Group, Event, db
 from redash.utils import utcnow
+import mock
 
 
 class QueryTest(BaseTestCase):
@@ -46,6 +47,17 @@ class QueryTest(BaseTestCase):
         q3 = self.factory.create_query(description=u"Testing seå řċħ")
 
         queries = Query.search(u"seåřċħ", [self.factory.default_group.id])
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
+    def test_search_finds_in_multi_byte_name_and_description(self):
+        q1 = self.factory.create_query(name="日本語の名前テスト")
+        q2 = self.factory.create_query(description=u"日本語の説明文テスト")
+        q3 = self.factory.create_query(description=u"Testing search")
+
+        queries = Query.search(u"テスト", [self.factory.default_group.id], multi_byte_search=True)
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -169,6 +181,18 @@ class QueryTest(BaseTestCase):
         queries = list(Query.search('johndoe', [self.factory.default_group.id]))
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
+
+    def test_past_scheduled_queries(self):
+        query = self.factory.create_query()
+        one_day_ago = (utcnow() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        one_day_later = (utcnow() + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+        query1 = self.factory.create_query(schedule={'interval':'3600','until':one_day_ago})
+        query2 = self.factory.create_query(schedule={'interval':'3600','until':one_day_later})
+        oq = staticmethod(lambda: [query1, query2])
+        with mock.patch.object(query.query.filter(), 'order_by', oq):
+            res = query.past_scheduled_queries()
+            self.assertTrue(query1 in res)
+            self.assertFalse(query2 in res)
 
 
 class QueryRecentTest(BaseTestCase):

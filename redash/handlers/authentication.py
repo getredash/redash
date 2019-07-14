@@ -197,7 +197,7 @@ def date_time_format_config():
     date_format = current_org.get_setting('date_format')
     date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
     time_format = current_org.get_setting('time_format')
-    time_format_list = set(["HH:mm", "MM:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
+    time_format_list = set(["HH:mm", "HH:mm:ss", "HH:mm:ss.SSS", settings.TIME_FORMAT])
     return {
         'dateFormat': date_format,
         'dateFormatList': list(date_format_list),
@@ -227,6 +227,7 @@ def client_config():
         'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
+        'extendedAlertOptions': settings.FEATURE_EXTENDED_ALERT_OPTIONS,
         'mailSettingsMissing': not settings.email_server_is_configured(),
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,

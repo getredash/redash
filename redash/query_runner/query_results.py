@@ -72,6 +72,13 @@ def fix_column_name(name):
     return u'"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
 
 
+def flatten(value):
+    if isinstance(value, (list, dict)):
+        return json_dumps(value)
+    else:
+        return value
+
+
 def create_table(connection, table_name, query_results):
     try:
         columns = [column['name']
@@ -92,7 +99,7 @@ def create_table(connection, table_name, query_results):
         place_holders=','.join(['?'] * len(columns)))
 
     for row in query_results['rows']:
-        values = [row.get(column) for column in columns]
+        values = [flatten(row.get(column)) for column in columns]
         connection.execute(insert_template, values)
 
 

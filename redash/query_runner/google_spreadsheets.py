@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
+    from gspread.exceptions import APIError
     from oauth2client.service_account import ServiceAccountCredentials
 
     enabled = True
@@ -120,6 +121,17 @@ def is_url_key(key):
     return key.startswith('https://')
 
 
+def parse_api_error(error):
+    error_data = error.response.json()
+
+    if 'error' in error_data and 'message' in error_data['error']:
+        message = error_data['error']['message']
+    else:
+        message = error.message
+
+    return message
+
+
 class TimeoutSession(Session):
     def request(self, *args, **kwargs):
         kwargs.setdefault('timeout', 300)
@@ -176,7 +188,13 @@ class GoogleSpreadsheet(BaseQueryRunner):
         return spreadsheetservice
 
     def test_connection(self):
-        self._get_spreadsheet_service()
+        service = self._get_spreadsheet_service()
+        test_spreadsheet_key = '1S0mld7LMbUad8LYlo13Os9f7eNjw57MqVC0YiCd1Jis'
+        try:
+            service.open_by_key(test_spreadsheet_key).worksheets()
+        except APIError as e:
+            message = parse_api_error(e)
+            raise Exception(message)
 
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
@@ -195,6 +213,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
             return json_dumps(data), None
         except gspread.SpreadsheetNotFound:
             return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
+        except APIError as e:
+            return None, parse_api_error(e)
 
 
 register(GoogleSpreadsheet)

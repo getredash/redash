@@ -88,6 +88,10 @@ class Rockset(BaseSQLQueryRunner):
         if 'code' in results and results['code'] != 200:
             return None, '{}: {}'.format(results['type'], results['message'])
 
+        if 'results' not in results:
+            message = results.get('message', "Unknown response from Rockset.")
+            return None, message
+
         rows = results['results']
         columns = []
         if len(rows) > 0:

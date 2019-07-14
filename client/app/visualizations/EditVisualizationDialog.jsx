@@ -1,4 +1,4 @@
-import { extend, map, findIndex, isEqual } from 'lodash';
+import { extend, map, sortBy, findIndex, isEqual } from 'lodash';
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
@@ -158,7 +158,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               onChange={onTypeChanged}
             >
               {map(
-                registeredVisualizations,
+                sortBy(registeredVisualizations, ['type']),
                 vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
               )}
             </Select>

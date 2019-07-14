@@ -5,6 +5,8 @@ import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'beautifymarker';
+import 'beautifymarker/leaflet-beautify-marker-icon.css';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -12,6 +14,7 @@ import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
+import ColorPalette from '@/visualizations/ColorPalette';
 
 import template from './map.html';
 import editorTemplate from './map-editor.html';
@@ -76,9 +79,28 @@ const MAP_TILES = [
   },
 ];
 
+const iconAnchors = {
+  marker: [14, 32],
+  circle: [10, 10],
+  rectangle: [11, 11],
+  'circle-dot': [1, 2],
+  'rectangle-dot': [1, 2],
+  doughnut: [8, 8],
+};
+
+const popupAnchors = {
+  rectangle: [0, -3],
+  circle: [1, -3],
+};
+
 const DEFAULT_OPTIONS = {
   classify: 'none',
   clusterMarkers: true,
+  iconShape: 'marker',
+  iconFont: 'circle',
+  foregroundColor: '#ffffff',
+  backgroundColor: '#356AFF',
+  borderColor: '#356AFF',
 };
 
 function heatpoint(lat, lon, color) {
@@ -92,6 +114,7 @@ function heatpoint(lat, lon, color) {
 }
 
 const createMarker = (lat, lon) => L.marker([lat, lon]);
+const createIconMarker = (lat, lon, icn) => L.marker([lat, lon], { icon: icn });
 
 function createDescription(latCol, lonCol, row) {
   const lat = row[latCol];
@@ -229,7 +252,22 @@ const MapRenderer = {
           const groupColor = this.options.groups[name].color;
           marker = heatpoint(lat, lon, groupColor);
         } else {
-          marker = createMarker(lat, lon);
+          if (this.options.customizeMarkers) {
+            const icon = L.BeautifyIcon.icon({
+              iconShape: this.options.iconShape,
+              icon: this.options.iconFont,
+              iconSize: this.options.iconShape === 'rectangle' ? [22, 22] : false,
+              iconAnchor: iconAnchors[this.options.iconShape],
+              popupAnchor: popupAnchors[this.options.iconShape],
+              prefix: 'fa',
+              textColor: this.options.foregroundColor,
+              backgroundColor: this.options.backgroundColor,
+              borderColor: this.options.borderColor,
+            });
+            marker = createIconMarker(lat, lon, icon);
+          } else {
+            marker = createMarker(lat, lon);
+          }
         }
 
         marker.bindPopup(createDescription(latCol, lonCol, row));
@@ -307,6 +345,20 @@ const MapEditor = {
     };
 
     this.mapTiles = MAP_TILES;
+
+    this.iconShapes = {
+      marker: 'Marker + Icon',
+      doughnut: 'Circle',
+      'circle-dot': 'Circle Dot',
+      circle: 'Circle + Icon',
+      'rectangle-dot': 'Square Dot',
+      rectangle: 'Square + Icon',
+    };
+
+    this.colors = {
+      White: '#ffffff',
+      ...ColorPalette,
+    };
 
     $scope.$watch('$ctrl.data.columns', () => {
       this.columns = this.data.columns;

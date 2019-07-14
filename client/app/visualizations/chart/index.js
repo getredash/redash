@@ -311,6 +311,7 @@ export default function init(ngModule) {
     registerVisualization({
       type: 'CHART',
       name: 'Chart',
+      isDefault: true,
       getOptions: options => merge({}, DEFAULT_OPTIONS, {
         showDataLabels: options.globalSeriesType === 'pie',
         dateTimeFormat: clientConfig.dateTimeFormat,

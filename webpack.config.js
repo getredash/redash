@@ -75,7 +75,8 @@ const config = {
       { from: "client/app/unsupported.html" },
       { from: "client/app/unsupportedRedirect.js" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" }
+      { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" },
+      { from: "client/app/assets/fonts", to: "fonts/" },
     ])
   ],
   optimization: {

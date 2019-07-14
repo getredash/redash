@@ -1,5 +1,6 @@
 import os
 import importlib
+import ssl
 from funcy import distinct, remove
 from flask_talisman import talisman
 
@@ -30,6 +31,20 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_RESULT_EXPIRES = int(os.environ.get(
     "REDASH_CELERY_RESULT_EXPIRES",
     os.environ.get("REDASH_CELERY_TASK_RESULT_EXPIRES", 3600 * 4)))
+CELERY_INIT_TIMEOUT = int(os.environ.get(
+    "REDASH_CELERY_INIT_TIMEOUT", 10))
+CELERY_BROKER_USE_SSL = CELERY_BROKER.startswith('rediss')
+CELERY_SSL_CONFIG = {
+    'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL)),
+    'ssl_ca_certs': os.environ.get("REDASH_CELERY_BROKER_SSL_CA_CERTS"),
+    'ssl_certfile': os.environ.get("REDASH_CELERY_BROKER_SSL_CERTFILE"),
+    'ssl_keyfile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
+} if CELERY_BROKER_USE_SSL else None
+
+CELERY_WORKER_PREFETCH_MULTIPLIER = int(os.environ.get("REDASH_CELERY_WORKER_PREFETCH_MULTIPLIER", 1))
+CELERY_ACCEPT_CONTENT = os.environ.get("REDASH_CELERY_ACCEPT_CONTENT", "json").split(",")
+CELERY_TASK_SERIALIZER = os.environ.get("REDASH_CELERY_TASK_SERIALIZER", "json")
+CELERY_RESULT_SERIALIZER = os.environ.get("REDASH_CELERY_RESULT_SERIALIZER", "json")
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
@@ -274,7 +289,8 @@ default_query_runners = [
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
     'redash.query_runner.snowflake',
-    'redash.query_runner.phoenix'
+    'redash.query_runner.phoenix',
+    'redash.query_runner.json_ds',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -321,6 +337,7 @@ FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_D
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false"))
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
+FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
