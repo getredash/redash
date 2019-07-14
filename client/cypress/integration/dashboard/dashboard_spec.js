@@ -157,12 +157,11 @@ describe('Dashboard', () => {
           });
           cy.contains('button', 'Add to Dashboard').click();
           cy.getByTestId('AddWidgetDialog').should('not.exist');
-          cy.clickThrough({
-            button: `
+          cy.clickThrough({ button: `
             Done Editing
             Publish
           ` },
-            `OpenShareForm
+          `OpenShareForm
           PublicAccessEnabled`);
 
           cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
@@ -208,7 +207,7 @@ describe('Dashboard', () => {
                 type: 'text',
                 value: 'oh snap!',
               }],
-            }
+            },
           }).then(({ id: queryId }) => {
             cy.visit(dashboardUrl);
             editDashboard();
