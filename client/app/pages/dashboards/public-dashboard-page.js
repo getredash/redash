@@ -1,3 +1,4 @@
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
 import dashboardGridOptions from '@/config/dashboard-grid-options';
@@ -52,6 +53,8 @@ const PublicDashboardPage = {
         };
 
         this.extractGlobalParameters();
+      }).catch((error) => {
+        throw new PromiseRejectionError(error);
       });
 
       if (refreshRate) {
