@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
@@ -134,7 +135,7 @@ export class ParameterValueInput extends React.Component {
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
-        className={this.props.className}
+        className={classNames({ 'parameter-multi-select': allowMultipleValues }, this.props.className)}
         mode={allowMultipleValues ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
@@ -155,7 +156,7 @@ export class ParameterValueInput extends React.Component {
     const { value, onSelect, queryId, allowMultipleValues, parameter } = this.props;
     return (
       <QueryBasedParameterInput
-        className={this.props.className}
+        className={classNames({ 'parameter-multi-select': allowMultipleValues }, this.props.className)}
         mode={allowMultipleValues ? 'multiple' : 'default'}
         optionFilterProp="children"
         parameter={parameter}

@@ -90,7 +90,7 @@ export class Parameter {
 
   static getValue(param, joinListValue = false) {
     const { value, type, useCurrentDateTime, multiValuesOptions } = param;
-    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
+    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
     if (isEmptyValue) {
       if (
         includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
