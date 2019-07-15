@@ -16,13 +16,19 @@ ACCESS_TYPES = (ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY, ACCESS_TYPE_DELETE)
 
 def has_access(obj, user, need_view_only):
     if hasattr(obj, 'api_key') and user.is_api_user():
-        return has_access_to_object(obj, user, need_view_only)
+        return has_access_to_object(obj, user.id, need_view_only)
     else:
         return has_access_to_groups(obj, user, need_view_only)
 
 
-def has_access_to_object(obj, user, need_view_only):
-    return (obj.api_key == user.id) and need_view_only
+def has_access_to_object(obj, api_key, need_view_only):
+    if obj.api_key == api_key:
+        return need_view_only
+    elif hasattr(obj, 'dashboard_api_keys'):
+        # check if api_key belongs to a dashboard containing this query
+        return api_key in obj.dashboard_api_keys and need_view_only
+    else:
+        return False
 
 
 def has_access_to_groups(obj, user, need_view_only):

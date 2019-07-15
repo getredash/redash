@@ -227,6 +227,7 @@ def client_config():
         'showPermissionsControl': current_org.get_setting("feature_show_permissions_control"),
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
+        'extendedAlertOptions': settings.FEATURE_EXTENDED_ALERT_OPTIONS,
         'mailSettingsMissing': not settings.email_server_is_configured(),
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
@@ -244,6 +245,18 @@ def client_config():
     client_config.update(number_format_config())
 
     return client_config
+
+
+def messages():
+    messages = []
+
+    if not current_user.is_email_verified:
+        messages.append('email-not-verified')
+
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+        messages.append('using-deprecated-embed-feature')
+
+    return messages
 
 
 def messages():
