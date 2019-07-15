@@ -289,11 +289,15 @@ class QueryExecutionError(Exception):
     pass
 
 
-def _resolve_user(user_id, is_api_key):
+def _resolve_user(user_id, is_api_key, query_id):
     if user_id is not None:
         if is_api_key:
             api_key = user_id
-            q = models.Query.by_api_key(api_key)
+            if query_id is not None:
+                q = models.Query.get_by_id(query_id)
+            else:
+                q = models.Query.by_api_key(api_key)
+
             return models.ApiUser(api_key, q.org, q.groups)
         else:
             return models.User.get_by_id(user_id)
@@ -311,7 +315,7 @@ class QueryExecutor(object):
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = _resolve_user(user_id, is_api_key)
+        self.user = _resolve_user(user_id, is_api_key, metadata.get('Query ID'))
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()

@@ -67,7 +67,7 @@
           <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-fullscreen"></span>
           </button>
-          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing" data-test="OpenShareForm">
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>

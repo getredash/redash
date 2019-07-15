@@ -1,5 +1,9 @@
-<div class="container p-t-10 p-b-20">
+<div class="container p-t-10 p-b-20" ng-if="$ctrl.dashboard">
   <page-header title="$ctrl.dashboard.name"></page-header>
+
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
+    <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
+  </div>
 
   <div class="m-b-5">
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange"></filters>
