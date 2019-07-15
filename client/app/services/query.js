@@ -144,6 +144,14 @@ export class Parameter {
     } else if (this.type === 'number') {
       this.value = value;
       this.$$value = normalizeNumericValue(value, null);
+    } else if ((this.type === 'enum' || this.type === 'query') && value) {
+      if (this.multiValuesOptions) {
+        value = isArray(value) ? value : [value];
+      } else {
+        value = isArray(value) ? value[0] : value;
+      }
+      this.value = value;
+      this.$$value = value;
     } else {
       this.value = value;
       this.$$value = value;

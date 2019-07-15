@@ -38,7 +38,7 @@ function ParametersDirective($location) {
         EditParameterSettingsDialog
           .showModal({ parameter })
           .result.then((updated) => {
-            scope.parameters[index] = extend(parameter, updated);
+            scope.parameters[index] = extend(parameter, updated).setValue(updated.value);
             scope.onUpdated();
           });
       };
