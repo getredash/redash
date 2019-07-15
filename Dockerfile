@@ -1,8 +1,11 @@
 FROM node:10 as frontend-builder
 
+ENV CYPRESS_INSTALL_BINARY=0
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
-RUN CYPRESS_INSTALL_BINARY=0 npm install
+RUN npm install
 
 COPY client /frontend/client
 COPY webpack.config.js /frontend/

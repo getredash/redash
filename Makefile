@@ -35,7 +35,7 @@ backend-unit-tests: up test_db
 	docker-compose run --rm --name tests server tests
 
 frontend-unit-tests: bundle
-	CYPRESS_INSTALL_BINARY=0 npm install
+	CYPRESS_INSTALL_BINARY=0 PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install
 	npm run bundle
 	npm test
 

@@ -1,7 +1,8 @@
 [build]
   base    = "client"
   publish = "client/dist"
-  command = "CYPRESS_INSTALL_BINARY=0 npm install && npm run build"
+  command = "npm run build"
+  enviroment = { CYPRESS_INSTALL_BINARY = "0", PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="1" }
 
 [[redirects]]
   from = "/api/*"
