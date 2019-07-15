@@ -28,6 +28,13 @@ function isTypeDateRange(type) {
   return /-range/.test(type);
 }
 
+function joinExampleList(multiValuesOptions) {
+  const { prefix, suffix } = multiValuesOptions;
+  return ['value1', 'value2', 'value3']
+    .map(value => `${prefix}${value}${suffix}`)
+    .join(',');
+}
+
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
   let helpText = '';
   let validateStatus = '';
@@ -217,7 +224,15 @@ function EditParameterSettingsDialog(props) {
           </Form.Item>
         )}
         {(param.type === 'enum' || param.type === 'query') && param.multiValuesOptions && (
-          <Form.Item label="Quote Option" colon={false} {...formItemProps}>
+          <Form.Item
+            label="Quote Option"
+            help={(
+              <React.Fragment>
+                How to serialize values: <code>{joinExampleList(param.multiValuesOptions)}</code>
+              </React.Fragment>
+            )}
+            {...formItemProps}
+          >
             <Select
               value={param.multiValuesOptions.prefix}
               onChange={quoteOption => setParam({ ...param,
