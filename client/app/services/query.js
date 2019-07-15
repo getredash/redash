@@ -219,25 +219,32 @@ class Parameters {
   }
 
   parseQuery() {
+    const fallback = () => map(this.query.options.parameters, i => i.name);
+
     let parameters = [];
-    try {
-      const parts = Mustache.parse(this.query.query);
-      parameters = uniq(collectParams(parts));
-    } catch (e) {
-      logger('Failed parsing parameters: ', e);
-      // Return current parameters so we don't reset the list
-      parameters = map(this.query.options.parameters, i => i.name);
+    if (this.query.query) {
+      try {
+        const parts = Mustache.parse(this.query.query);
+        parameters = uniq(collectParams(parts));
+      } catch (e) {
+        logger('Failed parsing parameters: ', e);
+        // Return current parameters so we don't reset the list
+        parameters = fallback();
+      }
+    } else {
+      parameters = fallback();
     }
+
     return parameters;
   }
 
-  updateParameters() {
-    if (this.query.query === this.cachedQueryText) {
+  updateParameters(update) {
+    if (this.query.query && this.query.query === this.cachedQueryText) {
       return;
     }
 
     this.cachedQueryText = this.query.query;
-    const parameterNames = this.parseQuery();
+    const parameterNames = update ? this.parseQuery() : map(this.query.options.parameters, p => p.name);
 
     this.query.options.parameters = this.query.options.parameters || [];
 
@@ -269,8 +276,8 @@ class Parameters {
     });
   }
 
-  get() {
-    this.updateParameters();
+  get(update = true) {
+    this.updateParameters(update);
     return this.query.options.parameters;
   }
 
@@ -478,10 +485,6 @@ function QueryResource(
   };
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
-    if (!this.query) {
-      return new QueryResultError("Can't execute empty query.");
-    }
-
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -517,10 +520,8 @@ function QueryResource(
       if (!this.queryResult) {
         this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
-    } else if (this.data_source_id) {
-      this.queryResult = execute();
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      this.queryResult = execute();
     }
 
     return this.queryResult;
@@ -533,6 +534,10 @@ function QueryResource(
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
+    if (!queryText) {
+      return new QueryResultError("Can't execute empty query.");
+    }
+
     const parameters = this.getParameters().getValues();
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
@@ -576,8 +581,8 @@ function QueryResource(
     return this.$parameters;
   };
 
-  QueryService.prototype.getParametersDefs = function getParametersDefs() {
-    return this.getParameters().get();
+  QueryService.prototype.getParametersDefs = function getParametersDefs(update = true) {
+    return this.getParameters().get(update);
   };
 
   return QueryService;

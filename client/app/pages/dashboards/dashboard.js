@@ -387,15 +387,14 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    // check if any of the wigets have query parameters
-    const hasQueryParams = _.some(
+    const hasOnlySafeQueries = _.every(
       this.dashboard.widgets,
-      w => !_.isEmpty(w.getQuery() && w.getQuery().getParametersDefs()),
+      w => (w.getQuery() ? w.getQuery().is_safe : true),
     );
 
     ShareDashboardDialog.showModal({
       dashboard: this.dashboard,
-      hasQueryParams,
+      hasOnlySafeQueries,
     });
   };
 }

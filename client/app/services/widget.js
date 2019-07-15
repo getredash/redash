@@ -212,7 +212,7 @@ function WidgetFactory($http, $location, Query) {
 
       const existingParams = {};
       // textboxes does not have query
-      const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
+      const params = this.getQuery() ? this.getQuery().getParametersDefs(false) : [];
       each(params, (param) => {
         existingParams[param.name] = true;
         if (!isObject(this.options.parameterMappings[param.name])) {

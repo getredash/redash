@@ -131,7 +131,7 @@ describe('Parameter', () => {
         ParameterTypeSelect
         DateParameterTypeOption
         UseCurrentDateTimeCheckbox
-        SaveParameterSettings 
+        SaveParameterSettings
       `);
 
       const now = new Date();
