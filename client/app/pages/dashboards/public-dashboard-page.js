@@ -39,12 +39,15 @@ const PublicDashboardPage = {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
         this.dashboard.widgets.forEach((widget) => {
-          widget.load(!!refreshRate).catch((error) => {
-            const isSafe = widget.getQuery() ? widget.getQuery().is_safe : true;
-            if (!isSafe) {
-              error.errorMessage = 'This query contains potentially unsafe parameters and cannot be executed on a publicly shared dashboard.';
-            }
-          });
+          const promise = widget.load(!!refreshRate);
+          if (promise) {
+            promise.catch((error) => {
+              const isSafe = widget.getQuery() ? widget.getQuery().is_safe : true;
+              if (!isSafe) {
+                error.errorMessage = 'This query contains potentially unsafe parameters and cannot be executed on a publicly shared dashboard.';
+              }
+            });
+          }
         });
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
         this.filtersOnChange = (allFilters) => {
