@@ -225,10 +225,10 @@ function EditParameterSettingsDialog(props) {
         )}
         {(param.type === 'enum' || param.type === 'query') && param.multiValuesOptions && (
           <Form.Item
-            label="Quote Option"
+            label="Quotation"
             help={(
               <React.Fragment>
-                How to serialize values: <code>{joinExampleList(param.multiValuesOptions)}</code>
+                Placed in query as: <code>{joinExampleList(param.multiValuesOptions)}</code>
               </React.Fragment>
             )}
             {...formItemProps}
@@ -242,9 +242,9 @@ function EditParameterSettingsDialog(props) {
                   suffix: quoteOption,
                 } })}
             >
-              <Option value="">value</Option>
-              <Option value="'">{'\''}value{'\''}</Option>
-              <Option value={'"'}>{'"'}value{'"'}</Option>
+              <Option value="">None (default)</Option>
+              <Option value="'">Single Quotation Mark</Option>
+              <Option value={'"'}>Double Quotation Mark</Option>
             </Select>
           </Form.Item>
         )}
