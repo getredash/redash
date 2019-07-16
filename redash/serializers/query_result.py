@@ -57,8 +57,12 @@ def _get_column_lists(columns):
     return fieldnames, special_columns
 
 
-def serialize_query_result(query_result):
-    return query_result.to_dict()
+def serialize_query_result(query_result, is_api_user):
+    if is_api_user:
+        publicly_needed_keys = ['data', 'retrieved_at']
+        return { key: query_result.to_dict()[key] for key in publicly_needed_keys }
+    else:
+        return query_result.to_dict()
 
 
 def serialize_query_result_to_csv(query_result):

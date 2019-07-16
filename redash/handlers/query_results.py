@@ -42,7 +42,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
-        return {'query_result': serialize_query_result(query_result)}
+        return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
     else:
         job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
             "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
