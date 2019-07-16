@@ -57,6 +57,10 @@ def _get_column_lists(columns):
     return fieldnames, special_columns
 
 
+def serialize_query_result(query_result):
+    return query_result.to_dict()
+
+
 def serialize_query_result_to_csv(query_result):
     s = cStringIO.StringIO()
 
