@@ -182,7 +182,12 @@ class QueryResultResource(BaseResource):
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            if current_user.is_api_user() and not query.parameterized.is_safe:
+                message = 'This query contains potentially unsafe parameters and cannot be executed on a publicly shared resource.'
+            else:
+                message = 'You do not have permission to run queries with this data source.'
+
+            return {'job': {'status': 4, 'error': message}}, 403
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
