@@ -114,7 +114,7 @@ function WidgetFactory($http, $location, Query) {
 
     load(force, maxAge) {
       if (!this.visualization) {
-        return undefined;
+        return Promise.resolve();
       }
 
       // Both `this.data` and `this.queryResult` are query result objects;

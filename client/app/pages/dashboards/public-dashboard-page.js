@@ -44,6 +44,8 @@ const PublicDashboardPage = {
             if (!isSafe) {
               error.errorMessage = 'This query contains potentially unsafe parameters and cannot be executed on a publicly shared dashboard.';
             }
+
+            throw error;
           });
         });
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
