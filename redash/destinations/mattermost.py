@@ -36,9 +36,9 @@ class Mattermost(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, options):
         if new_state == "triggered":
-            text = "####" + alert.name + " just triggered"
+            text = "#### " + alert.name + " just triggered"
         else:
-            text = "####" + alert.name + " went back to normal"
+            text = "#### " + alert.name + " went back to normal"
 
         if alert.custom_subject:
             text += '\n' + alert.custom_subject
