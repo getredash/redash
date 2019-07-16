@@ -1,7 +1,7 @@
 [build]
   base    = "client"
   publish = "client/dist"
-  command = "npm run build"
+  command = "npm install && npm run build"
   enviroment = { CYPRESS_INSTALL_BINARY = "0", PUPPETEER_SKIP_CHROMIUM_DOWNLOAD="1" }
 
 [[redirects]]
