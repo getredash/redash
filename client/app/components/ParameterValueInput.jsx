@@ -139,7 +139,7 @@ export class ParameterValueInput extends React.Component {
         mode={allowMultipleValues ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
-        defaultValue={value}
+        value={value}
         onChange={onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"

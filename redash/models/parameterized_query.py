@@ -140,6 +140,7 @@ class ParameterizedQuery(object):
             return False
 
         enum_options = definition.get('enumOptions')
+        query_id = definition.get('queryId')
         allow_multiple_values = isinstance(definition.get('multiValuesOptions'), dict)
 
         if isinstance(enum_options, basestring):
@@ -152,7 +153,7 @@ class ParameterizedQuery(object):
                                                            enum_options,
                                                            allow_multiple_values),
             "query": lambda value: _is_value_within_options(value,
-                                                            [v["value"] for v in dropdown_values(definition["queryId"])],
+                                                            [v["value"] for v in dropdown_values(query_id)],
                                                             allow_multiple_values),
             "date": _is_date,
             "datetime-local": _is_date,

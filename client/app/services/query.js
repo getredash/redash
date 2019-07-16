@@ -2,7 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, filter, includes, union, uniq, has, get,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has, get, intersection,
   isNull, isUndefined, isArray, isObject, identity, extend, each, join,
 } from 'lodash';
 
@@ -114,6 +114,18 @@ export class Parameter {
   }
 
   setValue(value) {
+    if (this.type === 'enum') {
+      const enumOptionsArray = this.enumOptions.split('\n');
+      if (this.multiValuesOptions) {
+        if (!isArray(value)) {
+          value = [value];
+        }
+        value = intersection(value, enumOptionsArray);
+      } else if (!value || isArray(value) || !includes(enumOptionsArray, value)) {
+        value = enumOptionsArray[0];
+      }
+    }
+
     if (isDateRangeParameter(this.type)) {
       this.value = null;
       this.$$value = null;
@@ -144,14 +156,6 @@ export class Parameter {
     } else if (this.type === 'number') {
       this.value = value;
       this.$$value = normalizeNumericValue(value, null);
-    } else if ((this.type === 'enum' || this.type === 'query') && value) {
-      if (this.multiValuesOptions) {
-        value = isArray(value) ? value : [value];
-      } else {
-        value = isArray(value) ? value[0] : value;
-      }
-      this.value = value;
-      this.$$value = value;
     } else {
       this.value = value;
       this.$$value = value;
