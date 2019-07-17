@@ -13,6 +13,8 @@ from statsd import StatsClient
 
 from . import settings
 from .app import create_app  # noqa
+from .query_runner import import_query_runners
+from .destinations import import_destinations
 
 __version__ = '8.0.0-beta'
 
@@ -66,11 +68,10 @@ def create_redis_connection():
 setup_logging()
 
 redis_connection = create_redis_connection()
-
 mail = Mail()
-
 migrate = Migrate()
-
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
-
 limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
+
+import_query_runners()
+import_destinations(settings.DESTINATIONS)
