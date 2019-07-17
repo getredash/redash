@@ -1,5 +1,5 @@
 import { filter } from 'lodash';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import Table from 'antd/lib/table';
 import Input from 'antd/lib/input';
 import { RendererPropTypes } from '@/visualizations';
@@ -18,10 +18,13 @@ export default function Renderer({ options, data }) {
     [options.columns],
   );
 
+  const searchInputRef = useRef();
+  const onSearchInputChange = useCallback(event => setSearchTerm(event.target.value), [setSearchTerm]);
+
   const tableColumns = useMemo(
     () => {
       const searchInput = searchColumns.length > 0 ? (
-        <Input.Search placeholder="Search..." onChange={e => setSearchTerm(e.target.value)} />
+        <Input.Search ref={searchInputRef} placeholder="Search..." onChange={onSearchInputChange} />
       ) : null;
 
       return prepareColumns(options.columns, searchInput, orderBy, (newOrderBy) => {
@@ -30,13 +33,26 @@ export default function Renderer({ options, data }) {
         document.getSelection().removeAllRanges();
       });
     },
-    [options.columns, searchColumns, setSearchTerm, orderBy, setOrderBy],
+    [options.columns, searchColumns, searchInputRef, onSearchInputChange, orderBy, setOrderBy],
   );
 
   const preparedRows = useMemo(
     () => sortRows(filterRows(data.rows, searchTerm, searchColumns), orderBy),
     [data.rows, searchTerm, searchColumns, orderBy],
   );
+
+  // If data or config columns change - reset sorting and search
+  useEffect(() => {
+    setSearchTerm('');
+    // Do not use `<Input value={searchTerm}>` because it leads to many renderings and lags on user
+    // input. This is the only place where we need to change search input's value from "outer world",
+    // so let's use this "hack" for better performance.
+    if (searchInputRef.current) {
+      // pass value and fake event-like object
+      searchInputRef.current.input.setValue('', { target: { value: '' } });
+    }
+    setOrderBy([]);
+  }, [options.columns, data.columns, searchInputRef]);
 
   if (data.rows.length === 0) {
     return null;
@@ -45,6 +61,7 @@ export default function Renderer({ options, data }) {
   return (
     <div className="table-visualization-container">
       <Table
+        data-test="TableVisualization"
         columns={tableColumns}
         dataSource={preparedRows}
         rowKey={(record, index) => rowKeyPrefix + index}

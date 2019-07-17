@@ -30,14 +30,14 @@ describe('Parameter', () => {
         .contains('Apply')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 'Redash');
 
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .type('{selectall}New value{enter}');
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 'New value');
     });
   });
@@ -67,14 +67,14 @@ describe('Parameter', () => {
         .contains('Apply')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 42);
 
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .type('{selectall}31415{enter}');
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 31415);
     });
   });
@@ -106,7 +106,7 @@ describe('Parameter', () => {
       cy.contains('li.ant-select-dropdown-menu-item', 'value1')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 'value1');
     });
   });
@@ -152,7 +152,7 @@ describe('Parameter', () => {
         .contains('.ant-calendar-date', '15')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment().format('15/MM/YY'));
     });
   });
@@ -203,7 +203,7 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
-        cy.getByTestId('DynamicTable')
+        cy.getByTestId('TableVisualization')
           .should('contain', now.format('YYYY-MM-15 HH:mm'));
       });
     });
@@ -219,7 +219,7 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-input').then(($input) => {
         const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
-        cy.getByTestId('DynamicTable')
+        cy.getByTestId('TableVisualization')
           .should('contain', now.format('YYYY-MM-01 HH:mm'));
       });
     });

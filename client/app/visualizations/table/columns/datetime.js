@@ -19,3 +19,5 @@ export default function initDateTimeColumn(column) {
 
   return DateTimeColumn;
 }
+
+initDateTimeColumn.friendlyName = 'Date/Time';

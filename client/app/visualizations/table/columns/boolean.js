@@ -19,3 +19,5 @@ export default function initBooleanColumn(column) {
 
   return BooleanColumn;
 }
+
+initBooleanColumn.friendlyName = 'Boolean';

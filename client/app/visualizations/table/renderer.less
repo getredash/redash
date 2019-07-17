@@ -6,30 +6,45 @@
     transform: translateX(-50%);
   }
 
-  table th {
-    .ant-input-search {
-      font-weight: normal;
-
-      .ant-input-suffix .anticon {
-        cursor: auto;
-      }
+  table {
+    .display-as-number,
+    .display-as-boolean,
+    .display-as-datetime,
+    .display-as-image {
+      width: 1%;
+      white-space: nowrap;
     }
 
-    .sort-column-order-indicator {
-      @size: 12px;
+    .table-visualization-spacer {
+      padding-left: 0;
+      padding-right: 0;
+    }
 
-      display: inline-block;
-      vertical-align: middle;
-      min-width: @size;
-      height: @size;
-      font-size: @size * 3/4;
-      border-radius: @size / 2;
-      background: #c0c0c0;
-      text-align: center;
-      line-height: @size;
-      color: #fff;
-      padding: 0 @size * 1/4;
-      margin: 0 5px 0 0;
+    th {
+      .ant-input-search {
+        font-weight: normal;
+
+        .ant-input-suffix .anticon {
+          cursor: auto;
+        }
+      }
+
+      .sort-column-order-indicator {
+        @size: 12px;
+
+        display: inline-block;
+        vertical-align: middle;
+        min-width: @size;
+        height: @size;
+        font-size: @size * 3/4;
+        border-radius: @size / 2;
+        background: #c0c0c0;
+        text-align: center;
+        line-height: @size;
+        color: #fff;
+        padding: 0 @size * 1/4;
+        margin: 0 5px 0 0;
+      }
     }
   }
 }

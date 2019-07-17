@@ -4,7 +4,7 @@ import React from 'react';
 import JsonViewInteractive from '@/components/json-view-interactive/JsonViewInteractive';
 import { clientConfig } from '@/services/auth';
 
-export default function linkColumn(column) {
+export default function initJsonColumn(column) {
   function prepareData(row) {
     const text = row[column.name];
     if (isString(text) && (text.length <= clientConfig.tableCellMaxJSONSize)) {
@@ -34,3 +34,5 @@ export default function linkColumn(column) {
 
   return JsonColumn;
 }
+
+initJsonColumn.friendlyName = 'JSON';

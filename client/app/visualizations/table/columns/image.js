@@ -3,7 +3,7 @@ import { extend, trim } from 'lodash';
 import React from 'react';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
-export default function imageColumn(column) {
+export default function initImageColumn(column) {
   function prepareData(row) {
     row = extend({ '@': row[column.name] }, row);
 
@@ -41,3 +41,5 @@ export default function imageColumn(column) {
 
   return ImageColumn;
 }
+
+initImageColumn.friendlyName = 'Image';

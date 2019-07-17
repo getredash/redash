@@ -3,7 +3,7 @@ import { extend, trim } from 'lodash';
 import React from 'react';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
-export default function linkColumn(column) {
+export default function initLinkColumn(column) {
   function prepareData(row) {
     row = extend({ '@': row[column.name] }, row);
 
@@ -39,3 +39,5 @@ export default function linkColumn(column) {
 
   return LinkColumn;
 }
+
+initLinkColumn.friendlyName = 'Link';

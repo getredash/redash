@@ -21,3 +21,5 @@ export default function initTextColumn(column) {
 
   return TextColumn;
 }
+
+initTextColumn.friendlyName = 'Text';

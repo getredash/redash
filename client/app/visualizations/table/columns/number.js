@@ -19,3 +19,5 @@ export default function initNumberColumn(column) {
 
   return NumberColumn;
 }
+
+initNumberColumn.friendlyName = 'Number';

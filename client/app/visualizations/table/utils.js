@@ -77,7 +77,6 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       // based on row index
       dataIndex: null,
       align: column.alignContent,
-      // sorter: true,
       title: (
         <React.Fragment>
           <div className={'d-flex align-items-center justify-content-' + column.alignContent}>
@@ -118,14 +117,24 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     return result;
   });
 
+  tableColumns.push({
+    key: '(spacer)',
+    dataIndex: null,
+    title: '',
+    className: 'table-visualization-spacer',
+    render: () => '',
+    onHeaderCell: () => ({ className: 'table-visualization-spacer' }),
+  });
+
   if (searchInput) {
     // We need a merged head cell through entire row. With Ant's Table the only way to do it
     // is to add a single child to every column move `dataIndex` property to it and set
     // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
-    tableColumns = map(tableColumns, ({ title, align, key, ...rest }, index) => ({
+    tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
       key: key + '(parent)',
       title,
       align,
+      onHeaderCell,
       children: [{
         ...rest,
         key: key + '(child)',
