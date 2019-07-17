@@ -70,16 +70,16 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const isDescend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'descend');
 
     const result = {
-      key: column.name, // set this since we don't use `dataIndex`
+      key: column.name, // set this because we don't use `dataIndex`
       // Column name may contain any characters (or be empty at all), therefore
-      // we cannot use `dataIndex` since it has special syntax and will not work
-      // for all possible column names. Instead, we'll generate `dataIndex` dynamically
+      // we cannot use `dataIndex` because it has special syntax and will not work
+      // for all possible column names. Instead, we'll generate row key dynamically
       // based on row index
       dataIndex: null,
       align: column.alignContent,
       title: (
         <React.Fragment>
-          <div className={'d-flex align-items-center justify-content-' + column.alignContent}>
+          <div className={`d-flex align-items-center justify-content-${column.alignContent}`}>
             {isMultiColumnSort && orderByInfo[column.name] && (
               <span className="sort-column-order-indicator">{orderByInfo[column.name].index}</span>
             )}
@@ -109,16 +109,14 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const Component = initColumn(column);
     result.render = (unused, row) => ({
       children: <Component row={row} />,
-      props: {
-        className: 'display-as-' + column.displayAs,
-      },
+      props: { className: `display-as-${column.displayAs}` },
     });
 
     return result;
   });
 
   tableColumns.push({
-    key: '(spacer)',
+    key: '###Redash::Visualizations::Table::Spacer###',
     dataIndex: null,
     title: '',
     className: 'table-visualization-spacer',
