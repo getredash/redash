@@ -129,14 +129,14 @@ describe('Parameter', () => {
         .find('.ant-select')
         .click();
 
-      cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+      cy.contains('li.ant-select-dropdown-menu-item', 'value2')
         .click();
 
       cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', 'value1');
+        .should('contain', 'value2');
     });
 
     it('sets dirty state when edited', () => {
@@ -145,7 +145,7 @@ describe('Parameter', () => {
           .find('.ant-select')
           .click();
 
-        cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+        cy.contains('li.ant-select-dropdown-menu-item', 'value2')
           .click();
       });
     });
