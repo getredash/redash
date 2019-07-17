@@ -152,6 +152,17 @@ describe('Parameter', () => {
   });
 
   describe('Date Parameter', () => {
+    const selectCalendarDate = (date) => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .click();
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('.ant-calendar-date', date)
+        .click()
+        .click(); // workaround for datepicker display bug
+    };
+
     beforeEach(() => {
       const queryData = {
         name: 'Date Parameter',
@@ -170,46 +181,47 @@ describe('Parameter', () => {
         ParameterSettings-test-parameter
         ParameterTypeSelect
         DateParameterTypeOption
-        UseCurrentDateTimeCheckbox
         SaveParameterSettings
       `);
 
       const now = new Date();
       now.setDate(1);
-      cy.clock(now);
+      cy.wrap(now.getTime()).as('now');
+      cy.clock(now.getTime());
     });
 
     afterEach(() => {
       cy.clock().then(clock => clock.restore());
     });
 
-    it('updates the results after selecting a date', () => {
-      cy.getByTestId('ParameterName-test-parameter')
-        .find('input')
-        .click();
-
-      cy.get('.ant-calendar-date-panel')
-        .contains('.ant-calendar-date', '15')
-        .click()
-        .click(); // workaround for datepicker display bug
+    it('updates the results after selecting a date', function () {
+      selectCalendarDate('15');
 
       cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('DynamicTable')
-        .should('contain', Cypress.moment().format('15/MM/YY'));
+        .should('contain', Cypress.moment(this.now).format('15/MM/YY'));
+    });
+
+    it('allows picking a dynamic date', function () {
+      cy.getByTestId('DynamicButton')
+        .click()
+        .click();
+
+      cy.getByTestId('DynamicButtonMenu')
+        .contains('Today/Now')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('DynamicTable')
+        .should('contain', Cypress.moment(this.now).format('DD/MM/YY'));
     });
 
     it('sets dirty state when edited', () => {
-      expectDirtyStateChange(() => {
-        cy.getByTestId('ParameterName-test-parameter')
-          .find('input')
-          .click();
-
-        cy.get('.ant-calendar-date-panel')
-          .contains('.ant-calendar-date', '15')
-          .click();
-      });
+      expectDirtyStateChange(() => selectCalendarDate('15'));
     });
   });
 
@@ -232,12 +244,12 @@ describe('Parameter', () => {
         ParameterSettings-test-parameter
         ParameterTypeSelect
         DateTimeParameterTypeOption
-        UseCurrentDateTimeCheckbox
         SaveParameterSettings
       `);
 
       const now = new Date();
       now.setDate(1);
+      cy.wrap(now.getTime()).as('now');
       cy.clock(now.getTime());
     });
 
@@ -245,7 +257,7 @@ describe('Parameter', () => {
       cy.clock().then(clock => clock.restore());
     });
 
-    it('updates the results after selecting a date and clicking in ok', () => {
+    it('updates the results after selecting a date and clicking in ok', function () {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .as('Input')
@@ -265,14 +277,11 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.get('@Input').then(($input) => {
-        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
-        cy.getByTestId('DynamicTable')
-          .should('contain', now.format('YYYY-MM-15 HH:mm'));
-      });
+      cy.getByTestId('DynamicTable')
+        .should('contain', Cypress.moment(this.now).format('YYYY-MM-15 HH:mm'));
     });
 
-    it('shows the current datetime after clicking in Now', () => {
+    it('shows the current datetime after clicking in Now', function () {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .as('Input')
@@ -286,11 +295,24 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.get('@Input').then(($input) => {
-        const now = Cypress.moment($input.val(), 'DD/MM/YY HH:mm');
-        cy.getByTestId('DynamicTable')
-          .should('contain', now.format('YYYY-MM-01 HH:mm'));
-      });
+      cy.getByTestId('DynamicTable')
+        .should('contain', Cypress.moment(this.now).format('YYYY-MM-DD HH:mm'));
+    });
+
+    it('allows picking a dynamic date', function () {
+      cy.getByTestId('DynamicButton')
+        .click()
+        .click();
+
+      cy.getByTestId('DynamicButtonMenu')
+        .contains('Today/Now')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('DynamicTable')
+        .should('contain', Cypress.moment(this.now).format('YYYY-MM-DD HH:mm'));
     });
 
     it('sets dirty state when edited', () => {

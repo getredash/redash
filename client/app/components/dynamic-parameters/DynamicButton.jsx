@@ -16,6 +16,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
       className="dynamic-menu"
       onClick={({ key }) => onSelect(get(options, key, 'static'))}
       selectedKeys={[`${findIndex(options, { value: selectedDynamicValue })}`]}
+      data-test="DynamicButtonMenu"
     >
       {options.map((option, index) => (
         // eslint-disable-next-line react/no-array-index-key
@@ -48,6 +49,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
             className="dynamic-icon"
           />
         )}
+        data-test="DynamicButton"
       />
     </a>
   );
