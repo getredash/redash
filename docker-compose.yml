@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to setup/docker-compose.yml.
-version: '3'
+version: '3.7'
 services:
   server:
     build: .
@@ -21,9 +21,11 @@ services:
       REDASH_RATELIMIT_ENABLED: "false"
   worker:
     build: .
-    command: scheduler
+    command: dev_worker
     volumes:
-      - ".:/app"
+      - type: bind
+        source: .
+        target: /app
     depends_on:
       - server
     environment:
