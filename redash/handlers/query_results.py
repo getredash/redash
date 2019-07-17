@@ -183,7 +183,7 @@ class QueryResultResource(BaseResource):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
             if current_user.is_api_user() and not query.parameterized.is_safe:
-                message = 'This query contains potentially unsafe parameters and cannot be executed on a publicly shared resource.'
+                message = 'This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or visualization embed.'
             else:
                 message = 'You do not have permission to run queries with this data source.'
 
