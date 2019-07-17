@@ -332,6 +332,12 @@ describe('Parameter', () => {
       const queryData = {
         name: 'Testing Apply Button',
         query: "SELECT '{{test-parameter-1}} {{ test-parameter-2 }}'",
+        options: {
+          parameters: [
+            { name: 'test-parameter-1', title: 'Test Parameter 1', type: 'text' },
+            { name: 'test-parameter-2', title: 'Test Parameter 2', type: 'text' },
+          ],
+        },
       };
 
       createQuery(queryData, false)
