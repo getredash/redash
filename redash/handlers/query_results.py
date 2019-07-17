@@ -15,8 +15,16 @@ from redash.models.parameterized_query import ParameterizedQuery, InvalidParamet
 from redash.serializers import serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
-def error_response(message):
-    return {'job': {'status': 4, 'error': message}}, 400
+def error_response(message, http_status=400):
+    return {'job': {'status': 4, 'error': message}}, http_status
+
+
+error_messages = {
+    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or visualization embed.', 403),
+    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed on this data source.', 403),
+    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
+    'select_data_source': error_response('Please select data source to run this query.', 401)
+}
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
@@ -92,10 +100,10 @@ class QueryResultListResource(BaseResource):
         if data_source_id:
             data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
         else:
-            return {'job': {'status': 4, 'error': 'Please select data source to run this query.'}}, 401
+            return error_messages['select_data_source']
 
         if not has_access(data_source, self.current_user, not_view_only):
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            return error_messages['no_permission']
 
         self.record_event({
             'action': 'execute_query',
@@ -182,12 +190,13 @@ class QueryResultResource(BaseResource):
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
-            if current_user.is_api_user() and not query.parameterized.is_safe:
-                message = 'This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or visualization embed.'
+            if not query.parameterized.is_safe:
+                if current_user.is_api_user():
+                    return error_messages['unsafe_when_shared']
+                else:
+                    return error_messages['unsafe_on_view_only']
             else:
-                message = 'You do not have permission to run queries with this data source.'
-
-            return {'job': {'status': 4, 'error': message}}, 403
+                return error_messages['no_permission']
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
