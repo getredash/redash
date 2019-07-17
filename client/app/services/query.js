@@ -470,6 +470,7 @@ class Parameters {
     }
 
     const params = Object.assign(...this.get().map(p => p.toUrlParams()));
+    Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     return Object
       .keys(params)
       .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
@@ -719,6 +720,7 @@ function QueryResource(
         extend(params, param.toUrlParams());
       });
     }
+    Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
