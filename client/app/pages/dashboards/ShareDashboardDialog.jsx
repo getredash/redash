@@ -16,7 +16,7 @@ const API_SHARE_URL = 'api/dashboards/{id}/share';
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    hasQueryParams: PropTypes.bool.isRequired,
+    hasOnlySafeQueries: PropTypes.bool.isRequired,
     dialog: DialogPropType.isRequired,
   };
 
@@ -35,7 +35,7 @@ class ShareDashboardDialog extends React.Component {
     };
 
     this.apiUrl = replace(API_SHARE_URL, '{id}', dashboard.id);
-    this.disabled = this.props.hasQueryParams && !dashboard.publicAccessEnabled;
+    this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
   static get headerContent() {
@@ -104,10 +104,10 @@ class ShareDashboardDialog extends React.Component {
         footer={null}
       >
         <Form layout="horizontal">
-          {this.props.hasQueryParams && (
+          {!this.props.hasOnlySafeQueries && (
             <Form.Item>
               <Alert
-                message="Sharing is currently not supported for dashboards containing queries with parameters."
+                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
                 type="error"
               />
             </Form.Item>
@@ -117,12 +117,13 @@ class ShareDashboardDialog extends React.Component {
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
               loading={this.state.saving}
-              disabled={this.disabled}
+              disabled={!this.enabled}
+              data-test="PublicAccessEnabled"
             />
           </Form.Item>
           {dashboard.public_url && (
             <Form.Item label="Secret address" {...this.formItemProps}>
-              <InputWithCopy value={dashboard.public_url} />
+              <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}
         </Form>

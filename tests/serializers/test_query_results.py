@@ -14,6 +14,8 @@ data = {
         {"datetime": "2019-05-26T12:39:23.026Z", "bool": True, "date": "2019-05-26"},
         {"datetime": "", "bool": False, "date": ""},
         {"datetime": None, "bool": None, "date": None},
+        {"datetime": 459, "bool": None, "date": 123},
+        {"datetime": "459", "bool": None, "date": "123"},
     ], 
     "columns": [
         {"friendly_name": "bool", "type": "boolean", "name": "bool"}, 
@@ -47,3 +49,11 @@ class CsvSerializationTest(BaseTestCase):
         self.assertEqual(rows[0]['date'], '26/05/19')
         self.assertEqual(rows[1]['date'], '')
         self.assertEqual(rows[2]['date'], '')
+
+    def test_serializes_datatime_as_is_in_case_of_error(self):
+        with self.app.test_request_context('/'):
+            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
+        rows = list(parsed)
+
+        self.assertEqual(rows[3]['datetime'], '459')
+        self.assertEqual(rows[3]['date'], '123')
