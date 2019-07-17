@@ -208,6 +208,7 @@ export class Parameter {
     }
 
     if (isEmptyValue) {
+      // keep support for existing useCurentDateTime (not available in UI)
       if (
         includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
         useCurrentDateTime
