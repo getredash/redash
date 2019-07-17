@@ -203,7 +203,7 @@ function DashboardCtrl(
   this.loadDashboard();
 
   this.refreshDashboard = () => {
-    renderDashboard(this.dashboard, true);
+    collectFilters(this.dashboard, true);
   };
 
   this.autoRefresh = () => {
