@@ -162,7 +162,7 @@ function EditParameterSettingsDialog(props) {
             <Option disabled key="dv2">
               <Divider className="select-option-divider" />
             </Option>
-            <Option value="date-range">Date Range</Option>
+            <Option value="date-range" data-test="DateRangeParameterTypeOption">Date Range</Option>
             <Option value="datetime-range">Date and Time Range</Option>
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
