@@ -536,7 +536,16 @@ export class ParameterMappingListInput extends React.Component {
       param = param.clone().setValue(mapping.value);
     }
 
-    const value = Parameter.getValue(param);
+    let value = Parameter.getValue(param);
+
+    // in case of dynamic value display the name instead of value
+    if (param.hasDynamicDate) {
+      value = param.dynamicDate.name;
+    }
+    if (param.hasDynamicDateRange) {
+      value = param.dynamicDateRange.name;
+    }
+
     return this.getStringValue(value);
   }
 
