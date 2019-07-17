@@ -73,5 +73,5 @@ migrate = Migrate()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
 
-import_query_runners()
+import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)
