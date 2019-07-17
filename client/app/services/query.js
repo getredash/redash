@@ -115,7 +115,7 @@ export class Parameter {
 
   setValue(value) {
     if (this.type === 'enum') {
-      const enumOptionsArray = this.enumOptions.split('\n');
+      const enumOptionsArray = this.enumOptions && this.enumOptions.split('\n') || [];
       if (this.multiValuesOptions) {
         if (!isArray(value)) {
           value = [value];
