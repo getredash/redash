@@ -21,6 +21,8 @@
   </div>
 </div>
 
+<big-message ng-if="!$ctrl.dashboard" icon="'fa-spinner fa-2x fa-pulse'" message="'Loading...'" class-name="'help-message'" class="container" style="display: flex; align-items: center; justify-content: center;"></big-message>
+
 <div id="footer">
   <div class="text-center">
     <a href="https://redash.io"><img ng-src="{{$ctrl.logoUrl}}" width="38"/></a>

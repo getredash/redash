@@ -167,7 +167,27 @@ export class Parameter {
       });
     }
 
+    this.clearPendingValue();
+
     return this;
+  }
+
+  setPendingValue(value) {
+    this.pendingValue = value;
+  }
+
+  applyPendingValue() {
+    if (this.hasPendingValue) {
+      this.setValue(this.pendingValue);
+    }
+  }
+
+  clearPendingValue() {
+    this.setPendingValue(undefined);
+  }
+
+  get hasPendingValue() {
+    return this.pendingValue !== undefined && this.pendingValue !== this.value;
   }
 
   get normalizedValue() {
@@ -331,6 +351,10 @@ class Parameters {
   getValues(joinListValues = false) {
     const params = this.get();
     return zipObject(map(params, i => i.name), map(params, i => i.getValue(joinListValues)));
+  }
+
+  applyPendingValues() {
+    each(this.get(), p => p.applyPendingValue());
   }
 
   toUrlParams() {
@@ -517,6 +541,7 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
+    parameters.applyPendingValues();
     const missingParams = parameters.getMissing();
 
     if (missingParams.length > 0) {
