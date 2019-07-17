@@ -25,7 +25,7 @@ const DATETIME_FORMATS = {
 
 const DYNAMIC_PREFIX = 'd_';
 
-export const DYNAMIC_DATE_RANGES = {
+const DYNAMIC_DATE_RANGES = {
   today: {
     name: 'Today',
     value: () => [moment().startOf('day'), moment().endOf('day')],
@@ -64,7 +64,7 @@ export const DYNAMIC_DATE_RANGES = {
   },
 };
 
-export const DYNAMIC_DATES = {
+const DYNAMIC_DATES = {
   now: {
     name: 'Today/Now',
     value: () => moment(),
@@ -102,28 +102,28 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
-function isDynamicDate(value) {
+export function isDynamicDate(value) {
   if (!startsWith(value, DYNAMIC_PREFIX)) {
     return false;
   }
   return !!DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
-function isDynamicDateRange(value) {
+export function isDynamicDateRange(value) {
   if (!startsWith(value, DYNAMIC_PREFIX)) {
     return false;
   }
   return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
-function getDynamicDate(value) {
+export function getDynamicDate(value) {
   if (!isDynamicDate(value)) {
     return null;
   }
   return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
-function getDynamicDateRange(value) {
+export function getDynamicDateRange(value) {
   if (!isDynamicDateRange(value)) {
     return null;
   }
@@ -244,7 +244,7 @@ export class Parameter {
         const dynamicDateRange = getDynamicDateRange(value, this.type);
         if (dynamicDateRange) {
           this.value = value;
-          this.$$value = [dynamicDateRange.value()[0], dynamicDateRange.value()[1]];
+          this.$$value = value;
         }
       }
     } else if (isDateParameter(this.type)) {
@@ -255,7 +255,7 @@ export class Parameter {
         const dynamicDate = getDynamicDate(value);
         if (dynamicDate) {
           this.value = value;
-          this.$$value = dynamicDate.value();
+          this.$$value = value;
         }
       } else {
         value = moment(value);

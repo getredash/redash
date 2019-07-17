@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { includes } from 'lodash';
-import { DYNAMIC_DATES } from '@/services/query';
+import { isDynamicDate, getDynamicDate } from '@/services/query';
 import { DateInput } from '@/components/DateInput';
 import { DateTimeInput } from '@/components/DateTimeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
@@ -13,10 +13,10 @@ import './DynamicParameters.less';
 const DYNAMIC_DATE_OPTIONS = [
   { name: 'Today/Now',
     value: 'd_now',
-    label: () => DYNAMIC_DATES.now.value().format('MMM D') },
+    label: () => getDynamicDate('d_now').value().format('MMM D') },
   { name: 'Yesterday',
     value: 'd_yesterday',
-    label: () => DYNAMIC_DATES.yesterday.value().format('MMM D') },
+    label: () => getDynamicDate('d_yesterday').value().format('MMM D') },
 ];
 
 class DateParameter extends React.Component {
@@ -36,30 +36,18 @@ class DateParameter extends React.Component {
     onSelect: () => {},
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { hasDynamicValue: !!(props.parameter && props.parameter.hasDynamicDate) };
-  }
-
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      this.setState({ hasDynamicValue: false });
       onSelect(parameter.getValue());
     } else {
-      this.setState({ hasDynamicValue: true });
       onSelect(dynamicValue.value);
     }
   };
 
-  onSelect = (value) => {
-    const { onSelect } = this.props;
-    this.setState({ hasDynamicValue: false }, () => onSelect(value));
-  };
-
   render() {
-    const { type, value, parameter, className } = this.props;
-    const { hasDynamicValue } = this.state;
+    const { type, value, parameter, className, onSelect } = this.props;
+    const hasDynamicValue = isDynamicDate(value);
     const isDateTime = includes(type, 'datetime');
 
     const additionalAttributes = {};
@@ -77,14 +65,15 @@ class DateParameter extends React.Component {
     }
 
     if (hasDynamicValue) {
-      additionalAttributes.placeholder = parameter.dynamicDate && parameter.dynamicDate.name;
+      const dynamicDate = getDynamicDate(value);
+      additionalAttributes.placeholder = dynamicDate && dynamicDate.name;
       additionalAttributes.value = null;
     }
 
     return (
       <DateComponent
         className={classNames('redash-datepicker', { 'dynamic-value': hasDynamicValue }, className)}
-        onSelect={this.onSelect}
+        onSelect={onSelect}
         suffixIcon={(
           <DynamicButton
             options={DYNAMIC_DATE_OPTIONS}

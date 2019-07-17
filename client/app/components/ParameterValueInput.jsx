@@ -57,7 +57,8 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateParameter() {
-    const { type, value, parameter } = this.props;
+    const { type, parameter } = this.props;
+    const { value } = this.state;
     return (
       <DateParameter
         type={type}
@@ -70,7 +71,8 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderDateRangeParameter() {
-    const { type, value, parameter } = this.props;
+    const { type, parameter } = this.props;
+    const { value } = this.state;
     return (
       <DateRangeParameter
         type={type}

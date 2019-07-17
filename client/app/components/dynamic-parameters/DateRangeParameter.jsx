@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { includes, isArray, isString } from 'lodash';
-import { DYNAMIC_DATE_RANGES } from '@/services/query';
+import { isDynamicDateRange, getDynamicDateRange } from '@/services/query';
 import { DateRangeInput } from '@/components/DateRangeInput';
 import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
@@ -13,28 +13,28 @@ import './DynamicParameters.less';
 const DYNAMIC_DATE_OPTIONS = [
   { name: 'This week',
     value: 'd_this_week',
-    label: () => DYNAMIC_DATE_RANGES.this_week.value()[0].format('MMM D') + ' - ' +
-                 DYNAMIC_DATE_RANGES.this_week.value()[1].format('MMM D') },
-  { name: 'This month', value: 'd_this_month', label: () => DYNAMIC_DATE_RANGES.this_month.value()[0].format('MMMM') },
-  { name: 'This year', value: 'd_this_year', label: () => DYNAMIC_DATE_RANGES.this_year.value()[0].format('YYYY') },
+    label: () => getDynamicDateRange('d_this_week').value()[0].format('MMM D') + ' - ' +
+                 getDynamicDateRange('d_this_week').value()[1].format('MMM D') },
+  { name: 'This month', value: 'd_this_month', label: () => getDynamicDateRange('d_this_month').value()[0].format('MMMM') },
+  { name: 'This year', value: 'd_this_year', label: () => getDynamicDateRange('d_this_year').value()[0].format('YYYY') },
   { name: 'Last week',
     value: 'd_last_week',
-    label: () => DYNAMIC_DATE_RANGES.last_week.value()[0].format('MMM D') + ' - ' +
-                 DYNAMIC_DATE_RANGES.last_week.value()[1].format('MMM D') },
-  { name: 'Last month', value: 'd_last_month', label: () => DYNAMIC_DATE_RANGES.last_month.value()[0].format('MMMM') },
-  { name: 'Last year', value: 'd_last_year', label: () => DYNAMIC_DATE_RANGES.last_year.value()[0].format('YYYY') },
+    label: () => getDynamicDateRange('d_last_week').value()[0].format('MMM D') + ' - ' +
+                 getDynamicDateRange('d_last_week').value()[1].format('MMM D') },
+  { name: 'Last month', value: 'd_last_month', label: () => getDynamicDateRange('d_last_month').value()[0].format('MMMM') },
+  { name: 'Last year', value: 'd_last_year', label: () => getDynamicDateRange('d_last_year').value()[0].format('YYYY') },
   { name: 'Last 7 days',
     value: 'd_last_7_days',
-    label: () => DYNAMIC_DATE_RANGES.last_7_days.value()[0].format('MMM D') + ' - Today' },
+    label: () => getDynamicDateRange('d_last_7_days').value()[0].format('MMM D') + ' - Today' },
 ];
 
 const DYNAMIC_DATETIME_OPTIONS = [
   { name: 'Today',
     value: 'd_today',
-    label: () => DYNAMIC_DATE_RANGES.today.value()[0].format('MMM D') },
+    label: () => getDynamicDateRange('d_today').value()[0].format('MMM D') },
   { name: 'Yesterday',
     value: 'd_yesterday',
-    label: () => DYNAMIC_DATE_RANGES.yesterday.value()[0].format('MMM D') },
+    label: () => getDynamicDateRange('d_yesterday').value()[0].format('MMM D') },
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
@@ -59,31 +59,19 @@ class DateRangeParameter extends React.Component {
     onSelect: () => {},
   };
 
-  constructor(props) {
-    super(props);
-    this.state = { hasDynamicValue: !!(props.parameter && props.parameter.hasDynamicDateRange) };
-  }
-
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      this.setState({ hasDynamicValue: false });
       onSelect(parameter.getValue());
     } else {
-      this.setState({ hasDynamicValue: true });
       onSelect(dynamicValue.value);
     }
   };
 
-  onSelect = (value) => {
-    const { onSelect } = this.props;
-    this.setState({ hasDynamicValue: false }, () => onSelect(value));
-  };
-
   render() {
-    const { type, value, parameter, className } = this.props;
-    const { hasDynamicValue } = this.state;
+    const { type, value, parameter, onSelect, className } = this.props;
     const isDateTimeRange = includes(type, 'datetime-range');
+    const hasDynamicValue = isDynamicDateRange(value);
     const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
 
     const additionalAttributes = {};
@@ -101,14 +89,15 @@ class DateRangeParameter extends React.Component {
     }
 
     if (hasDynamicValue) {
-      additionalAttributes.placeholder = [parameter.dynamicDateRange && parameter.dynamicDateRange.name];
+      const dynamicDateRange = getDynamicDateRange(value);
+      additionalAttributes.placeholder = [dynamicDateRange && dynamicDateRange.name];
       additionalAttributes.value = null;
     }
 
     return (
       <DateRangeComponent
         className={classNames('redash-datepicker', { 'dynamic-value hide-end-value': hasDynamicValue }, className)}
-        onSelect={this.onSelect}
+        onSelect={onSelect}
         suffixIcon={(
           <DynamicButton
             options={options}
