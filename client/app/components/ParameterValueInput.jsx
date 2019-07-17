@@ -130,7 +130,8 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { value, enumOptions, allowMultipleValues } = this.props;
+    const { enumOptions, allowMultipleValues } = this.props;
+    const { value } = this.state;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
