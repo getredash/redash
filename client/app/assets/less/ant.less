@@ -345,3 +345,22 @@
     }
   }
 }
+
+// overrides for tall form components such as ace editor
+.@{form-prefix-cls}-item {
+  &-children {
+    display: block; // so feeback icon positions correctly
+  }
+
+  // no change for short components, sticks to body for tall ones
+  &-children-icon {
+    top: auto !important;
+    bottom: 8px;
+
+     // makes the icon white instead of see-through
+    & svg {
+      background: white;
+      border-radius: 50%;
+    }
+  }
+}
