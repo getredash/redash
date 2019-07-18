@@ -218,6 +218,7 @@ function EditParameterSettingsDialog(props) {
                   suffix: '',
                   separator: ',',
                 } : null })}
+              data-test="AllowMultipleValuesCheckbox"
             >
             Allow multiple values
             </Checkbox>
@@ -241,10 +242,11 @@ function EditParameterSettingsDialog(props) {
                   prefix: quoteOption,
                   suffix: quoteOption,
                 } })}
+              data-test="QuotationSelect"
             >
               <Option value="">None (default)</Option>
               <Option value="'">Single Quotation Mark</Option>
-              <Option value={'"'}>Double Quotation Mark</Option>
+              <Option value={'"'} data-test="DoubleQuotationMarkOption">Double Quotation Mark</Option>
             </Select>
           </Form.Item>
         )}
