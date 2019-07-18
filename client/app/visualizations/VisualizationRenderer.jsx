@@ -51,7 +51,12 @@ export function VisualizationRenderer(props) {
     <React.Fragment>
       {showFilters && <Filters filters={filters} onChange={setFilters} />}
       <div>
-        <Renderer options={options} data={filteredData} visualizationName={visualization.name} />
+        <Renderer
+          key={`visualization${visualization.id}`}
+          options={options}
+          data={filteredData}
+          visualizationName={visualization.name}
+        />
       </div>
     </React.Fragment>
   );

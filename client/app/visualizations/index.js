@@ -13,6 +13,7 @@ const Data = PropTypes.shape({
 });
 
 export const VisualizationType = PropTypes.shape({
+  id: PropTypes.number,
   type: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   options: VisualizationOptions.isRequired, // eslint-disable-line react/forbid-prop-types
