@@ -27,7 +27,7 @@ module.exports = {
     "no-control-regex": "off",
     "no-multiple-empty-lines": "warn",
     "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
-    "no-only-tests/no-only-tests": process.env.NODE_ENV === "production" ? "none" : "error",
+    "no-only-tests/no-only-tests": process.env.NODE_ENV === "production" ? "off" : "error",
     "operator-linebreak": "off",
     "react/destructuring-assignment": "off",
     "react/jsx-filename-extension": "off",
