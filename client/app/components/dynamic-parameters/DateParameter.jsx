@@ -39,7 +39,7 @@ class DateParameter extends React.Component {
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      onSelect(parameter.getValue());
+      onSelect(moment(parameter.getValue()));
     } else {
       onSelect(dynamicValue.value);
     }
