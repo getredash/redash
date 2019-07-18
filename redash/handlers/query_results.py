@@ -20,7 +20,7 @@ def error_response(message, http_status=400):
 
 
 error_messages = {
-    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or visualization embed.', 403),
+    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
     'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed on this data source.', 403),
     'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
     'select_data_source': error_response('Please select data source to run this query.', 401)
