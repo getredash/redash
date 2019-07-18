@@ -10,6 +10,35 @@ from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps, json_loads
 
 
+def to_string(s):
+    """From https://github.com/vinay20045/json-to-csv"""
+    try:
+        return str(s)
+    except:
+        # Change the encoding type if needed
+        return s.encode('utf-8')
+
+
+def reduce_item(reduced_item, key, value):
+    """From https://github.com/vinay20045/json-to-csv"""
+    # Reduction Condition 1
+    if type(value) is list:
+        i = 0
+        for sub_item in value:
+            reduce_item(reduced_item, key+'/'+to_string(i), sub_item)
+            i = i+1
+
+    # Reduction Condition 2
+    elif type(value) is dict:
+        sub_keys = value.keys()
+        for sub_key in sub_keys:
+            reduce_item(reduced_item, key+'/'+to_string(sub_key), value[sub_key])
+
+    # Base Condition
+    else:
+        reduced_item[to_string(key)] = to_string(value)
+
+
 class Dgraph(BaseQueryRunner):
     noop_query = """
     {
@@ -51,7 +80,7 @@ class Dgraph(BaseQueryRunner):
         """Dgraph uses '#' as a comment delimiter, not '/* */'"""
         return False
 
-    def run_query(self, query, user):
+    def run_dgraph_query_raw(self, query):
 
         servers = self.configuration.get('servers')
 
@@ -64,24 +93,50 @@ class Dgraph(BaseQueryRunner):
 
             data = json.loads(response_raw.json)
 
-            first_key = next(iter(data.keys()))
-            first_node = data[first_key]
+            return data
 
-            # grab all the column names
-            column_names = set().union(*first_node)
-            # create a dict for column names in the format that the API wants
-            # the type as 'string' is just a hack for now
-            columns = [{'name': c, 'friendly_name': c, 'type': 'string'} for c in column_names]
-            # finally, assemble both the columns and data
-            data = {'columns': columns, 'rows': first_node}
-
-            error = None
-            json_data = json_dumps(data)
+        except Exception as e:
+            raise e
         finally:
             txn.discard()
             client_stub.close()
 
-        return json_data, None
+    def run_query(self, query, user):
+
+        json_data = None
+        error = None
+
+        try:
+            data = self.run_dgraph_query_raw(query)
+
+            first_key = next(iter(data.keys()))
+            first_node = data[first_key]
+
+            data_to_be_processed = first_node
+
+            processed_data = []
+            header = []
+            # use logic from https://github.com/vinay20045/json-to-csv
+            for item in data_to_be_processed:
+                reduced_item = {}
+                reduce_item(reduced_item, first_key, item)
+
+                header += reduced_item.keys()
+
+                processed_data.append(reduced_item)
+
+            header = list(set(header))
+
+            columns = [{'name': c, 'friendly_name': c, 'type': 'string'} for c in header]
+
+            # finally, assemble both the columns and data
+            data = {'columns': columns, 'rows': processed_data}
+
+            json_data = json_dumps(data)
+        except Exception as e:
+            error = e
+
+        return json_data, error
 
     def get_schema(self, get_stats=False):
         """Queries Dgraph for all the predicates, their types, their tokenizers, etc.
@@ -89,13 +144,9 @@ class Dgraph(BaseQueryRunner):
         Dgraph only has one schema, and there's no such things as columns"""
         query = "schema {}"
 
-        results, error = self.run_query(query, None)
-
-        if error is not None:
-            raise Exception("Failed getting schema.")
+        results = self.run_dgraph_query_raw(query)
 
         schema = {}
-        results = json_loads(results)
 
         for row in results['schema']:
             table_name = row['predicate']
