@@ -48,9 +48,8 @@ class QuerySnippetDialog extends React.Component {
       { name: 'description', title: 'Description', type: 'text' },
       { name: 'snippet',
         title: 'Snippet',
-        type: 'textarea',
-        required: true,
-        props: { autosize: { minRows: 3, maxRows: 6 } } },
+        type: 'ace',
+        required: true },
     ].map(field => ({ ...field, readOnly, initialValue: get(querySnippet, field.name, '') }));
 
     return (
@@ -79,6 +78,7 @@ class QuerySnippetDialog extends React.Component {
           fields={formFields}
           onSubmit={this.handleSubmit}
           hideSubmitButton
+          feedbackIcons
         />
       </Modal>
     );
