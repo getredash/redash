@@ -207,7 +207,7 @@ describe('Parameter', () => {
     it('allows picking a dynamic date', function () {
       cy.getByTestId('DynamicButton')
         .click()
-        .click();
+        .click(); // workaround for datepicker display bug
 
       cy.getByTestId('DynamicButtonMenu')
         .contains('Today/Now')
@@ -302,7 +302,7 @@ describe('Parameter', () => {
     it('allows picking a dynamic date', function () {
       cy.getByTestId('DynamicButton')
         .click()
-        .click();
+        .click(); // workaround for datepicker display bug
 
       cy.getByTestId('DynamicButtonMenu')
         .contains('Today/Now')
