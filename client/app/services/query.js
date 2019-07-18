@@ -84,11 +84,11 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
-  getValue(joinListValue = false) {
-    return this.constructor.getValue(this, joinListValue);
+  getValue(extra = {}) {
+    return this.constructor.getValue(this, extra);
   }
 
-  static getValue(param, joinListValue = false) {
+  static getValue(param, extra = {}) {
     const { value, type, useCurrentDateTime, multiValuesOptions } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
     if (isEmptyValue) {
@@ -103,7 +103,10 @@ export class Parameter {
     if (type === 'number') {
       return normalizeNumericValue(value, null); // normalize empty value
     }
-    if (includes(['enum', 'query'], type) && multiValuesOptions && isArray(value) && joinListValue) {
+
+    // join array in frontend when query is executed as a text
+    const { joinListValues } = extra;
+    if (includes(['enum', 'query'], type) && multiValuesOptions && isArray(value) && joinListValues) {
       const separator = get(multiValuesOptions, 'separator', ',');
       const prefix = get(multiValuesOptions, 'prefix', '');
       const suffix = get(multiValuesOptions, 'suffix', '');
@@ -348,9 +351,9 @@ class Parameters {
     return !isEmpty(this.get());
   }
 
-  getValues(joinListValues = false) {
+  getValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getValue(joinListValues)));
+    return zipObject(map(params, i => i.name), map(params, i => i.getValue(extra)));
   }
 
   applyPendingValues() {
@@ -594,7 +597,7 @@ function QueryResource(
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const parameters = this.getParameters().getValues(true);
+    const parameters = this.getParameters().getValues({ joinListValues: true });
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   };

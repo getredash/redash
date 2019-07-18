@@ -16,6 +16,12 @@ import './ParameterValueInput.less';
 
 const { Option } = Select;
 
+const multipleValuesProps = {
+  maxTagCount: 3,
+  maxTagTextLength: 10,
+  maxTagPlaceholder: num => `+${num.length} more`,
+};
+
 export class ParameterValueInput extends React.Component {
   static propTypes = {
     type: PropTypes.string,
@@ -143,9 +149,7 @@ export class ParameterValueInput extends React.Component {
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
-        maxTagCount={3}
-        maxTagTextLength={10}
-        maxTagPlaceholder={num => `+${num.length} more`}
+        {...multipleValuesProps}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
       </Select>
@@ -164,9 +168,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}
-        maxTagCount={3}
-        maxTagTextLength={10}
-        maxTagPlaceholder={num => `+${num.length} more`}
+        {...multipleValuesProps}
       />
     );
   }

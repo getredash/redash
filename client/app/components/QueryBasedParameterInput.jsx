@@ -1,4 +1,4 @@
-import { find, isFunction, isArray, toString, map, intersection } from 'lodash';
+import { find, isFunction, isArray, isEqual, toString, map, intersection } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -55,7 +55,7 @@ export class QueryBasedParameterInput extends React.Component {
         if (this.props.mode === 'multiple' && isArray(this.props.value)) {
           const optionValues = map(options, option => option.value);
           const validValues = intersection(this.props.value, optionValues);
-          if (validValues.length !== this.props.value.length) {
+          if (!isEqual(this.props.value, validValues)) {
             this.props.onSelect(validValues);
           }
         } else {
