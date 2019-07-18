@@ -164,20 +164,24 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
-  get hasDynamicDate() {
-    return isDateParameter(this.type) && isDynamicDate(this.value);
+  get hasDynamicValue() {
+    if (isDateParameter(this.type)) {
+      return isDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return isDynamicDateRange(this.value);
+    }
+    return false;
   }
 
-  get dynamicDate() {
-    return getDynamicDate(this.value);
-  }
-
-  get hasDynamicDateRange() {
-    return isDateRangeParameter(this.type) && isDynamicDateRange(this.value);
-  }
-
-  get dynamicDateRange() {
-    return getDynamicDateRange(this.value);
+  get dynamicValue() {
+    if (isDateParameter(this.type)) {
+      return getDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return getDynamicDateRange(this.value);
+    }
+    return false;
   }
 
   getValue() {
@@ -187,10 +191,10 @@ export class Parameter {
   static getValue(param) {
     const { value, type, useCurrentDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
-    if (param.hasDynamicDateRange) {
-      const { dynamicDateRange } = param;
-      if (dynamicDateRange) {
-        const dateRange = dynamicDateRange.value();
+    if (isDateRangeParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        const dateRange = dynamicValue.value();
         return {
           start: dateRange[0].format(DATETIME_FORMATS[type]),
           end: dateRange[1].format(DATETIME_FORMATS[type]),
@@ -199,10 +203,10 @@ export class Parameter {
       return null;
     }
 
-    if (param.hasDynamicDate) {
-      const dynamicDate = param.dynamicDate;
-      if (dynamicDate) {
-        return dynamicDate.value().format(DATETIME_FORMATS[type]);
+    if (isDateParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        return dynamicValue.value().format(DATETIME_FORMATS[type]);
       }
       return null;
     }

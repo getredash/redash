@@ -147,11 +147,11 @@ export class ParameterValueInput extends React.Component {
   renderInput() {
     const { type } = this.props;
     switch (type) {
-      case 'datetime-with-seconds': return this.renderDateParameter();
-      case 'datetime-local': return this.renderDateParameter();
+      case 'datetime-with-seconds':
+      case 'datetime-local':
       case 'date': return this.renderDateParameter();
-      case 'datetime-range-with-seconds': return this.renderDateRangeParameter();
-      case 'datetime-range': return this.renderDateRangeParameter();
+      case 'datetime-range-with-seconds':
+      case 'datetime-range':
       case 'date-range': return this.renderDateRangeParameter();
       case 'enum': return this.renderEnumInput();
       case 'query': return this.renderQueryBasedInput();
