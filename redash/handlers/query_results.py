@@ -12,7 +12,7 @@ from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
-from redash.serializers import serialize_query_result_to_csv, serialize_query_result_to_xlsx
+from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
 def error_response(message):
@@ -42,7 +42,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
-        return {'query_result': query_result.to_dict()}
+        return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
     else:
         job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
             "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
