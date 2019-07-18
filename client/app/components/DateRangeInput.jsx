@@ -20,7 +20,7 @@ export function DateRangeInput({
   if (isArray(defaultValue) && defaultValue[0].isValid() && defaultValue[1].isValid()) {
     additionalAttributes.defaultValue = defaultValue;
   }
-  if (value !== undefined) {
+  if (value === null || (isArray(value) && value[0].isValid() && value[1].isValid())) {
     additionalAttributes.value = value;
   }
   return (

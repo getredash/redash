@@ -17,7 +17,7 @@ export function DateInput({
   if (defaultValue && defaultValue.isValid()) {
     additionalAttributes.defaultValue = defaultValue;
   }
-  if (value !== undefined) {
+  if (value === null || (value && value.isValid())) {
     additionalAttributes.value = value;
   }
   return (
