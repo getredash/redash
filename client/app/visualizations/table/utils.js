@@ -1,4 +1,4 @@
-import { isNil, map, filter, each, sortBy, some, findIndex } from 'lodash';
+import { isNil, map, filter, each, sortBy, some, findIndex, toString } from 'lodash';
 import React from 'react';
 import Icon from 'antd/lib/icon';
 
@@ -154,7 +154,7 @@ export function filterRows(rows, searchTerm, searchColumns) {
       const { prepareData } = initColumn(column);
       return (row) => {
         const { text } = prepareData(row);
-        return text.toUpperCase().indexOf(searchTerm) >= 0;
+        return toString(text).toUpperCase().indexOf(searchTerm) >= 0;
       };
     });
 

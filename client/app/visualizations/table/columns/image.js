@@ -25,6 +25,7 @@ export default function initImageColumn(column) {
       result.height = height;
     }
     if (title !== '') {
+      result.text = title; // `text` is used for search
       result.title = title;
       result.alt = title;
     }
