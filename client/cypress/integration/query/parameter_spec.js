@@ -175,14 +175,11 @@ describe('Parameter', () => {
       };
 
       createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+        .then(({ id }) => cy.visit(`/queries/${id}`));
 
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        ParameterTypeSelect
-        DateParameterTypeOption
-        SaveParameterSettings
-      `);
+      // make sure parameter is loaded, otherwise cy.clock won't work
+      cy.getByTestId('ParameterApplyButton')
+        .should('exist');
 
       const now = new Date();
       now.setDate(1);
@@ -238,14 +235,11 @@ describe('Parameter', () => {
       };
 
       createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+        .then(({ id }) => cy.visit(`/queries/${id}`));
 
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        ParameterTypeSelect
-        DateTimeParameterTypeOption
-        SaveParameterSettings
-      `);
+      // make sure parameter is loaded, otherwise cy.clock won't work
+      cy.getByTestId('ParameterApplyButton')
+        .should('exist');
 
       const now = new Date();
       now.setDate(1);
