@@ -45,7 +45,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
         icon={(
           <Icon
             type="thunderbolt"
-            theme={enabled ? 'filled' : 'outlined'}
+            theme={enabled ? 'twoTone' : 'outlined'}
             className="dynamic-icon"
           />
         )}
