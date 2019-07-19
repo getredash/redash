@@ -170,7 +170,7 @@ describe('Dashboard', () => {
         });
       };
 
-      it.only('when there are no parameters', function () {
+      it('when there are no parameters', function () {
         addWidgetAndShareDashboard(this.dashboardUrl, 'select 1', {}, (secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
