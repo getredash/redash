@@ -146,82 +146,101 @@ describe('Dashboard', () => {
       });
     });
 
-    describe('is available to unauthenticated users', () => {
-      const addWidgetAndShareDashboard = (dashboardUrl, query, options, callback) => {
-        createQuery({ query, options }).then(({ id: queryId }) => {
-          cy.visit(dashboardUrl);
-          editDashboard();
-          cy.contains('a', 'Add Widget').click();
-          cy.getByTestId('AddWidgetDialog').within(() => {
-            cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
-          });
-          cy.contains('button', 'Add to Dashboard').click();
-          cy.getByTestId('AddWidgetDialog').should('not.exist');
-          cy.clickThrough({ button: `
-            Done Editing
-            Publish
-          ` },
-          `OpenShareForm
-          PublicAccessEnabled`);
+    describe.only('is available to unauthenticated users', () => {
+      it('when there are no parameters', function () {
+        const queryData = {
+          query: 'select 1',
+        };
+
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId)
+            .its('0.offsetHeight')
+            .should('eq', 235);
+          cy.clickThrough({ button: 'Publish' },
+            `OpenShareForm
+            PublicAccessEnabled`);
 
           cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
-            callback(secretAddress);
+            cy.logout();
+            cy.visit(secretAddress);
+            cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+            cy.percySnapshot('Successfully Shared Unparameterized Dashboard');
           });
-        });
-      };
-
-      it.only('when there are no parameters', function () {
-        addWidgetAndShareDashboard(this.dashboardUrl, 'select 1', {}, (secretAddress) => {
-          cy.logout();
-          cy.visit(secretAddress);
-          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
-          cy.percySnapshot('Successfully Shared Unparameterized Dashboard');
         });
       });
 
       it('when there are only safe parameters', function () {
-        addWidgetAndShareDashboard(this.dashboardUrl, "select '{{foo}}'", {
-          parameters: [{
-            name: 'foo',
-            type: 'number',
-            value: 1,
-          }],
-        }, (secretAddress) => {
-          cy.logout();
-          cy.visit(secretAddress);
-          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
-          cy.percySnapshot('Successfully Shared Parameterized Dashboard');
+        const queryData = {
+          query: "select '{{foo}}'",
+          options: {
+            parameters: [{
+              name: 'foo',
+              type: 'number',
+              value: 1,
+            }],
+          },
+        };
+
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId)
+            .its('0.offsetHeight')
+            .should('eq', 285);
+          cy.clickThrough({ button: 'Publish' },
+            `OpenShareForm
+            PublicAccessEnabled`);
+
+          cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
+            cy.logout();
+            cy.visit(secretAddress);
+            cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+            cy.percySnapshot('Successfully Shared Parameterized Dashboard');
+          });
         });
       });
 
       it('even when there are suddenly some unsafe parameters', function () {
+        const queryData = {
+          query: 'select 1',
+        };
+
         // start out by creating a dashboard with no parameters & share it
-        const dashboardUrl = this.dashboardUrl;
-        addWidgetAndShareDashboard(dashboardUrl, 'select 1', {}, (secretAddress) => {
-          // then, after it is shared, add an unsafe parameterized query to it
-          createQuery({
-            query: "select '{{foo}}'",
-            options: {
-              parameters: [{
-                name: 'foo',
-                type: 'text',
-                value: 'oh snap!',
-              }],
-            },
-          }).then(({ id: queryId }) => {
-            cy.visit(dashboardUrl);
-            editDashboard();
-            cy.contains('a', 'Add Widget').click();
-            cy.getByTestId('AddWidgetDialog').within(() => {
-              cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+        createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+          cy.visit(this.dashboardUrl);
+          cy.getByTestId(elTestId)
+            .its('0.offsetHeight')
+            .should('eq', 235);
+          cy.clickThrough({ button: 'Publish' },
+            `OpenShareForm
+            PublicAccessEnabled`);
+
+          cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
+            // then, after it is shared, add an unsafe parameterized query to it
+            createQuery({
+              query: "select '{{foo}}'",
+              options: {
+                parameters: [{
+                  name: 'foo',
+                  type: 'text',
+                  value: 'oh snap!',
+                }],
+              },
+            }).then(({ id: queryId }) => {
+              cy.visit(this.dashboardUrl);
+              editDashboard();
+              cy.contains('a', 'Add Widget').click();
+              cy.getByTestId('AddWidgetDialog').within(() => {
+                cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
+              });
+              cy.contains('button', 'Add to Dashboard').click();
+              cy.getByTestId('AddWidgetDialog').should('not.exist');
+              cy.contains('button', 'Done Editing').click();
+              cy.logout();
+              cy.visit(secretAddress);
+              cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+              cy.percySnapshot('Successfully Shared Parameterized Dashboard With Some Unsafe Queries');
             });
-            cy.contains('button', 'Add to Dashboard').click();
-            cy.getByTestId('AddWidgetDialog').should('not.exist');
-            cy.contains('button', 'Done Editing').click();
-            cy.logout();
-            cy.visit(secretAddress);
-            cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
-            cy.percySnapshot('Successfully Shared Parameterized Dashboard With Some Unsafe Queries');
           });
         });
       });
