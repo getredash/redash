@@ -20,7 +20,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
             query = self.factory.create_query(**kwargs)
 
         notify_of_failure(message, query)
-        return "aggregated_failures:{}".format(query.user.email)
+        return "aggregated_failures:{}".format(query.user.id)
 
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
         key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
@@ -65,7 +65,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         self.notify(message="I'm a different type of failure", query=query)
         self.notify(message="I'm a totally different query")
 
-        send_aggregated_errors(query.user.email)
+        send_aggregated_errors(query.user.id)
 
         _, context = render_template.call_args
         failures = context['failures']
@@ -86,7 +86,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
         self.notify(query=query)
 
-        send_aggregated_errors(query.user.email)
+        send_aggregated_errors(query.user.id)
 
         _, context = render_template.call_args
         latest_failure = dateutil.parser.parse(context['failures'][0]['failed_at'])
