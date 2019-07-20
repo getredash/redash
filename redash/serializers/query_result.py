@@ -1,7 +1,7 @@
 import cStringIO
 import csv
 import xlsxwriter
-from funcy import rpartial
+from funcy import rpartial, project
 from dateutil.parser import isoparse as parse_date
 from redash.utils import json_loads, UnicodeWriter
 from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
@@ -55,6 +55,14 @@ def _get_column_lists(columns):
                 special_columns[col['name']] = special_types[col_type]
     
     return fieldnames, special_columns
+
+
+def serialize_query_result(query_result, is_api_user):
+    if is_api_user:
+        publicly_needed_keys = ['data', 'retrieved_at']
+        return project(query_result.to_dict(), publicly_needed_keys)
+    else:
+        return query_result.to_dict()
 
 
 def serialize_query_result_to_csv(query_result):

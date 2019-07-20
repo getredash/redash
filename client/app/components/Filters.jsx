@@ -95,7 +95,7 @@ export function Filters({ filters, onChange }) {
 
   return (
     <div className="filters-wrapper">
-      <div className="parameter-container container bg-white">
+      <div className="container bg-white">
         <div className="row">
           {map(filters, (filter) => {
             const options = map(filter.values, (value, index) => (
