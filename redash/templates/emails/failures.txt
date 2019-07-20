@@ -2,7 +2,7 @@ Redash failed to run the following queries:
 
 {% for failure in failures %}
 
-{{failure.name}} ({{failure.base_url}}/queries/{{failure.id}})
+{{failure.name}} ({{base_url}}/queries/{{failure.id}})
 Last failed: {{failure.failed_at}}{% if failure.failure_count > 1 %} + {{failure.failure_count - 1}} more failures since last report{% endif %}
 Exception:
 

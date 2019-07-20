@@ -19,6 +19,7 @@ def comment_for(failure):
 
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(user_id):
+    user = models.User.get_by_id(user_id)
     key = 'aggregated_failures:{}'.format(user_id)
     errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
 
@@ -29,21 +30,20 @@ def send_aggregated_errors(user_id):
 
         context = {
             'failures': [{
-                    'base_url': v.get('base_url'),
                     'id': v.get('id'),
                     'name': v.get('name'),
                     'failed_at': v.get('failed_at'),
                     'failure_reason': v.get('message'),
                     'failure_count': occurrences[k],
                     'comment': comment_for(v)
-            } for k, v in unique_errors.iteritems()]
+            } for k, v in unique_errors.iteritems()],
+            'base_url': base_url(user.org)
         }
 
         html = render_template('emails/failures.html', **context)
         text = render_template('emails/failures.txt', **context)
         subject = "Redash failed to execute {} of your scheduled queries".format(len(unique_errors.keys()))
-        email_address = models.User.get_by_id(user_id).email
-        send_mail.delay([email_address], subject, html, text)
+        send_mail.delay([user.email], subject, html, text)
 
     redis_connection.delete(key)
 
@@ -58,7 +58,6 @@ def notify_of_failure(message, query):
         redis_connection.lpush(key, json_dumps({
             'id': query.id,
             'name': query.name,
-            'base_url': base_url(query.org),
             'message': message,
             'schedule_failures': query.schedule_failures,
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
