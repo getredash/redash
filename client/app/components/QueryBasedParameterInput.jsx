@@ -72,8 +72,9 @@ export class QueryBasedParameterInput extends React.Component {
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
           showSearch
-          style={{ minWidth: 200 }}
+          style={{ minWidth: 60 }}
           optionFilterProp="children"
+          notFoundContent={null}
         >
           {options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}
         </Select>

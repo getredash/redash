@@ -113,8 +113,9 @@ export class ParameterValueInput extends React.Component {
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
-        style={{ minWidth: 200 }}
+        style={{ minWidth: 60 }}
         optionFilterProp="children"
+        notFoundContent={null}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
       </Select>
