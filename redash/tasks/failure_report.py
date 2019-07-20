@@ -6,6 +6,13 @@ from redash.worker import celery
 from redash import redis_connection, settings, models
 from redash.utils import json_dumps, json_loads, base_url
 
+def key(user_id):
+    return 'aggregated_failures:{}'.format(user_id)
+
+
+def pending_key(user_id):
+    return '{}:pending'.format(key(user_id))
+
 
 def comment_for(failure):
     schedule_failures = failure.get('schedule_failures')
@@ -20,8 +27,7 @@ def comment_for(failure):
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(user_id):
     user = models.User.get_by_id(user_id)
-    key = 'aggregated_failures:{}'.format(user_id)
-    errors = [json_loads(e) for e in redis_connection.lrange(key, 0, -1)]
+    errors = [json_loads(e) for e in redis_connection.lrange(key(user_id), 0, -1)]
 
     if errors:
         errors.reverse()
@@ -45,8 +51,8 @@ def send_aggregated_errors(user_id):
         subject = "Redash failed to execute {} of your scheduled queries".format(len(unique_errors.keys()))
         send_mail.delay([user.email], subject, html, text)
 
-    redis_connection.delete(key)
-    redis_connection.delete('{}:pending'.format(key))
+    redis_connection.delete(key(user_id))
+    redis_connection.delete(pending_key(user_id))
 
 
 def notify_of_failure(message, query):
@@ -54,9 +60,7 @@ def notify_of_failure(message, query):
     exceeded_threshold = query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
 
     if subscribed and not exceeded_threshold:
-        key = 'aggregated_failures:{}'.format(query.user.id)
-
-        redis_connection.lpush(key, json_dumps({
+        redis_connection.lpush(key(query.user.id), json_dumps({
             'id': query.id,
             'name': query.name,
             'message': message,
@@ -64,6 +68,6 @@ def notify_of_failure(message, query):
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
         }))
 
-        if not redis_connection.exists('{}:pending'.format(key)):
+        if not redis_connection.exists(pending_key(query.user.id)):
             send_aggregated_errors.apply_async(args=(query.user.id,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
-            redis_connection.set('{}:pending'.format(key), 1)
+            redis_connection.set(pending_key(query.user.id), 1)

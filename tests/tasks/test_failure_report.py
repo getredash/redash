@@ -6,7 +6,7 @@ import dateutil
 
 from tests import BaseTestCase
 from redash import redis_connection, models, settings
-from redash.tasks.failure_report import notify_of_failure, send_aggregated_errors
+from redash.tasks.failure_report import notify_of_failure, send_aggregated_errors, key
 from redash.utils import json_loads
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
@@ -20,7 +20,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
             query = self.factory.create_query(**kwargs)
 
         notify_of_failure(message, query)
-        return "aggregated_failures:{}".format(query.user.id)
+        return key(query.user.id)
 
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
         key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
