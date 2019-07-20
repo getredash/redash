@@ -46,6 +46,7 @@ def send_aggregated_errors(user_id):
         send_mail.delay([user.email], subject, html, text)
 
     redis_connection.delete(key)
+    redis_connection.delete('{}:pending'.format(key))
 
 
 def notify_of_failure(message, query):
@@ -66,4 +67,3 @@ def notify_of_failure(message, query):
         if not redis_connection.exists('{}:pending'.format(key)):
             send_aggregated_errors.apply_async(args=(query.user.id,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
             redis_connection.set('{}:pending'.format(key), 1)
-            redis_connection.expire('{}:pending'.format(key), settings.SEND_FAILURE_EMAIL_INTERVAL)
