@@ -22,6 +22,13 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         notify_of_failure(message, query)
         return key(query.user.id)
 
+    @mock.patch('redash.tasks.failure_report.render_template')
+    def send_email(self, user, render_template):
+        send_aggregated_errors(user.id)
+
+        _, context = render_template.call_args
+        return context['failures']
+
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
         key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
         email_pending = redis_connection.get("{}:pending".format(key))
@@ -38,23 +45,15 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         email_pending = redis_connection.get("{}:pending".format(key))
         self.assertFalse(email_pending)
 
-    @mock.patch('redash.tasks.failure_report.render_template')
-    def test_does_not_indicate_when_not_near_limit_for_a_query(self, render_template):
+    def test_does_not_indicate_when_not_near_limit_for_a_query(self):
         self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY / 2)
-        send_aggregated_errors(self.factory.user.id)
-
-        _, context = render_template.call_args
-        failures = context['failures']
+        failures = self.send_email(self.factory.user)
 
         self.assertFalse(failures[0]['comment'])
 
-    @mock.patch('redash.tasks.failure_report.render_template')
-    def test_indicates_when_near_limit_for_a_query(self, render_template):
+    def test_indicates_when_near_limit_for_a_query(self):
         self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
-        send_aggregated_errors(self.factory.user.id)
-
-        _, context = render_template.call_args
-        failures = context['failures']
+        failures = self.send_email(self.factory.user)
 
         self.assertTrue(failures[0]['comment'])
 
@@ -64,8 +63,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
         self.assertEqual(key1, key2)
 
-    @mock.patch('redash.tasks.failure_report.render_template')
-    def test_counts_failures_for_each_reason(self, render_template):
+    def test_counts_failures_for_each_reason(self):
         query = self.factory.create_query()
 
         self.notify(message="I'm a failure", query=query)
@@ -73,10 +71,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         self.notify(message="I'm a different type of failure", query=query)
         self.notify(message="I'm a totally different query")
 
-        send_aggregated_errors(query.user.id)
-
-        _, context = render_template.call_args
-        failures = context['failures']
+        failures = self.send_email(query.user)
 
         f1 = next(f for f in failures if f["failure_reason"] == "I'm a failure")
         self.assertEqual(2, f1['failure_count'])
@@ -85,17 +80,14 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         f3 = next(f for f in failures if f["failure_reason"] == "I'm a totally different query")
         self.assertEqual(1, f3['failure_count'])
 
-    @mock.patch('redash.tasks.failure_report.render_template')
-    def test_shows_latest_failure_time(self, render_template):
+    def test_shows_latest_failure_time(self):
         query = self.factory.create_query()
 
         with freeze_time("2000-01-01"):
             self.notify(query=query)
 
         self.notify(query=query)
-
-        send_aggregated_errors(query.user.id)
-
-        _, context = render_template.call_args
-        latest_failure = dateutil.parser.parse(context['failures'][0]['failed_at'])
+        
+        failures = self.send_email(query.user)
+        latest_failure = dateutil.parser.parse(failures[0]['failed_at'])
         self.assertNotEqual(2000, latest_failure.year)
