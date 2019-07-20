@@ -41,7 +41,7 @@ def send_aggregated_errors(user_id):
 
         html = render_template('emails/failures.html', **context)
         text = render_template('emails/failures.txt', **context)
-        subject = "Redash failed to execute {} of your queries".format(len(unique_errors.keys()))
+        subject = "Redash failed to execute {} of your scheduled queries".format(len(unique_errors.keys()))
         email_address = models.User.get_by_id(user_id).email
         send_mail.delay([email_address], subject, html, text)
 
