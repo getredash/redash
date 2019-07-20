@@ -13,11 +13,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
     def setUp(self):
         super(TestSendAggregatedErrorsTask, self).setUp()
         redis_connection.flushall()
-        settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = True
-
-    def tearDown(self):
-        super(TestSendAggregatedErrorsTask, self).tearDown()
-        settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = False
+        self.factory.org.set_setting('send_email_on_failed_scheduled_queries', True)
 
     def notify(self, message="Oh no, I failed!", query=None, **kwargs):
         if query is None:
@@ -33,6 +29,12 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
     def test_does_not_report_if_failure_count_is_beyond_limit(self):
         key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY)
+        email_pending = redis_connection.get("{}:pending".format(key))
+        self.assertFalse(email_pending)
+
+    def test_does_not_report_if_organization_is_not_subscribed(self):
+        self.factory.org.set_setting('send_email_on_failed_scheduled_queries', False)
+        key = self.notify()
         email_pending = redis_connection.get("{}:pending".format(key))
         self.assertFalse(email_pending)
 

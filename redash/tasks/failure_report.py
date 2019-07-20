@@ -38,10 +38,10 @@ def send_aggregated_errors(email_address):
 
 
 def notify_of_failure(message, query):
-    if not settings.organization.SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES:
-        return
+    subscribed = query.org.get_setting('send_email_on_failed_scheduled_queries')
+    exceeded_threshold = query.schedule_failures >= settings.MAX_FAILURE_REPORTS_PER_QUERY
 
-    if query.schedule_failures < settings.MAX_FAILURE_REPORTS_PER_QUERY:
+    if subscribed and not exceeded_threshold:
         key = 'aggregated_failures:{}'.format(query.user.email)
         reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
         comment = """NOTICE: This query has failed a total of {failure_count} times.
