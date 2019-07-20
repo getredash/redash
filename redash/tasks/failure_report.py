@@ -10,7 +10,7 @@ from redash.utils import json_dumps, json_loads, base_url
 def comment_for(failure):
     schedule_failures = failure.get('schedule_failures')
     if schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75:
-        return """NOTICE: This query has failed a total of {schedule_failures} times. 
+        return """NOTICE: This query has failed a total of {schedule_failures} times.
         Reporting may stop when the query exceeds {max_failure_reports} overall failures.""".format(
             schedule_failures=schedule_failures,
             max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
