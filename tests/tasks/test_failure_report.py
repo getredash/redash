@@ -38,17 +38,25 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         email_pending = redis_connection.get("{}:pending".format(key))
         self.assertFalse(email_pending)
 
-    def test_does_not_indicate_when_not_near_limit_for_a_query(self):
-        key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY / 2)
-        failure = json_loads(redis_connection.lrange(key, 0, -1)[0])
-        comment = failure.get('comment')
-        self.assertFalse(comment)
+    @mock.patch('redash.tasks.failure_report.render_template')
+    def test_does_not_indicate_when_not_near_limit_for_a_query(self, render_template):
+        self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY / 2)
+        send_aggregated_errors(self.factory.user.id)
 
-    def test_indicates_when_near_limit_for_a_query(self):
-        key = self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
-        failure = json_loads(redis_connection.lrange(key, 0, -1)[0])
-        comment = failure.get('comment')
-        self.assertTrue(comment)
+        _, context = render_template.call_args
+        failures = context['failures']
+
+        self.assertFalse(failures[0]['comment'])
+
+    @mock.patch('redash.tasks.failure_report.render_template')
+    def test_indicates_when_near_limit_for_a_query(self, render_template):
+        self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
+        send_aggregated_errors(self.factory.user.id)
+
+        _, context = render_template.call_args
+        failures = context['failures']
+
+        self.assertTrue(failures[0]['comment'])
 
     def test_aggregates_different_queries_in_a_single_report(self):
         key1 = self.notify(message="I'm a failure")

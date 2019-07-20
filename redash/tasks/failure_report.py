@@ -7,6 +7,16 @@ from redash import redis_connection, settings, models
 from redash.utils import json_dumps, json_loads, base_url
 
 
+def comment_for(failure):
+    schedule_failures = failure.get('schedule_failures')
+    if schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75:
+        return """NOTICE: This query has failed a total of {schedule_failures} times. 
+        Reporting may stop when the query exceeds {max_failure_reports} overall failures.""".format(
+            schedule_failures=schedule_failures,
+            max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
+        )
+
+
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors(user_id):
     key = 'aggregated_failures:{}'.format(user_id)
@@ -25,7 +35,7 @@ def send_aggregated_errors(user_id):
                     'failed_at': v.get('failed_at'),
                     'failure_reason': v.get('message'),
                     'failure_count': occurrences[k],
-                    'comment': v.get('comment')
+                    'comment': comment_for(v)
             } for k, v in unique_errors.iteritems()]
         }
 
@@ -44,19 +54,13 @@ def notify_of_failure(message, query):
 
     if subscribed and not exceeded_threshold:
         key = 'aggregated_failures:{}'.format(query.user.id)
-        reporting_will_soon_stop = query.schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75
-        comment = """NOTICE: This query has failed a total of {failure_count} times.
-                     Reporting may stop when the query exceeds {max_failure_reports} overall failures.""".format(
-            failure_count=query.schedule_failures,
-            max_failure_reports=settings.MAX_FAILURE_REPORTS_PER_QUERY
-        ) if reporting_will_soon_stop else ''
 
         redis_connection.lpush(key, json_dumps({
             'id': query.id,
             'name': query.name,
             'base_url': base_url(query.org),
             'message': message,
-            'comment': comment,
+            'schedule_failures': query.schedule_failures,
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
         }))
 
