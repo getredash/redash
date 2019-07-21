@@ -2,6 +2,7 @@ from tests import BaseTestCase
 
 from redash.models import db
 from redash.utils import json_dumps
+from redash.handlers.query_results import error_messages
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -111,8 +112,7 @@ class TestQueryResultListAPI(BaseTestCase):
                                      'max_age': 0})
 
         self.assertEquals(rv.status_code, 401)
-        self.assertNotIn('query_result', rv.json)
-        self.assertIn('job', rv.json)
+        self.assertDictEqual(rv.json, error_messages['select_data_source'][0])
 
 
 class TestQueryResultAPI(BaseTestCase):
@@ -145,6 +145,14 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
     
+    def test_execute_but_has_no_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=ds)
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id))
+        self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['no_permission'][0])
+
     def test_execute_with_no_parameter_values(self):
         query = self.factory.create_query()
 
@@ -159,6 +167,7 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
         self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['unsafe_on_view_only'][0])
 
     def test_allows_execution_of_safe_queries_on_view_only_data_sources(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
@@ -174,6 +183,7 @@ class TestQueryResultAPI(BaseTestCase):
         data = {'parameters': {'foo': 'bar'}}
         rv = self.make_request('post', '/api/queries/{}/results?api_key={}'.format(query.id, query.api_key), data=data)
         self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['unsafe_when_shared'][0])
 
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
