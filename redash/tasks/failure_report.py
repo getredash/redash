@@ -11,10 +11,6 @@ def key(user_id):
     return 'aggregated_failures:{}'.format(user_id)
 
 
-def pending_key(user_id):
-    return '{}:pending'.format(key(user_id))
-
-
 def comment_for(failure):
     schedule_failures = failure.get('schedule_failures')
     if schedule_failures > settings.MAX_FAILURE_REPORTS_PER_QUERY * 0.75:
@@ -27,7 +23,7 @@ def comment_for(failure):
 
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors():
-    for key in redis_connection.scan_iter(pending_key("*")):
+    for key in redis_connection.scan_iter(key("*")):
         user_id = re.search(r'\d+', key).group()
         send_failure_report(user_id)
 
@@ -59,7 +55,6 @@ def send_failure_report(user_id):
         send_mail.delay([user.email], subject, html, text)
 
     redis_connection.delete(key(user_id))
-    redis_connection.delete(pending_key(user_id))
 
 
 def notify_of_failure(message, query):
@@ -74,5 +69,3 @@ def notify_of_failure(message, query):
             'schedule_failures': query.schedule_failures,
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
         }))
-
-        redis_connection.set(pending_key(query.user.id), 1)
