@@ -226,16 +226,14 @@ describe('Dashboard', () => {
                   value: 'oh snap!',
                 }],
               },
-            }).then(({ id: queryId }) => {
+            }).then((query) => {
+              const visualizationId = get(query, 'visualizations.0.id');
+              return addWidget(this.dashboardId, visualizationId).then(getWidgetTestId);
+            }).then((elTestId2) => {
               cy.visit(this.dashboardUrl);
-              editDashboard();
-              cy.contains('a', 'Add Widget').click();
-              cy.getByTestId('AddWidgetDialog').within(() => {
-                cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
-              });
-              cy.contains('button', 'Add to Dashboard').click();
-              cy.getByTestId('AddWidgetDialog').should('not.exist');
-              cy.contains('button', 'Done Editing').click();
+              cy.getByTestId(elTestId2)
+                .its('0.offsetHeight')
+                .should('eq', 235);
               cy.logout();
               cy.visit(secretAddress);
               cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
