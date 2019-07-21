@@ -514,7 +514,6 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
-    parameters.applyPendingValues();
     const missingParams = parameters.getMissing();
 
     if (missingParams.length > 0) {
