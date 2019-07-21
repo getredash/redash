@@ -7,6 +7,7 @@ from redash.worker import celery
 from redash import redis_connection, settings, models
 from redash.utils import json_dumps, json_loads, base_url
 
+
 def key(user_id):
     return 'aggregated_failures:{}'.format(user_id)
 

@@ -210,25 +210,24 @@ CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
                     'task_id=%(task_id)s %(message)s')))
 
 # Mail settings:
-MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
+MAIL_SERVER = "smtp.mailtrap.io"
 MAIL_PORT = int(os.environ.get('REDASH_MAIL_PORT', 25))
 MAIL_USE_TLS = parse_boolean(os.environ.get('REDASH_MAIL_USE_TLS', 'false'))
 MAIL_USE_SSL = parse_boolean(os.environ.get('REDASH_MAIL_USE_SSL', 'false'))
-MAIL_USERNAME = os.environ.get('REDASH_MAIL_USERNAME', None)
-MAIL_PASSWORD = os.environ.get('REDASH_MAIL_PASSWORD', None)
-MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', None)
+MAIL_USERNAME = "2ec154ca9b0720"
+MAIL_PASSWORD = "fa2c7a7986cff9"
+MAIL_DEFAULT_SENDER = "omer@redash.io"
 MAIL_MAX_EMAILS = os.environ.get('REDASH_MAIL_MAX_EMAILS', None)
 MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHMENTS', 'false'))
-
 
 def email_server_is_configured():
     return MAIL_DEFAULT_SENDER is not None
 
 
-HOST = os.environ.get('REDASH_HOST', '')
+HOST = 'http://localhost:5000'
 
-SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 60))
-MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 100))
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 1))
+MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 50))
 
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
@@ -326,7 +325,7 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 DASHBOARD_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_DASHBOARD_REFRESH_INTERVALS", "60,300,600,1800,3600,43200,86400")))
-QUERY_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_QUERY_REFRESH_INTERVALS", "60, 300, 600, 900, 1800, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 86400, 604800, 1209600, 2592000")))
+QUERY_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_QUERY_REFRESH_INTERVALS", "10, 300, 600, 900, 1800, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 86400, 604800, 1209600, 2592000")))
 PAGE_SIZE = int(os.environ.get('REDASH_PAGE_SIZE', 20))
 PAGE_SIZE_OPTIONS = map(int, array_from_string(os.environ.get("REDASH_PAGE_SIZE_OPTIONS", "5,10,20,50,100")))
 TABLE_CELL_MAX_JSON_SIZE = int(os.environ.get('REDASH_TABLE_CELL_MAX_JSON_SIZE', 50000))
