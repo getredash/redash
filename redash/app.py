@@ -21,12 +21,10 @@ class Redash(Flask):
 
 def create_app():
     from . import authentication, extensions, handlers, limiter, mail, migrate, security
-    from .destinations import import_destinations
     from .handlers import chrome_logger
     from .handlers.webpack import configure_webpack
     from .metrics import request as request_metrics
     from .models import db, users
-    from .query_runner import import_query_runners
     from .utils import sentry
     from .version_check import reset_new_version_status
 
@@ -35,10 +33,6 @@ def create_app():
 
     # Check and update the cached version for use by the client
     app.before_first_request(reset_new_version_status)
-
-    # Load query runners and destinations
-    import_query_runners(settings.QUERY_RUNNERS)
-    import_destinations(settings.DESTINATIONS)
 
     security.init_app(app)
     request_metrics.init_app(app)
