@@ -35,6 +35,7 @@ export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
   type: PropTypes.oneOf([
+    'ace',
     'text',
     'textarea',
     'email',
