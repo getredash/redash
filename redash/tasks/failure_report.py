@@ -1,4 +1,5 @@
 import datetime
+import re
 from collections import Counter
 from flask import render_template
 from redash.tasks.general import send_mail
@@ -25,7 +26,13 @@ def comment_for(failure):
 
 
 @celery.task(name="redash.tasks.send_aggregated_errors")
-def send_aggregated_errors(user_id):
+def send_aggregated_errors():
+    for key in redis_connection.scan_iter(pending_key("*")):
+        user_id = re.search(r'\d+', key).group()
+        send_failure_report(user_id)
+
+
+def send_failure_report(user_id):
     user = models.User.get_by_id(user_id)
     errors = [json_loads(e) for e in redis_connection.lrange(key(user_id), 0, -1)]
 
@@ -68,6 +75,4 @@ def notify_of_failure(message, query):
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
         }))
 
-        if not redis_connection.exists(pending_key(query.user.id)):
-            send_aggregated_errors.apply_async(args=(query.user.id,), countdown=settings.SEND_FAILURE_EMAIL_INTERVAL)
-            redis_connection.set(pending_key(query.user.id), 1)
+        redis_connection.set(pending_key(query.user.id), 1)

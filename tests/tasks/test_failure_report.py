@@ -6,7 +6,7 @@ import dateutil
 
 from tests import BaseTestCase
 from redash import redis_connection, models, settings
-from redash.tasks.failure_report import notify_of_failure, send_aggregated_errors, key
+from redash.tasks.failure_report import notify_of_failure, send_failure_report, send_aggregated_errors, key
 from redash.utils import json_loads
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
@@ -24,7 +24,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
     @mock.patch('redash.tasks.failure_report.render_template')
     def send_email(self, user, render_template):
-        send_aggregated_errors(user.id)
+        send_failure_report(user.id)
 
         _, context = render_template.call_args
         return context['failures']
