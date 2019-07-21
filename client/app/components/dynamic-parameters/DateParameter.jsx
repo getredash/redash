@@ -46,7 +46,7 @@ class DateParameter extends React.Component {
   };
 
   render() {
-    const { type, value, parameter, className, onSelect } = this.props;
+    const { type, value, className, onSelect } = this.props;
     const hasDynamicValue = isDynamicDate(value);
     const isDateTime = includes(type, 'datetime');
 
@@ -77,7 +77,7 @@ class DateParameter extends React.Component {
         suffixIcon={(
           <DynamicButton
             options={DYNAMIC_DATE_OPTIONS}
-            selectedDynamicValue={hasDynamicValue ? parameter.value : null}
+            selectedDynamicValue={hasDynamicValue ? value : null}
             enabled={hasDynamicValue}
             onSelect={this.onDynamicValueSelect}
           />

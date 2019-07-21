@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { includes, isArray, isString } from 'lodash';
+import { includes, isArray } from 'lodash';
 import { isDynamicDateRange, getDynamicDateRange } from '@/services/query';
 import { DateRangeInput } from '@/components/DateRangeInput';
 import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
@@ -69,7 +69,7 @@ class DateRangeParameter extends React.Component {
   };
 
   render() {
-    const { type, value, parameter, onSelect, className } = this.props;
+    const { type, value, onSelect, className } = this.props;
     const isDateTimeRange = includes(type, 'datetime-range');
     const hasDynamicValue = isDynamicDateRange(value);
     const options = isDateTimeRange ? DYNAMIC_DATETIME_OPTIONS : DYNAMIC_DATE_OPTIONS;
@@ -101,7 +101,7 @@ class DateRangeParameter extends React.Component {
         suffixIcon={(
           <DynamicButton
             options={options}
-            selectedDynamicValue={(hasDynamicValue && isString(parameter.value)) ? parameter.value : null}
+            selectedDynamicValue={hasDynamicValue ? value : null}
             enabled={hasDynamicValue}
             onSelect={this.onDynamicValueSelect}
           />
