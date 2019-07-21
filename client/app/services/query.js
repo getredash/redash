@@ -3,7 +3,7 @@ import debug from 'debug';
 import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity, extend, each,
+  isNull, isUndefined, isArray, isObject, identity, extend, each, some,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -320,6 +320,10 @@ class Parameters {
   getValues() {
     const params = this.get();
     return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
+  }
+
+  hasPendingValues() {
+    return some(this.get(), p => p.hasPendingValue);
   }
 
   applyPendingValues() {
