@@ -4,7 +4,7 @@ import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
   isNull, isUndefined, isArray, isObject, identity, extend, each,
-  startsWith,
+  startsWith, some,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -464,6 +464,10 @@ class Parameters {
     return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
   }
 
+  hasPendingValues() {
+    return some(this.get(), p => p.hasPendingValue);
+  }
+
   applyPendingValues() {
     each(this.get(), p => p.applyPendingValue());
   }
@@ -653,7 +657,6 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
-    parameters.applyPendingValues();
     const missingParams = parameters.getMissing();
 
     if (missingParams.length > 0) {
