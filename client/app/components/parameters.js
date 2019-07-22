@@ -17,25 +17,23 @@ function ParametersDirective($location, KeyboardShortcuts) {
     },
     template,
     link(scope, $element) {
-      if (scope.applyOnKeyboardShortcut !== false) {
-        const el = $element.get(0);
-        const shortcuts = {
-          'mod+enter': () => scope.onApply(),
-          'alt+enter': () => scope.onApply(),
-        };
+      const el = $element.get(0);
+      const shortcuts = {
+        'mod+enter': () => scope.onApply(),
+        'alt+enter': () => scope.onApply(),
+      };
 
-        const onFocus = () => { KeyboardShortcuts.bind(shortcuts); };
-        const onBlur = () => { KeyboardShortcuts.unbind(shortcuts); };
+      const onFocus = () => { KeyboardShortcuts.bind(shortcuts); };
+      const onBlur = () => { KeyboardShortcuts.unbind(shortcuts); };
 
-        el.addEventListener('focus', onFocus, true);
-        el.addEventListener('blur', onBlur, true);
+      el.addEventListener('focus', onFocus, true);
+      el.addEventListener('blur', onBlur, true);
 
-        scope.$on('$destroy', () => {
-          KeyboardShortcuts.unbind(shortcuts);
-          el.removeEventListener('focus', onFocus);
-          el.removeEventListener('blur', onBlur);
-        });
-      }
+      scope.$on('$destroy', () => {
+        KeyboardShortcuts.unbind(shortcuts);
+        el.removeEventListener('focus', onFocus);
+        el.removeEventListener('blur', onBlur);
+      });
 
       // is this the correct location for this logic?
       if (scope.syncValues !== false) {

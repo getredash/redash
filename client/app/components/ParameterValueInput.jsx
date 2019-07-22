@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
@@ -141,7 +140,7 @@ export class ParameterValueInput extends React.Component {
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
-        className={classNames({ 'parameter-multi-select': allowMultipleValues }, this.props.className)}
+        className={this.props.className}
         mode={allowMultipleValues ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
@@ -149,6 +148,9 @@ export class ParameterValueInput extends React.Component {
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
+        showSearch
+        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        notFoundContent={null}
         {...multipleValuesProps}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
@@ -161,13 +163,14 @@ export class ParameterValueInput extends React.Component {
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
-        className={classNames({ 'parameter-multi-select': allowMultipleValues }, this.props.className)}
+        className={this.props.className}
         mode={allowMultipleValues ? 'multiple' : 'default'}
         optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}
+        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
         {...multipleValuesProps}
       />
     );

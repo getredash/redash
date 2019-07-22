@@ -82,6 +82,9 @@ export class QueryBasedParameterInput extends React.Component {
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
+          optionFilterProp="children"
+          showSearch
+          notFoundContent={null}
           {...otherProps}
         >
           {options.map(option => (<Option value={option.value} key={option.value}>{option.name}</Option>))}

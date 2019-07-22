@@ -53,6 +53,7 @@ class NotSupported(Exception):
 
 
 class BaseQueryRunner(object):
+    deprecated = False
     noop_query = None
 
     def __init__(self, configuration):

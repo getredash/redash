@@ -1,6 +1,8 @@
 from tests import BaseTestCase
+from mock import patch
 
 from redash.models import NotificationDestination
+from redash.destinations.slack import Slack
 
 
 class TestDestinationListResource(BaseTestCase):
@@ -78,3 +80,13 @@ class TestDestinationResource(BaseTestCase):
         d = NotificationDestination.query.get(d.id)
         self.assertEqual(d.name, data['name'])
         self.assertEqual(d.options['url'], data['options']['url'])
+        
+
+class DestinationTypesTest(BaseTestCase):
+    def test_does_not_show_deprecated_types(self):
+        admin = self.factory.create_admin()
+        with patch.object(Slack, 'deprecated', return_value=True):
+            rv = self.make_request('get', "/api/destinations/types", user=admin)
+
+        types = map(lambda x: x['type'], rv.json)
+        self.assertNotIn('slack', types)
