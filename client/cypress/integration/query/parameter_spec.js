@@ -345,20 +345,13 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter.start}} - {{test-parameter.end}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'daterange' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'date-range' },
           ],
         },
       };
 
       createQuery(queryData, false)
         .then(({ id }) => cy.visit(`/queries/${id}/source`));
-
-      cy.clickThrough(`
-        ParameterSettings-test-parameter
-        ParameterTypeSelect
-        DateRangeParameterTypeOption
-        SaveParameterSettings
-      `);
 
       const now = new Date();
       now.setDate(1);
