@@ -79,6 +79,10 @@ class BaseQueryRunner(object):
     def configuration_schema(cls):
         return {}
 
+    @classmethod
+    def deprecated(cls):
+        return False
+
     def test_connection(self):
         if self.noop_query is None:
             raise NotImplementedError()
