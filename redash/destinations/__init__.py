@@ -34,6 +34,10 @@ class BaseDestination(object):
     def configuration_schema(cls):
         return {}
 
+    @classmethod
+    def deprecated(cls):
+        return False
+
     def notify(self, alert, query, user, new_state, app, host, options):
         raise NotImplementedError()
 
