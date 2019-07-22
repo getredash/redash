@@ -1,7 +1,7 @@
 /* global cy */
 
 import { createDashboard, createQuery } from '../../support/redash-api';
-import { editDashboard, createQueryAndAddWidget } from '../../support/dashboard';
+import { editDashboard, shareDashboard, createQueryAndAddWidget } from '../../support/dashboard';
 
 describe('Dashboard Sharing', () => {
   beforeEach(function () {
@@ -52,11 +52,8 @@ describe('Dashboard Sharing', () => {
         cy.getByTestId(elTestId)
           .its('0.offsetHeight')
           .should('eq', 235);
-        cy.clickThrough({ button: 'Publish' },
-          `OpenShareForm
-          PublicAccessEnabled`);
 
-        cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
+        shareDashboard().then((secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
@@ -82,11 +79,8 @@ describe('Dashboard Sharing', () => {
         cy.getByTestId(elTestId)
           .its('0.offsetHeight')
           .should('eq', 285);
-        cy.clickThrough({ button: 'Publish' },
-          `OpenShareForm
-          PublicAccessEnabled`);
 
-        cy.getByTestId('SecretAddress').invoke('val').then((secretAddress) => {
+        shareDashboard().then((secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
@@ -106,11 +100,8 @@ describe('Dashboard Sharing', () => {
         cy.getByTestId(elTestId)
           .its('0.offsetHeight')
           .should('eq', 235);
-        cy.clickThrough({ button: 'Publish' },
-          `OpenShareForm
-          PublicAccessEnabled`);
 
-        return cy.getByTestId('SecretAddress').invoke('val');
+        return shareDashboard();
       }).then((secretAddress) => {
         const unsafeQueryData = {
           query: "select '{{foo}}'",
