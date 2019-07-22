@@ -158,7 +158,7 @@
               update-data-source="updateDataSource"
               execute-query="executeQuery"
               query-executing="queryExecuting"
-              can-execute-query="canExecuteQuery"
+              can-execute-query="canExecuteQuery()"
               listen-for-resize="listenForResize"
               listen-for-editor-command="listenForEditorCommand"
               save-query="saveQuery"
@@ -192,7 +192,7 @@
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.hasParameters()">
                 <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"
-                  on-updated="onParametersUpdated" on-values-change="executeQuery" apply-on-keyboard-shortcut="false"></parameters>
+                  on-updated="onParametersUpdated" on-values-change="executeQuery"></parameters>
               </div>
               <!-- Query Execution Status -->
 

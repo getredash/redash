@@ -387,16 +387,21 @@ describe('Parameter', () => {
       });
     });
 
-    it('applies changes from "Execute" button', () => {
-      expectAppliedChanges(() => {
-        cy.getByTestId('ExecuteButton').click();
-      });
-    });
-
     it('applies changes from "alt+enter" keyboard shortcut', () => {
       expectAppliedChanges((input) => {
         input.type('{alt}{enter}');
       });
+    });
+
+    it('disables "Execute" button', () => {
+      cy.getByTestId('ParameterName-test-parameter-1')
+        .find('input')
+        .as('Input')
+        .type('Redash');
+      cy.getByTestId('ExecuteButton').should('be.disabled');
+
+      cy.get('@Input').clear();
+      cy.getByTestId('ExecuteButton').should('not.be.disabled');
     });
   });
 });
