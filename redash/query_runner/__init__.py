@@ -53,6 +53,7 @@ class NotSupported(Exception):
 
 
 class BaseQueryRunner(object):
+    deprecated = False
     noop_query = None
 
     def __init__(self, configuration):
@@ -78,10 +79,6 @@ class BaseQueryRunner(object):
     @classmethod
     def configuration_schema(cls):
         return {}
-
-    @classmethod
-    def deprecated(cls):
-        return False
 
     def test_connection(self):
         if self.noop_query is None:

@@ -11,6 +11,8 @@ __all__ = [
 
 
 class BaseDestination(object):
+    deprecated = False
+
     def __init__(self, configuration):
         self.configuration = configuration
 
@@ -33,10 +35,6 @@ class BaseDestination(object):
     @classmethod
     def configuration_schema(cls):
         return {}
-
-    @classmethod
-    def deprecated(cls):
-        return False
 
     def notify(self, alert, query, user, new_state, app, host, options):
         raise NotImplementedError()

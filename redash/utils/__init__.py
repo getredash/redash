@@ -196,7 +196,7 @@ def to_filename(s):
 
 def deprecated():
     def wrapper(K):
-        setattr(K, 'deprecated', classmethod(lambda _: True))
+        setattr(K, 'deprecated', True)
         return K
 
     return wrapper
