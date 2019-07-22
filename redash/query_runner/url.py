@@ -1,6 +1,8 @@
 from redash.query_runner import BaseHTTPQueryRunner, register
+from redash.utils import deprecated
 
 
+@deprecated()
 class Url(BaseHTTPQueryRunner):
     requires_url = False
 
