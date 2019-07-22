@@ -96,4 +96,4 @@ export default function init(ngModule) {
   ngModule.directive('parameters', ParametersDirective);
 }
 
-init.init = true;
+// init.init = true;

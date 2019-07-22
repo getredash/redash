@@ -6,7 +6,7 @@ import Badge from 'antd/lib/badge';
 import Tooltip from 'antd/lib/tooltip';
 import { KeyboardShortcuts } from '@/services/keyboard-shortcuts';
 
-function ParameterApplyButton({ paramCount, onClick, isApplying }) {
+export function ParameterApplyButton({ paramCount, onClick, isApplying }) {
   // show spinner when applying (also when count is empty so the fade out is consistent)
   const icon = isApplying || !paramCount ? 'spinner fa-pulse' : 'check';
 
