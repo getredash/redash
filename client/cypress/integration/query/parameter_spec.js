@@ -142,7 +142,6 @@ describe('Parameter', () => {
     it('supports multi-selection', () => {
       cy.clickThrough(`
         ParameterSettings-test-parameter
-        ParameterTypeSelect
         AllowMultipleValuesCheckbox
         QuotationSelect
         DoubleQuotationMarkOption
