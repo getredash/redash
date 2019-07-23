@@ -1,27 +1,34 @@
 @import '../../assets/less/inc/variables';
 
-.dynamic-value {
-  & ::placeholder {
-    color: @text-color !important;
-  }
-
-  &.hide-end-value {
-    .ant-calendar-range-picker-input {
-      width: 100%;
-      text-align: left;
-    }
-  
-    .ant-calendar-range-picker-separator,
-    .ant-calendar-range-picker-input:not(:first-child) {
-      display: none;
-    }
-  }
-}
-
 .redash-datepicker {
-  width: auto !important;
-
   .ant-calendar-picker-clear {
     right: 35px;
+  }
+
+  &.date-range-input .ant-calendar-picker-input {
+    width: 376px;
+    transition: width 150ms ease-in-out;
+  }
+
+  &.dynamic-value {
+    & ::placeholder {
+      color: @text-color !important;
+    }
+  
+    &.date-range-input {
+      .ant-calendar-range-picker-input {
+        width: 100%;
+        text-align: left;
+      }
+
+      .ant-calendar-picker-input {
+        width: 195px;
+      }
+    
+      .ant-calendar-range-picker-separator,
+      .ant-calendar-range-picker-input:not(:first-child) {
+        display: none;
+      }
+    }
   }
 }
