@@ -353,6 +353,10 @@ describe('Parameter', () => {
       createQuery(queryData, false)
         .then(({ id }) => cy.visit(`/queries/${id}/source`));
 
+      // make sure parameter is loaded, otherwise cy.clock won't work
+      cy.getByTestId('ParameterName-test-parameter')
+        .should('exist');
+
       const now = new Date();
       now.setDate(1);
       cy.wrap(now.getTime()).as('now');
