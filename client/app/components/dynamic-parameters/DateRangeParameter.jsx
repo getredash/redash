@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
-import { includes, isArray } from 'lodash';
+import { includes, isArray, isObject } from 'lodash';
 import { isDynamicDateRange, getDynamicDateRange } from '@/services/query';
 import { DateRangeInput } from '@/components/DateRangeInput';
 import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
@@ -62,7 +62,12 @@ class DateRangeParameter extends React.Component {
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      onSelect([moment(parameter.getValue().start), moment(parameter.getValue().end)]);
+      const parameterValue = parameter.getValue();
+      if (isObject(parameterValue) && parameterValue.start && parameterValue.end) {
+        onSelect([moment(parameterValue.start), moment(parameterValue.end)]);
+      } else {
+        onSelect(null);
+      }
     } else {
       onSelect(dynamicValue.value);
     }
