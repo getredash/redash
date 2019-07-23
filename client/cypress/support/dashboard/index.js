@@ -29,6 +29,14 @@ export function editDashboard() {
     });
 }
 
+export function shareDashboard() {
+  cy.clickThrough({ button: 'Publish' },
+    `OpenShareForm
+    PublicAccessEnabled`);
+
+  return cy.getByTestId('SecretAddress').invoke('val');
+}
+
 export function dragBy(wrapper, offsetLeft, offsetTop, force = false) {
   if (!offsetLeft) {
     offsetLeft = 1;
