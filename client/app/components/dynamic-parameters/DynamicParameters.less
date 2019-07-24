@@ -1,15 +1,12 @@
 @import '../../assets/less/inc/variables';
 
 .redash-datepicker {
-  width: auto !important;
-
   .ant-calendar-picker-clear {
     right: 35px;
   }
 
-  &.date-range-input .ant-calendar-picker-input {
-    width: 376px;
-    transition: width 150ms ease-in-out;
+  &.date-range-input {
+    transition: width 100ms ease-in-out;
   }
 
   &.dynamic-value {
@@ -21,10 +18,6 @@
       .ant-calendar-range-picker-input {
         width: 100%;
         text-align: left;
-      }
-
-      .ant-calendar-picker-input {
-        width: 195px;
       }
     
       .ant-calendar-range-picker-separator,

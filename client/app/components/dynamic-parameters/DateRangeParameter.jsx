@@ -38,6 +38,12 @@ const DYNAMIC_DATETIME_OPTIONS = [
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
+const widthByType = {
+  'date-range': 270,
+  'datetime-range': 320,
+  'datetime-range-with-seconds': 370,
+};
+
 function isValidDateRangeValue(value) {
   return isArray(value) && value.length === 2 && moment.isMoment(value[0]) && moment.isMoment(value[1]);
 }
@@ -103,6 +109,7 @@ class DateRangeParameter extends React.Component {
       <DateRangeComponent
         className={classNames('redash-datepicker date-range-input', { 'dynamic-value': hasDynamicValue }, className)}
         onSelect={onSelect}
+        style={{ width: hasDynamicValue ? 195 : widthByType[type] }}
         suffixIcon={(
           <DynamicButton
             options={options}
