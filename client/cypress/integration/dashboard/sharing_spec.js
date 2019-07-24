@@ -115,7 +115,7 @@ describe('Dashboard Sharing', () => {
         };
 
         // then, after it is shared, add an unsafe parameterized query to it
-        createQueryAndAddWidget(this.dashboardId, unsafeQueryData).then((elTestId) => {
+        createQueryAndAddWidget(this.dashboardId, unsafeQueryData, { position: { col: 3 } }).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId)
             .its('0.offsetHeight')
