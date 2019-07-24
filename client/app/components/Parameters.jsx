@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEqual } from 'lodash';
+import { isEqual, size, filter } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { Parameter } from '@/services/query';
@@ -34,13 +34,15 @@ export class Parameters extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { parameters: props.parameters };
+    const { parameters } = props;
+    this.state = { parameters, dirtyParamCount: size(filter(parameters, 'hasPendingValue')) };
   }
 
   componentDidUpdate = (prevProps) => {
     const { parameters } = this.props;
     if (!isEqual(prevProps.parameters, parameters)) {
-      this.setState({ parameters });
+      console.log(parameters);
+      this.setState({ parameters, dirtyParamCount: size(filter(parameters, 'hasPendingValue')) });
     }
   }
 
@@ -53,8 +55,8 @@ export class Parameters extends React.Component {
     });
   }
 
-  onSelect = () => {
-    console.log('Selected value!');
+  onSelect = (param, value) => {
+    param.setPendingValue(value);
   };
 
   renderParameter(param) {
@@ -63,21 +65,21 @@ export class Parameters extends React.Component {
         className="di-block m-r-10"
         data-test={`ParameterName-${param.name}`}
       >
-        <label className="parameter-label">{param.title}</label>
+        <label className="parameter-label">{param.title || param.name}</label>
         <ParameterValueInput
           type={param.type}
           value={param.normalizedValue}
           parameter={param}
           enumOptions={param.enumOptions}
           queryI={param.queryId}
-          onSelect={this.onSelect}
+          onSelect={value => this.onSelect(param, value)}
         />
       </div>
     );
   }
 
   render() {
-    const { parameters } = this.state;
+    const { parameters, dirtyParamCount } = this.state;
     const { editable } = this.props;
     return (
       <SortableContainer axis="xy" onSortEnd={this.onSortEnd} useDragHandle>
@@ -88,7 +90,7 @@ export class Parameters extends React.Component {
             </SortableItem>
           ) : this.renderParameter(param)))}
 
-          <ParameterApplyButton />
+          <ParameterApplyButton onClick={console.log} isApplying={false} paramCount={dirtyParamCount} />
         </div>
       </SortableContainer>
     );
