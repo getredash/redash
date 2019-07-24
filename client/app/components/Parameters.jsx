@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, size, filter } from 'lodash';
+import { isEqual, size, filter, forEach } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { Parameter } from '@/services/query';
@@ -22,46 +22,62 @@ const SortableContainer = sortableContainer(({ children }) => children);
 export class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
-    onSortUpdate: PropTypes.func,
+    onUpdate: PropTypes.func,
     editable: PropTypes.bool,
   };
 
   static defaultProps = {
     parameters: [],
-    onSortUpdate: () => {},
+    onUpdate: () => {},
     editable: true,
   }
 
   constructor(props) {
     super(props);
     const { parameters } = props;
-    this.state = { parameters, dirtyParamCount: size(filter(parameters, 'hasPendingValue')) };
+    this.state = { parameters };
   }
 
   componentDidUpdate = (prevProps) => {
     const { parameters } = this.props;
     if (!isEqual(prevProps.parameters, parameters)) {
+      console.log(prevProps.parameters === parameters);
       console.log(parameters);
-      this.setState({ parameters, dirtyParamCount: size(filter(parameters, 'hasPendingValue')) });
+      this.setState({ parameters });
     }
   }
 
   onSortEnd = ({ oldIndex, newIndex }) => {
-    const { onSortUpdate } = this.props;
+    const { onUpdate } = this.props;
     this.setState(({ parameters }) => {
       parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-      onSortUpdate(parameters);
+      onUpdate(parameters);
       return { parameters };
     });
   }
 
   onSelect = (param, value) => {
-    param.setPendingValue(value);
+    const { onUpdate } = this.props;
+    this.setState(({ parameters }) => {
+      param.setPendingValue(value);
+      onUpdate(parameters);
+      return { parameters };
+    });
   };
+
+  onApply = () => {
+    const { onUpdate } = this.props;
+    this.setState(({ parameters }) => {
+      forEach(parameters, p => p.applyPendingValue());
+      onUpdate(parameters);
+      return { parameters };
+    });
+  }
 
   renderParameter(param) {
     return (
       <div
+        key={param.name}
         className="di-block m-r-10"
         data-test={`ParameterName-${param.name}`}
       >
@@ -79,8 +95,9 @@ export class Parameters extends React.Component {
   }
 
   render() {
-    const { parameters, dirtyParamCount } = this.state;
+    const { parameters } = this.state;
     const { editable } = this.props;
+    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
       <SortableContainer axis="xy" onSortEnd={this.onSortEnd} useDragHandle>
         <div className="parameter-container form-inline bg-white">
@@ -90,7 +107,7 @@ export class Parameters extends React.Component {
             </SortableItem>
           ) : this.renderParameter(param)))}
 
-          <ParameterApplyButton onClick={console.log} isApplying={false} paramCount={dirtyParamCount} />
+          <ParameterApplyButton onClick={this.onApply} isApplying={false} paramCount={dirtyParamCount} />
         </div>
       </SortableContainer>
     );
@@ -98,19 +115,19 @@ export class Parameters extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('parameters', {
+  ngModule.component('parametersOld', {
     template: `
       <parameters-impl
         parameters="$ctrl.parameters"
-        on-sort-update="$ctrl.onSortUpdate"
+        on-update="$ctrl.onUpdate"
       ></parameters-impl>
     `,
     bindings: {
       parameters: '=',
     },
     controller($scope) {
-      this.onSortUpdate = (parameters) => {
-        this.parameters = parameters;
+      this.onUpdate = () => {
+        // this.parameters = parameters;
       };
       this.setValue = (value, isDirty) => {
         if (isDirty) {
@@ -122,7 +139,7 @@ export default function init(ngModule) {
       };
     },
   });
-  ngModule.component('parametersImpl', react2angular(Parameters));
+  ngModule.component('parameters', react2angular(Parameters));
 }
 
 init.init = true;

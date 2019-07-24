@@ -321,6 +321,12 @@ function QueryViewCtrl(
     Events.record('cancel_execute', 'query', $scope.query.id);
   };
 
+  $scope.onUpdateParameters = (parameters) => {
+    // $scope.$apply(() => { $scope.query.options.parameters = parameters; });
+    console.log(parameters === $scope.query.getParametersDefs());
+    console.log($scope.query.getParametersDefs());
+  };
+
   $scope.archiveQuery = () => {
     function archive() {
       Query.delete(
