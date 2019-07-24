@@ -166,7 +166,7 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => $scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only);
+  $scope.canExecuteQuery = () => !$scope.query.$parameters.hasPendingValues() && ($scope.query.is_safe || (currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only));
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
@@ -303,11 +303,16 @@ function QueryViewCtrl(
   $scope.saveName = (name) => {
     $scope.query.name = name;
     Events.record('edit_name', 'query', $scope.query.id);
+
+    let customOptions;
     if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries && $scope.query.name !== 'New Query') {
       $scope.query.is_draft = false;
+      customOptions = {
+        successMessage: 'Query saved and published',
+      };
     }
 
-    $scope.saveQuery(undefined, { name: $scope.query.name, is_draft: $scope.query.is_draft });
+    $scope.saveQuery(customOptions, { name: $scope.query.name, is_draft: $scope.query.is_draft });
   };
 
   $scope.cancelExecution = () => {
