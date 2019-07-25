@@ -1,19 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, size, filter, forEach } from 'lodash';
+import { isEqual, size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import Button from 'antd/lib/button';
 import { Parameter } from '@/services/query';
 import { ParameterApplyButton } from '@/components/ParameterApplyButton';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
+import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
 import './Parameters.less';
 
 const DragHandle = sortableHandle(() => <div className="drag-handle" />);
 
-const SortableItem = sortableElement(({ children }) => (
-  <div className="di-block">
-    <DragHandle />
+const SortableItem = sortableElement(({ disabled, children }) => (
+  <div className="bg-white di-block m-r-10 m-b-10">
+    {!disabled && <DragHandle />}
     {children}
   </div>
 ));
@@ -25,6 +27,7 @@ export class Parameters extends React.Component {
     editable: PropTypes.bool,
     onUpdate: PropTypes.func,
     onValuesChange: PropTypes.func,
+    onParameterEdited: PropTypes.func,
   };
 
   static defaultProps = {
@@ -32,6 +35,7 @@ export class Parameters extends React.Component {
     editable: false,
     onUpdate: () => {},
     onValuesChange: () => {},
+    onParameterEdited: () => {},
   }
 
   constructor(props) {
@@ -45,7 +49,7 @@ export class Parameters extends React.Component {
     if (!isEqual(prevProps.parameters, parameters)) {
       this.setState({ parameters });
     }
-  }
+  };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     const { onUpdate } = this.props;
@@ -54,7 +58,7 @@ export class Parameters extends React.Component {
       onUpdate(parameters);
       return { parameters };
     });
-  }
+  };
 
   onSelect = (param, value) => {
     const { onUpdate } = this.props;
@@ -73,16 +77,42 @@ export class Parameters extends React.Component {
       onValuesChange();
       return { parameters };
     });
-  }
+  };
 
-  renderParameter(param) {
+  showParameterSettings = (parameter, index) => {
+    const { onParameterEdited } = this.props;
+    EditParameterSettingsDialog
+      .showModal({ parameter })
+      .result.then((updated) => {
+        this.setState(({ parameters }) => {
+          parameters[index] = extend(parameter, updated);
+          onParameterEdited(parameters[index]);
+          return { parameters };
+        });
+      });
+  };
+
+  renderParameter(param, index) {
+    const { editable } = this.props;
     return (
       <div
         key={param.name}
-        className="di-block m-r-10"
+        className="di-block"
         data-test={`ParameterName-${param.name}`}
       >
-        <label className="parameter-label">{param.title || param.name}</label>
+        <div className="d-flex">
+          <label className="flex-fill">{param.title || param.name}</label>
+          {editable && (
+            <Button
+              className="parameter-settings-button"
+              type="link"
+              size="small"
+              onClick={() => this.showParameterSettings(param, index)}
+            >
+              <i className="zmdi zmdi-settings" />
+            </Button>
+          )}
+        </div>
         <ParameterValueInput
           type={param.type}
           value={param.normalizedValue}
@@ -101,12 +131,12 @@ export class Parameters extends React.Component {
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
       <SortableContainer axis="xy" onSortEnd={this.onSortEnd} useDragHandle>
-        <div className="parameter-container form-inline bg-white">
-          {parameters.map((param, index) => (editable ? (
-            <SortableItem key={param.name} index={index}>
-              {this.renderParameter(param)}
+        <div className="parameter-container bg-white">
+          {parameters.map((param, index) => (
+            <SortableItem key={param.name} index={index} disabled={!editable}>
+              {this.renderParameter(param, index)}
             </SortableItem>
-          ) : this.renderParameter(param)))}
+          ))}
 
           <ParameterApplyButton onClick={this.onApply} isApplying={false} paramCount={dirtyParamCount} />
         </div>
