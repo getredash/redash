@@ -45,6 +45,12 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         email_pending = redis_connection.exists(key)
         self.assertFalse(email_pending)
 
+    def test_does_not_report_if_query_owner_is_disabled(self):
+        self.factory.user.disable()
+        key = self.notify()
+        email_pending = redis_connection.exists(key)
+        self.assertFalse(email_pending)
+
     def test_does_not_indicate_when_not_near_limit_for_a_query(self):
         self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY / 2)
         failures = self.send_email(self.factory.user)
