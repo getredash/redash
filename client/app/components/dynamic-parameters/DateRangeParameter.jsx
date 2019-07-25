@@ -39,9 +39,9 @@ const DYNAMIC_DATETIME_OPTIONS = [
 ];
 
 const widthByType = {
-  'date-range': 270,
-  'datetime-range': 320,
-  'datetime-range-with-seconds': 370,
+  'date-range': 294,
+  'datetime-range': 352,
+  'datetime-range-with-seconds': 382,
 };
 
 function isValidDateRangeValue(value) {
