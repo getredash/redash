@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray, extend } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -322,9 +322,7 @@ function QueryViewCtrl(
   };
 
   $scope.onUpdateParameters = (parameters) => {
-    // $scope.$apply(() => { $scope.query.options.parameters = parameters; });
-    console.log(parameters === $scope.query.getParametersDefs());
-    console.log($scope.query.getParametersDefs());
+    $scope.$apply(() => { $scope.query.options.parameters = parameters; });
   };
 
   $scope.archiveQuery = () => {
@@ -520,6 +518,20 @@ function QueryViewCtrl(
         DEFAULT_VISUALIZATION;
     },
   );
+
+  if (!$scope.query.isNew()) {
+    $scope.$watch(
+      'query.options && query.options.parameters',
+      (parameters) => {
+        const params = extend({}, $location.search());
+        parameters.forEach((param) => {
+          extend(params, param.toUrlParams());
+        });
+        $location.search(params);
+      },
+      true,
+    );
+  }
 
   $scope.showManagePermissionsModal = () => {
     $uibModal.open({

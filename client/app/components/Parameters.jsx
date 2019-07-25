@@ -22,14 +22,16 @@ const SortableContainer = sortableContainer(({ children }) => children);
 export class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
-    onUpdate: PropTypes.func,
     editable: PropTypes.bool,
+    onUpdate: PropTypes.func,
+    onValuesChange: PropTypes.func,
   };
 
   static defaultProps = {
     parameters: [],
+    editable: false,
     onUpdate: () => {},
-    editable: true,
+    onValuesChange: () => {},
   }
 
   constructor(props) {
@@ -41,8 +43,6 @@ export class Parameters extends React.Component {
   componentDidUpdate = (prevProps) => {
     const { parameters } = this.props;
     if (!isEqual(prevProps.parameters, parameters)) {
-      console.log(prevProps.parameters === parameters);
-      console.log(parameters);
       this.setState({ parameters });
     }
   }
@@ -66,10 +66,11 @@ export class Parameters extends React.Component {
   };
 
   onApply = () => {
-    const { onUpdate } = this.props;
+    const { onUpdate, onValuesChange } = this.props;
     this.setState(({ parameters }) => {
       forEach(parameters, p => p.applyPendingValue());
       onUpdate(parameters);
+      onValuesChange();
       return { parameters };
     });
   }
@@ -115,30 +116,6 @@ export class Parameters extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('parametersOld', {
-    template: `
-      <parameters-impl
-        parameters="$ctrl.parameters"
-        on-update="$ctrl.onUpdate"
-      ></parameters-impl>
-    `,
-    bindings: {
-      parameters: '=',
-    },
-    controller($scope) {
-      this.onUpdate = () => {
-        // this.parameters = parameters;
-      };
-      this.setValue = (value, isDirty) => {
-        if (isDirty) {
-          this.param.setPendingValue(value);
-        } else {
-          this.param.clearPendingValue();
-        }
-        $scope.$apply();
-      };
-    },
-  });
   ngModule.component('parameters', react2angular(Parameters));
 }
 
