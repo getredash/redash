@@ -49,7 +49,7 @@ export class ParameterValueInput extends React.Component {
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
       this.setState({
-        value: parameter.pendingValue || value,
+        value: parameter.hasPendingValue ? parameter.pendingValue : value,
         isDirty: parameter.hasPendingValue,
       });
     }
