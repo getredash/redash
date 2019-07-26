@@ -1,10 +1,9 @@
 
-import { includes, startsWith, words, capitalize, clone, isNull } from 'lodash';
+import { includes, words, capitalize, clone, isNull } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
-import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
@@ -18,10 +17,6 @@ const formItemProps = { labelCol: { span: 6 }, wrapperCol: { span: 16 } };
 
 function getDefaultTitle(text) {
   return capitalize(words(text).join(' ')); // humanize
-}
-
-function isTypeDate(type) {
-  return startsWith(type, 'date') && !isTypeDateRange(type);
 }
 
 function isTypeDateRange(type) {
@@ -167,22 +162,11 @@ function EditParameterSettingsDialog(props) {
             <Option disabled key="dv2">
               <Divider className="select-option-divider" />
             </Option>
-            <Option value="date-range">Date Range</Option>
+            <Option value="date-range" data-test="DateRangeParameterTypeOption">Date Range</Option>
             <Option value="datetime-range">Date and Time Range</Option>
             <Option value="datetime-range-with-seconds">Date and Time Range (with seconds)</Option>
           </Select>
         </Form.Item>
-        {isTypeDate(param.type) && (
-          <Form.Item label=" " colon={false} {...formItemProps}>
-            <Checkbox
-              defaultChecked={param.useCurrentDateTime}
-              onChange={e => setParam({ ...param, useCurrentDateTime: e.target.checked })}
-              data-test="UseCurrentDateTimeCheckbox"
-            >
-              Default to Today/Now if no other value is set
-            </Checkbox>
-          </Form.Item>
-        )}
         {param.type === 'enum' && (
           <Form.Item label="Values" help="Dropdown list values (newline delimeted)" {...formItemProps}>
             <Input.TextArea
