@@ -39,6 +39,7 @@ TYPES_MAPPING = {
     'DECIMAL': TYPE_FLOAT
 }
 
+
 class Phoenix(BaseQueryRunner):
     noop_query = 'select 1'
 

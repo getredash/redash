@@ -28,6 +28,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
 
