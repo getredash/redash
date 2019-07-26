@@ -5,8 +5,8 @@ import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import Button from 'antd/lib/button';
 import { Parameter } from '@/services/query';
-import { ParameterApplyButton } from '@/components/ParameterApplyButton';
-import { ParameterValueInput } from '@/components/ParameterValueInput';
+import ParameterApplyButton from '@/components/ParameterApplyButton';
+import ParameterValueInput from '@/components/ParameterValueInput';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
 import './Parameters.less';

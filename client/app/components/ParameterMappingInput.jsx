@@ -14,7 +14,7 @@ import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
 import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
-import { ParameterValueInput } from '@/components/ParameterValueInput';
+import ParameterValueInput from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
 import { Parameter } from '@/services/query';
 import { HelpTrigger } from '@/components/HelpTrigger';

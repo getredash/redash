@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Badge from 'antd/lib/badge';
 import Tooltip from 'antd/lib/tooltip';
 import { KeyboardShortcuts } from '@/services/keyboard-shortcuts';
 
-export function ParameterApplyButton({ paramCount, onClick }) {
+function ParameterApplyButton({ paramCount, onClick }) {
   // show spinner when count is empty so the fade out is consistent
   const icon = !paramCount ? 'spinner fa-pulse' : 'check';
 
@@ -30,8 +29,4 @@ ParameterApplyButton.propTypes = {
   paramCount: PropTypes.number.isRequired,
 };
 
-export default function init(ngModule) {
-  ngModule.component('parameterApplyButton', react2angular(ParameterApplyButton));
-}
-
-init.init = true;
+export default ParameterApplyButton;
