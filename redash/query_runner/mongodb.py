@@ -301,12 +301,12 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
             })
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 

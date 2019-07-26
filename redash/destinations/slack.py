@@ -67,7 +67,7 @@ class Slack(BaseDestination):
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"
-        
+
         payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
 
         if options.get('username'): payload['username'] = options.get('username')

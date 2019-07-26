@@ -104,17 +104,17 @@ class Drill(BaseHTTPQueryRunner):
     def get_schema(self, get_stats=False):
 
         query = """
-        SELECT DISTINCT 
-            TABLE_SCHEMA, 
-            TABLE_NAME, 
-            COLUMN_NAME 
-        FROM 
-            INFORMATION_SCHEMA.`COLUMNS` 
-        WHERE 
-                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys') 
-            and TABLE_SCHEMA not like '%.information_schema' 
-            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA' 
-            
+        SELECT DISTINCT
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            COLUMN_NAME
+        FROM
+            INFORMATION_SCHEMA.`COLUMNS`
+        WHERE
+                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys')
+            and TABLE_SCHEMA not like '%.information_schema'
+            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA'
+
         """
         allowed_schemas = self.configuration.get('allowed_schemas')
         if allowed_schemas:
