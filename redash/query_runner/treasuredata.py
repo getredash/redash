@@ -60,7 +60,7 @@ class TreasureData(BaseQueryRunner):
                     'default': False
                 }
             },
-            'required': ['apikey','db']
+            'required': ['apikey', 'db']
         }
 
     @classmethod
