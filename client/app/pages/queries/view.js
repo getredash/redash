@@ -254,10 +254,12 @@ function QueryViewCtrl(
     }
 
     // omit pendingValue before saving
-    request.options = {
-      ...request.options,
-      parameters: map(request.options.parameters, p => omit(p, 'pendingValue')),
-    };
+    if (request.options && request.options.parameters) {
+      request.options = {
+        ...request.options,
+        parameters: map(request.options.parameters, p => omit(p, 'pendingValue')),
+      };
+    }
 
     function overwrite() {
       options.force = true;
