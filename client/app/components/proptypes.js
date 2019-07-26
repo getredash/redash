@@ -88,8 +88,8 @@ export const UserProfile = PropTypes.shape({
 
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
-  const isRequiredValid = isRequired && (value !== null);
-  const isOptionalValid = !isRequired && ((value === null) || moment.isMoment(value));
+  const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);
+  const isOptionalValid = !isRequired && ((value === null || value === undefined) || moment.isMoment(value));
   if (!isRequiredValid && !isOptionalValid) {
     return new Error('Prop `' + propName + '` supplied to `' + componentName + '` should be a Moment.js instance.');
   }

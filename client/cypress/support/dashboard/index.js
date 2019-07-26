@@ -9,12 +9,12 @@ export function getWidgetTestId(widget) {
   return `WidgetId${widget.id}`;
 }
 
-export function createQueryAndAddWidget(dashboardId, queryData = {}) {
+export function createQueryAndAddWidget(dashboardId, queryData = {}, widgetOptions = {}) {
   return createQuery(queryData)
     .then((query) => {
       const visualizationId = get(query, 'visualizations.0.id');
       assert.isDefined(visualizationId, 'Query api call returns at least one visualization with id');
-      return addWidget(dashboardId, visualizationId);
+      return addWidget(dashboardId, visualizationId, widgetOptions);
     })
     .then(getWidgetTestId);
 }
@@ -27,6 +27,14 @@ export function editDashboard() {
         .contains('Edit')
         .click();
     });
+}
+
+export function shareDashboard() {
+  cy.clickThrough({ button: 'Publish' },
+    `OpenShareForm
+    PublicAccessEnabled`);
+
+  return cy.getByTestId('SecretAddress').invoke('val');
 }
 
 export function dragBy(wrapper, offsetLeft, offsetTop, force = false) {

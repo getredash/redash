@@ -12,7 +12,7 @@ except ImportError:
 class PagerDuty(BaseDestination):
 
     KEY_STRING = '{alert_id}_{query_id}'
-    DESCRIPTION_STR = 'Alert - Redash Query #{query_id}: {query_name}'
+    DESCRIPTION_STR = u'Alert - Redash Query #{query_id}: {query_name}'
 
     @classmethod
     def enabled(cls):
@@ -41,12 +41,12 @@ class PagerDuty(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, options):
 
-        default_desc = self.DESCRIPTION_STR.format(query_id=query.id, query_name=query.name)
-
         if alert.custom_subject:
             default_desc = alert.custom_subject
         elif options.get('description'):
             default_desc = options.get('description')
+        else:
+            default_desc = self.DESCRIPTION_STR.format(query_id=query.id, query_name=query.name)
 
         incident_key = self.KEY_STRING.format(alert_id=alert.id, query_id=query.id)
         data = {
