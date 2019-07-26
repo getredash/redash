@@ -39,7 +39,7 @@ export class ParameterValueInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: props.parameter.pendingValue || props.value,
+      value: props.parameter.hasPendingValue ? props.parameter.pendingValue : props.value,
       isDirty: props.parameter.hasPendingValue,
     };
   }
