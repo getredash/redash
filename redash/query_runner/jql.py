@@ -27,6 +27,7 @@ class ResultSet(object):
     def merge(self, set):
         self.rows = self.rows + set.rows
 
+
 def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']

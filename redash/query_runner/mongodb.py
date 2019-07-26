@@ -220,7 +220,6 @@ class MongoDB(BaseQueryRunner):
 
         return schema.values()
 
-
     def run_query(self, query, user):
         db = self._get_db()
 

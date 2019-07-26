@@ -22,7 +22,6 @@ try:
         cx_Oracle.TIMESTAMP: TYPE_DATETIME,
     }
 
-
     ENABLED = True
 except ImportError:
     ENABLED = False
