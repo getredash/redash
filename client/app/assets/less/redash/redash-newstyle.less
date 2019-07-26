@@ -462,6 +462,11 @@ body {
 
   #topRefreshIndicator {
     transition-duration: 0s;
+
+    rd-timer {
+      display: none;
+    }
+
     .topRefreshIndicator-mini();
   }
 }
@@ -494,28 +499,45 @@ body {
   margin-top: -8px;
   margin-right: 2px;
   transform: translateX(22px);
+  position: absolute;
+  right: 34px;
+  top: 16px;
 
   &:before {
     content: "";
     position: absolute;
     top: 0px;
-    left: -6px;
+    right: -6px;
     width: 24px;
     background-color: #e8ecf0;
     height: 24px;
     border-radius: 50%;
     transition: opacity 100ms linear;
-    transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
+    transition-delay: 150ms;
+  }
+
+  rd-timer {
+    font-size: 13px;
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transform: translate(-6px, -3px);
+    transition: all 100ms linear;
+    transition-delay: 150ms;
+    color: #bbbbbb;
+    background-color: rgba(255,255,255,.9);
+    padding-left: 2px;
+    padding-right: 1px;
   }
 
   // don't show on widget init
-  .widget-visualization:not([data-result-status]) & {
+  .widget-visualization[data-refreshing="false"] & {
     display: none;
   }
 }
 
 .topRefreshIndicator-mini() {
-  font-size: 14px;
+  font-size: 13px;
   transition-delay: 0s;
   color: #bbbbbb;
   transform: translateY(-1px);
@@ -523,6 +545,25 @@ body {
   &:before {
     transition-delay: 0s;
     opacity: 0;
+  }
+
+  rd-timer {
+    transition-delay: 0s;
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+#RefreshButton {
+  padding: 0;
+}
+
+@keyframes slow-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  25%, 100% {
+    transform: rotate(180deg);
   }
 }
 
@@ -542,6 +583,8 @@ body {
 
   .t-header {
     .th-title {
+      padding-right: 23px; // no overlap on RefreshIndicator
+
       a {
         color: fade(@redash-black, 80%);
         font-size: 15px;
