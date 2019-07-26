@@ -47,11 +47,9 @@ describe('Dashboard Sharing', () => {
         query: 'select 1',
       };
 
-      createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+      const position = { autoHeight: false, sizeY: 6 };
+      createQueryAndAddWidget(this.dashboardId, queryData, { position }).then(() => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId)
-          .its('0.offsetHeight')
-          .should('eq', 235);
 
         shareDashboard().then((secretAddress) => {
           cy.logout();
@@ -74,11 +72,9 @@ describe('Dashboard Sharing', () => {
         },
       };
 
-      createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+      const position = { autoHeight: false, sizeY: 6 };
+      createQueryAndAddWidget(this.dashboardId, queryData, { position }).then(() => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId)
-          .its('0.offsetHeight')
-          .should('eq', 285);
 
         shareDashboard().then((secretAddress) => {
           cy.logout();
@@ -95,12 +91,9 @@ describe('Dashboard Sharing', () => {
       };
 
       // start out by creating a dashboard with no parameters & share it
-      createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
+      const position = { autoHeight: false, sizeY: 6 };
+      createQueryAndAddWidget(this.dashboardId, queryData, { position }).then(() => {
         cy.visit(this.dashboardUrl);
-        cy.getByTestId(elTestId)
-          .its('0.offsetHeight')
-          .should('eq', 235);
-
         return shareDashboard();
       }).then((secretAddress) => {
         const unsafeQueryData = {
@@ -115,15 +108,14 @@ describe('Dashboard Sharing', () => {
         };
 
         // then, after it is shared, add an unsafe parameterized query to it
-        createQueryAndAddWidget(this.dashboardId, unsafeQueryData).then((elTestId) => {
+        const secondWidgetPos = { autoHeight: false, col: 3, sizeY: 6 };
+        createQueryAndAddWidget(this.dashboardId, unsafeQueryData, { position: secondWidgetPos }).then(() => {
           cy.visit(this.dashboardUrl);
-          cy.getByTestId(elTestId)
-            .its('0.offsetHeight')
-            .should('eq', 285);
-
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+          cy.contains('.alert', 'This query contains potentially unsafe parameters' +
+            ' and cannot be executed on a shared dashboard or an embedded visualization.');
           cy.percySnapshot('Successfully Shared Parameterized Dashboard With Some Unsafe Queries');
         });
       });
