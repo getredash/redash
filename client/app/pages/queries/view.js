@@ -527,6 +527,7 @@ function QueryViewCtrl(
         parameters.forEach((param) => {
           extend(params, param.toUrlParams());
         });
+        Object.keys(params).forEach(key => params[key] == null && delete params[key]);
         $location.search(params);
       },
       true,
