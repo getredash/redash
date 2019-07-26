@@ -135,12 +135,14 @@ class Athena(BaseQueryRunner):
         database_paginator = client.get_paginator('get_databases')
         table_paginator = client.get_paginator('get_tables')
 
-        query = 'DatabaseList[*]'
-        if self.configuration.get('hide_other_schemas', False):
-            query = 'DatabaseList[?Name==`{}`]'.format(
-                self.configuration.get('schema', 'default'))
+        def __db_query():
+            if self.configuration.get('hide_other_schemas', False):
+                return 'DatabaseList[?Name==`{}`]'.format(
+                    self.configuration.get('schema', 'default'))
+            else:
+                return 'DatabaseList[*]'
 
-        for database in database_paginator.paginate().search(query):
+        for database in database_paginator.paginate().search(__db_query()):
             iterator = table_paginator.paginate(DatabaseName=database['Name'])
             for table in iterator.search('TableList[]'):
                 table_name = '%s.%s' % (database['Name'], table['Name'])
@@ -158,18 +160,16 @@ class Athena(BaseQueryRunner):
 
         schema = {}
 
-        if self.configuration.get('hide_other_schemas', False):
-            query = """
+        def __where_state():
+            if self.configuration.get('hide_other_schemas', False):
+                return "WHERE table_schema = '{}'".format(self.configuration.get('schema', 'default'))
+            else:
+                return "WHERE table_schema NOT IN ('information_schema')"
+
+        query = """
             SELECT table_schema, table_name, column_name
             FROM information_schema.columns
-            WHERE table_schema = '{}'
-            """.format(self.configuration.get('schema', 'default'))
-        else:
-            query = """
-            SELECT table_schema, table_name, column_name
-            FROM information_schema.columns
-            WHERE table_schema NOT IN ('information_schema')
-            """
+            """ + __whare_state()
 
         results, error = self.run_query(query, None)
         if error is not None:
