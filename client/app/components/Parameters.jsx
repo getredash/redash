@@ -60,10 +60,14 @@ export class Parameters extends React.Component {
     });
   };
 
-  onSelect = (param, value) => {
+  onSelect = (param, value, isDirty) => {
     const { onUpdate } = this.props;
     this.setState(({ parameters }) => {
-      param.setPendingValue(value);
+      if (isDirty) {
+        param.setPendingValue(value);
+      } else {
+        param.clearPendingValue();
+      }
       onUpdate(parameters);
       return { parameters };
     });
@@ -97,7 +101,7 @@ export class Parameters extends React.Component {
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
 
     // Cmd/Ctrl + Enter
-    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
+    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
       this.applyChanges();
     }
@@ -119,6 +123,7 @@ export class Parameters extends React.Component {
               type="link"
               size="small"
               onClick={() => this.showParameterSettings(param, index)}
+              data-test={`ParameterSettings-${param.name}`}
             >
               <i className="zmdi zmdi-settings" />
             </Button>
@@ -130,7 +135,7 @@ export class Parameters extends React.Component {
           parameter={param}
           enumOptions={param.enumOptions}
           queryI={param.queryId}
-          onSelect={value => this.onSelect(param, value)}
+          onSelect={(value, isDirty) => this.onSelect(param, value, isDirty)}
         />
       </div>
     );

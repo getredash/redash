@@ -74,7 +74,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -312,6 +311,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -354,7 +354,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
         }
       }
       allowClear={false}
-      disabled={false}
       focusOnOpen={true}
       format="HH:mm"
       hideDisabledOptions={false}
@@ -394,7 +393,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           clearText="clear"
           defaultOpen={false}
           defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-          disabled={false}
           disabledHours={[Function]}
           disabledMinutes={[Function]}
           disabledSeconds={[Function]}
@@ -533,7 +531,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -572,7 +569,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -581,7 +578,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -590,7 +587,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             >
               <input
                 className="ant-time-picker-input"
-                disabled={false}
                 id=""
                 onBlur={[Function]}
                 onChange={[Function]}
@@ -624,6 +620,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -734,7 +731,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -972,6 +968,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -1070,7 +1067,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -1308,6 +1304,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -1350,7 +1347,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         }
       }
       allowClear={false}
-      disabled={false}
       focusOnOpen={true}
       format="HH:mm"
       hideDisabledOptions={false}
@@ -1390,7 +1386,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           clearText="clear"
           defaultOpen={false}
           defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-          disabled={false}
           disabledHours={[Function]}
           disabledMinutes={[Function]}
           disabledSeconds={[Function]}
@@ -1529,7 +1524,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -1568,7 +1562,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -1577,7 +1571,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -1586,7 +1580,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             >
               <input
                 className="ant-time-picker-input"
-                disabled={false}
                 id=""
                 onBlur={[Function]}
                 onChange={[Function]}
@@ -1620,6 +1613,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -1663,7 +1657,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
   <RadioGroup
     buttonStyle="outline"
     defaultValue="Mon"
-    disabled={false}
     onChange={[Function]}
     size="medium"
   >
@@ -1678,7 +1671,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sun"
@@ -1690,7 +1682,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1706,7 +1697,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -1732,7 +1722,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={true}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Mon"
@@ -1744,7 +1733,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={true}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1760,7 +1748,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={true}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -1786,7 +1773,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Tue"
@@ -1798,7 +1784,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1814,7 +1799,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -1840,7 +1824,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Wed"
@@ -1852,7 +1835,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1868,7 +1850,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -1894,7 +1875,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Thu"
@@ -1906,7 +1886,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1922,7 +1901,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -1948,7 +1926,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Fri"
@@ -1960,7 +1937,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -1976,7 +1952,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -2002,7 +1977,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
         <Radio
           checked={false}
           className="input"
-          disabled={false}
           prefixCls="ant-radio-button"
           type="radio"
           value="Sat"
@@ -2014,7 +1988,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
               checked={false}
               className=""
               defaultChecked={false}
-              disabled={false}
               onBlur={[Function]}
               onChange={[Function]}
               onFocus={[Function]}
@@ -2030,7 +2003,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 <input
                   checked={false}
                   className="ant-radio-button-input"
-                  disabled={false}
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
@@ -2127,7 +2099,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -2365,6 +2336,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -2462,7 +2434,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -2673,6 +2644,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -2715,7 +2687,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
         }
       }
       allowClear={false}
-      disabled={false}
       focusOnOpen={true}
       format="HH:mm"
       hideDisabledOptions={false}
@@ -2755,7 +2726,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
           clearText="clear"
           defaultOpen={false}
           defaultOpenValue={"2000-01-01T00:00:00.000Z"}
-          disabled={false}
           disabledHours={[Function]}
           disabledMinutes={[Function]}
           disabledSeconds={[Function]}
@@ -2894,7 +2864,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -2933,7 +2902,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -2942,7 +2911,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -2951,7 +2920,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             >
               <input
                 className="ant-time-picker-input"
-                disabled={false}
                 id=""
                 onBlur={[Function]}
                 onChange={[Function]}
@@ -2985,6 +2953,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -3020,7 +2989,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
 >
   <RadioGroup
     buttonStyle="outline"
-    disabled={false}
     onChange={[Function]}
     size="medium"
     value={true}
@@ -3039,7 +3007,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
             checked={false}
             className=""
             defaultChecked={false}
-            disabled={false}
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
@@ -3055,7 +3022,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
               <input
                 checked={false}
                 className="ant-radio-input"
-                disabled={false}
                 onBlur={[Function]}
                 onChange={[Function]}
                 onFocus={[Function]}
@@ -3083,7 +3049,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
             checked={true}
             className=""
             defaultChecked={false}
-            disabled={false}
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
@@ -3099,7 +3064,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
               <input
                 checked={true}
                 className="ant-radio-input"
-                disabled={false}
                 onBlur={[Function]}
                 onChange={[Function]}
                 onFocus={[Function]}
@@ -3468,6 +3432,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                       "yearSelect": "Choose a year",
                     }
                   }
+                  onBlur={[Function]}
                   onChange={[Function]}
                   onClear={[Function]}
                   onKeyDown={[Function]}
@@ -3528,6 +3493,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                           className=""
                           data-icon="calendar"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-calendar"
                           viewBox="64 64 896 896"
@@ -3559,7 +3525,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until not s
 >
   <RadioGroup
     buttonStyle="outline"
-    disabled={false}
     onChange={[Function]}
     size="medium"
     value={false}
@@ -3578,7 +3543,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until not s
             checked={true}
             className=""
             defaultChecked={false}
-            disabled={false}
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
@@ -3594,7 +3558,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until not s
               <input
                 checked={true}
                 className="ant-radio-input"
-                disabled={false}
                 onBlur={[Function]}
                 onChange={[Function]}
                 onFocus={[Function]}
@@ -3622,7 +3585,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until not s
             checked={false}
             className=""
             defaultChecked={false}
-            disabled={false}
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
@@ -3638,7 +3600,6 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until not s
               <input
                 checked={false}
                 className="ant-radio-input"
-                disabled={false}
                 onBlur={[Function]}
                 onChange={[Function]}
                 onFocus={[Function]}
