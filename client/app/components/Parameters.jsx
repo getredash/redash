@@ -69,7 +69,7 @@ export class Parameters extends React.Component {
     });
   };
 
-  onApply = () => {
+  applyChanges = () => {
     const { onUpdate, onValuesChange } = this.props;
     this.setState(({ parameters }) => {
       forEach(parameters, p => p.applyPendingValue());
@@ -90,6 +90,17 @@ export class Parameters extends React.Component {
           return { parameters };
         });
       });
+  };
+
+  handleKeyDown = (e) => {
+    const { parameters } = this.props;
+    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+
+    // Cmd/Ctrl + Enter
+    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
+      e.stopPropagation();
+      this.applyChanges();
+    }
   };
 
   renderParameter(param, index) {
@@ -131,14 +142,14 @@ export class Parameters extends React.Component {
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
       <SortableContainer axis="xy" onSortEnd={this.onSortEnd} useDragHandle>
-        <div className="parameter-container bg-white">
+        <div className="parameter-container bg-white" onKeyDown={this.handleKeyDown}>
           {parameters.map((param, index) => (
             <SortableItem key={param.name} index={index} disabled={!editable}>
               {this.renderParameter(param, index)}
             </SortableItem>
           ))}
 
-          <ParameterApplyButton onClick={this.onApply} isApplying={false} paramCount={dirtyParamCount} />
+          <ParameterApplyButton onClick={this.applyChanges} isApplying={false} paramCount={dirtyParamCount} />
         </div>
       </SortableContainer>
     );
