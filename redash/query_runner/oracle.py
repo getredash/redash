@@ -165,4 +165,5 @@ class Oracle(BaseSQLQueryRunner):
 
         return json_data, error
 
+
 register(Oracle)

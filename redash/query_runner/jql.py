@@ -199,4 +199,5 @@ class JiraJQL(BaseHTTPQueryRunner):
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
 
+
 register(JiraJQL)

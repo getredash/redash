@@ -152,4 +152,5 @@ class Vertica(BaseSQLQueryRunner):
 
         return json_data, error
 
+
 register(Vertica)

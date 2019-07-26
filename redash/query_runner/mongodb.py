@@ -332,4 +332,5 @@ class MongoDB(BaseQueryRunner):
 
         return json_data, error
 
+
 register(MongoDB)

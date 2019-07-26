@@ -83,4 +83,5 @@ class Slack(BaseDestination):
         except Exception:
             logging.exception("Slack send ERROR.")
 
+
 register(Slack)

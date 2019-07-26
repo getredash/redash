@@ -187,4 +187,5 @@ class Salesforce(BaseQueryRunner):
                 schema[table_name] = {'name': table_name, 'columns': [f['name'] for f in fields]}
         return schema.values()
 
+
 register(Salesforce)
