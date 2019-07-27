@@ -569,11 +569,13 @@ function QueryResource(
       asDropdown: {
         method: 'get',
         isArray: true,
+        cache: true,
         url: 'api/queries/:id/dropdown',
       },
       associatedDropdown: {
         method: 'get',
         isArray: true,
+        cache: true,
         url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
       },
       favorites: {
