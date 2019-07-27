@@ -143,7 +143,7 @@ function DashboardCtrl(
       return widget.load(forceRefresh);
     }));
 
-    $q.all(queryResultPromises).then((queryResults) => {
+    return $q.all(queryResultPromises).then((queryResults) => {
       this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());
       this.filtersOnChange = (allFilters) => {
         this.filters = allFilters;
@@ -155,7 +155,7 @@ function DashboardCtrl(
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
     this.extractGlobalParameters();
-    collectFilters(dashboard, force);
+    return collectFilters(dashboard, force);
   };
 
   this.loadDashboard = _.throttle((force) => {
@@ -203,7 +203,10 @@ function DashboardCtrl(
   this.loadDashboard();
 
   this.refreshDashboard = () => {
-    renderDashboard(this.dashboard, true);
+    this.refreshInProgress = true;
+    renderDashboard(this.dashboard, true).finally(() => {
+      this.refreshInProgress = false;
+    });
   };
 
   this.autoRefresh = () => {
