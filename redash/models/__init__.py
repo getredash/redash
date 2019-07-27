@@ -23,7 +23,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner, TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
-from redash.utils import generate_token, json_dumps, json_loads
+from redash.utils import generate_token, json_dumps, json_loads, mustache_render
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -578,13 +578,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def search(cls, term, group_ids, user_id=None, include_drafts=False,
-               limit=None, include_archived=False):
+               limit=None, include_archived=False, multi_byte_search=False):
         all_queries = cls.all_queries(
             group_ids,
             user_id=user_id,
             include_drafts=include_drafts,
             include_archived=include_archived,
         )
+
+        if multi_byte_search:
+            # Since tsvector doesn't work well with CJK languages, use `ilike` too
+            pattern = u'%{}%'.format(term)
+            return all_queries.filter(
+                or_(
+                    cls.name.ilike(pattern),
+                    cls.description.ilike(pattern)
+                )
+            ).order_by(Query.id).limit(limit)
+
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
 
@@ -678,6 +689,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @property
     def parameterized(self):
         return ParameterizedQuery(self.query_text, self.parameters)
+
+    @property
+    def dashboard_api_keys(self):
+        query = """SELECT api_keys.api_key
+                   FROM api_keys
+                   JOIN dashboards ON object_id = dashboards.id
+                   JOIN widgets ON dashboards.id = widgets.dashboard_id
+                   JOIN visualizations ON widgets.visualization_id = visualizations.id
+                   WHERE object_type='dashboards'
+                     AND active=true
+                     AND visualizations.query_id = :id"""
+
+        api_keys = db.session.execute(query, {'id': self.id}).fetchall()
+        return [api_key[0] for api_key in api_keys]
 
 
 @listens_for(Query.query_text, 'set')
@@ -784,6 +809,21 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
+
+    def render_template(self):
+        if not self.template:
+            return ''
+        data = json_loads(self.query_rel.latest_query_data.data)
+        context = {'rows': data['rows'], 'cols': data['columns'], 'state': self.state}
+        return mustache_render(self.template, context)
+
+    @property
+    def template(self):
+        return self.options.get('template', '')
+
+    @property
+    def custom_subject(self):
+        return self.options.get('subject', '')
 
     @property
     def groups(self):

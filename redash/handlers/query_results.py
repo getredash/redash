@@ -12,11 +12,19 @@ from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
-from redash.serializers import serialize_query_result_to_csv, serialize_query_result_to_xlsx
+from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
-def error_response(message):
-    return {'job': {'status': 4, 'error': message}}, 400
+def error_response(message, http_status=400):
+    return {'job': {'status': 4, 'error': message}}, http_status
+
+
+error_messages = {
+    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
+    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', 403),
+    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
+    'select_data_source': error_response('Please select data source to run this query.', 401)
+}
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
@@ -42,7 +50,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
     if query_result:
-        return {'query_result': query_result.to_dict()}
+        return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
     else:
         job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
             "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
@@ -88,10 +96,14 @@ class QueryResultListResource(BaseResource):
 
         parameterized_query = ParameterizedQuery(query)
 
-        data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        data_source_id = params.get('data_source_id')
+        if data_source_id:
+            data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        else:
+            return error_messages['select_data_source']
 
         if not has_access(data_source, self.current_user, not_view_only):
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            return error_messages['no_permission']
 
         self.record_event({
             'action': 'execute_query',
@@ -162,8 +174,8 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
-        params = request.get_json(force=True)
-        parameter_values = params.get('parameters')
+        params = request.get_json(force=True, silent=True) or {}
+        parameter_values = params.get('parameters', {})
 
         max_age = params.get('max_age', -1)
         # max_age might have the value of None, in which case calling int(None) will fail
@@ -178,7 +190,13 @@ class QueryResultResource(BaseResource):
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            if not query.parameterized.is_safe:
+                if current_user.is_api_user():
+                    return error_messages['unsafe_when_shared']
+                else:
+                    return error_messages['unsafe_on_view_only']
+            else:
+                return error_messages['no_permission']
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):

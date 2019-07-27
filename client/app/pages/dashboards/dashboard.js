@@ -203,7 +203,7 @@ function DashboardCtrl(
   this.loadDashboard();
 
   this.refreshDashboard = () => {
-    renderDashboard(this.dashboard, true);
+    collectFilters(this.dashboard, true);
   };
 
   this.autoRefresh = () => {
@@ -215,7 +215,13 @@ function DashboardCtrl(
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete();
+      // this API call will not modify widgets, but will reload them, so they will
+      // loose their internal state. So we'll save widgets before doing API call and
+      // restore them after.
+      const widgets = this.dashboard.widgets;
+      this.dashboard.$delete().then(() => {
+        this.dashboard.widgets = widgets;
+      });
     };
 
     const title = 'Archive Dashboard';
@@ -381,15 +387,14 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    // check if any of the wigets have query parameters
-    const hasQueryParams = _.some(
+    const hasOnlySafeQueries = _.every(
       this.dashboard.widgets,
-      w => !_.isEmpty(w.getQuery() && w.getQuery().getParametersDefs()),
+      w => (w.getQuery() ? w.getQuery().is_safe : true),
     );
 
     ShareDashboardDialog.showModal({
       dashboard: this.dashboard,
-      hasQueryParams,
+      hasOnlySafeQueries,
     });
   };
 }

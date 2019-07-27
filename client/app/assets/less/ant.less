@@ -35,6 +35,7 @@
 @import "~antd/lib/notification/style/index";
 @import "~antd/lib/collapse/style/index";
 @import "~antd/lib/progress/style/index";
+@import "~antd/lib/typography/style/index";
 @import 'inc/ant-variables';
 
 // Increase z-indexes to avoid conflicts with some other libraries (e.g. Plotly)
@@ -342,6 +343,25 @@
 
     .@{collapse-prefix-cls}-content-box {
       padding: 0;
+    }
+  }
+}
+
+// overrides for tall form components such as ace editor
+.@{form-prefix-cls}-item {
+  &-children {
+    display: block; // so feeback icon positions correctly
+  }
+
+  // no change for short components, sticks to body for tall ones
+  &-children-icon {
+    top: auto !important;
+    bottom: 8px;
+
+     // makes the icon white instead of see-through
+    & svg {
+      background: white;
+      border-radius: 50%;
     }
   }
 }

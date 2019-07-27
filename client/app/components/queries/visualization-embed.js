@@ -33,13 +33,13 @@ const VisualizationEmbed = {
     this.logoUrl = logoUrl;
     this.apiKey = $routeParams.api_key;
 
+    this.hideParametersUI = $routeParams.hide_parameters !== undefined;
+    this.hideHeader = $routeParams.hide_header !== undefined;
+    this.hideQueryLink = $routeParams.hide_link !== undefined;
+
     document.querySelector('body').classList.add('headless');
 
-    if (this.query.is_safe) {
-      this.refreshQueryResults();
-    } else {
-      this.error = "Can't embed queries with text parameters.";
-    }
+    this.refreshQueryResults();
   },
 };
 

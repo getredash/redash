@@ -19,7 +19,8 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
+        available_query_runners = filter(lambda q: not q.deprecated, query_runners.values())
+        return [q.to_dict() for q in sorted(available_query_runners, key=lambda q: q.name())]
 
 
 class DataSourceResource(BaseResource):

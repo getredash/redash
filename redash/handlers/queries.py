@@ -112,6 +112,7 @@ class BaseQueryListResource(BaseResource):
                 self.current_user.group_ids,
                 self.current_user.id,
                 include_drafts=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             results = models.Query.all_queries(
@@ -185,6 +186,7 @@ def require_access_to_dropdown_queries(user, query_def):
 
         require_access(dict(groups), user, view_only)
 
+
 class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
     def post(self):
@@ -256,6 +258,7 @@ class QueryArchiveResource(BaseQueryListResource):
                 self.current_user.id,
                 include_drafts=False,
                 include_archived=True,
+                multi_byte_search=current_org.get_setting('multi_byte_search_enabled'),
             )
         else:
             return models.Query.all_queries(

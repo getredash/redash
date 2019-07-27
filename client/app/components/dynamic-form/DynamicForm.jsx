@@ -10,6 +10,7 @@ import Icon from 'antd/lib/icon';
 import { includes, isFunction } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
+import AceEditorInput from '@/components/AceEditorInput';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
@@ -174,6 +175,10 @@ class DynamicForm extends React.Component {
       return field.content;
     } else if (type === 'number') {
       return getFieldDecorator(name, options)(<InputNumber {...props} />);
+    } else if (type === 'textarea') {
+      return getFieldDecorator(name, options)(<Input.TextArea {...props} />);
+    } else if (type === 'ace') {
+      return getFieldDecorator(name, options)(<AceEditorInput {...props} />);
     }
     return getFieldDecorator(name, options)(<Input {...props} />);
   }
