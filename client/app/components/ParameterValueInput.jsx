@@ -37,16 +37,19 @@ export class ParameterValueInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: props.value,
-      isDirty: false,
+      value: props.parameter.hasPendingValue ? props.parameter.pendingValue : props.value,
+      isDirty: props.parameter.hasPendingValue,
     };
   }
 
   componentDidUpdate = (prevProps) => {
-    const { value } = this.props;
+    const { value, parameter } = this.props;
     // if value prop updated, reset dirty state
-    if (prevProps.value !== value) {
-      this.setState({ value, isDirty: false });
+    if (prevProps.value !== value || prevProps.parameter !== parameter) {
+      this.setState({
+        value: parameter.hasPendingValue ? parameter.pendingValue : value,
+        isDirty: parameter.hasPendingValue,
+      });
     }
   }
 
