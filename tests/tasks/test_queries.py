@@ -36,7 +36,7 @@ class TestEnqueueTask(BaseTestCase):
         enqueue_query(query.query_text, query.data_source, query.user_id, False, query, {'Username': 'Arik', 'Query ID': query.id})
 
         _, kwargs = execute_query.apply_async.call_args
-        self.assertEqual(60, kwargs.get('time_limit'))
+        self.assertEqual(60, kwargs.get('soft_time_limit'))
 
     def test_multiple_enqueue_of_different_query(self):
         query = self.factory.create_query()
