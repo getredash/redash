@@ -30,8 +30,10 @@
           </ul>
         </div>
         <div id="topRefreshIndicator" ng-if="$ctrl.widget.loading">
+          <div id="indicatorIcon">
+            <i class="zmdi zmdi-refresh zmdi-hc-spin"></i>
+          </div>
           <rd-timer from="$ctrl.widget.refreshStartedAt"></rd-timer>
-          <i class="zmdi zmdi-refresh zmdi-hc-spin"></i>
         </div>
         <div class="th-title">
           <p>

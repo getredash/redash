@@ -495,25 +495,36 @@ body {
   color: #86a1af;
   transition: all 100ms linear;
   transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
-  float: right;
-  margin-top: -8px;
-  margin-right: 2px;
   transform: translateX(22px);
   position: absolute;
-  right: 34px;
-  top: 16px;
+  right: 29px;
+  top: 8px;
+  flex-direction: row-reverse;
+  display: flex;
 
-  &:before {
-    content: "";
-    position: absolute;
-    top: 0px;
-    right: -6px;
-    width: 24px;
-    background-color: #e8ecf0;
-    height: 24px;
-    border-radius: 50%;
-    transition: opacity 100ms linear;
-    transition-delay: 150ms;
+  #indicatorIcon {
+    position: relative;
+    
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0px;
+      right: 0;
+      width: 24px;
+      height: 24px;
+      background-color: #e8ecf0;
+      border-radius: 50%;
+      transition: opacity 100ms linear;
+      transition-delay: 150ms;
+    }
+
+    i {
+      height: 24px;
+      width: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   rd-timer {
@@ -521,13 +532,15 @@ body {
     display: inline-block;
     font-variant-numeric: tabular-nums;
     opacity: 0;
-    transform: translate(-6px, -3px);
+    transform: translateX(-6px);
     transition: all 100ms linear;
     transition-delay: 150ms;
     color: #bbbbbb;
     background-color: rgba(255,255,255,.9);
     padding-left: 2px;
     padding-right: 1px;
+    margin-right: -4px;
+    margin-top: 2px;
   }
 
   // don't show on widget init
@@ -540,9 +553,9 @@ body {
   font-size: 13px;
   transition-delay: 0s;
   color: #bbbbbb;
-  transform: translateY(-1px);
+  transform: translateY(-4px);
 
-  &:before {
+  #indicatorIcon:before {
     transition-delay: 0s;
     opacity: 0;
   }
@@ -550,21 +563,12 @@ body {
   rd-timer {
     transition-delay: 0s;
     opacity: 1;
-    transform: translate(0, 0);
+    transform: translateX(0);
   }
 }
 
 #RefreshButton {
-  padding: 0;
-}
-
-@keyframes slow-spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  25%, 100% {
-    transform: rotate(180deg);
-  }
+  margin-left: -6px;
 }
 
 .tiled {
