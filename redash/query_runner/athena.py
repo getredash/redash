@@ -169,7 +169,7 @@ class Athena(BaseQueryRunner):
         query = """
             SELECT table_schema, table_name, column_name
             FROM information_schema.columns
-            """ + __whare_state()
+            """ + __where_state()
 
         results, error = self.run_query(query, None)
         if error is not None:
