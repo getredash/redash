@@ -460,14 +460,14 @@ body {
     cursor: move;
   }
 
-  #topRefreshIndicator {
+  .refresh-indicator {
     transition-duration: 0s;
 
     rd-timer {
       display: none;
     }
 
-    .topRefreshIndicator-mini();
+    .refresh-indicator-mini();
   }
 }
 
@@ -490,7 +490,7 @@ body {
   background-color: fade(@redash-gray, 12%) !important;
 }
 
-#topRefreshIndicator {
+.refresh-indicator {
   font-size: 18px;
   color: #86a1af;
   transition: all 100ms linear;
@@ -499,10 +499,10 @@ body {
   position: absolute;
   right: 29px;
   top: 8px;
-  flex-direction: row-reverse;
   display: flex;
+  flex-direction: row-reverse;
 
-  #indicatorIcon {
+  .refresh-icon {
     position: relative;
     
     &:before {
@@ -548,13 +548,13 @@ body {
   }
 }
 
-.topRefreshIndicator-mini() {
+.refresh-indicator-mini() {
   font-size: 13px;
   transition-delay: 0s;
   color: #bbbbbb;
   transform: translateY(-4px);
 
-  #indicatorIcon:before {
+  .refresh-icon:before {
     transition-delay: 0s;
     opacity: 0;
   }
@@ -566,7 +566,7 @@ body {
   }
 }
 
-#RefreshButton {
+.refresh-button {
   margin-left: -6px;
 }
 
@@ -616,8 +616,8 @@ body {
       transition: opacity 0.35s ease-in-out;
     }
 
-    #topRefreshIndicator {
-      .topRefreshIndicator-mini();
+    .refresh-indicator {
+      .refresh-indicator-mini();
     }
   }
 
