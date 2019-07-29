@@ -123,7 +123,7 @@ export class Parameters extends React.Component {
               data-test={`ParameterSettings-${param.name}`}
               type="button"
             >
-              <i className="zmdi zmdi-settings" />
+              <i className="fa fa-cog" />
             </button>
           )}
         </div>
