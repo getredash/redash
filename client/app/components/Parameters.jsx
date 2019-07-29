@@ -27,17 +27,15 @@ export class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
-    onUpdate: PropTypes.func,
     onValuesChange: PropTypes.func,
-    onParameterEdited: PropTypes.func,
+    onParametersEdit: PropTypes.func,
   };
 
   static defaultProps = {
     parameters: [],
     editable: false,
-    onUpdate: () => {},
     onValuesChange: () => {},
-    onParameterEdited: () => {},
+    onParametersEdit: () => {},
   }
 
   constructor(props) {
@@ -54,45 +52,44 @@ export class Parameters extends React.Component {
   };
 
   onSortEnd = ({ oldIndex, newIndex }) => {
-    const { onUpdate } = this.props;
-    this.setState(({ parameters }) => {
-      parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-      onUpdate(parameters);
-      return { parameters };
-    });
+    const { onParametersEdit } = this.props;
+    if (oldIndex !== newIndex) {
+      this.setState(({ parameters }) => {
+        parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
+        onParametersEdit();
+        return { parameters };
+      });
+    }
   };
 
   onSelect = (param, value, isDirty) => {
-    const { onUpdate } = this.props;
     this.setState(({ parameters }) => {
       if (isDirty) {
         param.setPendingValue(value);
       } else {
         param.clearPendingValue();
       }
-      onUpdate(parameters);
       return { parameters };
     });
   };
 
   applyChanges = () => {
-    const { onUpdate, onValuesChange } = this.props;
+    const { onValuesChange } = this.props;
     this.setState(({ parameters }) => {
       forEach(parameters, p => p.applyPendingValue());
-      onUpdate(parameters);
       onValuesChange();
       return { parameters };
     });
   };
 
   showParameterSettings = (parameter, index) => {
-    const { onParameterEdited } = this.props;
+    const { onParametersEdit } = this.props;
     EditParameterSettingsDialog
       .showModal({ parameter })
       .result.then((updated) => {
         this.setState(({ parameters }) => {
           parameters[index] = extend(parameter, updated);
-          onParameterEdited(parameters[index]);
+          onParametersEdit();
           return { parameters };
         });
       });
