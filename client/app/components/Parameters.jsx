@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { isEqual, size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
-import Button from 'antd/lib/button';
 import { Parameter } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
@@ -114,18 +113,17 @@ export class Parameters extends React.Component {
         className="di-block"
         data-test={`ParameterName-${param.name}`}
       >
-        <div className="d-flex">
+        <div className="parameter-heading">
           <label className="flex-fill">{param.title || param.name}</label>
           {editable && (
-            <Button
-              className="parameter-settings-button"
-              type="link"
-              size="small"
+            <button
+              className="btn btn-default btn-xs"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
+              type="button"
             >
               <i className="zmdi zmdi-settings" />
-            </Button>
+            </button>
           )}
         </div>
         <ParameterValueInput
@@ -148,7 +146,7 @@ export class Parameters extends React.Component {
       <SortableContainer axis="xy" onSortEnd={this.onSortEnd} lockToContainerEdges useDragHandle>
         <div className="parameter-container" onKeyDown={this.handleKeyDown}>
           {parameters.map((param, index) => (
-            <SortableItem className="parameter" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
+            <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
               {this.renderParameter(param, index)}
             </SortableItem>
           ))}
