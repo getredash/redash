@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEqual, size, filter, forEach, extend } from 'lodash';
+import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { Parameter } from '@/services/query';
@@ -45,23 +45,23 @@ export class Parameters extends React.Component {
 
   componentDidUpdate = (prevProps) => {
     const { parameters } = this.props;
-    if (!isEqual(prevProps.parameters, parameters)) {
+    if (prevProps.parameters !== parameters) {
       this.setState({ parameters });
     }
   };
 
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    const { onParametersEdit } = this.props;
-    if (oldIndex !== newIndex) {
-      this.setState(({ parameters }) => {
-        parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
-        onParametersEdit();
-        return { parameters };
-      });
+  handleKeyDown = (e) => {
+    const { parameters } = this.props;
+    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+
+    // Cmd/Ctrl/Alt + Enter
+    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
+      e.stopPropagation();
+      this.applyChanges();
     }
   };
 
-  onSelect = (param, value, isDirty) => {
+  setPendingValue = (param, value, isDirty) => {
     this.setState(({ parameters }) => {
       if (isDirty) {
         param.setPendingValue(value);
@@ -70,6 +70,17 @@ export class Parameters extends React.Component {
       }
       return { parameters };
     });
+  };
+
+  moveParameter = ({ oldIndex, newIndex }) => {
+    const { onParametersEdit } = this.props;
+    if (oldIndex !== newIndex) {
+      this.setState(({ parameters }) => {
+        parameters.splice(newIndex, 0, parameters.splice(oldIndex, 1)[0]);
+        onParametersEdit();
+        return { parameters };
+      });
+    }
   };
 
   applyChanges = () => {
@@ -87,22 +98,12 @@ export class Parameters extends React.Component {
       .showModal({ parameter })
       .result.then((updated) => {
         this.setState(({ parameters }) => {
-          parameters[index] = extend(parameter, updated);
+          const updatedParameter = extend(parameter, updated);
+          parameters[index] = new Parameter(updatedParameter, updatedParameter.parentQueryId);
           onParametersEdit();
           return { parameters };
         });
       });
-  };
-
-  handleKeyDown = (e) => {
-    const { parameters } = this.props;
-    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
-
-    // Cmd/Ctrl + Enter
-    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
-      e.stopPropagation();
-      this.applyChanges();
-    }
   };
 
   renderParameter(param, index) {
@@ -117,7 +118,7 @@ export class Parameters extends React.Component {
           <label className="flex-fill">{param.title || param.name}</label>
           {editable && (
             <button
-              className="btn btn-default btn-xs"
+              className="btn btn-default btn-xs m-l-5"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
               type="button"
@@ -131,8 +132,8 @@ export class Parameters extends React.Component {
           value={param.normalizedValue}
           parameter={param}
           enumOptions={param.enumOptions}
-          queryI={param.queryId}
-          onSelect={(value, isDirty) => this.onSelect(param, value, isDirty)}
+          queryId={param.queryId}
+          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
         />
       </div>
     );
@@ -143,7 +144,7 @@ export class Parameters extends React.Component {
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
-      <SortableContainer axis="xy" onSortEnd={this.onSortEnd} lockToContainerEdges useDragHandle>
+      <SortableContainer axis="xy" onSortEnd={this.moveParameter} lockToContainerEdges useDragHandle>
         <div className="parameter-container" onKeyDown={this.handleKeyDown}>
           {parameters.map((param, index) => (
             <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
