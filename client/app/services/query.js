@@ -429,7 +429,8 @@ class Parameters {
 
     const parameterExists = p => includes(parameterNames, p.name);
     const parameters = this.query.options.parameters;
-    this.query.options.parameters = parameters.filter(parameterExists).map(p => new Parameter(p, this.query.id));
+    this.query.options.parameters = parameters.filter(parameterExists)
+      .map(p => (p instanceof Parameter ? p : new Parameter(p, this.query.id)));
   }
 
   initFromQueryString(query) {

@@ -38,6 +38,10 @@ celery_schedule = {
     'sync_user_details': {
         'task': 'redash.tasks.sync_user_details',
         'schedule': timedelta(minutes=1),
+    },
+    'send_aggregated_errors': {
+        'task': 'redash.tasks.send_aggregated_errors',
+        'schedule': timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
     }
 }
 

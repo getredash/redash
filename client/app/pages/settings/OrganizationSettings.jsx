@@ -164,6 +164,14 @@ class OrganizationSettings extends React.Component {
           Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
+        <Form.Item label="Email Reports">
+          <Checkbox
+            name="send_email_on_failed_scheduled_queries"
+            checked={formValues.send_email_on_failed_scheduled_queries}
+            onChange={e => this.handleChange('send_email_on_failed_scheduled_queries', e.target.checked)}
+          >Email query owners when scheduled queries fail
+          </Checkbox>
+        </Form.Item>
         <Form.Item label="Feature Flags">
           <Checkbox
             name="feature_show_permissions_control"

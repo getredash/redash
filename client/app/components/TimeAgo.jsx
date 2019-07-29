@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { Moment } from '@/components/proptypes';
 import { clientConfig } from '@/services/auth';
 import useForceUpdate from '@/lib/hooks/useForceUpdate';
+import Tooltip from 'antd/lib/tooltip';
 
 function toMoment(value) {
   value = !isNil(value) ? moment(value) : null;
@@ -27,7 +28,11 @@ export function TimeAgo({ date, placeholder, autoUpdate }) {
     }
   }, [autoUpdate]);
 
-  return <span title={title} data-test="TimeAgo">{value}</span>;
+  return (
+    <Tooltip title={title}>
+      <span data-test="TimeAgo">{value}</span>
+    </Tooltip>
+  );
 }
 
 TimeAgo.propTypes = {
