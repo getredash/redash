@@ -499,4 +499,40 @@ describe('Parameter', () => {
       cy.getByTestId('ExecuteButton').should('not.be.disabled');
     });
   });
+
+  describe('Draggable', () => {
+    beforeEach(() => {
+      const queryData = {
+        name: 'Draggable',
+        query: "SELECT '{{param1}}', '{{param2}}', '{{param3}}', '{{param4}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'param1', title: 'Parameter 1', type: 'text' },
+            { name: 'param2', title: 'Parameter 2', type: 'text' },
+            { name: 'param3', title: 'Parameter 3', type: 'text' },
+            { name: 'param4', title: 'Parameter 4', type: 'text' },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+
+      cy.get('.parameter-block')
+        .first()
+        .invoke('width')
+        .as('paramWidth');
+    });
+
+    it('is possible to rearrange parameters', function () {
+      cy.getByTestId('DragHandle-param1').dragBy(this.paramWidth, 0, true); // swap param1 and param2
+      cy.getByTestId('DragHandle-param4').dragBy(-this.paramWidth, 0, true); // swap param4 and param3
+
+      cy.reload();
+
+      const expectedOrder = ['Parameter 2', 'Parameter 1', 'Parameter 4', 'Parameter 3'];
+      cy.get('.parameter-container label')
+        .each(($label, index) => expect($label).to.have.text(expectedOrder[index]));
+    });
+  });
 });
