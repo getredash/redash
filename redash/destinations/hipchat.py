@@ -3,7 +3,7 @@ import requests
 
 from redash.destinations import *
 from redash.models import Alert
-from redash.utils import json_dumps
+from redash.utils import json_dumps, deprecated
 
 
 colors = {
@@ -13,6 +13,7 @@ colors = {
 }
 
 
+@deprecated()
 class HipChat(BaseDestination):
     @classmethod
     def configuration_schema(cls):

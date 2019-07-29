@@ -227,6 +227,9 @@ def email_server_is_configured():
 
 HOST = os.environ.get('REDASH_HOST', '')
 
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 60))
+MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 100))
+
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
 # How many requests are allowed per IP to the login page before
@@ -286,7 +289,8 @@ default_query_runners = [
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
     'redash.query_runner.snowflake',
-    'redash.query_runner.phoenix'
+    'redash.query_runner.phoenix',
+    'redash.query_runner.json_ds',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -333,6 +337,7 @@ FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_D
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false"))
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
+FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))

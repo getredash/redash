@@ -155,7 +155,7 @@ function DashboardCtrl(
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
     this.extractGlobalParameters();
-    return collectFilters(dashboard, force);
+    collectFilters(dashboard, force);
   };
 
   this.loadDashboard = _.throttle((force) => {
@@ -204,7 +204,7 @@ function DashboardCtrl(
 
   this.refreshDashboard = () => {
     this.refreshInProgress = true;
-    renderDashboard(this.dashboard, true).finally(() => {
+    collectFilters(this.dashboard, true).finally(() => {
       this.refreshInProgress = false;
     });
   };
@@ -390,15 +390,14 @@ function DashboardCtrl(
   }
 
   this.openShareForm = () => {
-    // check if any of the wigets have query parameters
-    const hasQueryParams = _.some(
+    const hasOnlySafeQueries = _.every(
       this.dashboard.widgets,
-      w => !_.isEmpty(w.getQuery() && w.getQuery().getParametersDefs()),
+      w => (w.getQuery() ? w.getQuery().is_safe : true),
     );
 
     ShareDashboardDialog.showModal({
       dashboard: this.dashboard,
-      hasQueryParams,
+      hasOnlySafeQueries,
     });
   };
 }

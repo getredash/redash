@@ -54,7 +54,7 @@ class QueryEditor extends React.Component {
     isDirty: PropTypes.bool.isRequired,
     isQueryOwner: PropTypes.bool.isRequired,
     updateDataSource: PropTypes.func.isRequired,
-    canExecuteQuery: PropTypes.func.isRequired,
+    canExecuteQuery: PropTypes.bool.isRequired,
     executeQuery: PropTypes.func.isRequired,
     queryExecuting: PropTypes.bool.isRequired,
     saveQuery: PropTypes.func.isRequired,
@@ -227,7 +227,7 @@ class QueryEditor extends React.Component {
   render() {
     const modKey = KeyboardShortcuts.modKey;
 
-    const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery();
+    const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery;
 
     return (
       <section style={{ height: '100%' }} data-test="QueryEditor">

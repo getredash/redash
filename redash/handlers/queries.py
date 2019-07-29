@@ -186,6 +186,7 @@ def require_access_to_dropdown_queries(user, query_def):
 
         require_access(dict(groups), user, view_only)
 
+
 class QueryListResource(BaseQueryListResource):
     @require_permission('create_query')
     def post(self):

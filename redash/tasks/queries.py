@@ -1,7 +1,6 @@
 import logging
 import signal
 import time
-
 import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
@@ -11,10 +10,12 @@ from six import text_type
 from redash import models, redis_connection, settings, statsd_client
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
+from redash.tasks.failure_report import notify_of_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
+TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
 def _job_lock_id(query_hash, data_source_id):
@@ -56,7 +57,7 @@ class QueryTask(object):
         status = self.STATUSES[task_status]
 
         if isinstance(result, (TimeLimitExceeded, SoftTimeLimitExceeded)):
-            error = "Query exceeded Redash query execution time limit."
+            error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
             error = result.message
@@ -142,7 +143,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 result = execute_query.apply_async(args=args,
                                                    argsrepr=argsrepr,
                                                    queue=queue_name,
-                                                   time_limit=time_limit)
+                                                   soft_time_limit=time_limit)
 
                 job = QueryTask(async_result=result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
@@ -289,11 +290,15 @@ class QueryExecutionError(Exception):
     pass
 
 
-def _resolve_user(user_id, is_api_key):
+def _resolve_user(user_id, is_api_key, query_id):
     if user_id is not None:
         if is_api_key:
             api_key = user_id
-            q = models.Query.by_api_key(api_key)
+            if query_id is not None:
+                q = models.Query.get_by_id(query_id)
+            else:
+                q = models.Query.by_api_key(api_key)
+
             return models.ApiUser(api_key, q.org, q.groups)
         else:
             return models.User.get_by_id(user_id)
@@ -311,7 +316,7 @@ class QueryExecutor(object):
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = _resolve_user(user_id, is_api_key)
+        self.user = _resolve_user(user_id, is_api_key, metadata.get('Query ID'))
 
         # Close DB connection to prevent holding a connection for a long time while the query is executing.
         models.db.session.close()
@@ -334,7 +339,11 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = text_type(e)
+            if isinstance(e, SoftTimeLimitExceeded):
+                error = TIMEOUT_MESSAGE
+            else:
+                error = text_type(e)
+
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
@@ -350,6 +359,7 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+                notify_of_failure(error, self.scheduled_query)
             models.db.session.commit()
             raise result
         else:
@@ -407,5 +417,6 @@ def execute_query(self, query, data_source_id, metadata, user_id=None,
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
+
     return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
                          scheduled_query).run()
