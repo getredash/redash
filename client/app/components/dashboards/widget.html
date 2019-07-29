@@ -1,6 +1,6 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
-    ng-switch="$ctrl.widget.getQueryResult().getStatus()">
+    ng-switch="$ctrl.widget.getQueryResult().getStatus()" ng-attr-data-refreshing="{{ $ctrl.widget.loading && !!$ctrl.widget.getQueryResult().getStatus() }}">
     <div class="body-row widget-header">
       <div class="t-header widget clearfix">
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
@@ -28,6 +28,12 @@
             <li ng-if="$ctrl.dashboard.canEdit()" class="divider"></li>
             <li ng-if="$ctrl.dashboard.canEdit()"><a ng-click="$ctrl.deleteWidget()">Remove from Dashboard</a></li>
           </ul>
+        </div>
+        <div class="refresh-indicator" ng-if="$ctrl.widget.loading">
+          <div class="refresh-icon">
+            <i class="zmdi zmdi-refresh zmdi-hc-spin"></i>
+          </div>
+          <rd-timer from="$ctrl.widget.refreshStartedAt"></rd-timer>
         </div>
         <div class="th-title">
           <p>
@@ -59,10 +65,9 @@
     </div>
 
     <div class="body-row clearfix tile__bottom-control">
-      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public" data-test="RefreshIndicator">
-        <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i>
-        <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
-        <rd-timer from="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
+      <a class="refresh-button hidden-print btn btn-sm btn-default btn-transparent" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public && !!$ctrl.widget.getQueryResult()" data-test="RefreshButton">
+        <i class="zmdi zmdi-refresh"></i>
+        <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
       </a>
       <span class="small hidden-print" ng-if="$ctrl.public">
         <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>

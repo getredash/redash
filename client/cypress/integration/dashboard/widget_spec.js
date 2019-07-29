@@ -82,7 +82,7 @@ describe('Widget', () => {
         createQueryAndAddWidget(this.dashboardId, queryData).then((elTestId) => {
           cy.visit(this.dashboardUrl);
           cy.getByTestId(elTestId).as('widget').within(() => {
-            cy.getByTestId('RefreshIndicator').as('refreshButton');
+            cy.getByTestId('RefreshButton').as('refreshButton');
           });
           cy.getByTestId(`ParameterName-${paramName}`).within(() => {
             cy.getByTestId('TextParamInput').as('paramInput');
