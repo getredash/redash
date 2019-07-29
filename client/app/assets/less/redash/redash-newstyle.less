@@ -494,7 +494,7 @@ body {
   font-size: 18px;
   color: #86a1af;
   transition: all 100ms linear;
-  transition-delay: 150ms; // waits for widget-menu to fade out before moving over it
+  transition-delay: 150ms; // waits for widget-menu to fade out before moving back over it
   transform: translateX(22px);
   position: absolute;
   right: 29px;
@@ -543,7 +543,6 @@ body {
     margin-top: 2px;
   }
 
-  // don't show on widget init
   .widget-visualization[data-refreshing="false"] & {
     display: none;
   }
