@@ -11,11 +11,13 @@ import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
 import './Parameters.less';
 
-const DragHandle = sortableHandle(() => <div className="drag-handle" />);
+const DragHandle = sortableHandle(({ parameterName }) => (
+  <div className="drag-handle" data-test={`DragHandle-${parameterName}`} />
+));
 
-const SortableItem = sortableElement(({ disabled, children }) => (
-  <div className="bg-white di-block m-r-10 m-b-10">
-    {!disabled && <DragHandle />}
+const SortableItem = sortableElement(({ className, parameterName, disabled, children }) => (
+  <div className={className}>
+    {!disabled && <DragHandle parameterName={parameterName} />}
     {children}
   </div>
 ));
@@ -146,10 +148,10 @@ export class Parameters extends React.Component {
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
-      <SortableContainer axis="xy" onSortEnd={this.onSortEnd} useDragHandle>
-        <div className="parameter-container bg-white" onKeyDown={this.handleKeyDown}>
+      <SortableContainer axis="xy" onSortEnd={this.onSortEnd} lockToContainerEdges useDragHandle>
+        <div className="parameter-container" onKeyDown={this.handleKeyDown}>
           {parameters.map((param, index) => (
-            <SortableItem key={param.name} index={index} disabled={!editable}>
+            <SortableItem className="parameter" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
               {this.renderParameter(param, index)}
             </SortableItem>
           ))}
