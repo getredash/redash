@@ -14,7 +14,10 @@ export function Timer({ from }) {
     return () => clearInterval(timer);
   }, []);
 
-  return moment.utc(moment.now() - startTime).format('HH:mm:ss');
+  const diff = moment.now() - startTime;
+  const format = diff > 1000 * 60 * 60 ? 'HH:mm:ss' : 'mm:ss'; // no HH under an hour
+
+  return moment.utc(diff).format(format);
 }
 
 Timer.propTypes = {

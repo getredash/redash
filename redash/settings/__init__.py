@@ -227,6 +227,9 @@ def email_server_is_configured():
 
 HOST = os.environ.get('REDASH_HOST', '')
 
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 60))
+MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 100))
+
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
 # How many requests are allowed per IP to the login page before

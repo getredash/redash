@@ -143,7 +143,7 @@ function DashboardCtrl(
       return widget.load(forceRefresh);
     }));
 
-    $q.all(queryResultPromises).then((queryResults) => {
+    return $q.all(queryResultPromises).then((queryResults) => {
       this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());
       this.filtersOnChange = (allFilters) => {
         this.filters = allFilters;
@@ -203,7 +203,10 @@ function DashboardCtrl(
   this.loadDashboard();
 
   this.refreshDashboard = () => {
-    collectFilters(this.dashboard, true);
+    this.refreshInProgress = true;
+    collectFilters(this.dashboard, true).finally(() => {
+      this.refreshInProgress = false;
+    });
   };
 
   this.autoRefresh = () => {

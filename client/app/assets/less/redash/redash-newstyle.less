@@ -459,6 +459,16 @@ body {
   .th-title {
     cursor: move;
   }
+
+  .refresh-indicator {
+    transition-duration: 0s;
+
+    rd-timer {
+      display: none;
+    }
+
+    .refresh-indicator-mini();
+  }
 }
 
 .dashboard-header {
@@ -480,6 +490,86 @@ body {
   background-color: fade(@redash-gray, 12%) !important;
 }
 
+.refresh-indicator {
+  font-size: 18px;
+  color: #86a1af;
+  transition: all 100ms linear;
+  transition-delay: 150ms; // waits for widget-menu to fade out before moving back over it
+  transform: translateX(22px);
+  position: absolute;
+  right: 29px;
+  top: 8px;
+  display: flex;
+  flex-direction: row-reverse;
+
+  .refresh-icon {
+    position: relative;
+    
+    &:before {
+      content: "";
+      position: absolute;
+      top: 0px;
+      right: 0;
+      width: 24px;
+      height: 24px;
+      background-color: #e8ecf0;
+      border-radius: 50%;
+      transition: opacity 100ms linear;
+      transition-delay: 150ms;
+    }
+
+    i {
+      height: 24px;
+      width: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  rd-timer {
+    font-size: 13px;
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all 100ms linear;
+    transition-delay: 150ms;
+    color: #bbbbbb;
+    background-color: rgba(255,255,255,.9);
+    padding-left: 2px;
+    padding-right: 1px;
+    margin-right: -4px;
+    margin-top: 2px;
+  }
+
+  .widget-visualization[data-refreshing="false"] & {
+    display: none;
+  }
+}
+
+.refresh-indicator-mini() {
+  font-size: 13px;
+  transition-delay: 0s;
+  color: #bbbbbb;
+  transform: translateY(-4px);
+
+  .refresh-icon:before {
+    transition-delay: 0s;
+    opacity: 0;
+  }
+
+  rd-timer {
+    transition-delay: 0s;
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.refresh-button {
+  margin-left: -6px;
+}
+
 .tiled {
   border-radius: 3px;
   box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
@@ -496,6 +586,8 @@ body {
 
   .t-header {
     .th-title {
+      padding-right: 23px; // no overlap on RefreshIndicator
+
       a {
         color: fade(@redash-black, 80%);
         font-size: 15px;
@@ -522,6 +614,10 @@ body {
     .widget-menu-regular, .btn__refresh {
       opacity: 1 !important;
       transition: opacity 0.35s ease-in-out;
+    }
+
+    .refresh-indicator {
+      .refresh-indicator-mini();
     }
   }
 
