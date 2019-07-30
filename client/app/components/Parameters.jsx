@@ -36,6 +36,7 @@ export class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
+    disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
   };
@@ -43,6 +44,7 @@ export class Parameters extends React.Component {
   static defaultProps = {
     parameters: [],
     editable: false,
+    disableUrlUpdate: false,
     onValuesChange: () => {},
     onParametersEdit: () => {},
   }
@@ -51,14 +53,18 @@ export class Parameters extends React.Component {
     super(props);
     const { parameters } = props;
     this.state = { parameters };
-    updateUrl(parameters);
+    if (!props.disableUrlUpdate) {
+      updateUrl(parameters);
+    }
   }
 
   componentDidUpdate = (prevProps) => {
-    const { parameters } = this.props;
+    const { parameters, disableUrlUpdate } = this.props;
     if (prevProps.parameters !== parameters) {
       this.setState({ parameters });
-      updateUrl(parameters);
+      if (!disableUrlUpdate) {
+        updateUrl(parameters);
+      }
     }
   };
 
@@ -96,11 +102,13 @@ export class Parameters extends React.Component {
   };
 
   applyChanges = () => {
-    const { onValuesChange } = this.props;
+    const { onValuesChange, disableUrlUpdate } = this.props;
     this.setState(({ parameters }) => {
       forEach(parameters, p => p.applyPendingValue());
       onValuesChange();
-      updateUrl(parameters);
+      if (!disableUrlUpdate) {
+        updateUrl(parameters);
+      }
       return { parameters };
     });
   };
