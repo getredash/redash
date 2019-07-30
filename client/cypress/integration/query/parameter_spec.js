@@ -155,7 +155,7 @@ describe('Parameter', () => {
     const selectCalendarDate = (date) => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
-        .click();
+        .click({ force: true });
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', date)
@@ -255,7 +255,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .as('Input')
-        .click();
+        .click({ force: true });
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', '15')
@@ -279,7 +279,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .as('Input')
-        .click();
+        .click({ force: true });
 
       cy.get('.ant-calendar-date-panel')
         .contains('Now')
@@ -313,7 +313,7 @@ describe('Parameter', () => {
       expectDirtyStateChange(() => {
         cy.getByTestId('ParameterName-test-parameter')
           .find('input')
-          .click();
+          .click({ force: true });
 
         cy.get('.ant-calendar-date-panel')
           .contains('Now')
@@ -327,7 +327,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterName-test-parameter')
         .find('input')
         .first()
-        .click();
+        .click({ force: true });
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', startDate)

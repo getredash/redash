@@ -102,8 +102,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         try:
             engine = self._connect()
 
-            result = engine.execute(query if str(
-                query).endswith(';') else str(query) + ';')
+            if not query.endswith(';'):
+                query = query + ';'
+
+            result = engine.execute(query)
 
             columns = []
             rows = []
