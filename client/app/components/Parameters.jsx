@@ -174,6 +174,7 @@ export class Parameters extends React.Component {
         axis="xy"
         useDragHandle
         lockToContainerEdges
+        helperClass="parameter-dragged"
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
       >
