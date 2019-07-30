@@ -1,8 +1,11 @@
+@import (reference, less) "~@/assets/less/ant.less";
+
 .table-visualization-container {
   .ant-pagination.ant-table-pagination {
     float: none;
     display: block;
     text-align: center;
+    margin-bottom: 0;
   }
 
   .ant-table-body {
@@ -10,6 +13,23 @@
   }
 
   table {
+    border-top: @border-width-base @border-style-base @border-color-split;
+    border-bottom: 0;
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    thead {
+      .anticon.off {
+        opacity: 0;
+      }
+
+      &:hover .anticon.off {
+        opacity: 1;
+      }
+    }
+
     .display-as-number,
     .display-as-boolean,
     .display-as-datetime,
@@ -21,9 +41,19 @@
     .table-visualization-spacer {
       padding-left: 0;
       padding-right: 0;
+
+      & > div:before {
+        content: '' !important;
+      }
     }
 
     th {
+      & > div:before {
+        content: '\00a0'; // &nbsp; - to preserve column height
+        display: inline-block;
+        min-width: 50px; // min-width of column contents
+      }
+
       .ant-input-search {
         font-weight: normal;
 
@@ -32,21 +62,32 @@
         }
       }
 
-      .sort-column-order-indicator {
-        @size: 12px;
-
+      .table-visualization-heading {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         display: inline-block;
-        vertical-align: middle;
-        min-width: @size;
-        height: @size;
-        font-size: @size * 3/4;
-        border-radius: @size / 2;
-        background: #c0c0c0;
-        text-align: center;
-        line-height: @size;
-        color: #fff;
-        padding: 0 @size * 1/4;
-        margin: 0 5px 0 0;
+        position: absolute;
+        left: 10px; // same as left padding
+        right: 30px; // same as right padding
+
+        &[data-sort-column-index]:before {
+          @size: 12px;
+
+          content: attr(data-sort-column-index);
+          display: inline-block;
+          vertical-align: middle;
+          min-width: @size;
+          height: @size;
+          font-size: @size * 3/4;
+          border-radius: @size / 2;
+          background: #c0c0c0;
+          text-align: center;
+          line-height: @size;
+          color: #fff;
+          padding: 0 @size * 1/4;
+          margin: -2px 5px 0 0;
+        }
       }
     }
   }

@@ -1,4 +1,5 @@
-@import (reference) "~bootstrap/less/variables.less";
+@import (reference, less) "~bootstrap/less/variables.less";
+@import (reference, less) "~@/assets/less/main.less";
 
 @jvi-gutter: 20px;
 @jvi-spacing: 2px;
@@ -100,6 +101,7 @@
 
 .jvi-comment {
   color: @text-muted;
+  font-family: @redash-font;
   font-style: italic;
   margin: 0 0 0 2 * @jvi-spacing;
   opacity: 0.5;

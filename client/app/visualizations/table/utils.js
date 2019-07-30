@@ -1,6 +1,7 @@
 import { isNil, map, filter, each, sortBy, some, findIndex, toString } from 'lodash';
 import React from 'react';
 import Icon from 'antd/lib/icon';
+import Tooltip from 'antd/lib/tooltip';
 
 import initTextColumn from './columns/text';
 import initNumberColumn from './columns/number';
@@ -69,6 +70,8 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const isAscend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'ascend');
     const isDescend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'descend');
 
+    const sortColumnIndex = isMultiColumnSort && orderByInfo[column.name] ? orderByInfo[column.name].index : null;
+
     const result = {
       key: column.name, // set this because we don't use `dataIndex`
       // Column name may contain any characters (or be empty at all), therefore
@@ -79,12 +82,9 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       align: column.alignContent,
       title: (
         <React.Fragment>
-          <div className={`d-flex align-items-center justify-content-${column.alignContent}`}>
-            {isMultiColumnSort && orderByInfo[column.name] && (
-              <span className="sort-column-order-indicator">{orderByInfo[column.name].index}</span>
-            )}
-            <span>{column.title}</span>
-          </div>
+          <Tooltip placement="top" title={column.title}>
+            <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>{column.title}</div>
+          </Tooltip>
           <div className="ant-table-column-sorter">
             <Icon
               className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}
