@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import { $location } from '@/services/ng';
 import { Parameter } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
@@ -21,6 +22,15 @@ const SortableItem = sortableElement(({ className, parameterName, disabled, chil
   </div>
 ));
 const SortableContainer = sortableContainer(({ children }) => children);
+
+function updateUrl(parameters) {
+  const params = extend({}, $location.search());
+  parameters.forEach((param) => {
+    extend(params, param.toUrlParams());
+  });
+  Object.keys(params).forEach(key => params[key] == null && delete params[key]);
+  $location.search(params);
+}
 
 export class Parameters extends React.Component {
   static propTypes = {
@@ -41,12 +51,14 @@ export class Parameters extends React.Component {
     super(props);
     const { parameters } = props;
     this.state = { parameters };
+    updateUrl(parameters);
   }
 
   componentDidUpdate = (prevProps) => {
     const { parameters } = this.props;
     if (prevProps.parameters !== parameters) {
       this.setState({ parameters });
+      updateUrl(parameters);
     }
   };
 
@@ -88,6 +100,7 @@ export class Parameters extends React.Component {
     this.setState(({ parameters }) => {
       forEach(parameters, p => p.applyPendingValue());
       onValuesChange();
+      updateUrl(parameters);
       return { parameters };
     });
   };

@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray, omit, extend } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray, omit } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -522,21 +522,6 @@ function QueryViewCtrl(
         DEFAULT_VISUALIZATION;
     },
   );
-
-  if (!$scope.query.isNew()) {
-    $scope.$watch(
-      'query.options && query.options.parameters',
-      (parameters) => {
-        const params = extend({}, $location.search());
-        parameters.forEach((param) => {
-          extend(params, param.toUrlParams());
-        });
-        Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-        $location.search(params);
-      },
-      true,
-    );
-  }
 
   $scope.showManagePermissionsModal = () => {
     $uibModal.open({
