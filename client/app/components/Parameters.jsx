@@ -52,7 +52,7 @@ export class Parameters extends React.Component {
   constructor(props) {
     super(props);
     const { parameters } = props;
-    this.state = { parameters };
+    this.state = { parameters, dragging: false };
     if (!props.disableUrlUpdate) {
       updateUrl(parameters);
     }
@@ -99,6 +99,11 @@ export class Parameters extends React.Component {
         return { parameters };
       });
     }
+    this.setState({ dragging: false });
+  };
+
+  onBeforeSortStart = () => {
+    this.setState({ dragging: true });
   };
 
   applyChanges = () => {
@@ -161,12 +166,18 @@ export class Parameters extends React.Component {
   }
 
   render() {
-    const { parameters } = this.state;
+    const { parameters, dragging } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
-      <SortableContainer axis="xy" onSortEnd={this.moveParameter} lockToContainerEdges useDragHandle>
-        <div className="parameter-container" onKeyDown={this.handleKeyDown}>
+      <SortableContainer
+        axis="xy"
+        useDragHandle
+        lockToContainerEdges
+        updateBeforeSortStart={this.onBeforeSortStart}
+        onSortEnd={this.moveParameter}
+      >
+        <div className="parameter-container" onKeyDown={this.handleKeyDown} data-draggable={editable || null} data-dragging={dragging || null}>
           {parameters.map((param, index) => (
             <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
               {this.renderParameter(param, index)}
