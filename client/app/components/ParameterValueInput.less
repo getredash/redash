@@ -5,9 +5,12 @@
 .parameter-input {
   display: inline-block;
   position: relative;
+  width: 100%;
 
-  .@{ant-prefix}-input[type="text"] {
-    width: 195px;
+  .@{ant-prefix}-input,
+  .@{ant-prefix}-input-number,
+  .@{ant-prefix}-select {
+    width: 100%;
   }
 
   &[data-dirty] {

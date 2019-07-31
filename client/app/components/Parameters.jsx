@@ -16,7 +16,7 @@ const DragHandle = sortableHandle(({ parameterName }) => (
 ));
 
 const SortableItem = sortableElement(({ className, parameterName, disabled, children }) => (
-  <div className={className}>
+  <div className={className} data-editable={!disabled || null}>
     {!disabled && <DragHandle parameterName={parameterName} />}
     {children}
   </div>
@@ -141,7 +141,7 @@ export class Parameters extends React.Component {
         data-test={`ParameterName-${param.name}`}
       >
         <div className="parameter-heading">
-          <label className="flex-fill">{param.title || param.name}</label>
+          <label>{param.title || param.name}</label>
           {editable && (
             <button
               className="btn btn-default btn-xs m-l-5"

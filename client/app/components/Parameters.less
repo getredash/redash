@@ -34,6 +34,16 @@
 
   label {
     margin-bottom: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 100%;
+    max-width: 195px;
+    white-space: nowrap;
+
+    .parameter-block[data-editable] & {
+      min-width: calc(100% - 27px); // make room for settings button
+      max-width: 195px - 27px;
+    }
   }
 }
 
