@@ -1,5 +1,6 @@
 import { isNil, map, filter, each, sortBy, some, findIndex, toString } from 'lodash';
 import React from 'react';
+import cx from 'classnames';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
 
@@ -85,22 +86,27 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
           <Tooltip placement="top" title={column.title}>
             <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>{column.title}</div>
           </Tooltip>
-          <div className="ant-table-column-sorter">
-            <Icon
-              className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}
-              type="caret-up"
-              theme="filled"
-            />
-            <Icon
-              className={`ant-table-column-sorter-down ${isDescend ? 'on' : 'off'}`}
-              type="caret-down"
-              theme="filled"
-            />
-          </div>
+          <span className="ant-table-column-sorter">
+            <div className="ant-table-column-sorter-inner ant-table-column-sorter-inner-full">
+              <Icon
+                className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}
+                type="caret-up"
+                theme="filled"
+              />
+              <Icon
+                className={`ant-table-column-sorter-down ${isDescend ? 'on' : 'off'}`}
+                type="caret-down"
+                theme="filled"
+              />
+            </div>
+          </span>
         </React.Fragment>
       ),
       onHeaderCell: () => ({
-        className: 'ant-table-column-has-actions ant-table-column-has-sorters',
+        className: cx(
+          'ant-table-column-has-actions ant-table-column-has-sorters',
+          { 'table-visualization-column-is-sorted': isAscend || isDescend },
+        ),
         onClick: event => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
       }),
     };

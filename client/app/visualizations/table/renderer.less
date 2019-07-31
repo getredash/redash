@@ -42,11 +42,14 @@
         opacity: 0;
       }
 
-      &:hover .anticon.off {
+      &:hover .anticon.off,
+      .table-visualization-column-is-sorted .anticon.off {
         opacity: 1;
       }
 
       th {
+        white-space: nowrap;
+
         .ant-input-search {
           font-weight: normal;
 
@@ -57,11 +60,7 @@
 
         // optimize room for th content
         &.ant-table-column-has-actions.ant-table-column-has-sorters {
-          padding-right: 20px !important;
-
-          .ant-table-column-sorter {
-            right: 3px;
-          }
+          padding-right: 3px;
         }
 
         .table-visualization-heading {
