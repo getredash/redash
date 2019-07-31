@@ -145,6 +145,7 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
         align,
         colSpan: index === 0 ? tableColumns.length : 0,
         title: index === 0 ? searchInput : null,
+        onHeaderCell: () => ({ className: 'table-visualization-search' }),
       }],
     }));
   }
