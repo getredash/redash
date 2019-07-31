@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { markdown } from 'markdown';
+import HtmlContent from '@/components/HtmlContent';
 import Button from 'antd/lib/button';
 import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
 
@@ -41,10 +42,9 @@ class Widget extends React.Component {
 
     return (
       <div className="tile body-container widget-text textbox">
-        <div
-          className="body-row-auto scrollbox tiled t-body p-15 markdown"
-          dangerouslySetInnerHTML={{ __html: markdown.toHTML(widget.text) }} // eslint-disable-line react/no-danger
-        />
+        <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
+          {markdown.toHTML(widget.text)}
+        </HtmlContent>
       </div>
     );
   }
