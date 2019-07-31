@@ -2,23 +2,14 @@ import _ from 'lodash';
 import { angular2react } from 'angular2react';
 import { getColumnCleanName } from '@/services/query-result';
 import { clientConfig } from '@/services/auth';
-import { createFormatter } from '@/lib/value-format';
 import { registerVisualization } from '@/visualizations';
-import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
+import Renderer from './Renderer';
+import { ColumnTypes } from './utils';
 
-const DISPLAY_AS_OPTIONS = [
-  { name: 'Text', value: 'string' },
-  { name: 'Number', value: 'number' },
-  { name: 'Date/Time', value: 'datetime' },
-  { name: 'Boolean', value: 'boolean' },
-  { name: 'JSON', value: 'json' },
-  { name: 'Image', value: 'image' },
-  { name: 'Link', value: 'link' },
-];
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
@@ -119,43 +110,6 @@ function getColumnsOptions(columns, visualizationColumns) {
   return _.sortBy(options, 'order');
 }
 
-function getColumnsToDisplay(columns, options) {
-  columns = _.fromPairs(_.map(columns, col => [col.name, col]));
-  let result = _.map(options, col => _.extend(
-    getDefaultFormatOptions(col),
-    col,
-    columns[col.name],
-  ));
-
-  result = _.map(result, col => _.extend(col, {
-    formatFunction: createFormatter(col),
-  }));
-
-  return _.sortBy(_.filter(result, 'visible'), 'order');
-}
-
-const GridRenderer = {
-  bindings: {
-    data: '<',
-    options: '<',
-  },
-  template,
-  controller($scope) {
-    const update = () => {
-      this.gridColumns = [];
-      this.gridRows = [];
-      if (this.data) {
-        this.gridColumns = getColumnsToDisplay(this.data.columns, this.options.columns);
-        this.gridRows = this.data.rows;
-      }
-    };
-    update();
-
-    $scope.$watch('$ctrl.data', update);
-    $scope.$watch('$ctrl.options', update, true);
-  },
-};
-
 const GridEditor = {
   bindings: {
     data: '<',
@@ -165,7 +119,7 @@ const GridEditor = {
   template: editorTemplate,
   controller($scope) {
     this.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
-    this.displayAsOptions = DISPLAY_AS_OPTIONS;
+    this.displayAsOptions = _.map(ColumnTypes, ({ friendlyName: name }, value) => ({ name, value }));
 
     this.currentTab = 'columns';
     this.setCurrentTab = (tab) => {
@@ -185,7 +139,6 @@ const GridEditor = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('gridRenderer', GridRenderer);
   ngModule.component('gridEditor', GridEditor);
 
   ngModule.run(($injector) => {
@@ -200,7 +153,7 @@ export default function init(ngModule) {
         );
         return options;
       },
-      Renderer: angular2react('gridRenderer', GridRenderer, $injector),
+      Renderer,
       Editor: angular2react('gridEditor', GridEditor, $injector),
 
       autoHeight: true,

@@ -6,6 +6,7 @@ import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
 import Divider from 'antd/lib/divider';
+import HtmlContent from '@/components/HtmlContent';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import notification from '@/services/notification';
 
@@ -100,10 +101,7 @@ class TextboxDialog extends React.Component {
             <React.Fragment>
               <Divider dashed />
               <strong className="preview-title">Preview:</strong>
-              <p
-                dangerouslySetInnerHTML={{ __html: this.state.preview }} // eslint-disable-line react/no-danger
-                className="preview markdown"
-              />
+              <HtmlContent className="preview markdown">{this.state.preview}</HtmlContent>
             </React.Fragment>
           )}
         </div>
