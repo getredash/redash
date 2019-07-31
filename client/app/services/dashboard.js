@@ -210,7 +210,7 @@ function DashboardService($resource, $http, $location, currentUser) {
       }
     });
     return _.values(_.each(globalParams, (param) => {
-      param.setValue(param.getValue()); // apply global param value to all locals
+      param.setValue(param.value); // apply global param value to all locals
       param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
     }));
   };
