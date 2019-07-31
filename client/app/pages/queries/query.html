@@ -239,7 +239,7 @@
                         <i class="zmdi zmdi-plus"></i> New Visualization</a>
                     </li>
                   </ul>
-                  <div class="query__vis m-t-15 p-b-15 scrollbox" data-test="QueryPageVisualization{{ selectedVisualization.id }}">
+                  <div ng-if="selectedVisualization && queryResult" class="query__vis m-t-15 p-b-15 scrollbox" data-test="QueryPageVisualization{{ selectedVisualization.id }}">
                     <visualization-renderer visualization="selectedVisualization" query-result="queryResult"></visualization-renderer>
                   </div>
                 </div>
@@ -288,8 +288,14 @@
               <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
             </span>
 
-            <button class="m-l-5 btn btn-primary" ng-click="executeQuery()" ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
-              ng-if="!sourceMode">
+            <button
+              ng-if="!sourceMode"
+              ng-disabled="queryExecuting || !canExecuteQuery()"
+              class="m-l-5 btn btn-primary"
+              title="Refresh Dataset"
+              ng-click="executeQuery()"
+              data-test="ExecuteButton"
+            >
               <span class="zmdi zmdi-play"></span>
             </button>
           </div>
