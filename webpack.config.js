@@ -225,6 +225,9 @@ const config = {
       modules: false,
       chunkModules: false
     }
+  },
+  performance: {
+    hints: false
   }
 };
 
