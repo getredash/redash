@@ -54,7 +54,7 @@ describe('Dashboard Sharing', () => {
         shareDashboard().then((secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
-          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+          cy.getByTestId('TableVisualization', { timeout: 10000 }).should('exist');
           cy.percySnapshot('Successfully Shared Unparameterized Dashboard');
         });
       });
@@ -79,7 +79,7 @@ describe('Dashboard Sharing', () => {
         shareDashboard().then((secretAddress) => {
           cy.logout();
           cy.visit(secretAddress);
-          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+          cy.getByTestId('TableVisualization', { timeout: 10000 }).should('exist');
           cy.percySnapshot('Successfully Shared Parameterized Dashboard');
         });
       });
@@ -113,7 +113,7 @@ describe('Dashboard Sharing', () => {
           cy.visit(this.dashboardUrl);
           cy.logout();
           cy.visit(secretAddress);
-          cy.getByTestId('DynamicTable', { timeout: 10000 }).should('exist');
+          cy.getByTestId('TableVisualization', { timeout: 10000 }).should('exist');
           cy.contains('.alert', 'This query contains potentially unsafe parameters' +
             ' and cannot be executed on a shared dashboard or an embedded visualization.');
           cy.percySnapshot('Successfully Shared Parameterized Dashboard With Some Unsafe Queries');

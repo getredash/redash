@@ -1,5 +1,5 @@
-import { map, find } from 'lodash';
-import React, { useState, useMemo, useEffect } from 'react';
+import { isEqual, map, find } from 'lodash';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import useQueryResult from '@/lib/hooks/useQueryResult';
@@ -27,6 +27,7 @@ function combineFilters(localFilters, globalFilters) {
 export function VisualizationRenderer(props) {
   const data = useQueryResult(props.queryResult);
   const [filters, setFilters] = useState(data.filters);
+  const lastOptions = useRef();
 
   // Reset local filters when query results updated
   useEffect(() => {
@@ -45,13 +46,27 @@ export function VisualizationRenderer(props) {
 
   const { showFilters, visualization } = props;
   const { Renderer, getOptions } = registeredVisualizations[visualization.type];
-  const options = getOptions(visualization.options, data);
+
+  // Avoid unnecessary updates (which may be expensive or cause issues with
+  // internal state of some visualizations like Table) - compare options deeply
+  // and use saved reference if nothing changed
+  // More details: https://github.com/getredash/redash/pull/3963#discussion_r306935810
+  let options = getOptions(visualization.options, data);
+  if (isEqual(lastOptions.current, options)) {
+    options = lastOptions.current;
+  }
+  lastOptions.current = options;
 
   return (
     <React.Fragment>
       {showFilters && <Filters filters={filters} onChange={setFilters} />}
       <div>
-        <Renderer options={options} data={filteredData} visualizationName={visualization.name} />
+        <Renderer
+          key={`visualization${visualization.id}`}
+          options={options}
+          data={filteredData}
+          visualizationName={visualization.name}
+        />
       </div>
     </React.Fragment>
   );

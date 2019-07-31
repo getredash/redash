@@ -15,7 +15,7 @@ describe('Create Query', () => {
 
     cy.getByTestId('ExecuteButton').click();
 
-    cy.getByTestId('DynamicTable').should('exist');
+    cy.getByTestId('TableVisualization').should('exist');
     cy.percySnapshot('Edit Query');
 
     cy.getByTestId('SaveButton').click();
