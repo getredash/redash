@@ -6,14 +6,19 @@ import { clientConfig } from '@/services/auth';
 import { Moment } from '@/components/proptypes';
 
 export function DateInput({
+  defaultValue,
   value,
   onSelect,
   className,
+  ...props
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
-  if (value && value.isValid()) {
-    additionalAttributes.defaultValue = value;
+  if (defaultValue && defaultValue.isValid()) {
+    additionalAttributes.defaultValue = defaultValue;
+  }
+  if (value === null || (value && value.isValid())) {
+    additionalAttributes.value = value;
   }
   return (
     <DatePicker
@@ -22,18 +27,21 @@ export function DateInput({
       format={format}
       placeholder="Select Date"
       onChange={onSelect}
+      {...props}
     />
   );
 }
 
 DateInput.propTypes = {
+  defaultValue: Moment,
   value: Moment,
   onSelect: PropTypes.func,
   className: PropTypes.string,
 };
 
 DateInput.defaultProps = {
-  value: null,
+  defaultValue: null,
+  value: undefined,
   onSelect: () => {},
   className: '',
 };

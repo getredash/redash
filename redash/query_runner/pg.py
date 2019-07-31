@@ -152,7 +152,15 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
-        WHERE c.relkind IN ('r', 'v', 'm', 'f', 'p')
+        WHERE c.relkind IN ('m', 'f', 'p')
+
+        UNION
+
+        SELECT table_schema,
+               table_name,
+               column_name
+        FROM information_schema.columns
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
 
         self._get_definitions(schema, query)

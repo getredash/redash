@@ -5,7 +5,7 @@ import DatePicker from 'antd/lib/date-picker';
 import TimePicker from 'antd/lib/time-picker';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
-import { capitalize, clone, isEqual } from 'lodash';
+import { capitalize, clone, isEqual, omitBy, isNil } from 'lodash';
 import moment from 'moment';
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from '@/filters';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
@@ -177,9 +177,14 @@ class ScheduleDialog extends React.Component {
 
   save() {
     const { newSchedule } = this.state;
+    const hasChanged = () => {
+      const newCompact = omitBy(newSchedule, isNil);
+      const oldCompact = omitBy(this.props.schedule, isNil);
+      return !isEqual(newCompact, oldCompact);
+    };
 
     // save if changed
-    if (!isEqual(newSchedule, this.props.schedule)) {
+    if (hasChanged()) {
       if (newSchedule.interval) {
         this.props.dialog.close(clone(newSchedule));
       } else {

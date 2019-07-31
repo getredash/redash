@@ -1,8 +1,16 @@
 import { template as templateBuilder } from 'lodash';
+import notification from '@/services/notification';
+import Modal from 'antd/lib/modal';
 import template from './alert.html';
+import AlertTemplate from '@/services/alert-template';
+import { clientConfig } from '@/services/auth';
+import navigateTo from '@/services/navigateTo';
 
-function AlertCtrl($scope, $routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
+function AlertCtrl($scope, $routeParams, $location, $sce, $sanitize, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
+  this.hidePreview = false;
+  this.alertTemplate = new AlertTemplate();
+  this.showExtendedOptions = clientConfig.extendedAlertOptions;
 
   if (this.alertId === 'new') {
     Events.record('view', 'page', 'alerts/new');
@@ -59,29 +67,57 @@ function AlertCtrl($scope, $routeParams, $location, $sce, toastr, currentUser, Q
     if (this.alert.rearm === '' || this.alert.rearm === 0) {
       this.alert.rearm = null;
     }
+    if (this.alert.template === undefined || this.alert.template === '') {
+      this.alert.template = null;
+    }
     this.alert.$save(
       (alert) => {
-        toastr.success('Saved.');
+        notification.success('Saved.');
         if (this.alertId === 'new') {
           $location.path(`/alerts/${alert.id}`).replace();
         }
       },
       () => {
-        toastr.error('Failed saving alert.');
+        notification.error('Failed saving alert.');
       },
     );
   };
 
+  this.preview = () => {
+    const notifyError = () => notification.error('Unable to render description. please confirm your template.');
+    try {
+      const result = this.alertTemplate.render(this.alert, this.queryResult.query_result.data);
+      this.alert.preview = $sce.trustAsHtml(result.escaped);
+      this.alert.previewHTML = $sce.trustAsHtml($sanitize(result.raw));
+      if (!result.raw) {
+        notifyError();
+      }
+    } catch (e) {
+      notifyError();
+      this.alert.preview = e.message;
+      this.alert.previewHTML = e.message;
+    }
+  };
+
   this.delete = () => {
-    this.alert.$delete(
-      () => {
-        $location.path('/alerts');
-        toastr.success('Alert deleted.');
-      },
-      () => {
-        toastr.error('Failed deleting alert.');
-      },
-    );
+    const doDelete = () => {
+      this.alert.$delete(() => {
+        notification.success('Alert destination deleted successfully.');
+        navigateTo('/alerts', true);
+      }, () => {
+        notification.error('Failed deleting alert.');
+      });
+    };
+
+    Modal.confirm({
+      title: 'Delete Alert',
+      content: 'Are you sure you want to delete this alert?',
+      okText: 'Delete',
+      okType: 'danger',
+      onOk: doDelete,
+      maskClosable: true,
+      autoFocusButton: null,
+    });
   };
 }
 

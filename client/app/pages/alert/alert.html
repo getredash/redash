@@ -47,6 +47,39 @@
               </div>
             </div>
           </div>
+          <div class="form-group" ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
+            <label>Custom subject</label>
+            <input type="string" class="form-control" ng-model="$ctrl.alert.options.subject" ng-disabled="!$ctrl.canEdit">
+          </div>
+          <div ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
+            <div class="form-group" ng-show="$ctrl.selectedQuery">
+              <label>Description template</label>
+              <i class="fa fa-question-circle" uib-tooltip="{{$ctrl.alertTemplate.helpMessage}}"></i>
+              <div class="row bg-white p-b-5" ng-if="$ctrl.canEdit" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+                <div ui-ace="$ctrl.alertTemplate.editorOptions" ng-model="$ctrl.alert.options.template"></div>
+              </div>
+            </div>
+             <div class="form-group" ng-if="$ctrl.canEdit">
+              <button class="btn btn-default" ng-click="$ctrl.preview()">Preview</button>
+              <label for="show-as-html">Show As HTML</label> 
+              <input type="checkbox" name="show-as-html" ng-model="$ctrl.showAsHTML">
+            </div>
+             <div class="panel panel-default" ng-if="$ctrl.alert.preview">
+              <div class="panel-heading">
+                <label for="hide-preview">Hide Preview</label> 
+                <input type="checkbox" name="hide-preview" ng-model="$ctrl.hidePreview">
+              </div>
+              <div class="panel-body" ng-if="$ctrl.hidePreview == false">
+                  <div ng-if="!$ctrl.showAsHTML">
+                    <div ng-bind-html="$ctrl.alert.preview"></div>
+                  </div>
+                  <div ng-if="$ctrl.showAsHTML">
+                    <div ng-bind-html="$ctrl.alert.previewHTML"></div>
+                  </div>
+              </div>
+              <div class="panel-footer"></div>
+            </div>
+          </div>
 
           <div class="form-group" ng-if="$ctrl.canEdit">
             <button class="btn btn-primary" ng-disabled="!alertForm.$valid" ng-click="$ctrl.saveChanges()">Save</button>

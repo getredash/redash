@@ -27,7 +27,7 @@ import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { toastr } from '@/services/ng';
+import notification from '@/services/notification';
 import { absoluteUrl } from '@/services/utils';
 
 function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
@@ -127,7 +127,7 @@ class UsersList extends React.Component {
   }
 
   createUser = values => User.create(values).$promise.then((user) => {
-    toastr.success('Saved.');
+    notification.success('Saved.');
     if (user.invite_link) {
       Modal.warning({ title: 'Email not sent!',
         content: (
@@ -149,15 +149,13 @@ class UsersList extends React.Component {
 
   showCreateUserDialog = () => {
     if (policy.isCreateUserEnabled()) {
-      CreateUserDialog.showModal({ onCreate: this.createUser }).result.then((success) => {
-        if (success) {
-          this.props.controller.update();
-        }
-      }).finally(() => {
-        if (this.props.controller.params.isNewUserPage) {
-          navigateTo('users');
-        }
-      });
+      CreateUserDialog.showModal({ onCreate: this.createUser }).result
+        .then(() => this.props.controller.update())
+        .finally(() => {
+          if (this.props.controller.params.isNewUserPage) {
+            navigateTo('users');
+          }
+        });
     }
   };
 
@@ -196,6 +194,7 @@ class UsersList extends React.Component {
             />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
             <Sidebar.PageSizeSelect
+              className="m-b-10"
               options={controller.pageSizeOptions}
               value={controller.itemsPerPage}
               onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}

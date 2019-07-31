@@ -15,9 +15,11 @@ def create(group):
 
     @app.shell_context_processor
     def shell_context():
-        from redash import models
-        return dict(models=models)
-
+        from redash import models, settings
+        return {
+            'models': models,
+            'settings': settings,
+        }
     return app
 
 
@@ -48,7 +50,7 @@ def status():
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
-    for name, item in settings.all_settings().iteritems():
+    for name, item in current_app.config.iteritems():
         print("{} = {}".format(name, item))
 
 

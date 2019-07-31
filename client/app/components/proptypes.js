@@ -34,12 +34,34 @@ export const RefreshScheduleDefault = {
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
-  type: PropTypes.oneOf(['text', 'email', 'password', 'number', 'checkbox', 'file']).isRequired,
-  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  type: PropTypes.oneOf([
+    'ace',
+    'text',
+    'textarea',
+    'email',
+    'password',
+    'number',
+    'checkbox',
+    'file',
+    'select',
+    'content',
+  ]).isRequired,
+  initialValue: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.bool,
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.arrayOf(PropTypes.number),
+  ]),
+  content: PropTypes.node,
+  mode: PropTypes.string,
   required: PropTypes.bool,
   readOnly: PropTypes.bool,
+  autoFocus: PropTypes.bool,
   minLength: PropTypes.number,
   placeholder: PropTypes.string,
+  contentAfter: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
+  loading: PropTypes.bool,
   props: PropTypes.object, // eslint-disable-line react/forbid-prop-types
 });
 
@@ -66,8 +88,8 @@ export const UserProfile = PropTypes.shape({
 
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
-  const isRequiredValid = isRequired && (value !== null);
-  const isOptionalValid = !isRequired && ((value === null) || moment.isMoment(value));
+  const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);
+  const isOptionalValid = !isRequired && ((value === null || value === undefined) || moment.isMoment(value));
   if (!isRequiredValid && !isOptionalValid) {
     return new Error('Prop `' + propName + '` supplied to `' + componentName + '` should be a Moment.js instance.');
   }

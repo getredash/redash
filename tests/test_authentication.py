@@ -127,6 +127,19 @@ class TestHMACAuthentication(BaseTestCase):
             self.assertEqual(user.id, hmac_load_user_from_request(request).id)
 
 
+class TestSessionAuthentication(BaseTestCase):
+    def test_prefers_api_key_over_session_user_id(self):
+        user = self.factory.create_user()
+        query = self.factory.create_query(user=user)
+
+        other_org = self.factory.create_org()
+        other_user = self.factory.create_user(org=other_org)
+        models.db.session.flush()
+
+        rv = self.make_request('get', '/api/queries/{}?api_key={}'.format(query.id, query.api_key), user=other_user)
+        self.assertEqual(rv.status_code, 200)
+
+
 class TestCreateAndLoginUser(BaseTestCase):
     def test_logins_valid_user(self):
         user = self.factory.create_user(email=u'test@example.com')

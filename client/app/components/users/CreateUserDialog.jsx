@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
 import Alert from 'antd/lib/alert';
-import { DynamicForm } from '@/components/dynamic-form/DynamicForm';
+import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import recordEvent from '@/services/recordEvent';
 
@@ -38,7 +38,7 @@ class CreateUserDialog extends React.Component {
   render() {
     const { savingUser, errorMessage } = this.state;
     const formFields = [
-      { name: 'name', title: 'Name', type: 'text' },
+      { name: 'name', title: 'Name', type: 'text', autoFocus: true },
       { name: 'email', title: 'Email', type: 'email' },
     ].map(field => ({ required: true, props: { onPressEnter: this.createUser }, ...field }));
 

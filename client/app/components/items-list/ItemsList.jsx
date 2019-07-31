@@ -98,8 +98,11 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    getState({ isLoaded, totalCount, pageItems, ...rest }) {
-      const params = {
+    getState({ isLoaded, totalCount, pageItems, params, ...rest }) {
+      params = {
+        // Custom params from items source
+        ...params,
+
         // Add some properties of current route (`$resolve`, title, route params)
         // ANGULAR_REMOVE_ME Revisit when some React router will be used
         title: $route.current.title,

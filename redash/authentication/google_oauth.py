@@ -17,7 +17,7 @@ def google_remote_app():
     if 'google' not in oauth.remote_apps:
         oauth.remote_app('google',
                          base_url='https://www.google.com/accounts/',
-                         authorize_url='https://accounts.google.com/o/oauth2/auth',
+                         authorize_url='https://accounts.google.com/o/oauth2/auth?prompt=select_account+consent',
                          request_token_url=None,
                          request_token_params={
                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',

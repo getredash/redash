@@ -4,6 +4,7 @@ import Mustache from 'mustache';
 import {
   zipObject, isEmpty, map, filter, includes, union, uniq, has,
   isNull, isUndefined, isArray, isObject, identity, extend, each,
+  startsWith, some,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -20,6 +21,58 @@ const DATETIME_FORMATS = {
   'datetime-range': 'YYYY-MM-DD HH:mm',
   'datetime-with-seconds': 'YYYY-MM-DD HH:mm:ss',
   'datetime-range-with-seconds': 'YYYY-MM-DD HH:mm:ss',
+};
+
+const DYNAMIC_PREFIX = 'd_';
+
+const DYNAMIC_DATE_RANGES = {
+  today: {
+    name: 'Today',
+    value: () => [moment().startOf('day'), moment().endOf('day')],
+  },
+  yesterday: {
+    name: 'Yesterday',
+    value: () => [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+  },
+  this_week: {
+    name: 'This week',
+    value: () => [moment().startOf('week'), moment().endOf('week')],
+  },
+  this_month: {
+    name: 'This month',
+    value: () => [moment().startOf('month'), moment().endOf('month')],
+  },
+  this_year: {
+    name: 'This year',
+    value: () => [moment().startOf('year'), moment().endOf('year')],
+  },
+  last_week: {
+    name: 'Last week',
+    value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+  },
+  last_month: {
+    name: 'Last month',
+    value: () => [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+  },
+  last_year: {
+    name: 'Last year',
+    value: () => [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+  },
+  last_7_days: {
+    name: 'Last 7 days',
+    value: () => [moment().subtract(7, 'days'), moment()],
+  },
+};
+
+const DYNAMIC_DATES = {
+  now: {
+    name: 'Today/Now',
+    value: () => moment(),
+  },
+  yesterday: {
+    name: 'Yesterday',
+    value: () => moment().subtract(1, 'day'),
+  },
 };
 
 function normalizeNumericValue(value, defaultValue = null) {
@@ -49,8 +102,36 @@ function isDateRangeParameter(paramType) {
   return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
 }
 
+export function isDynamicDate(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
+  }
+  return !!DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function isDynamicDateRange(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
+  }
+  return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function getDynamicDate(value) {
+  if (!isDynamicDate(value)) {
+    return null;
+  }
+  return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function getDynamicDateRange(value) {
+  if (!isDynamicDateRange(value)) {
+    return null;
+  }
+  return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
 export class Parameter {
-  constructor(parameter) {
+  constructor(parameter, parentQueryId) {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
@@ -58,6 +139,7 @@ export class Parameter {
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+    this.parentQueryId = parentQueryId;
 
     // Used for meta-parameters (i.e. dashboard-level params)
     this.locals = [];
@@ -75,11 +157,31 @@ export class Parameter {
   }
 
   clone() {
-    return new Parameter(this);
+    return new Parameter(this, this.parentQueryId);
   }
 
   get isEmpty() {
     return isNull(this.getValue());
+  }
+
+  get hasDynamicValue() {
+    if (isDateParameter(this.type)) {
+      return isDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return isDynamicDateRange(this.value);
+    }
+    return false;
+  }
+
+  get dynamicValue() {
+    if (isDateParameter(this.type)) {
+      return getDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return getDynamicDateRange(this.value);
+    }
+    return false;
   }
 
   getValue() {
@@ -89,7 +191,28 @@ export class Parameter {
   static getValue(param) {
     const { value, type, useCurrentDateTime } = param;
     const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
+    if (isDateRangeParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        const dateRange = dynamicValue.value();
+        return {
+          start: dateRange[0].format(DATETIME_FORMATS[type]),
+          end: dateRange[1].format(DATETIME_FORMATS[type]),
+        };
+      }
+      return null;
+    }
+
+    if (isDateParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        return dynamicValue.value().format(DATETIME_FORMATS[type]);
+      }
+      return null;
+    }
+
     if (isEmptyValue) {
+      // keep support for existing useCurentDateTime (not available in UI)
       if (
         includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
         useCurrentDateTime
@@ -122,15 +245,29 @@ export class Parameter {
           };
           this.$$value = value;
         }
+      } else if (isDynamicDateRange(value)) {
+        const dynamicDateRange = getDynamicDateRange(value, this.type);
+        if (dynamicDateRange) {
+          this.value = value;
+          this.$$value = value;
+        }
       }
     } else if (isDateParameter(this.type)) {
       this.value = null;
       this.$$value = null;
 
-      value = moment(value);
-      if (value.isValid()) {
-        this.value = value.format(DATETIME_FORMATS[this.type]);
-        this.$$value = value;
+      if (isDynamicDate(value)) {
+        const dynamicDate = getDynamicDate(value);
+        if (dynamicDate) {
+          this.value = value;
+          this.$$value = value;
+        }
+      } else {
+        value = moment(value);
+        if (value.isValid()) {
+          this.value = value.format(DATETIME_FORMATS[this.type]);
+          this.$$value = value;
+        }
       }
     } else if (this.type === 'number') {
       this.value = value;
@@ -146,7 +283,27 @@ export class Parameter {
       });
     }
 
+    this.clearPendingValue();
+
     return this;
+  }
+
+  setPendingValue(value) {
+    this.pendingValue = value;
+  }
+
+  applyPendingValue() {
+    if (this.hasPendingValue) {
+      this.setValue(this.pendingValue);
+    }
+  }
+
+  clearPendingValue() {
+    this.setPendingValue(undefined);
+  }
+
+  get hasPendingValue() {
+    return this.pendingValue !== undefined && this.pendingValue !== this.value;
   }
 
   get normalizedValue() {
@@ -167,23 +324,29 @@ export class Parameter {
       return {};
     }
     const prefix = this.urlPrefix;
-    if (isDateRangeParameter(this.type)) {
+    if (isDateRangeParameter(this.type) && isObject(this.value)) {
       return {
         [`${prefix}${this.name}.start`]: this.value.start,
         [`${prefix}${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}`]: null,
       };
     }
     return {
       [`${prefix}${this.name}`]: this.value,
+      [`${prefix}${this.name}.start`]: null,
+      [`${prefix}${this.name}.end`]: null,
     };
   }
 
   fromUrlParams(query) {
     const prefix = this.urlPrefix;
     if (isDateRangeParameter(this.type)) {
+      const key = `${prefix}${this.name}`;
       const keyStart = `${prefix}${this.name}.start`;
       const keyEnd = `${prefix}${this.name}.end`;
-      if (has(query, keyStart) && has(query, keyEnd)) {
+      if (has(query, key)) {
+        this.setValue(query[key]);
+      } else if (has(query, keyStart) && has(query, keyEnd)) {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
@@ -200,6 +363,14 @@ export class Parameter {
     }
     return `{{ ${this.name} }}`;
   }
+
+  loadDropdownValues() {
+    if (this.parentQueryId) {
+      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).$promise;
+    }
+
+    return Query.asDropdown({ id: this.queryId }).$promise;
+  }
 }
 
 class Parameters {
@@ -210,25 +381,32 @@ class Parameters {
   }
 
   parseQuery() {
+    const fallback = () => map(this.query.options.parameters, i => i.name);
+
     let parameters = [];
-    try {
-      const parts = Mustache.parse(this.query.query);
-      parameters = uniq(collectParams(parts));
-    } catch (e) {
-      logger('Failed parsing parameters: ', e);
-      // Return current parameters so we don't reset the list
-      parameters = map(this.query.options.parameters, i => i.name);
+    if (this.query.query) {
+      try {
+        const parts = Mustache.parse(this.query.query);
+        parameters = uniq(collectParams(parts));
+      } catch (e) {
+        logger('Failed parsing parameters: ', e);
+        // Return current parameters so we don't reset the list
+        parameters = fallback();
+      }
+    } else {
+      parameters = fallback();
     }
+
     return parameters;
   }
 
-  updateParameters() {
-    if (this.query.query === this.cachedQueryText) {
+  updateParameters(update) {
+    if (this.query.query && this.query.query === this.cachedQueryText) {
       return;
     }
 
     this.cachedQueryText = this.query.query;
-    const parameterNames = this.parseQuery();
+    const parameterNames = update ? this.parseQuery() : map(this.query.options.parameters, p => p.name);
 
     this.query.options.parameters = this.query.options.parameters || [];
 
@@ -250,7 +428,9 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    const parameters = this.query.options.parameters;
+    this.query.options.parameters = parameters.filter(parameterExists)
+      .map(p => (p instanceof Parameter ? p : new Parameter(p, this.query.id)));
   }
 
   initFromQueryString(query) {
@@ -259,8 +439,8 @@ class Parameters {
     });
   }
 
-  get() {
-    this.updateParameters();
+  get(update = true) {
+    this.updateParameters(update);
     return this.query.options.parameters;
   }
 
@@ -283,6 +463,27 @@ class Parameters {
   getValues() {
     const params = this.get();
     return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
+  }
+
+  hasPendingValues() {
+    return some(this.get(), p => p.hasPendingValue);
+  }
+
+  applyPendingValues() {
+    each(this.get(), p => p.applyPendingValue());
+  }
+
+  toUrlParams() {
+    if (this.get().length === 0) {
+      return '';
+    }
+
+    const params = Object.assign(...this.get().map(p => p.toUrlParams()));
+    Object.keys(params).forEach(key => params[key] == null && delete params[key]);
+    return Object
+      .keys(params)
+      .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
+      .join('&');
   }
 }
 
@@ -317,11 +518,6 @@ function QueryResultErrorFactory($q) {
 
     // eslint-disable-next-line class-methods-use-this
     getLog() {
-      return null;
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    getChartData() {
       return null;
     }
   }
@@ -371,10 +567,15 @@ function QueryResource(
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
-      dropdownOptions: {
+      asDropdown: {
         method: 'get',
         isArray: true,
         url: 'api/queries/:id/dropdown',
+      },
+      associatedDropdown: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
       },
       favorites: {
         method: 'get',
@@ -451,11 +652,11 @@ function QueryResource(
     return this.getParameters().isRequired();
   };
 
-  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
-    if (!this.query) {
-      return new QueryResultError("Can't execute empty query.");
-    }
+  QueryService.prototype.hasParameters = function hasParameters() {
+    return this.getParametersDefs().length > 0;
+  };
 
+  QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
     const missingParams = parameters.getMissing();
 
@@ -489,12 +690,10 @@ function QueryResource(
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = QueryResult.getById(this.id, this.latest_query_data_id);
       }
-    } else if (this.data_source_id) {
-      this.queryResult = execute();
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      this.queryResult = execute();
     }
 
     return this.queryResult;
@@ -507,6 +706,10 @@ function QueryResource(
 
   QueryService.prototype.getQueryResultByText = function getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
+    if (!queryText) {
+      return new QueryResultError("Can't execute empty query.");
+    }
+
     const parameters = this.getParameters().getValues();
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
@@ -525,6 +728,7 @@ function QueryResource(
         extend(params, param.toUrlParams());
       });
     }
+    Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
@@ -550,8 +754,8 @@ function QueryResource(
     return this.$parameters;
   };
 
-  QueryService.prototype.getParametersDefs = function getParametersDefs() {
-    return this.getParameters().get();
+  QueryService.prototype.getParametersDefs = function getParametersDefs(update = true) {
+    return this.getParameters().get(update);
   };
 
   return QueryService;

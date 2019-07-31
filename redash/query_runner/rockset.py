@@ -1,8 +1,6 @@
 import requests
-import os
 from redash.query_runner import *
-from redash.utils import JSONEncoder
-import json
+from redash.utils import json_dumps
 
 
 def _get_type(value):
@@ -90,13 +88,17 @@ class Rockset(BaseSQLQueryRunner):
         if 'code' in results and results['code'] != 200:
             return None, '{}: {}'.format(results['type'], results['message'])
 
+        if 'results' not in results:
+            message = results.get('message', "Unknown response from Rockset.")
+            return None, message
+
         rows = results['results']
         columns = []
         if len(rows) > 0:
             columns = []
             for k in rows[0]:
                 columns.append({'name': k, 'friendly_name': k, 'type': _get_type(rows[0][k])})
-        data = json.dumps({'columns': columns, 'rows': rows}, cls=JSONEncoder)
+        data = json_dumps({'columns': columns, 'rows': rows})
         return data, None
 
 

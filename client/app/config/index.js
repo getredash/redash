@@ -13,7 +13,6 @@ import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
-import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
@@ -30,7 +29,8 @@ import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
-import dashboardGridOptions from './dashboard-grid-options';
+import './antd-spinner';
+import moment from 'moment';
 
 const logger = debug('redash:config');
 
@@ -42,6 +42,24 @@ Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
   return prevPrefix !== newPrefix;
 };
 
+moment.updateLocale('en', {
+  relativeTime: {
+    future: '%s',
+    past: '%s',
+    s: 'just now',
+    m: 'a minute ago',
+    mm: '%d minutes ago',
+    h: 'an hour ago',
+    hh: '%d hours ago',
+    d: 'a day ago',
+    dd: '%d days ago',
+    M: 'a month ago',
+    MM: '%d months ago',
+    y: 'a year ago',
+    yy: '%d years ago',
+  },
+});
+
 const requirements = [
   ngRoute,
   ngResource,
@@ -49,7 +67,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  toastr,
   'ui.ace',
   ngUpload,
   'angularResizable',
@@ -58,8 +75,6 @@ const requirements = [
 ];
 
 const ngModule = angular.module('app', requirements);
-
-dashboardGridOptions(ngModule);
 
 function registerAll(context) {
   const modules = context

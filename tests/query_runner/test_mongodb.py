@@ -2,6 +2,7 @@ import datetime
 from unittest import TestCase
 
 from pytz import utc
+from freezegun import freeze_time
 
 from redash.query_runner.mongodb import parse_query_json, parse_results, _get_column_by_name
 from redash.utils import json_dumps, parse_human_time
@@ -95,6 +96,7 @@ class TestParseQueryJson(TestCase):
         self.assertEqual(query_data['test$undefined'], None)
         self.assertEqual(query_data['test$date'], datetime.datetime(2014, 10, 3, 0, 0).replace(tzinfo=utc))
 
+    @freeze_time('2019-01-01 12:00:00')
     def test_supports_relative_timestamps(self):
         query = {
             'ts': {'$humanTime': '1 hour ago'}

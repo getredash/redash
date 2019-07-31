@@ -99,6 +99,10 @@ class DynamicTablePaginatorAdapter {
     return this.$ctrl.preparedRows.length;
   }
 
+  get hasPagination() {
+    return this.totalCount > this.itemsPerPage; // same condition as in Paginator.jsx
+  }
+
   setPage(page) {
     this.$ctrl.onPageChanged(page);
   }

@@ -1,5 +1,7 @@
 .dynamic-table-container {
-  overflow-x: auto;
+  &[data-has-pagination="true"] {
+    overflow-x: auto; // enable internal scroll so pagination stays put
+  }
 
   th {
     white-space: nowrap;

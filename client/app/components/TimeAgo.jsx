@@ -1,83 +1,70 @@
 import moment from 'moment';
 import { isNil } from 'lodash';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import { Moment } from '@/components/proptypes';
 import { clientConfig } from '@/services/auth';
+import useForceUpdate from '@/lib/hooks/useForceUpdate';
+import Tooltip from 'antd/lib/tooltip';
 
-const autoUpdateList = new Set();
-
-function updateComponents() {
-  autoUpdateList.forEach(component => component.update());
-  setTimeout(updateComponents, 30 * 1000);
+function toMoment(value) {
+  value = !isNil(value) ? moment(value) : null;
+  return value && value.isValid() ? value : null;
 }
-updateComponents();
 
-export class TimeAgo extends React.PureComponent {
-  static propTypes = {
-    // `date` and `placeholder` used in `getDerivedStateFromProps`
-    // eslint-disable-next-line react/no-unused-prop-types
-    date: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-      PropTypes.instanceOf(Date),
-      Moment,
-    ]),
-    // eslint-disable-next-line react/no-unused-prop-types
-    placeholder: PropTypes.string,
-    autoUpdate: PropTypes.bool,
-  };
+export function TimeAgo({ date, placeholder, autoUpdate }) {
+  const startDate = toMoment(date);
 
-  static defaultProps = {
-    date: null,
-    placeholder: '',
-    autoUpdate: true,
-  };
+  const value = startDate ? startDate.fromNow() : placeholder;
+  const title = startDate ? startDate.format(clientConfig.dateTimeFormat) : '';
 
-  // Initial state, to get rid of React warning
-  state = {
-    title: null,
-    value: null,
-  };
+  const forceUpdate = useForceUpdate();
 
-  static getDerivedStateFromProps({ date, placeholder }) {
-    // if `date` prop is not empty and a valid date/time - convert it to `moment`
-    date = !isNil(date) ? moment(date) : null;
-    date = date && date.isValid() ? date : null;
-
-    return {
-      value: date ? date.fromNow() : placeholder,
-      title: date ? date.format(clientConfig.dateTimeFormat) : '',
-    };
-  }
-
-  componentDidMount() {
-    autoUpdateList.add(this);
-    this.update(true);
-  }
-
-  componentWillUnmount() {
-    autoUpdateList.delete(this);
-  }
-
-  update(force = false) {
-    if (force || this.props.autoUpdate) {
-      this.setState(this.constructor.getDerivedStateFromProps(this.props));
+  useEffect(() => {
+    if (autoUpdate) {
+      const timer = setInterval(forceUpdate, 30 * 1000);
+      return () => clearInterval(timer);
     }
-  }
+  }, [autoUpdate]);
 
-  render() {
-    return <span title={this.state.title} data-test="TimeAgo">{this.state.value}</span>;
-  }
+  return (
+    <Tooltip title={title}>
+      <span data-test="TimeAgo">{value}</span>
+    </Tooltip>
+  );
 }
+
+TimeAgo.propTypes = {
+  // `date` and `placeholder` used in `getDerivedStateFromProps`
+  // eslint-disable-next-line react/no-unused-prop-types
+  date: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+    PropTypes.instanceOf(Date),
+    Moment,
+  ]),
+  // eslint-disable-next-line react/no-unused-prop-types
+  placeholder: PropTypes.string,
+  autoUpdate: PropTypes.bool,
+};
+
+TimeAgo.defaultProps = {
+  date: null,
+  placeholder: '',
+  autoUpdate: true,
+};
 
 export default function init(ngModule) {
   ngModule.directive('amTimeAgo', () => ({
-    link($scope, element, attr) {
+    link($scope, $element, attr) {
       const modelName = attr.amTimeAgo;
       $scope.$watch(modelName, (value) => {
-        ReactDOM.render(<TimeAgo date={value} />, element[0]);
+        ReactDOM.render(<TimeAgo date={value} />, $element[0]);
+      });
+
+      $scope.$on('$destroy', () => {
+        ReactDOM.unmountComponentAtNode($element[0]);
       });
     },
   }));
@@ -90,6 +77,10 @@ export default function init(ngModule) {
       $scope.$watch('$ctrl.value', () => {
         // Initial render will occur here as well
         ReactDOM.render(<TimeAgo date={this.value} placeholder="-" />, $element[0]);
+      });
+
+      $scope.$on('$destroy', () => {
+        ReactDOM.unmountComponentAtNode($element[0]);
       });
     },
   });

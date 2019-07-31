@@ -35,9 +35,11 @@ from redash.handlers.queries import (MyQueriesResource, QueryArchiveResource,
                                      QueryForkResource, QueryListResource,
                                      QueryRecentResource, QueryRefreshResource,
                                      QueryResource, QuerySearchResource,
-                                     QueryTagsResource)
+                                     QueryTagsResource,
+                                     QueryRegenerateApiKeyResource)
 from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
+                                           QueryDropdownsResource,
                                            QueryResultListResource,
                                            QueryResultResource)
 from redash.handlers.query_snippets import (QuerySnippetListResource,
@@ -114,12 +116,16 @@ api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries'
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
 api.add_org_resource(QueryForkResource, '/api/queries/<query_id>/fork', endpoint='query_fork')
+api.add_org_resource(QueryRegenerateApiKeyResource,
+                     '/api/queries/<query_id>/regenerate_api_key',
+                     endpoint='query_regenerate_api_key')
 
 api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_id>/acl', endpoint='object_permissions')
 api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
 api.add_org_resource(QueryResultDropdownResource, '/api/queries/<query_id>/dropdown', endpoint='query_result_dropdown')
+api.add_org_resource(QueryDropdownsResource, '/api/queries/<query_id>/dropdowns/<dropdown_query_id>', endpoint='query_result_dropdowns')
 api.add_org_resource(QueryResultResource,
                      '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',
@@ -127,7 +133,10 @@ api.add_org_resource(QueryResultResource,
                      '/api/queries/<query_id>/results.<filetype>',
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
                      endpoint='query_result')
-api.add_org_resource(JobResource, '/api/jobs/<job_id>', endpoint='job')
+api.add_org_resource(JobResource,
+                     '/api/jobs/<job_id>',
+                     '/api/queries/<query_id>/jobs/<job_id>',
+                     endpoint='job')
 
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')

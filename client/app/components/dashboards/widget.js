@@ -1,6 +1,7 @@
 import { filter } from 'lodash';
+import { angular2react } from 'angular2react';
 import template from './widget.html';
-import editTextBoxTemplate from './edit-text-box.html';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
@@ -18,50 +19,18 @@ const WidgetDialog = {
   },
 };
 
-const EditTextBoxComponent = {
-  template: editTextBoxTemplate,
-  bindings: {
-    resolve: '<',
-    close: '&',
-    dismiss: '&',
-  },
-  controller(toastr) {
-    'ngInject';
-
-    this.saveInProgress = false;
-    this.widget = this.resolve.widget;
-    this.saveWidget = () => {
-      this.saveInProgress = true;
-      if (this.widget.new_text !== this.widget.existing_text) {
-        this.widget.text = this.widget.new_text;
-        this.widget
-          .save()
-          .then(() => {
-            this.close();
-          })
-          .catch(() => {
-            toastr.error('Widget can not be updated');
-          })
-          .finally(() => {
-            this.saveInProgress = false;
-          });
-      } else {
-        this.close();
-      }
-    };
-  },
-};
+export let DashboardWidget = null; // eslint-disable-line import/no-mutable-exports
 
 function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
-    this.widget.existing_text = this.widget.text;
-    this.widget.new_text = this.widget.text;
-    $uibModal.open({
-      component: 'editTextBox',
-      resolve: {
-        widget: this.widget,
+    TextboxDialog.showModal({
+      dashboard: this.dashboard,
+      text: this.widget.text,
+      onConfirm: (text) => {
+        this.widget.text = text;
+        return this.widget.save();
       },
     });
   };
@@ -140,19 +109,24 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
   }
 }
 
+const DashboardWidgetOptions = {
+  template,
+  controller: DashboardWidgetCtrl,
+  bindings: {
+    widget: '<',
+    public: '<',
+    dashboard: '<',
+    filters: '<',
+    deleted: '<',
+  },
+};
+
 export default function init(ngModule) {
-  ngModule.component('editTextBox', EditTextBoxComponent);
   ngModule.component('widgetDialog', WidgetDialog);
-  ngModule.component('dashboardWidget', {
-    template,
-    controller: DashboardWidgetCtrl,
-    bindings: {
-      widget: '<',
-      public: '<',
-      dashboard: '<',
-      deleted: '&onDelete',
-    },
-  });
+  ngModule.component('dashboardWidget', DashboardWidgetOptions);
+  ngModule.run(['$injector', ($injector) => {
+    DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, $injector);
+  }]);
 }
 
 init.init = true;

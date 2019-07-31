@@ -192,3 +192,11 @@ def to_filename(s):
     s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
     s = re.sub("\s+", "_", s, flags=re.UNICODE)
     return s.strip("_")
+
+
+def deprecated():
+    def wrapper(K):
+        setattr(K, 'deprecated', True)
+        return K
+
+    return wrapper
