@@ -2,26 +2,13 @@ import { filter } from 'lodash';
 import { angular2react } from 'angular2react';
 import template from './widget.html';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
-import widgetDialogTemplate from './widget-dialog.html';
+import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
-import './widget-dialog.less';
-
-const WidgetDialog = {
-  template: widgetDialogTemplate,
-  bindings: {
-    resolve: '<',
-    close: '&',
-    dismiss: '&',
-  },
-  controller() {
-    this.widget = this.resolve.widget;
-  },
-};
 
 export let DashboardWidget = null; // eslint-disable-line import/no-mutable-exports
 
-function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
+function DashboardWidgetCtrl($scope, $location, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -36,13 +23,7 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
   };
 
   this.expandVisualization = () => {
-    $uibModal.open({
-      component: 'widgetDialog',
-      resolve: {
-        widget: this.widget,
-      },
-      size: 'lg',
-    });
+    ExpandWidgetDialog.showModal({ widget: this.widget });
   };
 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
@@ -125,7 +106,6 @@ const DashboardWidgetOptions = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('widgetDialog', WidgetDialog);
   ngModule.component('dashboardWidget', DashboardWidgetOptions);
   ngModule.run(['$injector', ($injector) => {
     DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, $injector);
