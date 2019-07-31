@@ -524,9 +524,19 @@ describe('Parameter', () => {
         .as('paramWidth');
     });
 
+    const dragParam = (paramName, offsetLeft, offsetTop) => {
+      cy.getByTestId(`DragHandle-${paramName}`)
+        .trigger('mouseover')
+        .trigger('mousedown');
+
+      cy.get('.parameter-dragged .drag-handle')
+        .trigger('mousemove', offsetLeft, offsetTop, { force: true })
+        .trigger('mouseup', { force: true });
+    };
+
     it('is possible to rearrange parameters', function () {
-      cy.getByTestId('DragHandle-param1').dragBy(this.paramWidth, 0, true); // swap param1 and param2
-      cy.getByTestId('DragHandle-param4').dragBy(-this.paramWidth, 0, true); // swap param4 and param3
+      dragParam('param1', this.paramWidth, 1);
+      dragParam('param4', -this.paramWidth, 1);
 
       cy.reload();
 
