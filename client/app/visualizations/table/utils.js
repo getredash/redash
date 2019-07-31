@@ -82,11 +82,9 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
       align: column.alignContent,
       title: (
         <React.Fragment>
-          <div className="table-visualization-heading">
-            <Tooltip placement="top" title={column.title}>
-              <span data-sort-column-index={sortColumnIndex}>{column.title}</span>
-            </Tooltip>
-          </div>
+          <Tooltip placement="top" title={column.title}>
+            <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>{column.title}</div>
+          </Tooltip>
           <div className="ant-table-column-sorter">
             <Icon
               className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}

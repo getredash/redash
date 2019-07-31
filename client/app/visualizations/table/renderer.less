@@ -16,20 +16,6 @@
     border-top: @border-width-base @border-style-base @border-color-split;
     border-bottom: 0;
 
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    thead {
-      .anticon.off {
-        opacity: 0;
-      }
-
-      &:hover .anticon.off {
-        opacity: 1;
-      }
-    }
-
     .display-as-number,
     .display-as-boolean,
     .display-as-datetime,
@@ -43,35 +29,44 @@
       padding-right: 0;
 
       & > div:before {
-        content: '' !important;
+        content: none !important;
       }
     }
 
-    th {
-      & > div:before {
-        content: '\00a0'; // &nbsp; - to preserve column height
-        display: inline-block;
-        min-width: 50px; // min-width of column contents
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    thead {
+      .anticon.off {
+        opacity: 0;
       }
 
-      .ant-input-search {
-        font-weight: normal;
+      &:hover .anticon.off {
+        opacity: 1;
+      }
 
-        .ant-input-suffix .anticon {
-          cursor: auto;
+      th {
+        .ant-input-search {
+          font-weight: normal;
+
+          .ant-input-suffix .anticon {
+            cursor: auto;
+          }
         }
-      }
 
-      .table-visualization-heading {
-        display: inline-block;
-        white-space: nowrap;
-        position: absolute;
-        left: 10px; // same as left padding
-        right: 30px; // same as right padding
+        // optimize room for th content
+        &.ant-table-column-has-actions.ant-table-column-has-sorters {
+          padding-right: 20px !important;
 
-        span {
+          .ant-table-column-sorter {
+            right: 3px;
+          }
+        }
+
+        .table-visualization-heading {
           display: inline-block;
-          max-width: 100%;
+          max-width: 100px;
           vertical-align: middle;
           white-space: nowrap;
           overflow: hidden;
