@@ -1,17 +1,18 @@
-@import (reference) "~bootstrap/less/variables.less";
+@import (reference, less) "~bootstrap/less/variables.less";
+@import (reference, less) "~@/assets/less/main.less";
 
 @jvi-gutter: 20px;
 @jvi-spacing: 2px;
+
+.jvi-root {
+  display: block;
+  font-family: @font-family-monospace;
+}
 
 .jvi-block {
   display: block;
   border-left: 1px dotted @table-border-color;
   margin: 0 0 0 2px;
-  font-family: @font-family-monospace;
-
-  &.hidden {
-    display: none;
-  }
 }
 
 .jvi-item {
@@ -100,6 +101,7 @@
 
 .jvi-comment {
   color: @text-muted;
+  font-family: @redash-font;
   font-style: italic;
   margin: 0 0 0 2 * @jvi-spacing;
   opacity: 0.5;
