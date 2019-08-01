@@ -69,11 +69,8 @@ export class Parameters extends React.Component {
   };
 
   handleKeyDown = (e) => {
-    const { parameters } = this.props;
-    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
-
     // Cmd/Ctrl/Alt + Enter
-    if (dirtyParamCount > 0 && e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
+    if (e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
       this.applyChanges();
     }
@@ -178,7 +175,12 @@ export class Parameters extends React.Component {
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
       >
-        <div className="parameter-container" onKeyDown={this.handleKeyDown} data-draggable={editable || null} data-dragging={dragging || null}>
+        <div
+          className="parameter-container"
+          onKeyDown={dirtyParamCount ? this.handleKeyDown : null}
+          data-draggable={editable || null}
+          data-dragging={dragging || null}
+        >
           {parameters.map((param, index) => (
             <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
               {this.renderParameter(param, index)}
