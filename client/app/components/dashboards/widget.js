@@ -89,11 +89,14 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
 
   this.load = (refresh = false) => {
     const maxAge = $location.search().maxAge;
-    this.widget.load(refresh, maxAge);
+    return this.widget.load(refresh, maxAge);
   };
 
-  this.refresh = () => {
-    this.load(true);
+  this.refresh = (buttonId) => {
+    this.refreshClickButtonId = buttonId;
+    this.load(true).finally(() => {
+      this.refreshClickButtonId = undefined;
+    });
   };
 
   if (this.widget.visualization) {
