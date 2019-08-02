@@ -19,6 +19,12 @@ const DYNAMIC_DATE_OPTIONS = [
     label: () => getDynamicDate('d_yesterday').value().format('MMM D') },
 ];
 
+function stopEnterKeyPropagation(e) {
+  if (e.keyCode === 13) {
+    e.stopPropagation();
+  }
+}
+
 class DateParameter extends React.Component {
   static propTypes = {
     type: PropTypes.string,
@@ -35,6 +41,8 @@ class DateParameter extends React.Component {
     parameter: null,
     onSelect: () => {},
   };
+
+  state = { calendarOpen: false };
 
   constructor(props) {
     super(props);
@@ -57,8 +65,11 @@ class DateParameter extends React.Component {
     this.dateComponentRef.current.focus();
   };
 
+  onOpenChange = status => this.setState({ calendarOpen: status });
+
   render() {
     const { type, value, className, onSelect } = this.props;
+    const { calendarOpen } = this.state;
     const hasDynamicValue = isDynamicDate(value);
     const isDateTime = includes(type, 'datetime');
 
@@ -83,20 +94,23 @@ class DateParameter extends React.Component {
     }
 
     return (
-      <DateComponent
-        ref={this.dateComponentRef}
-        className={classNames('redash-datepicker', { 'dynamic-value': hasDynamicValue }, className)}
-        onSelect={onSelect}
-        suffixIcon={(
-          <DynamicButton
-            options={DYNAMIC_DATE_OPTIONS}
-            selectedDynamicValue={hasDynamicValue ? value : null}
-            enabled={hasDynamicValue}
-            onSelect={this.onDynamicValueSelect}
-          />
-        )}
-        {...additionalAttributes}
-      />
+      <div className="di-block" onKeyDown={calendarOpen ? stopEnterKeyPropagation : null}>
+        <DateComponent
+          ref={this.dateComponentRef}
+          className={classNames('redash-datepicker', { 'dynamic-value': hasDynamicValue }, className)}
+          onSelect={onSelect}
+          onOpenChange={this.onOpenChange}
+          suffixIcon={(
+            <DynamicButton
+              options={DYNAMIC_DATE_OPTIONS}
+              selectedDynamicValue={hasDynamicValue ? value : null}
+              enabled={hasDynamicValue}
+              onSelect={this.onDynamicValueSelect}
+            />
+          )}
+          {...additionalAttributes}
+        />
+      </div>
     );
   }
 }
