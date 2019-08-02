@@ -1,17 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
 import { clientConfig } from '@/services/auth';
 import { Moment } from '@/components/proptypes';
 
-export function DateInput({
+const DateInput = React.forwardRef(({
   defaultValue,
   value,
   onSelect,
   className,
   ...props
-}) {
+}, ref) => {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
   if (defaultValue && defaultValue.isValid()) {
@@ -22,6 +21,7 @@ export function DateInput({
   }
   return (
     <DatePicker
+      ref={ref}
       className={className}
       {...additionalAttributes}
       format={format}
@@ -30,7 +30,7 @@ export function DateInput({
       {...props}
     />
   );
-}
+});
 
 DateInput.propTypes = {
   defaultValue: Moment,
@@ -46,8 +46,4 @@ DateInput.defaultProps = {
   className: '',
 };
 
-export default function init(ngModule) {
-  ngModule.component('dateInput', react2angular(DateInput));
-}
-
-init.init = true;
+export default DateInput;

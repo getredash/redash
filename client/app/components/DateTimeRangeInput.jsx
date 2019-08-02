@@ -1,21 +1,20 @@
 import { isArray } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
 import { clientConfig } from '@/services/auth';
 import { Moment } from '@/components/proptypes';
 
 const { RangePicker } = DatePicker;
 
-export function DateTimeRangeInput({
+const DateTimeRangeInput = React.forwardRef(({
   defaultValue,
   value,
   withSeconds,
   onSelect,
   className,
   ...props
-}) {
+}, ref) => {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
   const additionalAttributes = {};
@@ -27,6 +26,7 @@ export function DateTimeRangeInput({
   }
   return (
     <RangePicker
+      ref={ref}
       className={className}
       showTime
       {...additionalAttributes}
@@ -35,7 +35,7 @@ export function DateTimeRangeInput({
       {...props}
     />
   );
-}
+});
 
 DateTimeRangeInput.propTypes = {
   defaultValue: PropTypes.arrayOf(Moment),
@@ -53,8 +53,4 @@ DateTimeRangeInput.defaultProps = {
   className: '',
 };
 
-export default function init(ngModule) {
-  ngModule.component('dateTimeRangeInput', react2angular(DateTimeRangeInput));
-}
-
-init.init = true;
+export default DateTimeRangeInput;
