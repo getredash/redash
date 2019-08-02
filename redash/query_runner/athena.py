@@ -123,7 +123,6 @@ class Athena(BaseQueryRunner):
             schema['order'].insert(1, 'aws_access_key')
             schema['order'].insert(2, 'aws_secret_key')
 
-
         if not OPTIONAL_CREDENTIALS and not ASSUME_ROLE:
                 schema['required'] += ['aws_access_key', 'aws_secret_key']
 
@@ -163,8 +162,6 @@ class Athena(BaseQueryRunner):
                 'aws_session_token': None,
                 'region_name': self.configuration['region']
             }
-
-
 
     def __get_schema_from_glue(self):
         client = boto3.client('glue', **self._get_iam_credentials())
