@@ -36,6 +36,21 @@ def dropdown_values(query_id):
     return map(pluck, data["rows"])
 
 
+def join_parameter_list_values(parameters, schema):
+    updated_parameters = {}
+    for (key, value) in parameters.iteritems():
+        if isinstance(value, list):
+            definition = next((definition for definition in schema if definition["name"] == key), {})
+            multi_values_options = definition.get('multiValuesOptions', {})
+            separator = str(multi_values_options.get('separator', ','))
+            prefix = str(multi_values_options.get('prefix', ''))
+            suffix = str(multi_values_options.get('suffix', ''))
+            updated_parameters[key] = separator.join(map(lambda v: prefix + v + suffix, value))
+        else:
+            updated_parameters[key] = value
+    return updated_parameters
+
+
 def _collect_key_names(nodes):
     keys = []
     for node in nodes._parse_tree:
@@ -92,6 +107,12 @@ def _is_date_range(obj):
         return False
 
 
+def _is_value_within_options(value, dropdown_options, allow_list=False):
+    if isinstance(value, list):
+        return allow_list and set(map(unicode, value)).issubset(set(dropdown_options))
+    return unicode(value) in dropdown_options
+
+
 class ParameterizedQuery(object):
     def __init__(self, template, schema=None):
         self.schema = schema or []
@@ -105,7 +126,7 @@ class ParameterizedQuery(object):
             raise InvalidParameterError(invalid_parameter_names)
         else:
             self.parameters.update(parameters)
-            self.query = mustache_render(self.template, self.parameters)
+            self.query = mustache_render(self.template, join_parameter_list_values(parameters, self.schema))
 
         return self
 
@@ -118,11 +139,22 @@ class ParameterizedQuery(object):
         if not definition:
             return False
 
+        enum_options = definition.get('enumOptions')
+        query_id = definition.get('queryId')
+        allow_multiple_values = isinstance(definition.get('multiValuesOptions'), dict)
+
+        if isinstance(enum_options, basestring):
+            enum_options = enum_options.split('\n')
+
         validators = {
             "text": lambda value: isinstance(value, basestring),
             "number": _is_number,
-            "enum": lambda value: value in definition["enumOptions"],
-            "query": lambda value: unicode(value) in [v["value"] for v in dropdown_values(definition["queryId"])],
+            "enum": lambda value: _is_value_within_options(value,
+                                                           enum_options,
+                                                           allow_multiple_values),
+            "query": lambda value: _is_value_within_options(value,
+                                                            [v["value"] for v in dropdown_values(query_id)],
+                                                            allow_multiple_values),
             "date": _is_date,
             "datetime-local": _is_date,
             "datetime-with-seconds": _is_date,

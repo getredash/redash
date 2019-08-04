@@ -13,6 +13,12 @@ import './ParameterValueInput.less';
 
 const { Option } = Select;
 
+const multipleValuesProps = {
+  maxTagCount: 3,
+  maxTagTextLength: 10,
+  maxTagPlaceholder: num => `+${num.length} more`,
+};
+
 export class ParameterValueInput extends React.Component {
   static propTypes = {
     type: PropTypes.string,
@@ -20,6 +26,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    allowMultipleValues: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -30,6 +37,7 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
+    allowMultipleValues: false,
     onSelect: () => {},
     className: '',
   };
@@ -88,20 +96,23 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { value, enumOptions } = this.props;
+    const { enumOptions, allowMultipleValues } = this.props;
+    const { value } = this.state;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
         className={this.props.className}
+        mode={allowMultipleValues ? 'multiple' : 'default'}
+        optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
-        defaultValue={value}
+        value={value}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
-        style={{ minWidth: 60 }}
-        optionFilterProp="children"
+        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
         notFoundContent={null}
+        {...multipleValuesProps}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
       </Select>
@@ -109,15 +120,19 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter } = this.props;
+    const { queryId, parameter, allowMultipleValues } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
+        mode={allowMultipleValues ? 'multiple' : 'default'}
+        optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}
+        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        {...multipleValuesProps}
       />
     );
   }
@@ -187,6 +202,7 @@ export default function init(ngModule) {
         parameter="$ctrl.param"
         enum-options="$ctrl.param.enumOptions"
         query-id="$ctrl.param.queryId"
+        allow-multiple-values="!!$ctrl.param.multiValuesOptions"
         on-select="$ctrl.setValue"
       ></parameter-value-input-impl>
     `,
