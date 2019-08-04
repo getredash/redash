@@ -119,6 +119,18 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "shlomo"})
 
+    def test_raises_on_unlisted_enum_list_value_parameters(self):
+        schema = [{
+            "name": "bar",
+            "type": "enum",
+            "enumOptions": ["baz", "qux"],
+            "multiValuesOptions": {"separator": ",", "prefix": "", "suffix": ""}
+        }]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": ["shlomo", "baz"]})
+
     def test_validates_enum_parameters(self):
         schema = [{"name": "bar", "type": "enum", "enumOptions": ["baz", "qux"]}]
         query = ParameterizedQuery("foo {{bar}}", schema)
@@ -126,6 +138,19 @@ class TestParameterizedQuery(TestCase):
         query.apply({"bar": "baz"})
 
         self.assertEquals("foo baz", query.text)
+
+    def test_validates_enum_list_value_parameters(self):
+        schema = [{
+            "name": "bar",
+            "type": "enum",
+            "enumOptions": ["baz", "qux"],
+            "multiValuesOptions": {"separator": ",", "prefix": "'", "suffix": "'"}
+        }]
+        query = ParameterizedQuery("foo {{bar}}", schema)
+
+        query.apply({"bar": ["qux", "baz"]})
+
+        self.assertEquals("foo 'qux','baz'", query.text)
 
     @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "1"}])
     def test_validation_accepts_integer_values_for_dropdowns(self, _):

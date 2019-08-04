@@ -2,6 +2,7 @@
 import { includes, words, capitalize, clone, isNull } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import Checkbox from 'antd/lib/checkbox';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
@@ -21,6 +22,13 @@ function getDefaultTitle(text) {
 
 function isTypeDateRange(type) {
   return /-range/.test(type);
+}
+
+function joinExampleList(multiValuesOptions) {
+  const { prefix, suffix } = multiValuesOptions;
+  return ['value1', 'value2', 'value3']
+    .map(value => `${prefix}${value}${suffix}`)
+    .join(',');
 }
 
 function NameInput({ name, type, onChange, existingNames, setValidation }) {
@@ -183,6 +191,48 @@ function EditParameterSettingsDialog(props) {
               onChange={q => setParam({ ...param, queryId: q && q.id })}
               type="select"
             />
+          </Form.Item>
+        )}
+        {(param.type === 'enum' || param.type === 'query') && (
+          <Form.Item className="m-b-0" label=" " colon={false} {...formItemProps}>
+            <Checkbox
+              defaultChecked={!!param.multiValuesOptions}
+              onChange={e => setParam({ ...param,
+                multiValuesOptions: e.target.checked ? {
+                  prefix: '',
+                  suffix: '',
+                  separator: ',',
+                } : null })}
+              data-test="AllowMultipleValuesCheckbox"
+            >
+            Allow multiple values
+            </Checkbox>
+          </Form.Item>
+        )}
+        {(param.type === 'enum' || param.type === 'query') && param.multiValuesOptions && (
+          <Form.Item
+            label="Quotation"
+            help={(
+              <React.Fragment>
+                Placed in query as: <code>{joinExampleList(param.multiValuesOptions)}</code>
+              </React.Fragment>
+            )}
+            {...formItemProps}
+          >
+            <Select
+              value={param.multiValuesOptions.prefix}
+              onChange={quoteOption => setParam({ ...param,
+                multiValuesOptions: {
+                  ...param.multiValuesOptions,
+                  prefix: quoteOption,
+                  suffix: quoteOption,
+                } })}
+              data-test="QuotationSelect"
+            >
+              <Option value="">None (default)</Option>
+              <Option value="'">Single Quotation Mark</Option>
+              <Option value={'"'} data-test="DoubleQuotationMarkOption">Double Quotation Mark</Option>
+            </Select>
           </Form.Item>
         )}
       </Form>
