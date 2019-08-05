@@ -4,8 +4,8 @@ import classNames from 'classnames';
 import moment from 'moment';
 import { includes, isArray, isObject } from 'lodash';
 import { isDynamicDateRange, getDynamicDateRange } from '@/services/query';
-import { DateRangeInput } from '@/components/DateRangeInput';
-import { DateTimeRangeInput } from '@/components/DateTimeRangeInput';
+import DateRangeInput from '@/components/DateRangeInput';
+import DateTimeRangeInput from '@/components/DateTimeRangeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
 
 import './DynamicParameters.less';
@@ -65,6 +65,11 @@ class DateRangeParameter extends React.Component {
     onSelect: () => {},
   };
 
+  constructor(props) {
+    super(props);
+    this.dateRangeComponentRef = React.createRef();
+  }
+
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
@@ -77,6 +82,8 @@ class DateRangeParameter extends React.Component {
     } else {
       onSelect(dynamicValue.value);
     }
+    // give focus to the DatePicker to get keyboard shortcuts to work
+    this.dateRangeComponentRef.current.focus();
   };
 
   render() {
@@ -107,6 +114,7 @@ class DateRangeParameter extends React.Component {
 
     return (
       <DateRangeComponent
+        ref={this.dateRangeComponentRef}
         className={classNames('redash-datepicker date-range-input', { 'dynamic-value': hasDynamicValue }, className)}
         onSelect={onSelect}
         style={{ width: hasDynamicValue ? 195 : widthByType[type] }}

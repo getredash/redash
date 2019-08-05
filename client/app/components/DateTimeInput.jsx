@@ -1,18 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
 import { clientConfig } from '@/services/auth';
 import { Moment } from '@/components/proptypes';
 
-export function DateTimeInput({
+const DateTimeInput = React.forwardRef(({
   defaultValue,
   value,
   withSeconds,
   onSelect,
   className,
   ...props
-}) {
+}, ref) => {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
   const additionalAttributes = {};
@@ -24,6 +23,7 @@ export function DateTimeInput({
   }
   return (
     <DatePicker
+      ref={ref}
       className={className}
       showTime
       {...additionalAttributes}
@@ -33,7 +33,7 @@ export function DateTimeInput({
       {...props}
     />
   );
-}
+});
 
 DateTimeInput.propTypes = {
   defaultValue: Moment,
@@ -51,8 +51,4 @@ DateTimeInput.defaultProps = {
   className: '',
 };
 
-export default function init(ngModule) {
-  ngModule.component('dateTimeInput', react2angular(DateTimeInput));
-}
-
-init.init = true;
+export default DateTimeInput;
