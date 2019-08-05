@@ -1,5 +1,5 @@
 <counter
-  ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}"
+  ng-class="{'positive': showTrend && trendPositive, 'negative': showTrend && !trendPositive}"
   resize-event="handleResize()"
 >
   <div ng-style="{
@@ -9,9 +9,8 @@
     '-webkit-transform': 'scale(' + scale + ')',
     'transform': 'scale(' + scale + ')'
   }">
-    <value ng-if="isNumber">{{stringPrefix}}{{counterValue | number}}{{stringSuffix}}</value>
-    <value ng-if="!isNumber">{{stringPrefix}}{{counterValue}}{{stringSuffix}}</value>
-    <counter-target ng-if="targetValue" title="({{targetValue | number}})">({{targetValue | number}})</counter-target>
+    <value title="{{ counterValueTooltip }}">{{ counterValue }}</value>
+    <counter-target ng-if="targetValue" title="{{ targetValueTooltip }}">({{ targetValue }})</counter-target>
     <counter-name>{{counterLabel}}</counter-name>
   </div>
 </counter>

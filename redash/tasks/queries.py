@@ -193,7 +193,7 @@ def refresh_queries():
                 if query.options and len(query.options.get('parameters', [])) > 0:
                     query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
-                    query_text = mustache_render(query.query_text, query_params)
+                    query_text = query.parameterized.apply(query_params).query
                 else:
                     query_text = query.query_text
 

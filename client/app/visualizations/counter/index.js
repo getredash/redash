@@ -1,5 +1,5 @@
-import numberFormat from 'underscore.string/numberFormat';
-import { isNumber } from 'lodash';
+import { isNumber, toString } from 'lodash';
+import numeral from 'numeral';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
@@ -14,7 +14,50 @@ const DEFAULT_OPTIONS = {
   stringDecimal: 0,
   stringDecChar: '.',
   stringThouSep: ',',
+  tooltipFormat: '0,0.000', // TODO: Show in editor
 };
+
+// TODO: allow user to specify number format string instead of delimiters only
+// It will allow to remove this function (move all that weird formatting logic to a migration
+// that will set number format for all existing counter visualization)
+function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter) {
+  // Temporarily update locale data (restore defaults after formatting)
+  const locale = numeral.localeData();
+  const savedDelimiters = locale.delimiters;
+
+  // Mimic old behavior - AngularJS `number` filter defaults:
+  // - `,` as thousands delimiter
+  // - `.` as decimal delimiter
+  // - three decimal points
+  locale.delimiters = {
+    thousands: ',',
+    decimal: '.',
+  };
+  let formatString = '0,0.000';
+  if (
+    (Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
+    decimalDelimiter ||
+    thousandsDelimiter
+  ) {
+    locale.delimiters = {
+      thousands: thousandsDelimiter,
+      decimal: decimalDelimiter || '.',
+    };
+
+    formatString = '0,0';
+    if (decimalPoints > 0) {
+      formatString += '.';
+      while (decimalPoints > 0) {
+        formatString += '0';
+        decimalPoints -= 1;
+      }
+    }
+  }
+  const result = numeral(value).format(formatString);
+
+  locale.delimiters = savedDelimiters;
+  return result;
+}
 
 // TODO: Need to review this function, it does not properly handle edge cases.
 function getRowNumber(index, size) {
@@ -27,6 +70,21 @@ function getRowNumber(index, size) {
   }
 
   return size + index;
+}
+
+function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
+  if (isNumber(value)) {
+    value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
+    return toString(stringPrefix) + value + toString(stringSuffix);
+  }
+  return toString(value);
+}
+
+function formatTooltip(value, formatString) {
+  if (isNumber(value)) {
+    return numeral(value).format(formatString);
+  }
+  return toString(value);
 }
 
 const CounterRenderer = {
@@ -69,33 +127,25 @@ const CounterRenderer = {
         } else if (counterColName) {
           $scope.counterValue = data[rowNumber][counterColName];
         }
+
+        $scope.showTrend = false;
         if (targetColName) {
           $scope.targetValue = data[targetRowNumber][targetColName];
 
-          if ($scope.targetValue) {
-            $scope.delta = $scope.counterValue - $scope.targetValue;
-            $scope.trendPositive = $scope.delta >= 0;
+          if (Number.isFinite($scope.counterValue) && Number.isFinite($scope.targetValue)) {
+            const delta = $scope.counterValue - $scope.targetValue;
+            $scope.showTrend = true;
+            $scope.trendPositive = delta >= 0;
           }
         } else {
           $scope.targetValue = null;
         }
 
-        $scope.isNumber = isNumber($scope.counterValue);
-        if ($scope.isNumber) {
-          $scope.stringPrefix = options.stringPrefix;
-          $scope.stringSuffix = options.stringSuffix;
+        $scope.counterValueTooltip = formatTooltip($scope.counterValue, options.tooltipFormat);
+        $scope.targetValueTooltip = formatTooltip($scope.targetValue, options.tooltipFormat);
 
-          const stringDecimal = options.stringDecimal;
-          const stringDecChar = options.stringDecChar;
-          const stringThouSep = options.stringThouSep;
-          if (stringDecimal || stringDecChar || stringThouSep) {
-            $scope.counterValue = numberFormat($scope.counterValue, stringDecimal, stringDecChar, stringThouSep);
-            $scope.isNumber = false;
-          }
-        } else {
-          $scope.stringPrefix = null;
-          $scope.stringSuffix = null;
-        }
+        $scope.counterValue = formatValue($scope.counterValue, options);
+        $scope.targetValue = formatValue($scope.targetValue, options);
       }
 
       $timeout(() => {

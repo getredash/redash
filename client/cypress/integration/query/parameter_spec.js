@@ -121,7 +121,7 @@ describe('Parameter', () => {
       };
 
       createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}`));
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     it('updates the results after selecting a value', () => {
@@ -129,14 +129,43 @@ describe('Parameter', () => {
         .find('.ant-select')
         .click();
 
-      cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+      cy.contains('li.ant-select-dropdown-menu-item', 'value2')
         .click();
 
       cy.getByTestId('ParameterApplyButton')
         .click();
 
       cy.getByTestId('TableVisualization')
-        .should('contain', 'value1');
+        .should('contain', 'value2');
+    });
+
+    it('supports multi-selection', () => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        AllowMultipleValuesCheckbox
+        QuotationSelect
+        DoubleQuotationMarkOption
+        SaveParameterSettings
+      `);
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-select')
+        .click();
+
+      // select all unselected options
+      cy.get('li.ant-select-dropdown-menu-item').each(($option) => {
+        if (!$option.hasClass('ant-select-dropdown-menu-item-selected')) {
+          cy.wrap($option).click();
+        }
+      });
+
+      cy.getByTestId('QueryEditor').click(); // just to close the select menu
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('TableVisualization')
+        .should('contain', '"value1","value2","value3"');
     });
 
     it('sets dirty state when edited', () => {
@@ -145,7 +174,7 @@ describe('Parameter', () => {
           .find('.ant-select')
           .click();
 
-        cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+        cy.contains('li.ant-select-dropdown-menu-item', 'value2')
           .click();
       });
     });
