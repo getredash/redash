@@ -1,6 +1,6 @@
 import moment from 'moment/moment';
 import numeral from 'numeral';
-import { isString, isArray, isUndefined, isNil } from 'lodash';
+import { isString, isArray, isUndefined, isNil, toString } from 'lodash';
 
 numeral.options.scalePercentBy100 = false;
 
@@ -15,10 +15,10 @@ export function createTextFormatter(highlightLinks) {
       if (isString(value)) {
         value = value.replace(urlPattern, '$1<a href="$2" target="_blank">$2</a>');
       }
-      return value;
+      return toString(value);
     };
   }
-  return value => value;
+  return value => toString(value);
 }
 
 export function createDateTimeFormatter(format) {
@@ -27,10 +27,10 @@ export function createDateTimeFormatter(format) {
       if (value && moment.isMoment(value)) {
         return value.format(format);
       }
-      return value;
+      return toString(value);
     };
   }
-  return value => value;
+  return value => toString(value);
 }
 
 export function createBooleanFormatter(values) {
@@ -61,7 +61,7 @@ export function createNumberFormatter(format) {
     const n = numeral(0); // cache `numeral` instance
     return value => (value === null || value === '' ? '' : n.set(value).format(format));
   }
-  return value => value;
+  return value => toString(value);
 }
 
 export function createFormatter(column) {
