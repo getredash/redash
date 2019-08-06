@@ -110,6 +110,7 @@ export class ParameterValueInput extends React.Component {
         dropdownMatchSelectWidth={false}
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
+        showArrow
         style={{ minWidth: allowMultipleValues ? 195 : 60 }}
         notFoundContent={null}
         {...multipleValuesProps}
