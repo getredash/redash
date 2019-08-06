@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
+import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
 import HtmlContent from '@/components/HtmlContent';
-import Button from 'antd/lib/button';
-import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
+import { Parameters } from '@/components/Parameters';
+import { Timer } from '@/components/Timer';
+import QueryLink from '@/components/QueryLink';
+
+import './widget.less';
 
 class Widget extends React.Component {
   static propTypes = {
@@ -51,11 +54,46 @@ class Widget extends React.Component {
 
   renderVisualization() {
     const { widget } = this.props;
+    const localParameters = filter(
+      widget.getParametersDefs(),
+      param => !widget.isStaticParam(param),
+    );
 
     return (
-      <div
-        className="tile body-container widget-visualization visualization"
-      />
+      <div className="tile body-container widget-visualization visualization">
+        <div className="body-row widget-header">
+          <div className="t-header widget clearfix">
+            <div className="refresh-indicator" ng-if="$ctrl.widget.loading">
+              <div className="refresh-icon">
+                <i className="zmdi zmdi-refresh zmdi-hc-spin" />
+              </div>
+              <Timer from={widget.refreshStartedAt} />
+            </div>
+            <div className="th-title">
+              <p>
+                {/* TODO: add readOnly rule */}
+                <QueryLink query={widget.getQuery()} visualization={widget.visualization} />
+              </p>
+              <div className="text-muted query--description">
+                <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
+                  {markdown.toHTML(widget.getQuery().description || '')}
+                </HtmlContent>
+              </div>
+            </div>
+          </div>
+          {!isEmpty(localParameters) && (
+            <div className="m-b-10">
+              <Parameters parameters={localParameters} />
+            </div>
+          )}
+        </div>
+        <div className="body-row-auto spinner-container">
+          <div className="spinner">
+            <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
+          </div>
+        </div>
+        <div className="body-row clearfix tile__bottom-control" />
+      </div>
     );
   }
 
@@ -65,7 +103,8 @@ class Widget extends React.Component {
     return (
       <div className="widget-wrapper">
         {widget.visualization && this.renderVisualization()}
-        {widget.restricted ? this.renderRestrictedError() : this.renderTextbox()}
+        {(!widget.visualization && widget.restricted) && this.renderRestrictedError()}
+        {(!widget.visualization && !widget.restricted) && this.renderTextbox()}
       </div>
     );
   }
