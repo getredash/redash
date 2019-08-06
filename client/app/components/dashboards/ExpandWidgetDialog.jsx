@@ -1,18 +1,21 @@
-
 import React from 'react';
 import PropTypes from 'prop-types';
-import { get } from 'lodash';
 import Button from 'antd/lib/button';
 import Modal from 'antd/lib/modal';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
+import { VisualizationName } from '@/visualizations/VisualizationName';
 
 function ExpandWidgetDialog({ dialog, widget }) {
-  const visualizationName = get(widget, 'visualization.name');
   return (
     <Modal
       {...dialog.props}
-      title={visualizationName}
+      title={(
+        <React.Fragment>
+          <VisualizationName visualization={widget.visualization} />
+          <span>{widget.getQuery().name}</span>
+        </React.Fragment>
+      )}
       width={900}
       footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
     >
