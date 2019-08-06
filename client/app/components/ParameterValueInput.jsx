@@ -111,7 +111,7 @@ export class ParameterValueInput extends React.Component {
         dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
         showArrow
-        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        style={{ minWidth: 60 }}
         notFoundContent={null}
         {...multipleValuesProps}
       >
@@ -132,7 +132,7 @@ export class ParameterValueInput extends React.Component {
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}
-        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        style={{ minWidth: 60 }}
         {...multipleValuesProps}
       />
     );
