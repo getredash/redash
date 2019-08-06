@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { isFunction, get, findIndex } from 'lodash';
 import Dropdown from 'antd/lib/dropdown';
@@ -35,23 +35,28 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
     </Menu>
   );
 
+  const containerRef = useRef(null);
+
   return (
-    <a onClick={e => e.stopPropagation()}>
-      <Dropdown.Button
-        overlay={menu}
-        className="dynamic-button"
-        placement="bottomRight"
-        trigger={['click']}
-        icon={(
-          <Icon
-            type="thunderbolt"
-            theme={enabled ? 'twoTone' : 'outlined'}
-            className="dynamic-icon"
-          />
-        )}
-        data-test="DynamicButton"
-      />
-    </a>
+    <div ref={containerRef}>
+      <a onClick={e => e.stopPropagation()}>
+        <Dropdown.Button
+          overlay={menu}
+          className="dynamic-button"
+          placement="bottomRight"
+          trigger={['click']}
+          icon={(
+            <Icon
+              type="thunderbolt"
+              theme={enabled ? 'twoTone' : 'outlined'}
+              className="dynamic-icon"
+            />
+            )}
+          getPopupContainer={() => containerRef.current}
+          data-test="DynamicButton"
+        />
+      </a>
+    </div>
   );
 }
 

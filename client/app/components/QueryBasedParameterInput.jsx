@@ -84,6 +84,7 @@ export class QueryBasedParameterInput extends React.Component {
           dropdownClassName="ant-dropdown-in-bootstrap-modal"
           optionFilterProp="children"
           showSearch
+          showArrow
           notFoundContent={null}
           {...otherProps}
         >
