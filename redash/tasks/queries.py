@@ -201,7 +201,9 @@ def refresh_queries():
                         logging.info("Skipping refresh of %s because of invalid parameters: %s", query.id, e.message)
                         continue
                     except QueryDetachedFromDataSourceError as e:
-                        logging.info("Skipping refresh of %s because a related dropdown query (%s) is unattached to any datasource.", query.id, e.query_id)
+                        logging.info(
+                            "Skipping refresh of %s because a related dropdown query (%s) is unattached to any datasource.",
+                            query.id, e.query_id)
                         continue
 
                 enqueue_query(query_text, query.data_source, query.user_id,

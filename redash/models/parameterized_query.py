@@ -190,4 +190,5 @@ class InvalidParameterError(Exception):
 class QueryDetachedFromDataSourceError(Exception):
     def __init__(self, query_id):
         self.query_id = query_id
-        super(QueryDetachedFromDataSourceError, self).__init__("This query is detached from any data source. Please select a different query.")
+        super(QueryDetachedFromDataSourceError, self).__init__(
+            "This query is detached from any data source. Please select a different query.")
