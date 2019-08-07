@@ -25,7 +25,7 @@ def _load_result(query_id):
         query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
         return json_loads(query_result.data)
     else:
-        raise QueryDetachedFromDataSourceError
+        raise QueryDetachedFromDataSourceError(query_id)
 
 
 def dropdown_values(query_id):
@@ -189,5 +189,6 @@ class InvalidParameterError(Exception):
 
 
 class QueryDetachedFromDataSourceError(Exception):
-    def __init__(self):
+    def __init__(self, query_id):
+        self.query_id = query_id
         super(QueryDetachedFromDataSourceError, self).__init__("This query is detached from any data source. Please select a different query.")

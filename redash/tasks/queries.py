@@ -8,6 +8,7 @@ from celery.utils.log import get_task_logger
 from six import text_type
 
 from redash import models, redis_connection, settings, statsd_client
+from redash.models.parameterized_query import InvalidParameterError, QueryDetachedFromDataSourceError
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import notify_of_failure
@@ -190,12 +191,18 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p.get('value')
-                                    for p in query.options['parameters']}
-                    query_text = query.parameterized.apply(query_params).query
-                else:
-                    query_text = query.query_text
+                query_text = query.query_text
+
+                parameters = {p['name']: p.get('value') for p in query.options.get('parameters', [])}
+                if any(parameters):
+                    try:
+                        query_text = query.parameterized.apply(parameters).query
+                    except InvalidParameterError as e:
+                        logging.info("Skipping refresh of %s because of invalid parameters: %s", query.id, e.message)
+                        continue
+                    except QueryDetachedFromDataSourceError as e:
+                        logging.info("Skipping refresh of %s because a related dropdown query (%s) is unattached to any datasource.", query.id, e.query_id)
+                        continue
 
                 enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
