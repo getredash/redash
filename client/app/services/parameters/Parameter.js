@@ -1,5 +1,7 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has } from 'lodash';
-import { TextParameter, NumberParameter, EnumParameter } from '.';
+import {
+  TextParameter, NumberParameter, EnumParameter, QueryBasedDropdownParameter,
+} from '.';
 
 class Parameter {
   constructor(parameter, parentQueryId) {
@@ -27,6 +29,8 @@ class Parameter {
         return new NumberParameter(param, parentQueryId);
       case 'enum':
         return new EnumParameter(param, parentQueryId);
+      case 'query':
+        return new QueryBasedDropdownParameter(param, parentQueryId);
       default:
         return new TextParameter({ ...param, type: 'text' }, parentQueryId);
     }
