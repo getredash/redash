@@ -39,6 +39,7 @@ export class Parameters extends React.Component {
     editable: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
+    onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
   };
 
@@ -47,6 +48,7 @@ export class Parameters extends React.Component {
     editable: false,
     disableUrlUpdate: false,
     onValuesChange: () => {},
+    onPendingValuesChange: () => {},
     onParametersEdit: () => {},
   }
 
@@ -78,12 +80,14 @@ export class Parameters extends React.Component {
   };
 
   setPendingValue = (param, value, isDirty) => {
+    const { onPendingValuesChange } = this.props;
     this.setState(({ parameters }) => {
       if (isDirty) {
         param.setPendingValue(value);
       } else {
         param.clearPendingValue();
       }
+      onPendingValuesChange();
       return { parameters };
     });
   };
