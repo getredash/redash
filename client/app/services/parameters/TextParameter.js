@@ -7,7 +7,8 @@ class TextParameter extends Parameter {
     this.setValue(parameter.value);
   }
 
-  static normalizeValue(value) {
+  // eslint-disable-next-line class-methods-use-this
+  normalizeValue(value) {
     const normalizedValue = toString(value);
     if (isEmpty(normalizedValue)) {
       return null;
