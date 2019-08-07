@@ -6,7 +6,7 @@ import dateutil
 
 from tests import BaseTestCase
 from redash import redis_connection, models, settings
-from redash.tasks.failure_report import notify_of_failure, send_failure_report, send_aggregated_errors, key
+from redash.tasks.failure_report import notify_of_failure, send_failure_report, key
 from redash.utils import json_loads
 
 class TestSendAggregatedErrorsTask(BaseTestCase):
