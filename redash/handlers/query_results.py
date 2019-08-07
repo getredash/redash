@@ -95,7 +95,7 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
-        parameterized_query = ParameterizedQuery(query)
+        parameterized_query = ParameterizedQuery(query, org=self.current_org)
 
         data_source_id = params.get('data_source_id')
         if data_source_id:
