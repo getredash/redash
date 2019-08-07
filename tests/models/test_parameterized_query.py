@@ -247,7 +247,7 @@ class TestParameterizedQuery(TestCase):
         values = dropdown_values(1)
         self.assertEquals(values, [{"name": 5, "value": "5"}])
 
-    @patch('redash.models.Query.get_by_id_and_org', return_value=namedtuple('Query', 'data_source')(None))
+    @patch('redash.models.Query.get_by_id', return_value=namedtuple('Query', 'data_source')(None))
     def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
         with pytest.raises(QueryDetachedFromDataSourceError):
             dropdown_values(1)
