@@ -16,13 +16,12 @@ def _pluck_name_and_value(default_column, row):
 
 
 def _load_result(query_id):
-    from redash.authentication.org_resolving import current_org
     from redash import models
 
-    query = models.Query.get_by_id_and_org(query_id, current_org)
+    query = models.Query.get_by_id(query_id)
 
     if query.data_source:
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
+        query_result = models.QueryResult.get_by_id(query.latest_query_data_id)
         return json_loads(query_result.data)
     else:
         raise QueryDetachedFromDataSourceError(query_id)

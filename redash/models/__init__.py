@@ -263,6 +263,10 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         }
 
     @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
+
+    @classmethod
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
         return (
