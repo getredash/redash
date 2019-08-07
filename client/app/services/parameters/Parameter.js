@@ -1,5 +1,5 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has } from 'lodash';
-import { TextParameter, NumberParameter } from '.';
+import { TextParameter, NumberParameter, EnumParameter } from '.';
 
 class Parameter {
   constructor(parameter, parentQueryId) {
@@ -25,16 +25,11 @@ class Parameter {
     switch (param.type) {
       case 'number':
         return new NumberParameter(param, parentQueryId);
+      case 'enum':
+        return new EnumParameter(param, parentQueryId);
       default:
         return new TextParameter({ ...param, type: 'text' }, parentQueryId);
     }
-  }
-
-  static normalizeValue(value) {
-    if (isUndefined(value)) {
-      return null;
-    }
-    return value;
   }
 
   static getValue(param, extra = {}) {
@@ -78,8 +73,16 @@ class Parameter {
     return Parameter.create(this);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  normalizeValue(value) {
+    if (isUndefined(value)) {
+      return null;
+    }
+    return value;
+  }
+
   setValue(value) {
-    const normalizedValue = this.constructor.normalizeValue(value);
+    const normalizedValue = this.normalizeValue(value);
     this.value = normalizedValue;
     this.$$value = normalizedValue;
 
@@ -92,7 +95,7 @@ class Parameter {
   }
 
   setPendingValue(value) {
-    this.pendingValue = this.constructor.normalizeValue(value);
+    this.pendingValue = this.normalizeValue(value);
   }
 
   applyPendingValue() {
