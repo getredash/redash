@@ -1,4 +1,4 @@
-import { isNull, isObject, isFunction, has } from 'lodash';
+import { isNull, isObject, isFunction, isUndefined, isEqual, has } from 'lodash';
 import { TextParameter, NumberParameter } from '.';
 
 class Parameter {
@@ -21,15 +21,20 @@ class Parameter {
     });
   }
 
-  static create(param) {
+  static create(param, parentQueryId) {
     switch (param.type) {
-      case 'text':
-        return new TextParameter(param);
       case 'number':
-        return new NumberParameter(param);
+        return new NumberParameter(param, parentQueryId);
       default:
-        return null;
+        return new TextParameter({ ...param, type: 'text' }, parentQueryId);
     }
+  }
+
+  static normalizeValue(value) {
+    if (isUndefined(value)) {
+      return null;
+    }
+    return value;
   }
 
   static getValue(param, extra = {}) {
@@ -52,8 +57,52 @@ class Parameter {
     return isNull(this.getValue());
   }
 
+  get hasPendingValue() {
+    return this.pendingValue !== undefined && !isEqual(this.pendingValue, this.normalizedValue);
+  }
+
+  get normalizedValue() {
+    return this.$$value;
+  }
+
+  // TODO: Remove this property when finally moved to React
+  get ngModel() {
+    return this.normalizedValue;
+  }
+
+  set ngModel(value) {
+    this.setValue(value);
+  }
+
   clone() {
     return Parameter.create(this);
+  }
+
+  setValue(value) {
+    const normalizedValue = this.constructor.normalizeValue(value);
+    this.value = normalizedValue;
+    this.$$value = normalizedValue;
+
+    this.clearPendingValue();
+    return this;
+  }
+
+  getValue() {
+    return this.value;
+  }
+
+  setPendingValue(value) {
+    this.pendingValue = this.constructor.normalizeValue(value);
+  }
+
+  applyPendingValue() {
+    if (this.hasPendingValue) {
+      this.setValue(this.pendingValue);
+    }
+  }
+
+  clearPendingValue() {
+    this.pendingValue = undefined;
   }
 
   toUrlParams() {
@@ -71,6 +120,10 @@ class Parameter {
     if (has(query, key)) {
       this.setValue(query[key]);
     }
+  }
+
+  toQueryTextFragment() {
+    return `{{ ${this.name} }}`;
   }
 }
 

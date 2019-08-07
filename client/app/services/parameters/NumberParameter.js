@@ -1,4 +1,4 @@
-import { toNumber } from 'lodash';
+import { toNumber, isNull, isUndefined } from 'lodash';
 import { Parameter } from '.';
 
 class NumberParameter extends Parameter {
@@ -7,9 +7,13 @@ class NumberParameter extends Parameter {
     this.setValue(parameter.value);
   }
 
-  getValue() {
-    const value = toNumber(this.value);
-    return !isNaN(value) ? value : null;
+  static normalizeValue(value) {
+    if (isNull(value) || isUndefined(value)) {
+      return null;
+    }
+
+    const normalizedValue = toNumber(value);
+    return !isNaN(normalizedValue) ? normalizedValue : 0;
   }
 }
 

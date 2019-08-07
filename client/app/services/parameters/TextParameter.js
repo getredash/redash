@@ -7,9 +7,12 @@ class TextParameter extends Parameter {
     this.setValue(parameter.value);
   }
 
-  getValue() {
-    const value = toString(this.value);
-    return !isEmpty(value) ? value : null;
+  static normalizeValue(value) {
+    const normalizedValue = toString(value);
+    if (isEmpty(normalizedValue)) {
+      return null;
+    }
+    return normalizedValue;
   }
 }
 
