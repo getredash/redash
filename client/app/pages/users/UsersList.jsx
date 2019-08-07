@@ -1,30 +1,39 @@
-import { map } from 'lodash';
+import { map, get } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
 import Button from 'antd/lib/button';
+import Modal from 'antd/lib/modal';
 import { Paginator } from '@/components/Paginator';
 import DynamicComponent from '@/components/DynamicComponent';
+import { UserPreviewCard } from '@/components/PreviewCard';
+import InputWithCopy from '@/components/InputWithCopy';
 
-import { wrap as liveItemsList, createResourceFetcher, ControllerType } from '@/components/items-list/LiveItemsList';
+import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
+import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
+import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+
 import LoadingState from '@/components/items-list/components/LoadingState';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import * as Sidebar from '@/components/items-list/components/Sidebar';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+
+import Layout from '@/components/layouts/ContentWithSidebar';
+import CreateUserDialog from '@/components/users/CreateUserDialog';
 
 import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
 import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import notification from '@/services/notification';
+import { absoluteUrl } from '@/services/utils';
 
-function UsersListActions({ user, actions }) {
+function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.id === currentUser.id) {
     return null;
   }
-  const { enableUser, disableUser, deleteUser } = actions;
   if (user.is_invitation_pending) {
     return (
       <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>Delete</Button>
@@ -43,11 +52,9 @@ UsersListActions.propTypes = {
     is_invitation_pending: PropTypes.bool,
     is_disabled: PropTypes.bool,
   }).isRequired,
-  actions: PropTypes.shape({
-    enableUser: PropTypes.func,
-    disableUser: PropTypes.func,
-    deleteUser: PropTypes.func,
-  }).isRequired,
+  enableUser: PropTypes.func.isRequired,
+  disableUser: PropTypes.func.isRequired,
+  deleteUser: PropTypes.func.isRequired,
 };
 
 class UsersList extends React.Component {
@@ -76,13 +83,7 @@ class UsersList extends React.Component {
 
   listColumns = [
     Columns.custom.sortable((text, user) => (
-      <div className="d-flex align-items-center">
-        <img src={user.profile_image_url} height="32px" className="profile__image--settings m-r-5" alt={user.name} />
-        <div>
-          <a href={'users/' + user.id} className="{'text-muted': user.is_disabled}">{user.name}</a>
-          <div className="text-muted">{user.email}</div>
-        </div>
-      </div>
+      <UserPreviewCard user={user} withLink />
     ), {
       title: 'Name',
       field: 'name',
@@ -106,13 +107,63 @@ class UsersList extends React.Component {
       className: 'text-nowrap',
       width: '1%',
     }),
-    Columns.custom((text, user) => <UsersListActions user={user} actions={this.props.controller.actions} />, {
+    Columns.custom((text, user) => (
+      <UsersListActions
+        user={user}
+        enableUser={this.enableUser}
+        disableUser={this.disableUser}
+        deleteUser={this.deleteUser}
+      />
+    ), {
       width: '1%',
       isAvailable: () => policy.canCreateUser(),
     }),
   ];
 
-  onTableRowClick = (event, item) => navigateTo('users/' + item.id);
+  componentDidMount() {
+    if (this.props.controller.params.isNewUserPage) {
+      this.showCreateUserDialog();
+    }
+  }
+
+  createUser = values => User.create(values).$promise.then((user) => {
+    notification.success('Saved.');
+    if (user.invite_link) {
+      Modal.warning({ title: 'Email not sent!',
+        content: (
+          <React.Fragment>
+            <p>
+              The mail server is not configured, please send the following link
+              to <b>{user.name}</b>:
+            </p>
+            <InputWithCopy value={absoluteUrl(user.invite_link)} readOnly />
+          </React.Fragment>
+        ) });
+    }
+  }).catch((error) => {
+    if (!(error instanceof Error)) {
+      error = new Error(get(error, 'data.message', 'Failed saving.'));
+    }
+    return Promise.reject(error);
+  });
+
+  showCreateUserDialog = () => {
+    if (policy.isCreateUserEnabled()) {
+      CreateUserDialog.showModal({ onCreate: this.createUser }).result
+        .then(() => this.props.controller.update())
+        .finally(() => {
+          if (this.props.controller.params.isNewUserPage) {
+            navigateTo('users');
+          }
+        });
+    }
+  };
+
+  enableUser = (event, user) => User.enableUser(user).then(() => this.props.controller.update());
+
+  disableUser = (event, user) => User.disableUser(user).then(() => this.props.controller.update());
+
+  deleteUser = (event, user) => User.deleteUser(user).then(() => this.props.controller.update());
 
   // eslint-disable-next-line class-methods-use-this
   renderPageHeader() {
@@ -121,7 +172,7 @@ class UsersList extends React.Component {
     }
     return (
       <div className="m-b-15">
-        <Button type="primary" disabled={!policy.isCreateUserEnabled()} href="users/new">
+        <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" />
           New User
         </Button>
@@ -130,33 +181,26 @@ class UsersList extends React.Component {
     );
   }
 
-  renderSidebar() {
-    const { controller } = this.props;
-    return (
-      <React.Fragment>
-        <Sidebar.SearchInput
-          value={controller.searchTerm}
-          onChange={controller.updateSearch}
-        />
-        <Sidebar.Menu items={this.sidebarMenu} selected={controller.currentPage} />
-        <Sidebar.PageSizeSelect
-          options={controller.pageSizeOptions}
-          value={controller.itemsPerPage}
-          onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-        />
-      </React.Fragment>
-    );
-  }
-
   render() {
-    const sidebar = this.renderSidebar();
     const { controller } = this.props;
     return (
       <React.Fragment>
         {this.renderPageHeader()}
-        <div className="row">
-          <div className="col-md-3 list-control-t">{sidebar}</div>
-          <div className="list-content col-md-9">
+        <Layout>
+          <Layout.Sidebar className="m-b-0">
+            <Sidebar.SearchInput
+              value={controller.searchTerm}
+              onChange={controller.updateSearch}
+            />
+            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+            <Sidebar.PageSizeSelect
+              className="m-b-10"
+              options={controller.pageSizeOptions}
+              value={controller.itemsPerPage}
+              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+            />
+          </Layout.Sidebar>
+          <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
@@ -165,7 +209,6 @@ class UsersList extends React.Component {
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
-                    onRowClick={this.onTableRowClick}
                     context={this.actions}
                     orderByField={controller.orderByField}
                     orderByReverse={controller.orderByReverse}
@@ -180,9 +223,8 @@ class UsersList extends React.Component {
                 </div>
               )
             }
-          </div>
-          <div className="col-md-3 list-control-r-b">{sidebar}</div>
-        </div>
+          </Layout.Content>
+        </Layout>
       </React.Fragment>
     );
   }
@@ -197,70 +239,33 @@ export default function init(ngModule) {
     order: 2,
   });
 
-  ngModule.component('pageUsersList', react2angular(liveItemsList(UsersList, {
-    defaultOrderBy: '-created_at',
-    getRequest(request, { currentPage }) {
-      switch (currentPage) {
-        case 'active':
-          request.pending = false;
-          break;
-        case 'pending':
-          request.pending = true;
-          break;
-        case 'disabled':
-          request.disabled = true;
-          break;
-        // no default
-      }
-      return request;
-    },
-    doRequest: createResourceFetcher(
-      () => User.query.bind(User),
-      item => new User(item),
-    ),
-    actions: {
-      // `User` will become available later, so use wrappers
-      enableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.enableUser(user);
+  ngModule.component('pageUsersList', react2angular(itemsList(
+    UsersList,
+    new ResourceItemsSource({
+      getRequest(request, { params: { currentPage } }) {
+        switch (currentPage) {
+          case 'active':
+            request.pending = false;
+            break;
+          case 'pending':
+            request.pending = true;
+            break;
+          case 'disabled':
+            request.disabled = true;
+            break;
+          // no default
+        }
+        return request;
       },
-      disableUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.disableUser(user);
+      getResource() {
+        return User.query.bind(User);
       },
-      deleteUser: (event, user) => {
-        // prevent default click action on table rows
-        event.preventDefault();
-        event.stopPropagation();
-        return User.deleteUser(user);
+      getItemProcessor() {
+        return (item => new User(item));
       },
-    },
-  })));
-
-  return routesToAngularRoutes([
-    {
-      path: '/users',
-      title: 'Users',
-      key: 'active',
-    },
-    {
-      path: '/users/pending',
-      title: 'Pending Invitations',
-      key: 'pending',
-    },
-    {
-      path: '/users/disabled',
-      title: 'Disabled Users',
-      key: 'disabled',
-    },
-  ], {
-    template: '<settings-screen><page-users-list current-page="$resolve.currentPage"></page-users-list></settings-screen>',
-    reloadOnSearch: false,
-  });
+    }),
+    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
+  )));
 }
 
 init.init = true;

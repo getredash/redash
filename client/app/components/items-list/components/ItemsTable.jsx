@@ -1,11 +1,12 @@
 import { isFunction, map, filter, extend, omit, identity } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import Table from 'antd/lib/table';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { TimeAgo } from '@/components/TimeAgo';
 import { durationHumanize } from '@/filters';
-import { formatDateTime } from '@/filters/datetime';
+import { formatDate, formatDateTime } from '@/filters/datetime';
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
@@ -34,6 +35,11 @@ export const Columns = {
       ),
     }, overrides);
   },
+  date(overrides) {
+    return extend({
+      render: text => formatDate(text),
+    }, overrides);
+  },
   dateTime(overrides) {
     return extend({
       render: text => formatDateTime(text),
@@ -58,6 +64,7 @@ export const Columns = {
   },
 };
 
+Columns.date.sortable = sortable;
 Columns.dateTime.sortable = sortable;
 Columns.duration.sortable = sortable;
 Columns.timeAgo.sortable = sortable;
@@ -73,6 +80,7 @@ export default class ItemsTable extends React.Component {
       render: PropTypes.func, // (prop, item) => text | node; `prop` is `item[field]`
       isAvailable: PropTypes.func, // return `true` to show column and `false` to hide; if omitted: show column
     })),
+    showHeader: PropTypes.bool,
     onRowClick: PropTypes.func, // (event, item) => void
 
     orderByField: PropTypes.string,
@@ -83,6 +91,7 @@ export default class ItemsTable extends React.Component {
   static defaultProps = {
     items: [],
     columns: [],
+    showHeader: true,
     onRowClick: null,
 
     orderByField: null,
@@ -136,10 +145,13 @@ export default class ItemsTable extends React.Component {
       })
     ) : null;
 
+    const { showHeader } = this.props;
+
     return (
       <Table
-        className="table-data"
+        className={classNames('table-data', { 'ant-table-headerless': !showHeader })}
         columns={columns}
+        showHeader={showHeader}
         dataSource={rows}
         rowKey={row => row.key}
         pagination={false}

@@ -45,8 +45,13 @@ class Snowflake(BaseQueryRunner):
                 },
                 "database": {
                     "type": "string"
+                },
+                "region": {
+                    "type": "string",
+                    "default": "us-west"
                 }
             },
+            "order": ["account", "user", "password", "warehouse", "database", "region"],
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"]
         }
@@ -56,22 +61,32 @@ class Snowflake(BaseQueryRunner):
         return enabled
 
     def run_query(self, query, user):
+        region = self.configuration.get('region')
+
+        # for us-west we don't need to pass a region (and if we do, it fails to connect)
+        if region == 'us-west':
+            region = None
+
         connection = snowflake.connector.connect(
             user=self.configuration['user'],
             password=self.configuration['password'],
             account=self.configuration['account'],
+            region=region
         )
 
         cursor = connection.cursor()
 
         try:
-            cursor.execute("USE WAREHOUSE {}".format(self.configuration['warehouse']))
+            cursor.execute("USE WAREHOUSE {}".format(
+                self.configuration['warehouse']))
             cursor.execute("USE {}".format(self.configuration['database']))
 
             cursor.execute(query)
 
-            columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+            columns = self.fetch_columns(
+                [(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
+            rows = [dict(zip((c['name'] for c in columns), row))
+                    for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             error = None
@@ -108,5 +123,6 @@ class Snowflake(BaseQueryRunner):
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
         return schema.values()
+
 
 register(Snowflake)

@@ -1,18 +1,20 @@
 import React, { Fragment } from 'react';
+import { includes } from 'lodash';
 import Alert from 'antd/lib/alert';
 import Button from 'antd/lib/button';
 import Form from 'antd/lib/form';
 import Modal from 'antd/lib/modal';
-import { react2angular } from 'react2angular';
+import Tag from 'antd/lib/tag';
 import { User } from '@/services/user';
+import { Group } from '@/services/group';
 import { currentUser } from '@/services/auth';
 import { absoluteUrl } from '@/services/utils';
 import { UserProfile } from '../proptypes';
-import { DynamicForm } from '../dynamic-form/DynamicForm';
+import DynamicForm from '../dynamic-form/DynamicForm';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import InputWithCopy from '../InputWithCopy';
 
-export class UserEdit extends React.Component {
+export default class UserEdit extends React.Component {
   static propTypes = {
     user: UserProfile.isRequired,
   };
@@ -21,11 +23,22 @@ export class UserEdit extends React.Component {
     super(props);
     this.state = {
       user: this.props.user,
+      groups: [],
+      loadingGroups: true,
       regeneratingApiKey: false,
       sendingPasswordEmail: false,
       resendingInvitation: false,
       togglingUser: false,
     };
+  }
+
+  componentDidMount() {
+    Group.query((groups) => {
+      this.setState({
+        groups: groups.map(({ id, name }) => ({ value: id, title: name })),
+        loadingGroups: false,
+      });
+    });
   }
 
   changePassword = () => {
@@ -35,8 +48,8 @@ export class UserEdit extends React.Component {
   sendPasswordReset = () => {
     this.setState({ sendingPasswordEmail: true });
 
-    User.sendPasswordReset(this.state.user).then((passwordResetLink) => {
-      this.setState({ passwordResetLink });
+    User.sendPasswordReset(this.state.user).then((passwordLink) => {
+      this.setState({ passwordLink });
     }).finally(() => {
       this.setState({ sendingPasswordEmail: false });
     });
@@ -45,7 +58,9 @@ export class UserEdit extends React.Component {
   resendInvitation = () => {
     this.setState({ resendingInvitation: true });
 
-    User.resendInvitation(this.state.user).finally(() => {
+    User.resendInvitation(this.state.user).then((passwordLink) => {
+      this.setState({ passwordLink });
+    }).finally(() => {
       this.setState({ resendingInvitation: false });
     });
   };
@@ -101,8 +116,9 @@ export class UserEdit extends React.Component {
     });
   };
 
-  renderBasicInfoForm() {
-    const { user } = this.state;
+  renderUserInfoForm() {
+    const { user, groups, loadingGroups } = this.state;
+
     const formFields = [
       {
         name: 'name',
@@ -116,7 +132,22 @@ export class UserEdit extends React.Component {
         type: 'email',
         initialValue: user.email,
       },
-    ].map(field => ({ ...field, readOnly: user.isDisabled, required: true }));
+      (!user.isDisabled && currentUser.id !== user.id) ? {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'select',
+        mode: 'multiple',
+        options: groups,
+        initialValue: groups.filter(group => includes(user.groupIds, group.value)).map(group => group.value),
+        loading: loadingGroups,
+        placeholder: loadingGroups ? 'Loading...' : '',
+      } : {
+        name: 'group_ids',
+        title: 'Groups',
+        type: 'content',
+        content: this.renderUserGroups(),
+      },
+    ].map(field => ({ readOnly: user.isDisabled, required: true, ...field }));
 
     return (
       <DynamicForm
@@ -127,6 +158,20 @@ export class UserEdit extends React.Component {
     );
   }
 
+  renderUserGroups() {
+    const { user, groups, loadingGroups } = this.state;
+
+    return loadingGroups ? 'Loading...' : (
+      <div data-test="Groups">
+        {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
+          <Tag className="m-b-5 m-r-5" key={group.value}>
+            <a href={`groups/${group.value}`}>{group.title}</a>
+          </Tag>
+        )))}
+      </div>
+    );
+  }
+
   renderApiKey() {
     const { user, regeneratingApiKey } = this.state;
 
@@ -134,7 +179,7 @@ export class UserEdit extends React.Component {
       <Form layout="vertical">
         <hr />
         <Form.Item label="API Key" className="m-b-10">
-          <InputWithCopy id="apiKey" value={user.apiKey} data-test="ApiKey" readOnly />
+          <InputWithCopy id="apiKey" className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button
           className="w-100"
@@ -149,7 +194,7 @@ export class UserEdit extends React.Component {
   }
 
   renderPasswordLinkAlert() {
-    const { user, passwordResetLink } = this.state;
+    const { user, passwordLink } = this.state;
 
     return (
       <Alert
@@ -158,14 +203,14 @@ export class UserEdit extends React.Component {
           <Fragment>
             <p>
               The mail server is not configured, please send the following link
-              to <b>{user.name}</b> to reset their password:
+              to <b>{user.name}</b>:
             </p>
-            <InputWithCopy value={absoluteUrl(passwordResetLink)} readOnly />
+            <InputWithCopy value={absoluteUrl(passwordLink)} readOnly />
           </Fragment>
         )}
         type="warning"
         className="m-t-20"
-        afterClose={() => { this.setState({ passwordResetLink: null }); }}
+        afterClose={() => { this.setState({ passwordLink: null }); }}
         closable
       />
     );
@@ -184,7 +229,7 @@ export class UserEdit extends React.Component {
   }
 
   renderSendPasswordReset() {
-    const { sendingPasswordEmail, passwordResetLink } = this.state;
+    const { sendingPasswordEmail } = this.state;
 
     return (
       <Fragment>
@@ -195,7 +240,6 @@ export class UserEdit extends React.Component {
         >
           Send Password Reset Email
         </Button>
-        {passwordResetLink && this.renderPasswordLinkAlert()}
       </Fragment>
     );
   }
@@ -215,7 +259,7 @@ export class UserEdit extends React.Component {
   }
 
   render() {
-    const { user } = this.state;
+    const { user, passwordLink } = this.state;
 
     return (
       <div className="col-md-4 col-md-offset-4">
@@ -227,7 +271,7 @@ export class UserEdit extends React.Component {
         />
         <h3 className="profile__h3">{user.name}</h3>
         <hr />
-        {this.renderBasicInfoForm()}
+        {this.renderUserInfoForm()}
         {!user.isDisabled && (
           <Fragment>
             {this.renderApiKey()}
@@ -239,8 +283,11 @@ export class UserEdit extends React.Component {
               </Button>
             )}
             {(currentUser.isAdmin && user.id !== currentUser.id) && (
-              user.isInvitationPending ?
-                this.renderResendInvitation() : this.renderSendPasswordReset()
+              <Fragment>
+                {user.isInvitationPending ?
+                  this.renderResendInvitation() : this.renderSendPasswordReset()}
+                {passwordLink && this.renderPasswordLinkAlert()}
+              </Fragment>
             )}
           </Fragment>
         )}
@@ -250,9 +297,3 @@ export class UserEdit extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('userEdit', react2angular(UserEdit));
-}
-
-init.init = true;

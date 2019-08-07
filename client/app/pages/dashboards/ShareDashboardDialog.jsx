@@ -4,16 +4,19 @@ import PropTypes from 'prop-types';
 import Switch from 'antd/lib/switch';
 import Modal from 'antd/lib/modal';
 import Form from 'antd/lib/form';
-import { $http, toastr } from '@/services/ng';
+import Alert from 'antd/lib/alert';
+import { $http } from '@/services/ng';
+import notification from '@/services/notification';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import InputWithCopy from '@/components/InputWithCopy';
-import HelpTrigger from '@/services/HelpTrigger';
+import { HelpTrigger } from '@/components/HelpTrigger';
 
 const API_SHARE_URL = 'api/dashboards/{id}/share';
 
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    hasOnlySafeQueries: PropTypes.bool.isRequired,
     dialog: DialogPropType.isRequired,
   };
 
@@ -21,14 +24,18 @@ class ShareDashboardDialog extends React.Component {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
     style: { marginBottom: 7 },
-  }
+  };
 
   constructor(props) {
     super(props);
+    const { dashboard } = this.props;
+
     this.state = {
       saving: false,
     };
-    this.apiUrl = replace(API_SHARE_URL, '{id}', props.dashboard.id);
+
+    this.apiUrl = replace(API_SHARE_URL, '{id}', dashboard.id);
+    this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
   static get headerContent() {
@@ -43,7 +50,7 @@ class ShareDashboardDialog extends React.Component {
     );
   }
 
-  enable = () => {
+  enableAccess = () => {
     const { dashboard } = this.props;
     this.setState({ saving: true });
 
@@ -54,14 +61,14 @@ class ShareDashboardDialog extends React.Component {
         dashboard.public_url = data.public_url;
       })
       .error(() => {
-        toastr.error('Failed to turn on sharing for this dashboard');
+        notification.error('Failed to turn on sharing for this dashboard');
       })
       .finally(() => {
         this.setState({ saving: false });
       });
-  }
+  };
 
-  disable = () => {
+  disableAccess = () => {
     const { dashboard } = this.props;
     this.setState({ saving: true });
 
@@ -72,18 +79,18 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .error(() => {
-        toastr.error('Failed to turn off sharing for this dashboard');
+        notification.error('Failed to turn off sharing for this dashboard');
       })
       .finally(() => {
         this.setState({ saving: false });
       });
-  }
+  };
 
   onChange = (checked) => {
     if (checked) {
-      this.enable();
+      this.enableAccess();
     } else {
-      this.disable();
+      this.disableAccess();
     }
   };
 
@@ -97,16 +104,26 @@ class ShareDashboardDialog extends React.Component {
         footer={null}
       >
         <Form layout="horizontal">
+          {!this.props.hasOnlySafeQueries && (
+            <Form.Item>
+              <Alert
+                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                type="error"
+              />
+            </Form.Item>
+          )}
           <Form.Item label="Allow public access" {...this.formItemProps}>
             <Switch
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
               loading={this.state.saving}
+              disabled={!this.enabled}
+              data-test="PublicAccessEnabled"
             />
           </Form.Item>
           {dashboard.public_url && (
             <Form.Item label="Secret address" {...this.formItemProps}>
-              <InputWithCopy value={dashboard.public_url} />
+              <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}
         </Form>

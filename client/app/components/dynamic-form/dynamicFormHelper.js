@@ -1,4 +1,5 @@
-import { each, includes } from 'lodash';
+import React from 'react';
+import { each, includes, isUndefined } from 'lodash';
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -46,8 +47,23 @@ function normalizeSchema(configurationSchema) {
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function getFields(configurationSchema, target) {
+function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
+  if (Object.keys(options).length === 0) {
+    const properties = configurationSchema.properties;
+    Object.keys(properties).forEach((property) => {
+      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
+        options[property] = properties[property].default;
+      }
+    });
+  }
+}
+
+function getFields(type = {}, target = { options: {} }) {
+  const configurationSchema = type.configuration_schema;
   normalizeSchema(configurationSchema);
+  setDefaultValueForCheckboxes(configurationSchema, target.options);
+
+  const isNewTarget = !target.id;
   const inputs = [
     {
       name: 'name',
@@ -55,6 +71,9 @@ function getFields(configurationSchema, target) {
       type: 'text',
       required: true,
       initialValue: target.name,
+      contentAfter: React.createElement('hr'),
+      placeholder: `My ${type.name}`,
+      autoFocus: isNewTarget,
     },
     ...orderedInputs(configurationSchema.properties, configurationSchema.order, target.options),
   ];

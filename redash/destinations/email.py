@@ -35,21 +35,30 @@ class Email(BaseDestination):
             logging.warning("No emails given. Skipping send.")
 
         html = """
-        Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
+        Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a> </br>.
         """.format(host=host, alert_id=alert.id, query_id=query.id)
+        if alert.template:
+            description = alert.render_template()
+            html += "<br>" + description
         logging.debug("Notifying: %s", recipients)
 
         try:
             alert_name = alert.name.encode('utf-8', 'ignore')
             state = new_state.upper()
-            subject_template = options.get('subject_template', settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE)
+            if alert.custom_subject:
+                subject = alert.custom_subject
+            else:
+                subject_template = options.get('subject_template', settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE)
+                subject = subject_template.format(alert_name=alert_name, state=state)
+
             message = Message(
                 recipients=recipients,
-                subject=subject_template.format(alert_name=alert_name, state=state),
+                subject=subject,
                 html=html
             )
             mail.send(message)
         except Exception:
             logging.exception("Mail send error.")
+
 
 register(Email)

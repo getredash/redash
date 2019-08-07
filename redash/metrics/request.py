@@ -45,7 +45,7 @@ def calculate_metrics_on_exception(error):
         calculate_metrics(MockResponse(500, '?', -1))
 
 
-def provision_app(app):
+def init_app(app):
     app.before_request(record_requets_start_time)
     app.after_request(calculate_metrics)
     app.teardown_request(calculate_metrics_on_exception)

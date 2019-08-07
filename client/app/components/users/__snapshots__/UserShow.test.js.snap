@@ -31,6 +31,12 @@ exports[`renders correctly 1`] = `
     <dd>
       john@doe.com
     </dd>
+    <dt>
+      Groups:
+    </dt>
+    <dd>
+      <div />
+    </dd>
   </dl>
 </div>
 `;

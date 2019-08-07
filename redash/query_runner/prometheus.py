@@ -1,5 +1,7 @@
 import requests
+import time
 from datetime import datetime
+from dateutil import parser
 from urlparse import parse_qs
 from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
@@ -37,6 +39,30 @@ def get_range_rows(metrics_data):
     return rows
 
 
+# Convert datetime string to timestamp
+def convert_query_range(payload):
+    query_range = {}
+
+    for key in ['start', 'end']:
+        if key not in payload.keys():
+            continue
+        value = payload[key][0]
+
+        if type(value) is str:
+            # Don't convert timestamp string
+            try:
+                int(value)
+                continue
+            except ValueError:
+                pass
+            value = parser.parse(value)
+
+        if type(value) is datetime:
+            query_range[key] = [int(time.mktime(value.timetuple()))]
+
+    payload.update(query_range)
+
+
 class Prometheus(BaseQueryRunner):
 
     @classmethod
@@ -69,8 +95,7 @@ class Prometheus(BaseQueryRunner):
 
         schema = {}
         for name in data:
-            schema[name] = {'name': name}
-
+            schema[name] = {'name': name, 'columns': []}
         return schema.values()
 
     def run_query(self, query, user):
@@ -117,7 +142,9 @@ class Prometheus(BaseQueryRunner):
             # for the range of until now
             if query_type == 'query_range' and ('end' not in payload.keys() or 'now' in payload['end']):
                 date_now = datetime.now()
-                payload.update({"end": [date_now.isoformat("T") + "Z"]})
+                payload.update({'end': [date_now]})
+
+            convert_query_range(payload)
 
             api_endpoint = base_url + '/api/v1/{}'.format(query_type)
 

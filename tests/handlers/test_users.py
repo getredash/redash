@@ -1,4 +1,4 @@
-from redash import models
+from redash import models, settings
 from tests import BaseTestCase
 from mock import patch
 
@@ -39,6 +39,26 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json['name'], test_user['name'])
         self.assertEqual(rv.json['email'], test_user['email'])
+
+    @patch('redash.settings.email_server_is_configured', return_value=False)
+    def test_shows_invite_link_when_email_is_not_configured(self, _):
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'user@example.com'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue('invite_link' in rv.json)
+
+    @patch('redash.settings.email_server_is_configured', return_value=True)
+    def test_does_not_show_invite_link_when_email_is_configured(self, _):
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'user@example.com'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertFalse('invite_link' in rv.json)
 
     def test_creates_user_case_insensitive_email(self):
         admin = self.factory.create_admin()
@@ -202,6 +222,20 @@ class TestUserResourcePost(BaseTestCase):
         rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"name": "New Name"})
         self.assertEqual(rv.status_code, 200)
 
+    @patch('redash.settings.email_server_is_configured', return_value=True)
+    def test_marks_email_as_not_verified_when_changed(self, _):
+        user = self.factory.user
+        user.is_email_verified = True
+        rv = self.make_request('post', "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
+        self.assertFalse(user.is_email_verified)
+
+    @patch('redash.settings.email_server_is_configured', return_value=False)
+    def test_doesnt_mark_email_as_not_verified_when_changed_and_email_server_is_not_configured(self, _):
+        user = self.factory.user
+        user.is_email_verified = True
+        rv = self.make_request('post', "/api/users/{}".format(user.id), data={"email": "donald@trump.biz"})
+        self.assertTrue(user.is_email_verified)
+
     def test_returns_200_for_admin_changing_other_user(self):
         admin = self.factory.create_admin()
 
@@ -272,6 +306,15 @@ class TestUserResourcePost(BaseTestCase):
 
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
         self.assertNotEquals(previous, current)
+
+    def test_admin_can_change_user_groups(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user(group_ids=[1])
+
+        rv = self.make_request('post', "/api/users/{}".format(other_user.id), data={"group_ids": [1, 2]}, user=admin_user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.User.query.get(other_user.id).group_ids, [1,2])
 
     def test_admin_can_delete_user(self):
         admin_user = self.factory.create_admin()

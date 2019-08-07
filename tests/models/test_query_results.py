@@ -4,7 +4,7 @@ import datetime
 from tests import BaseTestCase
 
 from redash import models
-from redash.utils import utcnow
+from redash.utils import utcnow, json_dumps
 
 
 class QueryResultTest(BaseTestCase):

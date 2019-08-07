@@ -64,6 +64,7 @@ class BaseElasticSearch(BaseQueryRunner):
                     'title': 'Basic Auth Password'
                 }
             },
+            "order": ['server', 'basic_auth_user', 'basic_auth_password'],
             "secret": ["basic_auth_password"],
             "required": ["server"]
         }
@@ -74,7 +75,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(BaseElasticSearch, self).__init__(configuration)
-
         self.syntax = "json"
 
         if self.DEBUG_ENABLED:

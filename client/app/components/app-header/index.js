@@ -1,6 +1,8 @@
 import debug from 'debug';
+import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 
 import logoUrl from '@/assets/images/redash_icon_small.png';
+import frontendVersion from '@/version.json';
 import template from './app-header.html';
 import './app-header.css';
 
@@ -16,6 +18,10 @@ function controller($rootScope, $location, $route, $uibModal, Auth, currentUser,
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
 
+  this.frontendVersion = frontendVersion;
+  this.backendVersion = clientConfig.version;
+  this.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
+
   this.reload = () => {
     logger('Reloading dashboards and queries.');
     Dashboard.favorites().$promise.then((data) => {
@@ -30,14 +36,7 @@ function controller($rootScope, $location, $route, $uibModal, Auth, currentUser,
 
   $rootScope.$on('reloadFavorites', this.reload);
 
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
-    });
-  };
+  this.newDashboard = () => CreateDashboardDialog.showModal();
 
   this.searchQueries = () => {
     $location.path('/queries').search({ q: this.searchTerm });

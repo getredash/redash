@@ -4,17 +4,19 @@ from flask import request
 from flask_restful import abort
 from flask_login import current_user, login_user
 from funcy import project
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
 from funcy import partial
 
-from redash import models
+from redash import models, limiter
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404, paginate, order_results as _order_results
 
-from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
+from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email, send_verify_email
 from redash.settings import parse_boolean
+from redash import settings
 
 
 # Ordering map for relationships
@@ -36,12 +38,22 @@ order_results = partial(
 )
 
 
-def invite_user(org, inviter, user):
+def invite_user(org, inviter, user, send_email=True):
+    d = user.to_dict()
+
     invite_url = invite_link_for_user(user)
-    send_invite_email(inviter, user, invite_url, org)
+    if settings.email_server_is_configured() and send_email:
+        send_invite_email(inviter, user, invite_url, org)
+    else:
+        d['invite_link'] = invite_url
+
+    return d
 
 
 class UserListResource(BaseResource):
+    decorators = BaseResource.decorators + \
+        [limiter.limit('200/day;50/hour', methods=['POST'])]
+
     def get_users(self, disabled, pending, search_term):
         if disabled:
             users = models.User.all_disabled(self.current_org)
@@ -69,7 +81,7 @@ class UserListResource(BaseResource):
         # order results according to passed order parameter,
         # special-casing search queries where the database
         # provides an order by search rank
-        return order_results(users, fallback=bool(search_term))
+        return order_results(users, fallback=not bool(search_term))
 
     @require_permission('list_users')
     def get(self):
@@ -137,19 +149,14 @@ class UserListResource(BaseResource):
         })
 
         should_send_invitation = 'no_invite' not in request.args
-        if should_send_invitation:
-            invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user, send_email=should_send_invitation)
 
 
 class UserInviteResource(BaseResource):
     @require_admin
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        invite_url = invite_user(self.current_org, self.current_user, user)
-
-        return user.to_dict()
+        return invite_user(self.current_org, self.current_user, user)
 
 
 class UserResetPasswordResource(BaseResource):
@@ -186,6 +193,9 @@ class UserRegenerateApiKeyResource(BaseResource):
 
 
 class UserResource(BaseResource):
+    decorators = BaseResource.decorators + \
+        [limiter.limit('50/hour', methods=['POST'])]
+
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
@@ -204,7 +214,7 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ('email', 'name', 'password', 'old_password', 'groups'))
+        params = project(req, ('email', 'name', 'password', 'old_password', 'group_ids'))
 
         if 'password' in params and 'old_password' not in params:
             abort(403, message="Must provide current password to update password.")
@@ -216,8 +226,18 @@ class UserResource(BaseResource):
             user.hash_password(params.pop('password'))
             params.pop('old_password')
 
-        if 'groups' in params and not self.current_user.has_permission('admin'):
-            abort(403, message="Must be admin to change groups membership.")
+        if 'group_ids' in params:
+            if not self.current_user.has_permission('admin'):
+                abort(403, message="Must be admin to change groups membership.")
+
+            for group_id in params['group_ids']:
+                try:
+                    models.Group.get_by_id_and_org(group_id, self.current_org)
+                except NoResultFound:
+                    abort(400, message="Group id {} is invalid.".format(group_id))
+
+            if len(params['group_ids']) == 0:
+                params.pop('group_ids')
 
         if 'email' in params:
             _, domain = params['email'].split('@', 1)
@@ -225,9 +245,17 @@ class UserResource(BaseResource):
             if domain.lower() in blacklist or domain.lower() == 'qq.com':
                 abort(400, message='Bad email address.')
 
+        email_address_changed = 'email' in params and params['email'] != user.email
+        needs_to_verify_email = email_address_changed and settings.email_server_is_configured()
+        if needs_to_verify_email:
+            user.is_email_verified = False
+
         try:
             self.update_model(user, params)
             models.db.session.commit()
+
+            if needs_to_verify_email:
+                send_verify_email(user, self.current_org)
 
             # The user has updated their email or password. This should invalidate all _other_ sessions,
             # forcing them to log in again. Since we don't want to force _this_ session to have to go

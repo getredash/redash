@@ -3,19 +3,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import classNames from 'classnames';
-import { $uibModal } from '@/services/ng';
+import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 import { currentUser } from '@/services/auth';
 import organizationStatus from '@/services/organizationStatus';
 import './empty-state.less';
-
-function createDashboard() {
-  $uibModal.open({
-    component: 'editDashboardDialog',
-    resolve: {
-      dashboard: () => ({ name: null, layout: null }),
-    },
-  });
-}
 
 function Step({ show, completed, text, url, urlText, onClick }) {
   if (!show) {
@@ -131,7 +122,7 @@ export function EmptyState({
           <Step
             show={isAvailable.dashboard}
             completed={isCompleted.dashboard}
-            onClick={createDashboard}
+            onClick={() => CreateDashboardDialog.showModal()}
             urlText="Create"
             text="your first Dashboard"
           />

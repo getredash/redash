@@ -1,10 +1,10 @@
+from collections import defaultdict
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
 import logging
 logger = logging.getLogger(__name__)
 
-from collections import defaultdict
 
 try:
     from pyhive import presto
@@ -56,8 +56,11 @@ class Presto(BaseQueryRunner):
                 'username': {
                     'type': 'string'
                 },
+                'password': {
+                    'type': 'string'
+                },
             },
-            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
+            'order': ['host', 'protocol', 'port', 'username', 'password', 'schema', 'catalog'],
             'required': ['host']
         }
 
@@ -96,29 +99,33 @@ class Presto(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = presto.connect(
-                host=self.configuration.get('host', ''),
-                port=self.configuration.get('port', 8080),
-                protocol=self.configuration.get('protocol', 'http'),
-                username=self.configuration.get('username', 'redash'),
-                catalog=self.configuration.get('catalog', 'hive'),
-                schema=self.configuration.get('schema', 'default'))
+            host=self.configuration.get('host', ''),
+            port=self.configuration.get('port', 8080),
+            protocol=self.configuration.get('protocol', 'http'),
+            username=self.configuration.get('username', 'redash'),
+            password=(self.configuration.get('password') or None),
+            catalog=self.configuration.get('catalog', 'hive'),
+            schema=self.configuration.get('schema', 'default'))
 
         cursor = connection.cursor()
 
-
         try:
             cursor.execute(query)
-            column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
+            column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None))
+                             for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+            rows = [dict(zip(([c['name'] for c in columns]), r))
+                    for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
             json_data = None
-            default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
+            default_message = 'Unspecified DatabaseError: {0}'.format(
+                db.message)
             if isinstance(db.message, dict):
-                message = db.message.get('failureInfo', {'message', None}).get('message')
+                message = db.message.get(
+                    'failureInfo', {'message', None}).get('message')
             else:
                 message = None
             error = default_message if message is None else message
@@ -133,5 +140,6 @@ class Presto(BaseQueryRunner):
                 error = unicode(error)
 
         return json_data, error
+
 
 register(Presto)

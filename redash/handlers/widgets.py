@@ -24,17 +24,16 @@ class WidgetListResource(BaseResource):
         :>json object widget: The created widget
         """
         widget_properties = request.get_json(force=True)
-        dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
+        dashboard = models.Dashboard.get_by_id_and_org(widget_properties.get('dashboard_id'), self.current_org)
         require_object_modify_permission(dashboard, self.current_user)
 
         widget_properties['options'] = json_dumps(widget_properties['options'])
         widget_properties.pop('id', None)
-        widget_properties['dashboard'] = dashboard
 
         visualization_id = widget_properties.pop('visualization_id')
         if visualization_id:
             visualization = models.Visualization.get_by_id_and_org(visualization_id, self.current_org)
-            require_access(visualization.query_rel.groups, self.current_user, view_only)
+            require_access(visualization.query_rel, self.current_user, view_only)
         else:
             visualization = None
 

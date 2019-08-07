@@ -1,6 +1,4 @@
-import datetime
-
-from mock import ANY, call, patch
+from mock import patch
 from tests import BaseTestCase
 
 from redash.tasks import refresh_schemas
@@ -8,7 +6,7 @@ from redash.tasks import refresh_schemas
 
 class TestRefreshSchemas(BaseTestCase):
     def test_calls_refresh_of_all_data_sources(self):
-        self.factory.data_source # trigger creation
+        self.factory.data_source  # trigger creation
         with patch('redash.tasks.queries.refresh_schema.apply_async') as refresh_job:
             refresh_schemas()
             refresh_job.assert_called()

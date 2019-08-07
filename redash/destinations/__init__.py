@@ -11,6 +11,8 @@ __all__ = [
 
 
 class BaseDestination(object):
+    deprecated = False
+
     def __init__(self, configuration):
         self.configuration = configuration
 

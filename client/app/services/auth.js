@@ -20,6 +20,7 @@ export const currentUser = {
 };
 
 export const clientConfig = {};
+export const messages = [];
 
 const logger = debug('redash:auth');
 const session = { loaded: false };
@@ -29,6 +30,7 @@ function updateSession(sessionData) {
   extend(session, sessionData, { loaded: true });
   extend(currentUser, session.user);
   extend(clientConfig, session.client_config);
+  extend(messages, session.messages);
 }
 
 function AuthService($window, $location, $q, $http) {
@@ -61,7 +63,7 @@ function AuthService($window, $location, $q, $http) {
     loadConfig() {
       logger('Loading config');
       return $http.get('/api/config').then((response) => {
-        updateSession({ client_config: response.data.client_config, user: { permissions: [] } });
+        updateSession({ client_config: response.data.client_config, user: { permissions: [] }, messages: [] });
         return response.data;
       });
     },
@@ -111,6 +113,7 @@ export default function init(ngModule) {
   ngModule.factory('Auth', AuthService);
   ngModule.value('currentUser', currentUser);
   ngModule.value('clientConfig', clientConfig);
+  ngModule.value('messages', messages);
   ngModule.factory('apiKeyHttpInterceptor', apiKeyHttpInterceptor);
 
   ngModule.config(($httpProvider) => {
