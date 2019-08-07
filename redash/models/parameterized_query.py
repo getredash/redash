@@ -1,6 +1,5 @@
 import pystache
 from functools import partial
-from flask_restful import abort
 from numbers import Number
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
@@ -26,7 +25,7 @@ def _load_result(query_id):
         query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
         return json_loads(query_result.data)
     else:
-        abort(400, message="This query is detached from any data source. Please select a different query.")
+        raise QueryDetachedFromDataSourceError
 
 
 def dropdown_values(query_id):
@@ -187,3 +186,8 @@ class InvalidParameterError(Exception):
         parameter_names = u", ".join(parameters)
         message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)
+
+
+class QueryDetachedFromDataSourceError(Exception):
+    def __init__(self):
+        super(QueryDetachedFromDataSourceError, self).__init__("This query is detached from any data source. Please select a different query.")
