@@ -65,3 +65,21 @@ class TestRefreshQuery(BaseTestCase):
             add_job_mock.assert_called_with(
                 "select 42", query.data_source, query.user_id,
                 scheduled_query=query, metadata=ANY)
+
+    def test_doesnt_enqueue_parameterized_queries_with_invalid_parameters(self):
+        """
+        Scheduled queries with invalid parameters are skipped.
+        """
+        query = self.factory.create_query(
+            query_text="select {{n}}",
+            options={"parameters": [{
+                "global": False,
+                "type": "text",
+                "name": "n",
+                "value": 42, # <-- should be text!
+                "title": "n"}]})
+        oq = staticmethod(lambda: [query])
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock, \
+                patch.object(Query, 'outdated_queries', oq):
+            refresh_queries()
+            add_job_mock.assert_not_called()
