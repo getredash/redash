@@ -125,7 +125,7 @@ class QueryResultDropdownResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, current_user, view_only)
         try:
-            return dropdown_values(query_id)
+            return dropdown_values(query_id, self.current_org)
         except QueryDetachedFromDataSourceError as e:
             abort(400, message=e.message)
 
@@ -140,7 +140,7 @@ class QueryDropdownsResource(BaseResource):
             dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
             require_access(dropdown_query.data_source, current_user, view_only)
 
-        return dropdown_values(dropdown_query_id)
+        return dropdown_values(dropdown_query_id, self.current_org)
 
 
 class QueryResultResource(BaseResource):

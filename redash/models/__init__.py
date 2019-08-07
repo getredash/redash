@@ -263,10 +263,6 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         }
 
     @classmethod
-    def get_by_id(cls, _id):
-        return cls.query.filter(cls.id == _id).one()
-
-    @classmethod
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
         return (
@@ -692,7 +688,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def parameterized(self):
-        return ParameterizedQuery(self.query_text, self.parameters)
+        return ParameterizedQuery(self.query_text, self.parameters, self.org)
 
     @property
     def dashboard_api_keys(self):
