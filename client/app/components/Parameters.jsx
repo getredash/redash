@@ -8,6 +8,7 @@ import { Parameter } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
+import { toHuman } from '@/filters';
 
 import './Parameters.less';
 
@@ -138,7 +139,7 @@ export class Parameters extends React.Component {
         data-test={`ParameterName-${param.name}`}
       >
         <div className="parameter-heading">
-          <label>{param.title || param.name}</label>
+          <label>{param.title || toHuman(param.name)}</label>
           {editable && (
             <button
               className="btn btn-default btn-xs m-l-5"
