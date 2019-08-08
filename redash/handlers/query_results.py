@@ -51,6 +51,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     record_event(current_user.org, current_user, {
         'action': 'execute_query',
+        'cache': 'hit' if query_result else 'miss',
         'object_id': data_source.id,
         'object_type': 'data_source',
         'query': query.text,
