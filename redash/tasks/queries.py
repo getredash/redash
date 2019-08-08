@@ -193,7 +193,7 @@ def refresh_queries():
             else:
                 query_text = query.query_text
 
-                parameters = {p['name']: p.get('value') for p in query.options.get('parameters', [])}
+                parameters = {p['name']: p.get('value') for p in query.parameters}
                 if any(parameters):
                     try:
                         query_text = query.parameterized.apply(parameters).query
