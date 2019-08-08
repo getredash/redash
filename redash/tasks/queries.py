@@ -189,7 +189,8 @@ def refresh_queries():
             elif query.data_source is None:
                 logging.debug("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
-                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
+                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).",
+                              query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 query_text = query.query_text
 
@@ -202,7 +203,8 @@ def refresh_queries():
                         track_failure(query, error)
                         continue
                     except QueryDetachedFromDataSourceError as e:
-                        error = "Skipping refresh of {} because a related dropdown query ({}) is unattached to any datasource.".format(query.id, e.query_id)
+                        error = ("Skipping refresh of {} because a related dropdown "
+                                 "query ({}) is unattached to any datasource.").format(query.id, e.query_id)
                         track_failure(query, error)
                         continue
 
@@ -314,6 +316,7 @@ def _resolve_user(user_id, is_api_key, query_id):
     else:
         return None
 
+
 def track_failure(query, error):
     logging.debug(error)
 
@@ -322,6 +325,7 @@ def track_failure(query, error):
     models.db.session.commit()
 
     notify_of_failure(error, query)
+
 
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.

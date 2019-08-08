@@ -12,7 +12,7 @@ from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
-                                              QueryDetachedFromDataSourceError, dropdown_values)
+                                               QueryDetachedFromDataSourceError, dropdown_values)
 from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
