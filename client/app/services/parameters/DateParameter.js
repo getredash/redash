@@ -1,4 +1,4 @@
-import { startsWith } from 'lodash';
+import { startsWith, isNull } from 'lodash';
 import moment from 'moment';
 import { Parameter } from '.';
 
@@ -69,6 +69,7 @@ class DateParameter extends Parameter {
       this.value = normalizedValue;
     }
     this.$$value = normalizedValue;
+    this.clearPendingValue();
     return this;
   }
 
@@ -77,6 +78,9 @@ class DateParameter extends Parameter {
       if (this.dynamicValue) {
         return this.dynamicValue.value().format(DATETIME_FORMATS[this.type]);
       }
+    }
+    if (isNull(this.value) && this.useCurrentDateTime) {
+      return moment();
     }
     return this.value;
   }

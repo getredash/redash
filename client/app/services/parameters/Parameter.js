@@ -1,7 +1,7 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has } from 'lodash';
 import {
-  TextParameter, NumberParameter, EnumParameter,
-  QueryBasedDropdownParameter, DateParameter,
+  TextParameter, NumberParameter, EnumParameter, QueryBasedDropdownParameter,
+  DateParameter, DateRangeParameter,
 } from '.';
 
 class Parameter {
@@ -36,6 +36,10 @@ class Parameter {
       case 'datetime-local':
       case 'datetime-with-seconds':
         return new DateParameter(param, parentQueryId);
+      case 'date-range':
+      case 'datetime-range-local':
+      case 'datetime-range-with-seconds':
+        return new DateRangeParameter(param, parentQueryId);
       default:
         return new TextParameter({ ...param, type: 'text' }, parentQueryId);
     }
