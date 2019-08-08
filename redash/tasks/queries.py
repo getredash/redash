@@ -183,7 +183,7 @@ def refresh_queries():
     with statsd_client.timer('manager.outdated_queries_lookup'):
         for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
-                logging.debug("Disabled refresh queries.")
+                logging.info("Disabled refresh queries.")
             elif query.org.is_disabled:
                 logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
