@@ -183,13 +183,13 @@ def refresh_queries():
     with statsd_client.timer('manager.outdated_queries_lookup'):
         for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
-                logging.info("Disabled refresh queries.")
+                logging.debug("Disabled refresh queries.")
             elif query.org.is_disabled:
                 logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
-                logging.info("Skipping refresh of %s because the datasource is none.", query.id)
+                logging.debug("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
-                logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
+                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 query_text = query.query_text
 
@@ -198,10 +198,10 @@ def refresh_queries():
                     try:
                         query_text = query.parameterized.apply(parameters).query
                     except InvalidParameterError as e:
-                        logging.info("Skipping refresh of %s because of invalid parameters: %s", query.id, e.message)
+                        logging.debug("Skipping refresh of %s because of invalid parameters: %s", query.id, e.message)
                         continue
                     except QueryDetachedFromDataSourceError as e:
-                        logging.info(
+                        logging.debug(
                             "Skipping refresh of %s because a related dropdown query (%s) is unattached to any datasource.",
                             query.id, e.query_id)
                         continue
