@@ -1,4 +1,5 @@
 import { extend, filter, forEach, size } from 'lodash';
+import { Parameter } from '@/services/parameters';
 import template from './parameters.html';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 
@@ -58,7 +59,7 @@ function ParametersDirective($location, KeyboardShortcuts) {
         EditParameterSettingsDialog
           .showModal({ parameter })
           .result.then((updated) => {
-            scope.parameters[index] = extend(parameter, updated).setValue(updated.value);
+            scope.parameters[index] = Parameter.create(extend(parameter, updated));
             scope.onUpdated();
           });
       };

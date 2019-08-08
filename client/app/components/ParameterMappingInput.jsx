@@ -16,7 +16,7 @@ import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
 import { ParameterValueInput } from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-import { Parameter } from '@/services/query';
+import { Parameter } from '@/services/parameters';
 import { HelpTrigger } from '@/components/HelpTrigger';
 
 import './ParameterMappingInput.less';

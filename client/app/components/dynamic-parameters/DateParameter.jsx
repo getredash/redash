@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { includes } from 'lodash';
-import { isDynamicDate, getDynamicDate } from '@/services/query';
+import { isDynamicDate, getDynamicDate } from '@/services/parameters/DateParameter';
 import DateInput from '@/components/DateInput';
 import DateTimeInput from '@/components/DateTimeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
