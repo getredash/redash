@@ -5,7 +5,7 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
@@ -48,6 +48,16 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         query_result = None
     else:
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
+
+    record_event(current_user.org, current_user, {
+        'action': 'execute_query',
+        'cache': 'hit' if query_result else 'miss',
+        'object_id': data_source.id,
+        'object_type': 'data_source',
+        'query': query.text,
+        'query_id': query_id,
+        'parameters': parameters
+    })
 
     if query_result:
         return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
@@ -105,14 +115,6 @@ class QueryResultListResource(BaseResource):
         if not has_access(data_source, self.current_user, not_view_only):
             return error_messages['no_permission']
 
-        self.record_event({
-            'action': 'execute_query',
-            'object_id': data_source.id,
-            'object_type': 'data_source',
-            'query': query,
-            'query_id': query_id,
-            'parameters': parameters
-        })
         return run_query(parameterized_query, parameters, data_source, query_id, max_age)
 
 
