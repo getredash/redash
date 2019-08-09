@@ -688,7 +688,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def parameterized(self):
-        return ParameterizedQuery(self.query_text, self.parameters)
+        return ParameterizedQuery(self.query_text, self.parameters, self.org)
 
     @property
     def dashboard_api_keys(self):
