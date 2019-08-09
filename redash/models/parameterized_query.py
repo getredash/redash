@@ -1,6 +1,5 @@
 import pystache
 from functools import partial
-from flask_restful import abort
 from numbers import Number
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
@@ -16,21 +15,20 @@ def _pluck_name_and_value(default_column, row):
     return {"name": row[name_column], "value": unicode(row[value_column])}
 
 
-def _load_result(query_id):
-    from redash.authentication.org_resolving import current_org
+def _load_result(query_id, org):
     from redash import models
 
-    query = models.Query.get_by_id_and_org(query_id, current_org)
+    query = models.Query.get_by_id_and_org(query_id, org)
 
     if query.data_source:
-        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, current_org)
+        query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
         return json_loads(query_result.data)
     else:
-        abort(400, message="This query is detached from any data source. Please select a different query.")
+        raise QueryDetachedFromDataSourceError(query_id)
 
 
-def dropdown_values(query_id):
-    data = _load_result(query_id)
+def dropdown_values(query_id, org):
+    data = _load_result(query_id, org)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
     return map(pluck, data["rows"])
@@ -114,8 +112,9 @@ def _is_value_within_options(value, dropdown_options, allow_list=False):
 
 
 class ParameterizedQuery(object):
-    def __init__(self, template, schema=None):
+    def __init__(self, template, schema=None, org=None):
         self.schema = schema or []
+        self.org = org
         self.template = template
         self.query = template
         self.parameters = {}
@@ -153,7 +152,7 @@ class ParameterizedQuery(object):
                                                            enum_options,
                                                            allow_multiple_values),
             "query": lambda value: _is_value_within_options(value,
-                                                            [v["value"] for v in dropdown_values(query_id)],
+                                                            [v["value"] for v in dropdown_values(query_id, self.org)],
                                                             allow_multiple_values),
             "date": _is_date,
             "datetime-local": _is_date,
@@ -187,3 +186,10 @@ class InvalidParameterError(Exception):
         parameter_names = u", ".join(parameters)
         message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)
+
+
+class QueryDetachedFromDataSourceError(Exception):
+    def __init__(self, query_id):
+        self.query_id = query_id
+        super(QueryDetachedFromDataSourceError, self).__init__(
+            "This query is detached from any data source. Please select a different query.")

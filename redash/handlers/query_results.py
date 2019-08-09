@@ -11,7 +11,8 @@ from redash.permissions import (has_access, not_view_only, require_access,
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
+                                               QueryDetachedFromDataSourceError, dropdown_values)
 from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
@@ -38,7 +39,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     try:
         query.apply(parameters)
-    except InvalidParameterError as e:
+    except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=e.message)
 
     if query.missing_params:
@@ -104,7 +105,7 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
-        parameterized_query = ParameterizedQuery(query)
+        parameterized_query = ParameterizedQuery(query, org=self.current_org)
 
         data_source_id = params.get('data_source_id')
         if data_source_id:
@@ -125,7 +126,10 @@ class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, current_user, view_only)
-        return dropdown_values(query_id)
+        try:
+            return dropdown_values(query_id, self.current_org)
+        except QueryDetachedFromDataSourceError as e:
+            abort(400, message=e.message)
 
 
 class QueryDropdownsResource(BaseResource):
@@ -138,7 +142,7 @@ class QueryDropdownsResource(BaseResource):
             dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
             require_access(dropdown_query.data_source, current_user, view_only)
 
-        return dropdown_values(dropdown_query_id)
+        return dropdown_values(dropdown_query_id, self.current_org)
 
 
 class QueryResultResource(BaseResource):
