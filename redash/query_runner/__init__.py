@@ -3,6 +3,8 @@ import logging
 from dateutil import parser
 import requests
 
+from six import text_type
+
 from redash import settings
 from redash.utils import json_loads
 
@@ -299,7 +301,7 @@ def guess_type_from_string(string_value):
     except (ValueError, OverflowError):
         pass
 
-    if unicode(string_value).lower() in ('true', 'false'):
+    if text_type(string_value).lower() in ('true', 'false'):
         return TYPE_BOOLEAN
 
     try:

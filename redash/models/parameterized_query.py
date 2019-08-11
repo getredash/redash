@@ -6,13 +6,15 @@ from redash.permissions import require_access, view_only
 from funcy import distinct
 from dateutil.parser import parse
 
+from six import string_types, text_type
+
 
 def _pluck_name_and_value(default_column, row):
     row = {k.lower(): v for k, v in row.items()}
     name_column = "name" if "name" in row.keys() else default_column.lower()
     value_column = "value" if "value" in row.keys() else default_column.lower()
 
-    return {"name": row[name_column], "value": unicode(row[value_column])}
+    return {"name": row[name_column], "value": text_type(row[value_column])}
 
 
 def _load_result(query_id, org):
@@ -107,8 +109,8 @@ def _is_date_range(obj):
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
-        return allow_list and set(map(unicode, value)).issubset(set(dropdown_options))
-    return unicode(value) in dropdown_options
+        return allow_list and set(map(text_type, value)).issubset(set(dropdown_options))
+    return text_type(value) in dropdown_options
 
 
 class ParameterizedQuery(object):
@@ -142,11 +144,11 @@ class ParameterizedQuery(object):
         query_id = definition.get('queryId')
         allow_multiple_values = isinstance(definition.get('multiValuesOptions'), dict)
 
-        if isinstance(enum_options, basestring):
+        if isinstance(enum_options, string_types):
             enum_options = enum_options.split('\n')
 
         validators = {
-            "text": lambda value: isinstance(value, basestring),
+            "text": lambda value: isinstance(value, string_types),
             "number": _is_number,
             "enum": lambda value: _is_value_within_options(value,
                                                            enum_options,

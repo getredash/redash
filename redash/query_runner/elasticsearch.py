@@ -4,9 +4,11 @@ import urllib
 
 import requests
 from requests.auth import HTTPBasicAuth
+from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
+from redash.utils.compat import long
 
 try:
     import http.client as http_client
@@ -35,7 +37,7 @@ ELASTICSEARCH_BUILTIN_FIELDS_MAPPING = {
 
 PYTHON_TYPES_MAPPING = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     bool: TYPE_BOOLEAN,
     int: TYPE_INTEGER,
     long: TYPE_INTEGER,
@@ -345,7 +347,7 @@ class Kibana(BaseElasticSearch):
 
             result_columns = []
             result_rows = []
-            if isinstance(query_data, str) or isinstance(query_data, unicode):
+            if isinstance(query_data, string_types):
                 _from = 0
                 while True:
                     query_size = size if limit >= (_from + size) else (limit - _from)
