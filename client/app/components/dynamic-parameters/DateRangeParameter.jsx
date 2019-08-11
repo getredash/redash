@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { includes, isArray, isObject } from 'lodash';
-import { isDynamicDateRange, getDynamicDateRange } from '@/services/parameters/DateRangeParameter';
+import { isDynamicDateRange, getDynamicDateRangeFromString } from '@/services/parameters/DateRangeParameter';
 import DateRangeInput from '@/components/DateRangeInput';
 import DateTimeRangeInput from '@/components/DateTimeRangeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
@@ -12,29 +12,37 @@ import './DynamicParameters.less';
 
 const DYNAMIC_DATE_OPTIONS = [
   { name: 'This week',
-    value: 'd_this_week',
-    label: () => getDynamicDateRange('d_this_week').value()[0].format('MMM D') + ' - ' +
-                 getDynamicDateRange('d_this_week').value()[1].format('MMM D') },
-  { name: 'This month', value: 'd_this_month', label: () => getDynamicDateRange('d_this_month').value()[0].format('MMMM') },
-  { name: 'This year', value: 'd_this_year', label: () => getDynamicDateRange('d_this_year').value()[0].format('YYYY') },
+    value: getDynamicDateRangeFromString('d_this_week'),
+    label: () => getDynamicDateRangeFromString('d_this_week').value()[0].format('MMM D') + ' - ' +
+                 getDynamicDateRangeFromString('d_this_week').value()[1].format('MMM D') },
+  { name: 'This month',
+    value: getDynamicDateRangeFromString('d_this_month'),
+    label: () => getDynamicDateRangeFromString('d_this_month').value()[0].format('MMMM') },
+  { name: 'This year',
+    value: getDynamicDateRangeFromString('d_this_year'),
+    label: () => getDynamicDateRangeFromString('d_this_year').value()[0].format('YYYY') },
   { name: 'Last week',
-    value: 'd_last_week',
-    label: () => getDynamicDateRange('d_last_week').value()[0].format('MMM D') + ' - ' +
-                 getDynamicDateRange('d_last_week').value()[1].format('MMM D') },
-  { name: 'Last month', value: 'd_last_month', label: () => getDynamicDateRange('d_last_month').value()[0].format('MMMM') },
-  { name: 'Last year', value: 'd_last_year', label: () => getDynamicDateRange('d_last_year').value()[0].format('YYYY') },
+    value: getDynamicDateRangeFromString('d_last_week'),
+    label: () => getDynamicDateRangeFromString('d_last_week').value()[0].format('MMM D') + ' - ' +
+                 getDynamicDateRangeFromString('d_last_week').value()[1].format('MMM D') },
+  { name: 'Last month',
+    value: getDynamicDateRangeFromString('d_last_month'),
+    label: () => getDynamicDateRangeFromString('d_last_month').value()[0].format('MMMM') },
+  { name: 'Last year',
+    value: getDynamicDateRangeFromString('d_last_year'),
+    label: () => getDynamicDateRangeFromString('d_last_year').value()[0].format('YYYY') },
   { name: 'Last 7 days',
-    value: 'd_last_7_days',
-    label: () => getDynamicDateRange('d_last_7_days').value()[0].format('MMM D') + ' - Today' },
+    value: getDynamicDateRangeFromString('d_last_7_days'),
+    label: () => getDynamicDateRangeFromString('d_last_7_days').value()[0].format('MMM D') + ' - Today' },
 ];
 
 const DYNAMIC_DATETIME_OPTIONS = [
   { name: 'Today',
-    value: 'd_today',
-    label: () => getDynamicDateRange('d_today').value()[0].format('MMM D') },
+    value: getDynamicDateRangeFromString('d_today'),
+    label: () => getDynamicDateRangeFromString('d_today').value()[0].format('MMM D') },
   { name: 'Yesterday',
-    value: 'd_yesterday',
-    label: () => getDynamicDateRange('d_yesterday').value()[0].format('MMM D') },
+    value: getDynamicDateRangeFromString('d_yesterday'),
+    label: () => getDynamicDateRangeFromString('d_yesterday').value()[0].format('MMM D') },
   ...DYNAMIC_DATE_OPTIONS,
 ];
 
@@ -107,7 +115,7 @@ class DateRangeParameter extends React.Component {
     }
 
     if (hasDynamicValue) {
-      const dynamicDateRange = getDynamicDateRange(value);
+      const dynamicDateRange = value;
       additionalAttributes.placeholder = [dynamicDateRange && dynamicDateRange.name];
       additionalAttributes.value = null;
     }

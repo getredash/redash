@@ -540,7 +540,7 @@ export class ParameterMappingListInput extends React.Component {
 
     // in case of dynamic value display the name instead of value
     if (param.hasDynamicValue) {
-      value = param.dynamicValue.name;
+      value = param.normalizedValue.name;
     }
 
     return this.getStringValue(value);

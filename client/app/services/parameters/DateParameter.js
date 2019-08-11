@@ -1,5 +1,6 @@
-import { startsWith, isNull } from 'lodash';
+import { findKey, startsWith, has, includes, isNull, values } from 'lodash';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import { Parameter } from '.';
 
 const DATETIME_FORMATS = {
@@ -22,15 +23,18 @@ const DYNAMIC_DATES = {
   },
 };
 
-export function isDynamicDate(value) {
-  if (!startsWith(value, DYNAMIC_PREFIX)) {
-    return false;
-  }
-  return !!DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+export const DynamicDateType = PropTypes.oneOf(values(DYNAMIC_DATES));
+
+function isDynamicDateString(value) {
+  return startsWith(value, DYNAMIC_PREFIX) && has(DYNAMIC_DATES, value.substring(DYNAMIC_PREFIX.length));
 }
 
-export function getDynamicDate(value) {
-  if (!isDynamicDate(value)) {
+export function isDynamicDate(value) {
+  return includes(DYNAMIC_DATES, value);
+}
+
+export function getDynamicDateFromString(value) {
+  if (!isDynamicDateString(value)) {
     return null;
   }
   return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
@@ -44,15 +48,15 @@ class DateParameter extends Parameter {
   }
 
   get hasDynamicValue() {
-    return isDynamicDate(this.value);
-  }
-
-  get dynamicValue() {
-    return getDynamicDate(this.value);
+    return isDynamicDate(this.$$value);
   }
 
   // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
+    if (isDynamicDateString(value)) {
+      return getDynamicDateFromString(value);
+    }
+
     if (isDynamicDate(value)) {
       return value;
     }
@@ -63,7 +67,9 @@ class DateParameter extends Parameter {
 
   setValue(value) {
     const normalizedValue = this.normalizeValue(value);
-    if (moment.isMoment(normalizedValue)) {
+    if (isDynamicDate(normalizedValue)) {
+      this.value = DYNAMIC_PREFIX + findKey(DYNAMIC_DATES, normalizedValue);
+    } else if (moment.isMoment(normalizedValue)) {
       this.value = normalizedValue.format(DATETIME_FORMATS[this.type]);
     } else {
       this.value = normalizedValue;
@@ -75,12 +81,10 @@ class DateParameter extends Parameter {
 
   getValue() {
     if (this.hasDynamicValue) {
-      if (this.dynamicValue) {
-        return this.dynamicValue.value().format(DATETIME_FORMATS[this.type]);
-      }
+      return this.$$value.value().format(DATETIME_FORMATS[this.type]);
     }
     if (isNull(this.value) && this.useCurrentDateTime) {
-      return moment();
+      return moment().format(DATETIME_FORMATS[this.type]);
     }
     return this.value;
   }

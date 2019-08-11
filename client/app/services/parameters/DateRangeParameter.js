@@ -1,6 +1,6 @@
-import { startsWith, has } from 'lodash';
+import { startsWith, has, includes, findKey, values, isObject, isArray } from 'lodash';
 import moment from 'moment';
-import { isObject, isArray } from 'util';
+import PropTypes from 'prop-types';
 import { Parameter } from '.';
 
 const DATETIME_FORMATS = {
@@ -50,15 +50,21 @@ const DYNAMIC_DATE_RANGES = {
   },
 };
 
-export function isDynamicDateRange(value) {
+export const DynamicDateRangeType = PropTypes.oneOf(values(DYNAMIC_DATE_RANGES));
+
+export function isDynamicDateRangeString(value) {
   if (!startsWith(value, DYNAMIC_PREFIX)) {
     return false;
   }
   return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
-export function getDynamicDateRange(value) {
-  if (!isDynamicDateRange(value)) {
+export function isDynamicDateRange(value) {
+  return includes(DYNAMIC_DATE_RANGES, value);
+}
+
+export function getDynamicDateRangeFromString(value) {
+  if (!isDynamicDateRangeString(value)) {
     return null;
   }
   return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
@@ -71,15 +77,15 @@ class DateRangeParameter extends Parameter {
   }
 
   get hasDynamicValue() {
-    return isDynamicDateRange(this.value);
-  }
-
-  get dynamicValue() {
-    return getDynamicDateRange(this.value);
+    return isDynamicDateRange(this.$$value);
   }
 
   // eslint-disable-next-line class-methods-use-this
   normalizeValue(value) {
+    if (isDynamicDateRangeString(value)) {
+      return getDynamicDateRangeFromString(value);
+    }
+
     if (isDynamicDateRange(value)) {
       return value;
     }
@@ -99,7 +105,9 @@ class DateRangeParameter extends Parameter {
 
   setValue(value) {
     const normalizedValue = this.normalizeValue(value);
-    if (isArray(normalizedValue)) {
+    if (isDynamicDateRange(normalizedValue)) {
+      this.value = DYNAMIC_PREFIX + findKey(DYNAMIC_DATE_RANGES, normalizedValue);
+    } else if (isArray(normalizedValue)) {
       this.value = {
         start: normalizedValue[0].format(DATETIME_FORMATS[this.type]),
         end: normalizedValue[1].format(DATETIME_FORMATS[this.type]),
@@ -114,13 +122,9 @@ class DateRangeParameter extends Parameter {
 
   getValue() {
     if (this.hasDynamicValue) {
-      if (this.dynamicValue) {
-        const dateRange = this.dynamicValue.value();
-        return {
-          start: dateRange[0].format(DATETIME_FORMATS[this.type]),
-          end: dateRange[1].format(DATETIME_FORMATS[this.type]),
-        };
-      }
+      const format = date => date.format(DATETIME_FORMATS[this.type]);
+      const [start, end] = this.$$value.value().map(format);
+      return { start, end };
     }
     return this.value;
   }

@@ -37,7 +37,7 @@ class Parameter {
       case 'datetime-with-seconds':
         return new DateParameter(param, parentQueryId);
       case 'date-range':
-      case 'datetime-range-local':
+      case 'datetime-range':
       case 'datetime-range-with-seconds':
         return new DateRangeParameter(param, parentQueryId);
       default:
@@ -83,7 +83,7 @@ class Parameter {
   }
 
   clone() {
-    return Parameter.create(this);
+    return Parameter.create(this, this.parentQueryId);
   }
 
   // eslint-disable-next-line class-methods-use-this
