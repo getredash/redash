@@ -100,7 +100,7 @@ def verify(token, org_slug=None):
     models.db.session.add(user)
     models.db.session.commit()
 
-    template_context = { "org_slug": org_slug } if settings.MULTI_ORG else {}
+    template_context = {"org_slug": org_slug} if settings.MULTI_ORG else {}
     next_url = url_for('redash.index', **template_context)
 
     return render_template("verify.html", next_url=next_url)

@@ -53,7 +53,7 @@ def _get_column_lists(columns):
         for col_type in special_types.keys():
             if col['type'] == col_type:
                 special_columns[col['name']] = special_types[col_type]
-    
+
     return fieldnames, special_columns
 
 
