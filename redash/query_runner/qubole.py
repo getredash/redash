@@ -129,4 +129,5 @@ class Qubole(BaseQueryRunner):
         return {"Content-type": "application/json", "Accept": "application/json",
                 "X-AUTH-TOKEN": self.configuration['token']}
 
+
 register(Qubole)

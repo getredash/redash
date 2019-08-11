@@ -1,0 +1,22 @@
+.tags-control {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: flex-start;
+  line-height: 1em;
+
+  &.inline-tags-control {
+    display: inline-block;
+  }
+
+  &.disabled {
+    opacity: 0.4;
+  }
+}
+
+// This is for using .inline-tags-control in Angular which renders
+// a little differently than React (e.g. in Alert.html)
+.inline-tags-control .tags-control {
+  display: inline-block;
+}

@@ -33,7 +33,7 @@ def show_google_apps_domains():
 def list():
     """List all organizations"""
     orgs = models.Organization.query
-    for i, org in enumerate(orgs):
+    for i, org in enumerate(orgs.order_by(models.Organization.name)):
         if i > 0:
             print("-" * 20)
 

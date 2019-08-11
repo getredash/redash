@@ -119,7 +119,7 @@ def sp_initiated(org_slug=None):
 
     # NOTE:
     #   I realize I _technically_ don't need to set Cache-Control or Pragma:
-    #     http://stackoverflow.com/a/5494469
+    #     https://stackoverflow.com/a/5494469
     #   However, Section 3.2.3.2 of the SAML spec suggests they are set:
     #     http://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf
     #   We set those headers here as a "belt and suspenders" approach,

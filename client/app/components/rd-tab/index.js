@@ -22,3 +22,5 @@ function rdTab($location) {
 export default function init(ngModule) {
   ngModule.directive('rdTab', rdTab);
 }
+
+init.init = true;

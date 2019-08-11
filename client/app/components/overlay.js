@@ -14,3 +14,5 @@ const Overlay = {
 export default function init(ngModule) {
   ngModule.component('overlay', Overlay);
 }
+
+init.init = true;

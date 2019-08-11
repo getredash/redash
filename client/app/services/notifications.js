@@ -1,83 +1,56 @@
+import { find } from 'lodash';
 import debug from 'debug';
+import recordEvent from '@/services/recordEvent';
 
 const logger = debug('redash:notifications');
 
-function Notifications(currentUser, Events) {
-  const notificationService = { pageVisible: true };
+const Notification = window.Notification || null;
+if (!Notification) {
+  logger('HTML5 notifications are not supported.');
+}
 
-  notificationService.monitorVisibility = function monitorVisibility() {
-    let hidden;
-    let visibilityChange;
+const hidden = find(
+  ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'],
+  prop => prop in document,
+);
 
-    if (typeof document.hidden !== 'undefined') {
-      hidden = 'hidden';
-      visibilityChange = 'visibilitychange';
-    } else if (typeof document.msHidden !== 'undefined') {
-      hidden = 'msHidden';
-      visibilityChange = 'msvisibilitychange';
-    }
+class NotificationsService {
+  // eslint-disable-next-line class-methods-use-this
+  get pageVisible() {
+    return !document[hidden];
+  }
 
-    let documentHidden = document[hidden];
-
-    document.addEventListener(visibilityChange, () => {
-      if (documentHidden !== document[hidden]) {
-        if (document[hidden]) {
-          notificationService.pageVisible = false;
-        } else {
-          notificationService.pageVisible = true;
-        }
-
-        documentHidden = document[hidden];
-      }
-    });
-  };
-
-  notificationService.monitorVisibility();
-
-  notificationService.isSupported = () => {
-    if ('Notification' in window) {
-      return true;
-    }
-
-    logger('HTML5 notifications are not supported.');
-    return false;
-  };
-
-  notificationService.getPermissions = function getPermissions() {
-    if (!this.isSupported()) {
-      return;
-    }
-
-    if (Notification.permission === 'default') {
+  // eslint-disable-next-line class-methods-use-this
+  getPermissions() {
+    if (Notification && (Notification.permission === 'default')) {
       Notification.requestPermission((status) => {
         if (Notification.permission !== status) {
           Notification.permission = status;
         }
       });
     }
-  };
+  }
 
-  notificationService.showNotification = function showNotification(title, content) {
-    if (!this.isSupported() || this.pageVisible || Notification.permission !== 'granted') {
+  showNotification(title, content) {
+    if (!Notification || this.pageVisible || (Notification.permission !== 'granted')) {
       return;
     }
 
     // using the 'tag' to avoid showing duplicate notifications
-    const notification = new Notification(title, { tag: title + content, body: content, icon: '/images/redash_icon_small.png' });
+    const notification = new Notification(title, {
+      tag: title + content,
+      body: content,
+      icon: '/images/redash_icon_small.png',
+    });
     setTimeout(() => {
       notification.close();
     }, 3000);
     notification.onclick = function onClick() {
       window.focus();
       this.close();
-      Events.record('click', 'notification');
+      recordEvent('click', 'notification');
     };
-  };
-
-  return notificationService;
+  }
 }
 
-
-export default function init(ngModule) {
-  ngModule.factory('Notifications', Notifications);
-}
+export default new NotificationsService();

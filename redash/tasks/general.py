@@ -3,6 +3,7 @@ import requests
 from celery.utils.log import get_task_logger
 from flask_mail import Message
 from redash import mail, models, settings
+from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import celery
 
@@ -57,3 +58,16 @@ def send_mail(to, subject, html, text):
         mail.send(message)
     except Exception:
         logger.exception('Failed sending message: %s', message.subject)
+
+
+@celery.task(
+    name="redash.tasks.sync_user_details",
+    ignore_result=True,
+    soft_time_limit=60,
+    time_limit=120,
+    # let the task expire after 45 seconds since there will be
+    # another task 15 seconds later anyway
+    expires=45,
+)
+def sync_user_details():
+    users.sync_last_active_at()

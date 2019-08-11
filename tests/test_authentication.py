@@ -1,17 +1,19 @@
 import os
 import time
 
+from six.moves import reload_module
+
 from flask import request
 from mock import patch
-from sqlalchemy.orm.exc import NoResultFound
-from tests import BaseTestCase
-
 from redash import models, settings
 from redash.authentication import (api_key_load_user_from_request,
                                    get_login_url, hmac_load_user_from_request,
                                    sign)
 from redash.authentication.google_oauth import (create_and_login_user,
                                                 verify_profile)
+from redash.utils import utcnow
+from sqlalchemy.orm.exc import NoResultFound
+from tests import BaseTestCase
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -52,6 +54,14 @@ class TestApiKeyAuthentication(BaseTestCase):
         with self.app.test_client() as c:
             rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
             self.assertEqual(user.id, api_key_load_user_from_request(request).id)
+
+    def test_disabled_user_api_key(self):
+        user = self.factory.create_user(api_key="user_key")
+        user.disable()
+        models.db.session.flush()
+        with self.app.test_client() as c:
+            rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
+            self.assertEqual(None, api_key_load_user_from_request(request))
 
     def test_api_key_header(self):
         with self.app.test_client() as c:
@@ -117,16 +127,29 @@ class TestHMACAuthentication(BaseTestCase):
             self.assertEqual(user.id, hmac_load_user_from_request(request).id)
 
 
+class TestSessionAuthentication(BaseTestCase):
+    def test_prefers_api_key_over_session_user_id(self):
+        user = self.factory.create_user()
+        query = self.factory.create_query(user=user)
+
+        other_org = self.factory.create_org()
+        other_user = self.factory.create_user(org=other_org)
+        models.db.session.flush()
+
+        rv = self.make_request('get', '/api/queries/{}?api_key={}'.format(query.id, query.api_key), user=other_user)
+        self.assertEqual(rv.status_code, 200)
+
+
 class TestCreateAndLoginUser(BaseTestCase):
     def test_logins_valid_user(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
         with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
     def test_creates_vaild_new_user(self):
-        email = 'test@example.com'
+        email = u'test@example.com'
         name = 'Test User'
 
         with patch('redash.authentication.login_user') as login_user_mock:
@@ -137,7 +160,7 @@ class TestCreateAndLoginUser(BaseTestCase):
             self.assertEqual(user.email, email)
 
     def test_updates_user_name(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
         with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, "New Name", user.email)
@@ -146,16 +169,16 @@ class TestCreateAndLoginUser(BaseTestCase):
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_not_in_org_domains_list(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_in_org_domains_list(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.com']
         self.assertTrue(verify_profile(self.factory.org, profile))
 
@@ -163,14 +186,14 @@ class TestVerifyProfile(BaseTestCase):
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_org_in_public_mode_accepts_any_domain(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_IS_PUBLIC] = True
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = []
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_user_not_in_domain_but_account_exists(self):
-        profile = dict(email='arik@example.com')
-        self.factory.create_user(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
+        self.factory.create_user(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
         self.assertTrue(verify_profile(self.factory.org, profile))
 
@@ -183,6 +206,34 @@ class TestGetLoginUrl(BaseTestCase):
     def test_when_multi_org_enabled_and_org_doesnt_exist(self):
         with self.app.test_request_context('/{}_notexists/'.format(self.factory.org.slug)):
             self.assertEqual(get_login_url(next=None), '/')
+
+
+class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
+    def setUp(self):
+        super(TestRedirectToUrlAfterLoggingIn, self).setUp()
+        self.user = self.factory.user
+        self.password = 'test1234'
+
+    def test_no_next_param(self):
+        response = self.post_request('/login', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/{}/'.format(self.user.org.slug))
+
+    def test_simple_path_in_next_param(self):
+        response = self.post_request('/login?next=queries', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/queries')
+
+    def test_starts_scheme_url_in_next_param(self):
+        response = self.post_request('/login?next=https://redash.io', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/')
+
+    def test_without_scheme_url_in_next_param(self):
+        response = self.post_request('/login?next=//redash.io', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/')
+
+    def test_without_scheme_with_path_url_in_next_param(self):
+        response = self.post_request('/login?next=//localhost/queries', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/queries')
+
 
 class TestRemoteUserAuth(BaseTestCase):
     DEFAULT_SETTING_OVERRIDES = {
@@ -212,11 +263,11 @@ class TestRemoteUserAuth(BaseTestCase):
         variables = self.DEFAULT_SETTING_OVERRIDES.copy()
         variables.update(overrides or {})
         with patch.dict(os.environ, variables):
-            reload(settings)
+            reload_module(settings)
 
         # Queue a cleanup routine that reloads the settings without overrides
         # once the test ends
-        self.addCleanup(lambda: reload(settings))
+        self.addCleanup(lambda: reload_module(settings))
 
     def assert_correct_user_attributes(self, user, email='test@example.com', name='test@example.com', groups=None, org=None):
         """Helper to assert that the user attributes are correct."""

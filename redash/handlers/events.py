@@ -22,7 +22,7 @@ def event_details(event):
     if event.object_type == 'data_source' and event.action == 'execute_query':
         details['query'] = event.additional_properties['query']
         details['data_source'] = event.object_id
-    elif event.object_type == 'page' and event.action =='view':
+    elif event.object_type == 'page' and event.action == 'view':
         details['page'] = event.object_id
     else:
         details['object_id'] = event.object_id

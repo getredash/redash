@@ -27,7 +27,7 @@ class VisualizationResourceTest(BaseTestCase):
         rv = self.make_request('delete', '/api/visualizations/{}'.format(visualization.id))
 
         self.assertEquals(rv.status_code, 200)
-        self.assertEquals(models.db.session.query(models.Visualization).count(), 0)
+        self.assertEquals(models.Visualization.query.count(), 0)
 
     def test_update_visualization(self):
         visualization = self.factory.create_visualization()
@@ -128,3 +128,11 @@ class VisualizationResourceTest(BaseTestCase):
 
         rv = self.make_request('delete', path, user=admin_from_diff_org)
         self.assertEquals(rv.status_code, 404)
+
+    def test_deleting_a_visualization_deletes_dashboard_widgets(self):
+        vis = self.factory.create_visualization()
+        widget = self.factory.create_widget(visualization=vis)
+
+        rv = self.make_request('delete', '/api/visualizations/{}'.format(vis.id))
+
+        self.assertIsNone(models.Widget.query.filter(models.Widget.id == widget.id).first())

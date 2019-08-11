@@ -40,3 +40,10 @@
     vertical-align: top;
     margin-left: 0;
 }
+
+// Hide URLs next to links when printing (override `bootstrap` rules)
+@media print {
+    a[href]:after {
+        content: none !important;
+    }
+}

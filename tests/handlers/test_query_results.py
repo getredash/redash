@@ -1,6 +1,8 @@
-import json
 from tests import BaseTestCase
+
 from redash.models import db
+from redash.utils import json_dumps
+from redash.handlers.query_results import error_messages
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -75,6 +77,15 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 400)
         self.assertIn('job', rv.json)
 
+        rv = self.make_request('post', '/api/query_results',
+                               data={'data_source_id': self.factory.data_source.id,
+                                     'query': query,
+                                     'parameters': {'param': 1},
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
         rv = self.make_request('post', '/api/query_results?p_param=1',
                                data={'data_source_id': self.factory.data_source.id,
                                      'query': query,
@@ -94,6 +105,14 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 400)
         self.assertNotIn('query_result', rv.json)
         self.assertIn('job', rv.json)
+
+    def test_execute_without_data_source(self):
+        rv = self.make_request('post', '/api/query_results',
+                               data={'query': 'SELECT 1',
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 401)
+        self.assertDictEqual(rv.json, error_messages['select_data_source'][0])
 
 
 class TestQueryResultAPI(BaseTestCase):
@@ -118,6 +137,54 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
         self.assertEquals(rv.status_code, 200)
 
+    def test_execute_new_query(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={'parameters': {}})
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+    
+    def test_execute_but_has_no_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=ds)
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id))
+        self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['no_permission'][0])
+
+    def test_execute_with_no_parameter_values(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id))
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertIn('job', rv.json)
+
+    def test_prevents_execution_of_unsafe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['unsafe_on_view_only'][0])
+
+    def test_allows_execution_of_safe_queries_on_view_only_data_sources(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "number"}]})
+
+        rv = self.make_request('post', '/api/queries/{}/results'.format(query.id), data={"parameters": {}})
+        self.assertEquals(rv.status_code, 200)
+
+    def test_prevents_execution_of_unsafe_queries_using_api_key(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds, options={"parameters": [{"name": "foo", "type": "text"}]})
+
+        data = {'parameters': {'foo': 'bar'}}
+        rv = self.make_request('post', '/api/queries/{}/results?api_key={}'.format(query.id, query.api_key), data=data)
+        self.assertEquals(rv.status_code, 403)
+        self.assertDictEqual(rv.json, error_messages['unsafe_when_shared'][0])
+
     def test_access_with_query_api_key(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query()
@@ -134,7 +201,7 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request('get', '/api/queries/{}/results.json?api_key={}'.format(query.id, query.api_key), user=False)
         self.assertEquals(rv.status_code, 200)
-    
+
     def test_query_api_key_and_different_query_result(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
@@ -152,6 +219,90 @@ class TestQueryResultAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 403)
 
 
+class TestQueryResultDropdownResource(BaseTestCase):
+    def test_checks_for_access_to_the_query(self):
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
+        query = self.factory.create_query(data_source=ds2)
+
+        rv = self.make_request('get', '/api/queries/{}/dropdown'.format(query.id))
+
+        self.assertEquals(rv.status_code, 403)
+
+
+class TestQueryDropdownsResource(BaseTestCase):
+    def test_prevents_access_if_unassociated_and_doesnt_have_access(self):
+        query = self.factory.create_query()
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
+        unrelated_dropdown_query = self.factory.create_query(data_source=ds2)
+
+        # unrelated_dropdown_query has not been associated with query
+        # user does not have direct access to unrelated_dropdown_query
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 403)
+
+    def test_allows_access_if_unassociated_but_user_has_access(self):
+        query = self.factory.create_query()
+
+        query_result = self.factory.create_query_result()
+        data = {
+            'rows': [],
+            'columns': [{'name': 'whatever'}]
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
+        unrelated_dropdown_query = self.factory.create_query(latest_query_data=query_result)
+
+        # unrelated_dropdown_query has not been associated with query
+        # user has direct access to unrelated_dropdown_query
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, unrelated_dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 200)
+
+    def test_allows_access_if_associated_and_has_access_to_parent(self):
+        query_result = self.factory.create_query_result()
+        data = {
+            'rows': [],
+            'columns': [{'name': 'whatever'}]
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
+        dropdown_query = self.factory.create_query(latest_query_data=query_result)
+
+        options = {
+                'parameters': [{
+                'type': 'query',
+                'queryId': dropdown_query.id
+            }]
+        }
+        query = self.factory.create_query(options=options)
+
+        # dropdown_query has been associated with query
+        # user has access to query
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 200)
+
+    def test_prevents_access_if_associated_and_doesnt_have_access_to_parent(self):
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
+        dropdown_query = self.factory.create_query(data_source=ds2)
+        options = {
+                'parameters': [{
+                'type': 'query',
+                'queryId': dropdown_query.id
+            }]
+        }
+        query = self.factory.create_query(data_source=ds2, options=options)
+
+        # dropdown_query has been associated with query
+        # user doesnt have access to either query
+
+        rv = self.make_request('get', '/api/queries/{}/dropdowns/{}'.format(query.id, dropdown_query.id))
+
+        self.assertEquals(rv.status_code, 403)
+
+
 class TestQueryResultExcelResponse(BaseTestCase):
     def test_renders_excel_file(self):
         query = self.factory.create_query()
@@ -162,7 +313,17 @@ class TestQueryResultExcelResponse(BaseTestCase):
 
     def test_renders_excel_file_when_rows_have_missing_columns(self):
         query = self.factory.create_query()
-        query_result = self.factory.create_query_result(data=json.dumps({'rows': [{'test': 1}, {'test': 2, 'test2': 3}], 'columns': [{'name': 'test'}, {'name': 'test2'}]}))
+        data = {
+            'rows': [
+                {'test': 1},
+                {'test': 2, 'test2': 3},
+            ],
+            'columns': [
+                {'name': 'test'},
+                {'name': 'test2'},
+            ],
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)

@@ -1,4 +1,4 @@
-import { sortBy } from 'underscore';
+import { sortBy } from 'lodash';
 
 export default class Paginator {
   constructor(rows, { page = 1, itemsPerPage = 20, totalCount = undefined } = {}) {

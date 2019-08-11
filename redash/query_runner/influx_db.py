@@ -1,8 +1,7 @@
-import json
 import logging
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +41,10 @@ def _transform_result(results):
                         result_row[column] = value
                 result_rows.append(result_row)
 
-    return json.dumps({
+    return json_dumps({
         "columns": [{'name': c} for c in result_columns],
         "rows": result_rows
-    }, cls=JSONEncoder)
+    })
 
 
 class InfluxDB(BaseQueryRunner):
@@ -74,9 +73,6 @@ class InfluxDB(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "influxdb"
-
-    def __init__(self, configuration):
-        super(InfluxDB, self).__init__(configuration)
 
     def run_query(self, query, user):
         client = InfluxDBClusterClient.from_DSN(self.configuration['url'])

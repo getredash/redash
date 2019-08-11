@@ -1,13 +1,12 @@
 from __future__ import print_function
-import json
-
 
 import click
-from flask.cli import FlaskGroup, run_command
+import simplejson
 from flask import current_app
+from flask.cli import FlaskGroup, run_command
 
-from redash import create_app, settings, __version__
-from redash.cli import users, groups, database, data_sources, organization
+from redash import __version__, create_app, settings
+from redash.cli import data_sources, database, groups, organization, queries, users
 from redash.monitor import get_status
 
 
@@ -17,9 +16,11 @@ def create(group):
 
     @app.shell_context_processor
     def shell_context():
-        from redash import models
-        return dict(models=models)
-
+        from redash import models, settings
+        return {
+            'models': models,
+            'settings': settings,
+        }
     return app
 
 
@@ -33,6 +34,7 @@ manager.add_command(users.manager, "users")
 manager.add_command(groups.manager, "groups")
 manager.add_command(data_sources.manager, "ds")
 manager.add_command(organization.manager, "org")
+manager.add_command(queries.manager, "queries")
 manager.add_command(run_command, "runserver")
 
 
@@ -44,13 +46,13 @@ def version():
 
 @manager.command()
 def status():
-    print(json.dumps(get_status(), indent=2))
+    print(simplejson.dumps(get_status(), indent=2))
 
 
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
-    for name, item in settings.all_settings().iteritems():
+    for name, item in current_app.config.iteritems():
         print("{} = {}".format(name, item))
 
 

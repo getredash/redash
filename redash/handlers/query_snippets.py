@@ -11,6 +11,13 @@ class QuerySnippetResource(BaseResource):
     def get(self, snippet_id):
         snippet = get_object_or_404(models.QuerySnippet.get_by_id_and_org,
                                     snippet_id, self.current_org)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': snippet_id,
+            'object_type': 'query_snippet',
+        })
+
         return snippet.to_dict()
 
     def post(self, snippet_id):
@@ -69,5 +76,9 @@ class QuerySnippetListResource(BaseResource):
         return snippet.to_dict()
 
     def get(self):
+        self.record_event({
+            'action': 'list',
+            'object_type': 'query_snippet',
+        })
         return [snippet.to_dict() for snippet in
                 models.QuerySnippet.all(org=self.current_org)]

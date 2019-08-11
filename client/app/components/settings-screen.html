@@ -1,10 +1,13 @@
 <div class="container">
-  <page-header title="Settings">
-  </page-header>
+  <page-header title="'Settings'"></page-header>
 
   <div class="bg-white tiled">
     <ul class="tab-nav">
-      <li ng-class="{'active': $ctrl.isActive(menuItem)}" ng-if="$ctrl.isAvailable(menuItem.permission)" ng-repeat="menuItem in $ctrl.settingsMenu.menus">
+      <li
+        ng-repeat="menuItem in $ctrl.settingsMenu.items"
+        ng-if="$ctrl.isAvailable(menuItem.permission)"
+        ng-class="{'active': $ctrl.isActive(menuItem)}"
+      >
         <a href="{{menuItem.path}}">{{menuItem.title}}</a>
       </li>
 

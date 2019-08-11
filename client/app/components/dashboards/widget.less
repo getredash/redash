@@ -1,3 +1,30 @@
+.tile .t-header .th-title a.query-link {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+visualization-name:empty + span {
+  color: rgba(0, 0, 0, 0.8);
+}
+
+visualization-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8);
+
+  &:after {
+    content: "−";
+    margin-left: 5px;
+  }
+
+  &:empty:after {
+    content: none;
+  }
+}
+
+.th-title p.hidden-print {
+  margin-bottom: 0;
+}
+
 .widget-wrapper {
   .body-container {
     display: flex;
@@ -60,5 +87,35 @@
     :last-child {
       margin-bottom: 0;
     }
+  }
+}
+
+
+// react-grid-layout overrides
+.react-grid-item {
+
+  // placeholder color
+  &.react-grid-placeholder {
+    border-radius: 3px;
+    background-color: #E0E6EB;
+    opacity: 0.5;
+  }
+
+  // resize placeholder behind widget, the lib's default is above 🤷‍♂️
+  &.resizing {
+    z-index: 3;
+  }
+
+  // auto-height animation
+  &.cssTransforms:not(.resizing) {
+    transition-property: transform, height; // added ", height"
+  }
+
+  // resize handle size
+  & > .react-resizable-handle::after {
+    width: 11px;
+    height: 11px;
+    right: 5px;
+    bottom: 5px;
   }
 }

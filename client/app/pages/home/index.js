@@ -1,17 +1,26 @@
 import template from './home.html';
+import notification from '@/services/notification';
 
-function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages) {
   Events.record('view', 'page', 'personal_homepage');
 
-  this.recentQueries = Query.recent();
-  this.recentDashboards = Dashboard.recent();
+  this.noDashboards = false;
+  this.noQueries = false;
 
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
+  this.messages = messages;
+
+  Dashboard.favorites().$promise.then((data) => {
+    this.favoriteDashboards = data.results;
+    this.noDashboards = data.results.length === 0;
+  });
+  Query.favorites().$promise.then((data) => {
+    this.favoriteQueries = data.results;
+    this.noQueries = data.results.length === 0;
+  });
+
+  this.verifyEmail = () => {
+    $http.post('verification_email/').success(({ message }) => {
+      notification.success(message);
     });
   };
 }
@@ -29,3 +38,5 @@ export default function init(ngModule) {
     },
   };
 }
+
+init.init = true;

@@ -1,4 +1,14 @@
 client/.tmp/
+client/dist/
 node_modules/
 .tmp/
+.venv/
+venv/
 .git/
+/.codeclimate.yml
+/.coverage
+/coverage.xml
+/.circleci/
+/.github/
+/netlify.toml
+/setup/

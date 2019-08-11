@@ -1,6 +1,4 @@
 from __future__ import absolute_import
-import sys
-import json
 
 try:
     import pymapd
@@ -113,5 +111,6 @@ class Mapd(BaseSQLQueryRunner):
             num_tables = tables.count(tables)
         finally:
             connection.close
+
 
 register(Mapd)

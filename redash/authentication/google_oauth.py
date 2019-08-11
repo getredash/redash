@@ -4,7 +4,7 @@ from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 
 from redash import models, settings
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index, get_next_path
 from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('google_oauth')
@@ -17,7 +17,7 @@ def google_remote_app():
     if 'google' not in oauth.remote_apps:
         oauth.remote_app('google',
                          base_url='https://www.google.com/accounts/',
-                         authorize_url='https://accounts.google.com/o/oauth2/auth',
+                         authorize_url='https://accounts.google.com/o/oauth2/auth?prompt=select_account+consent',
                          request_token_url=None,
                          request_token_params={
                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
@@ -102,6 +102,7 @@ def authorized():
     if user is None:
         return logout_and_redirect_to_index()
 
-    next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    unsafe_next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    next_path = get_next_path(unsafe_next_path)
 
     return redirect(next_path)

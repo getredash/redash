@@ -1,10 +1,10 @@
 from __future__ import print_function
 import os
 import sys
-import json
 import re
 import subprocess
 import requests
+import simplejson
 
 github_token = os.environ['GITHUB_TOKEN']
 auth = (github_token, 'x-oauth-basic')
@@ -17,7 +17,7 @@ def _github_request(method, path, params=None, headers={}):
         url = path
 
     if params is not None:
-        params = json.dumps(params)
+        params = simplejson.dumps(params)
 
     response = requests.request(method, url, data=params, auth=auth)
     return response

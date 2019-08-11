@@ -1,7 +1,4 @@
 import logging
-import json
-
-from redash import settings
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +11,8 @@ __all__ = [
 
 
 class BaseDestination(object):
+    deprecated = False
+
     def __init__(self, configuration):
         self.configuration = configuration
 
@@ -57,7 +56,7 @@ def register(destination_class):
     global destinations
     if destination_class.enabled():
         logger.debug("Registering %s (%s) destinations.", destination_class.name(), destination_class.type())
-        destinations[destination_class.type()] = destination_class 
+        destinations[destination_class.type()] = destination_class
     else:
         logger.warning("%s destination enabled but not supported, not registering. Either disable or install missing dependencies.", destination_class.name())
 
