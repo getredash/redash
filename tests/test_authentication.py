@@ -273,7 +273,6 @@ class TestRemoteUserAuth(BaseTestCase):
 class TestUserForgotPassword(BaseTestCase):
     def test_user_should_receive_password_reset_link(self):
         user = self.factory.create_user()
-        print(user)
 
         with patch('redash.handlers.authentication.send_password_reset_email') as send_password_reset_email_mock:
             response = self.post_request('/forgot', org=user.org, data={'email': user.email})
