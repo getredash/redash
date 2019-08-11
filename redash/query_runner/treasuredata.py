@@ -60,7 +60,7 @@ class TreasureData(BaseQueryRunner):
                     'default': False
                 }
             },
-            'required': ['apikey','db']
+            'required': ['apikey', 'db']
         }
 
     @classmethod
@@ -115,5 +115,6 @@ class TreasureData(BaseQueryRunner):
             json_data = None
             error = "%s: %s" % (e.message, cursor.show_job().get('debug', {}).get('stderr', 'No stderr message in the response'))
         return json_data, error
+
 
 register(TreasureData)

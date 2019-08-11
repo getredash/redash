@@ -67,7 +67,7 @@ class Slack(BaseDestination):
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"
-        
+
         payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
 
         if options.get('username'): payload['username'] = options.get('username')
@@ -82,5 +82,6 @@ class Slack(BaseDestination):
                 logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Slack send ERROR.")
+
 
 register(Slack)
