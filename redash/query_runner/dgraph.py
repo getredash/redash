@@ -23,20 +23,18 @@ def reduce_item(reduced_item, key, value):
     """From https://github.com/vinay20045/json-to-csv"""
     # Reduction Condition 1
     if type(value) is list:
-        i = 0
-        for sub_item in value:
-            reduce_item(reduced_item, key+'/'+to_string(i), sub_item)
-            i = i+1
+        for i, sub_item in enumerate(value):
+            reduce_item(reduced_item, u'{}.{}'.format(key, i), sub_item)
 
     # Reduction Condition 2
     elif type(value) is dict:
         sub_keys = value.keys()
         for sub_key in sub_keys:
-            reduce_item(reduced_item, key+'/'+to_string(sub_key), value[sub_key])
+            reduce_item(reduced_item, u'{}.{}'.format(key, sub_key), value[sub_key])
 
     # Base Condition
     else:
-        reduced_item[to_string(key)] = to_string(value)
+        reduced_item[key] = value
 
 
 class Dgraph(BaseQueryRunner):
