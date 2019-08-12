@@ -1,4 +1,4 @@
 try:
-    long
+    long = long
 except NameError:
     long = int
