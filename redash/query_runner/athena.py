@@ -142,7 +142,7 @@ class Athena(BaseQueryRunner):
 
     def _get_iam_credentials(self, user=None):
         if ASSUME_ROLE:
-            role_session_name = 'redash' if user is None else str(user.email)
+            role_session_name = 'redash' if user is None else user.email
             sts = boto3.client('sts')
             creds = sts.assume_role(
                 RoleArn=self.configuration.get('iam_role'),
@@ -159,7 +159,6 @@ class Athena(BaseQueryRunner):
             return {
                 'aws_access_key_id': self.configuration.get('aws_access_key', None),
                 'aws_secret_access_key': self.configuration.get('aws_secret_key', None),
-                'aws_session_token': None,
                 'region_name': self.configuration['region']
             }
 
