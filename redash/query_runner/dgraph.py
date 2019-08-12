@@ -7,16 +7,7 @@ except ImportError:
     enabled = False
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import json_dumps, json_loads
-
-
-def to_string(s):
-    """From https://github.com/vinay20045/json-to-csv"""
-    try:
-        return str(s)
-    except:
-        # Change the encoding type if needed
-        return s.encode('utf-8')
+from redash.utils import json_dumps
 
 
 def reduce_item(reduced_item, key, value):
