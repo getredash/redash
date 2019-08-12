@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
+import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
+import recordEvent from '@/services/recordEvent';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
 import { Timer } from '@/components/Timer';
@@ -16,15 +18,43 @@ class Widget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
+    isPublic: PropTypes.bool,
+    canEdit: PropTypes.bool,
+    onDelete: PropTypes.func,
   };
 
   static defaultProps = {
     filters: [],
+    isPublic: false,
+    canEdit: false,
+    onDelete: () => {},
   };
+
+  componentDidMount() {
+    recordEvent('view', 'widget', this.props.widget.id);
+  }
 
   expandWidget = () => {};
 
   refreshWidget = () => {};
+
+  deleteWidget = () => {
+    const { widget, onDelete } = this.props;
+
+    const doDelete = () => {
+      widget.delete().then(() => onDelete({}));
+    };
+
+    Modal.confirm({
+      title: 'Delete Widget',
+      content: `Are you sure you want to remove "${widget.getName()}" from the dashboard?`,
+      okText: 'Delete',
+      okType: 'danger',
+      onOk: doDelete,
+      maskClosable: true,
+      autoFocusButton: null,
+    });
+  };
 
   renderRefreshIndicator() {
     const { widget } = this.props;
@@ -48,6 +78,33 @@ class Widget extends React.Component {
             <p className="text-muted">
               {'This widget requires access to a data source you don\'t have access to.'}
             </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  renderWidgetHeader() {
+    const { widget, isPublic, canEdit } = this.props;
+    const canViewQuery = currentUser.hasPermission('view_query');
+    return (
+      <div className="t-header widget clearfix">
+        {(!isPublic && canEdit) && (
+          <div className="dropdown pull-right widget-menu-remove">
+            <div className="actions">
+              <a title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
+            </div>
+          </div>
+        )}
+        {widget.loading && this.renderRefreshIndicator()}
+        <div className="th-title">
+          <p>
+            <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
+          </p>
+          <div className="text-muted query--description">
+            <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
+              {markdown.toHTML(widget.getQuery().description || '')}
+            </HtmlContent>
           </div>
         </div>
       </div>
@@ -93,7 +150,6 @@ class Widget extends React.Component {
 
   renderWidget() {
     const { widget } = this.props;
-    const canViewQuery = currentUser.hasPermission('view_query');
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
@@ -105,19 +161,7 @@ class Widget extends React.Component {
     return (
       <div className="tile body-container widget-visualization visualization" data-refreshing={isRefreshing}>
         <div className="body-row widget-header">
-          <div className="t-header widget clearfix">
-            {widget.loading && this.renderRefreshIndicator()}
-            <div className="th-title">
-              <p>
-                <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
-              </p>
-              <div className="text-muted query--description">
-                <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
-                  {markdown.toHTML(widget.getQuery().description || '')}
-                </HtmlContent>
-              </div>
-            </div>
-          </div>
+          {this.renderWidgetHeader()}
           {!isEmpty(localParameters) && (
             <div className="m-b-10">
               <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />

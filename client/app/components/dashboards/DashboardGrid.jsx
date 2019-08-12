@@ -199,8 +199,9 @@ class DashboardGrid extends React.Component {
                 widget={widget}
                 dashboard={dashboard}
                 filters={this.props.filters}
-                deleted={() => onRemoveWidget(widget.id)}
-                public={this.props.isPublic}
+                onDelete={() => onRemoveWidget(widget.id)}
+                isPublic={this.props.isPublic}
+                canEdit={dashboard.canEdit()}
               />
             </div>
           ))}

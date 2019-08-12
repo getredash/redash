@@ -4,7 +4,7 @@ import { invoke } from 'lodash';
 function getQueryResultData(queryResult) {
   return {
     columns: invoke(queryResult, 'getColumns') || [],
-    rows: invoke(queryResult, 'getResult') || [],
+    rows: invoke(queryResult, 'getData') || [],
     filters: invoke(queryResult, 'getFilters') || [],
   };
 }
