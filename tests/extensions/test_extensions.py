@@ -1,6 +1,6 @@
 import logging
 import os
-import subprocess
+import site
 
 from redash import extensions
 from tests import BaseTestCase
@@ -14,13 +14,7 @@ class TestExtensions(BaseTestCase):
     @classmethod
     def setUpClass(cls):
         dummy_path = os.path.join(here, dummy_extension)
-        subprocess.call(
-            ["pip", "install", "--disable-pip-version-check", "--user", "--editable", dummy_path]
-        )
-
-    @classmethod
-    def tearDownClass(cls):
-        subprocess.call(["pip", "uninstall", "--yes", dummy_extension])
+        site.addsitedir(dummy_path)
 
     def test_working_extension(self):
         self.assertIn("working_extension", extensions.extensions.keys())
