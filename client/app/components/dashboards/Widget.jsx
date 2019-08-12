@@ -5,6 +5,7 @@ import { markdown } from 'markdown';
 import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
+import { $location } from '@/services/ng';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
 import { Timer } from '@/components/Timer';
@@ -31,8 +32,22 @@ class Widget extends React.Component {
   };
 
   componentDidMount() {
-    recordEvent('view', 'widget', this.props.widget.id);
+    const { widget } = this.props;
+    recordEvent('view', 'widget', widget.id);
+
+    if (widget.visualization) {
+      recordEvent('view', 'query', widget.visualization.query.id, { dashboard: true });
+      recordEvent('view', 'visualization', widget.visualization.id, { dashboard: true });
+
+      this.loadWidget();
+    }
   }
+
+  loadWidget = (refresh = false) => {
+    const { widget } = this.props;
+    const maxAge = $location.search().maxAge;
+    return widget.load(refresh, maxAge);
+  };
 
   expandWidget = () => {};
 
@@ -101,11 +116,9 @@ class Widget extends React.Component {
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          <div className="text-muted query--description">
-            <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
-              {markdown.toHTML(widget.getQuery().description || '')}
-            </HtmlContent>
-          </div>
+          <HtmlContent className="text-muted query--description">
+            {markdown.toHTML(widget.getQuery().description || '')}
+          </HtmlContent>
         </div>
       </div>
     );
