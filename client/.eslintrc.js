@@ -26,7 +26,6 @@ module.exports = {
     "consistent-return": "off",
     "no-control-regex": "off",
     "no-multiple-empty-lines": "warn",
-    "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
     "no-only-tests/no-only-tests": "error",
     "operator-linebreak": "off",
     "react/destructuring-assignment": "off",
