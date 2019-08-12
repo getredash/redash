@@ -145,7 +145,9 @@ const CounterRenderer = {
         $scope.targetValueTooltip = formatTooltip($scope.targetValue, options.tooltipFormat);
 
         $scope.counterValue = formatValue($scope.counterValue, options);
-        $scope.targetValue = formatValue($scope.targetValue, options);
+        if (options.formatTargetValue) {
+          $scope.targetValue = formatValue($scope.targetValue, options);
+        }
       }
 
       $timeout(() => {
