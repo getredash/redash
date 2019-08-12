@@ -2,15 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
+import classNames from 'classnames';
 import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import { $location } from '@/services/ng';
+import { formatDateTime } from '@/filters/datetime';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
 import { Timer } from '@/components/Timer';
+import { TimeAgo } from '@/components/TimeAgo';
 import QueryLink from '@/components/QueryLink';
 import { FiltersType } from '@/components/Filters';
+import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 
 import './widget.less';
@@ -31,6 +35,10 @@ class Widget extends React.Component {
     onDelete: () => {},
   };
 
+  state = {
+    refreshClickButtonId: null,
+  };
+
   componentDidMount() {
     const { widget } = this.props;
     recordEvent('view', 'widget', widget.id);
@@ -49,9 +57,16 @@ class Widget extends React.Component {
     return widget.load(refresh, maxAge);
   };
 
-  expandWidget = () => {};
+  expandWidget = () => {
+    ExpandWidgetDialog.showModal({ widget: this.props.widget });
+  };
 
-  refreshWidget = () => {};
+  refreshWidget = (refreshClickButtonId) => {
+    if (!this.state.refreshClickButtonId) {
+      this.setState({ refreshClickButtonId });
+      this.loadWidget(true).finally(() => this.setState({ refreshClickButtonId: null }));
+    }
+  };
 
   deleteWidget = () => {
     const { widget, onDelete } = this.props;
@@ -124,6 +139,48 @@ class Widget extends React.Component {
     );
   }
 
+  renderWidgetBottom() {
+    const { widget, isPublic } = this.props;
+    const widgetQueryResult = widget.getQueryResult();
+    const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
+    const { refreshClickButtonId } = this.state;
+    return (
+      <div className="body-row clearfix tile__bottom-control">
+        {(!isPublic && !!widgetQueryResult) && (
+          <a
+            className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
+            onClick={() => this.refreshWidget(1)}
+            data-test="RefreshButton"
+          >
+            <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
+            <TimeAgo date={updatedAt} />
+          </a>
+        )}
+        <span className="visible-print">
+          <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
+        </span>
+        {isPublic ? (
+          <span className="small hidden-print">
+            <i className="zmdi zmdi-time-restore" />{' '}<TimeAgo date={updatedAt} />
+          </span>
+        ) : (
+          <a
+            className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
+            onClick={() => this.refreshWidget(2)}
+          >
+            <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
+          </a>
+        )}
+        <a
+          className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
+          onClick={this.expandWidget}
+        >
+          <i className="zmdi zmdi-fullscreen" />
+        </a>
+      </div>
+    );
+  }
+
   // eslint-disable-next-line class-methods-use-this
   renderWidgetVisualization() {
     const { widget, filters } = this.props;
@@ -182,7 +239,7 @@ class Widget extends React.Component {
           )}
         </div>
         {this.renderWidgetVisualization()}
-        <div className="body-row clearfix tile__bottom-control" />
+        {this.renderWidgetBottom()}
       </div>
     );
   }
