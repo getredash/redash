@@ -1,20 +1,23 @@
 import logging
 import os
-import site
+import sys
 
 from redash import extensions
 from tests import BaseTestCase
 
 logger = logging.getLogger(__name__)
-here = os.path.dirname(__file__)
 dummy_extension = "redash-dummy"
+dummy_path = os.path.join(os.path.dirname(__file__), dummy_extension)
 
 
 class TestExtensions(BaseTestCase):
     @classmethod
     def setUpClass(cls):
-        dummy_path = os.path.join(here, dummy_extension)
-        site.addsitedir(dummy_path)
+        sys.path.insert(0, dummy_path)
+
+    @classmethod
+    def tearDownClass(cls):
+        sys.path.remove(dummy_path)
 
     def test_working_extension(self):
         self.assertIn("working_extension", extensions.extensions.keys())
