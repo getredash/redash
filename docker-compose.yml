@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
 # For a production example please refer to setup/docker-compose.yml.
-version: '3.7'
+version: '3.2'
 services:
   server:
     build: .
