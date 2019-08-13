@@ -30,7 +30,7 @@ def chrome_log(response):
         request.method, request.path, response.status_code, request_duration, queries_count, queries_duration)
 
     chromelogger.group_collapsed(group_name)
-    
+
     endpoint = (request.endpoint or 'unknown').replace('.', '_')
     chromelogger.info('Endpoint: {}'.format(endpoint))
     chromelogger.info('Content Type: {}'.format(response.content_type))
@@ -49,6 +49,6 @@ def chrome_log(response):
 
 def init_app(app):
     if not app.debug:
-        return 
+        return
 
     app.after_request(chrome_log)

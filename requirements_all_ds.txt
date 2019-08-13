@@ -1,5 +1,5 @@
 google-api-python-client==1.5.1
-gspread==0.6.2
+gspread==3.1.0
 impyla==0.10.0
 influxdb==2.7.1
 MySQL-python==1.2.5
@@ -26,7 +26,8 @@ qds-sdk>=1.9.6
 ibm-db>=2.0.9
 pydruid==0.4
 requests_aws_sign==0.1.4
-snowflake_connector_python==1.6.10
+snowflake_connector_python==1.8.6
 phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi
+pydgraph==1.2.0

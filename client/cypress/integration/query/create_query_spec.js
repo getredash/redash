@@ -4,8 +4,7 @@ describe('Create Query', () => {
     cy.visit('/queries/new');
   });
 
-  // https://github.com/getredash/redash/issues/3688
-  it.skip('executes the query', () => {
+  it('executes and saves a query', () => {
     cy.getByTestId('SelectDataSource')
       .click()
       .contains('Test PostgreSQL').click();
@@ -16,7 +15,10 @@ describe('Create Query', () => {
 
     cy.getByTestId('ExecuteButton').click();
 
-    cy.getByTestId('DynamicTable').should('exist');
+    cy.getByTestId('TableVisualization').should('exist');
     cy.percySnapshot('Edit Query');
+
+    cy.getByTestId('SaveButton').click();
+    cy.url().should('match', /\/queries\/\d+\/source/);
   });
 });

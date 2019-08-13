@@ -1,4 +1,5 @@
 import debug from 'debug';
+import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import frontendVersion from '@/version.json';
@@ -35,14 +36,7 @@ function controller($rootScope, $location, $route, $uibModal, Auth, currentUser,
 
   $rootScope.$on('reloadFavorites', this.reload);
 
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
-    });
-  };
+  this.newDashboard = () => CreateDashboardDialog.showModal();
 
   this.searchQueries = () => {
     $location.path('/queries').search({ q: this.searchTerm });

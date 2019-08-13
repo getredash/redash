@@ -11,7 +11,9 @@ import { routesToAngularRoutes } from '@/lib/utils';
 import CardsList from '@/components/cards-list/CardsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
+import DynamicComponent from '@/components/DynamicComponent';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import recordEvent from '@/services/recordEvent';
 
 class DataSourcesList extends React.Component {
   state = {
@@ -56,6 +58,7 @@ class DataSourcesList extends React.Component {
   };
 
   showCreateSourceDialog = () => {
+    recordEvent('view', 'page', 'data_sources/new');
     CreateSourceDialog.showModal({
       types: this.state.dataSourceTypes,
       sourceType: 'Data Source',
@@ -103,6 +106,7 @@ class DataSourcesList extends React.Component {
             <i className="fa fa-plus m-r-5" />
             New Data Source
           </Button>
+          <DynamicComponent name="DataSourcesListExtra" />
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDataSources()}
       </div>

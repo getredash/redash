@@ -37,7 +37,7 @@ def list(organization=None):
 
 def validate_data_source_type(type):
     if type not in query_runners.keys():
-        print ("Error: the type \"{}\" is not supported (supported types: {})."
+        print("Error: the type \"{}\" is not supported (supported types: {})."
                .format(type, ", ".join(query_runners.keys())))
         print("OJNK")
         exit(1)

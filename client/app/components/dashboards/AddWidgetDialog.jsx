@@ -113,7 +113,6 @@ class AddWidgetDialog extends React.Component {
             className="w-100"
             defaultValue={first(this.state.selectedQuery.visualizations).id}
             onChange={visualizationId => this.selectVisualization(this.state.selectedQuery, visualizationId)}
-            dropdownClassName="ant-dropdown-in-bootstrap-modal"
           >
             {visualizationGroups.map(visualizations => (
               <OptGroup label={visualizations[0].type} key={visualizations[0].type}>

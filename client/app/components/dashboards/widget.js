@@ -1,4 +1,5 @@
 import { filter } from 'lodash';
+import { angular2react } from 'angular2react';
 import template from './widget.html';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import widgetDialogTemplate from './widget-dialog.html';
@@ -17,6 +18,8 @@ const WidgetDialog = {
     this.widget = this.resolve.widget;
   },
 };
+
+export let DashboardWidget = null; // eslint-disable-line import/no-mutable-exports
 
 function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, $timeout, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
@@ -86,11 +89,14 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
 
   this.load = (refresh = false) => {
     const maxAge = $location.search().maxAge;
-    this.widget.load(refresh, maxAge);
+    return this.widget.load(refresh, maxAge);
   };
 
-  this.refresh = () => {
-    this.load(true);
+  this.refresh = (buttonId) => {
+    this.refreshClickButtonId = buttonId;
+    this.load(true).finally(() => {
+      this.refreshClickButtonId = undefined;
+    });
   };
 
   if (this.widget.visualization) {
@@ -106,18 +112,24 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
   }
 }
 
+const DashboardWidgetOptions = {
+  template,
+  controller: DashboardWidgetCtrl,
+  bindings: {
+    widget: '<',
+    public: '<',
+    dashboard: '<',
+    filters: '<',
+    deleted: '<',
+  },
+};
+
 export default function init(ngModule) {
   ngModule.component('widgetDialog', WidgetDialog);
-  ngModule.component('dashboardWidget', {
-    template,
-    controller: DashboardWidgetCtrl,
-    bindings: {
-      widget: '<',
-      public: '<',
-      dashboard: '<',
-      deleted: '&onDelete',
-    },
-  });
+  ngModule.component('dashboardWidget', DashboardWidgetOptions);
+  ngModule.run(['$injector', ($injector) => {
+    DashboardWidget = angular2react('dashboardWidget ', DashboardWidgetOptions, $injector);
+  }]);
 }
 
 init.init = true;

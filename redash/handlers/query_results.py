@@ -5,17 +5,27 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
+                                               QueryDetachedFromDataSourceError, dropdown_values)
+from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
-def error_response(message):
-    return {'job': {'status': 4, 'error': message}}, 400
+def error_response(message, http_status=400):
+    return {'job': {'status': 4, 'error': message}}, http_status
+
+
+error_messages = {
+    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
+    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', 403),
+    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
+    'select_data_source': error_response('Please select data source to run this query.', 401)
+}
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
@@ -29,7 +39,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     try:
         query.apply(parameters)
-    except InvalidParameterError as e:
+    except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=e.message)
 
     if query.missing_params:
@@ -40,8 +50,18 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     else:
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
+    record_event(current_user.org, current_user, {
+        'action': 'execute_query',
+        'cache': 'hit' if query_result else 'miss',
+        'object_id': data_source.id,
+        'object_type': 'data_source',
+        'query': query.text,
+        'query_id': query_id,
+        'parameters': parameters
+    })
+
     if query_result:
-        return {'query_result': query_result.to_dict()}
+        return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
     else:
         job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
             "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
@@ -85,21 +105,17 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
-        parameterized_query = ParameterizedQuery(query)
+        parameterized_query = ParameterizedQuery(query, org=self.current_org)
 
-        data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        data_source_id = params.get('data_source_id')
+        if data_source_id:
+            data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+        else:
+            return error_messages['select_data_source']
 
         if not has_access(data_source, self.current_user, not_view_only):
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            return error_messages['no_permission']
 
-        self.record_event({
-            'action': 'execute_query',
-            'object_id': data_source.id,
-            'object_type': 'data_source',
-            'query': query,
-            'query_id': query_id,
-            'parameters': parameters
-        })
         return run_query(parameterized_query, parameters, data_source, query_id, max_age)
 
 
@@ -108,18 +124,25 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        return dropdown_values(query_id)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source, current_user, view_only)
+        try:
+            return dropdown_values(query_id, self.current_org)
+        except QueryDetachedFromDataSourceError as e:
+            abort(400, message=e.message)
 
 
 class QueryDropdownsResource(BaseResource):
     def get(self, query_id, dropdown_query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query, current_user, view_only)
 
         related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
         if int(dropdown_query_id) not in related_queries_ids:
-            abort(403)
+            dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
+            require_access(dropdown_query.data_source, current_user, view_only)
 
-        return dropdown_values(dropdown_query_id, should_require_access=False)
+        return dropdown_values(dropdown_query_id, self.current_org)
 
 
 class QueryResultResource(BaseResource):
@@ -157,8 +180,8 @@ class QueryResultResource(BaseResource):
                                 any cached result, or executes if not available. Set to zero to
                                 always execute.
         """
-        params = request.get_json(force=True)
-        parameter_values = params.get('parameters')
+        params = request.get_json(force=True, silent=True) or {}
+        parameter_values = params.get('parameters', {})
 
         max_age = params.get('max_age', -1)
         # max_age might have the value of None, in which case calling int(None) will fail
@@ -173,7 +196,13 @@ class QueryResultResource(BaseResource):
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
-            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+            if not query.parameterized.is_safe:
+                if current_user.is_api_user():
+                    return error_messages['unsafe_when_shared']
+                else:
+                    return error_messages['unsafe_on_view_only']
+            else:
+                return error_messages['no_permission']
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
@@ -275,16 +304,16 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
-        return make_response(query_result.make_csv_content(), 200, headers)
+        return make_response(serialize_query_result_to_csv(query_result), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-        return make_response(query_result.make_excel_content(), 200, headers)
+        return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
 
 
 class JobResource(BaseResource):
-    def get(self, job_id):
+    def get(self, job_id, query_id=None):
         """
         Retrieve info about a running query job.
         """

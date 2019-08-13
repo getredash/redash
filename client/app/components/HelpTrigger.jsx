@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
 import Drawer from 'antd/lib/drawer';
+import Icon from 'antd/lib/icon';
 import { BigMessage } from '@/components/BigMessage';
 import DynamicComponent from '@/components/DynamicComponent';
 
@@ -12,6 +13,7 @@ import './HelpTrigger.less';
 const DOMAIN = 'https://redash.io';
 const HELP_PATH = '/help';
 const IFRAME_TIMEOUT = 20000;
+const IFRAME_URL_UPDATE_MESSAGE = 'iframe_url';
 
 export const TYPES = {
   HOME: [
@@ -25,6 +27,10 @@ export const TYPES = {
   SHARE_DASHBOARD: [
     '/user-guide/dashboards/sharing-dashboards',
     'Guide: Sharing and Embedding Dashboards',
+  ],
+  AUTHENTICATION_OPTIONS: [
+    '/user-guide/users/authentication-options',
+    'Guide: Authentication Options',
   ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
@@ -65,16 +71,16 @@ export class HelpTrigger extends React.Component {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
     children: PropTypes.node,
-  }
+  };
 
   static defaultProps = {
     className: null,
     children: <i className="fa fa-question-circle" />,
   };
 
-  iframeRef = null
+  iframeRef = null;
 
-  iframeLoadingTimeout = null
+  iframeLoadingTimeout = null;
 
   constructor(props) {
     super(props);
@@ -85,9 +91,15 @@ export class HelpTrigger extends React.Component {
     visible: false,
     loading: false,
     error: false,
+    currentUrl: null,
   };
 
+  componentDidMount() {
+    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+  }
+
   componentWillUnmount() {
+    window.removeEventListener('message', this.onPostMessageReceived);
     clearTimeout(this.iframeLoadingTimeout);
   }
 
@@ -99,11 +111,20 @@ export class HelpTrigger extends React.Component {
     this.iframeLoadingTimeout = setTimeout(() => {
       this.setState({ error: url, loading: false });
     }, IFRAME_TIMEOUT); // safety
-  }
+  };
 
   onIframeLoaded = () => {
     this.setState({ loading: false });
     clearTimeout(this.iframeLoadingTimeout);
+  };
+
+  onPostMessageReceived = (event) => {
+    const { type, message: currentUrl } = event.data || {};
+    if (type !== IFRAME_URL_UPDATE_MESSAGE) {
+      return;
+    }
+
+    this.setState({ currentUrl });
   }
 
   openDrawer = () => {
@@ -113,25 +134,31 @@ export class HelpTrigger extends React.Component {
 
     // wait for drawer animation to complete so there's no animation jank
     setTimeout(() => this.loadIframe(url), 300);
-  }
+  };
 
-  closeDrawer = () => {
+  closeDrawer = (event) => {
+    if (event) {
+      event.preventDefault();
+    }
     this.setState({ visible: false });
-  }
+    this.setState({ visible: false, currentUrl: null });
+  };
 
   render() {
     const [, tooltip] = TYPES[this.props.type];
     const className = cx('help-trigger', this.props.className);
+    const url = this.state.currentUrl;
 
     return (
       <React.Fragment>
         <Tooltip title={tooltip}>
-          <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
+          <a onClick={this.openDrawer} className={className}>
             {this.props.children}
           </a>
         </Tooltip>
         <Drawer
           placement="right"
+          closable={false}
           onClose={this.closeDrawer}
           visible={this.state.visible}
           className="help-drawer"
@@ -139,6 +166,22 @@ export class HelpTrigger extends React.Component {
           width={400}
         >
           <div className="drawer-wrapper">
+            <div className="drawer-menu">
+              {url && (
+                <Tooltip title="Open page in a new window" placement="left">
+                  {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                  <a href={url} target="_blank">
+                    <i className="fa fa-external-link" />
+                  </a>
+                </Tooltip>
+              )}
+              <Tooltip title="Close" placement="bottom">
+                <a href="#" onClick={this.closeDrawer}>
+                  <Icon type="close" />
+                </a>
+              </Tooltip>
+            </div>
+
             {/* iframe */}
             {!this.state.error && (
               <iframe

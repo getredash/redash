@@ -22,12 +22,12 @@ try:
         cx_Oracle.TIMESTAMP: TYPE_DATETIME,
     }
 
-
     ENABLED = True
 except ImportError:
     ENABLED = False
 
 logger = logging.getLogger(__name__)
+
 
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
@@ -164,5 +164,6 @@ class Oracle(BaseSQLQueryRunner):
             connection.close()
 
         return json_data, error
+
 
 register(Oracle)

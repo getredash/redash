@@ -1,5 +1,13 @@
+@import '~antd/lib/drawer/style/drawer';
+
+@help-doc-bg: #f7f7f7; // according to https://github.com/getredash/website/blob/13daff2d8b570956565f482236f6245042e8477f/src/scss/_components/_variables.scss#L15
+
 .help-trigger {
   font-size: 15px;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .help-drawer {
@@ -18,6 +26,54 @@
     align-items: center;
     width: 100%;
     justify-content: center;
+  }
+
+  .drawer-menu {
+    position: fixed;
+    z-index: 1;
+    top: 13px;
+    right: 13px;
+    border-radius: 3px;
+    background: rgba(@help-doc-bg, .75); // makes it dissolve over help doc bg
+    border: 2px solid @help-doc-bg;
+    display: flex;
+
+    a {
+      height: 26px;
+      width: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: @text-color-secondary;
+      transition: color @animation-duration-slow;
+      position: relative;
+
+      &:hover {
+        color: @icon-color-hover;
+        text-decoration: none;
+      }
+
+      .anticon {
+        font-size: 15px;
+      }
+
+      .fa-external-link {
+        position: relative;
+        top: 1px;
+        font-size: 14px;
+      }
+
+      // divider
+      &:not(:first-child):before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        height: 9px;
+        left: 0;
+        top: 9px;
+        border-left: 1px dotted rgba(0,0,0,.12);
+      }
+    }
   }
 
   iframe {

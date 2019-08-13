@@ -1,0 +1,8 @@
+README.md
+redash_dummy.py
+setup.py
+redash_dummy.egg-info/PKG-INFO
+redash_dummy.egg-info/SOURCES.txt
+redash_dummy.egg-info/dependency_links.txt
+redash_dummy.egg-info/entry_points.txt
+redash_dummy.egg-info/top_level.txt

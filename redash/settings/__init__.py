@@ -1,20 +1,11 @@
 import os
+import importlib
+import ssl
 from funcy import distinct, remove
 from flask_talisman import talisman
 
 from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
-from .organization import DATE_FORMAT
-
-
-def all_settings():
-    from types import ModuleType
-
-    settings = {}
-    for name, item in globals().iteritems():
-        if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
-            settings[name] = item
-
-    return settings
+from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -40,6 +31,20 @@ CELERY_RESULT_BACKEND = os.environ.get(
 CELERY_RESULT_EXPIRES = int(os.environ.get(
     "REDASH_CELERY_RESULT_EXPIRES",
     os.environ.get("REDASH_CELERY_TASK_RESULT_EXPIRES", 3600 * 4)))
+CELERY_INIT_TIMEOUT = int(os.environ.get(
+    "REDASH_CELERY_INIT_TIMEOUT", 10))
+CELERY_BROKER_USE_SSL = CELERY_BROKER.startswith('rediss')
+CELERY_SSL_CONFIG = {
+    'ssl_cert_reqs': int(os.environ.get("REDASH_CELERY_BROKER_SSL_CERT_REQS",  ssl.CERT_OPTIONAL)),
+    'ssl_ca_certs': os.environ.get("REDASH_CELERY_BROKER_SSL_CA_CERTS"),
+    'ssl_certfile': os.environ.get("REDASH_CELERY_BROKER_SSL_CERTFILE"),
+    'ssl_keyfile': os.environ.get("REDASH_CELERY_BROKER_SSL_KEYFILE"),
+} if CELERY_BROKER_USE_SSL else None
+
+CELERY_WORKER_PREFETCH_MULTIPLIER = int(os.environ.get("REDASH_CELERY_WORKER_PREFETCH_MULTIPLIER", 1))
+CELERY_ACCEPT_CONTENT = os.environ.get("REDASH_CELERY_ACCEPT_CONTENT", "json").split(",")
+CELERY_TASK_SERIALIZER = os.environ.get("REDASH_CELERY_TASK_SERIALIZER", "json")
+CELERY_RESULT_SERIALIZER = os.environ.get("REDASH_CELERY_RESULT_SERIALIZER", "json")
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
@@ -109,7 +114,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 # for more information. E.g.:
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none';"
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;"
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", "")
@@ -222,6 +227,9 @@ def email_server_is_configured():
 
 HOST = os.environ.get('REDASH_HOST', '')
 
+SEND_FAILURE_EMAIL_INTERVAL = int(os.environ.get('REDASH_SEND_FAILURE_EMAIL_INTERVAL', 60))
+MAX_FAILURE_REPORTS_PER_QUERY = int(os.environ.get('REDASH_MAX_FAILURE_REPORTS_PER_QUERY', 100))
+
 ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE', "({state}) {alert_name}")
 
 # How many requests are allowed per IP to the login page before
@@ -247,6 +255,7 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
+    'redash.query_runner.couchbase',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
@@ -280,7 +289,10 @@ default_query_runners = [
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
     'redash.query_runner.snowflake',
-    'redash.query_runner.phoenix'
+    'redash.query_runner.phoenix',
+    'redash.query_runner.json_ds',
+    'redash.query_runner.cass',
+    'redash.query_runner.dgraph',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -288,7 +300,8 @@ additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_Q
 disabled_query_runners = array_from_string(os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", ""))
 
 QUERY_RUNNERS = remove(set(disabled_query_runners), distinct(enabled_query_runners + additional_query_runners))
-ADHOC_QUERY_TIME_LIMIT = int_or_none(os.environ.get('REDASH_ADHOC_QUERY_TIME_LIMIT', None))
+
+dynamic_settings = importlib.import_module(os.environ.get('REDASH_DYNAMIC_SETTINGS_MODULE', 'redash.settings.dynamic_settings'))
 
 # Destinations
 default_destinations = [
@@ -326,6 +339,7 @@ FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_D
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
 FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS", "false"))
 FEATURE_AUTO_PUBLISH_NAMED_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_AUTO_PUBLISH_NAMED_QUERIES", "true"))
+FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EXTENDED_ALERT_OPTIONS", "false"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))

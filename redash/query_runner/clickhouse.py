@@ -150,4 +150,5 @@ class ClickHouse(BaseSQLQueryRunner):
             error = unicode(e)
         return data, error
 
+
 register(ClickHouse)

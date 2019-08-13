@@ -52,13 +52,22 @@ class Slack(BaseDestination):
                 "short": True
             }
         ]
+        if alert.template:
+            description = alert.render_template()
+            fields.append({
+                "title": "Description",
+                "value": description
+            })
         if new_state == "triggered":
-            text = alert.name + " just triggered"
+            if alert.custom_subject:
+                text = alert.custom_subject
+            else:
+                text = alert.name + " just triggered"
             color = "#c0392b"
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"
-        
+
         payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
 
         if options.get('username'): payload['username'] = options.get('username')
@@ -73,5 +82,6 @@ class Slack(BaseDestination):
                 logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Slack send ERROR.")
+
 
 register(Slack)

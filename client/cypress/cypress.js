@@ -53,7 +53,7 @@ function runCypressCI() {
   }
 
   execSync(
-    'docker-compose run cypress ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --record',
+    'docker-compose run cypress ./node_modules/.bin/percy exec -t 300 -- ./node_modules/.bin/cypress run --record',
     { stdio: 'inherit' },
   );
 }

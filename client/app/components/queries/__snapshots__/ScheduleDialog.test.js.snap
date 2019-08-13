@@ -74,7 +74,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -312,6 +311,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -533,7 +533,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -572,7 +571,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -581,7 +580,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -624,6 +623,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "1 Day 22:15" Set
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -734,7 +734,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -972,6 +971,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Hours" 1`] = `
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -1070,7 +1070,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -1308,6 +1307,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -1529,7 +1529,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -1568,7 +1567,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -1577,7 +1576,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -1620,6 +1619,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "2 Weeks 22:15 Tu
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -2127,7 +2127,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -2365,6 +2364,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "5 Minutes" 1`] =
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -2462,7 +2462,6 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
           "click",
         ]
       }
-      showArrow={true}
       showSearch={false}
       tabIndex={0}
       tags={false}
@@ -2673,6 +2672,7 @@ exports[`ScheduleDialog Sets correct schedule settings Sets to "Never" 1`] = `
                           className=""
                           data-icon="down"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-down"
                           viewBox="64 64 896 896"
@@ -2894,7 +2894,6 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             popup={
               <Panel
                 addon={[Function]}
-                allowEmpty={false}
                 clearIcon={
                   <Icon
                     className="ant-time-picker-clear"
@@ -2933,7 +2932,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                 ],
               }
             }
-            popupClassName=" ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
+            popupClassName="ant-time-picker-panel-narrow ant-time-picker-panel-column-2"
             popupPlacement="bottomLeft"
             popupStyle={Object {}}
             popupTransitionName="slide-up"
@@ -2942,7 +2941,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
             showAction={Array []}
           >
             <span
-              className="ant-time-picker "
+              className="ant-time-picker"
               key="trigger"
               onClick={[Function]}
               onMouseDown={[Function]}
@@ -2985,6 +2984,7 @@ exports[`ScheduleDialog Sets correct schedule settings Supports 30 days interval
                           className=""
                           data-icon="clock-circle"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-clock-circle"
                           viewBox="64 64 896 896"
@@ -3468,6 +3468,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                       "yearSelect": "Choose a year",
                     }
                   }
+                  onBlur={[Function]}
                   onChange={[Function]}
                   onClear={[Function]}
                   onKeyDown={[Function]}
@@ -3528,6 +3529,7 @@ exports[`ScheduleDialog Sets correct schedule settings Until feature Until is se
                           className=""
                           data-icon="calendar"
                           fill="currentColor"
+                          focusable="false"
                           height="1em"
                           key="svg-calendar"
                           viewBox="64 64 896 896"

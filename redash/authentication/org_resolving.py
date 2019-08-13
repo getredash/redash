@@ -19,5 +19,6 @@ def _get_current_org():
     logging.debug("Current organization: %s (slug: %s)", g.org, slug)
     return g.org
 
+
 # TODO: move to authentication
 current_org = LocalProxy(_get_current_org)

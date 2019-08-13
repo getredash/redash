@@ -32,6 +32,10 @@ class Organization(TimestampMixin, db.Model):
     def get_by_slug(cls, slug):
         return cls.query.filter(cls.slug == slug).first()
 
+    @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
+
     @property
     def default_group(self):
         return self.groups.filter(Group.name == 'default', Group.type == Group.BUILTIN_GROUP).first()

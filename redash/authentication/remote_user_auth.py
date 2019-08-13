@@ -9,6 +9,7 @@ logger = logging.getLogger('remote_user_auth')
 
 blueprint = Blueprint('remote_user_auth', __name__)
 
+
 @blueprint.route(org_scoped_rule("/remote_user/login"))
 def login(org_slug=None):
     unsafe_next_path = request.args.get('next')

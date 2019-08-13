@@ -2,24 +2,18 @@ import template from './add-to-dashboard.html';
 import notification from '@/services/notification';
 
 const AddToDashboardForm = {
-  controller($sce, Dashboard, currentUser, Widget) {
+  controller($sce, Dashboard) {
     'ngInject';
 
     this.vis = this.resolve.vis;
     this.saveInProgress = false;
     this.trustAsHtml = html => $sce.trustAsHtml(html);
-    this.onDashboardSelected = (dash) => {
+    this.onDashboardSelected = ({ slug }) => {
       this.saveInProgress = true;
       this.selected_query = this.resolve.query.id;
-      const widget = new Widget({
-        visualization_id: this.vis && this.vis.id,
-        dashboard_id: dash.id,
-        options: {},
-        width: 1,
-        type: 'visualization',
-      });
-      widget
-        .save()
+      // Load dashboard with all widgets
+      Dashboard.get({ slug }).$promise
+        .then(dashboard => dashboard.addWidget(this.vis))
         .then(() => {
           this.close();
           notification.success('Widget added to dashboard.');

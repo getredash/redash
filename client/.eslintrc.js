@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   extends: ["airbnb", "plugin:compat/recommended"],
-  plugins: ["jest", "compat"],
+  plugins: ["jest", "compat", "no-only-tests"],
   settings: {
     "import/resolver": "webpack"
   },
@@ -26,7 +26,7 @@ module.exports = {
     "consistent-return": "off",
     "no-control-regex": "off",
     "no-multiple-empty-lines": "warn",
-    "no-script-url": "off", // some <a> tags should have href="javascript:void(0)"
+    "no-only-tests/no-only-tests": "error",
     "operator-linebreak": "off",
     "react/destructuring-assignment": "off",
     "react/jsx-filename-extension": "off",
