@@ -11,7 +11,8 @@ from redash.utils import json_dumps
 try:
     import qds_sdk
     from qds_sdk.qubole import Qubole as qbol
-    from qds_sdk.commands import Command, HiveCommand, PrestoCommand
+    from qds_sdk.commands import Command, HiveCommand
+    from qds_sdk.commands import SqlCommand, PrestoCommand
     enabled = True
 except ImportError:
     enabled = False
@@ -24,6 +25,11 @@ class Qubole(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "query_type": {
+                    "type": "string",
+                    "title": "Query Type (quantum / presto / hive)",
+                    "default": "hive"
+                },
                 "endpoint": {
                     "type": "string",
                     "title": "API Endpoint",
@@ -37,15 +43,10 @@ class Qubole(BaseQueryRunner):
                     "type": "string",
                     "title": "Cluster Label",
                     "default": "default"
-                },
-                "query_type": {
-                    "type": "string",
-                    "title": "Query Type (hive or presto)",
-                    "default": "hive"
                 }
             },
-            "order": ["endpoint", "token", "cluster"],
-            "required": ["endpoint", "token", "cluster"],
+            "order": ["query_type", "endpoint", "token", "cluster"],
+            "required": ["endpoint", "token"],
             "secret": ["token"]
         }
 
@@ -67,8 +68,12 @@ class Qubole(BaseQueryRunner):
                        api_url='%s/api' % self.configuration['endpoint'])
 
         try:
-            cls = PrestoCommand if(self.configuration['query_type'] == 'presto') else HiveCommand
-            cmd = cls.create(query=query, label=self.configuration['cluster'])
+            if self.configuration['query_type'] == 'quantum':
+                cmd = SqlCommand.create(query=query)
+            else:
+                cls = PrestoCommand if(self.configuration['query_type'] == 'presto') else HiveCommand
+                cmd = cls.create(query=query, label=self.configuration['cluster'])
+
             logging.info("Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status)
 
             while not Command.is_done(cmd.status):
