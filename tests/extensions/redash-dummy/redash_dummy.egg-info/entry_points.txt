@@ -1,0 +1,10 @@
+[redash.extensions]
+assertive_extension = redash_dummy:assertive_extension
+non_callable_extension = redash_dummy:module_attribute
+not_findable_extension = redash_dummy:missing_attribute
+not_importable_extension = missing_extension_module:extension
+working_extension = redash_dummy:extension
+
+[redash.periodic_tasks]
+dummy_periodic_task = redash_dummy:periodic_task
+

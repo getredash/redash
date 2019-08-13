@@ -63,7 +63,7 @@ def load_bundles():
                 └── styles.css
 
     and would then need to register the bundle with an entry point
-    under the "redash.periodic_tasks" group, e.g. in your setup.py::
+    under the "redash.bundles" group, e.g. in your setup.py::
 
         setup(
             # ...
