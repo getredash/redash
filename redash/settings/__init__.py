@@ -292,6 +292,7 @@ default_query_runners = [
     'redash.query_runner.phoenix',
     'redash.query_runner.json_ds',
     'redash.query_runner.cass',
+    'redash.query_runner.dgraph',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
