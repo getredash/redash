@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
 import classNames from 'classnames';
+import Dropdown from 'antd/lib/dropdown';
 import Modal from 'antd/lib/modal';
+import Menu from 'antd/lib/menu';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import { $location } from '@/services/ng';
@@ -18,6 +20,29 @@ import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 
 import './widget.less';
+
+function WidgetMenu(props) {
+  return (
+    <Menu {...props}>
+      <Menu.Item>Download as CSV File</Menu.Item>
+      <Menu.Item>Download as Excel File</Menu.Item>
+      <Menu.Divider />
+      <Menu.Item>View Query</Menu.Item>
+      <Menu.Item>Edit Parameters</Menu.Item>
+      <Menu.Divider />
+      <Menu.Item>Remove from Dashboard</Menu.Item>
+    </Menu>
+  );
+}
+
+function TextboxMenu(props) {
+  return (
+    <Menu {...props}>
+      <Menu.Item>Edit</Menu.Item>
+      <Menu.Item>Remove from Dashboard</Menu.Item>
+    </Menu>
+  );
+}
 
 class Widget extends React.Component {
   static propTypes = {
@@ -117,24 +142,50 @@ class Widget extends React.Component {
   renderWidgetHeader() {
     const { widget, isPublic, canEdit } = this.props;
     const canViewQuery = currentUser.hasPermission('view_query');
+
+    const localParameters = filter(
+      widget.getParametersDefs(),
+      param => !widget.isStaticParam(param),
+    );
+
     return (
-      <div className="t-header widget clearfix">
-        {(!isPublic && canEdit) && (
-          <div className="dropdown pull-right widget-menu-remove">
-            <div className="actions">
-              <a title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
-            </div>
+      <div className="body-row widget-header">
+        <div className="t-header widget clearfix">
+          {(!isPublic && canEdit) && (
+            <React.Fragment>
+              <div className="dropdown pull-right widget-menu-remove">
+                <div className="actions">
+                  <a title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
+                </div>
+              </div>
+              <div className="dropdown pull-right widget-menu-regular">
+                <div className="actions">
+                  <Dropdown
+                    overlay={<WidgetMenu />}
+                    placement="bottomRight"
+                    trigger={['click']}
+                  >
+                    <a className="p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
+                  </Dropdown>
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+          {widget.loading && this.renderRefreshIndicator()}
+          <div className="th-title">
+            <p>
+              <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
+            </p>
+            <HtmlContent className="text-muted query--description">
+              {markdown.toHTML(widget.getQuery().description || '')}
+            </HtmlContent>
+          </div>
+        </div>
+        {!isEmpty(localParameters) && (
+          <div className="m-b-10">
+            <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />
           </div>
         )}
-        {widget.loading && this.renderRefreshIndicator()}
-        <div className="th-title">
-          <p>
-            <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
-          </p>
-          <HtmlContent className="text-muted query--description">
-            {markdown.toHTML(widget.getQuery().description || '')}
-          </HtmlContent>
-        </div>
       </div>
     );
   }
@@ -223,21 +274,9 @@ class Widget extends React.Component {
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
-    const localParameters = filter(
-      widget.getParametersDefs(),
-      param => !widget.isStaticParam(param),
-    );
-
     return (
       <div className="tile body-container widget-visualization visualization" data-refreshing={isRefreshing}>
-        <div className="body-row widget-header">
-          {this.renderWidgetHeader()}
-          {!isEmpty(localParameters) && (
-            <div className="m-b-10">
-              <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />
-            </div>
-          )}
-        </div>
+        {this.renderWidgetHeader()}
         {this.renderWidgetVisualization()}
         {this.renderWidgetBottom()}
       </div>
@@ -245,13 +284,35 @@ class Widget extends React.Component {
   }
 
   renderTextbox() {
-    const { widget } = this.props;
+    const { widget, isPublic, canEdit } = this.props;
     if (widget.width === 0) {
       return null;
     }
 
     return (
       <div className="tile body-container widget-text textbox">
+        <div className="body-row clearfix t-body">
+          {(!isPublic && canEdit) && (
+            <React.Fragment>
+              <div className="dropdown pull-right widget-menu-remove">
+                <div className="dropdown-header">
+                  <a className="actions" title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
+                </div>
+              </div>
+              <div className="dropdown pull-right widget-menu-regular">
+                <div className="dropdown-header">
+                  <Dropdown
+                    overlay={<TextboxMenu />}
+                    placement="bottomRight"
+                    trigger={['click']}
+                  >
+                    <a className="actions p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
+                  </Dropdown>
+                </div>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
         <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
           {markdown.toHTML(widget.text)}
         </HtmlContent>
