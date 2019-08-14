@@ -1,4 +1,4 @@
-import { map, defer } from 'lodash';
+import { map, debounce } from 'lodash';
 import template from './query.html';
 import EditParameterSettingsDialog from '@/components/EditParameterSettingsDialog';
 
@@ -52,7 +52,11 @@ function QuerySourceCtrl(
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = newQueryText => defer(() => $scope.$apply(() => { $scope.query.query = newQueryText; }));
+  $scope.updateQuery = debounce(
+    newQueryText => $scope.$apply(() => {
+      $scope.query.query = newQueryText;
+    }),
+  );
 
   // @override
   $scope.saveQuery = (options, data) => {
