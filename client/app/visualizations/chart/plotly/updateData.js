@@ -96,7 +96,7 @@ function updatePercentValues(seriesList, options) {
     each(seriesList, (series) => {
       series.sourceData.forEach((item) => {
         const sum = sumOfCorrespondingPoints.get(item.x) || 0;
-        sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y));
+        sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y || 0.0));
       });
     });
 
@@ -104,8 +104,12 @@ function updatePercentValues(seriesList, options) {
       const yValues = [];
 
       series.sourceData.forEach((item) => {
-        const sum = sumOfCorrespondingPoints.get(item.x);
-        item.yPercent = item.y / sum * 100;
+        if (isNil(item.y) && !options.missingValuesAsZero) {
+          item.yPercent = null;
+        } else {
+          const sum = sumOfCorrespondingPoints.get(item.x);
+          item.yPercent = item.y / sum * 100;
+        }
         yValues.push(item.yPercent);
       });
 
