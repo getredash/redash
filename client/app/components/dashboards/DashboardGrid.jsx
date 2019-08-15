@@ -5,7 +5,7 @@ import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 // import { DashboardWidget } from '@/components/dashboards/widget';
-import DashboardWidget from '@/components/dashboards/Widget';
+import DashboardWidget from '@/components/dashboards/dashboard-widget';
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 import AutoHeightController from './AutoHeightController';

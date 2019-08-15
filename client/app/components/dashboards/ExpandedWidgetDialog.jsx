@@ -6,15 +6,15 @@ import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
 import { VisualizationName } from '@/visualizations/VisualizationName';
 
-function ExpandWidgetDialog({ dialog, widget }) {
+function ExpandedWidgetDialog({ dialog, widget }) {
   return (
     <Modal
       {...dialog.props}
       title={(
-        <React.Fragment>
+        <>
           <VisualizationName visualization={widget.visualization} />
           <span>{widget.getQuery().name}</span>
-        </React.Fragment>
+        </>
       )}
       width={900}
       footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
@@ -24,9 +24,9 @@ function ExpandWidgetDialog({ dialog, widget }) {
   );
 }
 
-ExpandWidgetDialog.propTypes = {
+ExpandedWidgetDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-export default wrapDialog(ExpandWidgetDialog);
+export default wrapDialog(ExpandedWidgetDialog);

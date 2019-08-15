@@ -4,8 +4,8 @@ import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
 import classNames from 'classnames';
 import Dropdown from 'antd/lib/dropdown';
-import Modal from 'antd/lib/modal';
 import Menu from 'antd/lib/menu';
+import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import { $location } from '@/services/ng';
@@ -16,12 +16,10 @@ import { Timer } from '@/components/Timer';
 import { TimeAgo } from '@/components/TimeAgo';
 import QueryLink from '@/components/QueryLink';
 import { FiltersType } from '@/components/Filters';
-import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
+import ExpandedWidgetDialog from '@/components/dashboards/ExpandedWidgetDialog';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 
-import './widget.less';
-
-function WidgetMenu(props) {
+function VisualizationWidgetMenu(props) {
   return (
     <Menu {...props}>
       <Menu.Item>Download as CSV File</Menu.Item>
@@ -35,16 +33,7 @@ function WidgetMenu(props) {
   );
 }
 
-function TextboxMenu(props) {
-  return (
-    <Menu {...props}>
-      <Menu.Item>Edit</Menu.Item>
-      <Menu.Item>Remove from Dashboard</Menu.Item>
-    </Menu>
-  );
-}
-
-class Widget extends React.Component {
+class VisualizationWidget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     filters: FiltersType,
@@ -66,14 +55,9 @@ class Widget extends React.Component {
 
   componentDidMount() {
     const { widget } = this.props;
-    recordEvent('view', 'widget', widget.id);
-
-    if (widget.visualization) {
-      recordEvent('view', 'query', widget.visualization.query.id, { dashboard: true });
-      recordEvent('view', 'visualization', widget.visualization.id, { dashboard: true });
-
-      this.loadWidget();
-    }
+    recordEvent('view', 'query', widget.visualization.query.id, { dashboard: true });
+    recordEvent('view', 'visualization', widget.visualization.id, { dashboard: true });
+    this.loadWidget();
   }
 
   loadWidget = (refresh = false) => {
@@ -83,7 +67,21 @@ class Widget extends React.Component {
   };
 
   expandWidget = () => {
-    ExpandWidgetDialog.showModal({ widget: this.props.widget });
+    ExpandedWidgetDialog.showModal({ widget: this.props.widget });
+  };
+
+  deleteWidget = () => {
+    const { widget, onDelete } = this.props;
+
+    Modal.confirm({
+      title: 'Delete Widget',
+      content: 'Are you sure you want to remove this widget from the dashboard?',
+      okText: 'Delete',
+      okType: 'danger',
+      onOk: () => widget.delete().then(onDelete),
+      maskClosable: true,
+      autoFocusButton: null,
+    });
   };
 
   refreshWidget = (refreshClickButtonId) => {
@@ -91,24 +89,6 @@ class Widget extends React.Component {
       this.setState({ refreshClickButtonId });
       this.loadWidget(true).finally(() => this.setState({ refreshClickButtonId: null }));
     }
-  };
-
-  deleteWidget = () => {
-    const { widget, onDelete } = this.props;
-
-    const doDelete = () => {
-      widget.delete().then(() => onDelete({}));
-    };
-
-    Modal.confirm({
-      title: 'Delete Widget',
-      content: `Are you sure you want to remove "${widget.getName()}" from the dashboard?`,
-      okText: 'Delete',
-      okType: 'danger',
-      onOk: doDelete,
-      maskClosable: true,
-      autoFocusButton: null,
-    });
   };
 
   renderRefreshIndicator() {
@@ -123,23 +103,7 @@ class Widget extends React.Component {
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderRestrictedError() {
-    return (
-      <div className="tile body-container widget-restricted">
-        <div className="t-body body-row-auto scrollbox">
-          <div className="text-center">
-            <h1><span className="zmdi zmdi-lock" /></h1>
-            <p className="text-muted">
-              {'This widget requires access to a data source you don\'t have access to.'}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  renderWidgetHeader() {
+  renderHeader() {
     const { widget, isPublic, canEdit } = this.props;
     const canViewQuery = currentUser.hasPermission('view_query');
 
@@ -152,7 +116,7 @@ class Widget extends React.Component {
       <div className="body-row widget-header">
         <div className="t-header widget clearfix">
           {(!isPublic && canEdit) && (
-            <React.Fragment>
+            <>
               <div className="dropdown pull-right widget-menu-remove">
                 <div className="actions">
                   <a title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
@@ -161,7 +125,7 @@ class Widget extends React.Component {
               <div className="dropdown pull-right widget-menu-regular">
                 <div className="actions">
                   <Dropdown
-                    overlay={<WidgetMenu />}
+                    overlay={<VisualizationWidgetMenu />}
                     placement="bottomRight"
                     trigger={['click']}
                   >
@@ -169,7 +133,7 @@ class Widget extends React.Component {
                   </Dropdown>
                 </div>
               </div>
-            </React.Fragment>
+            </>
           )}
           {widget.loading && this.renderRefreshIndicator()}
           <div className="th-title">
@@ -190,7 +154,44 @@ class Widget extends React.Component {
     );
   }
 
-  renderWidgetBottom() {
+  // eslint-disable-next-line class-methods-use-this
+  renderVisualization() {
+    const { widget, filters } = this.props;
+    const widgetQueryResult = widget.getQueryResult();
+    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
+    switch (widgetStatus) {
+      case 'failed':
+        return (
+          <div className="body-row-auto scrollbox">
+            {widgetQueryResult.getError() && (
+              <div className="alert alert-danger m-5">
+                Error running query: <strong>{widgetQueryResult.getError()}</strong>
+              </div>
+            )}
+          </div>
+        );
+      case 'done':
+        return (
+          <div ng-switch-when="done" className="body-row-auto scrollbox">
+            <VisualizationRenderer
+              visualization={widget.visualization}
+              queryResult={widgetQueryResult}
+              filters={filters}
+            />
+          </div>
+        );
+      default:
+        return (
+          <div className="body-row-auto spinner-container">
+            <div className="spinner">
+              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
+            </div>
+          </div>
+        );
+    }
+  }
+
+  renderBottom() {
     const { widget, isPublic } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
@@ -232,105 +233,19 @@ class Widget extends React.Component {
     );
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  renderWidgetVisualization() {
-    const { widget, filters } = this.props;
-    const widgetQueryResult = widget.getQueryResult();
-    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
-    switch (widgetStatus) {
-      case 'failed':
-        return (
-          <div className="body-row-auto scrollbox">
-            {widgetQueryResult.getError() && (
-              <div className="alert alert-danger m-5">
-                Error running query: <strong>{widgetQueryResult.getError()}</strong>
-              </div>
-            )}
-          </div>
-        );
-      case 'done':
-        return (
-          <div ng-switch-when="done" className="body-row-auto scrollbox">
-            <VisualizationRenderer
-              visualization={widget.visualization}
-              queryResult={widgetQueryResult}
-              filters={filters}
-            />
-          </div>
-        );
-      default:
-        return (
-          <div className="body-row-auto spinner-container">
-            <div className="spinner">
-              <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
-            </div>
-          </div>
-        );
-    }
-  }
-
-  renderWidget() {
+  render() {
     const { widget } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
     return (
       <div className="tile body-container widget-visualization visualization" data-refreshing={isRefreshing}>
-        {this.renderWidgetHeader()}
-        {this.renderWidgetVisualization()}
-        {this.renderWidgetBottom()}
-      </div>
-    );
-  }
-
-  renderTextbox() {
-    const { widget, isPublic, canEdit } = this.props;
-    if (widget.width === 0) {
-      return null;
-    }
-
-    return (
-      <div className="tile body-container widget-text textbox">
-        <div className="body-row clearfix t-body">
-          {(!isPublic && canEdit) && (
-            <React.Fragment>
-              <div className="dropdown pull-right widget-menu-remove">
-                <div className="dropdown-header">
-                  <a className="actions" title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
-                </div>
-              </div>
-              <div className="dropdown pull-right widget-menu-regular">
-                <div className="dropdown-header">
-                  <Dropdown
-                    overlay={<TextboxMenu />}
-                    placement="bottomRight"
-                    trigger={['click']}
-                  >
-                    <a className="actions p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
-                  </Dropdown>
-                </div>
-              </div>
-            </React.Fragment>
-          )}
-        </div>
-        <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
-          {markdown.toHTML(widget.text)}
-        </HtmlContent>
-      </div>
-    );
-  }
-
-  render() {
-    const { widget } = this.props;
-
-    return (
-      <div className="widget-wrapper">
-        {widget.visualization && this.renderWidget()}
-        {(!widget.visualization && widget.restricted) && this.renderRestrictedError()}
-        {(!widget.visualization && !widget.restricted) && this.renderTextbox()}
+        {this.renderHeader()}
+        {this.renderVisualization()}
+        {this.renderBottom()}
       </div>
     );
   }
 }
 
-export default Widget;
+export default VisualizationWidget;

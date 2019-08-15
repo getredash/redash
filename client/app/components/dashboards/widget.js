@@ -2,7 +2,7 @@ import { filter } from 'lodash';
 import { angular2react } from 'angular2react';
 import template from './widget.html';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
-import ExpandWidgetDialog from '@/components/dashboards/ExpandWidgetDialog';
+import ExpandedWidgetDialog from '@/components/dashboards/ExpandedWidgetDialog';
 import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMappingsDialog';
 import './widget.less';
 
@@ -13,7 +13,6 @@ function DashboardWidgetCtrl($scope, $location, $window, $rootScope, $timeout, E
 
   this.editTextBox = () => {
     TextboxDialog.showModal({
-      dashboard: this.dashboard,
       text: this.widget.text,
       onConfirm: (text) => {
         this.widget.text = text;
@@ -23,7 +22,7 @@ function DashboardWidgetCtrl($scope, $location, $window, $rootScope, $timeout, E
   };
 
   this.expandVisualization = () => {
-    ExpandWidgetDialog.showModal({ widget: this.widget });
+    ExpandedWidgetDialog.showModal({ widget: this.widget });
   };
 
   this.hasParameters = () => this.widget.query.getParametersDefs().length > 0;
