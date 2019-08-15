@@ -165,8 +165,9 @@ function updateLineAreaData(seriesList, options) {
         if (isNil(y) && !options.missingValuesAsZero) {
           return null;
         }
-        const stackedY = y + (cumulativeValues[i] || 0.0);
-        cumulativeValues[i] = stackedY;
+        const x = series.x[i];
+        const stackedY = y + (cumulativeValues[x] || 0.0);
+        cumulativeValues[x] = stackedY;
         return stackedY;
       });
     });
