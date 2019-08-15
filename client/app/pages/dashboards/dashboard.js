@@ -6,7 +6,7 @@ import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
-import { collectDashboardFilters } from '@/services/dashboard';
+import { collectDashboardFilters, urlForDashboard } from '@/services/dashboard';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
@@ -277,13 +277,13 @@ function DashboardCtrl(
 
   this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
 
-  const updateDashboard = (data) => {
+  const updateDashboard = async (data) => {
     _.extend(this.dashboard, data);
     data = _.extend({}, data, {
       slug: this.dashboard.id,
       version: this.dashboard.version,
     });
-    Dashboard.save(
+    return Dashboard.save(
       data,
       (dashboard) => {
         _.extend(this.dashboard, _.pick(dashboard, _.keys(data)));
@@ -302,8 +302,9 @@ function DashboardCtrl(
     );
   };
 
-  this.saveName = (name) => {
-    updateDashboard({ name });
+  this.saveName = async (name) => {
+    await updateDashboard({ name });
+    $location.path(urlForDashboard(this.dashboard));
   };
 
   this.saveTags = (tags) => {
