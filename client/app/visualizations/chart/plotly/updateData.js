@@ -1,6 +1,10 @@
-import { each, extend, filter, identity, includes, map, sortBy, get } from 'lodash';
+import { isNil, each, extend, filter, identity, includes, map, sortBy } from 'lodash';
 import { createNumberFormatter, formatSimpleTemplate } from '@/lib/value-format';
 import { normalizeValue } from './utils';
+
+function shouldUseUnifiedXAxis(options) {
+  return options.sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
+}
 
 function defaultFormatSeriesText(item) {
   let result = item['@@y'];
@@ -30,9 +34,9 @@ function createTextFormatter(options) {
 function formatValue(value, axis, options) {
   let axisType = null;
   switch (axis) {
-    case 'x': axisType = get(options, 'xAxis.type', null); break;
-    case 'y': axisType = get(options, 'yAxis[0].type', null); break;
-    case 'y2': axisType = get(options, 'yAxis[1].type', null); break;
+    case 'x': axisType = options.xAxis.type; break;
+    case 'y': axisType = options.yAxis[0].type; break;
+    case 'y2': axisType = options.yAxis[1].type; break;
     // no default
   }
   return normalizeValue(value, axisType, options.dateTimeFormat);
@@ -113,18 +117,13 @@ function getUnifiedXAxisValues(seriesList, sorted) {
     });
   });
 
-  const result = [];
-  // `Set.forEach` will walk items in insertion order
-  set.forEach((item) => {
-    result.push(item);
-  });
-
+  const result = [...set];
   return sorted ? sortBy(result, identity) : result;
 }
 
 function updateUnifiedXAxisValues(seriesList, options, defaultY) {
   const unifiedX = getUnifiedXAxisValues(seriesList, options.sortX);
-  defaultY = defaultY === undefined ? null : defaultY;
+  defaultY = options.missingValuesAsZero ? 0.0 : null;
   each(seriesList, (series) => {
     series.x = [];
     series.y = [];
@@ -151,19 +150,22 @@ function updateLineAreaData(seriesList, options) {
   // Apply "percent values" modification
   updatePercentValues(seriesList, options);
   if (options.series.stacking) {
-    updateUnifiedXAxisValues(seriesList, options, 0);
+    updateUnifiedXAxisValues(seriesList, options);
 
     // Calculate cumulative value for each x tick
-    let prevSeries = null;
+    const cumulativeValues = {};
     each(seriesList, (series) => {
-      if (prevSeries) {
-        series.y = map(series.y, (y, i) => prevSeries.y[i] + y);
-      }
-      prevSeries = series;
+      series.y = map(series.y, (y, i) => {
+        if (isNil(y) && !options.missingValuesAsZero) {
+          return null;
+        }
+        const stackedY = y + (cumulativeValues[i] || 0.0);
+        cumulativeValues[i] = stackedY;
+        return stackedY;
+      });
     });
   } else {
-    const useUnifiedXAxis = options.sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
-    if (useUnifiedXAxis) {
+    if (shouldUseUnifiedXAxis(options)) {
       updateUnifiedXAxisValues(seriesList, options);
     }
   }
@@ -177,8 +179,7 @@ function updateDefaultData(seriesList, options) {
   updatePercentValues(seriesList, options);
 
   if (!options.series.stacking) {
-    const useUnifiedXAxis = options.sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
-    if (useUnifiedXAxis) {
+    if (shouldUseUnifiedXAxis(options)) {
       updateUnifiedXAxisValues(seriesList, options);
     }
   }

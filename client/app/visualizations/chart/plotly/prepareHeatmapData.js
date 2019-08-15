@@ -43,7 +43,7 @@ function prepareSeries(series, options, additionalOptions) {
     plotlySeries.y.reverse();
   }
 
-  const zMax = max(map(series.data, 'zVal'));
+  const zMax = max(map(series.data, d => d.zVal));
 
   // Use text trace instead of default annotation for better performance
   const dataLabels = {

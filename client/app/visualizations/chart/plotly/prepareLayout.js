@@ -1,4 +1,4 @@
-import { filter, has, isArray, isNumber, isObject, isUndefined, map, max, min } from 'lodash';
+import { filter, has, isNumber, isObject, isUndefined, map, max, min } from 'lodash';
 import { getSeriesAxis } from './utils';
 import { getPieDimensions } from './preparePieData';
 
@@ -25,7 +25,6 @@ function calculateAxisRange(seriesList, minValue, maxValue) {
 }
 
 function prepareXAxis(axisOptions, additionalOptions) {
-  axisOptions = axisOptions || {};
   const axis = {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
@@ -48,8 +47,6 @@ function prepareXAxis(axisOptions, additionalOptions) {
 }
 
 function prepareYAxis(axisOptions, additionalOptions, data) {
-  axisOptions = axisOptions || {};
-
   const axis = {
     title: getAxisTitle(axisOptions),
     type: getAxisScaleType(axisOptions),
@@ -93,13 +90,11 @@ function prepareDefaultLayout(layout, seriesList, options, data) {
 
   layout.xaxis = prepareXAxis(options.xAxis, options);
 
-  if (isArray(options.yAxis)) {
-    layout.yaxis = prepareYAxis(options.yAxis[0], options, data.filter(s => s.yaxis !== 'y2'));
-    if (hasY2) {
-      layout.yaxis2 = prepareYAxis(options.yAxis[1], options, data.filter(s => s.yaxis === 'y2'));
-      layout.yaxis2.overlaying = 'y';
-      layout.yaxis2.side = 'right';
-    }
+  layout.yaxis = prepareYAxis(options.yAxis[0], options, data.filter(s => s.yaxis !== 'y2'));
+  if (hasY2) {
+    layout.yaxis2 = prepareYAxis(options.yAxis[1], options, data.filter(s => s.yaxis === 'y2'));
+    layout.yaxis2.overlaying = 'y';
+    layout.yaxis2.side = 'right';
   }
 
   if (options.series.stacking) {
