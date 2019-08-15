@@ -94,7 +94,7 @@ def _is_date(string):
     try:
         parse(string)
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
 

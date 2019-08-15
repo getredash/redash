@@ -97,6 +97,13 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
 
+    def test_raises_on_none_for_date_parameters(self):
+        schema = [{"name": "bar", "type": "date"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": None})
+
     def test_validates_date_parameters(self):
         schema = [{"name": "bar", "type": "date"}]
         query = ParameterizedQuery("foo {{bar}}", schema)
