@@ -27,6 +27,8 @@ const DEFAULT_OPTIONS = {
   percentFormat: '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+
+  missingValuesAsZero: true,
 };
 
 function initEditorForm(options, columns) {
