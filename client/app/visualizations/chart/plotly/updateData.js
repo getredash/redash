@@ -47,6 +47,8 @@ function updateSeriesText(seriesList, options) {
   const formatPercent = createNumberFormatter(options.percentFormat);
   const formatText = createTextFormatter(options);
 
+  const defaultY = options.missingValuesAsZero ? 0.0 : null;
+
   each(seriesList, (series) => {
     const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
 
@@ -57,25 +59,29 @@ function updateSeriesText(seriesList, options) {
       const text = {
         '@@name': series.name,
       };
-      const item = series.sourceData.get(x);
-      if (item) {
-        const yValueIsAny = includes(['bubble', 'scatter'], seriesOptions.type);
+      const item = series.sourceData.get(x) || { x, y: defaultY, row: { x, y: defaultY } };
 
-        text['@@x'] = formatValue(item.row.x, 'x', options);
-        text['@@y'] = yValueIsAny ? formatValue(item.row.y, series.yaxis, options) : formatNumber(item.y);
-        if (item.yError !== undefined) {
-          text['@@yError'] = formatNumber(item.yError);
-        }
-        if (item.size !== undefined) {
-          text['@@size'] = formatNumber(item.size);
-        }
+      const yValueIsAny = includes(['bubble', 'scatter'], seriesOptions.type);
 
-        if (options.series.percentValues || (options.globalSeriesType === 'pie')) {
-          text['@@yPercent'] = formatPercent(Math.abs(item.yPercent));
-        }
-
-        extend(text, item.row.$raw);
+      // for `formatValue` we have to use original value of `x` and `y`: `item.x`/`item.y` contains value
+      // already processed with `normalizeValue`, and if they were `moment` instances - they are formatted
+      // using default (ISO) date/time format. Here we need to use custom date/time format, so we pass original value
+      // to `formatValue` which will call `normalizeValue` again, but this time with different date/time format
+      // (if needed)
+      text['@@x'] = formatValue(item.row.x, 'x', options);
+      text['@@y'] = yValueIsAny ? formatValue(item.row.y, series.yaxis, options) : formatNumber(item.y);
+      if (item.yError !== undefined) {
+        text['@@yError'] = formatNumber(item.yError);
       }
+      if (item.size !== undefined) {
+        text['@@size'] = formatNumber(item.size);
+      }
+
+      if (options.series.percentValues || (options.globalSeriesType === 'pie')) {
+        text['@@yPercent'] = formatPercent(Math.abs(item.yPercent));
+      }
+
+      extend(text, item.row.$raw);
 
       series.text.push(formatText(text));
     });
@@ -121,9 +127,9 @@ function getUnifiedXAxisValues(seriesList, sorted) {
   return sorted ? sortBy(result, identity) : result;
 }
 
-function updateUnifiedXAxisValues(seriesList, options, defaultY) {
+function updateUnifiedXAxisValues(seriesList, options) {
   const unifiedX = getUnifiedXAxisValues(seriesList, options.sortX);
-  defaultY = options.missingValuesAsZero ? 0.0 : null;
+  const defaultY = options.missingValuesAsZero ? 0.0 : null;
   each(seriesList, (series) => {
     series.x = [];
     series.y = [];
