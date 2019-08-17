@@ -84,8 +84,12 @@ class ClickHouse(BaseSQLQueryRunner):
                 raise Exception(r.text)
             # logging.warning(r.json())
             return r.json()
-        except requests.RequestException:
-            raise Exception('Connection error to %s' % url)
+        except requests.RequestException as e:
+            if e.response:
+                details = "({}, Status Code: {})".format(e.__class__.__name__, e.response.status_code)
+            else:
+                details = "({})".format(e.__class__.__name__)
+            raise Exception("Connection error to: {} {}.".format(url, details))
 
     @staticmethod
     def _define_column_type(column):
