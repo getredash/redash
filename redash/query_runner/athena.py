@@ -136,6 +136,7 @@ class Athena(BaseQueryRunner):
 
         if not OPTIONAL_CREDENTIALS and not ASSUME_ROLE:
                 schema['required'] += ['aws_access_key', 'aws_secret_key']
+
         return schema
 
     @classmethod
@@ -263,6 +264,7 @@ class Athena(BaseQueryRunner):
                 cursor.cancel()
             error = ex.message
             json_data = None
+
         return json_data, error
 
 
