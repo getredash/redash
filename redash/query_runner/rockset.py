@@ -25,7 +25,8 @@ class RocksetAPI(object):
         self.api_server = api_server
 
     def _request(self, endpoint, method='GET', body=None):
-        headers = {'Authorization': 'ApiKey {}'.format(self.api_key)}
+        headers = {'Authorization': 'ApiKey {}'.format(self.api_key),
+                   'User-Agent': 'rest:redash/1.0'}
         url = '{}/v1/orgs/self/{}'.format(self.api_server, endpoint)
 
         if method == 'GET':
