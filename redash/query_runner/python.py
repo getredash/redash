@@ -259,7 +259,6 @@ class Python(BaseQueryRunner):
             restricted_globals["TYPE_DATE"] = TYPE_DATE
             restricted_globals["TYPE_FLOAT"] = TYPE_FLOAT
 
-
             # TODO: Figure out the best way to have a timeout on a script
             #       One option is to use ETA with Celery + timeouts on workers
             #       And replacement of worker process every X requests handled.

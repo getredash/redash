@@ -39,6 +39,7 @@ TYPES_MAPPING = {
     'DECIMAL': TYPE_FLOAT
 }
 
+
 class Phoenix(BaseQueryRunner):
     noop_query = 'select 1'
 
@@ -117,5 +118,6 @@ class Phoenix(BaseQueryRunner):
                 connection.close()
 
         return json_data, error
+
 
 register(Phoenix)

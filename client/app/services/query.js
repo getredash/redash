@@ -2,9 +2,8 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, filter, includes, union, uniq, has,
-  isNull, isUndefined, isArray, isObject, identity, extend, each,
-  startsWith, some,
+  zipObject, isEmpty, map, filter, includes, union, uniq, has, get, intersection,
+  isNull, isUndefined, isArray, isObject, identity, extend, each, join, some, startsWith,
 } from 'lodash';
 
 Mustache.escape = identity; // do not html-escape values
@@ -138,6 +137,7 @@ export class Parameter {
     this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
+    this.multiValuesOptions = parameter.multiValuesOptions;
     this.queryId = parameter.queryId;
     this.parentQueryId = parentQueryId;
 
@@ -164,6 +164,10 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
+  getValue(extra = {}) {
+    return this.constructor.getValue(this, extra);
+  }
+
   get hasDynamicValue() {
     if (isDateParameter(this.type)) {
       return isDynamicDate(this.value);
@@ -184,13 +188,9 @@ export class Parameter {
     return false;
   }
 
-  getValue() {
-    return this.constructor.getValue(this);
-  }
-
-  static getValue(param) {
-    const { value, type, useCurrentDateTime } = param;
-    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '');
+  static getValue(param, extra = {}) {
+    const { value, type, useCurrentDateTime, multiValuesOptions } = param;
+    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
     if (isDateRangeParameter(type) && param.hasDynamicValue) {
       const { dynamicValue } = param;
       if (dynamicValue) {
@@ -224,10 +224,32 @@ export class Parameter {
     if (type === 'number') {
       return normalizeNumericValue(value, null); // normalize empty value
     }
+
+    // join array in frontend when query is executed as a text
+    const { joinListValues } = extra;
+    if (includes(['enum', 'query'], type) && multiValuesOptions && isArray(value) && joinListValues) {
+      const separator = get(multiValuesOptions, 'separator', ',');
+      const prefix = get(multiValuesOptions, 'prefix', '');
+      const suffix = get(multiValuesOptions, 'suffix', '');
+      const parameterValues = map(value, v => `${prefix}${v}${suffix}`);
+      return join(parameterValues, separator);
+    }
     return value;
   }
 
   setValue(value) {
+    if (this.type === 'enum') {
+      const enumOptionsArray = this.enumOptions && this.enumOptions.split('\n') || [];
+      if (this.multiValuesOptions) {
+        if (!isArray(value)) {
+          value = [value];
+        }
+        value = intersection(value, enumOptionsArray);
+      } else if (!value || isArray(value) || !includes(enumOptionsArray, value)) {
+        value = enumOptionsArray[0];
+      }
+    }
+
     if (isDateRangeParameter(this.type)) {
       this.value = null;
       this.$$value = null;
@@ -331,6 +353,9 @@ export class Parameter {
         [`${prefix}${this.name}`]: null,
       };
     }
+    if (this.multiValuesOptions && isArray(this.value)) {
+      return { [`${prefix}${this.name}`]: JSON.stringify(this.value) };
+    }
     return {
       [`${prefix}${this.name}`]: this.value,
       [`${prefix}${this.name}.start`]: null,
@@ -352,7 +377,15 @@ export class Parameter {
     } else {
       const key = `${prefix}${this.name}`;
       if (has(query, key)) {
-        this.setValue(query[key]);
+        if (this.multiValuesOptions) {
+          try {
+            this.setValue(JSON.parse(query[key]));
+          } catch (e) {
+            this.setValue(query[key]);
+          }
+        } else {
+          this.setValue(query[key]);
+        }
       }
     }
   }
@@ -460,9 +493,9 @@ class Parameters {
     return !isEmpty(this.get());
   }
 
-  getValues() {
+  getValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
+    return zipObject(map(params, i => i.name), map(params, i => i.getValue(extra)));
   }
 
   hasPendingValues() {
@@ -710,7 +743,7 @@ function QueryResource(
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const parameters = this.getParameters().getValues();
+    const parameters = this.getParameters().getValues({ joinListValues: true });
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   };

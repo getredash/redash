@@ -157,4 +157,5 @@ class SQLServerODBC(BaseSQLQueryRunner):
 
         return json_data, error
 
+
 register(SQLServerODBC)

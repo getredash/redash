@@ -45,7 +45,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 'Redash');
     });
 
@@ -82,7 +82,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 42);
 
       cy.getByTestId('ParameterName-test-parameter')
@@ -92,7 +92,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', 31415);
     });
 
@@ -121,7 +121,7 @@ describe('Parameter', () => {
       };
 
       createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}`));
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     it('updates the results after selecting a value', () => {
@@ -129,14 +129,43 @@ describe('Parameter', () => {
         .find('.ant-select')
         .click();
 
-      cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+      cy.contains('li.ant-select-dropdown-menu-item', 'value2')
         .click();
 
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
-        .should('contain', 'value1');
+      cy.getByTestId('TableVisualization')
+        .should('contain', 'value2');
+    });
+
+    it('supports multi-selection', () => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        AllowMultipleValuesCheckbox
+        QuotationSelect
+        DoubleQuotationMarkOption
+        SaveParameterSettings
+      `);
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-select')
+        .click();
+
+      // select all unselected options
+      cy.get('li.ant-select-dropdown-menu-item').each(($option) => {
+        if (!$option.hasClass('ant-select-dropdown-menu-item-selected')) {
+          cy.wrap($option).click();
+        }
+      });
+
+      cy.getByTestId('QueryEditor').click(); // just to close the select menu
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('TableVisualization')
+        .should('contain', '"value1","value2","value3"');
     });
 
     it('sets dirty state when edited', () => {
@@ -145,7 +174,7 @@ describe('Parameter', () => {
           .find('.ant-select')
           .click();
 
-        cy.contains('li.ant-select-dropdown-menu-item', 'value1')
+        cy.contains('li.ant-select-dropdown-menu-item', 'value2')
           .click();
       });
     });
@@ -159,8 +188,7 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', date)
-        .click()
-        .click(); // workaround for datepicker display bug
+        .click();
     };
 
     beforeEach(() => {
@@ -169,22 +197,18 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'date' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'date', value: null },
           ],
         },
       };
 
-      createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}`));
-
-      // make sure parameter is loaded, otherwise cy.clock won't work
-      cy.getByTestId('ParameterApplyButton')
-        .should('exist');
-
       const now = new Date();
       now.setDate(1);
       cy.wrap(now.getTime()).as('now');
-      cy.clock(now.getTime());
+      cy.clock(now.getTime(), ['Date']);
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -197,14 +221,13 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment(this.now).format('15/MM/YY'));
     });
 
     it('allows picking a dynamic date', function () {
       cy.getByTestId('DynamicButton')
-        .click()
-        .click(); // workaround for datepicker display bug
+        .click();
 
       cy.getByTestId('DynamicButtonMenu')
         .contains('Today/Now')
@@ -213,7 +236,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment(this.now).format('DD/MM/YY'));
     });
 
@@ -229,22 +252,18 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'datetime-local' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'datetime-local', value: null },
           ],
         },
       };
 
-      createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}`));
-
-      // make sure parameter is loaded, otherwise cy.clock won't work
-      cy.getByTestId('ParameterApplyButton')
-        .should('exist');
-
       const now = new Date();
       now.setDate(1);
       cy.wrap(now.getTime()).as('now');
-      cy.clock(now.getTime());
+      cy.clock(now.getTime(), ['Date']);
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}`));
     });
 
     afterEach(() => {
@@ -259,19 +278,15 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', '15')
-        .as('SelectedDate')
         .click();
 
       cy.get('.ant-calendar-ok-btn')
         .click();
 
-      // workaround for datepicker display bug
-      cy.get('@SelectedDate').click();
-
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment(this.now).format('YYYY-MM-15 HH:mm'));
     });
 
@@ -283,20 +298,18 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-date-panel')
         .contains('Now')
-        .click()
-        .click(); // workaround for datepicker display bug
+        .click();
 
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment(this.now).format('YYYY-MM-DD HH:mm'));
     });
 
     it('allows picking a dynamic date', function () {
       cy.getByTestId('DynamicButton')
-        .click()
-        .click(); // workaround for datepicker display bug
+        .click();
 
       cy.getByTestId('DynamicButtonMenu')
         .contains('Today/Now')
@@ -305,7 +318,7 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', Cypress.moment(this.now).format('YYYY-MM-DD HH:mm'));
     });
 
@@ -335,8 +348,7 @@ describe('Parameter', () => {
 
       cy.get('.ant-calendar-date-panel')
         .contains('.ant-calendar-date', endDate)
-        .click()
-        .click(); // workaround for datepicker display bug
+        .click();
     };
 
     beforeEach(() => {
@@ -350,17 +362,13 @@ describe('Parameter', () => {
         },
       };
 
-      createQuery(queryData, false)
-        .then(({ id }) => cy.visit(`/queries/${id}/source`));
-
-      // make sure parameter is loaded, otherwise cy.clock won't work
-      cy.getByTestId('ParameterName-test-parameter')
-        .should('exist');
-
       const now = new Date();
       now.setDate(1);
       cy.wrap(now.getTime()).as('now');
-      cy.clock(now.getTime());
+      cy.clock(now.getTime(), ['Date']);
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
     });
 
     afterEach(() => {
@@ -374,13 +382,12 @@ describe('Parameter', () => {
         .click();
 
       const now = Cypress.moment(this.now);
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', now.format('YYYY-MM-15') + ' - ' + now.format('YYYY-MM-20'));
     });
 
     it('allows picking a dynamic date range', function () {
       cy.getByTestId('DynamicButton')
-        .click()
         .click();
 
       cy.getByTestId('DynamicButtonMenu')
@@ -391,7 +398,7 @@ describe('Parameter', () => {
         .click();
 
       const lastMonth = Cypress.moment(this.now).subtract(1, 'month');
-      cy.getByTestId('DynamicTable')
+      cy.getByTestId('TableVisualization')
         .should('contain', lastMonth.startOf('month').format('YYYY-MM-DD') + ' - ' +
                            lastMonth.endOf('month').format('YYYY-MM-DD'));
     });

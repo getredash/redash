@@ -7,6 +7,7 @@ from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
+                                           send_user_disabled_email,
                                            send_verify_email,
                                            validate_token)
 from redash.handlers import routes
@@ -100,7 +101,7 @@ def verify(token, org_slug=None):
     models.db.session.add(user)
     models.db.session.commit()
 
-    template_context = { "org_slug": org_slug } if settings.MULTI_ORG else {}
+    template_context = {"org_slug": org_slug} if settings.MULTI_ORG else {}
     next_url = url_for('redash.index', **template_context)
 
     return render_template("verify.html", next_url=next_url)
@@ -118,7 +119,10 @@ def forgot_password(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(email, org)
-            send_password_reset_email(user)
+            if user.is_disabled:
+                send_user_disabled_email(user)
+            else:
+                send_password_reset_email(user)
         except NoResultFound:
             logging.error("No user found for forgot password: %s", email)
 

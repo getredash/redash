@@ -199,7 +199,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
                 widgets.append(serialize_widget(w))
             else:
                 widget = project(serialize_widget(w),
-                                ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
+                                 ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
                 widget['restricted'] = True
                 widgets.append(widget)
     else:

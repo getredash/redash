@@ -220,7 +220,6 @@ class MongoDB(BaseQueryRunner):
 
         return schema.values()
 
-
     def run_query(self, query, user):
         db = self._get_db()
 
@@ -301,12 +300,12 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
             })
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 
@@ -331,5 +330,6 @@ class MongoDB(BaseQueryRunner):
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
+
 
 register(MongoDB)
