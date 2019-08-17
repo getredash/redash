@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
 SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
 ASSUME_ROLE = parse_boolean(os.environ.get('ATHENA_ASSUME_ROLE', 'false'))
+EXPOSE_COST = parse_boolean(os.environ.get('ATHENA_EXPOSE_COST', 'false'))
 OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 try:
@@ -123,9 +124,18 @@ class Athena(BaseQueryRunner):
             schema['order'].insert(1, 'aws_access_key')
             schema['order'].insert(2, 'aws_secret_key')
 
+        if EXPOSE_COST:
+            schema['order'].append('cost_per_tb')
+            schema['properties'].update({
+                'cost_per_tb': {
+                    'type': 'number',
+                    'title': 'Athena cost per Tb scanned',
+                    'default': 5
+                }
+                })
+
         if not OPTIONAL_CREDENTIALS and not ASSUME_ROLE:
                 schema['required'] += ['aws_access_key', 'aws_secret_key']
-
         return schema
 
     @classmethod
@@ -238,6 +248,9 @@ class Athena(BaseQueryRunner):
                     'athena_query_id': athena_query_id
                 }
             }
+            if EXPOSE_COST:
+                price = self.configuration.get('cost_per_tb', 5)
+                data['metadata'].update({'query_cost': '${0:.2f}'.format(price * qbytes * 10e-12)})
             json_data = json_dumps(data, ignore_nan=True)
             error = None
         except (KeyboardInterrupt, InterruptException):
@@ -250,7 +263,6 @@ class Athena(BaseQueryRunner):
                 cursor.cancel()
             error = ex.message
             json_data = None
-
         return json_data, error
 
 
