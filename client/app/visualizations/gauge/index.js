@@ -78,6 +78,9 @@ function createGauge(element, data, options) {
 
     ticks = scale.ticks(config.majorTicks);
     tickData = d3.range(config.majorTicks).map(() => 1 / config.majorTicks);
+    // ticks = [0, 10, 30, 100];
+    // tickData = [0.1, 0.2, 0.7];
+    // let ranges = [[0, 0.1], [0.1, 0.3], [0.3, 1]];
 
     arc = d3.svg.arc()
       .innerRadius(r - config.ringWidth - config.ringInset)
