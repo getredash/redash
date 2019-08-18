@@ -26,7 +26,7 @@ pytz==2016.7
 PyYAML==3.12
 redis==3.2.1
 requests==2.21.0
-six==1.11.0
+six==1.12.0
 SQLAlchemy==1.2.12
 # We can't upgrade SQLAlchemy-Searchable version as newer versions require PostgreSQL > 9.6, but we target older versions at the moment.
 SQLAlchemy-Searchable==0.10.6
@@ -56,7 +56,7 @@ user-agents==1.1.0
 python-geoip-geolite2==2015.303
 chromelogger==0.4.3
 pypd==1.1.0
-disposable-email-domains
+disposable-email-domains>=0.0.52
 gevent==1.4.0
 # Install the dependencies of the bin/bundle-extensions script here.
 # It has its own requirements file to simplify the frontend client build process

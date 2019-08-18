@@ -113,7 +113,7 @@ def sp_initiated(org_slug=None):
     redirect_url = None
     # Select the IdP URL to send the AuthN request to
     for key, value in info['headers']:
-        if key is 'Location':
+        if key == 'Location':
             redirect_url = value
     response = redirect(redirect_url, code=302)
 
