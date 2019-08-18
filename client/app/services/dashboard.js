@@ -4,14 +4,7 @@ import { Widget } from './widget';
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
-export const urlForDashboard = ({ id, name }) => `dashboard/${id}-${name.toString()
-  .trim()
-  .toLowerCase()
-  .replace(/\s+/g, '-')
-  .replace(/[^\w-]+/g, '')
-  .replace(/--+/g, '-')
-  .replace(/^-+/, '')
-  .replace(/-+$/, '')}`;
+export const urlForDashboard = ({ id, slug }) => `dashboard/${id}-${slug}`;
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};

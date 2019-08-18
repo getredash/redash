@@ -146,14 +146,7 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        if dashboard_slug.split('-')[0].isdigit():
-            identifier = int(dashboard_slug.split('-')[0])
-            fn = models.Dashboard.get_by_id_and_org
-        else:
-            identifier = dashboard_slug
-            fn = models.Dashboard.get_by_slug_and_org
-
-        dashboard = get_object_or_404(fn, identifier, self.current_org)
+        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
         response = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
 
         api_key = models.ApiKey.get_by_object(dashboard)

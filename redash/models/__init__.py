@@ -3,6 +3,7 @@ import calendar
 import logging
 import time
 import pytz
+from re import sub
 
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
@@ -867,6 +868,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return u"%s=%s" % (self.id, self.name)
 
+    @property
+    def name_as_slug(self):
+        return sub(r'-+$', '',
+                   sub(r'^-+', '',
+                       sub(r'--+', '-',
+                           sub(r'[^\w-]+', '',
+                                           sub(r'\s+', '-', self.name.strip().lower())))))
+
     @classmethod
     def all(cls, org, group_ids, user_id):
         query = (
@@ -927,7 +936,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        return cls.query.filter(cls.slug == slug, cls.org == org).one()
+        try:
+            return cls.query.filter(cls.slug == slug, cls.org == org).one()
+        except NoResultFound as e:
+            id = slug.split('-', 1)[0] if '-' in slug else slug
+            if id.isdigit():
+                return super(Dashboard, cls).get_by_id_and_org(int(id), org)
+            else:
+                raise e
 
     @hybrid_property
     def lowercase_name(self):
