@@ -5,9 +5,15 @@
 .parameter-input {
   display: inline-block;
   position: relative;
+  width: 100%;
 
-  .@{ant-prefix}-input[type="text"] {
-    width: 195px;
+  .@{ant-prefix}-input,
+  .@{ant-prefix}-input-number {
+    min-width: 100% !important;
+  }
+
+  .@{ant-prefix}-select {
+    width: 100%;
   }
 
   &[data-dirty] {
@@ -15,68 +21,6 @@
     .@{ant-prefix}-input-number,
     .@{ant-prefix}-select-selection {
       background-color: @input-dirty;
-    }
-  }
-}
-
-.parameter-container {
-  position: relative;
-
-  .parameter-apply-button {
-    display: none; // default for mobile
-    
-    // "floating" on desktop
-    @media (min-width: 768px) {
-      position: absolute;
-      bottom: -42px;
-      left: -15px;
-      border-radius: 2px;
-      z-index: 1;
-      transition: opacity 150ms ease-out;
-      box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-      background-color: #ffffff;
-      padding: 4px;
-      padding-left: 16px;
-      opacity: 0;
-      display: block;
-      pointer-events: none; // so tooltip doesn't remain after button hides
-    }
-  
-    &[data-show="true"] {
-      opacity: 1;
-      display: block;
-      pointer-events: auto;
-    }
-
-    button {
-      padding: 0 8px 0 6px;
-      color: #2096f3;
-      border-color: #50acf6;
-
-      // smaller on desktop
-      @media (min-width: 768px) {
-        font-size: 12px;
-        height: 27px;
-      }
-
-      &:hover, &:focus, &:active {
-        background-color: #eef7fe;
-      }
-
-      i {
-        margin-right: 3px;
-      }
-    }
-
-    .ant-badge-count {
-      min-width: 15px;
-      height: 15px;
-      padding: 0 5px;
-      font-size: 10px;
-      line-height: 15px;
-      background: #f77b74;
-      border-radius: 7px;
-      box-shadow: 0px 0px 0 1px white, -1px 1px 0 1px #5d6f7d85;
     }
   }
 }
