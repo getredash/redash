@@ -57,11 +57,11 @@ function createGauge(element, data, options) {
   let pointer;
 
 
-  function deg2rad(deg) {
+  const privateDeg2rad = function deg2rad(deg) {
     return deg * Math.PI / 180;
-  }
+  };
 
-  function configure(configuration) {
+  const privateConfigure = function configure(configuration) {
     config = {
       ...config,
       ...configuration,
@@ -84,34 +84,48 @@ function createGauge(element, data, options) {
       .outerRadius(r - config.ringInset)
       .startAngle((d, i) => {
         const ratio = d * i;
-        return deg2rad(config.minAngle + (ratio * range));
+        return privateDeg2rad(config.minAngle + (ratio * range));
       })
       .endAngle((d, i) => {
         const ratio = d * (i + 1);
-        return deg2rad(config.minAngle + (ratio * range));
+        return privateDeg2rad(config.minAngle + (ratio * range));
       });
-  }
+  };
 
-  that.configure = configure;
+  that.configure = privateConfigure;
 
-  function centerTranslation() {
+  const privateCenterTranslation = function centerTranslation() {
     return 'translate(' + r + ',' + r + ')';
-  }
+  };
 
-  function isRendered() {
+  const privateUpdate = function update(newValue, newConfiguration) {
+    if (newConfiguration !== undefined) {
+      privateConfigure(newConfiguration);
+    }
+    const ratio = scale(newValue);
+    const newAngle = config.minAngle + (ratio * range);
+    pointer.transition()
+      .duration(config.transitionMs)
+      .ease('elastic')
+      .attr('transform', 'rotate(' + newAngle + ')');
+  };
+
+  that.update = privateUpdate;
+
+  const privateIsRendered = function isRendered() {
     return (svg !== undefined);
-  }
+  };
 
-  that.isRendered = isRendered;
+  that.isRendered = privateIsRendered;
 
-  function render(newValue) {
+  const privateRender = function render(newValue) {
     svg = d3.select(element)
       .append('svg:svg')
       .attr('class', 'gauge')
       .attr('width', config.clipWidth)
       .attr('height', config.clipHeight);
 
-    const centerTx = centerTranslation();
+    const centerTx = privateCenterTranslation();
 
     const arcs = svg.append('g')
       .attr('class', 'arc')
@@ -147,29 +161,15 @@ function createGauge(element, data, options) {
       .attr('transform', centerTx);
 
     pointer = pg.append('path')
-      .attr('d', pointerLine/* function(d) { return pointerLine(d) +'Z';} */)
+      .attr('d', pointerLine)
       .attr('transform', 'rotate(' + config.minAngle + ')');
 
-    update(newValue === undefined ? 0 : newValue);
-  }
+    privateUpdate(newValue === undefined ? 0 : newValue);
+  };
 
-  that.render = render;
+  that.render = privateRender;
 
-  function update(newValue, newConfiguration) {
-    if (newConfiguration !== undefined) {
-      configure(newConfiguration);
-    }
-    const ratio = scale(newValue);
-    const newAngle = config.minAngle + (ratio * range);
-    pointer.transition()
-      .duration(config.transitionMs)
-      .ease('elastic')
-      .attr('transform', 'rotate(' + newAngle + ')');
-  }
-
-  that.update = update;
-
-  configure({
+  privateConfigure({
     size: 300,
     clipWidth: 300,
     clipHeight: 300,
@@ -178,6 +178,7 @@ function createGauge(element, data, options) {
     transitionMs: 4000,
   });
 
+  privateRender(data[0].value);
   return that;
 }
 
@@ -199,8 +200,7 @@ const GaugeRenderer = {
       if (this.data && isDataValid(this.data)) {
         // do the render logic.
         angular.element(container).empty();
-
-        createGauge(container, this.data.rows, this.options).render(this.data.rows[0].value);
+        createGauge(container, this.data.rows, this.options);
       }
     };
 
