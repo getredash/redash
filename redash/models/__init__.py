@@ -3,7 +3,6 @@ import calendar
 import logging
 import time
 import pytz
-from re import sub
 
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
@@ -870,11 +869,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @property
     def name_as_slug(self):
-        return sub(r'-+$', '',
-                   sub(r'^-+', '',
-                       sub(r'--+', '-',
-                           sub(r'[^\w-]+', '',
-                                           sub(r'\s+', '-', self.name.strip().lower())))))
+        return utils.slugify(self.name)
 
     @classmethod
     def all(cls, org, group_ids, user_id):
