@@ -43,6 +43,7 @@ function createGauge(element, data, options) {
     labelInset: 10,
 
     colors: [options.okColor, options.warningColor, options.dangerColor],
+    range_options: [Number(options.okRange), Number(options.warningRange), Number(options.dangerRange)],
   };
 
   let range;
@@ -52,8 +53,8 @@ function createGauge(element, data, options) {
   let svg;
   let arc;
   let scale;
-  let ticks;
-  let tickData;
+  let ticks; // labels
+  let ranges; // arcs
   let pointer;
 
 
@@ -77,20 +78,26 @@ function createGauge(element, data, options) {
       .domain([config.minValue, config.maxValue]);
 
     ticks = scale.ticks(config.majorTicks);
-    tickData = d3.range(config.majorTicks).map(() => 1 / config.majorTicks);
-    // ticks = [0, 10, 30, 100];
-    // tickData = [0.1, 0.2, 0.7];
-    // let ranges = [[0, 0.1], [0.1, 0.3], [0.3, 1]];
+    // tickData - define gauge labels, F.E: ticks = [0, 10, 30, 100];
+    // tickData = d3.range(config.majorTicks).map(() => 1 / config.majorTicks); // define default 3 labels
+    ticks = [0].concat(config.range_options);
+
+    // ranges define required arcs in precent (expect only 3 ranges!)
+    // ranges = [[0, 0.1], [0.1, 0.3], [0.3, 1]]; // ranges syntax example
+    ranges = [];
+    ranges.push([0, scale(config.range_options[0])]);
+    ranges.push([scale(config.range_options[0]), scale(config.range_options[1])]);
+    ranges.push([scale(config.range_options[1]), scale(config.range_options[2])]);
 
     arc = d3.svg.arc()
       .innerRadius(r - config.ringWidth - config.ringInset)
       .outerRadius(r - config.ringInset)
-      .startAngle((d, i) => {
-        const ratio = d * i;
+      .startAngle((d) => {
+        const ratio = d[0];
         return privateDeg2rad(config.minAngle + (ratio * range));
       })
-      .endAngle((d, i) => {
-        const ratio = d * (i + 1);
+      .endAngle((d) => {
+        const ratio = d[1];
         return privateDeg2rad(config.minAngle + (ratio * range));
       });
   };
@@ -135,7 +142,7 @@ function createGauge(element, data, options) {
       .attr('transform', centerTx);
 
     arcs.selectAll('path')
-      .data(tickData)
+      .data(ranges)
       .enter().append('path')
       .attr('fill', (d, i) => config.colors[i])
       .attr('d', arc);
