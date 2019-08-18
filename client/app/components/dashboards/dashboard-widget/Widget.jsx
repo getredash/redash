@@ -31,8 +31,8 @@ class Widget extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderRestrictedError() {
     return (
-      <div className="tile body-container widget-restricted">
-        <div className="t-body body-row-auto scrollbox">
+      <div className="tile body-container d-flex justify-content-center align-items-center widget-restricted">
+        <div className="t-body scrollbox">
           <div className="text-center">
             <h1><span className="zmdi zmdi-lock" /></h1>
             <p className="text-muted">
