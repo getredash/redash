@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -19,7 +18,7 @@ const multipleValuesProps = {
   maxTagPlaceholder: num => `+${num.length} more`,
 };
 
-export class ParameterValueInput extends React.Component {
+class ParameterValueInput extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -194,34 +193,4 @@ export class ParameterValueInput extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('parameterValueInput', {
-    template: `
-      <parameter-value-input-impl
-        type="$ctrl.param.type"
-        value="$ctrl.param.normalizedValue"
-        parameter="$ctrl.param"
-        enum-options="$ctrl.param.enumOptions"
-        query-id="$ctrl.param.queryId"
-        allow-multiple-values="!!$ctrl.param.multiValuesOptions"
-        on-select="$ctrl.setValue"
-      ></parameter-value-input-impl>
-    `,
-    bindings: {
-      param: '<',
-    },
-    controller($scope) {
-      this.setValue = (value, isDirty) => {
-        if (isDirty) {
-          this.param.setPendingValue(value);
-        } else {
-          this.param.clearPendingValue();
-        }
-        $scope.$apply();
-      };
-    },
-  });
-  ngModule.component('parameterValueInputImpl', react2angular(ParameterValueInput));
-}
-
-init.init = true;
+export default ParameterValueInput;
