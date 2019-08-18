@@ -3,7 +3,7 @@
     <div class="page-title col-xs-8 col-sm-7 col-lg-7 p-l-0">
       <favorites-control item="$ctrl.dashboard"></favorites-control>
       <h3>
-        <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
+        <edit-in-place class="edit-in-place" is-editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'" data-test="DashboardName"></edit-in-place>
       </h3>
 
       <img ng-src="{{$ctrl.dashboard.user.profile_image_url}}" class="profile__image_thumb--dashboard" alt="{{$ctrl.dashboard.user.name}}">
@@ -33,6 +33,7 @@
             <span ng-switch-default>
               <span class="save-status">Saved</span>
               <button class="btn btn-primary btn-sm"
+                data-test="DoneEditingDashboard"
                 ng-disabled="$ctrl.isGridDisabled"
                 ng-click="$ctrl.editLayout(false)">
                 <i class="fa fa-check"></i> Done Editing

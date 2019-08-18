@@ -36,8 +36,8 @@ describe('Dashboard', () => {
   });
 
   it('archives dashboard', () => {
-    createDashboard('Foo Bar').then(({ slug }) => {
-      cy.visit(`/dashboard/${slug}`);
+    createDashboard('Foo Bar').then(({ id, slug }) => {
+      cy.visit(`/dashboard/${id}-${slug}`);
 
       cy.getByTestId('DashboardMoreMenu')
         .click()
@@ -54,8 +54,29 @@ describe('Dashboard', () => {
 
       cy.visit('/dashboards');
       cy.getByTestId('DashboardLayoutContent').within(() => {
-        cy.getByTestId(slug).should('not.exist');
+        cy.getByTestId(`${id}-${slug}`).should('not.exist');
       });
+    });
+  });
+
+  it('renames dashboard', () => {
+    createDashboard('Foo Bar').then(({ id, slug }) => {
+      cy.visit(`/dashboard/${id}-${slug}`);
+
+      cy.getByTestId('DashboardMoreMenu')
+        .click()
+        .within(() => {
+          cy.get('li')
+            .contains('Edit')
+            .click();
+        });
+
+      cy.getByTestId('DashboardName').click().within(() => {
+        cy.get('input').clear().type('Baz Qux');
+      });
+
+      cy.getByTestId('DoneEditingDashboard').click();
+      cy.url().should('include', 'baz-qux');
     });
   });
 
@@ -64,8 +85,8 @@ describe('Dashboard', () => {
       cy.login();
       createDashboard('Foo Bar')
         .then(({ slug, id }) => {
-          this.dashboardUrl = `/dashboard/${slug}`;
-          this.dashboardEditUrl = `/dashboard/${slug}?edit`;
+          this.dashboardUrl = `/dashboard/${id}-${slug}`;
+          this.dashboardEditUrl = `${this.dashboardUrl}?edit`;
           return addTextbox(id, 'Hello World!').then(getWidgetTestId);
         })
         .then((elTestId) => {
@@ -119,8 +140,8 @@ describe('Dashboard', () => {
   context('viewport width is at 767px', () => {
     before(function () {
       cy.login();
-      createDashboard('Foo Bar').then(({ slug }) => {
-        this.dashboardUrl = `/dashboard/${slug}`;
+      createDashboard('Foo Bar').then(({ id, slug }) => {
+        this.dashboardUrl = `/dashboard/${id}-${slug}`;
       });
     });
 
