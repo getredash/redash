@@ -277,7 +277,7 @@ function DashboardCtrl(
 
   this.loadTags = () => getTags('api/dashboards/tags').then(tags => _.map(tags, t => t.name));
 
-  const updateDashboard = async (data) => {
+  const updateDashboard = (data) => {
     _.extend(this.dashboard, data);
     data = _.extend({}, data, {
       slug: this.dashboard.id,
@@ -302,9 +302,10 @@ function DashboardCtrl(
     );
   };
 
-  this.saveName = async (name) => {
-    await updateDashboard({ name });
-    $location.path(urlForDashboard(this.dashboard));
+  this.saveName = (name) => {
+    updateDashboard({ name }).$promise.then(() => {
+      $location.path(urlForDashboard(this.dashboard));
+    });
   };
 
   this.saveTags = (tags) => {
