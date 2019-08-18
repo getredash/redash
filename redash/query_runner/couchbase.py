@@ -2,9 +2,11 @@ import datetime
 import logging
 
 from dateutil.parser import parse
+from six import text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils.compat import long
 import json
 
 logger = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ except ImportError as e:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT,
