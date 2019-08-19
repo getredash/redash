@@ -101,7 +101,7 @@ export default class AlertDestinations extends React.Component {
           content: (
             <div className="destination-wrapper">
               <i className={`destination-icon fa ${item.icon}`} />
-              {item.name}
+              <span className="flex-fill">{item.name}</span>
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
             </div>
           ),
@@ -113,7 +113,7 @@ export default class AlertDestinations extends React.Component {
         content: (
           <div className="destination-wrapper">
             <i className={`destination-icon fa ${item.icon}`} />
-            {item.name}
+            <span className="flex-fill">{item.name}</span>
             <ListItemAddon isStaged />
           </div>
         ),
