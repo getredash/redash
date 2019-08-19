@@ -10,7 +10,7 @@
 
 [[redirects]]
   from = "/login"
-  to = "http://preview-login.redashapp.com/login"
+  to = "https://preview-login.redashapp.com/login"
   status = 200
 
 [[redirects]]
