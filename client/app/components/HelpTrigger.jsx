@@ -64,6 +64,10 @@ export const TYPES = {
     '/user-guide/querying/query-results-data-source',
     'Guide: Help Setting up Query Results',
   ],
+  ALERT_SCHEDULE: [
+    '/user-guide/alerts/setting-up-an-alert#schedule',
+    'Guide: Scheduling queries for Alerts',
+  ],
 };
 
 export class HelpTrigger extends React.Component {

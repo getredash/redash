@@ -122,14 +122,14 @@ function AlertCtrl($scope, $routeParams, $location, $sce, $sanitize, currentUser
 }
 
 export default function init(ngModule) {
-  ngModule.component('alertPage', {
+  ngModule.component('alertOldPage', {
     template,
     controller: AlertCtrl,
   });
 
   return {
-    '/alerts/:alertId': {
-      template: '<alert-page></alert-page>',
+    '/alerts-old/:alertId': {
+      template: '<alert-old-page></alert-old-page>',
       title: 'Alerts',
     },
   };

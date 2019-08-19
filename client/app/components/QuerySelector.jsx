@@ -146,6 +146,7 @@ export function QuerySelector(props) {
         notFoundContent={null}
         filterOption={false}
         defaultActiveFirstOption={false}
+        className={props.className}
       >
         {searchResults && searchResults.map((q) => {
           const disabled = q.is_draft;
@@ -183,12 +184,14 @@ QuerySelector.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectedQuery: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   type: PropTypes.oneOf(['select', 'default']),
+  className: PropTypes.string,
   disabled: PropTypes.bool,
 };
 
 QuerySelector.defaultProps = {
   selectedQuery: null,
   type: 'default',
+  className: null,
   disabled: false,
 };
 

@@ -86,6 +86,13 @@ export const UserProfile = PropTypes.shape({
   isDisabled: PropTypes.bool,
 });
 
+export const Destination = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+});
+
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
   const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);

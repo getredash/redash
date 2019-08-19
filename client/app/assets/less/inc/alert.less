@@ -43,3 +43,110 @@
         box-shadow: 0 0 5px fade(@alert-danger-bg, 50%);
     }
 }
+
+.alert-trigger {
+    margin: 40px 0 24px !important;
+}
+
+.alert-notification {
+    width: auto !important;
+}
+
+.input-title {
+    display: inline-block;
+    width: auto;
+    margin-right: 8px;
+    position: relative;
+    vertical-align: middle;
+
+    & > span {
+        position: absolute;
+        top: -16px;
+        left: 0;
+        line-height: normal;
+        font-size: 10px;
+        color: #00000070;
+
+        & + div {
+            vertical-align: top;
+        }
+    }
+}
+
+#condition .ant-select-selection {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.alert-state {
+    text-transform: uppercase;
+    text-transform: uppercase;
+    vertical-align: text-top;
+    margin-left: 7px;
+}
+
+.status-indicator {
+    padding: 2px 6px;
+    color: white !important;
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+.alert-query-selector {
+    min-width: 250px;
+    width: auto !important;
+}
+
+.alert-destinations {
+    ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 15px;
+
+        li {
+            color: rgba(0, 0, 0, 0.85);
+            height: 46px;
+            border-bottom: 1px solid #e8e8e8;
+
+            .remove-button {
+                cursor: pointer;
+                height: 40px;
+                width: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .toggle-button {
+                margin-right: 7px;
+            }
+        }
+    }
+
+    .add-button {
+        position: absolute;
+        right: 14px;
+        top: 9px;
+
+        .fa {
+            font-size: 12px;
+            margin-right: 4px;
+        }
+    }
+}
+
+.destination-wrapper {
+    padding-left: 34px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    min-height: 38px;
+    width: 100%;
+
+    .destination-icon  {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        margin-top: -6px;
+    }
+}
