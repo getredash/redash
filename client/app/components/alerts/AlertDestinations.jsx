@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { without, find, isEmpty, includes, map } from 'lodash';
-// import Tag from 'antd/lib/tag';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
 import Switch from 'antd/lib/switch';
@@ -16,6 +15,7 @@ import { $q } from '@/services/ng';
 import { currentUser } from '@/services/auth';
 import notification from '@/services/notification';
 import ListItemAddon from '@/components/groups/ListItemAddon';
+import EmailSettingsWarning from '@/components/EmailSettingsWarning';
 
 const USER_EMAIL_DEST_ID = -1;
 
@@ -25,18 +25,20 @@ function normalizeSub(sub) {
       id: USER_EMAIL_DEST_ID,
       name: sub.user.email,
       icon: 'fa-envelope-o',
-      type: 'userEmail',
+      type: 'email',
     };
   }
   return sub;
 }
 
-function ListItem({ destination: { icon, name }, user, unsubscribe }) {
+function ListItem({ destination: { icon, name, type }, user, unsubscribe }) {
   const canUnsubscribe = currentUser.isAdmin || currentUser.id === user.id;
 
   return (
     <li className="destination-wrapper">
-      <i className={`destination-icon fa ${icon}`} /> {name}
+      <i className={`destination-icon fa ${icon}`} />
+      <span className="flex-fill">{name}</span>
+      {type === 'email' && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
           <Icon type="close" className="remove-button" onClick={unsubscribe} />
@@ -185,7 +187,9 @@ export default class AlertDestinations extends React.Component {
         </Tooltip>
         <ul>
           <li className="destination-wrapper">
-            <i className="destination-icon fa fa-envelope-o" /> { currentUser.email }
+            <i className="destination-icon fa fa-envelope-o" />
+            <span className="flex-fill">{ currentUser.email }</span>
+            {currentUserEmailSub && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
             <Switch
               size="small"
               className="toggle-button"

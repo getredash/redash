@@ -1,22 +1,30 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import { currentUser, clientConfig } from '@/services/auth';
+import { clientConfig } from '@/services/auth';
+import Tooltip from 'antd/lib/tooltip';
+// import { HelpTrigger } from '@/components/HelpTrigger';
 
-export function EmailSettingsWarning({ featureName }) {
-  return (clientConfig.mailSettingsMissing && currentUser.isAdmin) ? (
-    <p className="alert alert-danger">
-      {`It looks like your mail server isn't configured. Make sure to configure it for the ${featureName} to work.`}
-    </p>
-  ) : null;
+export default function EmailSettingsWarning({ featureName, className }) {
+  if (!clientConfig.mailSettingsMissing) {
+    return null;
+  }
+
+  const title = (
+    <span>Your mail server isn&apos;t configured correctly, and is needed for {featureName} to work.</span>
+  );
+
+  return (
+    <Tooltip title={title}>
+      <i className={`fa fa-exclamation-triangle ${className}`} />
+    </Tooltip>
+  );
 }
 
 EmailSettingsWarning.propTypes = {
   featureName: PropTypes.string.isRequired,
+  className: PropTypes.string,
 };
 
-export default function init(ngModule) {
-  ngModule.component('emailSettingsWarning', react2angular(EmailSettingsWarning));
-}
-
-init.init = true;
+EmailSettingsWarning.defaultProps = {
+  className: null,
+};
