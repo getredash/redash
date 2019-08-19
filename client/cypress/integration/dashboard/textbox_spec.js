@@ -21,7 +21,7 @@ describe('Textbox', () => {
     });
     cy.contains('button', 'Add to Dashboard').click();
     cy.getByTestId('TextboxDialog').should('not.exist');
-    cy.get('.textbox').should('exist');
+    cy.get('.widget-text').should('exist');
   });
 
   it('removes textbox by X button', function () {

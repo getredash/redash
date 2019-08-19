@@ -5,7 +5,7 @@ import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 // import { DashboardWidget } from '@/components/dashboards/widget';
-import DashboardWidget from '@/components/dashboards/dashboard-widget';
+import { VisualizationWidget, TextboxWidget } from '@/components/dashboards/dashboard-widget';
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 import AutoHeightController from './AutoHeightController';
@@ -169,7 +169,7 @@ class DashboardGrid extends React.Component {
 
   render() {
     const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
-    const { onRemoveWidget, dashboard, widgets } = this.props;
+    const { onRemoveWidget, filters, dashboard, isPublic, widgets } = this.props;
 
     return (
       <div className={className}>
@@ -187,24 +187,26 @@ class DashboardGrid extends React.Component {
           onBreakpointChange={this.onBreakpointChange}
           breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
         >
-          {widgets.map(widget => (
-            <div
-              key={widget.id}
-              data-grid={DashboardGrid.normalizeFrom(widget)}
-              data-widgetid={widget.id}
-              data-test={`WidgetId${widget.id}`}
-              className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
-            >
-              <DashboardWidget
-                widget={widget}
-                dashboard={dashboard}
-                filters={this.props.filters}
-                onDelete={() => onRemoveWidget(widget.id)}
-                isPublic={this.props.isPublic}
-                canEdit={dashboard.canEdit()}
-              />
-            </div>
-          ))}
+          {widgets.map((widget) => {
+            const WidgetComponent = widget.visualization ? VisualizationWidget : TextboxWidget;
+            return (
+              <div
+                key={widget.id}
+                data-grid={DashboardGrid.normalizeFrom(widget)}
+                data-widgetid={widget.id}
+                data-test={`WidgetId${widget.id}`}
+                className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
+              >
+                <WidgetComponent
+                  widget={widget}
+                  filters={filters}
+                  canEdit={dashboard.canEdit()}
+                  isPublic={isPublic}
+                  onDelete={() => onRemoveWidget(widget.id)}
+                />
+              </div>
+            );
+          })}
         </ResponsiveGridLayout>
       </div>
     );

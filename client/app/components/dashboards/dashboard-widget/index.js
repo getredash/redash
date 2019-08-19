@@ -1,3 +1,2 @@
-import Widget from './Widget';
-
-export default Widget;
+export { default as VisualizationWidget } from './VisualizationWidget';
+export { default as TextboxWidget } from './TextboxWidget';

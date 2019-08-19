@@ -112,6 +112,10 @@ function WidgetFactory($http, $location, Query) {
       return truncate(this.text, 20);
     }
 
+    getType() {
+      return this.visualization ? 'visualization' : 'textbox';
+    }
+
     load(force, maxAge) {
       if (!this.visualization) {
         return Promise.resolve();

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
 import classNames from 'classnames';
-import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
@@ -18,18 +17,28 @@ import QueryLink from '@/components/QueryLink';
 import { FiltersType } from '@/components/Filters';
 import ExpandedWidgetDialog from '@/components/dashboards/ExpandedWidgetDialog';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
+import Widget from './Widget';
 
-function VisualizationWidgetMenu(props) {
+const VisualizationWidgetMenuOptions = [
+  <Menu.Item key="download_csv">Download as CSV File</Menu.Item>,
+  <Menu.Item key="download_excel">Download as Excel File</Menu.Item>,
+  <Menu.Divider key="divider" />,
+  <Menu.Item key="view_query">View Query</Menu.Item>,
+  <Menu.Item key="edit_parameters">Edit Parameters</Menu.Item>,
+];
+
+function RestrictedWidget(props) {
   return (
-    <Menu {...props}>
-      <Menu.Item>Download as CSV File</Menu.Item>
-      <Menu.Item>Download as Excel File</Menu.Item>
-      <Menu.Divider />
-      <Menu.Item>View Query</Menu.Item>
-      <Menu.Item>Edit Parameters</Menu.Item>
-      <Menu.Divider />
-      <Menu.Item>Remove from Dashboard</Menu.Item>
-    </Menu>
+    <Widget {...props} className="d-flex justify-content-center align-items-center widget-restricted">
+      <div className="t-body scrollbox">
+        <div className="text-center">
+          <h1><span className="zmdi zmdi-lock" /></h1>
+          <p className="text-muted">
+            {'This widget requires access to a data source you don\'t have access to.'}
+          </p>
+        </div>
+      </div>
+    </Widget>
   );
 }
 
@@ -104,7 +113,7 @@ class VisualizationWidget extends React.Component {
   }
 
   renderHeader() {
-    const { widget, isPublic, canEdit } = this.props;
+    const { widget } = this.props;
     const canViewQuery = currentUser.hasPermission('view_query');
 
     const localParameters = filter(
@@ -115,26 +124,6 @@ class VisualizationWidget extends React.Component {
     return (
       <div className="body-row widget-header">
         <div className="t-header widget clearfix">
-          {(!isPublic && canEdit) && (
-            <>
-              <div className="dropdown pull-right widget-menu-remove">
-                <div className="actions">
-                  <a title="Remove From Dashboard" onClick={this.deleteWidget}><i className="zmdi zmdi-close" /></a>
-                </div>
-              </div>
-              <div className="dropdown pull-right widget-menu-regular">
-                <div className="actions">
-                  <Dropdown
-                    overlay={<VisualizationWidgetMenu />}
-                    placement="bottomRight"
-                    trigger={['click']}
-                  >
-                    <a className="p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
-                  </Dropdown>
-                </div>
-              </div>
-            </>
-          )}
           {widget.loading && this.renderRefreshIndicator()}
           <div className="th-title">
             <p>
@@ -238,13 +227,17 @@ class VisualizationWidget extends React.Component {
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
-    return (
-      <div className="tile body-container widget-visualization visualization" data-refreshing={isRefreshing}>
-        {this.renderHeader()}
+    return !widget.restricted ? (
+      <Widget
+        {...this.props}
+        className="widget-visualization"
+        menuOptions={VisualizationWidgetMenuOptions}
+        data-refreshing={isRefreshing}
+      >
         {this.renderVisualization()}
         {this.renderBottom()}
-      </div>
-    );
+      </Widget>
+    ) : <RestrictedWidget widget={widget} />;
   }
 }
 
