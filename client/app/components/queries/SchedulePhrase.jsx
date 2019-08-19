@@ -1,6 +1,7 @@
 import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
 import { localizeTime, durationHumanize } from '@/filters';
 import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
@@ -12,11 +13,13 @@ export class SchedulePhrase extends React.Component {
     schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,
     isLink: PropTypes.bool,
+    className: PropTypes.string,
   };
 
   static defaultProps = {
     schedule: RefreshScheduleDefault,
     isLink: false,
+    className: null,
   };
 
   get content() {
@@ -48,10 +51,11 @@ export class SchedulePhrase extends React.Component {
 
     const [short, full] = this.content;
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
+    const className = cx('schedule-phrase', this.props.className);
 
     return this.props.isLink
-      ? <a className="schedule-phrase">{content}</a>
-      : content;
+      ? <a className={className}>{content}</a>
+      : <span className={className}>{content}</span>;
   }
 }
 

@@ -86,6 +86,12 @@ export const UserProfile = PropTypes.shape({
   isDisabled: PropTypes.bool,
 });
 
+export const AlertOptions = PropTypes.shape({
+  column: PropTypes.string,
+  op: PropTypes.oneOf(['greater than', 'less than', 'equals']),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+});
+
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
   const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);
