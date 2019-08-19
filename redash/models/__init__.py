@@ -931,14 +931,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        try:
-            return cls.query.filter(cls.slug == slug, cls.org == org).one()
-        except NoResultFound as e:
-            id = slug.split('-', 1)[0] if '-' in slug else slug
-            if id.isdigit():
-                return super(Dashboard, cls).get_by_id_and_org(int(id), org)
-            else:
-                raise e
+        return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
     @hybrid_property
     def lowercase_name(self):

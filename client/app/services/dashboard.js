@@ -4,7 +4,7 @@ import { Widget } from './widget';
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
-export const urlForDashboard = ({ id, slug }) => `dashboard/${id}-${slug}`;
+export const urlForDashboard = ({ id, slug }) => `dashboards/${id}-${slug}`;
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
