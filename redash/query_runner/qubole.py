@@ -28,7 +28,7 @@ class Qubole(BaseQueryRunner):
                 "query_type": {
                     "type": "string",
                     "title": "Query Type (quantum / presto / hive)",
-                    "default": "hive"
+                    "default": "quantum"
                 },
                 "endpoint": {
                     "type": "string",
@@ -51,6 +51,14 @@ class Qubole(BaseQueryRunner):
         }
 
     @classmethod
+    def type(cls):
+        return "qubole"
+
+    @classmethod
+    def name(cls):
+        return "Qubole"
+
+    @classmethod
     def enabled(cls):
         return enabled
 
@@ -60,19 +68,25 @@ class Qubole(BaseQueryRunner):
 
     def test_connection(self):
         headers = self._get_header()
-        r = requests.head("%s/api/latest/users" % self.configuration['endpoint'], headers=headers)
+        r = requests.head("%s/api/latest/users" % self.configuration.get('endpoint'), headers=headers)
         r.status_code == 200
 
     def run_query(self, query, user):
-        qbol.configure(api_token=self.configuration['token'],
-                       api_url='%s/api' % self.configuration['endpoint'])
+        qbol.configure(api_token=self.configuration.get('token'),
+                       api_url='%s/api' % self.configuration.get('endpoint'))
 
         try:
-            if self.configuration['query_type'] == 'quantum':
+            query_type = self.configuration.get('query_type')
+
+            if query_type == 'quantum':
                 cmd = SqlCommand.create(query=query)
+            elif query_type == 'hive':
+                cmd = HiveCommand.create(query=query, label=self.configuration.get('cluster'))
+            elif query_type == 'presto':
+                cmd = PrestoCommand.create(query=query, label=self.configuration.get('cluster'))
             else:
-                cls = PrestoCommand if(self.configuration['query_type'] == 'presto') else HiveCommand
-                cmd = cls.create(query=query, label=self.configuration['cluster'])
+                raise Exception("Invalid value for Query Type:%s. Should be one of: "+\
+                            "hive, presto, quantum.", self.configuration.get('query_type'))
 
             logging.info("Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status)
 
@@ -111,7 +125,7 @@ class Qubole(BaseQueryRunner):
         try:
             headers = self._get_header()
             content = requests.get("%s/api/latest/hive?describe=true&per_page=10000" %
-                                   self.configuration['endpoint'], headers=headers)
+                                   self.configuration.get('endpoint'), headers=headers)
             data = content.json()
 
             for schema in data['schemas']:
@@ -132,7 +146,6 @@ class Qubole(BaseQueryRunner):
 
     def _get_header(self):
         return {"Content-type": "application/json", "Accept": "application/json",
-                "X-AUTH-TOKEN": self.configuration['token']}
-
+                "X-AUTH-TOKEN": self.configuration.get('token')}
 
 register(Qubole)
