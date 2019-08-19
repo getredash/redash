@@ -10,7 +10,7 @@ describe('Grid compliant widgets', () => {
     cy.viewport(1215, 800);
     createDashboard('Foo Bar')
       .then(({ slug, id }) => {
-        this.dashboardUrl = `/dashboard/${slug}`;
+        this.dashboardUrl = `/dashboard/${id}-${slug}`;
         return addTextbox(id, 'Hello World!').then(getWidgetTestId);
       })
       .then((elTestId) => {

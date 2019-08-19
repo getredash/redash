@@ -8,7 +8,7 @@ describe('Dashboard Sharing', () => {
     cy.login();
     createDashboard('Foo Bar').then(({ slug, id }) => {
       this.dashboardId = id;
-      this.dashboardUrl = `/dashboard/${slug}`;
+      this.dashboardUrl = `/dashboard/${id}-${slug}`;
     });
   });
 
