@@ -1,10 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { without, find, isEmpty, includes, map } from 'lodash';
-import Icon from 'antd/lib/icon';
-import Tooltip from 'antd/lib/tooltip';
-import Switch from 'antd/lib/switch';
-import Button from 'antd/lib/button';
 
 import SelectItemsDialog from '@/components/SelectItemsDialog';
 import { Destination as DestinationType, UserProfile as UserType } from '@/components/proptypes';
@@ -16,6 +12,11 @@ import { currentUser } from '@/services/auth';
 import notification from '@/services/notification';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import EmailSettingsWarning from '@/components/EmailSettingsWarning';
+
+import Icon from 'antd/lib/icon';
+import Tooltip from 'antd/lib/tooltip';
+import Switch from 'antd/lib/switch';
+import Button from 'antd/lib/button';
 
 const USER_EMAIL_DEST_ID = -1;
 
@@ -86,9 +87,18 @@ export default class AlertDestinations extends React.Component {
     const { dests, subs } = this.state;
 
     SelectItemsDialog.showModal({
-      dialogTitle: 'Add Destinations',
+      width: 570,
+      extraFooterContent: (
+        <>
+          <i className="fa fa-info-circle" />{' '}
+          Create new destinations in{' '}
+          <Tooltip title="Opens page in a new tab.">
+            <a href="/destinations/new" target="_blank">Alert Destinations</a>
+          </Tooltip>
+        </>
+      ),
+      dialogTitle: 'Add Existing Alert Destinations',
       inputPlaceholder: 'Search destinations...',
-      selectedItemsTitle: 'Pending Destinations',
       searchItems: (searchTerm) => {
         searchTerm = searchTerm.toLowerCase();
         const filtered = dests.filter(d => isEmpty(searchTerm) || includes(d.name.toLowerCase(), searchTerm));
@@ -102,22 +112,13 @@ export default class AlertDestinations extends React.Component {
             <div className="destination-wrapper">
               <i className={`destination-icon fa ${item.icon}`} />
               <span className="flex-fill">{item.name}</span>
-              <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
+              <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} deselectedIcon="fa-plus" />
             </div>
           ),
           isDisabled: alreadyInGroup,
           className: isSelected || alreadyInGroup ? 'selected' : '',
         };
       },
-      renderStagedItem: item => ({
-        content: (
-          <div className="destination-wrapper">
-            <i className={`destination-icon fa ${item.icon}`} />
-            <span className="flex-fill">{item.name}</span>
-            <ListItemAddon isStaged />
-          </div>
-        ),
-      }),
       save: (items) => {
         const promises = map(items, item => this.subscribe(item));
         return Promise.all(promises).then(() => {
