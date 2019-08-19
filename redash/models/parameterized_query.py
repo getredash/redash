@@ -84,26 +84,17 @@ def _is_number(string):
     if isinstance(string, Number):
         return True
     else:
-        try:
-            float(string)
-            return True
-        except ValueError:
-            return False
+        float(string)
+        return True
 
 
 def _is_date(string):
-    try:
-        parse(string)
-        return True
-    except (ValueError, TypeError):
-        return False
+    parse(string)
+    return True
 
 
 def _is_date_range(obj):
-    try:
-        return _is_date(obj["start"]) and _is_date(obj["end"])
-    except (KeyError, TypeError):
-        return False
+    return _is_date(obj["start"]) and _is_date(obj["end"])
 
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
