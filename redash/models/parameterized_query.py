@@ -168,7 +168,10 @@ class ParameterizedQuery(object):
 
         validate = validators.get(definition["type"], lambda x: False)
 
-        return validate(value)
+        try:
+            return validate(value)
+        except:
+            return False
 
     @property
     def is_safe(self):
