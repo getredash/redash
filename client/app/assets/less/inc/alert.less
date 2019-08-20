@@ -135,17 +135,35 @@
 }
 
 .destination-wrapper {
-    padding-left: 34px;
+    padding-left: 8px;
     display: flex;
     align-items: center;
-    position: relative;
     min-height: 38px;
     width: 100%;
 
+    &.select-items-dialog {
+        padding: 0;
+    }
+
     .destination-icon  {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        margin-top: -6px;
+        height: 25px;
+        width: 25px;
+        margin: 2px 5px 0 0;
+
+        &.grayscale {
+            filter: grayscale(1);
+        }
+
+        &.fa {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .select-items-dialog & {
+            width: 35px;
+            height: 35px;
+        }
     }
 }

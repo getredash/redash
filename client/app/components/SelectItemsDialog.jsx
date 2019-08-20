@@ -134,6 +134,7 @@ class SelectItemsDialog extends React.Component {
     return (
       <Modal
         {...dialog.props}
+        className="select-items-dialog"
         width={width}
         title={dialogTitle}
         footer={(

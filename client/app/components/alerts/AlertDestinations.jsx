@@ -5,7 +5,7 @@ import { without, find, isEmpty, includes, map } from 'lodash';
 import SelectItemsDialog from '@/components/SelectItemsDialog';
 import { Destination as DestinationType, UserProfile as UserType } from '@/components/proptypes';
 
-import { Destination as DestinationService } from '@/services/destination';
+import { Destination as DestinationService, IMG_ROOT } from '@/services/destination';
 import { AlertSubscription } from '@/services/alert-subscription';
 import { $q } from '@/services/ng';
 import { currentUser } from '@/services/auth';
@@ -25,19 +25,19 @@ function normalizeSub(sub) {
     sub.destination = {
       id: USER_EMAIL_DEST_ID,
       name: sub.user.email,
-      icon: 'fa-envelope-o',
+      icon: 'DEPRECATED',
       type: 'email',
     };
   }
   return sub;
 }
 
-function ListItem({ destination: { icon, name, type }, user, unsubscribe }) {
+function ListItem({ destination: { name, type }, user, unsubscribe }) {
   const canUnsubscribe = currentUser.isAdmin || currentUser.id === user.id;
 
   return (
     <li className="destination-wrapper">
-      <i className={`destination-icon fa ${icon}`} />
+      <img src={`${IMG_ROOT}/${type}.png`} className="destination-icon grayscale" alt={name} />
       <span className="flex-fill">{name}</span>
       {type === 'email' && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
       {canUnsubscribe && (
@@ -110,7 +110,7 @@ export default class AlertDestinations extends React.Component {
         return {
           content: (
             <div className="destination-wrapper">
-              <i className={`destination-icon fa ${item.icon}`} />
+              <img src={`${IMG_ROOT}/${item.type}.png`} className="destination-icon" alt={name} />
               <span className="flex-fill">{item.name}</span>
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} deselectedIcon="fa-plus" />
             </div>
@@ -188,7 +188,7 @@ export default class AlertDestinations extends React.Component {
         </Tooltip>
         <ul>
           <li className="destination-wrapper">
-            <i className="destination-icon fa fa-envelope-o" />
+            <i className="destination-icon fa fa-envelope" />
             <span className="flex-fill">{ currentUser.email }</span>
             {currentUserEmailSub && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
             <Switch
