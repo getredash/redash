@@ -85,7 +85,8 @@ class Qubole(BaseQueryRunner):
             elif query_type == 'presto':
                 cmd = PrestoCommand.create(query=query, label=self.configuration.get('cluster'))
             else:
-                raise Exception("Invalid value for Query Type:%s. Should be one of: hive/presto/quantum.", self.configuration.get('query_type'))
+                raise Exception("Invalid Query Type:%s.\
+                        It must be : hive / presto / quantum."%self.configuration.get('query_type'))
 
             logging.info("Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status)
 
@@ -147,5 +148,5 @@ class Qubole(BaseQueryRunner):
         return {"Content-type": "application/json", "Accept": "application/json",
                 "X-AUTH-TOKEN": self.configuration.get('token')}
 
-        
+
 register(Qubole)
