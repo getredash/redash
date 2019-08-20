@@ -39,7 +39,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
     <li className="destination-wrapper">
       <img src={`${IMG_ROOT}/${type}.png`} className="destination-icon grayscale" alt={name} />
       <span className="flex-fill">{name}</span>
-      {type === 'email' && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
+      {type === 'email' && <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />}
       {canUnsubscribe && (
         <Tooltip title="Remove" mouseEnterDelay={0.5}>
           <Icon type="close" className="remove-button" onClick={unsubscribe} />
@@ -187,7 +187,7 @@ export default class AlertDestinations extends React.Component {
           <li className="destination-wrapper">
             <i className="destination-icon fa fa-envelope" />
             <span className="flex-fill">{ currentUser.email }</span>
-            {currentUserEmailSub && <EmailSettingsWarning className="destination-warning" featureName="alert emails" />}
+            {currentUserEmailSub && <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />}
             <Switch
               size="small"
               className="toggle-button"
