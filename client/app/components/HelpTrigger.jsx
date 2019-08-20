@@ -64,6 +64,10 @@ export const TYPES = {
     '/user-guide/querying/query-results-data-source',
     'Guide: Help Setting up Query Results',
   ],
+  ALERT_SETUP: [
+    '/user-guide/alerts/setting-up-an-alert',
+    'Guide: Setting Up a New Alert',
+  ],
   ALERT_SCHEDULE: [
     '/user-guide/alerts/setting-up-an-alert#schedule',
     'Guide: Scheduling queries for Alerts',

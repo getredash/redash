@@ -15,6 +15,7 @@ import { HelpTrigger } from '@/components/HelpTrigger';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
 import { PageHeader } from '@/components/PageHeader';
 import AlertDestinations from '@/components/alerts/AlertDestinations';
+import LoadingState from '@/components/items-list/components/LoadingState';
 
 import Form from 'antd/lib/form';
 import InputNumber from 'antd/lib/input-number';
@@ -45,7 +46,7 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
   const isColumnValueInValid = columnValue && isNaN(columnValue);
   const columnHint = (
     <small>
-      Top row value is <code>{toString(columnValue) || 'unknown'}</code>
+      Top row value is <code style={{ padding: 0 }}>{toString(columnValue) || 'unknown'}</code>
       {isColumnValueInValid && (
       <>
         <br /><WarningIcon /> Invalid value type.
@@ -102,7 +103,7 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
   );
 }
 
-function QueryFormItem({ query, onChange }) {
+function QueryFormItem({ query, onChange, showLabel, showHint }) {
   const link = query ? (
     <Tooltip title="Open query in a new tab.">
       {' '}
@@ -114,7 +115,7 @@ function QueryFormItem({ query, onChange }) {
 
   const queryHint = query && query.schedule ? (
     <small>
-      Scheduled to refresh <SchedulePhrase isLink schedule={query.schedule} isNew={false} />
+      Scheduled to refresh <i style={{ textTransform: 'lowercase' }}><SchedulePhrase schedule={query.schedule} isNew={false} /></i>
     </small>
   ) : (
     <small>
@@ -125,8 +126,8 @@ function QueryFormItem({ query, onChange }) {
 
   return (
     <HorizontalFormItem
-      label={<>Query{link}</>}
-      help={query && queryHint}
+      label={showLabel ? <>Query{link}</> : null}
+      help={showHint && query ? queryHint : null}
     >
       <QuerySelector
         onChange={onChange}
@@ -141,10 +142,14 @@ function QueryFormItem({ query, onChange }) {
 QueryFormItem.propTypes = {
   query: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onChange: PropTypes.func.isRequired,
+  showLabel: PropTypes.bool,
+  showHint: PropTypes.bool,
 };
 
 QueryFormItem.defaultProps = {
   query: null,
+  showLabel: true,
+  showHint: false,
 };
 
 function HorizontalFormItem({ children, ...props }) {
@@ -166,6 +171,14 @@ HorizontalFormItem.defaultProps = {
 function AlertState({ state }) {
   return (
     <span className={`alert-state label ${STATE_CLASS[state]}`}>Status: {state}</span>
+  );
+}
+
+function SetupInstructions() {
+  return (
+    <HelpTrigger className="alert-setup-instructions" type="ALERT_SETUP">
+      Setup Instructions <i className="fa fa-question-circle" />
+    </HelpTrigger>
   );
 }
 
@@ -279,63 +292,89 @@ class AlertPage extends React.Component {
   }
 
   render() {
-    if (!this.state.alert) {
-      return <div>loading</div>;
+    const { alert } = this.state;
+    if (!alert) {
+      return (
+        <div className="container alert-page new-alert">
+          <LoadingState className="m-t-30" />;
+        </div>
+      );
     }
 
-    const { alert: { rearm, query, name, options, state, id }, queryResult } = this.state;
+    const { alert: { rearm, query, name, options, state, id } } = this.state;
+    if (!id) {
+      return (
+        <div className="container alert-page new-alert">
+          <PageHeader title={this.getDefaultName()} />
+          <SetupInstructions />
+          <div className="row bg-white tiled p-20">
+            <div className="m-b-30">
+              Start by selecting the query that you would like to monitor using the search bar.
+              <br />
+              Keep in mind that Alerts do not work with queries that use parameters.
+            </div>
+            <Form>
+              <QueryFormItem showLabel={false} query={query} onChange={this.onQuerySelected} />
+              <Button type="primary" disabled={!query} onClick={this.save}>Save</Button>
+            </Form>
+          </div>
+        </div>
+      );
+    }
+
+
+    const { queryResult } = this.state;
     const resultValues = queryResult && queryResult.getData();
     const columnNames = queryResult && queryResult.getColumnNames();
 
     return (
-      <div className="container">
+      <div className="container alert-page">
         <PageHeader title={name || this.getDefaultName()}>
           <AlertState state={state} />
         </PageHeader>
-        <div className="container">
-          <div className="row bg-white tiled p-10">
-            <div className="col-md-8">
-              <h4>Criteria</h4>
-              <Form>
-                <QueryFormItem query={query} onChange={this.onQuerySelected} />
-                {query && (
-                  <>
-                    <Criteria
-                      onChange={this.setAlertOptions}
-                      columnNames={columnNames}
-                      resultValues={resultValues}
-                      alertOptions={options}
-                    />
-                    <HorizontalFormItem label="Send notification">
-                      <Select className="alert-notification" value={rearm || 0} dropdownMatchSelectWidth={false} onChange={this.onRearmChange}>
-                        <Select.Option value={0}>Just once</Select.Option>
-                        <Select.Option value={1}>
+        <SetupInstructions />
+        <div className="row bg-white tiled p-10">
+          <div className="col-md-8">
+            <h4>Criteria</h4>
+            <Form>
+              <QueryFormItem showHint query={query} onChange={this.onQuerySelected} />
+              {query && (
+              <>
+                <Criteria
+                  onChange={this.setAlertOptions}
+                  columnNames={columnNames}
+                  resultValues={resultValues}
+                  alertOptions={options}
+                />
+                <HorizontalFormItem label="Send notification">
+                  <Select className="alert-notification" value={rearm || 0} dropdownMatchSelectWidth={false} onChange={this.onRearmChange}>
+                    <Select.Option value={0}>Just once</Select.Option>
+                    <Select.Option value={1}>
                           Each time results are refreshed
-                        </Select.Option>
-                        <Select.Option value={1800}>At most every 30 minutes</Select.Option>
-                        <Select.Option value={3600}>At most once an hour</Select.Option>
-                        <Select.Option value={86400}>At most once a day</Select.Option>
-                        <Select.Option value={604800}>At most once a week</Select.Option>
-                      </Select>
-                    </HorizontalFormItem>
-                    <HorizontalFormItem>
-                      <Button type="primary" onClick={this.save}>Save</Button>{' '}
-                      <Button type="danger" onClick={this.delete}>Delete Alert</Button>
-                    </HorizontalFormItem>
-                  </>
-                )}
-              </Form>
-            </div>
-            <div className="col-md-4">
-              <h4>Destinations{' '}
-                <Tooltip title="Open Alert Destination page in a new tab.">
-                  <a href="/destinations" target="_blank">
-                    <i className="fa fa-external-link" />
-                  </a>
-                </Tooltip>
-              </h4>
-              <AlertDestinations alertId={id} />
-            </div>
+                    </Select.Option>
+                    <Select.Option value={1800}>At most every 30 minutes</Select.Option>
+                    <Select.Option value={3600}>At most once an hour</Select.Option>
+                    <Select.Option value={86400}>At most once a day</Select.Option>
+                    <Select.Option value={604800}>At most once a week</Select.Option>
+                  </Select>
+                </HorizontalFormItem>
+                <HorizontalFormItem>
+                  <Button type="primary" onClick={this.save}>Save</Button>{' '}
+                  <Button type="danger" onClick={this.delete}>Delete Alert</Button>
+                </HorizontalFormItem>
+              </>
+              )}
+            </Form>
+          </div>
+          <div className="col-md-4">
+            <h4>Destinations{' '}
+              <Tooltip title="Open Alert Destination page in a new tab.">
+                <a href="/destinations" target="_blank">
+                  <i className="fa fa-external-link" />
+                </a>
+              </Tooltip>
+            </h4>
+            <AlertDestinations alertId={id} />
           </div>
         </div>
       </div>

@@ -44,6 +44,10 @@
     }
 }
 
+.alert-page {
+    position: relative;
+}
+
 .alert-trigger {
     margin: 40px 0 24px !important;
 }
@@ -90,6 +94,17 @@
 .alert-query-selector {
     min-width: 250px;
     width: auto !important;
+
+    .new-alert & {
+        min-width: 425px;
+    }
+}
+
+.alert-setup-instructions {
+    font-size: 13px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 .alert-destinations {

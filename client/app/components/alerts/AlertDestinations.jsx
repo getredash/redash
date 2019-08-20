@@ -58,11 +58,7 @@ ListItem.propTypes = {
 
 export default class AlertDestinations extends React.Component {
   static propTypes = {
-    alertId: PropTypes.number,
-  }
-
-  static defaultProps = {
-    alertId: null,
+    alertId: PropTypes.number.isRequired,
   }
 
   state = {
@@ -171,7 +167,7 @@ export default class AlertDestinations extends React.Component {
 
   render() {
     if (!this.props.alertId) {
-      return 'oi vey';
+      return null;
     }
 
     const { subs } = this.state;
