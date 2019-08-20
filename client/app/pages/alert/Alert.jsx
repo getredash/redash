@@ -119,8 +119,8 @@ function QueryFormItem({ query, onChange, showLabel, showHint }) {
     </small>
   ) : (
     <small>
-      <WarningIcon /> This query has no <a href="">refresh schedule</a>.<br />
-      <Icon type="question-circle" theme="twoTone" /> <HelpTrigger className="f-12" type="ALERT_SCHEDULE">Learn why</HelpTrigger> it&apos;s recommended.
+      <WarningIcon /> This query has no <i>refresh schedule</i>.<br />
+      <Icon type="question-circle" theme="twoTone" /> <HelpTrigger className="f-12" type="ALERT_SCHEDULE">Learn why</HelpTrigger> it&apos;s recommended for alerts.
     </small>
   );
 
@@ -193,7 +193,12 @@ class AlertPage extends React.Component {
   componentDidMount() {
     if (isNewAlert()) {
       this.setState({
-        alert: new AlertService({ options: {} }),
+        alert: new AlertService({
+          options: {
+            op: 'greater than',
+            value: 1,
+          },
+        }),
         editable: true,
       });
     } else {
@@ -368,7 +373,7 @@ class AlertPage extends React.Component {
           </div>
           <div className="col-md-4">
             <h4>Destinations{' '}
-              <Tooltip title="Open Alert Destination page in a new tab.">
+              <Tooltip title="Open Alert Destinations page in a new tab.">
                 <a href="/destinations" target="_blank">
                   <i className="fa fa-external-link" />
                 </a>
