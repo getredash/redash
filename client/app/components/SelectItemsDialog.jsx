@@ -130,7 +130,8 @@ class SelectItemsDialog extends React.Component {
   }
 
   render() {
-    const { dialog, dialogTitle, inputPlaceholder, selectedItemsTitle, renderStagedItem, width, showCount } = this.props;
+    const { dialog, dialogTitle, inputPlaceholder } = this.props;
+    const { selectedItemsTitle, renderStagedItem, width, showCount } = this.props;
     const { loading, saveInProgress, items, selected } = this.state;
     const hasResults = items.length > 0;
     return (

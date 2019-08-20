@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { clientConfig } from '@/services/auth';
 import Tooltip from 'antd/lib/tooltip';
-// import { HelpTrigger } from '@/components/HelpTrigger';
 
 export default function EmailSettingsWarning({ featureName, className }) {
   if (!clientConfig.mailSettingsMissing) {

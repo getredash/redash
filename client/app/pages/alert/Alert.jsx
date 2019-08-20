@@ -4,7 +4,7 @@ import { react2angular } from 'react2angular';
 import { head, includes, toString } from 'lodash';
 
 import { $route } from '@/services/ng';
-import { currentUser } from '@/services/auth';
+// import { currentUser } from '@/services/auth';
 import { Query } from '@/services/query';
 import navigateTo from '@/services/navigateTo';
 import notification from '@/services/notification';
@@ -38,19 +38,13 @@ function WarningIcon() {
 }
 
 function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
-  if (!alertOptions || !columnNames) {
-    return null;
-  }
-
   const columnValue = resultValues && head(resultValues)[alertOptions.column];
   const isColumnValueInValid = columnValue && isNaN(columnValue);
   const columnHint = (
     <small>
-      Top row value is <code style={{ padding: 0 }}>{toString(columnValue) || 'unknown'}</code>
+      Top row value is <code className="p-0">{toString(columnValue) || 'unknown'}</code>
       {isColumnValueInValid && (
-      <>
-        <br /><WarningIcon /> Invalid value type.
-      </>
+      <><br /><WarningIcon /> Invalid value type.</>
       )}
     </small>
   );
@@ -103,11 +97,22 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
   );
 }
 
-function QueryFormItem({ query, onChange, showLabel, showHint }) {
+Criteria.propTypes = {
+  columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  resultValues: PropTypes.arrayOf(PropTypes.object).isRequired,
+  alertOptions: PropTypes.shape({
+    column: PropTypes.string.isRequired,
+    op: PropTypes.oneOf(['greater than', 'less than', 'equals']).isRequired,
+    value: PropTypes.any.isRequired,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
+function QueryFormItem({ query, onChange }) {
   const link = query ? (
-    <Tooltip title="Open query in a new tab.">
-      {' '}
-      <a href={`/queries/${query.id}`} target="_blank">
+    <Tooltip title="Open query in a new tab.">{' '}
+      {/* eslint-disable-next-line react/jsx-no-target-blank */}
+      <a href={`/queries/${query.id}`} target="_blank" rel="noopener">
         <i className="fa fa-external-link" />
       </a>
     </Tooltip>
@@ -126,8 +131,8 @@ function QueryFormItem({ query, onChange, showLabel, showHint }) {
 
   return (
     <HorizontalFormItem
-      label={showLabel ? <>Query{link}</> : null}
-      help={showHint && query ? queryHint : null}
+      label={<>Query{link}</>}
+      help={query && queryHint}
     >
       <QuerySelector
         onChange={onChange}
@@ -142,19 +147,21 @@ function QueryFormItem({ query, onChange, showLabel, showHint }) {
 QueryFormItem.propTypes = {
   query: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onChange: PropTypes.func.isRequired,
-  showLabel: PropTypes.bool,
-  showHint: PropTypes.bool,
 };
 
 QueryFormItem.defaultProps = {
   query: null,
-  showLabel: true,
-  showHint: false,
 };
 
-function HorizontalFormItem({ children, ...props }) {
+function HorizontalFormItem({ children, label, ...props }) {
+  const labelCol = { span: 4 };
+  const wrapperCol = { span: 12 };
+  if (!label) {
+    wrapperCol.offset = 4;
+  }
+
   return (
-    <Form.Item labelCol={{ span: 4 }} wrapperCol={{ span: 12 }} {...props}>
+    <Form.Item labelCol={labelCol} wrapperCol={wrapperCol} label={label} {...props}>
       { children }
     </Form.Item>
   );
@@ -162,10 +169,12 @@ function HorizontalFormItem({ children, ...props }) {
 
 HorizontalFormItem.propTypes = {
   children: PropTypes.node,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 };
 
 HorizontalFormItem.defaultProps = {
   children: null,
+  label: null,
 };
 
 function AlertState({ state }) {
@@ -173,6 +182,10 @@ function AlertState({ state }) {
     <span className={`alert-state label ${STATE_CLASS[state]}`}>Status: {state}</span>
   );
 }
+
+AlertState.propTypes = {
+  state: PropTypes.string.isRequired,
+};
 
 function SetupInstructions() {
   return (
@@ -185,9 +198,8 @@ function SetupInstructions() {
 class AlertPage extends React.Component {
   state = {
     alert: null,
-    query: null,
     queryResult: null,
-    editable: false,
+    // editable: false,
   }
 
   componentDidMount() {
@@ -199,14 +211,14 @@ class AlertPage extends React.Component {
             value: 1,
           },
         }),
-        editable: true,
+        // editable: true,
       });
     } else {
       const { alertId } = $route.current.params;
       AlertService.get({ id: alertId }).$promise.then((alert) => {
         this.setState({
           alert,
-          editable: currentUser.canEdit(alert),
+          // editable: currentUser.canEdit(alert),
         });
         this.onQuerySelected(alert.query);
       });
@@ -216,24 +228,25 @@ class AlertPage extends React.Component {
   getDefaultName = () => 'New Alert';
 
   onQuerySelected = (query) => {
-    this.setState({
-      alert: Object.assign(this.state.alert, { query }),
-      query,
+    this.setState(({ alert }) => ({
+      alert: Object.assign(alert, { query }),
       queryResult: null,
-    });
+    }));
 
-    // get cached result for column names and values
-    new Query(query).getQueryResultPromise().then((queryResult) => {
-      this.setState({ queryResult });
-      let { column } = this.state.alert.options;
-      const columns = queryResult.getColumnNames();
+    if (query) {
+      // get cached result for column names and values
+      new Query(query).getQueryResultPromise().then((queryResult) => {
+        this.setState({ queryResult });
+        let { column } = this.state.alert.options;
+        const columns = queryResult.getColumnNames();
 
-      // default to first column name if none chosen, or irrelevant in current query
-      if (!column || !includes(columns, column)) {
-        column = head(queryResult.getColumnNames());
-      }
-      this.setAlertOptions({ column });
-    });
+        // default to first column name if none chosen, or irrelevant in current query
+        if (!column || !includes(columns, column)) {
+          column = head(queryResult.getColumnNames());
+        }
+        this.setAlertOptions({ column });
+      });
+    }
   }
 
   onRearmChange = (rearm) => {
@@ -306,7 +319,7 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { alert: { rearm, query, name, options, state, id } } = this.state;
+    const { rearm, query, name, options, state, id } = alert;
     if (!id) {
       return (
         <div className="container alert-page new-alert">
@@ -318,10 +331,15 @@ class AlertPage extends React.Component {
               <br />
               Keep in mind that Alerts do not work with queries that use parameters.
             </div>
-            <Form>
-              <QueryFormItem showLabel={false} query={query} onChange={this.onQuerySelected} />
-              <Button type="primary" disabled={!query} onClick={this.save}>Save</Button>
-            </Form>
+            <QuerySelector
+              onChange={this.onQuerySelected}
+              selectedQuery={query}
+              className="alert-query-selector"
+              type="select"
+            />
+            <div className="m-t-20">
+              <Button type="primary" disabled={!query} onClick={this.save}>Continue</Button>
+            </div>
           </div>
         </div>
       );
@@ -329,8 +347,6 @@ class AlertPage extends React.Component {
 
 
     const { queryResult } = this.state;
-    const resultValues = queryResult && queryResult.getData();
-    const columnNames = queryResult && queryResult.getColumnNames();
 
     return (
       <div className="container alert-page">
@@ -343,31 +359,36 @@ class AlertPage extends React.Component {
             <h4>Criteria</h4>
             <Form>
               <QueryFormItem showHint query={query} onChange={this.onQuerySelected} />
-              {query && (
-              <>
-                <Criteria
-                  onChange={this.setAlertOptions}
-                  columnNames={columnNames}
-                  resultValues={resultValues}
-                  alertOptions={options}
-                />
-                <HorizontalFormItem label="Send notification">
-                  <Select className="alert-notification" value={rearm || 0} dropdownMatchSelectWidth={false} onChange={this.onRearmChange}>
-                    <Select.Option value={0}>Just once</Select.Option>
-                    <Select.Option value={1}>
-                          Each time results are refreshed
-                    </Select.Option>
-                    <Select.Option value={1800}>At most every 30 minutes</Select.Option>
-                    <Select.Option value={3600}>At most once an hour</Select.Option>
-                    <Select.Option value={86400}>At most once a day</Select.Option>
-                    <Select.Option value={604800}>At most once a week</Select.Option>
-                  </Select>
+              {query && !queryResult && (
+                <HorizontalFormItem className="m-t-30">
+                  <Icon type="loading" className="m-r-5" /> Loading query data
                 </HorizontalFormItem>
-                <HorizontalFormItem>
-                  <Button type="primary" onClick={this.save}>Save</Button>{' '}
-                  <Button type="danger" onClick={this.delete}>Delete Alert</Button>
-                </HorizontalFormItem>
-              </>
+              )}
+              {queryResult && (
+                <>
+                  <Criteria
+                    columnNames={queryResult.getColumnNames()}
+                    resultValues={queryResult.getData()}
+                    alertOptions={options}
+                    onChange={this.setAlertOptions}
+                  />
+                  <HorizontalFormItem label="Send notification">
+                    <Select className="alert-notification" value={rearm || 0} dropdownMatchSelectWidth={false} onChange={this.onRearmChange}>
+                      <Select.Option value={0}>Just once</Select.Option>
+                      <Select.Option value={1}>
+                            Each time results are refreshed
+                      </Select.Option>
+                      <Select.Option value={1800}>At most every 30 minutes</Select.Option>
+                      <Select.Option value={3600}>At most once an hour</Select.Option>
+                      <Select.Option value={86400}>At most once a day</Select.Option>
+                      <Select.Option value={604800}>At most once a week</Select.Option>
+                    </Select>
+                  </HorizontalFormItem>
+                  <HorizontalFormItem>
+                    <Button type="primary" onClick={this.save}>Save</Button>{' '}
+                    <Button type="danger" onClick={this.delete}>Delete Alert</Button>
+                  </HorizontalFormItem>
+                </>
               )}
             </Form>
           </div>
