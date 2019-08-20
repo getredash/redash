@@ -137,8 +137,14 @@ function DashboardCtrl(
     this.extractGlobalParameters();
   });
 
-  const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map((widget) => {
+  const collectFilters = (dashboard, forceRefresh, pendingParameters = []) => {
+    const affectedWidgets = pendingParameters.length > 0 ? this.dashboard.widgets.filter(
+      widget => widget.getQuery() && widget.getQuery().getParametersDefs().some(
+        ({ name }) => pendingParameters.map(p => p.name).includes(name),
+      ),
+    ) : this.dashboard.widgets;
+
+    const queryResultPromises = _.compact(affectedWidgets.map((widget) => {
       widget.getParametersDefs(); // Force widget to read parameters values from URL
       return widget.load(forceRefresh);
     }));
@@ -202,9 +208,9 @@ function DashboardCtrl(
 
   this.loadDashboard();
 
-  this.refreshDashboard = () => {
+  this.refreshDashboard = (parameters) => {
     this.refreshInProgress = true;
-    collectFilters(this.dashboard, true).finally(() => {
+    collectFilters(this.dashboard, true, parameters).finally(() => {
       this.refreshInProgress = false;
     });
   };
