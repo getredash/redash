@@ -84,6 +84,7 @@ export default class AlertDestinations extends React.Component {
 
     SelectItemsDialog.showModal({
       width: 570,
+      showCount: true,
       extraFooterContent: (
         <>
           <i className="fa fa-info-circle" />{' '}

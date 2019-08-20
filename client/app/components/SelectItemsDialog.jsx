@@ -1,4 +1,4 @@
-import { filter, debounce, find } from 'lodash';
+import { filter, debounce, find, isEmpty, size } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -32,6 +32,7 @@ class SelectItemsDialog extends React.Component {
     save: PropTypes.func, // (selectedItems[]) => Promise<any>
     width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     extraFooterContent: PropTypes.node,
+    showCount: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -44,6 +45,7 @@ class SelectItemsDialog extends React.Component {
     save: items => items,
     width: '80%',
     extraFooterContent: null,
+    showCount: false,
   };
 
   state = {
@@ -128,7 +130,7 @@ class SelectItemsDialog extends React.Component {
   }
 
   render() {
-    const { dialog, dialogTitle, inputPlaceholder, selectedItemsTitle, renderStagedItem, width } = this.props;
+    const { dialog, dialogTitle, inputPlaceholder, selectedItemsTitle, renderStagedItem, width, showCount } = this.props;
     const { loading, saveInProgress, items, selected } = this.state;
     const hasResults = items.length > 0;
     return (
@@ -141,7 +143,10 @@ class SelectItemsDialog extends React.Component {
           <div className="d-flex align-items-center">
             <span className="flex-fill m-r-5" style={{ textAlign: 'left', color: 'rgba(0, 0, 0, 0.5)' }}>{this.props.extraFooterContent}</span>
             <Button onClick={dialog.dismiss}>Cancel</Button>
-            <Button onClick={() => this.save()} loading={saveInProgress} disabled={selected.length === 0}>Save</Button>
+            <Button onClick={() => this.save()} loading={saveInProgress} disabled={selected.length === 0} type="primary">
+              Save
+              {showCount && !isEmpty(selected) ? ` (${size(selected)})` : null}
+            </Button>
           </div>
         )}
       >
