@@ -161,7 +161,7 @@ class ParameterizedQuery(object):
 
         try:
             return validate(value)
-        except:
+        except Exception as e:
             return False
 
     @property
