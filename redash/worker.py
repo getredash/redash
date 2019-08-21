@@ -49,6 +49,25 @@ celery = Celery('redash',
                 redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
                 include='redash.tasks')
 
+# The internal periodic Celery tasks to automatically schedule.
+celery_schedule = {
+}
+
+if settings.VERSION_CHECK:
+    celery_schedule['version_check'] = {
+        'task': 'redash.tasks.version_check',
+        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
+        # evenly.
+        'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
+    }
+
+if settings.QUERY_RESULTS_CLEANUP_ENABLED:
+    celery_schedule['cleanup_query_results'] = {
+        'task': 'redash.tasks.cleanup_query_results',
+        'schedule': timedelta(minutes=5)
+    }
+
+celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    timezone='UTC',

@@ -8,6 +8,8 @@ from flask.cli import AppGroup
 from rq import Connection, Worker
 from rq_scheduler import Scheduler
 
+SECONDS = 1
+MINUTES = 60 * SECONDS
 
 from redash import rq_redis_connection
 from redash.schedule import rq_scheduler, schedule_periodic_jobs
