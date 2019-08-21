@@ -6,6 +6,13 @@ from redash.query_runner import *
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
 
+try:
+    import MySQLdb
+    enabled = True
+except ImportError:
+    enabled = False
+
+
 logger = logging.getLogger(__name__)
 types_map = {
     0: TYPE_FLOAT,
@@ -95,12 +102,26 @@ class Mysql(BaseSQLQueryRunner):
 
     @classmethod
     def enabled(cls):
-        try:
-            import MySQLdb
-        except ImportError:
-            return False
+        return enabled
 
-        return True
+    def _connection(self):
+        params = dict(host=self.configuration.get('host', ''),
+                                     user=self.configuration.get('user', ''),
+                                     passwd=self.configuration.get('passwd', ''),
+                                     db=self.configuration['db'],
+                                     port=self.configuration.get('port', 3306),
+                                     charset='utf8', 
+                                     use_unicode=True,
+                                     connect_timeout=60)
+        
+        ssl_options = self._get_ssl_parameters()
+
+        if ssl_options:
+            params['ssl'] = ssl_options
+
+        connection = MySQLdb.connect(**params)
+        
+        return connection
 
     def _get_tables(self, schema):
         query = """
@@ -132,21 +153,12 @@ class Mysql(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        import MySQLdb
-
         ev = threading.Event()
         thread_id = ""
         r = Result()
         t = None
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                         user=self.configuration.get('user', ''),
-                                         passwd=self.configuration.get('passwd', ''),
-                                         db=self.configuration['db'],
-                                         port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters(),
-                                         connect_timeout=60)
+            connection = self._connection()
             thread_id = connection.thread_id()
             t = threading.Thread(target=self._run_query, args=(query, user, connection, r, ev))
             t.start()
@@ -163,8 +175,6 @@ class Mysql(BaseSQLQueryRunner):
         return r.json_data, r.error
 
     def _run_query(self, query, user, connection, r, ev):
-        import MySQLdb
-
         try:
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
@@ -202,6 +212,9 @@ class Mysql(BaseSQLQueryRunner):
                 connection.close()
 
     def _get_ssl_parameters(self):
+        if not self.configuration.get('use_ssl'):
+            return None
+
         ssl_params = {}
 
         if self.configuration.get('use_ssl'):
@@ -216,20 +229,12 @@ class Mysql(BaseSQLQueryRunner):
         return ssl_params
 
     def _cancel(self, thread_id):
-        import MySQLdb
         connection = None
         cursor = None
         error = None
 
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                         user=self.configuration.get('user', ''),
-                                         passwd=self.configuration.get('passwd', ''),
-                                         db=self.configuration['db'],
-                                         port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters(),
-                                         connect_timeout=60)
+            connection = self._connection()
             cursor = connection.cursor()
             query = "KILL %d" % (thread_id)
             logging.debug(query)
@@ -292,7 +297,7 @@ class RDSMySQL(Mysql):
             ca_path = os.path.join(os.path.dirname(__file__), './files/rds-combined-ca-bundle.pem')
             return {'ca': ca_path}
 
-        return {}
+        return None
 
 
 register(Mysql)
