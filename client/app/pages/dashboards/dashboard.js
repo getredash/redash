@@ -137,10 +137,10 @@ function DashboardCtrl(
     this.extractGlobalParameters();
   });
 
-  const collectFilters = (dashboard, forceRefresh, pendingParameters = []) => {
-    const affectedWidgets = pendingParameters.length > 0 ? this.dashboard.widgets.filter(
+  const collectFilters = (dashboard, forceRefresh, updatedParameters = []) => {
+    const affectedWidgets = updatedParameters.length > 0 ? this.dashboard.widgets.filter(
       widget => widget.getQuery() && widget.getQuery().getParametersDefs().some(
-        ({ name }) => pendingParameters.map(p => p.name).includes(name),
+        ({ name }) => updatedParameters.map(p => p.name).includes(name),
       ),
     ) : this.dashboard.widgets;
 
