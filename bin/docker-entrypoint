@@ -28,6 +28,18 @@ worker() {
   exec /app/manage.py rq worker $QUEUES
 }
 
+rq_scheduler() {
+  echo "Starting RQ scheduler..."
+
+  exec /app/manage.py rq scheduler
+}
+
+dev_rq_scheduler() {
+  echo "Starting dev RQ scheduler..."
+
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
+}
+
 rq_worker() {
   echo "Starting RQ worker..."
 

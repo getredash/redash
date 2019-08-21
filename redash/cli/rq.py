@@ -6,6 +6,8 @@ import datetime
 from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
+from rq_scheduler import Scheduler
+
 
 from redash import rq_redis_connection
 from redash.schedule import rq_scheduler, schedule_periodic_jobs
