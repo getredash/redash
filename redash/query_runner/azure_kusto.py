@@ -26,8 +26,7 @@ TYPES_MAP = {
 
 
 class AzureKusto(BaseQueryRunner):
-    # noop_query = "let noop = datatable (Noop:string)[1]; noop"
-    noop_query = "Ordercomposition | take 10"
+    noop_query = "let noop = datatable (Noop:string)[1]; noop"
 
     @classmethod
     def configuration_schema(cls):
@@ -117,7 +116,7 @@ class AzureKusto(BaseQueryRunner):
             json_data = None
             try:
                 error = err.args[1][0]['error']['@message']
-            except:
+            except (IndexError, KeyError):
                 error = err.args[1]
         except KeyboardInterrupt:
             json_data = None
@@ -157,5 +156,5 @@ class AzureKusto(BaseQueryRunner):
 
         return schema.values()
 
-register(AzureKusto)
 
+register(AzureKusto)
