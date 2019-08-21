@@ -124,8 +124,8 @@ function QueryFormItem({ query, onChange }) {
     </small>
   ) : (
     <small>
-      <WarningIcon /> This query has no <i>refresh schedule</i>.<br />
-      <Icon type="question-circle" theme="twoTone" /> <HelpTrigger className="f-12" type="ALERT_SCHEDULE">Learn why</HelpTrigger> it&apos;s recommended for alerts.
+      <WarningIcon /> This query has no <i>refresh schedule</i>.{' '}
+      <Tooltip title="A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query."><a>Why it&apos;s recommended <Icon type="question-circle" theme="twoTone" /></a></Tooltip>
     </small>
   );
 
