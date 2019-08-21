@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { head, includes, toString } from 'lodash';
@@ -187,6 +187,88 @@ AlertState.propTypes = {
   state: PropTypes.string.isRequired,
 };
 
+const DURATIONS = [
+  ['Second', 1],
+  ['Minute', 60],
+  ['Hour', 3600],
+  ['Day', 86400],
+  ['Week', 604800],
+];
+
+function RearmByDuration({ value, onChange }) {
+  const [durationIdx, setDurationIdx] = useState();
+  const [count, setCount] = useState();
+
+  useEffect(() => {
+    for (let i = DURATIONS.length - 1; i >= 0; i -= 1) {
+      const [, durValue] = DURATIONS[i];
+      if (value % durValue === 0) {
+        setDurationIdx(i);
+        setCount(value / durValue);
+        break;
+      }
+    }
+  }, []);
+
+  const onChangeCount = (newCount) => {
+    setCount(newCount);
+    onChange(newCount * DURATIONS[durationIdx][1]);
+  };
+
+  const onChangeIdx = (newIdx) => {
+    setDurationIdx(newIdx);
+    onChange(count * DURATIONS[newIdx][1]);
+  };
+
+  return (
+    <>
+      <InputNumber value={count} onChange={onChangeCount} min={1} precision={0} />
+      <Select value={durationIdx} onChange={onChangeIdx}>
+        {DURATIONS.map(([name], idx) => (
+          <Select.Option value={idx} key={name}>{name}{count !== 1 && 's'}</Select.Option>
+        ))}
+      </Select>
+    </>
+  );
+}
+
+RearmByDuration.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.number.isRequired,
+};
+
+
+function Rearm({ value, onChange }) {
+  const [selected, setSelected] = useState(value < 2 ? value : 2);
+
+  const _onChange = (newSelected) => {
+    setSelected(newSelected);
+    onChange(newSelected < 2 ? newSelected : 3600);
+  };
+
+  return (
+    <div className="rearm">
+      <Select className="alert-notification" optionLabelProp="label" defaultValue={selected || 0} dropdownMatchSelectWidth={false} onChange={_onChange}>
+        <Select.Option value={0} label="Just once">Just once</Select.Option>
+        <Select.Option value={1} label="Each time results are refreshed">
+              Each time results are refreshed
+        </Select.Option>
+        <Select.Option value={2} label="At most every">At most every ...</Select.Option>
+      </Select>
+      {selected === 2 && <RearmByDuration value={value} onChange={onChange} />}
+    </div>
+  );
+}
+
+Rearm.propTypes = {
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.number,
+};
+
+Rearm.defaultProps = {
+  value: 0,
+};
+
 function SetupInstructions() {
   return (
     <HelpTrigger className="alert-setup-instructions" type="ALERT_SETUP">
@@ -199,6 +281,7 @@ class AlertPage extends React.Component {
   state = {
     alert: null,
     queryResult: null,
+    pendingRearm: null,
     // editable: false,
   }
 
@@ -209,7 +292,9 @@ class AlertPage extends React.Component {
           options: {
             op: 'greater than',
             value: 1,
+            rearm: 0,
           },
+          pendingRearm: 0,
         }),
         // editable: true,
       });
@@ -218,6 +303,7 @@ class AlertPage extends React.Component {
       AlertService.get({ id: alertId }).$promise.then((alert) => {
         this.setState({
           alert,
+          pendingRearm: alert.rearm,
           // editable: currentUser.canEdit(alert),
         });
         this.onQuerySelected(alert.query);
@@ -249,11 +335,8 @@ class AlertPage extends React.Component {
     }
   }
 
-  onRearmChange = (rearm) => {
-    const { alert } = this.state;
-    this.setState({
-      alert: Object.assign(alert, { rearm }),
-    });
+  onRearmChange = (pendingRearm) => {
+    this.setState({ pendingRearm });
   }
 
   setAlertOptions = (obj) => {
@@ -265,20 +348,19 @@ class AlertPage extends React.Component {
   }
 
   save = () => {
-    const { alert } = this.state;
+    const { alert, pendingRearm } = this.state;
 
     if (alert.name === undefined || alert.name === '') {
       alert.name = this.getDefaultName();
     }
-    if (!alert.rearm) {
-      alert.rearm = null;
-    }
+    alert.rearm = pendingRearm || null;
 
     alert.$save().then(() => {
       if (isNewAlert()) {
         notification.success('Saved new Alert.');
         navigateTo(`/alerts/${alert.id}`, true);
       } else {
+        this.setState({ alert });
         notification.success('Saved.');
       }
     }).catch(() => {
@@ -310,7 +392,7 @@ class AlertPage extends React.Component {
   }
 
   render() {
-    const { alert } = this.state;
+    const { alert, pendingRearm } = this.state;
     if (!alert) {
       return (
         <div className="container alert-page new-alert">
@@ -319,7 +401,7 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { rearm, query, name, options, state, id } = alert;
+    const { query, name, options, state, id } = alert;
     if (!id) {
       return (
         <div className="container alert-page new-alert">
@@ -373,16 +455,7 @@ class AlertPage extends React.Component {
                     onChange={this.setAlertOptions}
                   />
                   <HorizontalFormItem label="Send notification">
-                    <Select className="alert-notification" value={rearm || 0} dropdownMatchSelectWidth={false} onChange={this.onRearmChange}>
-                      <Select.Option value={0}>Just once</Select.Option>
-                      <Select.Option value={1}>
-                            Each time results are refreshed
-                      </Select.Option>
-                      <Select.Option value={1800}>At most every 30 minutes</Select.Option>
-                      <Select.Option value={3600}>At most once an hour</Select.Option>
-                      <Select.Option value={86400}>At most once a day</Select.Option>
-                      <Select.Option value={604800}>At most once a week</Select.Option>
-                    </Select>
+                    <Rearm value={pendingRearm} onChange={this.onRearmChange} />
                   </HorizontalFormItem>
                   <HorizontalFormItem>
                     <Button type="primary" onClick={this.save}>Save</Button>{' '}
