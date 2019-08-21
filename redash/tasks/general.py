@@ -60,14 +60,5 @@ def send_mail(to, subject, html, text):
         logger.exception('Failed sending message: %s', message.subject)
 
 
-@celery.task(
-    name="redash.tasks.sync_user_details",
-    ignore_result=True,
-    soft_time_limit=60,
-    time_limit=120,
-    # let the task expire after 45 seconds since there will be
-    # another task 15 seconds later anyway
-    expires=45,
-)
 def sync_user_details():
     users.sync_last_active_at()

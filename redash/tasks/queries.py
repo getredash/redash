@@ -161,7 +161,6 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
     return job
 
 
-@celery.task(name="redash.tasks.empty_schedules")
 def empty_schedules():
     logger.info("Deleting schedules of past scheduled queries...")
 
@@ -173,7 +172,6 @@ def empty_schedules():
     logger.info("Deleted %d schedules.", len(queries))
 
 
-@celery.task(name="redash.tasks.refresh_queries")
 def refresh_queries():
     logger.info("Refreshing queries...")
 
@@ -270,7 +268,6 @@ def refresh_schema(data_source_id):
         logger.info(u"task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
 
 
-@celery.task(name="redash.tasks.refresh_schemas")
 def refresh_schemas():
     """
     Refreshes the data sources schemas.

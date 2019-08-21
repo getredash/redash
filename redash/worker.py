@@ -23,26 +23,6 @@ celery = Celery('redash',
 
 # The internal periodic Celery tasks to automatically schedule.
 celery_schedule = {
-    'refresh_queries': {
-        'task': 'redash.tasks.refresh_queries',
-        'schedule': timedelta(seconds=30)
-    },
-    'empty_schedules': {
-        'task': 'redash.tasks.empty_schedules',
-        'schedule': timedelta(minutes=60)
-    },
-    'refresh_schemas': {
-        'task': 'redash.tasks.refresh_schemas',
-        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)
-    },
-    'sync_user_details': {
-        'task': 'redash.tasks.sync_user_details',
-        'schedule': timedelta(minutes=1),
-    },
-    'send_aggregated_errors': {
-        'task': 'redash.tasks.send_aggregated_errors',
-        'schedule': timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
-    }
 }
 
 if settings.VERSION_CHECK:
