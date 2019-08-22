@@ -5,7 +5,8 @@ import Dropdown from 'antd/lib/dropdown';
 import Modal from 'antd/lib/modal';
 import Menu from 'antd/lib/menu';
 import recordEvent from '@/services/recordEvent';
-import { FiltersType } from '@/components/Filters';
+import { Moment } from '@/components/proptypes';
+import { Timer } from '@/components/Timer';
 
 import './Widget.less';
 
@@ -19,7 +20,7 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, ...oth
   );
 
   return (
-    <div className="dropdown pull-right widget-menu-regular">
+    <div className="pull-right widget-menu-regular">
       <div className="actions">
         <Dropdown
           overlay={WidgetMenu}
@@ -47,7 +48,7 @@ WidgetDropdownButton.defaultProps = {
 
 function WidgetDeleteButton({ onClick }) {
   return (
-    <div className="dropdown pull-right widget-menu-remove">
+    <div className="pull-right widget-menu-remove">
       <div className="actions">
         <a title="Remove From Dashboard" onClick={onClick}><i className="zmdi zmdi-close" /></a>
       </div>
@@ -58,14 +59,29 @@ function WidgetDeleteButton({ onClick }) {
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
 WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
+function RefreshIndicator({ refreshStartedAt }) {
+  return (
+    <div className="refresh-indicator">
+      <div className="refresh-icon">
+        <i className="zmdi zmdi-refresh zmdi-hc-spin" />
+      </div>
+      <Timer from={refreshStartedAt} />
+    </div>
+  );
+}
+
+RefreshIndicator.propTypes = { refreshStartedAt: Moment.isRequired };
+
 class Widget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     className: PropTypes.string,
     children: PropTypes.node,
-    filters: FiltersType,
+    header: PropTypes.node,
+    footer: PropTypes.node,
     canEdit: PropTypes.bool,
     isPublic: PropTypes.bool,
+    refreshStartedAt: Moment,
     menuOptions: PropTypes.node,
     onDelete: PropTypes.func,
   };
@@ -73,9 +89,11 @@ class Widget extends React.Component {
   static defaultProps = {
     className: '',
     children: null,
-    filters: [],
+    header: null,
+    footer: null,
     canEdit: false,
     isPublic: false,
+    refreshStartedAt: null,
     menuOptions: null,
     onDelete: () => {},
   };
@@ -100,11 +118,11 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { className, children, filters, canEdit, isPublic, menuOptions, onDelete, ...otherProps } = this.props;
+    const { className, children, header, footer, canEdit, isPublic, refreshStartedAt, menuOptions } = this.props;
 
     return (
       <div className="widget-wrapper">
-        <div {...otherProps} className={cx('tile body-container', className)}>
+        <div className={cx('tile body-container', className)} data-refreshing={!!refreshStartedAt}>
           <div className="body-row widget-header">
             <div className="t-header widget clearfix">
               {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
@@ -115,9 +133,16 @@ class Widget extends React.Component {
                   onDelete={this.deleteWidget}
                 />
               )}
+              {refreshStartedAt && <RefreshIndicator refreshStartedAt={refreshStartedAt} />}
+              {header}
             </div>
           </div>
           {children}
+          {footer && (
+            <div className="body-row clearfix tile__bottom-control">
+              {footer}
+            </div>
+          )}
         </div>
       </div>
     );

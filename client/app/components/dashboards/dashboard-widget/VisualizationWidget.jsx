@@ -11,7 +11,6 @@ import { $location } from '@/services/ng';
 import { formatDateTime } from '@/filters/datetime';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
-import { Timer } from '@/components/Timer';
 import { TimeAgo } from '@/components/TimeAgo';
 import QueryLink from '@/components/QueryLink';
 import { FiltersType } from '@/components/Filters';
@@ -41,6 +40,27 @@ function RestrictedWidget(props) {
     </Widget>
   );
 }
+
+function VisualizationWidgetHeader({ widget }) {
+  const canViewQuery = currentUser.hasPermission('view_query');
+
+  return (
+    <>
+      <div className="th-title">
+        <p>
+          <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
+        </p>
+        <HtmlContent className="text-muted query--description">
+          {markdown.toHTML(widget.getQuery().description || '')}
+        </HtmlContent>
+      </div>
+    </>
+  );
+}
+
+VisualizationWidgetHeader.propTypes = {
+  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
 
 class VisualizationWidget extends React.Component {
   static propTypes = {
@@ -100,49 +120,6 @@ class VisualizationWidget extends React.Component {
     }
   };
 
-  renderRefreshIndicator() {
-    const { widget } = this.props;
-    return (
-      <div className="refresh-indicator">
-        <div className="refresh-icon">
-          <i className="zmdi zmdi-refresh zmdi-hc-spin" />
-        </div>
-        <Timer from={widget.refreshStartedAt} />
-      </div>
-    );
-  }
-
-  renderHeader() {
-    const { widget } = this.props;
-    const canViewQuery = currentUser.hasPermission('view_query');
-
-    const localParameters = filter(
-      widget.getParametersDefs(),
-      param => !widget.isStaticParam(param),
-    );
-
-    return (
-      <div className="body-row widget-header">
-        <div className="t-header widget clearfix">
-          {widget.loading && this.renderRefreshIndicator()}
-          <div className="th-title">
-            <p>
-              <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
-            </p>
-            <HtmlContent className="text-muted query--description">
-              {markdown.toHTML(widget.getQuery().description || '')}
-            </HtmlContent>
-          </div>
-        </div>
-        {!isEmpty(localParameters) && (
-          <div className="m-b-10">
-            <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />
-          </div>
-        )}
-      </div>
-    );
-  }
-
   // eslint-disable-next-line class-methods-use-this
   renderVisualization() {
     const { widget, filters } = this.props;
@@ -161,7 +138,7 @@ class VisualizationWidget extends React.Component {
         );
       case 'done':
         return (
-          <div ng-switch-when="done" className="body-row-auto scrollbox">
+          <div className="body-row-auto scrollbox">
             <VisualizationRenderer
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
@@ -186,7 +163,7 @@ class VisualizationWidget extends React.Component {
     const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
     const { refreshClickButtonId } = this.state;
     return (
-      <div className="body-row clearfix tile__bottom-control">
+      <>
         {(!isPublic && !!widgetQueryResult) && (
           <a
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
@@ -218,7 +195,7 @@ class VisualizationWidget extends React.Component {
         >
           <i className="zmdi zmdi-fullscreen" />
         </a>
-      </div>
+      </>
     );
   }
 
@@ -226,16 +203,28 @@ class VisualizationWidget extends React.Component {
     const { widget } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
+    const localParameters = filter(
+      widget.getParametersDefs(),
+      param => !widget.isStaticParam(param),
+    );
 
     return !widget.restricted ? (
       <Widget
         {...this.props}
         className="widget-visualization"
         menuOptions={VisualizationWidgetMenuOptions}
-        data-refreshing={isRefreshing}
+        header={<VisualizationWidgetHeader widget={widget} />}
+        footer={this.renderBottom()}
+        refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
       >
+        <div className="widget-parameters">
+          {!isEmpty(localParameters) && (
+            <div className="m-b-5">
+              <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />
+            </div>
+          )}
+        </div>
         {this.renderVisualization()}
-        {this.renderBottom()}
       </Widget>
     ) : <RestrictedWidget widget={widget} />;
   }

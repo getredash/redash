@@ -5,6 +5,7 @@ import { includes, reduce, some } from 'lodash';
 const WIDGET_SELECTOR = '[data-widgetid="{0}"]';
 const WIDGET_CONTENT_SELECTOR = [
   '.widget-header', // header
+  '.widget-parameters', // parameters
   '.visualization-renderer', // visualization
   '.scrollbox .alert', // error state
   '.spinner-container', // loading state
