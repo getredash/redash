@@ -130,24 +130,17 @@ class AzureKusto(BaseQueryRunner):
         return json_data, error
 
     def get_schema(self, get_stats=False):
+        query = ".show database schema as json"
 
-        get_tables_list_query = ".show tables | project TableName"
+        results, error = self.run_query(query, None)
 
-        get_tables_list_results, error = self.run_query(get_tables_list_query, None)
         if error is not None:
             raise Exception("Failed getting schema.")
-        tables_list_response = json_loads(get_tables_list_results)
 
-        tables_list = []
+        results = json_loads(results)
 
-        for table in tables_list_response['rows']:
-            get_table_schema_query = ".show table %s schema as json | project Schema" % table['TableName']
-            result, error = self.run_query(get_table_schema_query, None)
-            table_schema = json_loads(result)
-            if error is not None:
-                raise Exception("Failed getting schema.")
-
-            tables_list.append(json_loads(table_schema['rows'][0]['Schema']))
+        schema_as_json = json_loads(results['rows'][0]['DatabaseSchema'])
+        tables_list = schema_as_json['Databases'][self.configuration['database']]['Tables'].values()
 
         schema = {}
 
@@ -156,6 +149,7 @@ class AzureKusto(BaseQueryRunner):
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
+
             for column in table['OrderedColumns']:
                 schema[table_name]['columns'].append(column['Name'])
 
