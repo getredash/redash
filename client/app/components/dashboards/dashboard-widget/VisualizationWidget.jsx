@@ -92,6 +92,13 @@ class VisualizationWidget extends React.Component {
     onDelete: () => {},
   };
 
+  constructor(props) {
+    super(props);
+    const widgetQueryResult = props.widget.getQueryResult();
+    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
+    this.state = { refreshClickButtonId: null, widgetStatus };
+  }
+
   state = {
     refreshClickButtonId: null,
   };
@@ -106,7 +113,11 @@ class VisualizationWidget extends React.Component {
   loadWidget = (refresh = false) => {
     const { widget } = this.props;
     const maxAge = $location.search().maxAge;
-    return widget.load(refresh, maxAge);
+    return widget.load(refresh, maxAge).then(({ status }) => {
+      this.setState({ widgetStatus: status });
+    }).catch(() => {
+      this.setState({ widgetStatus: 'failed' });
+    });
   };
 
   expandWidget = () => {
@@ -137,8 +148,8 @@ class VisualizationWidget extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   renderVisualization() {
     const { widget, filters } = this.props;
+    const { widgetStatus } = this.state;
     const widgetQueryResult = widget.getQueryResult();
-    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
       case 'failed':
         return (
