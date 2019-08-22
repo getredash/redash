@@ -20,16 +20,14 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, ...oth
   );
 
   return (
-    <div className="pull-right widget-menu-regular">
-      <div className="actions">
-        <Dropdown
-          overlay={WidgetMenu}
-          placement="bottomRight"
-          trigger={['click']}
-        >
-          <a className="p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
-        </Dropdown>
-      </div>
+    <div className="widget-menu-regular">
+      <Dropdown
+        overlay={WidgetMenu}
+        placement="bottomRight"
+        trigger={['click']}
+      >
+        <a className="action p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
+      </Dropdown>
     </div>
   );
 }
@@ -48,10 +46,10 @@ WidgetDropdownButton.defaultProps = {
 
 function WidgetDeleteButton({ onClick }) {
   return (
-    <div className="pull-right widget-menu-remove">
-      <div className="actions">
-        <a title="Remove From Dashboard" onClick={onClick}><i className="zmdi zmdi-close" /></a>
-      </div>
+    <div className="widget-menu-remove">
+      <a className="action" title="Remove From Dashboard" onClick={onClick}>
+        <i className="zmdi zmdi-close" />
+      </a>
     </div>
   );
 }
@@ -123,19 +121,19 @@ class Widget extends React.Component {
     return (
       <div className="widget-wrapper">
         <div className={cx('tile body-container', className)} data-refreshing={!!refreshStartedAt}>
+          <div className="widget-actions">
+            {!isPublic && (
+              <WidgetDropdownButton
+                extraOptions={menuOptions}
+                showDeleteOption={canEdit}
+                onDelete={this.deleteWidget}
+              />
+            )}
+            {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
+          </div>
           <div className="body-row widget-header">
-            <div className="t-header widget clearfix">
-              {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
-              {!isPublic && (
-                <WidgetDropdownButton
-                  extraOptions={menuOptions}
-                  showDeleteOption={canEdit}
-                  onDelete={this.deleteWidget}
-                />
-              )}
-              {refreshStartedAt && <RefreshIndicator refreshStartedAt={refreshStartedAt} />}
-              {header}
-            </div>
+            {refreshStartedAt && <RefreshIndicator refreshStartedAt={refreshStartedAt} />}
+            {header}
           </div>
           {children}
           {footer && (

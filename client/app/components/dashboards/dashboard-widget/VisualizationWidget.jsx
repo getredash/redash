@@ -41,26 +41,40 @@ function RestrictedWidget(props) {
   );
 }
 
-function VisualizationWidgetHeader({ widget }) {
+function VisualizationWidgetHeader({ widget, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission('view_query');
+  const localParameters = filter(
+    widget.getParametersDefs(),
+    param => !widget.isStaticParam(param),
+  );
 
   return (
     <>
-      <div className="th-title">
-        <p>
-          <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
-        </p>
-        <HtmlContent className="text-muted query--description">
-          {markdown.toHTML(widget.getQuery().description || '')}
-        </HtmlContent>
+      <div className="t-header widget clearfix">
+        <div className="th-title">
+          <p>
+            <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
+          </p>
+          <HtmlContent className="text-muted query--description">
+            {markdown.toHTML(widget.getQuery().description || '')}
+          </HtmlContent>
+        </div>
       </div>
+      {!isEmpty(localParameters) && (
+        <div className="m-b-5">
+          <Parameters parameters={localParameters} onValuesChange={onParametersUpdate} />
+        </div>
+      )}
     </>
   );
 }
 
 VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  onParametersUpdate: PropTypes.func,
 };
+
+VisualizationWidgetHeader.defaultProps = { onParametersUpdate: () => {} };
 
 class VisualizationWidget extends React.Component {
   static propTypes = {
@@ -203,27 +217,16 @@ class VisualizationWidget extends React.Component {
     const { widget } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
-    const localParameters = filter(
-      widget.getParametersDefs(),
-      param => !widget.isStaticParam(param),
-    );
 
     return !widget.restricted ? (
       <Widget
         {...this.props}
         className="widget-visualization"
         menuOptions={VisualizationWidgetMenuOptions}
-        header={<VisualizationWidgetHeader widget={widget} />}
+        header={<VisualizationWidgetHeader widget={widget} onParametersUpdate={this.refreshWidget} />}
         footer={this.renderBottom()}
         refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
       >
-        <div className="widget-parameters">
-          {!isEmpty(localParameters) && (
-            <div className="m-b-5">
-              <Parameters parameters={localParameters} onValuesChange={this.refreshWidget} />
-            </div>
-          )}
-        </div>
         {this.renderVisualization()}
       </Widget>
     ) : <RestrictedWidget widget={widget} />;

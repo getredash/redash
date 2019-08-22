@@ -7,6 +7,25 @@
 }
 
 .widget-wrapper {
+  .widget-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+
+    .action {
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 100%;
+      display: block;
+      padding: 4px 10px 3px;
+    }
+
+    .action:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
   .body-container {
     display: flex;
     flex-direction: column;
@@ -37,26 +56,6 @@
     }
   }
 
-  .dropdown-header {
-    padding: 0;
-
-    .actions {
-      position: static;
-    }
-  }
-
-  .t-header.widget {
-    .dropdown {
-      margin-top: -15px;
-      margin-right: -15px;
-
-      .actions {
-        position: static;
-        cursor: pointer;
-      }
-    }
-  }
-
   .scrollbox:empty {
     padding: 0 !important;
     font-size: 1px !important;
@@ -68,10 +67,6 @@
     }
     :last-child {
       margin-bottom: 0;
-    }
-
-    .actions {
-      cursor: pointer;
     }
   }
 }
