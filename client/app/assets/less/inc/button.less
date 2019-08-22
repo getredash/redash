@@ -122,3 +122,21 @@
   top: 1px;
   position: relative;
 }
+
+
+.btn-default {
+    background-color: fade(@redash-gray, 15%);
+}
+
+.btn-transparent {
+    background-color: transparent !important;
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default.focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
+    background-color: fade(@redash-gray, 25%);
+}
+
+.btn-default:active:hover, .btn-default.active:hover, .open > .dropdown-toggle.btn-default:hover, .btn-default:active:focus, .btn-default.active:focus, .open > .dropdown-toggle.btn-default:focus, .btn-default:active.focus, .btn-default.active.focus, .open > .dropdown-toggle.btn-default.focus {
+    color: #333;
+    background-color: fade(@redash-gray, 45%);
+}

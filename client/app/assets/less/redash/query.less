@@ -92,7 +92,7 @@ edit-in-place p.editable:hover {
 }
 
 .filter-container {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .ace_editor.ace_autocomplete .ace_completion-highlight {
@@ -218,6 +218,13 @@ edit-in-place p.editable:hover {
 .embed__vis {
   display: flex;
   flex-flow: column;
+}
+
+.embed-heading {
+  h3 {
+    line-height: 1.75;
+    margin: 0;
+  }
 }
 
 .widget-wrapper {
@@ -676,8 +683,17 @@ nav .rg-bottom {
   .filter-container {
     padding-right: 0;
   }
+}
 
-  .btn-edit-visualisation {
+// Responsive fixes
+@media (max-width: 767px) {
+  .query-page-wrapper {
+    h3 {
+      font-size: 18px;
+    }
 
+    favorites-control {
+      margin-top: -3px;
+    }
   }
 }
