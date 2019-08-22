@@ -28,37 +28,43 @@ TYPES_MAP = {
 class AzureKusto(BaseQueryRunner):
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
 
+    def __init__(self, configuration):
+        super(AzureKusto, self).__init__(configuration)
+        self.syntax = 'custom'
+
     @classmethod
     def configuration_schema(cls):
         return {
-            "type":
-            "object",
+            "type": "object",
             "properties": {
-                "Cluster": {
+                "cluster": {
                     "type": "string"
                 },
-                "Azure AD Client ID": {
-                    "type": "string"
+                "azure_ad_client_id": {
+                    "type": "string",
+                    "title": "Azure AD Client ID"
                 },
-                "Azure AD Client Secret": {
-                    "type": "string"
+                "azure_ad_client_secret": {
+                    "type": "string",
+                    "title": "Azure AD Client Secret"
                 },
-                "Azure AD Tenant Id": {
-                    "type": "string"
+                "azure_ad_tenant_id": {
+                    "type": "string",
+                    "title": "Azure AD Tenant Id"
                 },
-                "Database": {
+                "database": {
                     "type": "string"
                 }
             },
             "required": [
-                "Cluster", "Azure AD Client ID", "Azure AD Client Secret",
-                "Azure AD Tenant Id", "Database"
+                "cluster", "azure_ad_client_id", "azure_ad_client_secret",
+                "azure_ad_tenant_id", "database"
             ],
             "order": [
-                'Cluster', 'Azure AD Client ID', 'Azure AD Client Secret',
-                'Azure AD Tenant Id', 'Database'
+                "cluster", "azure_ad_client_id", "azure_ad_client_secret",
+                "azure_ad_tenant_id", "database"
             ],
-            "secret": ["Azure AD Client Secret"]
+            "secret": ["azure_ad_client_secret"]
         }
 
     @classmethod
@@ -80,14 +86,14 @@ class AzureKusto(BaseQueryRunner):
     def run_query(self, query, user):
 
         kcsb = KustoConnectionStringBuilder.with_aad_application_key_authentication(
-            connection_string=self.configuration['Cluster'],
-            aad_app_id=self.configuration['Azure AD Client ID'],
-            app_key=self.configuration['Azure AD Client Secret'],
-            authority_id=self.configuration['Azure AD Tenant Id'])
+            connection_string=self.configuration['cluster'],
+            aad_app_id=self.configuration['azure_ad_client_id'],
+            app_key=self.configuration['azure_ad_client_secret'],
+            authority_id=self.configuration['azure_ad_tenant_id'])
 
         client = KustoClient(kcsb)
 
-        db = self.configuration['Database']
+        db = self.configuration['database']
         try:
             response = client.execute(db, query)
 
