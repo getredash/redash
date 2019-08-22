@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { head, includes, toString } from 'lodash';
+import cx from 'classnames';
 
 import { $route } from '@/services/ng';
 // import { currentUser } from '@/services/auth';
@@ -153,15 +154,17 @@ QueryFormItem.defaultProps = {
   query: null,
 };
 
-function HorizontalFormItem({ children, label, ...props }) {
+function HorizontalFormItem({ children, label, className, ...props }) {
   const labelCol = { span: 4 };
   const wrapperCol = { span: 12 };
   if (!label) {
     wrapperCol.offset = 4;
   }
 
+  className = cx('alert-form-item', className);
+
   return (
-    <Form.Item labelCol={labelCol} wrapperCol={wrapperCol} label={label} {...props}>
+    <Form.Item labelCol={labelCol} wrapperCol={wrapperCol} label={label} className={className} {...props}>
       { children }
     </Form.Item>
   );
@@ -170,11 +173,13 @@ function HorizontalFormItem({ children, label, ...props }) {
 HorizontalFormItem.propTypes = {
   children: PropTypes.node,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  className: PropTypes.string,
 };
 
 HorizontalFormItem.defaultProps = {
   children: null,
   label: null,
+  className: null,
 };
 
 function AlertState({ state }) {
@@ -247,16 +252,16 @@ function Rearm({ value, onChange }) {
   };
 
   return (
-    <div className="rearm">
+    <HorizontalFormItem className="rearm" label="When triggered, send notification">
       <Select className="alert-notification" optionLabelProp="label" defaultValue={selected || 0} dropdownMatchSelectWidth={false} onChange={_onChange}>
-        <Select.Option value={0} label="Just once">Just once</Select.Option>
-        <Select.Option value={1} label="Each time results are refreshed">
-              Each time results are refreshed
+        <Select.Option value={0} label="Just once">Just once <em>until back to normal</em></Select.Option>
+        <Select.Option value={1} label="Each time alert is evaluated">
+          Each time alert is evaluated <em>until back to normal</em>
         </Select.Option>
-        <Select.Option value={2} label="At most every">At most every ...</Select.Option>
+        <Select.Option value={2} label="At most every">At most every ... <em>when alert is evaluated</em></Select.Option>
       </Select>
       {selected === 2 && <RearmByDuration value={value} onChange={onChange} />}
-    </div>
+    </HorizontalFormItem>
   );
 }
 
@@ -454,9 +459,7 @@ class AlertPage extends React.Component {
                     alertOptions={options}
                     onChange={this.setAlertOptions}
                   />
-                  <HorizontalFormItem label="Send notification">
-                    <Rearm value={pendingRearm} onChange={this.onRearmChange} />
-                  </HorizontalFormItem>
+                  <Rearm value={pendingRearm} onChange={this.onRearmChange} />
                   <HorizontalFormItem>
                     <Button type="primary" onClick={this.save}>Save</Button>{' '}
                     <Button type="danger" onClick={this.delete}>Delete Alert</Button>

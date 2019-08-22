@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import { clientConfig, currentUser } from '@/services/auth';
 import Tooltip from 'antd/lib/tooltip';
 import Alert from 'antd/lib/alert';
@@ -24,7 +25,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
   if (mode === 'icon') {
     return (
       <Tooltip title={message}>
-        <i className={`fa fa-exclamation-triangle ${className}`} />
+        <i className={cx('fa fa-exclamation-triangle', className)} />
       </Tooltip>
     );
   }

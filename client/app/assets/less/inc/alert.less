@@ -107,8 +107,18 @@
     top: 10px;
 }
 
+.alert-form-item label {
+    white-space: initial;
+    padding-right: 8px;
+    line-height: 21px;
+
+    &::after {
+        margin-right: 0 !important;
+    }
+}
+
 .rearm {
-    > * {
+    .ant-form-item-children > * {
         vertical-align: top;
         margin-right: 8px !important;
 
