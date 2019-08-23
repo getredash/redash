@@ -8,7 +8,7 @@ import { Destination as DestinationType, UserProfile as UserType } from '@/compo
 import { Destination as DestinationService, IMG_ROOT } from '@/services/destination';
 import { AlertSubscription } from '@/services/alert-subscription';
 import { $q } from '@/services/ng';
-import { currentUser } from '@/services/auth';
+import { clientConfig, currentUser } from '@/services/auth';
 import notification from '@/services/notification';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import EmailSettingsWarning from '@/components/EmailSettingsWarning';
@@ -177,6 +177,7 @@ export default class AlertDestinations extends React.Component {
       user: { id: currentUser.id },
     });
     const filteredSubs = without(subs, currentUserEmailSub);
+    const { mailSettingsMissing } = clientConfig;
 
     return (
       <div className="alert-destinations">
@@ -187,14 +188,16 @@ export default class AlertDestinations extends React.Component {
           <li className="destination-wrapper">
             <i className="destination-icon fa fa-envelope" />
             <span className="flex-fill">{ currentUser.email }</span>
-            {currentUserEmailSub && <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />}
-            <Switch
-              size="small"
-              className="toggle-button"
-              checked={!!currentUserEmailSub}
-              loading={!subs}
-              onChange={() => this.onUserEmailToggle(currentUserEmailSub)}
-            />
+            <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
+            {!mailSettingsMissing && (
+              <Switch
+                size="small"
+                className="toggle-button"
+                checked={!!currentUserEmailSub}
+                loading={!subs}
+                onChange={() => this.onUserEmailToggle(currentUserEmailSub)}
+              />
+            )}
           </li>
           {filteredSubs.map(s => <ListItem key={s.id} unsubscribe={() => this.unsubscribe(s)} {...s} />)}
         </ul>
