@@ -102,7 +102,7 @@ Criteria.propTypes = {
   columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   resultValues: PropTypes.arrayOf(PropTypes.object).isRequired,
   alertOptions: PropTypes.shape({
-    column: PropTypes.string.isRequired,
+    column: PropTypes.string,
     op: PropTypes.oneOf(['greater than', 'less than', 'equals']).isRequired,
     value: PropTypes.any.isRequired,
   }).isRequired,
@@ -406,8 +406,8 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { query, name, options, state, id } = alert;
-    if (!id) {
+    const { query, name, options } = alert;
+    if (query === undefined) { // as opposed to `null` which means query was previously set
       return (
         <div className="container alert-page new-alert">
           <PageHeader title={this.getDefaultName()} />
@@ -424,21 +424,17 @@ class AlertPage extends React.Component {
               className="alert-query-selector"
               type="select"
             />
-            <div className="m-t-20">
-              <Button type="primary" disabled={!query} onClick={this.save}>Continue</Button>
-            </div>
           </div>
         </div>
       );
     }
-
 
     const { queryResult } = this.state;
 
     return (
       <div className="container alert-page">
         <PageHeader title={name || this.getDefaultName()}>
-          <AlertState state={state} />
+          {alert.state && <AlertState state={alert.state} />}
         </PageHeader>
         <SetupInstructions />
         <div className="row bg-white tiled p-10">
@@ -451,7 +447,7 @@ class AlertPage extends React.Component {
                   <Icon type="loading" className="m-r-5" /> Loading query data
                 </HorizontalFormItem>
               )}
-              {queryResult && (
+              {queryResult && options && (
                 <>
                   <Criteria
                     columnNames={queryResult.getColumnNames()}
@@ -468,16 +464,18 @@ class AlertPage extends React.Component {
               )}
             </Form>
           </div>
-          <div className="col-md-4">
-            <h4>Destinations{' '}
-              <Tooltip title="Open Alert Destinations page in a new tab.">
-                <a href="/destinations" target="_blank">
-                  <i className="fa fa-external-link" />
-                </a>
-              </Tooltip>
-            </h4>
-            <AlertDestinations alertId={id} />
-          </div>
+          {alert.id && (
+            <div className="col-md-4">
+              <h4>Destinations{' '}
+                <Tooltip title="Open Alert Destinations page in a new tab.">
+                  <a href="/destinations" target="_blank">
+                    <i className="fa fa-external-link" />
+                  </a>
+                </Tooltip>
+              </h4>
+              <AlertDestinations alertId={alert.id} />
+            </div>
+          )}
         </div>
       </div>
     );
