@@ -44,6 +44,9 @@ class DashboardGrid extends React.Component {
     onBreakpointChange: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
+    // Force component update when widgets are refreshing.
+    // Remove this when Dashboard is migrated to React
+    refreshingWidgets: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
   };
 
   static defaultProps = {
@@ -52,6 +55,7 @@ class DashboardGrid extends React.Component {
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
+    refreshingWidgets: 0,
   };
 
   static normalizeFrom(widget) {
