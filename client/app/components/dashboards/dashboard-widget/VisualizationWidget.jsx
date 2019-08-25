@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { filter, isEmpty } from 'lodash';
 import { markdown } from 'markdown';
@@ -76,6 +76,64 @@ VisualizationWidgetHeader.propTypes = {
 
 VisualizationWidgetHeader.defaultProps = { onParametersUpdate: () => {} };
 
+function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
+  const widgetQueryResult = widget.getQueryResult();
+  const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
+  const [refreshClickButtonId, setRefreshClickButtonId] = useState();
+
+  const refreshWidget = (buttonId) => {
+    if (!refreshClickButtonId) {
+      setRefreshClickButtonId(buttonId);
+      onRefresh().finally(() => setRefreshClickButtonId(null));
+    }
+  };
+
+  return (
+    <>
+      {(!isPublic && !!widgetQueryResult) && (
+        <a
+          className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
+          onClick={() => refreshWidget(1)}
+          data-test="RefreshButton"
+        >
+          <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
+          <TimeAgo date={updatedAt} />
+        </a>
+      )}
+      <span className="visible-print">
+        <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
+      </span>
+      {isPublic ? (
+        <span className="small hidden-print">
+          <i className="zmdi zmdi-time-restore" />{' '}<TimeAgo date={updatedAt} />
+        </span>
+      ) : (
+        <a
+          className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
+          onClick={() => refreshWidget(2)}
+        >
+          <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
+        </a>
+      )}
+      <a
+        className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
+        onClick={onExpand}
+      >
+        <i className="zmdi zmdi-fullscreen" />
+      </a>
+    </>
+  );
+}
+
+VisualizationWidgetFooter.propTypes = {
+  widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  isPublic: PropTypes.bool,
+  onRefresh: PropTypes.func.isRequired,
+  onExpand: PropTypes.func.isRequired,
+};
+
+VisualizationWidgetFooter.defaultProps = { isPublic: false };
+
 class VisualizationWidget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -96,12 +154,8 @@ class VisualizationWidget extends React.Component {
     super(props);
     const widgetQueryResult = props.widget.getQueryResult();
     const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
-    this.state = { refreshClickButtonId: null, widgetStatus };
+    this.state = { widgetStatus };
   }
-
-  state = {
-    refreshClickButtonId: null,
-  };
 
   componentDidMount() {
     const { widget } = this.props;
@@ -136,13 +190,6 @@ class VisualizationWidget extends React.Component {
       maskClosable: true,
       autoFocusButton: null,
     });
-  };
-
-  refreshWidget = (refreshClickButtonId) => {
-    if (!this.state.refreshClickButtonId) {
-      this.setState({ refreshClickButtonId });
-      this.loadWidget(true).finally(() => this.setState({ refreshClickButtonId: null }));
-    }
   };
 
   // eslint-disable-next-line class-methods-use-this
@@ -182,50 +229,8 @@ class VisualizationWidget extends React.Component {
     }
   }
 
-  renderBottom() {
-    const { widget, isPublic } = this.props;
-    const widgetQueryResult = widget.getQueryResult();
-    const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
-    const { refreshClickButtonId } = this.state;
-    return (
-      <>
-        {(!isPublic && !!widgetQueryResult) && (
-          <a
-            className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
-            onClick={() => this.refreshWidget(1)}
-            data-test="RefreshButton"
-          >
-            <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
-            <TimeAgo date={updatedAt} />
-          </a>
-        )}
-        <span className="visible-print">
-          <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
-        </span>
-        {isPublic ? (
-          <span className="small hidden-print">
-            <i className="zmdi zmdi-time-restore" />{' '}<TimeAgo date={updatedAt} />
-          </span>
-        ) : (
-          <a
-            className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
-            onClick={() => this.refreshWidget(2)}
-          >
-            <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
-          </a>
-        )}
-        <a
-          className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
-          onClick={this.expandWidget}
-        >
-          <i className="zmdi zmdi-fullscreen" />
-        </a>
-      </>
-    );
-  }
-
   render() {
-    const { widget } = this.props;
+    const { widget, isPublic } = this.props;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
@@ -235,7 +240,14 @@ class VisualizationWidget extends React.Component {
         className="widget-visualization"
         menuOptions={VisualizationWidgetMenuOptions}
         header={<VisualizationWidgetHeader widget={widget} onParametersUpdate={this.refreshWidget} />}
-        footer={this.renderBottom()}
+        footer={(
+          <VisualizationWidgetFooter
+            widget={widget}
+            isPublic={isPublic}
+            onRefresh={() => this.loadWidget(true)}
+            onExpand={this.expandWidget}
+          />
+        )}
         refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
       >
         {this.renderVisualization()}
