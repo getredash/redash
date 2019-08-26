@@ -1,14 +1,37 @@
 .label {
-    border-radius: 1px;
-    padding: 4px 5px 3px;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    .label {
-        border-radius: 2px;
-    }
+    border-radius: 2px;
+    padding: 3px 6px 4px;
+    font-weight: 500;
+    font-size: 11px;
 }
 
 .badge {
     border-radius: 1px;
+}
+
+.label-default {
+    background: fade(@redash-gray, 85%);
+}
+
+.label-tag-unpublished {
+    background: fade(@redash-gray, 85%);
+}
+
+.label-tag-archived {
+    .label-warning();
+}
+
+.label-tag {
+    background: fade(@redash-gray, 10%);
+    color: fade(@redash-gray, 75%);
+}
+
+.label-tag-unpublished,
+.label-tag-archived,
+.label-tag {
+    margin-right: 3px;
+    display: inline;
+    margin-top: 2px;
+    max-width: 24ch;
+    .text-overflow();
 }
