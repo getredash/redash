@@ -22,7 +22,7 @@ atsd_client==2.0.12
 simple_salesforce==0.72.2
 PyAthena>=1.5.0
 pymapd==0.7.1
-qds-sdk==1.13.0
+qds-sdk>=1.12.0
 ibm-db>=2.0.9
 pydruid==0.4
 requests_aws_sign==0.1.4
