@@ -5,7 +5,7 @@ import { head, includes, toString } from 'lodash';
 import cx from 'classnames';
 
 import { $route } from '@/services/ng';
-// import { currentUser } from '@/services/auth';
+import { currentUser } from '@/services/auth';
 import { Query } from '@/services/query';
 import navigateTo from '@/services/navigateTo';
 import notification from '@/services/notification';
@@ -27,6 +27,7 @@ import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 
 import { STATE_CLASS } from '../alerts/AlertsList';
+import { EditInPlace } from '../../components/EditInPlace';
 
 const NEW_ALERT_ID = 'new';
 
@@ -287,7 +288,7 @@ class AlertPage extends React.Component {
     alert: null,
     queryResult: null,
     pendingRearm: null,
-    // editable: false,
+    editable: false,
   }
 
   componentDidMount() {
@@ -301,7 +302,7 @@ class AlertPage extends React.Component {
           },
           pendingRearm: 0,
         }),
-        // editable: true,
+        editable: true,
       });
     } else {
       const { alertId } = $route.current.params;
@@ -309,7 +310,7 @@ class AlertPage extends React.Component {
         this.setState({
           alert,
           pendingRearm: alert.rearm,
-          // editable: currentUser.canEdit(alert),
+          editable: currentUser.canEdit(alert),
         });
         this.onQuerySelected(alert.query);
       });
@@ -350,6 +351,13 @@ class AlertPage extends React.Component {
     this.setState({
       alert: Object.assign(alert, { options }),
     });
+  }
+
+  setName = (name) => {
+    const { alert } = this.state;
+    this.setState({
+      alert: Object.assign(alert, { name }),
+    }, () => this.save());
   }
 
   save = () => {
@@ -433,9 +441,14 @@ class AlertPage extends React.Component {
 
     return (
       <div className="container alert-page">
-        <PageHeader title={name || this.getDefaultName()}>
-          {alert.state && <AlertState state={alert.state} />}
-        </PageHeader>
+        <div className="p-b-10 m-l-0 m-r-0 page-header--new">
+          <div className="page-title p-0">
+            <h3>
+              <EditInPlace isEditable={this.state.editable} onDone={this.setName} ignoreBlanks value={name || this.getDefaultName()} editor="input" />
+              {alert.state && <AlertState state={alert.state} />}
+            </h3>
+          </div>
+        </div>
         <SetupInstructions />
         <div className="row bg-white tiled p-10">
           <div className="col-md-8">
