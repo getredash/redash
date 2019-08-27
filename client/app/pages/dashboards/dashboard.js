@@ -139,8 +139,10 @@ function DashboardCtrl(
 
   const collectFilters = (dashboard, forceRefresh, updatedParameters = []) => {
     const affectedWidgets = updatedParameters.length > 0 ? this.dashboard.widgets.filter(
-      widget => widget.getQuery() && widget.getQuery().getParametersDefs().some(
-        ({ name }) => updatedParameters.map(p => p.name).includes(name),
+      widget => Object.values(widget.getParameterMappings()).filter(
+        ({ type }) => type === 'dashboard-level',
+      ).some(
+        ({ mapTo }) => updatedParameters.map(p => p.name).includes(mapTo),
       ),
     ) : this.dashboard.widgets;
 
