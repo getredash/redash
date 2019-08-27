@@ -5,6 +5,7 @@ from random import randint
 from redash import redis_connection, settings
 from redash.tasks import (sync_user_details, refresh_queries,
                           empty_schedules, refresh_schemas,
+                          cleanup_query_results,
                           version_check, send_aggregated_errors)
 
 from click import argument
@@ -52,6 +53,11 @@ def scheduler():
             minute=randint(0, 59),
             hour=randint(0, 23)),
             func=version_check)
+
+    if settings.QUERY_RESULTS_CLEANUP_ENABLED:
+        scheduler.schedule(scheduled_time=datetime.utcnow(),
+                           func=cleanup_query_results,
+                           interval=5 * MINUTES)
 
     scheduler.run()
 

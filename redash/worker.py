@@ -23,12 +23,6 @@ celery = Celery('redash',
 celery_schedule = {
 }
 
-if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-    celery_schedule['cleanup_query_results'] = {
-        'task': 'redash.tasks.cleanup_query_results',
-        'schedule': timedelta(minutes=5)
-    }
-
 celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,

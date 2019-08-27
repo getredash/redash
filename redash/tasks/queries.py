@@ -229,7 +229,6 @@ def refresh_queries():
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
 
-@celery.task(name="redash.tasks.cleanup_query_results")
 def cleanup_query_results():
     """
     Job to cleanup unused query results -- such that no query links to them anymore, and older than
