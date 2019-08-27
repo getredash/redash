@@ -74,7 +74,7 @@ function VisualizationWidgetHeader({ widget, parameters, onParametersUpdate }) {
         </div>
       </div>
       {!isEmpty(parameters) && (
-        <div className="m-b-5">
+        <div className="m-b-10">
           <Parameters parameters={parameters} onValuesChange={onParametersUpdate} />
         </div>
       )}
