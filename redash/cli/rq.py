@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
 
 from redash import redis_connection, settings
@@ -13,9 +13,6 @@ from flask.cli import AppGroup
 from rq import Connection, Worker
 from rq_scheduler import Scheduler
 
-SECONDS = 1
-MINUTES = 60 * SECONDS
-
 manager = AppGroup(help="RQ management commands.")
 
 
@@ -25,27 +22,18 @@ def scheduler():
                           queue_name="periodic_jobs",
                           interval=5)
 
-    scheduler.schedule(scheduled_time=datetime.utcnow(),
-                       func=refresh_queries,
-                       interval=30 * SECONDS)
+    def schedule(func, **kwargs):
+        kwargs['interval'] = kwargs['interval'].seconds if isinstance(kwargs['interval'], timedelta) else kwargs['interval']
+        scheduler.schedule(scheduled_time=datetime.utcnow(), func=func, **kwargs)
 
-    scheduler.schedule(scheduled_time=datetime.utcnow(),
-                       func=empty_schedules,
-                       interval=60 * MINUTES)
+    schedule(refresh_queries, interval=30)
+    schedule(empty_schedules, interval=timedelta(minutes=60))
+    schedule(refresh_schemas, interval=timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE))
+    schedule(sync_user_details, timeout=60, ttl=45, interval=timedelta(minutes=1))
+    schedule(send_aggregated_errors, interval=timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL))
 
-    scheduler.schedule(scheduled_time=datetime.utcnow(),
-                       func=refresh_schemas,
-                       interval=settings.SCHEMAS_REFRESH_SCHEDULE * MINUTES)
-
-    scheduler.schedule(scheduled_time=datetime.utcnow(),
-                       func=sync_user_details,
-                       timeout=60 * SECONDS,
-                       ttl=45 * SECONDS,
-                       interval=1 * MINUTES)
-
-    scheduler.schedule(scheduled_time=datetime.utcnow(),
-                       func=send_aggregated_errors,
-                       interval=settings.SEND_FAILURE_EMAIL_INTERVAL * MINUTES)
+    if settings.QUERY_RESULTS_CLEANUP_ENABLED:
+        schedule(cleanup_query_results, interval=timedelta(minutes=5))
 
     if settings.VERSION_CHECK:
         # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users evenly.
@@ -53,11 +41,6 @@ def scheduler():
             minute=randint(0, 59),
             hour=randint(0, 23)),
             func=version_check)
-
-    if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-        scheduler.schedule(scheduled_time=datetime.utcnow(),
-                           func=cleanup_query_results,
-                           interval=5 * MINUTES)
 
     scheduler.run()
 
