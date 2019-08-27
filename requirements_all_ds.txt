@@ -31,3 +31,4 @@ phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi
 pydgraph==1.2.0
+azure-kusto-data==0.0.32

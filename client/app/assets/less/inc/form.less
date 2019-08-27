@@ -55,13 +55,16 @@ textarea.v-resizable {
     .transition-duration(300ms);
     resize: none;
     box-shadow: 0 0 0 40px rgba(0, 0, 0, 0) !important;
-    border-radius: 0;
+    border-radius: @redash-input-radius;
 
     &:focus {
-        box-shadow: 0 0 1px -2px rgba(121,194,255,0.5) !important;
+        box-shadow: none !important;
+        border-color: @blue;
+    }
+    &:hover {
+        border-color: @blue;
     }
 }
-
 
 /* --------------------------------------------------------
     Custom Checkbox + Radio
