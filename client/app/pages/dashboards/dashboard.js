@@ -142,7 +142,7 @@ function DashboardCtrl(
       widget => Object.values(widget.getParameterMappings()).filter(
         ({ type }) => type === 'dashboard-level',
       ).some(
-        ({ mapTo }) => updatedParameters.map(p => p.name).includes(mapTo),
+        ({ mapTo }) => _.includes(updatedParameters.map(p => p.name), mapTo),
       ),
     ) : this.dashboard.widgets;
 
