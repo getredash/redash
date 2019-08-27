@@ -13,7 +13,7 @@ import './Widget.less';
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, ...otherProps }) {
   const WidgetMenu = (
-    <Menu {...otherProps}>
+    <Menu {...otherProps} data-test="WidgetDropdownButtonMenu">
       {extraOptions}
       {(showDeleteOption && extraOptions) && <Menu.Divider />}
       {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
@@ -27,7 +27,9 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, ...oth
         placement="bottomRight"
         trigger={['click']}
       >
-        <a className="action p-l-15 p-r-15"><i className="zmdi zmdi-more-vert" /></a>
+        <a className="action p-l-15 p-r-15" data-test="WidgetDropdownButton">
+          <i className="zmdi zmdi-more-vert" />
+        </a>
       </Dropdown>
     </div>
   );
@@ -48,7 +50,7 @@ WidgetDropdownButton.defaultProps = {
 function WidgetDeleteButton({ onClick }) {
   return (
     <div className="widget-menu-remove">
-      <a className="action" title="Remove From Dashboard" onClick={onClick}>
+      <a className="action" title="Remove From Dashboard" onClick={onClick} data-test="WidgetDeleteButton">
         <i className="zmdi zmdi-close" />
       </a>
     </div>

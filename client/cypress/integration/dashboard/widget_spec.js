@@ -12,6 +12,10 @@ describe('Widget', () => {
     });
   });
 
+  const confirmDelete = () => {
+    cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
+  };
+
   it('adds widget', function () {
     createQuery().then(({ id: queryId }) => {
       cy.visit(this.dashboardUrl);
@@ -32,9 +36,11 @@ describe('Widget', () => {
       editDashboard();
       cy.getByTestId(elTestId)
         .within(() => {
-          cy.get('.widget-menu-remove').click();
-        })
-        .should('not.exist');
+          cy.getByTestId('WidgetDeleteButton').click();
+        });
+
+      confirmDelete();
+      cy.getByTestId(elTestId).should('not.exist');
     });
   });
 

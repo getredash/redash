@@ -4,7 +4,6 @@ import { compact, isEmpty, invoke } from 'lodash';
 import { markdown } from 'markdown';
 import classNames from 'classnames';
 import Menu from 'antd/lib/menu';
-import Modal from 'antd/lib/modal';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import { $location } from '@/services/ng';
@@ -193,22 +192,10 @@ class VisualizationWidget extends React.Component {
     });
   };
 
+  refreshWidget = () => this.loadWidget(true);
+
   expandWidget = () => {
     ExpandedWidgetDialog.showModal({ widget: this.props.widget });
-  };
-
-  deleteWidget = () => {
-    const { widget, onDelete } = this.props;
-
-    Modal.confirm({
-      title: 'Delete Widget',
-      content: 'Are you sure you want to remove this widget from the dashboard?',
-      okText: 'Delete',
-      okType: 'danger',
-      onOk: () => widget.delete().then(onDelete),
-      maskClosable: true,
-      autoFocusButton: null,
-    });
   };
 
   editParameterMappings = () => {
@@ -285,7 +272,7 @@ class VisualizationWidget extends React.Component {
           <VisualizationWidgetFooter
             widget={widget}
             isPublic={isPublic}
-            onRefresh={() => this.loadWidget(true)}
+            onRefresh={this.refreshWidget}
             onExpand={this.expandWidget}
           />
         )}
