@@ -53,8 +53,6 @@ celery = Celery('redash',
 celery_schedule = {
 }
 
-celery_schedule.update(settings.dynamic_settings.custom_tasks())
-
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    timezone='UTC',
                    result_expires=settings.CELERY_RESULT_EXPIRES,
