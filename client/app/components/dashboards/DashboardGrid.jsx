@@ -4,7 +4,6 @@ import { chain, cloneDeep, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-// import { DashboardWidget } from '@/components/dashboards/widget';
 import { VisualizationWidget, TextboxWidget } from '@/components/dashboards/dashboard-widget';
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
@@ -44,6 +43,7 @@ class DashboardGrid extends React.Component {
     onBreakpointChange: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
+    onParameterMappingsChange: PropTypes.func,
     // Force component update when widgets are refreshing.
     // Remove this when Dashboard is migrated to React
     refreshingWidgets: PropTypes.number, // eslint-disable-line react/no-unused-prop-types
@@ -55,6 +55,7 @@ class DashboardGrid extends React.Component {
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
+    onParameterMappingsChange: () => {},
     refreshingWidgets: 0,
   };
 
@@ -173,7 +174,7 @@ class DashboardGrid extends React.Component {
 
   render() {
     const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
-    const { onRemoveWidget, filters, dashboard, isPublic, widgets } = this.props;
+    const { onRemoveWidget, onParameterMappingsChange, filters, dashboard, isPublic, widgets } = this.props;
 
     return (
       <div className={className}>
@@ -192,7 +193,13 @@ class DashboardGrid extends React.Component {
           breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
         >
           {widgets.map((widget) => {
-            const WidgetComponent = widget.visualization ? VisualizationWidget : TextboxWidget;
+            const widgetProps = {
+              widget,
+              filters,
+              isPublic,
+              canEdit: dashboard.canEdit(),
+              onDelete: () => onRemoveWidget(widget.id),
+            };
             return (
               <div
                 key={widget.id}
@@ -201,13 +208,13 @@ class DashboardGrid extends React.Component {
                 data-test={`WidgetId${widget.id}`}
                 className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
               >
-                <WidgetComponent
-                  widget={widget}
-                  filters={filters}
-                  canEdit={dashboard.canEdit()}
-                  isPublic={isPublic}
-                  onDelete={() => onRemoveWidget(widget.id)}
-                />
+                {widget.visualization ? (
+                  <VisualizationWidget
+                    {...widgetProps}
+                    dashboard={dashboard}
+                    onParameterMappingsChange={onParameterMappingsChange}
+                  />
+                ) : <TextboxWidget {...widgetProps} />}
               </div>
             );
           })}

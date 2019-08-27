@@ -243,6 +243,13 @@ function WidgetFactory($http, $location, Query) {
 
       return this.options.parameterMappings;
     }
+
+    getLocalParameters() {
+      return filter(
+        this.getParametersDefs(),
+        param => !this.isStaticParam(param),
+      );
+    }
   }
 
   return WidgetService;
