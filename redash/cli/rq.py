@@ -31,6 +31,9 @@ def scheduler():
     schedule(refresh_schemas, interval=timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE))
     schedule(sync_user_details, timeout=60, ttl=45, interval=timedelta(minutes=1))
     schedule(send_aggregated_errors, interval=timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL))
+    
+    for (func, kwargs) in settings.dynamic_settings.custom_tasks().iteritems():
+        schedule(func, **kwargs)
 
     if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         schedule(cleanup_query_results, interval=timedelta(minutes=5))
