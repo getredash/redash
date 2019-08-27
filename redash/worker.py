@@ -1,11 +1,9 @@
 from __future__ import absolute_import
 from datetime import timedelta
-from random import randint
 
 from flask import current_app
 
 from celery import Celery
-from celery.schedules import crontab
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
 
@@ -24,14 +22,6 @@ celery = Celery('redash',
 # The internal periodic Celery tasks to automatically schedule.
 celery_schedule = {
 }
-
-if settings.VERSION_CHECK:
-    celery_schedule['version_check'] = {
-        'task': 'redash.tasks.version_check',
-        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
-        # evenly.
-        'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
-    }
 
 if settings.QUERY_RESULTS_CLEANUP_ENABLED:
     celery_schedule['cleanup_query_results'] = {

@@ -29,7 +29,6 @@ def record_event(raw_event):
             logger.exception("Failed posting to %s", hook)
 
 
-@celery.task(name="redash.tasks.version_check")
 def version_check():
     run_version_check()
 

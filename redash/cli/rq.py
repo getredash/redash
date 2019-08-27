@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 from datetime import datetime
+from random import randint
 
 from redash import redis_connection, settings
 from redash.tasks import (sync_user_details, refresh_queries,
                           empty_schedules, refresh_schemas,
-                          send_aggregated_errors)
+                          version_check, send_aggregated_errors)
 
 from click import argument
 from flask.cli import AppGroup
@@ -44,6 +45,13 @@ def scheduler():
     scheduler.schedule(scheduled_time=datetime.utcnow(),
                        func=send_aggregated_errors,
                        interval=settings.SEND_FAILURE_EMAIL_INTERVAL * MINUTES)
+
+    if settings.VERSION_CHECK:
+        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users evenly.
+        scheduler.cron('{minute} {hour} * * *'.format(
+            minute=randint(0, 59),
+            hour=randint(0, 23)),
+            func=version_check)
 
     scheduler.run()
 
