@@ -113,7 +113,12 @@ function WidgetFactory($http, $location, Query) {
     }
 
     getType() {
-      return this.visualization ? 'visualization' : 'textbox';
+      if (this.visualization) {
+        return 'visualization';
+      } else if (this.restricted) {
+        return 'restricted';
+      }
+      return 'textbox';
     }
 
     load(force, maxAge) {

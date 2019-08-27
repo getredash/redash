@@ -59,21 +59,6 @@ function visualizationWidgetMenuOptions(widget, canEditDashboard, onParametersEd
   ]);
 }
 
-function RestrictedWidget(props) {
-  return (
-    <Widget {...props} className="d-flex justify-content-center align-items-center widget-restricted">
-      <div className="t-body scrollbox">
-        <div className="text-center">
-          <h1><span className="zmdi zmdi-lock" /></h1>
-          <p className="text-muted">
-            {'This widget requires access to a data source you don\'t have access to.'}
-          </p>
-        </div>
-      </div>
-    </Widget>
-  );
-}
-
 function VisualizationWidgetHeader({ widget, parameters, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission('view_query');
 
@@ -284,7 +269,7 @@ class VisualizationWidget extends React.Component {
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
 
-    return !widget.restricted ? (
+    return (
       <Widget
         {...this.props}
         className="widget-visualization"
@@ -308,7 +293,7 @@ class VisualizationWidget extends React.Component {
       >
         {this.renderVisualization()}
       </Widget>
-    ) : <RestrictedWidget widget={widget} />;
+    );
   }
 }
 

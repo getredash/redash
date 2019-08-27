@@ -7,7 +7,7 @@ import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import Widget from './Widget';
 
 function TextboxWidget(props) {
-  const { widget } = props;
+  const { widget, canEdit } = props;
   const [text, setText] = useState(widget.text);
 
   const editTextBox = () => {
@@ -30,7 +30,7 @@ function TextboxWidget(props) {
   }
 
   return (
-    <Widget {...props} menuOptions={TextboxMenuOptions} className="widget-text">
+    <Widget {...props} menuOptions={canEdit ? TextboxMenuOptions : null} className="widget-text">
       <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
         {markdown.toHTML(text || '')}
       </HtmlContent>
@@ -41,12 +41,10 @@ function TextboxWidget(props) {
 TextboxWidget.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   canEdit: PropTypes.bool,
-  onDelete: PropTypes.func,
 };
 
 TextboxWidget.defaultProps = {
   canEdit: false,
-  onDelete: () => {},
 };
 
 export default TextboxWidget;

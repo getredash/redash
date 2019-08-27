@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import { isEmpty } from 'lodash';
 import Dropdown from 'antd/lib/dropdown';
 import Modal from 'antd/lib/modal';
 import Menu from 'antd/lib/menu';
@@ -117,12 +118,12 @@ class Widget extends React.Component {
 
   render() {
     const { className, children, header, footer, canEdit, isPublic, refreshStartedAt, menuOptions } = this.props;
-
+    const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
         <div className={cx('tile body-container', className)} data-refreshing={!!refreshStartedAt}>
           <div className="widget-actions">
-            {!isPublic && (
+            {showDropdownButton && (
               <WidgetDropdownButton
                 extraOptions={menuOptions}
                 showDeleteOption={canEdit}

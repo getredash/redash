@@ -4,7 +4,7 @@ import { chain, cloneDeep, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { VisualizationWidget, TextboxWidget } from '@/components/dashboards/dashboard-widget';
+import { VisualizationWidget, TextboxWidget, RestrictedWidget } from '@/components/dashboards/dashboard-widget';
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 import AutoHeightController from './AutoHeightController';
@@ -208,13 +208,15 @@ class DashboardGrid extends React.Component {
                 data-test={`WidgetId${widget.id}`}
                 className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
               >
-                {widget.visualization ? (
+                {widget.getType() === 'visualization' && (
                   <VisualizationWidget
                     {...widgetProps}
                     dashboard={dashboard}
                     onParameterMappingsChange={onParameterMappingsChange}
                   />
-                ) : <TextboxWidget {...widgetProps} />}
+                )}
+                {widget.getType() === 'textbox' && <TextboxWidget {...widgetProps} />}
+                {widget.getType() === 'restricted' && <RestrictedWidget widget={widget} />}
               </div>
             );
           })}
