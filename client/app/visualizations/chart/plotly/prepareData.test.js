@@ -67,6 +67,64 @@ describe('Visualizations', () => {
           expect(series).toEqual(output.series);
         });
       });
+
+      describe('bar (column)', () => {
+        test('default', () => {
+          const { input, output } = require('./fixtures/prepareData/bar/default');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('stacked', () => {
+          const { input, output } = require('./fixtures/prepareData/bar/stacked');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('normalized values', () => {
+          const { input, output } = require('./fixtures/prepareData/bar/normalized');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+      });
+
+      describe('lines & area', () => {
+        test('default', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/default');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('stacked', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/stacked');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('normalized values', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/normalized');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('stacked & normalized values', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/normalized-stacked');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('keep missing values', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/keep-missing-values');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('convert missing values to 0', () => {
+          const { input, output } = require('./fixtures/prepareData/line-area/missing-values-0');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+      });
     });
   });
 });
