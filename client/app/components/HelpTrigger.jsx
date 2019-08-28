@@ -68,9 +68,9 @@ export const TYPES = {
     '/user-guide/alerts/setting-up-an-alert',
     'Guide: Setting Up a New Alert',
   ],
-  ALERT_SCHEDULE: [
-    '/user-guide/alerts/setting-up-an-alert#schedule',
-    'Guide: Scheduling queries for Alerts',
+  ALERT_NOTIF_TEMPLATE_GUIDE: [
+    '/user-guide/alerts/custom-alert-template', // TODO: doesn't exist yet
+    'Guide: Custom Alerts Notifications',
   ],
   MAIL_CONFIG: [
     '/open-source/setup/#Mail-Configuration',

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { head, includes, toString } from 'lodash';
 import cx from 'classnames';
+import Mustache from 'mustache';
 
 import { $route } from '@/services/ng';
 import { currentUser } from '@/services/auth';
@@ -19,15 +20,18 @@ import AlertDestinations from '@/components/alerts/AlertDestinations';
 import LoadingState from '@/components/items-list/components/LoadingState';
 
 import Form from 'antd/lib/form';
+import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import Button from 'antd/lib/button';
 import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
+import Switch from 'antd/lib/switch';
 
 import { STATE_CLASS } from '../alerts/AlertsList';
 import { EditInPlace } from '../../components/EditInPlace';
+
 
 const NEW_ALERT_ID = 'new';
 
@@ -283,6 +287,95 @@ function SetupInstructions() {
   );
 }
 
+function normalizeCustomTemplateData(alert, query, queryResult = {}) {
+  const resultValues = queryResult.getData();
+  const topValue = resultValues && head(resultValues)[alert.options.column];
+
+  return {
+    ALERT_STATUS: 'TRIGGERED',
+    ALERT_TIME: new Date(),
+    ALERT_CONDITION: alert.options.op,
+    ALERT_THRESHOLD: alert.options.value,
+    ALERT_NAME: alert.name,
+    ALERT_URL: `${window.location.origin}/alerts/${alert.id}`,
+    QUERY_NAME: query.name,
+    QUERY_URL: `${window.location.origin}/queries/${query.id}`,
+    QUERY_RESULT_VALUE: topValue,
+    QUERY_RESULT_ROWS: queryResult.rows,
+    QUERY_RESULT_COLS: queryResult.cols,
+  };
+}
+
+function CustomTemplate({ renderData, subject, setSubject, body, setBody }) {
+  const hasContent = !!(subject || body);
+  const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const render = tmpl => Mustache.render(tmpl || '', renderData);
+  const onEnabledChange = (value) => {
+    if (value || !hasContent) {
+      setEnabled(value);
+      setShowPreview(false);
+    } else {
+      Modal.confirm({
+        title: 'Are you sure?',
+        content: 'Switching to default template will discard your custom template.',
+        onOk: () => {
+          setSubject(null);
+          setBody(null);
+          setEnabled(value);
+          setShowPreview(false);
+        },
+        maskClosable: true,
+        autoFocusButton: null,
+      });
+    }
+  };
+
+  return (
+    <HorizontalFormItem label="Template">
+      <div className="alert-template">
+        <Select
+          value={enabled}
+          onChange={onEnabledChange}
+          optionLabelProp="label"
+          dropdownMatchSelectWidth={false}
+          style={{ width: 'fit-content' }}
+        >
+          <Select.Option value={0} label="Use default template">
+            Default template
+          </Select.Option>
+          <Select.Option value={1} label="Use custom template">
+            Custom template
+          </Select.Option>
+        </Select>
+        {!!enabled && (
+          <div className="alert-custom-template">
+            <div className="d-flex align-items-center">
+              <h5 className="flex-fill">Subject / Body</h5>
+              Preview <Switch size="small" className="alert-template-preview" value={showPreview} onChange={setShowPreview} />
+            </div>
+            <Input
+              value={showPreview ? render(subject) : subject}
+              onChange={e => setSubject(e.target.value)}
+              disabled={showPreview}
+            />
+            <Input.TextArea
+              value={showPreview ? render(body) : body}
+              autosize={{ minRows: 5 }}
+              onChange={e => setBody(e.target.value)}
+              disabled={showPreview}
+            />
+            <HelpTrigger type="ALERT_NOTIF_TEMPLATE_GUIDE" className="f-13">
+              <i className="fa fa-question-circle" /> Formatting guide
+            </HelpTrigger>
+          </div>
+        )}
+      </div>
+    </HorizontalFormItem>
+  );
+}
+
 class AlertPage extends React.Component {
   state = {
     alert: null,
@@ -345,6 +438,14 @@ class AlertPage extends React.Component {
     this.setState({ pendingRearm });
   }
 
+  onTemplateSubjectChange = (event) => {
+    this.setAlertOptions({ subject: event.target.value });
+  }
+
+  onTemplateBodyChange = (event) => {
+    this.setAlertOptions({ template: event.target.value });
+  }
+
   setAlertOptions = (obj) => {
     const { alert } = this.state;
     const options = { ...alert.options, ...obj };
@@ -354,6 +455,7 @@ class AlertPage extends React.Component {
   }
 
   setName = (name) => {
+    // TODO templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
@@ -366,6 +468,7 @@ class AlertPage extends React.Component {
     if (alert.name === undefined || alert.name === '') {
       alert.name = this.getDefaultName();
     }
+
     alert.rearm = pendingRearm || null;
 
     alert.$save().then(() => {
@@ -452,8 +555,8 @@ class AlertPage extends React.Component {
         <SetupInstructions />
         <div className="row bg-white tiled p-10">
           <div className="col-md-8">
-            <h4>Criteria</h4>
             <Form>
+              <h4>Criteria</h4>
               <QueryFormItem showHint query={query} onChange={this.onQuerySelected} />
               {query && !queryResult && (
                 <HorizontalFormItem className="m-t-30">
@@ -468,7 +571,15 @@ class AlertPage extends React.Component {
                     alertOptions={options}
                     onChange={this.setAlertOptions}
                   />
+                  <h4 style={{ marginTop: 40, marginBottom: 17 }}>Notifications</h4>
                   <Rearm value={pendingRearm} onChange={this.onRearmChange} />
+                  <CustomTemplate
+                    renderData={normalizeCustomTemplateData(alert, query, queryResult)}
+                    subject={options.subject}
+                    setSubject={subject => this.setAlertOptions({ subject })}
+                    body={options.template}
+                    setBody={template => this.setAlertOptions({ template })}
+                  />
                   <HorizontalFormItem>
                     <Button type="primary" onClick={this.save}>Save</Button>{' '}
                     <Button type="danger" onClick={this.delete}>Delete Alert</Button>
