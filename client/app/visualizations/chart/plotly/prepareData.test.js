@@ -143,7 +143,17 @@ describe('Visualizations', () => {
       });
 
       describe('box', () => {
+        test('default', () => {
+          const { input, output } = require('./fixtures/prepareData/box/default');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
 
+        test('with points', () => {
+          const { input, output } = require('./fixtures/prepareData/box/with-points');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
       });
     });
   });
