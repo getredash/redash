@@ -1,5 +1,4 @@
 {
-  "name": "Multiple series: groupped",
   "input": {
     "data": [
       { "a": 42, "b": 10, "g": "first" },

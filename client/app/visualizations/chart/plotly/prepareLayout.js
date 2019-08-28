@@ -1,5 +1,4 @@
 import { filter, has, isNumber, isObject, isUndefined, map, max, min } from 'lodash';
-import { getSeriesAxis } from './utils';
 import { getPieDimensions } from './preparePieData';
 
 function getAxisTitle(axis) {
@@ -60,15 +59,15 @@ function prepareYAxis(axisOptions, additionalOptions, data) {
   return axis;
 }
 
-function preparePieLayout(layout, seriesList, options) {
+function preparePieLayout(layout, options, data) {
   const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
 
-  const { cellsInRow, cellWidth, cellHeight, xPadding } = getPieDimensions(seriesList);
+  const { cellsInRow, cellWidth, cellHeight, xPadding } = getPieDimensions(data);
 
   if (hasName) {
     layout.annotations = [];
   } else {
-    layout.annotations = filter(map(seriesList, (series, index) => {
+    layout.annotations = filter(map(data, (series, index) => {
       const xPosition = (index % cellsInRow) * cellWidth;
       const yPosition = Math.floor(index / cellsInRow) * cellHeight;
       return {
@@ -76,7 +75,7 @@ function preparePieLayout(layout, seriesList, options) {
         y: yPosition + cellHeight - 0.015,
         xanchor: 'center',
         yanchor: 'top',
-        text: (options.seriesOptions[series.name] || {}).name || series.name,
+        text: series.name,
         showarrow: false,
       };
     }));
@@ -85,14 +84,15 @@ function preparePieLayout(layout, seriesList, options) {
   return layout;
 }
 
-function prepareDefaultLayout(layout, seriesList, options, data) {
-  const hasY2 = !!find(seriesList, series => getSeriesAxis(series, options) === 'y2');
+function prepareDefaultLayout(layout, options, data) {
+  const ySeries = data.filter(s => s.yaxis !== 'y2');
+  const y2Series = data.filter(s => s.yaxis === 'y2');
 
   layout.xaxis = prepareXAxis(options.xAxis, options);
 
-  layout.yaxis = prepareYAxis(options.yAxis[0], options, data.filter(s => s.yaxis !== 'y2'));
-  if (hasY2) {
-    layout.yaxis2 = prepareYAxis(options.yAxis[1], options, data.filter(s => s.yaxis === 'y2'));
+  layout.yaxis = prepareYAxis(options.yAxis[0], options, ySeries);
+  if (y2Series.length > 0) {
+    layout.yaxis2 = prepareYAxis(options.yAxis[1], options, y2Series);
     layout.yaxis2.overlaying = 'y';
     layout.yaxis2.side = 'right';
   }
@@ -104,14 +104,14 @@ function prepareDefaultLayout(layout, seriesList, options, data) {
   return layout;
 }
 
-function prepareBoxLayout(layout, seriesList, options, data) {
-  layout = prepareDefaultLayout(layout, seriesList, options, data);
+function prepareBoxLayout(layout, options, data) {
+  layout = prepareDefaultLayout(layout, options, data);
   layout.boxmode = 'group';
   layout.boxgroupgap = 0.50;
   return layout;
 }
 
-export default function prepareLayout(element, seriesList, options, data) {
+export default function prepareLayout(element, options, data) {
   const layout = {
     margin: { l: 10, r: 10, b: 10, t: 25, pad: 4 },
     width: Math.floor(element.offsetWidth),
@@ -121,8 +121,8 @@ export default function prepareLayout(element, seriesList, options, data) {
   };
 
   switch (options.globalSeriesType) {
-    case 'pie': return preparePieLayout(layout, seriesList, options, data);
-    case 'box': return prepareBoxLayout(layout, seriesList, options, data);
-    default: return prepareDefaultLayout(layout, seriesList, options, data);
+    case 'pie': return preparePieLayout(layout, options, data);
+    case 'box': return prepareBoxLayout(layout, options, data);
+    default: return prepareDefaultLayout(layout, options, data);
   }
 }

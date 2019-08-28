@@ -1,5 +1,4 @@
 {
-  "name": "Multiple series: multipple Y mappings",
   "input": {
     "data": [
       { "a": 42, "b": 10, "c": 41, "d": 92 },

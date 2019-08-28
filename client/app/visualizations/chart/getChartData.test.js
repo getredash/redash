@@ -1,22 +1,32 @@
-import fs from 'fs';
-import path from 'path';
+/* eslint-disable global-require, import/no-unresolved */
 import getChartData from './getChartData';
 
-function loadFixtures(directoryName) {
-  directoryName = path.join(__dirname, directoryName);
-  const fileNames = fs.readdirSync(directoryName);
-  return fileNames.map((fileName) => {
-    const str = fs.readFileSync(path.join(directoryName, fileName));
-    return JSON.parse(str);
-  });
-}
+describe('Visualizations', () => {
+  describe('Chart', () => {
+    describe('getChartData', () => {
+      test('Single series', () => {
+        const { input, output } = require('./fixtures/getChartData/single-series');
+        const data = getChartData(input.data, input.options);
+        expect(data).toEqual(output.data);
+      });
 
-describe('Visualizations - getChartData', () => {
-  const fixtures = loadFixtures('fixtures/getChartData');
-  fixtures.forEach(({ name, input, output }) => {
-    test(name, () => {
-      const data = getChartData(input.data, input.options);
-      expect(data).toEqual(output.data);
+      test('Multiple series: multipple Y mappings', () => {
+        const { input, output } = require('./fixtures/getChartData/multiple-series-multiple-y');
+        const data = getChartData(input.data, input.options);
+        expect(data).toEqual(output.data);
+      });
+
+      test('Multiple series: groupped', () => {
+        const { input, output } = require('./fixtures/getChartData/multiple-series-grouped');
+        const data = getChartData(input.data, input.options);
+        expect(data).toEqual(output.data);
+      });
+
+      test('Multiple series: sorted', () => {
+        const { input, output } = require('./fixtures/getChartData/multiple-series-sorted');
+        const data = getChartData(input.data, input.options);
+        expect(data).toEqual(output.data);
+      });
     });
   });
 });

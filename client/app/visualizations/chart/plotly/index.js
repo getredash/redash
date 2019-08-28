@@ -40,7 +40,7 @@ const PlotlyChart = () => ({
       }
 
       data = prepareData(scope.series, scope.options);
-      layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
+      layout = prepareLayout(plotlyElement, scope.options, data);
 
       // It will auto-purge previous graph
       Plotly.newPlot(plotlyElement, data, layout, plotlyOptions).then(() => {
