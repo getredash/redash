@@ -1,4 +1,4 @@
-import { map, max, uniq, sortBy, flatten } from 'lodash';
+import { map, max, uniq, sortBy, flatten, find } from 'lodash';
 import { createNumberFormatter } from '@/lib/value-format';
 
 const defaultColorScheme = [
