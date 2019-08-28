@@ -8,12 +8,6 @@ function cleanSeries(series) {
 describe('Visualizations', () => {
   describe('Chart', () => {
     describe('prepareData', () => {
-      test.skip('Template', () => {
-        const { input, output } = require('./fixtures/prepareData/template');
-        const series = prepareData(input.data, input.options);
-        expect(series).toEqual(output.series);
-      });
-
       describe('heatmap', () => {
         test('default', () => {
           const { input, output } = require('./fixtures/prepareData/heatmap/default');
@@ -124,6 +118,32 @@ describe('Visualizations', () => {
           const series = cleanSeries(prepareData(input.data, input.options));
           expect(series).toEqual(output.series);
         });
+      });
+
+      describe('scatter', () => {
+        test('default', () => {
+          const { input, output } = require('./fixtures/prepareData/scatter/default');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+
+        test('without labels', () => {
+          const { input, output } = require('./fixtures/prepareData/scatter/without-labels');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+      });
+
+      describe('bubble', () => {
+        test('default', () => {
+          const { input, output } = require('./fixtures/prepareData/bubble/default');
+          const series = cleanSeries(prepareData(input.data, input.options));
+          expect(series).toEqual(output.series);
+        });
+      });
+
+      describe('box', () => {
+
       });
     });
   });
