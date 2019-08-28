@@ -28,7 +28,7 @@ class Qubole(BaseQueryRunner):
                 "query_type": {
                     "type": "string",
                     "title": "Query Type (quantum / presto / hive)",
-                    "default": "quantum"
+                    "default": "hive"
                 },
                 "endpoint": {
                     "type": "string",
@@ -76,7 +76,7 @@ class Qubole(BaseQueryRunner):
                        api_url='%s/api' % self.configuration.get('endpoint'))
 
         try:
-            query_type = self.configuration.get('query_type')
+            query_type = self.configuration.get('query_type', 'hive')
 
             if query_type == 'quantum':
                 cmd = SqlCommand.create(query=query)
