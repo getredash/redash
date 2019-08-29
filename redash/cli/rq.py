@@ -49,7 +49,7 @@ def scheduler():
 
 
 @manager.command()
-@argument('queues')
+@argument('queues', nargs=-1)
 def worker(queues='default'):
     with Connection(redis_connection):
         w = Worker(queues)
