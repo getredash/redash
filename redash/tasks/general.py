@@ -5,7 +5,7 @@ from flask_mail import Message
 from redash import mail, models, settings
 from redash.models import users
 from redash.version_check import run_version_check
-from redash.worker import celery
+from redash.worker import celery, job
 
 logger = get_task_logger(__name__)
 
@@ -46,6 +46,7 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
+@job('default')
 def send_mail(to, subject, html, text):
     try:
         message = Message(recipients=to,

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 from datetime import timedelta
+from functools import partial
 
 from flask import current_app
 
@@ -7,11 +8,14 @@ from celery import Celery
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
 
-from redash import create_app, extensions, settings
+from rq.decorators import job as rq_job
+
+from redash import create_app, extensions, settings, redis_connection
 from redash.metrics import celery as celery_metrics  # noqa
 
 logger = get_logger(__name__)
 
+job = partial(rq_job, connection=redis_connection)
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,

@@ -7,13 +7,13 @@ from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from six import text_type
 
-from redash import models, redis_connection, settings, statsd_client, enqueue
+from redash import models, redis_connection, settings, statsd_client
 from redash.models.parameterized_query import InvalidParameterError, QueryDetachedFromDataSourceError
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import notify_of_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
-from redash.worker import celery
+from redash.worker import celery, job
 
 logger = get_task_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
@@ -248,7 +248,7 @@ def cleanup_query_results():
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 
-
+@job(settings.SCHEMAS_REFRESH_QUEUE)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
@@ -283,7 +283,7 @@ def refresh_schemas():
         elif ds.org.is_disabled:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
-            enqueue(settings.SCHEMAS_REFRESH_QUEUE, refresh_schema, ds.id)
+            refresh_schema.delay(ds.id)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
