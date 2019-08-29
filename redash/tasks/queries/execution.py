@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 import redis
-from rq import Queue
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
@@ -283,8 +282,7 @@ def refresh_schemas():
         elif ds.org.is_disabled:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
-            q = Queue(settings.SCHEMAS_REFRESH_QUEUE, connection=redis_connection)
-            q.enqueue(refresh_schema, ds.id)
+            enqueue(settings.SCHEMAS_REFRESH_QUEUE, refresh_schema, ds.id)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 

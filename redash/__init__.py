@@ -4,6 +4,7 @@ import os
 import sys
 
 import redis
+from rq import Queue
 from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
@@ -44,6 +45,10 @@ mail = Mail()
 migrate = Migrate()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
+
+def enqueue(queue, func, *args, **kwargs):
+    q = Queue(queue, connection=redis_connection)
+    return q.enqueue(func, *args, **kwargs)
 
 import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)
