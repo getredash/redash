@@ -34,7 +34,7 @@ rq_scheduler() {
   exec /app/manage.py rq scheduler
 }
 
-dev_rq_scheduler() {
+dev_scheduler() {
   echo "Starting dev RQ scheduler..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
