@@ -32,8 +32,7 @@ def record_event(raw_event):
 def version_check():
     run_version_check()
 
-
-@celery.task(name="redash.tasks.subscribe")
+@job('default')
 def subscribe(form):
     logger.info("Subscribing to: [security notifications=%s], [newsletter=%s]", form['security_notifications'], form['newsletter'])
     data = {
