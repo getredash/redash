@@ -70,7 +70,7 @@ def serialize_query_result_to_csv(query_result):
 
     query_data = json_loads(query_result.data)
 
-    fieldnames, special_columns = _get_column_lists(query_data['columns'])
+    fieldnames, special_columns = _get_column_lists(query_data['columns'] or [])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
     writer.writer = UnicodeWriter(s)

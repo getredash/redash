@@ -82,6 +82,7 @@
     "react-ace": "^6.1.0",
     "react-dom": "^16.8.3",
     "react-grid-layout": "git+https://github.com/getredash/react-grid-layout.git",
+    "react-sortable-hoc": "^1.9.1",
     "react2angular": "^3.2.1",
     "ui-select": "^0.19.8"
   },

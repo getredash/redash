@@ -506,4 +506,82 @@ describe('Parameter', () => {
       cy.getByTestId('ExecuteButton').should('not.be.disabled');
     });
   });
+
+  describe('Draggable', () => {
+    beforeEach(() => {
+      const queryData = {
+        name: 'Draggable',
+        query: "SELECT '{{param1}}', '{{param2}}', '{{param3}}', '{{param4}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'param1', title: 'Parameter 1', type: 'text' },
+            { name: 'param2', title: 'Parameter 2', type: 'text' },
+            { name: 'param3', title: 'Parameter 3', type: 'text' },
+            { name: 'param4', title: 'Parameter 4', type: 'text' },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+
+      cy.get('.parameter-block')
+        .first()
+        .invoke('width')
+        .as('paramWidth');
+    });
+
+    const dragParam = (paramName, offsetLeft, offsetTop) => {
+      cy.getByTestId(`DragHandle-${paramName}`)
+        .trigger('mouseover')
+        .trigger('mousedown');
+
+      cy.get('.parameter-dragged .drag-handle')
+        .trigger('mousemove', offsetLeft, offsetTop, { force: true })
+        .trigger('mouseup', { force: true });
+    };
+
+    it('is possible to rearrange parameters', function () {
+      dragParam('param1', this.paramWidth, 1);
+      dragParam('param4', -this.paramWidth, 1);
+
+      cy.reload();
+
+      const expectedOrder = ['Parameter 2', 'Parameter 1', 'Parameter 4', 'Parameter 3'];
+      cy.get('.parameter-container label')
+        .each(($label, index) => expect($label).to.have.text(expectedOrder[index]));
+    });
+  });
+
+  describe('Parameter Settings', () => {
+    beforeEach(() => {
+      const queryData = {
+        name: 'Draggable',
+        query: "SELECT '{{parameter}}' AS parameter",
+        options: {
+          parameters: [
+            { name: 'parameter', title: 'Parameter', type: 'text' },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then(({ id }) => cy.visit(`/queries/${id}/source`));
+
+      cy.getByTestId('ParameterSettings-parameter').click();
+    });
+
+    it('changes the parameter title', () => {
+      cy.getByTestId('ParameterTitleInput')
+        .type('{selectall}New Parameter Name');
+      cy.getByTestId('SaveParameterSettings')
+        .click();
+
+      cy.contains('Query saved');
+      cy.reload();
+
+      cy.getByTestId('ParameterName-parameter')
+        .contains('label', 'New Parameter Name');
+    });
+  });
 });

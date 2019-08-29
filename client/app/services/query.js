@@ -93,6 +93,10 @@ function collectParams(parts) {
   return parameters;
 }
 
+function isEmptyValue(value) {
+  return isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
+}
+
 function isDateParameter(paramType) {
   return includes(['date', 'datetime-local', 'datetime-with-seconds'], paramType);
 }
@@ -164,10 +168,6 @@ export class Parameter {
     return isNull(this.getValue());
   }
 
-  getValue(extra = {}) {
-    return this.constructor.getValue(this, extra);
-  }
-
   get hasDynamicValue() {
     if (isDateParameter(this.type)) {
       return isDynamicDate(this.value);
@@ -188,9 +188,12 @@ export class Parameter {
     return false;
   }
 
+  getValue(extra = {}) {
+    return this.constructor.getValue(this, extra);
+  }
+
   static getValue(param, extra = {}) {
     const { value, type, useCurrentDateTime, multiValuesOptions } = param;
-    const isEmptyValue = isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
     if (isDateRangeParameter(type) && param.hasDynamicValue) {
       const { dynamicValue } = param;
       if (dynamicValue) {
@@ -211,7 +214,7 @@ export class Parameter {
       return null;
     }
 
-    if (isEmptyValue) {
+    if (isEmptyValue(value)) {
       // keep support for existing useCurentDateTime (not available in UI)
       if (
         includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
@@ -325,7 +328,11 @@ export class Parameter {
   }
 
   get hasPendingValue() {
-    return this.pendingValue !== undefined && this.pendingValue !== this.value;
+    // normalize empty values
+    const pendingValue = isEmptyValue(this.pendingValue) ? null : this.pendingValue;
+    const value = isEmptyValue(this.value) ? null : this.value;
+
+    return this.pendingValue !== undefined && pendingValue !== value;
   }
 
   get normalizedValue() {
