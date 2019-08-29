@@ -10,7 +10,7 @@ from redash.worker import celery, job
 logger = get_task_logger(__name__)
 
 
-@celery.task(name="redash.tasks.record_event")
+@job('default')
 def record_event(raw_event):
     event = models.Event.record(raw_event)
     models.db.session.commit()
