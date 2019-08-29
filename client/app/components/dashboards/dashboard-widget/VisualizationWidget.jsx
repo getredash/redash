@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { compact, isEmpty, invoke } from 'lodash';
 import { markdown } from 'markdown';
-import classNames from 'classnames';
+import cx from 'classnames';
 import Menu from 'antd/lib/menu';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
@@ -18,7 +18,7 @@ import EditParameterMappingsDialog from '@/components/dashboards/EditParameterMa
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import Widget from './Widget';
 
-function visualizationWidgetMenuOptions(widget, canEditDashboard, onParametersEdit) {
+function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
   const canViewQuery = currentUser.hasPermission('view_query');
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, 'query.getParametersDefs'));
   const widgetQueryResult = widget.getQueryResult();
@@ -92,7 +92,7 @@ VisualizationWidgetHeader.defaultProps = { onParametersUpdate: () => {}, paramet
 
 function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   const widgetQueryResult = widget.getQueryResult();
-  const updatedAt = widgetQueryResult && widgetQueryResult.getUpdatedAt();
+  const updatedAt = invoke(widgetQueryResult, 'getUpdatedAt');
   const [refreshClickButtonId, setRefreshClickButtonId] = useState();
 
   const refreshWidget = (buttonId) => {
@@ -110,7 +110,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
           onClick={() => refreshWidget(1)}
           data-test="RefreshButton"
         >
-          <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
+          <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
           <TimeAgo date={updatedAt} />
         </a>
       )}
@@ -126,7 +126,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
           className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
           onClick={() => refreshWidget(2)}
         >
-          <i className={classNames('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
+          <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
         </a>
       )}
       <a
@@ -213,7 +213,6 @@ class VisualizationWidget extends React.Component {
     });
   };
 
-  // eslint-disable-next-line class-methods-use-this
   renderVisualization() {
     const { widget, filters } = this.props;
     const { widgetStatus } = this.state;
@@ -260,7 +259,9 @@ class VisualizationWidget extends React.Component {
       <Widget
         {...this.props}
         className="widget-visualization"
-        menuOptions={visualizationWidgetMenuOptions(widget, canEdit, this.editParameterMappings)}
+        menuOptions={visualizationWidgetMenuOptions({ widget,
+          canEditDashboard: canEdit,
+          onParametersEdit: this.editParameterMappings })}
         header={(
           <VisualizationWidgetHeader
             widget={widget}

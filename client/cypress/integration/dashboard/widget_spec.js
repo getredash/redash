@@ -12,7 +12,7 @@ describe('Widget', () => {
     });
   });
 
-  const confirmDelete = () => {
+  const confirmDeletionInModal = () => {
     cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
   };
 
@@ -39,7 +39,7 @@ describe('Widget', () => {
           cy.getByTestId('WidgetDeleteButton').click();
         });
 
-      confirmDelete();
+      confirmDeletionInModal();
       cy.getByTestId(elTestId).should('not.exist');
     });
   });

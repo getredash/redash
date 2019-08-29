@@ -12,7 +12,7 @@ describe('Textbox', () => {
     });
   });
 
-  const confirmDelete = () => {
+  const confirmDeletionInModal = () => {
     cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
   };
 
@@ -38,7 +38,7 @@ describe('Textbox', () => {
           cy.getByTestId('WidgetDeleteButton').click();
         });
 
-      confirmDelete();
+      confirmDeletionInModal();
       cy.getByTestId(elTestId).should('not.exist');
     });
   });
@@ -55,7 +55,7 @@ describe('Textbox', () => {
         .contains('Remove from Dashboard')
         .click();
 
-      confirmDelete();
+      confirmDeletionInModal();
       cy.getByTestId(elTestId).should('not.exist');
     });
   });
@@ -79,7 +79,7 @@ describe('Textbox', () => {
             cy.getByTestId('WidgetDeleteButton').click();
           });
 
-        confirmDelete();
+        confirmDeletionInModal();
         cy.get('@textbox1').should('not.exist');
 
         // remove 2nd textbox and make sure it's gone
@@ -90,7 +90,7 @@ describe('Textbox', () => {
             cy.getByTestId('WidgetDeleteButton').click();
           });
 
-        confirmDelete();
+        confirmDeletionInModal();
         cy.get('@textbox2').should('not.exist'); // <-- fails because of the bug
       });
   });

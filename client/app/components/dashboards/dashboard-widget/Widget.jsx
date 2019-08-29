@@ -11,9 +11,9 @@ import { Timer } from '@/components/Timer';
 
 import './Widget.less';
 
-function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, ...otherProps }) {
+function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
   const WidgetMenu = (
-    <Menu {...otherProps} data-test="WidgetDropdownButtonMenu">
+    <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
       {(showDeleteOption && extraOptions) && <Menu.Divider />}
       {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
