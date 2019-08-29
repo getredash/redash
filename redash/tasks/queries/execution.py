@@ -2,6 +2,7 @@ import logging
 import signal
 import time
 import redis
+from rq import Queue
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
@@ -248,7 +249,6 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
-@celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
@@ -283,7 +283,8 @@ def refresh_schemas():
         elif ds.org.is_disabled:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
-            refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
+            q = Queue(settings.SCHEMAS_REFRESH_QUEUE, connection=redis_connection)
+            q.enqueue(refresh_schema, ds.id)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
