@@ -19,7 +19,7 @@ manager = AppGroup(help="RQ management commands.")
 @manager.command()
 def scheduler():
     scheduler = Scheduler(connection=redis_connection,
-                          queue_name="periodic_jobs",
+                          queue_name="periodic",
                           interval=5)
 
     def schedule(func, **kwargs):
