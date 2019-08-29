@@ -49,9 +49,6 @@ celery = Celery('redash',
                 redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
                 include='redash.tasks')
 
-# The internal periodic Celery tasks to automatically schedule.
-celery_schedule = {
-}
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    timezone='UTC',
