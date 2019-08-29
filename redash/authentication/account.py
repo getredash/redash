@@ -1,7 +1,7 @@
 import logging
 from flask import render_template
 
-from redash import settings, redis_connection, enqueue
+from redash import settings, redis_connection
 from redash.tasks import send_mail
 from redash.utils import base_url
 # noinspection PyUnresolvedReferences
@@ -50,7 +50,7 @@ def send_verify_email(user, org):
     text_content = render_template('emails/verify.txt', **context)
     subject = "{}, please verify your email address".format(user.name)
 
-    enqueue('default', send_mail, [user.email], subject, html_content, text_content)
+    send_mail.delay([user.email], subject, html_content, text_content)
 
 
 def send_invite_email(inviter, invited, invite_url, org):
@@ -59,7 +59,7 @@ def send_invite_email(inviter, invited, invite_url, org):
     text_content = render_template('emails/invite.txt', **context)
     subject = "{} invited you to join Redash".format(inviter.name)
 
-    enqueue('default', send_mail, [invited.email], subject, html_content, text_content)
+    send_mail.delay([invited.email], subject, html_content, text_content)
 
 
 def send_password_reset_email(user):
@@ -69,7 +69,7 @@ def send_password_reset_email(user):
     text_content = render_template('emails/reset.txt', **context)
     subject = "Reset your password"
 
-    enqueue('default', send_mail, [user.email], subject, html_content, text_content)
+    send_mail.delay([user.email], subject, html_content, text_content)
     return reset_link
 
   
@@ -78,4 +78,4 @@ def send_user_disabled_email(user):
     text_content = render_template('emails/reset_disabled.txt', user=user)
     subject = "Your Redash account is disabled"
 
-    enqueue('default', send_mail, [user.email], subject, html_content, text_content)
+    send_mail.delay([user.email], subject, html_content, text_content)
