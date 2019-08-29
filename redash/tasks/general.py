@@ -46,7 +46,6 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
-@celery.task(name="redash.tasks.send_mail")
 def send_mail(to, subject, html, text):
     try:
         message = Message(recipients=to,
