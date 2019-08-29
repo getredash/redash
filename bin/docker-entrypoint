@@ -10,13 +10,13 @@ worker() {
   exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
 }
 
-rq_scheduler() {
+scheduler() {
   echo "Starting RQ scheduler..."
 
   exec /app/manage.py rq scheduler
 }
 
-dev_rq_scheduler() {
+dev_scheduler() {
   echo "Starting dev RQ scheduler..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
@@ -67,9 +67,9 @@ help() {
   echo "server -- start Redash server (with gunicorn)"
   echo "worker -- start Celery worker"
   echo "dev_worker -- start Celery worker process which picks up code changes and reloads"
-  echo "rq_scheduler -- start an rq-scheduler instance"
+  echo "scheduler -- start an rq-scheduler instance"
   echo "rq_worker -- start a single RQ worker"
-  echo "dev_rq_scheduler -- start an rq-scheduler instance with code reloading"
+  echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
   echo "dev_rq_worker -- start a single RQ worker with code reloading"
   echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
@@ -101,13 +101,13 @@ case "$1" in
     shift
     server
     ;;
-  rq_scheduler)
+  scheduler)
     shift
-    rq_scheduler
+    scheduler
     ;;
-  dev_rq_scheduler)
+  dev_scheduler)
     shift
-    dev_rq_scheduler
+    dev_scheduler
     ;;
   rq_worker)
     shift

@@ -19,9 +19,9 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
-  rq_scheduler:
+  scheduler:
     build: .
-    command: dev_rq_scheduler
+    command: dev_scheduler
     volumes:
       - type: bind
         source: .
