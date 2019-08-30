@@ -2,7 +2,9 @@ import React from 'react';
 import { react2angular } from 'react2angular';
 import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
-import Text from 'antd/lib/typography';
+import Typography from 'antd/lib/typography';
+
+const Text = Typography.Text;
 
 export function BeaconConsent() {
   //   if (!clientConfig.showBeaconConsentMessage) {
@@ -12,7 +14,7 @@ export function BeaconConsent() {
   return (
     <div className="m-t-10 tiled">
       <Card title="Would you like to share aggregated usage information with the Redash team?" bordered={false}>
-        <Text type="secondary">
+        <Text>
           Shared data includes: number of users, queries, dashboards, alerts, widgets and visulizations. Also types of
           data sources, alert destination and visualizations.
         </Text>
@@ -25,7 +27,8 @@ export function BeaconConsent() {
         </div>
         <div className="m-t-15">
           <Text type="secondary">
-            You can always change your descision from the <a href="">Organization Settings</a> screen.
+            You can always change your descision from the <a href="settings/organization">Organization Settings</a>{' '}
+            screen.
           </Text>
         </div>
       </Card>
