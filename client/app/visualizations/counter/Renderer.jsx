@@ -10,8 +10,7 @@ import './render.less';
 
 function getCounterStyles(scale) {
   return {
-    OTransform: `scale(${scale})`,
-    MsTransform: `scale(${scale})`,
+    msTransform: `scale(${scale})`,
     MozTransform: `scale(${scale})`,
     WebkitTransform: `scale(${scale})`,
     transform: `scale(${scale})`,
