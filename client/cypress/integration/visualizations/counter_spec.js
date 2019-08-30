@@ -28,9 +28,11 @@ describe('Counter', () => {
       Counter.General.ValueColumn.a
     `);
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (simple)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with custom label', () => {
@@ -47,9 +49,11 @@ describe('Counter', () => {
       'Counter.General.Label': 'Custom Label',
     });
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (custom label)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with non-numeric value', () => {
@@ -69,9 +73,11 @@ describe('Counter', () => {
       'Counter.General.TargetValueRowNumber': '2',
     });
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (non-numeric value)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with target value (trend positive)', () => {
@@ -87,9 +93,11 @@ describe('Counter', () => {
       Counter.General.TargetValueColumn.b
     `);
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (target value + trend positive)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with custom row number (trend negative)', () => {
@@ -110,9 +118,11 @@ describe('Counter', () => {
       'Counter.General.TargetValueRowNumber': '2',
     });
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (custom row number + trend negative)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with count rows', () => {
@@ -127,9 +137,11 @@ describe('Counter', () => {
       Counter.General.CountRows
     `);
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (count rows)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with formatting', () => {
@@ -155,9 +167,11 @@ describe('Counter', () => {
       'Counter.Formatting.StringSuffix': '%',
     });
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-    cy.percySnapshot('Visualizations - Counter (formatting)', { widths: [viewportWidth] });
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with target value formatting', () => {
@@ -184,8 +198,10 @@ describe('Counter', () => {
       'Counter.Formatting.StringSuffix': '%',
     });
 
-    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
+
+    // wait a bit before taking snapshot
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 });
