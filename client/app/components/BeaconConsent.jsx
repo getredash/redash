@@ -23,13 +23,17 @@ export function BeaconConsent() {
           </Button>
           <Button type="default">No</Button>
         </div>
+        <div className="m-t-15">
+          <Text type="secondary">
+            You can always change your descision from the <a href="">Organization Settings</a> screen.
+          </Text>
+        </div>
       </Card>
     </div>
   );
 }
 
 export default function init(ngModule) {
-  console.log('hello world');
   ngModule.component('beaconConsent', react2angular(BeaconConsent));
 }
 
