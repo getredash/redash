@@ -3,8 +3,8 @@
 import { createQuery } from '../../support/redash-api';
 
 const SQL = `
-  SELECT 27182.8182846 AS a, 2 AS b, 'lorem' AS c UNION ALL
-  SELECT 31415.9265359 AS a, 4 AS b, 'ipsum' AS c
+  SELECT 27182.8182846 AS a, 20000 AS b, 'lorem' AS c UNION ALL
+  SELECT 31415.9265359 AS a, 40000 AS b, 'ipsum' AS c
 `;
 
 describe('Counter', () => {
@@ -28,8 +28,8 @@ describe('Counter', () => {
       Counter.General.ValueColumn.a
     `);
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (simple)', { widths: [viewportWidth] });
   });
 
@@ -47,8 +47,8 @@ describe('Counter', () => {
       'Counter.General.Label': 'Custom Label',
     });
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (custom label)', { widths: [viewportWidth] });
   });
 
@@ -69,8 +69,8 @@ describe('Counter', () => {
       'Counter.General.TargetValueRowNumber': '2',
     });
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (non-numeric value)', { widths: [viewportWidth] });
   });
 
@@ -87,8 +87,8 @@ describe('Counter', () => {
       Counter.General.TargetValueColumn.b
     `);
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (target value + trend positive)', { widths: [viewportWidth] });
   });
 
@@ -110,8 +110,8 @@ describe('Counter', () => {
       'Counter.General.TargetValueRowNumber': '2',
     });
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (custom row number + trend negative)', { widths: [viewportWidth] });
   });
 
@@ -127,8 +127,8 @@ describe('Counter', () => {
       Counter.General.CountRows
     `);
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (count rows)', { widths: [viewportWidth] });
   });
 
@@ -155,8 +155,8 @@ describe('Counter', () => {
       'Counter.Formatting.StringSuffix': '%',
     });
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (formatting)', { widths: [viewportWidth] });
   });
 
@@ -184,8 +184,8 @@ describe('Counter', () => {
       'Counter.Formatting.StringSuffix': '%',
     });
 
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.getByTestId('VisualizationPreview').find('.counter-visualization-container').should('exist');
-
     cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
   });
 });
