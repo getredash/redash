@@ -184,9 +184,9 @@ function FormatSettings({ options, data, onOptionsChange }) {
         </Grid.Col>
       </Grid.Row>
 
-      <label className="d-flex align-items-center" htmlFor="counter-count-rows">
+      <label className="d-flex align-items-center" htmlFor="counter-format-target-value">
         <Switch
-          id="counter-count-rows"
+          id="counter-format-target-value"
           defaultChecked={options.formatTargetValue}
           onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}
         />
