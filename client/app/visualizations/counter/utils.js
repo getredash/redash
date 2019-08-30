@@ -47,6 +47,7 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
 // 1..N - 1-based record number from beginning (wraps if greater than dataset size)
 // -1..-N - 1-based record number from end (wraps if greater than dataset size)
 function getRowNumber(index, rowsCount) {
+  index = parseInt(index, 10) || 0;
   if (index === 0) {
     return index;
   }

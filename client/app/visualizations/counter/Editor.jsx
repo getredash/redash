@@ -21,6 +21,7 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
           <Input
             id="counter-label"
             className="w-100"
+            data-test="Counter.General.Label"
             defaultValue={options.counterLabel}
             placeholder={visualizationName}
             onChange={e => onOptionsChange({ counterLabel: e.target.value })}
@@ -36,11 +37,14 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
           <Select
             id="counter-value-column"
             className="w-100"
+            data-test="Counter.General.ValueColumn"
             defaultValue={options.counterColName}
             disabled={options.countRow}
             onChange={counterColName => onOptionsChange({ counterColName })}
           >
-            {map(data.columns, col => (<Select.Option key={col.name}>{col.name}</Select.Option>))}
+            {map(data.columns, col => (
+              <Select.Option key={col.name} data-test={'Counter.General.ValueColumn.' + col.name}>{col.name}</Select.Option>
+            ))}
           </Select>
         </Grid.Col>
       </Grid.Row>
@@ -53,6 +57,7 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
           <InputNumber
             id="counter-value-row-number"
             className="w-100"
+            data-test="Counter.General.ValueRowNumber"
             defaultValue={options.rowNumber}
             disabled={options.countRow}
             onChange={rowNumber => onOptionsChange({ rowNumber })}
@@ -68,11 +73,14 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
           <Select
             id="counter-target-value-column"
             className="w-100"
+            data-test="Counter.General.TargetValueColumn"
             defaultValue={options.targetColName}
             onChange={targetColName => onOptionsChange({ targetColName })}
           >
             <Select.Option value="">No target value</Select.Option>
-            {map(data.columns, col => (<Select.Option key={col.name}>{col.name}</Select.Option>))}
+            {map(data.columns, col => (
+              <Select.Option key={col.name} data-test={'Counter.General.TargetValueColumn.' + col.name}>{col.name}</Select.Option>
+            ))}
           </Select>
         </Grid.Col>
       </Grid.Row>
@@ -85,6 +93,7 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
           <InputNumber
             id="counter-target-row-number"
             className="w-100"
+            data-test="Counter.General.TargetValueRowNumber"
             defaultValue={options.targetRowNumber}
             onChange={targetRowNumber => onOptionsChange({ targetRowNumber })}
           />
@@ -94,6 +103,7 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
       <label className="d-flex align-items-center" htmlFor="counter-count-rows">
         <Switch
           id="counter-count-rows"
+          data-test="Counter.General.CountRows"
           defaultChecked={options.countRow}
           onChange={countRow => onOptionsChange({ countRow })}
         />
@@ -117,6 +127,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
           <InputNumber
             id="counter-formatting-decimal-place"
             className="w-100"
+            data-test="Counter.Formatting.DecimalPlace"
             defaultValue={options.stringDecimal}
             disabled={!inputsEnabled}
             onChange={stringDecimal => onOptionsChange({ stringDecimal })}
@@ -132,6 +143,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
           <Input
             id="counter-formatting-decimal-character"
             className="w-100"
+            data-test="Counter.Formatting.DecimalCharacter"
             defaultValue={options.stringDecChar}
             disabled={!inputsEnabled}
             onChange={e => onOptionsChange({ stringDecChar: e.target.value })}
@@ -147,6 +159,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
           <Input
             id="counter-formatting-thousands-separator"
             className="w-100"
+            data-test="Counter.Formatting.ThousandsSeparator"
             defaultValue={options.stringThouSep}
             disabled={!inputsEnabled}
             onChange={e => onOptionsChange({ stringThouSep: e.target.value })}
@@ -162,6 +175,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
           <Input
             id="counter-formatting-string-prefix"
             className="w-100"
+            data-test="Counter.Formatting.StringPrefix"
             defaultValue={options.stringPrefix}
             disabled={!inputsEnabled}
             onChange={e => onOptionsChange({ stringPrefix: e.target.value })}
@@ -177,6 +191,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
           <Input
             id="counter-formatting-string-suffix"
             className="w-100"
+            data-test="Counter.Formatting.StringSuffix"
             defaultValue={options.stringSuffix}
             disabled={!inputsEnabled}
             onChange={e => onOptionsChange({ stringSuffix: e.target.value })}
@@ -187,6 +202,7 @@ function FormatSettings({ options, data, onOptionsChange }) {
       <label className="d-flex align-items-center" htmlFor="counter-format-target-value">
         <Switch
           id="counter-format-target-value"
+          data-test="Counter.Formatting.FormatTargetValue"
           defaultChecked={options.formatTargetValue}
           onChange={formatTargetValue => onOptionsChange({ formatTargetValue })}
         />
@@ -207,10 +223,10 @@ export default function Editor(props) {
 
   return (
     <Tabs animated={false}>
-      <Tabs.TabPane key="general" tab="General">
+      <Tabs.TabPane key="general" tab={<span data-test="Counter.EditorTabs.General">General</span>}>
         <GeneralSettings {...props} onOptionsChange={optionsChanged} />
       </Tabs.TabPane>
-      <Tabs.TabPane key="format" tab="Format">
+      <Tabs.TabPane key="format" tab={<span data-test="Counter.EditorTabs.Formatting">Format</span>}>
         <FormatSettings {...props} onOptionsChange={optionsChanged} />
       </Tabs.TabPane>
     </Tabs>
