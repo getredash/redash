@@ -44,7 +44,7 @@
         </div>
       </div>
       <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
-        <parameters parameters="$ctrl.localParametersDefs()" on-values-change="$ctrl.refresh"></parameters>
+        <parameters parameters="$ctrl.localParametersDefs()" on-values-change="$ctrl.forceRefresh"></parameters>
       </div>
     </div>
 
