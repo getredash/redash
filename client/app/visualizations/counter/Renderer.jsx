@@ -30,13 +30,20 @@ export default function Renderer({ data, options, visualizationName }) {
 
   useEffect(() => {
     if (container) {
-      setScale(getCounterScale(container)); // initial update
       const unwatch = resizeObserver(container, () => {
         setScale(getCounterScale(container));
       });
       return unwatch;
     }
   }, [container, setScale]);
+
+  useEffect(() => {
+    if (container) {
+      // update scaling when options or data change (new formatting, values, etc.
+      // may change inner container dimensions which will not be tracked by `resizeObserver`);
+      setScale(getCounterScale(container));
+    }
+  }, [data, options, container, setScale]);
 
   const {
     showTrend, trendPositive,
