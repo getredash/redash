@@ -77,6 +77,20 @@ function GeneralSettings({ options, data, visualizationName, onOptionsChange }) 
         </Grid.Col>
       </Grid.Row>
 
+      <Grid.Row type="flex" align="middle" className="m-b-10">
+        <Grid.Col span={12}>
+          <label htmlFor="counter-target-row-number">Target Value Row Number</label>
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <InputNumber
+            id="counter-target-row-number"
+            className="w-100"
+            defaultValue={options.targetRowNumber}
+            onChange={targetRowNumber => onOptionsChange({ targetRowNumber })}
+          />
+        </Grid.Col>
+      </Grid.Row>
+
       <label className="d-flex align-items-center" htmlFor="counter-count-rows">
         <Switch
           id="counter-count-rows"

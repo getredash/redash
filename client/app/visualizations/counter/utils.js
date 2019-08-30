@@ -43,17 +43,15 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   return result;
 }
 
-// TODO: Need to review this function, it does not properly handle edge cases.
-function getRowNumber(index, size) {
-  if (index >= 0) {
-    return index - 1;
+// 0 - special case, use first record
+// 1..N - 1-based record number from beginning (wraps if greater than dataset size)
+// -1..-N - 1-based record number from end (wraps if greater than dataset size)
+function getRowNumber(index, rowsCount) {
+  if (index === 0) {
+    return index;
   }
-
-  if (Math.abs(index) > size) {
-    index %= size;
-  }
-
-  return size + index;
+  const wrappedIndex = (Math.abs(index) - 1) % rowsCount;
+  return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
 }
 
 function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
