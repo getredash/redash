@@ -34,7 +34,7 @@ export default function Renderer({ data, options, visualizationName }) {
       });
       return unwatch;
     }
-  }, [container, setScale]);
+  }, [container]);
 
   useEffect(() => {
     if (container) {
@@ -42,7 +42,7 @@ export default function Renderer({ data, options, visualizationName }) {
       // may change inner container dimensions which will not be tracked by `resizeObserver`);
       setScale(getCounterScale(container));
     }
-  }, [data, options, container, setScale]);
+  }, [data, options, container]);
 
   const {
     showTrend, trendPositive,
