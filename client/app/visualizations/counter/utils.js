@@ -132,7 +132,6 @@ export function isValueNumber(rows, options) {
   const rowsCount = rows.length;
   if (rowsCount > 0) {
     const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-    console.log(rowNumber);
     const counterColName = options.counterColName;
     if (counterColName) {
       return isNumber(rows[rowNumber][counterColName]);
