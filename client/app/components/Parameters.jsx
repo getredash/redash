@@ -111,8 +111,9 @@ export class Parameters extends React.Component {
   applyChanges = () => {
     const { onValuesChange, disableUrlUpdate } = this.props;
     this.setState(({ parameters }) => {
+      const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
       forEach(parameters, p => p.applyPendingValue());
-      onValuesChange();
+      onValuesChange(parametersWithPendingValues);
       if (!disableUrlUpdate) {
         updateUrl(parameters);
       }
