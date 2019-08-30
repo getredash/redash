@@ -1,10 +1,10 @@
 import { isNumber } from 'lodash';
-import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
 import counterEditorTemplate from './counter-editor.html';
 
 import Renderer from './Renderer';
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   counterLabel: '',
@@ -71,17 +71,15 @@ const CounterEditor = {
 export default function init(ngModule) {
   ngModule.component('counterEditor', CounterEditor);
 
-  ngModule.run(($injector) => {
-    registerVisualization({
-      type: 'COUNTER',
-      name: 'Counter',
-      getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
-      Renderer,
-      Editor: angular2react('counterEditor', CounterEditor, $injector),
+  registerVisualization({
+    type: 'COUNTER',
+    name: 'Counter',
+    getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
+    Renderer,
+    Editor,
 
-      defaultColumns: 2,
-      defaultRows: 5,
-    });
+    defaultColumns: 2,
+    defaultRows: 5,
   });
 }
 
