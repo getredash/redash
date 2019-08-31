@@ -41,6 +41,7 @@ class DashboardGrid extends React.Component {
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
     filters: FiltersType,
     onBreakpointChange: PropTypes.func,
+    onRefreshWidget: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
@@ -52,6 +53,7 @@ class DashboardGrid extends React.Component {
   static defaultProps = {
     isPublic: false,
     filters: [],
+    onRefreshWidget: () => {},
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
@@ -174,7 +176,8 @@ class DashboardGrid extends React.Component {
 
   render() {
     const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
-    const { onRemoveWidget, onParameterMappingsChange, filters, dashboard, isPublic, widgets } = this.props;
+    const { onRefreshWidget, onRemoveWidget, onParameterMappingsChange,
+      filters, dashboard, isPublic, widgets } = this.props;
 
     return (
       <div className={className}>
@@ -212,6 +215,7 @@ class DashboardGrid extends React.Component {
                   <VisualizationWidget
                     {...widgetProps}
                     dashboard={dashboard}
+                    onRefresh={() => onRefreshWidget(widget)}
                     onParameterMappingsChange={onParameterMappingsChange}
                   />
                 )}

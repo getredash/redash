@@ -134,6 +134,14 @@ function DashboardCtrl(
     this.globalParameters = this.dashboard.getParametersDefs();
   };
 
+  this.loadWidget = (widget, forceRefresh) => {
+    widget.getParametersDefs(); // Force widget to read parameters values from URL
+    this.refreshingWidgets += 1;
+    return widget.load(forceRefresh).finally(() => { this.refreshingWidgets -= 1; });
+  };
+
+  this.refreshWidget = widget => this.loadWidget(widget, true);
+
   const collectFilters = (dashboard, forceRefresh, updatedParameters = []) => {
     const affectedWidgets = updatedParameters.length > 0 ? this.dashboard.widgets.filter(
       widget => Object.values(widget.getParameterMappings()).filter(
@@ -143,11 +151,7 @@ function DashboardCtrl(
       ),
     ) : this.dashboard.widgets;
 
-    const queryResultPromises = _.compact(affectedWidgets.map((widget) => {
-      widget.getParametersDefs(); // Force widget to read parameters values from URL
-      this.refreshingWidgets += 1;
-      return widget.load(forceRefresh).finally(() => { this.refreshingWidgets -= 1; });
-    }));
+    const queryResultPromises = _.compact(affectedWidgets.map(widget => this.loadWidget(widget, forceRefresh)));
 
     return $q.all(queryResultPromises).then((queryResults) => {
       this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());

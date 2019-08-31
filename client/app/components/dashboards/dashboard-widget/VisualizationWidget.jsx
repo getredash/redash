@@ -6,7 +6,6 @@ import cx from 'classnames';
 import Menu from 'antd/lib/menu';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
-import { $location } from '@/services/ng';
 import { formatDateTime } from '@/filters/datetime';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
@@ -155,6 +154,7 @@ class VisualizationWidget extends React.Component {
     filters: FiltersType,
     isPublic: PropTypes.bool,
     canEdit: PropTypes.bool,
+    onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
   };
@@ -163,36 +163,21 @@ class VisualizationWidget extends React.Component {
     filters: [],
     isPublic: false,
     canEdit: false,
+    onRefresh: () => {},
     onDelete: () => {},
     onParameterMappingsChange: () => {},
   };
 
   constructor(props) {
     super(props);
-    const widgetQueryResult = props.widget.getQueryResult();
-    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
-
-    this.state = { widgetStatus, localParameters: props.widget.getLocalParameters() };
+    this.state = { localParameters: props.widget.getLocalParameters() };
   }
 
   componentDidMount() {
     const { widget } = this.props;
     recordEvent('view', 'query', widget.visualization.query.id, { dashboard: true });
     recordEvent('view', 'visualization', widget.visualization.id, { dashboard: true });
-    this.loadWidget();
   }
-
-  loadWidget = (refresh = false) => {
-    const { widget } = this.props;
-    const maxAge = $location.search().maxAge;
-    return widget.load(refresh, maxAge).then(({ status }) => {
-      this.setState({ widgetStatus: status });
-    }).catch(() => {
-      this.setState({ widgetStatus: 'failed' });
-    });
-  };
-
-  refreshWidget = () => this.loadWidget(true);
 
   expandWidget = () => {
     ExpandedWidgetDialog.showModal({ widget: this.props.widget });
@@ -215,8 +200,8 @@ class VisualizationWidget extends React.Component {
 
   renderVisualization() {
     const { widget, filters } = this.props;
-    const { widgetStatus } = this.state;
     const widgetQueryResult = widget.getQueryResult();
+    const widgetStatus = widgetQueryResult && widgetQueryResult.getStatus();
     switch (widgetStatus) {
       case 'failed':
         return (
@@ -250,7 +235,7 @@ class VisualizationWidget extends React.Component {
   }
 
   render() {
-    const { widget, isPublic, canEdit } = this.props;
+    const { widget, isPublic, canEdit, onRefresh } = this.props;
     const { localParameters } = this.state;
     const widgetQueryResult = widget.getQueryResult();
     const isRefreshing = widget.loading && !!(widgetQueryResult && widgetQueryResult.getStatus());
@@ -266,14 +251,14 @@ class VisualizationWidget extends React.Component {
           <VisualizationWidgetHeader
             widget={widget}
             parameters={localParameters}
-            onParametersUpdate={this.refreshWidget}
+            onParametersUpdate={onRefresh}
           />
         )}
         footer={(
           <VisualizationWidgetFooter
             widget={widget}
             isPublic={isPublic}
-            onRefresh={this.refreshWidget}
+            onRefresh={onRefresh}
             onExpand={this.expandWidget}
           />
         )}
