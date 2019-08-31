@@ -161,7 +161,7 @@ QueryFormItem.defaultProps = {
 
 function HorizontalFormItem({ children, label, className, ...props }) {
   const labelCol = { span: 4 };
-  const wrapperCol = { span: 12 };
+  const wrapperCol = { span: 16 };
   if (!label) {
     wrapperCol.offset = 4;
   }
@@ -362,7 +362,7 @@ function CustomTemplate({ renderData, subject, setSubject, body, setBody }) {
             />
             <Input.TextArea
               value={showPreview ? render(body) : body}
-              autosize={{ minRows: 5 }}
+              autosize={{ minRows: 9 }}
               onChange={e => setBody(e.target.value)}
               disabled={showPreview}
             />
