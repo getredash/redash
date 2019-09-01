@@ -14,7 +14,7 @@ from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
 from redash.worker import celery
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
@@ -316,6 +316,7 @@ def _resolve_user(user_id, is_api_key, query_id):
 class QueryExecutor(object):
     def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
+        self.logger = get_task_logger(__name__)
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
@@ -335,7 +336,7 @@ class QueryExecutor(object):
         signal.signal(signal.SIGINT, signal_handler)
         started_at = time.time()
 
-        logger.debug("Executing query:\n%s", self.query)
+        self.logger.debug("Executing query:\n%s", self.query)
         self._log_progress('executing_query')
 
         query_runner = self.data_source.query_runner
@@ -407,7 +408,7 @@ class QueryExecutor(object):
             self.metadata.get('Username', 'unknown'))
 
     def _load_data_source(self):
-        logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
+        self.logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
         return models.DataSource.query.get(self.data_source_id)
 
 

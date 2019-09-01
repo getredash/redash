@@ -43,6 +43,27 @@ def get_job_logger(name):
     return logger
 
 
+class CurrentJobFilter(logging.Filter):
+    def filter(self, record):
+        current_job = get_current_job()
+
+        record.job_id = current_job.id if current_job else ''
+        record.job_description = current_job.description if current_job else ''
+
+        return True
+
+def get_job_logger(name):
+    logger = logging.getLogger('rq.job.' + name)
+
+    handler = logging.StreamHandler()
+    handler.formatter = logging.Formatter(settings.RQ_WORKER_JOB_LOG_FORMAT)
+    handler.addFilter(CurrentJobFilter())
+
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    return logger
+
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
                 broker_use_ssl=settings.CELERY_SSL_CONFIG,
