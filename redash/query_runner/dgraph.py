@@ -6,7 +6,7 @@ try:
 except ImportError:
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner, NoAnnotationMixin, register
 from redash.utils import json_dumps
 
 
@@ -28,7 +28,7 @@ def reduce_item(reduced_item, key, value):
         reduced_item[key] = value
 
 
-class Dgraph(BaseQueryRunner):
+class Dgraph(BaseQueryRunner, NoAnnotationMixin):
     noop_query = """
     {
       test() {
@@ -64,13 +64,7 @@ class Dgraph(BaseQueryRunner):
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def annotate_query(cls):
-        """Dgraph uses '#' as a comment delimiter, not '/* */'"""
-        return False
-
     def run_dgraph_query_raw(self, query):
-
         servers = self.configuration.get('servers')
 
         client_stub = pydgraph.DgraphClientStub(servers)

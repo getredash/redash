@@ -35,7 +35,7 @@ types_map = {
 }
 
 
-class Hive(BaseSQLQueryRunner):
+class Hive(BaseSQLQueryRunner, NoAnnotationMixin):
     noop_query = "SELECT 1"
 
     @classmethod
@@ -59,10 +59,6 @@ class Hive(BaseSQLQueryRunner):
             "order": ["host", "port", "database", "username"],
             "required": ["host"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):

@@ -54,6 +54,12 @@ class NotSupported(Exception):
     pass
 
 
+class NoAnnotationMixin(object):
+    """Simple Mixin to disable query annotation."""
+    def annotate_query(self, query, metadata):
+        return query
+
+
 class BaseQueryRunner(object):
     deprecated = False
     noop_query = None
@@ -75,12 +81,13 @@ class BaseQueryRunner(object):
         return True
 
     @classmethod
-    def annotate_query(cls):
-        return True
-
-    @classmethod
     def configuration_schema(cls):
         return {}
+
+    def annotate_query(self, query, metadata):
+        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
+        annotated_query = u"/* {} */ {}".format(annotation, query)
+        return annotated_query
 
     def test_connection(self):
         if self.noop_query is None:

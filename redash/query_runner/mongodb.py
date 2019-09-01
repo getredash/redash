@@ -120,7 +120,7 @@ def parse_results(results):
     return rows, columns
 
 
-class MongoDB(BaseQueryRunner):
+class MongoDB(BaseQueryRunner, NoAnnotationMixin):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -145,10 +145,6 @@ class MongoDB(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(MongoDB, self).__init__(configuration)

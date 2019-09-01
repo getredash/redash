@@ -10,7 +10,7 @@ from redash.utils import json_dumps
 from redash.utils.compat import long
 from redash.query_runner import (BaseHTTPQueryRunner, register,
                                  TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
-                                 TYPE_INTEGER, TYPE_STRING)
+                                 TYPE_INTEGER, TYPE_STRING, NoAnnotationMixin)
 
 
 class QueryParseError(Exception):
@@ -138,7 +138,7 @@ def parse_json(data, path, fields):
     return {'rows': rows, 'columns': columns}
 
 
-class JSON(BaseHTTPQueryRunner):
+class JSON(BaseHTTPQueryRunner, NoAnnotationMixin):
     requires_url = False
 
     @classmethod
@@ -158,10 +158,6 @@ class JSON(BaseHTTPQueryRunner):
             'secret': ['password'],
             'order': ['username', 'password']
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(JSON, self).__init__(configuration)

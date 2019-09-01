@@ -138,7 +138,7 @@ class FieldMapping:
         return None
 
 
-class JiraJQL(BaseHTTPQueryRunner):
+class JiraJQL(BaseHTTPQueryRunner, NoAnnotationMixin):
     noop_query = '{"queryType": "count"}'
     response_error = "JIRA returned unexpected status code"
     requires_authentication = True
@@ -149,10 +149,6 @@ class JiraJQL(BaseHTTPQueryRunner):
     @classmethod
     def name(cls):
         return "JIRA (JQL)"
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(JiraJQL, self).__init__(configuration)

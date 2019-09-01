@@ -4,7 +4,7 @@ import sqlite3
 
 from redash import models
 from redash.permissions import has_access, not_view_only
-from redash.query_runner import BaseQueryRunner, TYPE_STRING, guess_type, register
+from redash.query_runner import BaseQueryRunner, NoAnnotationMixin, TYPE_STRING, guess_type, register
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
@@ -103,7 +103,7 @@ def create_table(connection, table_name, query_results):
         connection.execute(insert_template, values)
 
 
-class Results(BaseQueryRunner):
+class Results(BaseQueryRunner, NoAnnotationMixin):
     noop_query = 'SELECT 1'
 
     @classmethod
@@ -113,10 +113,6 @@ class Results(BaseQueryRunner):
             "properties": {
             }
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def name(cls):

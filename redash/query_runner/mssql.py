@@ -25,7 +25,7 @@ types_map = {
 }
 
 
-class SqlServer(BaseSQLQueryRunner):
+class SqlServer(BaseSQLQueryRunner, NoAnnotationMixin):
     noop_query = "SELECT 1"
 
     @classmethod
@@ -77,10 +77,6 @@ class SqlServer(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "mssql"
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def _get_tables(self, schema):
         query = """

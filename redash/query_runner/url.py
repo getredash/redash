@@ -1,14 +1,10 @@
-from redash.query_runner import BaseHTTPQueryRunner, register
+from redash.query_runner import BaseHTTPQueryRunner, NoAnnotationMixin, register
 from redash.utils import deprecated
 
 
 @deprecated()
-class Url(BaseHTTPQueryRunner):
+class Url(BaseHTTPQueryRunner, NoAnnotationMixin):
     requires_url = False
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         pass

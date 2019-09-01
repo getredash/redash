@@ -77,11 +77,7 @@ def parse_ga_response(response):
     return {'columns': columns, 'rows': rows}
 
 
-class GoogleAnalytics(BaseSQLQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
-
+class GoogleAnalytics(BaseSQLQueryRunner, NoAnnotationMixin):
     @classmethod
     def type(cls):
         return "google_analytics"
