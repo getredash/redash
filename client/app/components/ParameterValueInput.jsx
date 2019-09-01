@@ -107,7 +107,6 @@ class ParameterValueInput extends React.Component {
         value={value}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
-        dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
         showArrow
         style={{ minWidth: 60 }}
