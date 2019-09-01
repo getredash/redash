@@ -6,7 +6,6 @@ import datetime
 from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
-from rq_scheduler import Scheduler
 
 SECONDS = 1
 MINUTES = 60 * SECONDS
