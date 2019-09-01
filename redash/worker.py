@@ -3,11 +3,13 @@ from datetime import timedelta
 from functools import partial
 
 from flask import current_app
+import logging
 
 from celery import Celery
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
 
+from rq import get_current_job
 from rq.decorators import job as rq_job
 
 from redash import create_app, extensions, settings, redis_connection
@@ -16,6 +18,27 @@ from redash.metrics import celery as celery_metrics  # noqa
 logger = get_logger(__name__)
 
 job = partial(rq_job, connection=redis_connection)
+
+class CurrentJobFilter(logging.Filter):
+    def filter(self, record):
+        current_job = get_current_job()
+
+        record.job_id = current_job.id if current_job else ''
+        record.job_description = current_job.description if current_job else ''
+
+        return True
+
+def get_job_logger(name):
+    logger = logging.getLogger('rq.job.' + name)
+
+    handler = logging.StreamHandler()
+    handler.formatter = logging.Formatter(settings.RQ_WORKER_JOB_LOG_FORMAT)
+    handler.addFilter(CurrentJobFilter())
+
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    return logger
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,

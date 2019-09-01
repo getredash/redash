@@ -208,6 +208,10 @@ CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
                    (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] '
                     'task_name=%(task_name)s '
                     'task_id=%(task_id)s %(message)s')))
+RQ_WORKER_JOB_LOG_FORMAT = os.environ.get("REDASH_RQ_WORKER_JOB_LOG_FORMAT",
+                                          (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] '
+                                           'job.description=%(job_description)s '
+                                           'job.id=%(job_id)s %(message)s'))
 
 # Mail settings:
 MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')

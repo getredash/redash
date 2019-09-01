@@ -1,13 +1,12 @@
 import requests
 
-from celery.utils.log import get_task_logger
 from flask_mail import Message
 from redash import mail, models, settings
 from redash.models import users
 from redash.version_check import run_version_check
-from redash.worker import celery, job
+from redash.worker import celery, job, get_job_logger
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 
 
 @job('default')

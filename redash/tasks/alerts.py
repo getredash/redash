@@ -1,11 +1,10 @@
-from celery.utils.log import get_task_logger
 from flask import current_app
 import datetime
-from redash.worker import celery, job
+from redash.worker import celery, job, get_job_logger
 from redash import models, utils
 
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 
 
 def notify_subscriptions(alert, new_state):

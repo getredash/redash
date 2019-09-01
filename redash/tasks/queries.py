@@ -13,9 +13,9 @@ from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import notify_of_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
-from redash.worker import celery, job
+from redash.worker import celery, job, get_job_logger
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
@@ -327,6 +327,7 @@ def track_failure(query, error):
 class QueryExecutor(object):
     def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
+        self.logger = get_task_logger(__name__)
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
@@ -346,7 +347,7 @@ class QueryExecutor(object):
         signal.signal(signal.SIGINT, signal_handler)
         started_at = time.time()
 
-        logger.debug("Executing query:\n%s", self.query)
+        self.logger.debug("Executing query:\n%s", self.query)
         self._log_progress('executing_query')
 
         query_runner = self.data_source.query_runner
@@ -365,7 +366,7 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
+        self.logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
@@ -407,7 +408,7 @@ class QueryExecutor(object):
         return annotated_query
 
     def _log_progress(self, state):
-        logger.info(
+        self.logger.info(
             u"task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
             "task_id=%s queue=%s query_id=%s username=%s",
             state, self.query_hash, self.data_source.type, self.data_source.id,
@@ -417,7 +418,7 @@ class QueryExecutor(object):
             self.metadata.get('Username', 'unknown'))
 
     def _load_data_source(self):
-        logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
+        self.logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
         return models.DataSource.query.get(self.data_source_id)
 
 
