@@ -41,6 +41,7 @@ services:
         target: /app
     depends_on:
       - server
+    tty: true
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
