@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     'BaseQueryRunner',
+    'NoAnnotationMixin',
     'BaseHTTPQueryRunner',
     'InterruptException',
     'BaseSQLQueryRunner',
