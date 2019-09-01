@@ -403,6 +403,8 @@ class QueryExecutor(object):
         self.metadata['Task ID'] = self.task.request.id
         self.metadata['Query Hash'] = self.query_hash
         self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
+        self.metadata['Scheduled'] = self.scheduled_query is not None
+            
         return query_runner.annotate_query(self.query, self.metadata)
 
     def _log_progress(self, state):
