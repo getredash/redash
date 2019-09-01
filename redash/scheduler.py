@@ -17,6 +17,10 @@ rq_scheduler = Scheduler(connection=redis_connection,
 
 
 def _schedule(func, **kwargs):
+    previously_scheduled_jobs = filter(lambda job: job.func == func, rq_scheduler.get_jobs())
+    for job in previously_scheduled_jobs:
+        rq_scheduler.cancel(job)
+
     interval = kwargs['interval']
     if isinstance(interval, timedelta):
         interval = interval.seconds
