@@ -286,7 +286,7 @@ class Redshift(PostgreSQL):
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
 
-        if metadata['Scheduled']:
+        if metadata.get('Scheduled', False):
             query_group = self.configuration.get('scheduled_query_group')
         else:
             query_group = self.configuration.get('adhoc_query_group')
