@@ -38,9 +38,7 @@ def _load_query(user, query_id):
     # TODO: this duplicates some of the logic we already have in the redash.handlers.query_results.
     # We should merge it so it's consistent.
     if not has_access(query.data_source, user, view_only):
-        raise PermissionError(
-            u"You are not allowed to execute queries on {} data source (used for query id {})."
-            .format(query.data_source.name, query.id))
+        raise PermissionError("Query id {} not found.".format(query.id))
 
     return query
 
