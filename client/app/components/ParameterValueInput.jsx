@@ -43,6 +43,7 @@ class ParameterValueInput extends React.Component {
 
   constructor(props) {
     super(props);
+    this.parameterInputRef = React.createRef();
     this.state = {
       value: props.parameter.hasPendingValue ? props.parameter.pendingValue : props.value,
       isDirty: props.parameter.hasPendingValue,
@@ -112,6 +113,7 @@ class ParameterValueInput extends React.Component {
         showArrow
         style={{ minWidth: 60 }}
         notFoundContent={null}
+        getPopupContainer={() => this.parameterInputRef.current}
         {...multipleValuesProps}
       >
         {enumOptionsArray.map(option => (<Option key={option} value={option}>{ option }</Option>))}
@@ -132,6 +134,7 @@ class ParameterValueInput extends React.Component {
         queryId={queryId}
         onSelect={this.onSelect}
         style={{ minWidth: 60 }}
+        getPopupContainer={() => this.parameterInputRef.current}
         {...multipleValuesProps}
       />
     );
@@ -186,7 +189,7 @@ class ParameterValueInput extends React.Component {
     const { isDirty } = this.state;
 
     return (
-      <div className="parameter-input" data-dirty={isDirty || null}>
+      <div ref={this.parameterInputRef} className="parameter-input" data-dirty={isDirty || null}>
         {this.renderInput()}
       </div>
     );
