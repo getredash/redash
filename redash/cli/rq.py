@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 from redash import redis_connection
-from redash.scheduler import rq_scheduler, schedule_periodic_jobs
+from redash.schedule import rq_scheduler, schedule_periodic_jobs
 
 from click import argument
 from flask.cli import AppGroup
