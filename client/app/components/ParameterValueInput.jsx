@@ -140,7 +140,7 @@ class ParameterValueInput extends React.Component {
     const { className } = this.props;
     const { value } = this.state;
 
-    const normalize = val => !isNaN(val) && val || 0;
+    const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
