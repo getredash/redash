@@ -3,7 +3,7 @@
 import re
 import logging
 from collections import OrderedDict
-from redash.query_runner import BaseQueryRunner, NoAnnotationMixin, register
+from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
 from redash.utils import json_dumps
 logger = logging.getLogger(__name__)
@@ -49,7 +49,9 @@ TYPES_MAP = dict(
 # https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_examples.htm
 
 
-class Salesforce(BaseQueryRunner, NoAnnotationMixin):
+class Salesforce(BaseQueryRunner):
+    should_annotate_query = False
+    
     @classmethod
     def enabled(cls):
         return enabled

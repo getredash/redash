@@ -120,7 +120,9 @@ def parse_results(results):
     return rows, columns
 
 
-class MongoDB(BaseQueryRunner, NoAnnotationMixin):
+class MongoDB(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {

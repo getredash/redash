@@ -28,7 +28,9 @@ def run_script(script, shell):
     return output, None
 
 
-class Script(BaseQueryRunner, NoAnnotationMixin):
+class Script(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def enabled(cls):
         return "check_output" in subprocess.__dict__

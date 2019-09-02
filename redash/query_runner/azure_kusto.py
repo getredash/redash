@@ -1,5 +1,5 @@
 from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN, NoAnnotationMixin
+from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
 
 
@@ -25,7 +25,8 @@ TYPES_MAP = {
 }
 
 
-class AzureKusto(BaseQueryRunner, NoAnnotationMixin):
+class AzureKusto(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
 
     def __init__(self, configuration):

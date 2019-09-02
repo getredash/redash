@@ -61,7 +61,9 @@ def parse_ym_response(response):
     return {'columns': columns, 'rows': rows}
 
 
-class YandexMetrica(BaseSQLQueryRunner, NoAnnotationMixin):
+class YandexMetrica(BaseSQLQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def type(cls):
         # This is written with a "k" for backward-compatibility. See #2874.

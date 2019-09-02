@@ -4,7 +4,7 @@ import requests
 import logging
 from cStringIO import StringIO
 
-from redash.query_runner import BaseQueryRunner, NoAnnotationMixin, register
+from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING
 from redash.utils import json_dumps
 
@@ -18,7 +18,9 @@ except ImportError:
     enabled = False
 
 
-class Qubole(BaseQueryRunner, NoAnnotationMixin):
+class Qubole(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {

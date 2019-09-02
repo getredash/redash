@@ -25,7 +25,9 @@ def _transform_result(response):
     return json_dumps(data)
 
 
-class Graphite(BaseQueryRunner, NoAnnotationMixin):
+class Graphite(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {

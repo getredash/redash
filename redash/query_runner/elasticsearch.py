@@ -45,7 +45,8 @@ PYTHON_TYPES_MAPPING = {
 }
 
 
-class BaseElasticSearch(BaseQueryRunner, NoAnnotationMixin):
+class BaseElasticSearch(BaseQueryRunner):
+    should_annotate_query = False
     DEBUG_ENABLED = False
 
     @classmethod

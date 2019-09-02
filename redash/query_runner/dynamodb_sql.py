@@ -32,7 +32,9 @@ types_map = {
 }
 
 
-class DynamoDBSQL(BaseSQLQueryRunner, NoAnnotationMixin):
+class DynamoDBSQL(BaseSQLQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {

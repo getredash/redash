@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from dateutil import parser
 from urlparse import parse_qs
-from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING, NoAnnotationMixin
+from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
 
 
@@ -63,7 +63,9 @@ def convert_query_range(payload):
     payload.update(query_range)
 
 
-class Prometheus(BaseQueryRunner, NoAnnotationMixin):
+class Prometheus(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {

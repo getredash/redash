@@ -6,7 +6,7 @@ try:
 except ImportError:
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, NoAnnotationMixin, register
+from redash.query_runner import BaseQueryRunner, register
 from redash.utils import json_dumps
 
 
@@ -28,7 +28,8 @@ def reduce_item(reduced_item, key, value):
         reduced_item[key] = value
 
 
-class Dgraph(BaseQueryRunner, NoAnnotationMixin):
+class Dgraph(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = """
     {
       test() {

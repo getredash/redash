@@ -47,7 +47,8 @@ def _transform_result(results):
     })
 
 
-class InfluxDB(BaseQueryRunner, NoAnnotationMixin):
+class InfluxDB(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "show measurements limit 1"
 
     @classmethod

@@ -82,7 +82,8 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     return query_reply
 
 
-class BigQuery(BaseQueryRunner, NoAnnotationMixin):
+class BigQuery(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod

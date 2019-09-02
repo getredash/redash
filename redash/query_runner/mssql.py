@@ -25,7 +25,8 @@ types_map = {
 }
 
 
-class SqlServer(BaseSQLQueryRunner, NoAnnotationMixin):
+class SqlServer(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod

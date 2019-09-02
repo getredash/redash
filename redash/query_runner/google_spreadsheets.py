@@ -138,7 +138,9 @@ class TimeoutSession(Session):
         return super(TimeoutSession, self).request(*args, **kwargs)
 
 
-class GoogleSpreadsheet(BaseQueryRunner, NoAnnotationMixin):
+class GoogleSpreadsheet(BaseQueryRunner):
+    should_annotate_query = False
+
     def __init__(self, configuration):
         super(GoogleSpreadsheet, self).__init__(configuration)
         self.syntax = 'custom'

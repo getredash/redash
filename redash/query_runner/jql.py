@@ -138,7 +138,7 @@ class FieldMapping:
         return None
 
 
-class JiraJQL(BaseHTTPQueryRunner, NoAnnotationMixin):
+class JiraJQL(BaseHTTPQueryRunner):
     noop_query = '{"queryType": "count"}'
     response_error = "JIRA returned unexpected status code"
     requires_authentication = True

@@ -35,7 +35,9 @@ class CustomPrint(object):
         return self
 
 
-class Python(BaseQueryRunner, NoAnnotationMixin):
+class Python(BaseQueryRunner):
+    should_annotate_query = False
+
     safe_builtins = (
         'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
         'slice', 'filter', 'len', 'next', 'enumerate',

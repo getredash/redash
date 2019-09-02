@@ -33,7 +33,8 @@ TD_TYPES_MAPPING = {
 }
 
 
-class TreasureData(BaseQueryRunner, NoAnnotationMixin):
+class TreasureData(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod

@@ -69,8 +69,8 @@ def parse_results(results):
     return rows, columns
 
 
-class Couchbase(BaseQueryRunner, NoAnnotationMixin):
-
+class Couchbase(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = 'Select 1'
 
     @classmethod

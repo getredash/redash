@@ -35,7 +35,8 @@ types_map = {
 }
 
 
-class Hive(BaseSQLQueryRunner, NoAnnotationMixin):
+class Hive(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
