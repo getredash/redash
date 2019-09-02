@@ -115,6 +115,24 @@
 
       .ant-table {
         flex-grow: 1;
+
+        // show and color scrollbars
+        @media only percy {
+          overflow-x: scroll;
+
+          &::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: green;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: red;
+          }
+        }
       }
     }
   }
