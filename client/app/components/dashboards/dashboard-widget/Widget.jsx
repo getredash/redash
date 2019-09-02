@@ -140,7 +140,7 @@ class Widget extends React.Component {
           </div>
           {children}
           {footer && (
-            <div className="body-row clearfix tile__bottom-control">
+            <div className="body-row tile__bottom-control">
               {footer}
             </div>
           )}

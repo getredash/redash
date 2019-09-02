@@ -77,10 +77,6 @@
   }
 }
 
-.refresh-button {
-  margin-left: -6px;
-}
-
 .editing-mode {
   .widget-menu-regular {
     display: none;
@@ -230,7 +226,21 @@
 
   .tile__bottom-control {
     padding: 10px 15px;
-    line-height: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .btn-transparent {
+      &:first-child {
+        margin-left: -10px;
+      }
+
+      &:last-child {
+        margin-right: -10px;
+      }
+    }
+
+
 
     a {
       color: fade(@redash-black, 65%);

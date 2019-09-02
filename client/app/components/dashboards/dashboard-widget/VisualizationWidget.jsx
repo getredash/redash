@@ -103,37 +103,42 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
 
   return (
     <>
-      {(!isPublic && !!widgetQueryResult) && (
-        <a
-          className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
-          onClick={() => refreshWidget(1)}
-          data-test="RefreshButton"
-        >
-          <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
-          <TimeAgo date={updatedAt} />
-        </a>
-      )}
-      <span className="visible-print">
-        <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
-      </span>
-      {isPublic ? (
-        <span className="small hidden-print">
-          <i className="zmdi zmdi-time-restore" />{' '}<TimeAgo date={updatedAt} />
+      <span>
+        {(!isPublic && !!widgetQueryResult) && (
+          <a
+            className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
+            onClick={() => refreshWidget(1)}
+            data-test="RefreshButton"
+          >
+            <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 1 })} />{' '}
+            <TimeAgo date={updatedAt} />
+          </a>
+        )}
+        <span className="visible-print">
+          <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
         </span>
-      ) : (
+        {isPublic && (
+          <span className="small hidden-print">
+            <i className="zmdi zmdi-time-restore" />{' '}<TimeAgo date={updatedAt} />
+          </span>
+        )}
+      </span>
+      <span>
+        {!isPublic && (
+          <a
+            className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
+            onClick={() => refreshWidget(2)}
+          >
+            <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
+          </a>
+        )}
         <a
-          className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
-          onClick={() => refreshWidget(2)}
+          className="btn btn-sm btn-default hidden-print btn-transparent btn__refresh"
+          onClick={onExpand}
         >
-          <i className={cx('zmdi zmdi-refresh', { 'zmdi-hc-spin': refreshClickButtonId === 2 })} />
+          <i className="zmdi zmdi-fullscreen" />
         </a>
-      )}
-      <a
-        className="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh"
-        onClick={onExpand}
-      >
-        <i className="zmdi zmdi-fullscreen" />
-      </a>
+      </span>
     </>
   );
 }
