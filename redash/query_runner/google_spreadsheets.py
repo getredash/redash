@@ -139,13 +139,11 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    should_annotate_query = False
+
     def __init__(self, configuration):
         super(GoogleSpreadsheet, self).__init__(configuration)
         self.syntax = 'custom'
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def name(cls):

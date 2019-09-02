@@ -113,15 +113,12 @@ def create_table(connection, table_name, query_results):
 
 
 class Results(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = 'SELECT 1'
 
     @classmethod
     def configuration_schema(cls):
         return {"type": "object", "properties": {}}
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def name(cls):

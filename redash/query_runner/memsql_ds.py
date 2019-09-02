@@ -37,6 +37,7 @@ types_map = {
 
 
 class MemSQL(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = 'SELECT 1'
 
     @classmethod
@@ -61,10 +62,6 @@ class MemSQL(BaseSQLQueryRunner):
             "required": ["host", "port"],
             "secret": ["password"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
