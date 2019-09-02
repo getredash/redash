@@ -61,6 +61,7 @@ export default function Renderer({ options, data }) {
   return (
     <div className="table-visualization-container">
       <Table
+        data-percy="show-scrollbars"
         data-test="TableVisualization"
         columns={tableColumns}
         dataSource={preparedRows}
