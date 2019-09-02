@@ -27,6 +27,7 @@ const PublicDashboardPage = {
     this.logoUrl = logoUrl;
     this.public = true;
     this.globalParameters = [];
+    this.loadingWidgets = 0;
 
     this.extractGlobalParameters = () => {
       this.globalParameters = this.dashboard.getParametersDefs();
@@ -38,7 +39,10 @@ const PublicDashboardPage = {
       loadDashboard($http, $route).then((data) => {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
-        this.dashboard.widgets.forEach(widget => widget.load(!!refreshRate));
+        this.dashboard.widgets.forEach((widget) => {
+          this.loadingWidgets += 1;
+          widget.load(!!refreshRate).finally(() => { this.loadingWidgets -= 1; });
+        });
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
         this.filtersOnChange = (allFilters) => {
           this.filters = allFilters;

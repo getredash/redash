@@ -105,7 +105,7 @@ function DashboardCtrl(
   this.globalParameters = [];
   this.isDashboardOwner = false;
   this.filters = [];
-  this.refreshingWidgets = 0;
+  this.loadingWidgets = 0;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
@@ -136,8 +136,8 @@ function DashboardCtrl(
 
   this.loadWidget = (widget, forceRefresh) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    this.refreshingWidgets += 1;
-    return widget.load(forceRefresh).finally(() => { this.refreshingWidgets -= 1; });
+    this.loadingWidgets += 1;
+    return widget.load(forceRefresh).finally(() => { this.loadingWidgets -= 1; });
   };
 
   this.refreshWidget = widget => this.loadWidget(widget, true);
