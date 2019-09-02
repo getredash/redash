@@ -16,7 +16,7 @@ rq_scheduler = Scheduler(connection=redis_connection,
                          interval=5)
 
 
-def _schedule(func, **kwargs):
+def schedule(func, **kwargs):
     previously_scheduled_jobs = filter(lambda job: job.func == func, rq_scheduler.get_jobs())
     for job in previously_scheduled_jobs:
         rq_scheduler.cancel(job)
@@ -32,17 +32,14 @@ def _schedule(func, **kwargs):
 
 
 def schedule_periodic_jobs():
-    _schedule(refresh_queries, interval=30)
-    _schedule(empty_schedules, interval=timedelta(minutes=60))
-    _schedule(refresh_schemas, interval=timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE))
-    _schedule(sync_user_details, timeout=60, ttl=45, interval=timedelta(minutes=1))
-    _schedule(send_aggregated_errors, interval=timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL))
-
-    for (func, kwargs) in settings.dynamic_settings.custom_tasks().iteritems():
-        _schedule(func, **kwargs)
+    schedule(refresh_queries, interval=30)
+    schedule(empty_schedules, interval=timedelta(minutes=60))
+    schedule(refresh_schemas, interval=timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE))
+    schedule(sync_user_details, timeout=60, ttl=45, interval=timedelta(minutes=1))
+    schedule(send_aggregated_errors, interval=timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL))
 
     if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-        _schedule(cleanup_query_results, interval=timedelta(minutes=5))
+        schedule(cleanup_query_results, interval=timedelta(minutes=5))
 
     if settings.VERSION_CHECK:
         # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users evenly.
