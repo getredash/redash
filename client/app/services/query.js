@@ -349,10 +349,11 @@ export class Parameter {
   }
 
   toUrlParams() {
-    if (this.isEmpty) {
-      return {};
-    }
     const prefix = this.urlPrefix;
+    if (this.isEmpty) {
+      return { [`${prefix}${this.name}`]: null };
+    }
+
     if (isDateRangeParameter(this.type) && isObject(this.value)) {
       return {
         [`${prefix}${this.name}.start`]: this.value.start,
