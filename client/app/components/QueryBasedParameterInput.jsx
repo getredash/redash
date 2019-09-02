@@ -81,7 +81,6 @@ export class QueryBasedParameterInput extends React.Component {
           value={isArray(value) ? value : toString(value)}
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
-          dropdownClassName="ant-dropdown-in-bootstrap-modal"
           optionFilterProp="children"
           showSearch
           showArrow
