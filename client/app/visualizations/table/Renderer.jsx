@@ -59,7 +59,7 @@ export default function Renderer({ options, data, context }) {
   }
 
   return (
-    <div className="table-visualization-container" data-context={context}>
+    <div className="table-visualization-container">
       <Table
         data-percy="show-scrollbars"
         data-test="TableVisualization"
