@@ -266,12 +266,36 @@ class Redshift(PostgreSQL):
                     "type": "string",
                     "title": "SSL Mode",
                     "default": "prefer"
-                }
+                },
+                "adhoc_query_group": {
+                    "type": "string",
+                    "title": "Query Group for Adhoc Queries",
+                    "default": "default"
+                },
+                "scheduled_query_group": {
+                    "type": "string",
+                    "title": "Query Group for Scheduled Queries",
+                    "default": "default"
+                },
             },
-            "order": ['host', 'port', 'user', 'password'],
+            "order": ['host', 'port', 'user', 'password', 'dbname', 'sslmode', 'adhoc_query_group', 'scheduled_query_group'],
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
+        
+    def annotate_query(self, query, metadata):
+        annotated = super(Redshift, self).annotate_query(query, metadata)
+
+        if metadata.get('Scheduled', False):
+            query_group = self.configuration.get('scheduled_query_group')
+        else:
+            query_group = self.configuration.get('adhoc_query_group')
+        
+        if query_group:
+            set_query_group = 'set query_group to {};'.format(query_group)
+            annotated = '{}\n{}'.format(set_query_group, annotated)
+        
+        return annotated
 
     def _get_tables(self, schema):
         # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
