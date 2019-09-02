@@ -134,7 +134,7 @@ function DashboardCtrl(
     this.globalParameters = this.dashboard.getParametersDefs();
   };
 
-  this.loadWidget = (widget, forceRefresh) => {
+  this.loadWidget = (widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
     this.loadingWidgets += 1;
     return widget.load(forceRefresh).finally(() => { this.loadingWidgets -= 1; });

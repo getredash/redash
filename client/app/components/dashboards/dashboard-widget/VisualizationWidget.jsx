@@ -159,6 +159,7 @@ class VisualizationWidget extends React.Component {
     filters: FiltersType,
     isPublic: PropTypes.bool,
     canEdit: PropTypes.bool,
+    onLoad: PropTypes.func,
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
@@ -168,6 +169,7 @@ class VisualizationWidget extends React.Component {
     filters: [],
     isPublic: false,
     canEdit: false,
+    onLoad: () => {},
     onRefresh: () => {},
     onDelete: () => {},
     onParameterMappingsChange: () => {},
@@ -179,9 +181,10 @@ class VisualizationWidget extends React.Component {
   }
 
   componentDidMount() {
-    const { widget } = this.props;
+    const { widget, onLoad } = this.props;
     recordEvent('view', 'query', widget.visualization.query.id, { dashboard: true });
     recordEvent('view', 'visualization', widget.visualization.id, { dashboard: true });
+    onLoad();
   }
 
   expandWidget = () => {

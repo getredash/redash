@@ -35,14 +35,19 @@ const PublicDashboardPage = {
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
+    this.loadWidget = (widget, forceRefresh = false) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      this.loadingWidgets += 1;
+      return widget.load(forceRefresh).finally(() => { this.loadingWidgets -= 1; });
+    };
+
+    this.refreshWidget = widget => this.loadWidget(widget, true);
+
     this.refreshDashboard = () => {
       loadDashboard($http, $route).then((data) => {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
-        this.dashboard.widgets.forEach((widget) => {
-          this.loadingWidgets += 1;
-          widget.load(!!refreshRate).finally(() => { this.loadingWidgets -= 1; });
-        });
+        this.dashboard.widgets.forEach(widget => this.loadWidget(widget, !!refreshRate));
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
         this.filtersOnChange = (allFilters) => {
           this.filters = allFilters;
