@@ -50,14 +50,11 @@ TYPES_MAP = dict(
 
 
 class Salesforce(BaseQueryRunner):
-
+    should_annotate_query = False
+    
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def configuration_schema(cls):

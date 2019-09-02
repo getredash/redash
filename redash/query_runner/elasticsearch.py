@@ -46,6 +46,7 @@ PYTHON_TYPES_MAPPING = {
 
 
 class BaseElasticSearch(BaseQueryRunner):
+    should_annotate_query = False
     DEBUG_ENABLED = False
 
     @classmethod
@@ -288,14 +289,9 @@ class BaseElasticSearch(BaseQueryRunner):
 
 
 class Kibana(BaseElasticSearch):
-
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
@@ -379,14 +375,9 @@ class Kibana(BaseElasticSearch):
 
 
 class ElasticSearch(BaseElasticSearch):
-
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def name(cls):

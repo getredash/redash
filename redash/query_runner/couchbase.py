@@ -70,7 +70,7 @@ def parse_results(results):
 
 
 class Couchbase(BaseQueryRunner):
-
+    should_annotate_query = False
     noop_query = 'Select 1'
 
     @classmethod
@@ -108,10 +108,6 @@ class Couchbase(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         result = self.call_service(self.noop_query, '')

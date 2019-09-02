@@ -6,10 +6,6 @@ from redash.utils import deprecated
 class Url(BaseHTTPQueryRunner):
     requires_url = False
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def test_connection(self):
         pass
 

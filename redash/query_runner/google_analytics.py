@@ -78,9 +78,7 @@ def parse_ga_response(response):
 
 
 class GoogleAnalytics(BaseSQLQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
     def type(cls):

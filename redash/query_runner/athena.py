@@ -132,9 +132,10 @@ class Athena(BaseQueryRunner):
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def annotate_query(cls):
-        return ANNOTATE_QUERY
+    def annotate_query(self, query, metadata):
+        if ANNOTATE_QUERY:
+            return super(Athena, self).annotate_query(query, metadata)
+        return query
 
     @classmethod
     def type(cls):
