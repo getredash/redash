@@ -177,7 +177,7 @@ function EditParameterSettingsDialog(props) {
           </Select>
         </Form.Item>
         {param.type === 'enum' && (
-          <Form.Item label="Values" help="Dropdown list values (newline delimeted)" {...formItemProps}>
+          <Form.Item label="Values" help="Dropdown list values (newline delimited)" {...formItemProps}>
             <Input.TextArea
               rows={3}
               value={param.enumOptions}
