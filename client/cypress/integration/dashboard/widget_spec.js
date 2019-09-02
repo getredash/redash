@@ -147,9 +147,9 @@ describe('Widget', () => {
 
     const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
 
-    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then((elTestId) => {
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
-      cy.getByTestId(elTestId).should('exist');
+      cy.getByTestId('TableVisualization').should('exist');
       cy.percySnapshot('Shows horizontal scrollbar for overflowing tabular content');
     });
   });
@@ -161,9 +161,9 @@ describe('Widget', () => {
 
     const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
 
-    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then((elTestId) => {
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
-      cy.getByTestId(elTestId).should('exist');
+      cy.getByTestId('TableVisualization').should('exist');
       cy.percySnapshot('Shows fixed pagination for overflowing tabular content');
     });
   });
