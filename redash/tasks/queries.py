@@ -8,6 +8,7 @@ from celery.utils.log import get_task_logger
 from six import text_type
 
 from redash import models, redis_connection, settings, statsd_client
+from redash.models.parameterized_query import InvalidParameterError, QueryDetachedFromDataSourceError
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import notify_of_failure
@@ -186,16 +187,26 @@ def refresh_queries():
             elif query.org.is_disabled:
                 logging.debug("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
-                logging.info("Skipping refresh of %s because the datasource is none.", query.id)
+                logging.debug("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
-                logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
+                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).",
+                              query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p.get('value')
-                                    for p in query.options['parameters']}
-                    query_text = query.parameterized.apply(query_params).query
-                else:
-                    query_text = query.query_text
+                query_text = query.query_text
+
+                parameters = {p['name']: p.get('value') for p in query.parameters}
+                if any(parameters):
+                    try:
+                        query_text = query.parameterized.apply(parameters).query
+                    except InvalidParameterError as e:
+                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
+                        track_failure(query, error)
+                        continue
+                    except QueryDetachedFromDataSourceError as e:
+                        error = ("Skipping refresh of {} because a related dropdown "
+                                 "query ({}) is unattached to any datasource.").format(query.id, e.query_id)
+                        track_failure(query, error)
+                        continue
 
                 enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
@@ -306,6 +317,16 @@ def _resolve_user(user_id, is_api_key, query_id):
         return None
 
 
+def track_failure(query, error):
+    logging.debug(error)
+
+    query.schedule_failures += 1
+    models.db.session.add(query)
+    models.db.session.commit()
+
+    notify_of_failure(error, query)
+
+
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
@@ -357,10 +378,7 @@ class QueryExecutor(object):
             result = QueryExecutionError(error)
             if self.scheduled_query is not None:
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
-                self.scheduled_query.schedule_failures += 1
-                models.db.session.add(self.scheduled_query)
-                notify_of_failure(error, self.scheduled_query)
-            models.db.session.commit()
+                track_failure(self.scheduled_query, error)
             raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):

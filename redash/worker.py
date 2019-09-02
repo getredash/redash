@@ -68,8 +68,8 @@ celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
                    worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT,
                    worker_prefetch_multiplier=settings.CELERY_WORKER_PREFETCH_MULTIPLIER,
-                   accept_content=settings.CELERY_ACCEPT_CONTENT, 
-                   task_serializer=settings.CELERY_TASK_SERIALIZER, 
+                   accept_content=settings.CELERY_ACCEPT_CONTENT,
+                   task_serializer=settings.CELERY_TASK_SERIALIZER,
                    result_serializer=settings.CELERY_RESULT_SERIALIZER)
 
 # Create a new Task base class, that pushes a new Flask app context to allow DB connections if needed.

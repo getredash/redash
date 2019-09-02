@@ -3,7 +3,7 @@ from mock import patch
 from collections import namedtuple
 import pytest
 
-from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, QueryDetachedFromDataSourceError, dropdown_values
 
 
 class TestParameterizedQuery(TestCase):
@@ -96,6 +96,13 @@ class TestParameterizedQuery(TestCase):
 
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "baz"})
+
+    def test_raises_on_none_for_date_parameters(self):
+        schema = [{"name": "bar", "type": "date"}]
+        query = ParameterizedQuery("foo", schema)
+
+        with pytest.raises(InvalidParameterError):
+            query.apply({"bar": None})
 
     def test_validates_date_parameters(self):
         schema = [{"name": "bar", "type": "date"}]
@@ -230,19 +237,24 @@ class TestParameterizedQuery(TestCase):
         "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
         "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]})
     def test_dropdown_values_prefers_name_and_value_columns(self, _):
-        values = dropdown_values(1)
+        values = dropdown_values(1, None)
         self.assertEquals(values, [{"name": "John", "value": "John Doe"}])
 
     @patch('redash.models.parameterized_query._load_result', return_value={
         "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
     def test_dropdown_values_compromises_for_first_column(self, _):
-        values = dropdown_values(1)
+        values = dropdown_values(1, None)
         self.assertEquals(values, [{"name": 5, "value": "5"}])
 
     @patch('redash.models.parameterized_query._load_result', return_value={
         "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
         "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}]})
     def test_dropdown_supports_upper_cased_columns(self, _):
-        values = dropdown_values(1)
+        values = dropdown_values(1, None)
         self.assertEquals(values, [{"name": 5, "value": "5"}])
+
+    @patch('redash.models.Query.get_by_id_and_org', return_value=namedtuple('Query', 'data_source')(None))
+    def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
+        with pytest.raises(QueryDetachedFromDataSourceError):
+            dropdown_values(1, None)

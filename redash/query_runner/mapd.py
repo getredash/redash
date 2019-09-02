@@ -112,4 +112,5 @@ class Mapd(BaseSQLQueryRunner):
         finally:
             connection.close
 
+
 register(Mapd)

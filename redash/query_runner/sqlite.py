@@ -91,4 +91,5 @@ class Sqlite(BaseSQLQueryRunner):
             connection.close()
         return json_data, error
 
+
 register(Sqlite)

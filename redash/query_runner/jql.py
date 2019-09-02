@@ -27,6 +27,7 @@ class ResultSet(object):
     def merge(self, set):
         self.rows = self.rows + set.rows
 
+
 def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']
@@ -117,20 +118,20 @@ class FieldMapping:
                 'output_field_name': v
                 })
 
-    def get_output_field_name(cls,field_name):
+    def get_output_field_name(cls, field_name):
         for item in cls.mapping:
             if item['field_name'] == field_name and not item['member_name']:
                 return item['output_field_name']
         return field_name
 
-    def get_dict_members(cls,field_name):
+    def get_dict_members(cls, field_name):
         member_names = []
         for item in cls.mapping:
             if item['field_name'] == field_name and item['member_name']:
                 member_names.append(item['member_name'])
         return member_names
 
-    def get_dict_output_field_name(cls,field_name, member_name):
+    def get_dict_output_field_name(cls, field_name, member_name):
         for item in cls.mapping:
             if item['field_name'] == field_name and item['member_name'] == member_name:
                 return item['output_field_name']
@@ -198,5 +199,6 @@ class JiraJQL(BaseHTTPQueryRunner):
             return results.to_json(), None
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
+
 
 register(JiraJQL)

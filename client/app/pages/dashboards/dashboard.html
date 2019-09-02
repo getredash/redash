@@ -57,7 +57,7 @@
             </button>
             <ul class="dropdown-menu pull-right" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
               <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates" ng-class="{disabled: !refreshRate.enabled}">
-                <a href="javascript:void(0)" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+                <a ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
               </li>
               <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
                 <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>

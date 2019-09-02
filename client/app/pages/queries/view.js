@@ -215,6 +215,10 @@ function QueryViewCtrl(
 
   $scope.loadTags = () => getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 
+  $scope.applyParametersChanges = () => {
+    $scope.$apply();
+  };
+
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
 

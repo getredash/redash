@@ -4,6 +4,8 @@ import re
 
 from dateutil import parser
 
+from six import text_type
+
 from redash.query_runner import (
     BaseHTTPQueryRunner, register,
     TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN,
@@ -26,12 +28,12 @@ def convert_type(string_value, actual_type):
         return float(string_value)
 
     if actual_type == TYPE_BOOLEAN:
-        return unicode(string_value).lower() == 'true'
+        return text_type(string_value).lower() == 'true'
 
     if actual_type == TYPE_DATETIME:
         return parser.parse(string_value)
 
-    return unicode(string_value)
+    return text_type(string_value)
 
 
 # Parse Drill API response and translate it to accepted format
@@ -104,17 +106,17 @@ class Drill(BaseHTTPQueryRunner):
     def get_schema(self, get_stats=False):
 
         query = """
-        SELECT DISTINCT 
-            TABLE_SCHEMA, 
-            TABLE_NAME, 
-            COLUMN_NAME 
-        FROM 
-            INFORMATION_SCHEMA.`COLUMNS` 
-        WHERE 
-                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys') 
-            and TABLE_SCHEMA not like '%.information_schema' 
-            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA' 
-            
+        SELECT DISTINCT
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            COLUMN_NAME
+        FROM
+            INFORMATION_SCHEMA.`COLUMNS`
+        WHERE
+                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys')
+            and TABLE_SCHEMA not like '%.information_schema'
+            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA'
+
         """
         allowed_schemas = self.configuration.get('allowed_schemas')
         if allowed_schemas:

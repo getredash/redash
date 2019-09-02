@@ -37,6 +37,7 @@ def calculate_metrics(response):
 
     return response
 
+
 MockResponse = namedtuple('MockResponse', ['status_code', 'content_type', 'content_length'])
 
 

@@ -62,4 +62,5 @@ class ChatWork(BaseDestination):
         except Exception:
             logging.exception('ChatWork send ERROR.')
 
+
 register(ChatWork)

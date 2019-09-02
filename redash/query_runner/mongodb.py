@@ -3,9 +3,11 @@ import logging
 import re
 
 from dateutil.parser import parse
+from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils.compat import long
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,7 @@ except ImportError:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT,
@@ -56,7 +58,7 @@ def parse_oids(oids):
 
 def datetime_parser(dct):
     for k, v in dct.iteritems():
-        if isinstance(v, basestring):
+        if isinstance(v, string_types):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
@@ -220,7 +222,6 @@ class MongoDB(BaseQueryRunner):
 
         return schema.values()
 
-
     def run_query(self, query, user):
         db = self._get_db()
 
@@ -301,12 +302,12 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
             })
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 
@@ -331,5 +332,6 @@ class MongoDB(BaseQueryRunner):
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
+
 
 register(MongoDB)
