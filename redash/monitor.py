@@ -1,9 +1,13 @@
+from __future__ import absolute_import
 import itertools
 from sqlalchemy import union_all
 from redash import redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.utils import json_loads
 from redash.worker import celery
+from rq import Queue
+from rq.job import Job
+from rq.registry import StartedJobRegistry
 
 
 def get_redis_status():
@@ -134,3 +138,22 @@ def celery_tasks():
         tasks += get_waiting_in_queue(queue_name)
 
     return tasks
+
+
+def fetch_jobs(queue, job_ids):
+        return [{
+            'id': job.id,
+            'name': job.func_name,
+            'queue': queue.name,
+            'enqueued_at': job.enqueued_at,
+            'started_at': job.started_at
+        } for job in Job.fetch_many(job_ids, connection=redis_connection)]
+
+
+def rq_queues():
+    return {
+        q.name: {
+            'name': q.name,
+            'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
+            'queued': fetch_jobs(q, q.job_ids)
+        } for q in Queue.all(connection=redis_connection)}
