@@ -5,7 +5,7 @@ from redash import redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.utils import json_loads
 from redash.worker import celery
-from rq import Queue
+from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
 
@@ -157,3 +157,24 @@ def rq_queues():
             'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
             'queued': fetch_jobs(q, q.job_ids)
         } for q in Queue.all(connection=redis_connection)}
+
+
+def rq_workers():
+    return [{'name': w.name,
+             'hostname': w.hostname,
+             'pid': w.pid,
+             'queues': ", ".join([q.name for q in w.queues]),
+             'state': w.state,
+             'last_heartbeat': w.last_heartbeat,
+             'birth_date': w.birth_date,
+             'successful_job_count': w.successful_job_count,
+             'failed_job_count': w.failed_job_count,
+             'total_working_time': w.total_working_time
+             } for w in Worker.all(connection=redis_connection)]
+
+
+def rq_status():
+    return {
+        'queues': rq_queues(),
+        'workers': rq_workers()
+    }

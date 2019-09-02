@@ -7,7 +7,7 @@ import Tabs from 'antd/lib/tabs';
 import * as Grid from 'antd/lib/grid';
 import Layout from '@/components/admin/Layout';
 import { CounterCard } from '@/components/admin/CeleryStatus';
-import { QueuesTable, OtherJobsTable } from '@/components/admin/RQStatus';
+import { WorkersTable, QueuesTable, OtherJobsTable } from '@/components/admin/RQStatus';
 
 import { $http } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
@@ -21,12 +21,13 @@ class Jobs extends React.Component {
     queueCounters: [],
     overallCounters: { started: 0, queued: 0 },
     startedJobs: [],
+    workers: [],
   };
 
   componentDidMount() {
     recordEvent('view', 'page', 'admin/jobs');
     $http
-      .get('/api/admin/queries/jobs')
+      .get('/api/admin/queries/rq_status')
       .then(({ data }) => this.processQueues(data))
       .catch(error => this.handleError(error));
   }
@@ -37,7 +38,7 @@ class Jobs extends React.Component {
     this.handleError = () => {};
   }
 
-  processQueues = (queues) => {
+  processQueues = ({ queues, workers }) => {
     const queueCounters = values(queues).map(({ name, started, queued }) => ({
       name,
       started: started.length,
@@ -54,7 +55,7 @@ class Jobs extends React.Component {
 
     const startedJobs = flatMap(values(queues), queue => queue.started);
 
-    this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters });
+    this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters, workers });
   };
 
   handleError = (error) => {
@@ -62,7 +63,7 @@ class Jobs extends React.Component {
   };
 
   render() {
-    const { isLoading, error, queueCounters, startedJobs, overallCounters } = this.state;
+    const { isLoading, error, queueCounters, startedJobs, overallCounters, workers } = this.state;
 
     return (
       <Layout activeTab="jobs">
@@ -85,6 +86,9 @@ class Jobs extends React.Component {
               <Tabs defaultActiveKey="queues" animated={false}>
                 <Tabs.TabPane key="queues" tab="Queues">
                   <QueuesTable loading={isLoading} items={queueCounters} />
+                </Tabs.TabPane>
+                <Tabs.TabPane key="workers" tab="Workers">
+                  <WorkersTable loading={isLoading} items={workers} />
                 </Tabs.TabPane>
                 <Tabs.TabPane key="other" tab="Other Jobs">
                   <OtherJobsTable loading={isLoading} items={startedJobs} />
