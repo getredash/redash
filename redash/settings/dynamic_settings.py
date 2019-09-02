@@ -10,15 +10,10 @@ def query_time_limit(is_scheduled, user_id, org_id):
     return scheduled_time_limit if is_scheduled else adhoc_time_limit
 
 
-# Provide any custom jobs you'd like to run periodically
-def custom_tasks():
-    # from redash.tasks import example1, example2
-    return {
-        # redash.tasks.example1: {
-        #     'interval': timedelta(minutes=5)
-        # },
-        # redash.tasks.example2: {
-        #     'interval': timedelta(hours=1),
-        #     'timeout': 60
-        # },
-    }
+"""You can provide any custom jobs you'd like to run periodically here. For example:
+
+from datetime import timedelta
+from redash.schedule import schedule
+
+schedule(my_task, interval=timedelta(minutes=5))
+"""
