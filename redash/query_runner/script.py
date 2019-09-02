@@ -29,9 +29,7 @@ def run_script(script, shell):
 
 
 class Script(BaseQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
     def enabled(cls):

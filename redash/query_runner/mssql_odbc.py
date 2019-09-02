@@ -16,6 +16,7 @@ except ImportError:
 
 
 class SQLServerODBC(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -67,10 +68,6 @@ class SQLServerODBC(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "mssql_odbc"
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def _get_tables(self, schema):
         query = """

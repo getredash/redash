@@ -159,10 +159,6 @@ class JSON(BaseHTTPQueryRunner):
             'order': ['username', 'password']
         }
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def __init__(self, configuration):
         super(JSON, self).__init__(configuration)
         self.syntax = 'yaml'

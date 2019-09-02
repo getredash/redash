@@ -26,6 +26,7 @@ TYPES_MAP = {
 
 
 class AzureKusto(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
 
     def __init__(self, configuration):
@@ -70,10 +71,6 @@ class AzureKusto(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
