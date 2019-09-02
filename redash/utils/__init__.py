@@ -1,21 +1,34 @@
+import codecs
 import cStringIO
 import csv
-import codecs
-import decimal
 import datetime
-import json
+import decimal
+import hashlib
+import os
 import random
 import re
-import hashlib
-import pytz
-import pystache
+import uuid
+import binascii
 
-from funcy import distinct
+from six import string_types
+
+import pystache
+import pytz
+import simplejson
+from funcy import select_values
+from redash import settings
+from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
-from redash import settings
+
+try:
+    buffer
+except NameError:
+    buffer = bytes
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
+WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
+WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
 
 
 def utcnow():
@@ -25,6 +38,15 @@ def utcnow():
     which leads to errors in calculations.
     """
     return datetime.datetime.now(pytz.utc)
+
+
+def dt_from_timestamp(timestamp, tz_aware=True):
+    timestamp = datetime.datetime.utcfromtimestamp(float(timestamp))
+
+    if tz_aware:
+        timestamp = timestamp.replace(tzinfo=pytz.utc)
+
+    return timestamp
 
 
 def slugify(s):
@@ -53,24 +75,55 @@ def generate_token(length):
     return ''.join(rand.choice(chars) for x in range(length))
 
 
-class JSONEncoder(json.JSONEncoder):
-    """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
+class JSONEncoder(simplejson.JSONEncoder):
+    """Adapter for `simplejson.dumps`."""
 
     def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            return float(o)
+        # Some SQLAlchemy collections are lazy.
+        if isinstance(o, Query):
+            result = list(o)
+        elif isinstance(o, decimal.Decimal):
+            result = float(o)
+        elif isinstance(o, (datetime.timedelta, uuid.UUID)):
+            result = str(o)
+        # See "Date Time String Format" in the ECMA-262 specification.
+        elif isinstance(o, datetime.datetime):
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:23] + result[26:]
+            if result.endswith('+00:00'):
+                result = result[:-6] + 'Z'
+        elif isinstance(o, datetime.date):
+            result = o.isoformat()
+        elif isinstance(o, datetime.time):
+            if o.utcoffset() is not None:
+                raise ValueError("JSON can't represent timezone-aware times.")
+            result = o.isoformat()
+            if o.microsecond:
+                result = result[:12]
+        elif isinstance(o, buffer):
+            result = binascii.hexlify(o)
+        else:
+            result = super(JSONEncoder, self).default(o)
+        return result
 
-        if isinstance(o, (datetime.date, datetime.time)):
-            return o.isoformat()
 
-        if isinstance(o, datetime.timedelta):
-            return str(o)
-
-        super(JSONEncoder, self).default(o)
+def json_loads(data, *args, **kwargs):
+    """A custom JSON loading function which passes all parameters to the
+    simplejson.loads function."""
+    return simplejson.loads(data, *args, **kwargs)
 
 
-def json_dumps(data):
-    return json.dumps(data, cls=JSONEncoder)
+def json_dumps(data, *args, **kwargs):
+    """A custom JSON dumping function which passes all parameters to the
+    simplejson.dumps function."""
+    kwargs.setdefault('cls', JSONEncoder)
+    return simplejson.dumps(data, *args, **kwargs)
+
+
+def mustache_render(template, context=None, **kwargs):
+    renderer = pystache.Renderer(escape=lambda u: u)
+    return renderer.render(template, context, **kwargs)
 
 
 def build_url(request, host, path):
@@ -89,7 +142,7 @@ class UnicodeWriter:
     which is encoded in the given encoding.
     """
 
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+    def __init__(self, f, dialect=csv.excel, encoding=WRITER_ENCODING, **kwds):
         # Redirect output to a queue
         self.queue = cStringIO.StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
@@ -97,8 +150,8 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def _encode_utf8(self, val):
-        if isinstance(val, (unicode, str)):
-            return val.encode('utf-8')
+        if isinstance(val, string_types):
+            return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val
 
@@ -106,7 +159,7 @@ class UnicodeWriter:
         self.writer.writerow([self._encode_utf8(s) for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
-        data = data.decode("utf-8")
+        data = data.decode(WRITER_ENCODING)
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
         # write to the target stream
@@ -117,24 +170,6 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
-
-
-def _collect_key_names(nodes):
-    keys = []
-    for node in nodes._parse_tree:
-        if isinstance(node, pystache.parser._EscapeNode):
-            keys.append(node.key)
-        elif isinstance(node, pystache.parser._SectionNode):
-            keys.append(node.key)
-            keys.extend(_collect_key_names(node.parsed))
-
-    return distinct(keys)
-
-
-def collect_query_parameters(query):
-    nodes = pystache.parse(query)
-    keys = _collect_key_names(nodes)
-    return keys
 
 
 def collect_parameters_from_request(args):
@@ -154,3 +189,19 @@ def base_url(org):
     return settings.HOST
 
 
+def filter_none(d):
+    return select_values(lambda v: v is not None, d)
+
+
+def to_filename(s):
+    s = re.sub('[<>:"\\\/|?*]+', " ", s, flags=re.UNICODE)
+    s = re.sub("\s+", "_", s, flags=re.UNICODE)
+    return s.strip("_")
+
+
+def deprecated():
+    def wrapper(K):
+        setattr(K, 'deprecated', True)
+        return K
+
+    return wrapper

@@ -1,0 +1,41 @@
+.carousel-caption {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    
+    h3 {
+        margin-top: 0;
+        margin-bottom: 3px;
+        color: #fff;
+    }
+}
+
+.carousel-indicators {
+    bottom: 10px;
+    
+    & > li:not(.active) {
+        border: 0;
+        background: #000;
+    }
+}
+
+.carousel-control {
+    width: 50px;
+    background: none;
+    
+    .fa {
+        font-size: 50px;
+        height: 52px;
+        margin-top: -26px;
+        position: absolute;
+        top: 50%;
+        .margin-left(-9px);
+    }
+}
+
+@media @max-768 {
+    .carousel-indicators, .carousel-caption {
+        display: none;
+    }
+}

@@ -1,30 +1,28 @@
+.venv
+venv/
+.cache
+.coverage.*
 .coveralls.yml
 .idea
 *.pyc
 .coverage
-rd_ui/dist
+coverage.xml
+client/dist
 .DS_Store
 celerybeat-schedule*
 .#*
 \#*#
 *~
 _build
-
-# Vagrant related
-.vagrant
-Berksfile.lock
-redash/dump.rdb
+.vscode
 .env
-.ruby-version
-venv
 
 dump.rdb
-
-# Docker related
-docker-compose.yml
 
 node_modules
 .tmp
 .sass-cache
-rd_ui/app/bower_components
 npm-debug.log
+
+client/cypress/screenshots
+client/cypress/videos

@@ -1,0 +1,95 @@
+<div class="container">
+  <page-header title="$ctrl.alert.name || $ctrl.getDefaultName() || 'New Alert'"></page-header>
+
+  <email-settings-warning feature-name="'alert emails'"></email-settings-warning>
+
+  <div class="container">
+    <div class="row bg-white tiled p-10">
+      <div class="col-md-8">
+        <form name="alertForm" class="form">
+          <div class="form-group">
+            <label>Query</label>
+            <query-selector type="'select'" selected-query="$ctrl.alert.query" on-change="$ctrl.onQuerySelected" disabled="!$ctrl.canEdit" />
+          </div>
+
+          <div class="form-group" ng-show="$ctrl.selectedQuery">
+            <label>Name</label>
+            <input type="string" placeholder="{{$ctrl.getDefaultName()}}" class="form-control" ng-model="$ctrl.alert.name" ng-disabled="!$ctrl.canEdit">
+          </div>
+
+          <div ng-show="$ctrl.queryResult" class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-md-2">Value column</label>
+              <div class="col-md-4">
+                <select ng-options="name for name in $ctrl.queryResult.getColumnNames()" ng-model="$ctrl.alert.options.column"
+                        class="form-control" ng-disabled="!$ctrl.canEdit"></select>
+              </div>
+              <label class="control-label col-md-2">Value</label>
+              <div class="col-md-4">
+                <p class="form-control-static">{{$ctrl.queryResult.getData()[0][$ctrl.alert.options.column]}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-2">Op</label>
+              <div class="col-md-4">
+                <select ng-options="name for name in $ctrl.ops" ng-model="$ctrl.alert.options.op" class="form-control" ng-disabled="!$ctrl.canEdit"></select>
+              </div>
+              <label class="control-label col-md-2">Reference</label>
+              <div class="col-md-4">
+                <input type="number" step="any" class="form-control" ng-model="$ctrl.alert.options.value" placeholder="reference value" ng-disabled="!$ctrl.canEdit"
+                       required/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-2">Rearm seconds</label>
+              <div class="col-md-4">
+                <input type="number" class="form-control" ng-model="$ctrl.alert.rearm" ng-disabled="!$ctrl.canEdit"/>
+              </div>
+            </div>
+          </div>
+          <div class="form-group" ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
+            <label>Custom subject</label>
+            <input type="string" class="form-control" ng-model="$ctrl.alert.options.subject" ng-disabled="!$ctrl.canEdit">
+          </div>
+          <div ng-show="$ctrl.selectedQuery && $ctrl.showExtendedOptions">
+            <div class="form-group" ng-show="$ctrl.selectedQuery">
+              <label>Description template</label>
+              <i class="fa fa-question-circle" uib-tooltip="{{$ctrl.alertTemplate.helpMessage}}"></i>
+              <div class="row bg-white p-b-5" ng-if="$ctrl.canEdit" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+                <div ui-ace="$ctrl.alertTemplate.editorOptions" ng-model="$ctrl.alert.options.template"></div>
+              </div>
+            </div>
+             <div class="form-group" ng-if="$ctrl.canEdit">
+              <button class="btn btn-default" ng-click="$ctrl.preview()">Preview</button>
+              <label for="show-as-html">Show As HTML</label> 
+              <input type="checkbox" name="show-as-html" ng-model="$ctrl.showAsHTML">
+            </div>
+             <div class="panel panel-default" ng-if="$ctrl.alert.preview">
+              <div class="panel-heading">
+                <label for="hide-preview">Hide Preview</label> 
+                <input type="checkbox" name="hide-preview" ng-model="$ctrl.hidePreview">
+              </div>
+              <div class="panel-body" ng-if="$ctrl.hidePreview == false">
+                  <div ng-if="!$ctrl.showAsHTML">
+                    <div ng-bind-html="$ctrl.alert.preview"></div>
+                  </div>
+                  <div ng-if="$ctrl.showAsHTML">
+                    <div ng-bind-html="$ctrl.alert.previewHTML"></div>
+                  </div>
+              </div>
+              <div class="panel-footer"></div>
+            </div>
+          </div>
+
+          <div class="form-group" ng-if="$ctrl.canEdit">
+            <button class="btn btn-primary" ng-disabled="!alertForm.$valid" ng-click="$ctrl.saveChanges()">Save</button>
+            <button class="btn btn-danger" ng-if="$ctrl.alert.id" ng-click="$ctrl.delete()">Delete</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-4" ng-if="$ctrl.alert.id">
+        <alert-subscriptions alert-id="$ctrl.alert.id"></alert-subscriptions>
+      </div>
+    </div>
+  </div>
+</div>

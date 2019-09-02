@@ -1,27 +1,33 @@
-import json
-
 from flask import make_response, request
-from flask.ext.restful import abort
-from funcy import project
+from flask_restful import abort
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
+from redash.destinations import (destinations,
+                                 get_configuration_schema_for_destination_type)
+from redash.handlers.base import BaseResource, require_fields
 from redash.permissions import require_admin
-from redash.destinations import destinations, get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class DestinationTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in destinations.values()]
+        available_destinations = filter(lambda q: not q.deprecated, destinations.values())
+        return [q.to_dict() for q in available_destinations]
 
 
 class DestinationResource(BaseResource):
     @require_admin
     def get(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
-        return destination.to_dict(all=True)
+        d = destination.to_dict(all=True)
+        self.record_event({
+            'action': 'view',
+            'object_id': destination_id,
+            'object_type': 'destination',
+        })
+        return d
 
     @require_admin
     def post(self, destination_id):
@@ -33,22 +39,32 @@ class DestinationResource(BaseResource):
             abort(400)
 
         try:
+            destination.type = req['type']
+            destination.name = req['name']
             destination.options.set_schema(schema)
             destination.options.update(req['options'])
+            models.db.session.add(destination)
+            models.db.session.commit()
         except ValidationError:
             abort(400)
-
-        destination.type = req['type']
-        destination.name = req['name']
-
-        destination.save()
+        except IntegrityError as e:
+            if 'name' in e.message:
+                abort(400, message=u"Alert Destination with the name {} already exists.".format(req['name']))
+            abort(500)
 
         return destination.to_dict(all=True)
 
     @require_admin
     def delete(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
-        destination.delete_instance(recursive=True)
+        models.db.session.delete(destination)
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'delete',
+            'object_id': destination_id,
+            'object_type': 'destination'
+        })
 
         return make_response('', 204)
 
@@ -65,15 +81,18 @@ class DestinationListResource(BaseResource):
             d = ds.to_dict()
             response[ds.id] = d
 
+        self.record_event({
+            'action': 'list',
+            'object_id': 'admin/destinations',
+            'object_type': 'destination',
+        })
+
         return response.values()
 
     @require_admin
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
-        for f in required_fields:
-            if f not in req:
-                abort(400)
+        require_fields(req, ('options', 'name', 'type'))
 
         schema = get_configuration_schema_for_destination_type(req['type'])
         if schema is None:
@@ -88,6 +107,13 @@ class DestinationListResource(BaseResource):
                                                      type=req['type'],
                                                      options=config,
                                                      user=self.current_user)
-        destination.save()
+
+        try:
+            models.db.session.add(destination)
+            models.db.session.commit()
+        except IntegrityError as e:
+            if 'name' in e.message:
+                abort(400, message=u"Alert Destination with the name {} already exists.".format(req['name']))
+            abort(500)
 
         return destination.to_dict(all=True)

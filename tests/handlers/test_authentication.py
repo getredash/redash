@@ -1,10 +1,19 @@
-from tests import BaseTestCase
-import mock
 import time
-from redash import settings
-from redash.models import User
+
+import mock
+from tests import BaseTestCase
+
+from redash import settings, limiter
 from redash.authentication.account import invite_token
-from tests.handlers import get_request, post_request
+from redash.models import User
+
+
+class TestResetPassword(BaseTestCase):
+    def test_shows_reset_password_form(self):
+        user = self.factory.create_user(is_invitation_pending=False)
+        token = invite_token(user)
+        response = self.get_request('/reset/{}'.format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestInvite(BaseTestCase):
@@ -14,55 +23,77 @@ class TestInvite(BaseTestCase):
             patched_time.return_value = time.time() - (7 * 24 * 3600) - 10
             token = invite_token(self.factory.user)
 
-        response = get_request('/invite/{}'.format(token), org=self.factory.org)
+        response = self.get_request('/invite/{}'.format(token), org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_invite_token(self):
-        response = get_request('/invite/badtoken', org=self.factory.org)
+        response = self.get_request('/invite/badtoken', org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_valid_token(self):
-        token = invite_token(self.factory.user)
-        response = get_request('/invite/{}'.format(token), org=self.factory.org)
+        user = self.factory.create_user(is_invitation_pending=True)
+        token = invite_token(user)
+        response = self.get_request('/invite/{}'.format(token), org=self.factory.org)
         self.assertEqual(response.status_code, 200)
 
     def test_already_active_user(self):
-        pass
+        token = invite_token(self.factory.user)
+        self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        response = self.get_request('/invite/{}'.format(token), org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
 
 
 class TestInvitePost(BaseTestCase):
     def test_empty_password(self):
         token = invite_token(self.factory.user)
-        response = post_request('/invite/{}'.format(token), data={'password': ''}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format(token), data={'password': ''}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_password(self):
         token = invite_token(self.factory.user)
-        response = post_request('/invite/{}'.format(token), data={'password': '1234'}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format(token), data={'password': '1234'}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
     def test_bad_token(self):
-        response = post_request('/invite/{}'.format('jdsnfkjdsnfkj'), data={'password': '1234'}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format('jdsnfkjdsnfkj'), data={'password': '1234'}, org=self.factory.org)
         self.assertEqual(response.status_code, 400)
 
+    def test_user_invited_before_invitation_pending_check(self):
+        user = self.factory.create_user(details={})
+        token = invite_token(user)
+        response = self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        self.assertEqual(response.status_code, 302)
+
     def test_already_active_user(self):
-        pass
+        token = invite_token(self.factory.user)
+        self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format(token), data={'password': 'test1234'}, org=self.factory.org)
+        self.assertEqual(response.status_code, 400)
 
     def test_valid_password(self):
-        token = invite_token(self.factory.user)
+        user = self.factory.create_user(is_invitation_pending=True)
+        token = invite_token(user)
         password = 'test1234'
-        response = post_request('/invite/{}'.format(token), data={'password': password}, org=self.factory.org)
+        response = self.post_request('/invite/{}'.format(token), data={'password': password}, org=self.factory.org)
         self.assertEqual(response.status_code, 302)
-        user = User.get_by_id(self.factory.user.id)
+        user = User.query.get(user.id)
         self.assertTrue(user.verify_password(password))
+        self.assertFalse(user.is_invitation_pending)
 
 
 class TestLogin(BaseTestCase):
     def test_throttle_login(self):
+        limiter.enabled = True
         # Extract the limit from settings (ex: '50/day')
         limit = settings.THROTTLE_LOGIN_PATTERN.split('/')[0]
         for _ in range(0, int(limit)):
-            get_request('/login', org=self.factory.org)
+            self.get_request('/login', org=self.factory.org)
 
-        response = get_request('/login', org=self.factory.org)
+        response = self.get_request('/login', org=self.factory.org)
         self.assertEqual(response.status_code, 429)
+
+
+class TestSession(BaseTestCase):
+    # really simple test just to trigger this route
+    def test_get(self):
+        self.make_request('get', '/default/api/session', user=self.factory.user, org=False)

@@ -1,0 +1,194 @@
+.note-editor,
+.note-popover {
+    .note-toolbar,
+    .popover-content {
+        background: #fff;
+        border-color: #e4e4e4;
+        margin: 0;
+        padding: 10px 0 15px;
+        text-align: center;
+        
+        & > .btn-group {
+            display: inline-block;
+            float: none;
+            box-shadow: none;
+            
+            .btn {
+                margin: 0 1px;
+                border: 0;
+            }
+            
+            & > .active {
+                background: @cyan;
+                color: #fff;
+            }
+        }
+        
+            
+        .btn {
+            height: 40px;
+            border-radius: 2px !important;
+            box-shadow: none !important;
+            background: #fff;
+            
+            &:active {
+                box-shadow: none;
+            }
+        }
+
+        .note-palette-title {
+            margin: 0 !important;
+            padding: 10px 0 !important;
+            font-size: 13px !important;
+            text-align: center !important;  
+            border: 0 !important;
+        }
+        
+        .note-color-reset {
+            padding: 0 0 10px !important;
+            margin: 0 !important;
+            background: none;
+            text-align: center;
+        }
+         
+        .note-color {
+            .dropdown-menu {
+                min-width: 335px;
+            }
+        }
+    }
+    
+    .note-statusbar {
+        .note-resizebar {
+            border-color: #E8E8E8;
+            
+            .note-icon-bar {
+                border-color: #BCBCBC;
+            }
+        }
+    }
+    
+    .fa {
+        font-style: normal;
+        font-size: 20px;
+        vertical-align: middle;
+        
+        &:before {
+            font-family: @font-icon;
+        }
+        
+        &.fa-magic:before {
+            content: "\f16a";
+        }
+        
+        &.fa-bold:before {
+            content: "\f23d";
+        }
+        
+        &.fa-italic:before {
+            content: "\f245";
+        }
+        
+        &.fa-underline:before {
+            content: "\f24f";
+        }
+        
+        &.fa-font:before {
+            content: "\f242";
+        }
+        
+        &.fa-list-ul:before {
+            content: "\f247";
+        }
+        
+        &.fa-list-ol:before {
+            content: "\f248";
+        }
+
+        &.fa-align-left:before {
+            content: "\f23b";
+        }
+        
+        &.fa-align-right:before {
+            content: "\f23c";
+        }
+
+        &.fa-align-center:before {
+            content: "\f239";
+        }
+
+        &.fa-align-justify:before {
+            content: "\f23a";
+        }
+        
+        &.fa-indent:before {
+            content: "\f244";
+        }
+        
+        &.fa-outdent:before {
+            content: "\f243";
+        }
+        
+        &.fa-text-height:before {
+            content: "\f246";
+        }
+        
+        &.fa-table:before {
+            content: "\f320";
+        }
+        
+        &.fa-link:before {
+            content: "\f18e";
+        }
+        
+        &.fa-picture-o:before {
+            content: "\f17f";
+        }
+        
+        &.fa-minus:before {
+            content: "\f22f";
+        }
+        
+        &.fa-arrows-alt:before {
+            content: "\f16d";
+        }
+        
+        &.fa-code:before {
+            content: "\f13a";
+        }
+        
+        &.fa-question:before {
+            content: "\f1f5";
+        }
+        
+        &.fa-eraser:before {
+            content: "\f23f";
+        }
+        
+        &.fa-square:before {
+            content: "\f279";
+        }
+        
+        &.fa-circle-o:before {
+            content: "\f26c";
+        }
+        
+        &.fa-times:before {
+            content: "\f136";
+        }
+    }
+    
+    .note-air-popover {
+        .arrow {
+            left: 20px;
+        }
+    }
+}
+
+.note-editor {
+    border: 1px solid #e4e4e4;
+
+    .note-editable {
+        padding: 20px 23px;
+    }
+}

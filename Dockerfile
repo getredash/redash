@@ -1,53 +1,28 @@
-FROM ubuntu:trusty
+FROM node:10 as frontend-builder
 
-# Ubuntu packages
-RUN apt-get update && \
-  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget \
-  # Postgres client
-  libpq-dev \
-  # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev freetds-dev libsasl2-dev && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
+WORKDIR /frontend
+COPY package.json package-lock.json /frontend/
+RUN npm install
 
-# Users creation
-RUN useradd --system --comment " " --create-home redash
+COPY client /frontend/client
+COPY webpack.config.js /frontend/
+RUN npm run build
 
-# Pip requirements for all data source types
-RUN pip install -U setuptools==23.1.0 && \
-  pip install supervisor==3.1.2
+FROM redash/base:debian
 
-COPY . /opt/redash/current
-RUN chown -R redash /opt/redash/current
+# Controls whether to install extra dependencies needed for all data sources.
+ARG skip_ds_deps
 
-# Setting working directory
-WORKDIR /opt/redash/current
+# We first copy only the requirements file, to avoid rebuilding on every file
+# change.
+COPY requirements.txt requirements_bundles.txt requirements_dev.txt requirements_all_ds.txt ./
+RUN pip install -r requirements.txt -r requirements_dev.txt
+RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
-ENV REDASH_STATIC_ASSETS_PATH="../rd_ui/dist/"
+COPY . /app
+COPY --from=frontend-builder /frontend/client/dist /app/client/dist
+RUN chown -R redash /app
+USER redash
 
-# Install project specific dependencies
-RUN pip install -r requirements_all_ds.txt && \
-  pip install -r requirements.txt
-
-RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
-  apt-get install -y nodejs && \
-  sudo -u redash -H make deps && \
-  rm -rf node_modules rd_ui/node_modules /home/redash/.npm /home/redash/.cache && \
-  apt-get purge -y nodejs && \
-  apt-get clean && \
-  rm -rf /var/lib/apt/lists/*
-
-# Setup supervisord
-RUN mkdir -p /opt/redash/supervisord && \
-    mkdir -p /opt/redash/logs && \
-    cp /opt/redash/current/setup/docker/supervisord/supervisord.conf /opt/redash/supervisord/supervisord.conf
-
-# Fix permissions
-RUN chown -R redash /opt/redash
-
-# Expose ports
-EXPOSE 5000
-EXPOSE 9001
-
-# Startup script
-CMD ["supervisord", "-c", "/opt/redash/supervisord/supervisord.conf"]
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
+CMD ["server"]

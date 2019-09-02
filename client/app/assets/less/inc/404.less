@@ -1,0 +1,73 @@
+.four-zero {
+	background: @white;
+	box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+	border-radius: 2px;
+	position: absolute;
+	top: 50%;
+	margin-top: -150px;
+	text-align: center;
+	padding: 15px;
+	height: 300px;
+	width: 500px;
+	left: 50%;
+	color: #333;
+	margin-left: -250px;
+	
+	h2 {
+		font-size: 130px;
+	}
+
+	
+	@media (max-width: @screen-xs-max) {
+		width: ~"calc(100% - 40px)";
+		left: 20px;
+		margin-left: 0;
+		height: 260px;
+		margin-top: -130px;
+		
+		h2 {
+			font-size: 90px;
+		}
+        }
+	
+	h2 {
+		line-height: 100%;
+		font-weight: 100;
+	}
+	
+	small {
+		display: block;
+		font-size: 26px;
+		margin-top: -10px
+	}
+	
+	
+	footer {
+		background: @ace;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		padding: 10px;
+		
+		& > a {
+			font-size: 21px;
+			display: inline-block;
+			color: #333;
+			margin: 0 1px;
+			line-height: 40px;
+			width: 40px;
+			height: 40px;
+			background: rgba(0, 0, 0, 0.09);
+			border-radius: 50%;
+			text-align: center;
+			
+			&:hover {
+				background: rgba(0, 0, 0, 0.2);
+			}
+		}
+	}
+}
+
+
+

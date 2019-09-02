@@ -1,9 +1,9 @@
-import json
 import logging
 import requests
 
 from redash.destinations import *
 from redash.models import Alert
+from redash.utils import json_dumps, deprecated
 
 
 colors = {
@@ -13,6 +13,7 @@ colors = {
 }
 
 
+@deprecated()
 class HipChat(BaseDestination):
     @classmethod
     def configuration_schema(cls):
@@ -33,8 +34,8 @@ class HipChat(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, options):
         try:
-            alert_url = '{host}/alerts/{alert_id}'.format(host=host, alert_id=alert.id);
-            query_url = '{host}/queries/{query_id}'.format(host=host, query_id=query.id);
+            alert_url = '{host}/alerts/{alert_id}'.format(host=host, alert_id=alert.id)
+            query_url = '{host}/queries/{query_id}'.format(host=host, query_id=query.id)
 
             message = u'<a href="{alert_url}">{alert_name}</a> changed state to {new_state} (based on <a href="{query_url}">this query</a>).'.format(
                 alert_name=alert.name, new_state=new_state.upper(),
@@ -46,7 +47,7 @@ class HipChat(BaseDestination):
                 'color': colors.get(new_state, 'green')
             }
             headers = {'Content-Type': 'application/json'}
-            response = requests.post(options['url'], data=json.dumps(data), headers=headers)
+            response = requests.post(options['url'], data=json_dumps(data), headers=headers, timeout=5.0)
 
             if response.status_code != 204:
                 logging.error('Bad status code received from HipChat: %d', response.status_code)

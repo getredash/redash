@@ -1,0 +1,73 @@
+// Empty states
+.empty-state {
+  width: 100%;
+  margin: 0px auto 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 14px;
+  line-height: 21px;
+
+  .empty-state__summary,
+  .empty-state__steps {
+    width: 48%;
+    padding: 35px;
+    padding-bottom: 25px;
+  }
+
+  .empty-state__steps {
+    padding-left: 0px;
+  }
+
+
+  .empty-state__summary {
+    align-self: flex-start;
+    text-align: center;
+    background: rgba(102, 136, 153, 0.025);
+  }
+
+  ol {
+    margin-bottom: 15px;
+    padding: 17px;
+  }
+
+  li.done {
+    text-decoration: line-through;
+  }
+
+  h2 {
+    margin: 0 0 15px;
+  }
+
+  h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  a:hover {
+    cursor: pointer;
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+
+    .empty-state__summary {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+    }
+
+    .empty-state__summary,
+    .empty-state__steps {
+      width: 100%;
+    }
+
+    .empty-state__steps {
+      padding-left: 35px;
+      padding-top: 15px;
+    }
+  }
+}

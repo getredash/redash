@@ -1,0 +1,127 @@
+#!/bin/bash
+set -e
+
+worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
+
+  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
+}
+
+scheduler() {
+  WORKERS_COUNT=${WORKERS_COUNT:-1}
+  QUEUES=${QUEUES:-celery}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+
+  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+}
+
+dev_worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
+  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+
+  echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+}
+
+server() {
+  # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
+  MAX_REQUESTS=${MAX_REQUESTS:-1000}
+  MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app --max-requests $MAX_REQUESTS --max-requests-jitter $MAX_REQUESTS_JITTER
+}
+
+create_db() {
+  exec /app/manage.py database create_tables
+}
+
+celery_healthcheck() {
+  exec /usr/local/bin/celery inspect ping --app=redash.worker -d celery@$HOSTNAME
+}
+
+help() {
+  echo "Redash Docker."
+  echo ""
+  echo "Usage:"
+  echo ""
+
+  echo "server -- start Redash server (with gunicorn)"
+  echo "worker -- start Celery worker"
+  echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo "dev_worker  -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
+  echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
+  echo ""
+  echo "shell -- open shell"
+  echo "dev_server -- start Flask development server with debugger and auto reload"
+  echo "debug -- start Flask development server with remote debugger via ptvsd"
+  echo "create_db -- create database tables"
+  echo "manage -- CLI to manage redash"
+  echo "tests -- run tests"
+}
+
+tests() {
+  export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
+
+  if [ $# -eq 0 ]; then
+    TEST_ARGS=tests/
+  else
+    TEST_ARGS=$@
+  fi
+  exec pytest $TEST_ARGS
+}
+
+case "$1" in
+  worker)
+    shift
+    worker
+    ;;
+  server)
+    shift
+    server
+    ;;
+  scheduler)
+    shift
+    scheduler
+    ;;
+  dev_worker)
+    shift
+    dev_worker
+    ;;
+  dev_server)
+    export FLASK_DEBUG=1
+    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    ;;
+  debug)
+    export FLASK_DEBUG=1
+    export REMOTE_DEBUG=1
+    exec /app/manage.py runserver --debugger --no-reload -h 0.0.0.0
+    ;;
+  shell)
+    exec /app/manage.py shell
+    ;;
+  create_db)
+    create_db
+    ;;
+  manage)
+    shift
+    exec /app/manage.py $*
+    ;;
+  tests)
+    shift
+    tests $@
+    ;;
+  help)
+    shift
+    help
+    ;;
+  *)
+    exec "$@"
+    ;;
+esac
+

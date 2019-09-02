@@ -1,0 +1,23 @@
+.clist {
+    list-style: none;
+    
+    & > li {
+        &:before {
+            font-family: @font-icon;
+            margin: 0 10px 0 -20px;
+            vertical-align: middle;
+        }
+    }
+    
+    &.clist-angle > li:before {
+        content: "\f2fb";
+    }
+    
+    &.clist-check > li:before {
+        content: "\f26b";
+    }
+    
+    &.clist-star > li:before { 
+        content: "\f27d";
+    }
+}

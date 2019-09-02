@@ -1,10 +1,10 @@
 Hi {{ invited.name }},
 
-{{ inviter.name }} ({{inviter.email}}) invited you to join the Re:dash account of {{org.name}}.
+{{ inviter.name }} ({{inviter.email}}) invited you to join the Redash account of {{org.name}}.
 
 Use the following link to setup your account:
 
 {{ invite_url }}
 
 Your sign-in email: {{invited.email}}
-Your Re:dash account: {{ url_for('redash.index', org_slug=org.slug, _external=True) }}
+Your Redash account: {{ url_for('redash.index', org_slug=org.slug, _external=True) }}

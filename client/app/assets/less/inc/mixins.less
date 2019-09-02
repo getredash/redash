@@ -1,0 +1,82 @@
+/* --------------------------------------------------------
+    Font Face
+-----------------------------------------------------------*/
+.font-face(@family, @name, @weight: 300, @style){
+    @font-face{
+        font-family: @family;
+        src:url('../fonts/@{family}/@{name}.eot');
+        src:url('../fonts/@{family}/@{name}.eot?#iefix') format('embedded-opentype'),
+            url('../fonts/@{family}/@{name}.woff') format('woff'),
+            url('../fonts/@{family}/@{name}.ttf') format('truetype'),
+            url('../fonts/@{family}/@{name}.svg#icon') format('svg');
+        font-weight: @weight;
+        font-style: @style;
+    }
+}
+
+/* --------------------------------------------------------
+    Button Varients
+-----------------------------------------------------------*/
+.button-variant(@color; @background; @border) {
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+  
+    &:hover,
+    &:focus,
+    &.focus,
+    &:active,
+    &.active,
+    .open > .dropdown-toggle& {
+        color: @color;
+        background-color: darken(@background, 2%);
+        border-color: darken(@border, 1%);
+    }
+    &:active,
+    &.active,
+    .open > .dropdown-toggle& {
+      background-image: none;
+    }
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &,
+        &:hover,
+        &:focus,
+        &.focus,
+        &:active,
+        &.active {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+  
+    .badge {
+        color: @background;
+        background-color: @color;
+    }
+}
+
+
+/* --------------------------------------------------------
+    CSS Transform - Scale and Rotate
+-----------------------------------------------------------*/
+.scale-rotate(@scale, @rotate) {
+    -webkit-transform: scale(@scale) rotate(@rotate);
+    -ms-transform: scale(@scale) rotate(@rotate);
+    -o-transform: scale(@scale) rotate(@rotate);
+    transform: scale(@scale) rotate(@rotate);
+}
+
+
+/* --------------------------------------------------------
+    CSS Animations based on animate.css
+-----------------------------------------------------------*/
+.animated(@name, @duration) {
+    -webkit-animation-name: @name;
+    animation-name: @name;
+    -webkit-animation-duration: @duration;
+    animation-duration: @duration;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+}

@@ -1,5 +1,9 @@
+[run]
+branch = True
+source = redash
+
 [report]
 omit =
     */settings.py
     */python?.?/*
-    */site-packages/nose/*
+show_missing = True

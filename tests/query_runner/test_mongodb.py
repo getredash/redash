@@ -1,10 +1,11 @@
 import datetime
-import json
 from unittest import TestCase
-from pytz import utc
-from redash.query_runner.mongodb import parse_query_json
 
-from redash.utils import parse_human_time
+from pytz import utc
+from freezegun import freeze_time
+
+from redash.query_runner.mongodb import parse_query_json, parse_results, _get_column_by_name
+from redash.utils import json_dumps, parse_human_time
 
 
 class TestParseQueryJson(TestCase):
@@ -18,7 +19,7 @@ class TestParseQueryJson(TestCase):
             }
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
         self.assertDictEqual(query_data, query)
 
     def test_parses_isodate_fields(self):
@@ -32,7 +33,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
 
@@ -49,7 +50,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
         self.assertEqual(query_data['test_dict']['b']['date'], datetime.datetime(2014, 10, 4, 0, 0))
@@ -71,7 +72,7 @@ class TestParseQueryJson(TestCase):
             ]
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
 
         self.assertDictEqual(query, query_data)
 
@@ -91,18 +92,57 @@ class TestParseQueryJson(TestCase):
                 '$undefined': None
             }
         }
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
         self.assertEqual(query_data['test$undefined'], None)
         self.assertEqual(query_data['test$date'], datetime.datetime(2014, 10, 3, 0, 0).replace(tzinfo=utc))
 
+    @freeze_time('2019-01-01 12:00:00')
     def test_supports_relative_timestamps(self):
         query = {
             'ts': {'$humanTime': '1 hour ago'}
         }
 
         one_hour_ago = parse_human_time("1 hour ago")
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json_dumps(query))
         self.assertEqual(query_data['ts'], one_hour_ago)
 
 
+class TestMongoResults(TestCase):
+    def test_parses_regular_results(self):
+        raw_results = [
+            {'column': 1, 'column2': 'test'},
+            {'column': 2, 'column2': 'test', 'column3': 'hello'}
+        ]
+        rows, columns = parse_results(raw_results)
 
+        for i, row in enumerate(rows):
+            self.assertDictEqual(row, raw_results[i])
+
+        self.assertIsNotNone(_get_column_by_name(columns, 'column'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'column2'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'column3'))
+
+    def test_parses_nested_results(self):
+        raw_results = [
+            {'column': 1, 'column2': 'test', 'nested': {
+                'a': 1,
+                'b': 'str'
+            }},
+            {'column': 2, 'column2': 'test', 'column3': 'hello', 'nested': {
+                'a': 2,
+                'b': 'str2',
+                'c': 'c'
+            }}
+        ]
+
+        rows, columns = parse_results(raw_results)
+
+        self.assertDictEqual(rows[0], { 'column': 1, 'column2': 'test', 'nested.a': 1, 'nested.b': 'str' })
+        self.assertDictEqual(rows[1], { 'column': 2, 'column2': 'test', 'column3': 'hello', 'nested.a': 2, 'nested.b': 'str2', 'nested.c': 'c' })
+
+        self.assertIsNotNone(_get_column_by_name(columns, 'column'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'column2'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'column3'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'nested.a'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'nested.b'))
+        self.assertIsNotNone(_get_column_by_name(columns, 'nested.c'))

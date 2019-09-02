@@ -1,11 +1,24 @@
-import json
 import jsonschema
 from jsonschema import ValidationError
+from sqlalchemy.ext.mutable import Mutable
+
+from redash.utils import json_dumps, json_loads
 
 SECRET_PLACEHOLDER = '--------'
 
 
-class ConfigurationContainer(object):
+class ConfigurationContainer(Mutable):
+    @classmethod
+    def coerce(cls, key, value):
+        if not isinstance(value, ConfigurationContainer):
+            if isinstance(value, dict):
+                return ConfigurationContainer(value)
+
+            # this call will raise ValueError
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
     def __init__(self, config, schema=None):
         self._config = config
         self.set_schema(schema)
@@ -32,7 +45,7 @@ class ConfigurationContainer(object):
         jsonschema.validate(self._config, self._schema)
 
     def to_json(self):
-        return json.dumps(self._config)
+        return json_dumps(self._config, sort_keys=True)
 
     def iteritems(self):
         return self._config.iteritems()
@@ -59,12 +72,14 @@ class ConfigurationContainer(object):
                 config[k] = v
 
         self._config = config
+        self.changed()
 
     def get(self, *args, **kwargs):
         return self._config.get(*args, **kwargs)
 
     def __setitem__(self, key, value):
         self._config[key] = value
+        self.changed()
 
     def __getitem__(self, item):
         if item in self._config:
@@ -77,4 +92,6 @@ class ConfigurationContainer(object):
 
     @classmethod
     def from_json(cls, config_in_json):
-        return cls(json.loads(config_in_json))
+        if config_in_json is None:
+            return cls({})
+        return cls(json_loads(config_in_json))

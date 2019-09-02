@@ -1,0 +1,84 @@
+div.table-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 2px 22px 2px 10px;
+  border-radius: @redash-radius;
+  position: relative;
+
+  .copy-to-editor {
+    display: none;
+  }
+
+  &:hover {
+    background: fade(@redash-gray, 10%);
+
+    .copy-to-editor {
+      display: flex;
+    }
+  }
+}
+
+.schema-container {
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+}
+
+.schema-browser {
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: none;
+  margin-top: 10px;
+
+  .collapse.in {
+    background: transparent;
+  }
+
+  .copy-to-editor {
+    color: fade(@redash-gray, 90%);
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .table-open {
+    padding: 0 22px 0 26px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+
+    .copy-to-editor {
+      display: none;
+    }
+
+    &:hover {
+      background: fade(@redash-gray, 10%);
+
+      .copy-to-editor {
+        display: flex;
+      }
+    }
+  }
+}
+
+.schema-control {
+  display: flex;
+  padding: 0;
+
+ .form-control {
+   margin-right: 5px;
+ }
+}
+
+.parameter-label {
+  display: block;
+}

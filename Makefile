@@ -1,22 +1,57 @@
-NAME=redash
-VERSION=`python ./manage.py version`
-FULL_VERSION=$(VERSION)+b$(CIRCLE_BUILD_NUM)
-BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
-# VERSION gets evaluated every time it's referenced, therefore we need to use VERSION here instead of FULL_VERSION.
-FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
+.PHONY: compose_build up test_db create_database clean down bundle tests lint backend-unit-tests frontend-unit-tests test build watch start redis-cli bash
 
-deps:
-	if [ -d "./rd_ui/app" ]; then npm install; fi
-	if [ -d "./rd_ui/app" ]; then npm run bower install; fi
-	if [ -d "./rd_ui/app" ]; then npm run build; fi
+compose_build:
+	docker-compose build
 
-pack:
-	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
-	tar -zcv -f $(FILENAME) --exclude="optipng*" --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
+up:
+	docker-compose up -d --build
 
-upload:
-	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
+test_db:
+	@for i in `seq 1 5`; do \
+		if (docker-compose exec postgres sh -c 'psql -U postgres -c "select 1;"' 2>&1 > /dev/null) then break; \
+		else echo "postgres initializing..."; sleep 5; fi \
+	done
+	docker-compose exec postgres sh -c 'psql -U postgres -c "drop database if exists tests;" && psql -U postgres -c "create database tests;"'
 
-test:
-	nosetests --with-coverage --cover-package=redash tests/
-	#grunt test
+create_database:
+	docker-compose run server create_db
+
+clean:
+	docker-compose down && docker-compose rm
+
+down:
+	docker-compose down
+
+bundle:
+	docker-compose run server bin/bundle-extensions
+
+tests:
+	docker-compose run server tests
+
+lint:
+	./bin/flake8_tests.sh
+
+backend-unit-tests: up test_db
+	docker-compose run --rm --name tests server tests
+
+frontend-unit-tests: bundle
+	npm install
+	npm run bundle
+	npm test
+
+test: lint backend-unit-tests frontend-unit-tests
+
+build: bundle
+	npm run build
+
+watch: bundle
+	npm run watch
+
+start: bundle
+	npm run start
+
+redis-cli:
+	docker-compose run --rm redis redis-cli -h redis
+
+bash:
+	docker-compose run --rm server bash

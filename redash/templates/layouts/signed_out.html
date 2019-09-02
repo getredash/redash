@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+  <title>{% block title %}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <link rel="stylesheet" href="{{ asset_url('server.css') }}">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/static/images/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/images/favicon-16x16.png">
+  {% block head %}{% endblock %}
+</head>
+<body class="d-flex flex-column justify-content-center align-items-center signed-out">
+
+  <div>
+    <div class="header">
+      <div class="text-center m-b-15">
+        <a href="/"><img src="/static/images/redash_icon_small.png"></a>
+      </div>
+      {% if not hide_page_header %}
+        <h3 class="text-center m-t-0 m-b-25">{{ self.title() }}</h3>
+      {% endif %}
+    </div>
+    {% block content %}{% endblock %}
+  </div>
+
+<script src="/static/js/jquery.min.js"></script>
+
+{% block scripts %}{% endblock %}
+
+{% include '_includes/signed_out_tail.html' %}
+
+</body>
+</html>

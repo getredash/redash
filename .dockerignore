@@ -1,4 +1,14 @@
-rd_ui/.tmp/
-rd_ui/node_modules/
+client/.tmp/
+client/dist/
+node_modules/
+.tmp/
+.venv/
+venv/
 .git/
-.vagrant/
+/.codeclimate.yml
+/.coverage
+/coverage.xml
+/.circleci/
+/.github/
+/netlify.toml
+/setup/

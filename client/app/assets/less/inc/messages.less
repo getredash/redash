@@ -1,0 +1,161 @@
+#messages-main {
+    position: relative;
+    margin: 0 auto;
+    .clearfix();
+    
+    .ms-menu {
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-right: 1px solid #eee;
+        padding-bottom: 50px;
+        height: 100%;
+        width: 240px;
+        background: #fff;
+
+        @media (max-width: @screen-xs-max) {
+            height: ~"calc(100% - 58px)";
+            display: none;
+            z-index: 1;
+            top: 58px;
+
+            &.toggled {
+                display: block;
+            }
+        }
+    }
+    
+    .ms-body {
+        @media (min-width: @screen-sm-min) {
+            padding-left: 240px;
+        }
+
+        @media (max-width: @screen-xs-max) {
+            overflow: hidden;
+        }
+    }
+    
+    .ms-user {
+        padding: 15px;
+        background: @ace;
+        
+        & > div {
+            overflow: hidden;
+            padding: 3px 5px 0px 15px;
+            font-size: 11px;
+        }
+    }
+    
+    #ms-compose {
+        position: fixed;
+        bottom: 120px;
+        z-index: 1;
+        right: 30px;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.14),0 4px 8px rgba(0, 0, 0, 0.28);
+    }
+}
+
+#ms-menu-trigger {
+    .user-select(none);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50px;
+    height: 100%;
+    text-align: right;
+    padding-right: 10px;
+    padding-top: 19px;
+    
+    i {
+        font-size: 21px;
+    }
+
+    &.toggled {
+        i:before{
+            content: '\f2ea';
+        }
+    }
+}
+
+
+/* --------------------------------------------------------
+    For Message
+-----------------------------------------------------------*/
+.message-feed {
+    padding: 20px;
+    
+    &.right {
+        text-align: right;
+        
+        & > .pull-right {
+            margin-left: 15px;
+        }
+    }
+    
+    &:not(.right) {
+        .mf-content {
+            background: @amber;
+            color: #fff;
+        }
+        
+        
+    }
+    
+    &.right .mf-content {
+        background: #eee;
+    }
+}
+
+.mf-content {
+    padding: 12px 17px 13px;
+    border-radius: 2px;
+    display: inline-block;
+    max-width: 80%;
+}
+
+.mf-date {
+    display: block;
+    color: #B3B3B3;
+    margin-top: 7px;
+    
+    & > i {
+        font-size: 14px;
+        line-height: 100%;
+        position: relative;
+        top: 1px;
+    }
+}
+
+.msb-reply {
+    box-shadow: 0 -20px 20px -5px #fff;
+    position: relative;
+    margin-top: 30px;
+    border-top: 1px solid #eee;
+    background: @ace;
+  
+    textarea {
+        width: 100%;
+        font-size: 13px;
+        border: 0;
+        padding: 10px 15px;
+        resize: none;
+        height: 60px;
+        background: transparent;
+    }
+    
+    button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: 0;
+        height: 100%;
+        width: 60px;
+        font-size: 25px;
+        color: @blue;
+        background: transparent;
+        
+        &:hover {
+            background: #f2f2f2;
+        }
+    }
+}

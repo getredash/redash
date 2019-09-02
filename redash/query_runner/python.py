@@ -1,18 +1,16 @@
 import datetime
-import json
+import importlib
 import logging
 import sys
 
 from redash.query_runner import *
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 from redash import models
-
-import importlib
-
-logger = logging.getLogger(__name__)
-
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins
+
+
+logger = logging.getLogger(__name__)
 
 
 class CustomPrint(object):
@@ -38,6 +36,16 @@ class CustomPrint(object):
 
 
 class Python(BaseQueryRunner):
+    should_annotate_query = False
+
+    safe_builtins = (
+        'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
+        'slice', 'filter', 'len', 'next', 'enumerate',
+        'sum', 'abs', 'min', 'max', 'round', 'cmp', 'divmod',
+        'str', 'unicode', 'int', 'float', 'complex',
+        'tuple', 'set', 'list', 'dict', 'bool',
+    )
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -47,8 +55,8 @@ class Python(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Modules to import prior to running the script'
                 },
-                'additionalModulesPaths' : {
-                    'type' : 'string'
+                'additionalModulesPaths': {
+                    'type': 'string'
                 }
             },
         }
@@ -56,10 +64,6 @@ class Python(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(Python, self).__init__(configuration)
@@ -93,21 +97,25 @@ class Python(BaseQueryRunner):
 
         raise Exception("'{0}' is not configured as a supported import module".format(name))
 
-    def custom_write(self, obj):
+    @staticmethod
+    def custom_write(obj):
         """
         Custom hooks which controls the way objects/lists/tuples/dicts behave in
         RestrictedPython
         """
         return obj
 
-    def custom_get_item(self, obj, key):
+    @staticmethod
+    def custom_get_item(obj, key):
         return obj[key]
 
-    def custom_get_iter(self, obj):
+    @staticmethod
+    def custom_get_iter(obj):
         return iter(obj)
 
-    def add_result_column(self, result, column_name, friendly_name, column_type):
-        """Helper function to add columns inside a Python script running in re:dash in an easier way
+    @staticmethod
+    def add_result_column(result, column_name, friendly_name, column_type):
+        """Helper function to add columns inside a Python script running in Redash in an easier way
 
         Parameters:
         :result dict: The result dict
@@ -127,7 +135,8 @@ class Python(BaseQueryRunner):
             "type": column_type
         })
 
-    def add_result_row(self, result, values):
+    @staticmethod
+    def add_result_row(result, values):
         """Helper function to add one row to results set.
 
         Parameters:
@@ -139,7 +148,8 @@ class Python(BaseQueryRunner):
 
         result["rows"].append(values)
 
-    def execute_query(self, data_source_name_or_id, query):
+    @staticmethod
+    def execute_query(data_source_name_or_id, query):
         """Run query from specific data source.
 
         Parameters:
@@ -150,8 +160,8 @@ class Python(BaseQueryRunner):
             if type(data_source_name_or_id) == int:
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
             else:
-                data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
-        except models.DataSource.DoesNotExist:
+                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+        except models.NoResultFound:
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
         # TODO: pass the user here...
@@ -159,10 +169,28 @@ class Python(BaseQueryRunner):
         if error is not None:
             raise Exception(error)
 
-        # TODO: allow avoiding the json.dumps/loads in same process
-        return json.loads(data)
+        # TODO: allow avoiding the JSON dumps/loads in same process
+        return json_loads(data)
 
-    def get_query_result(self, query_id):
+    @staticmethod
+    def get_source_schema(data_source_name_or_id):
+        """Get schema from specific data source.
+
+        :param data_source_name_or_id: string|integer: Name or ID of the data source
+        :return:
+        """
+        try:
+            if type(data_source_name_or_id) == int:
+                data_source = models.DataSource.get_by_id(data_source_name_or_id)
+            else:
+                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+        except models.NoResultFound:
+            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+        schema = data_source.query_runner.get_schema()
+        return schema
+
+    @staticmethod
+    def get_query_result(query_id):
         """Get result of an existing query.
 
         Parameters:
@@ -170,7 +198,7 @@ class Python(BaseQueryRunner):
         """
         try:
             query = models.Query.get_by_id(query_id)
-        except models.Query.DoesNotExist:
+        except models.NoResultFound:
             raise Exception("Query id %s does not exist." % query_id)
 
         if query.latest_query_data is None:
@@ -179,29 +207,42 @@ class Python(BaseQueryRunner):
         if query.latest_query_data.data is None:
             raise Exception("Query does not have results yet.")
 
-        return json.loads(query.latest_query_data.data)
+        return json_loads(query.latest_query_data.data)
+
+    def get_current_user(self):
+        return self._current_user.to_dict()
 
     def test_connection(self):
         pass
 
     def run_query(self, query, user):
+        self._current_user = user
+
         try:
             error = None
 
             code = compile_restricted(query, '<string>', 'exec')
 
-            safe_builtins["_write_"] = self.custom_write
-            safe_builtins["__import__"] = self.custom_import
-            safe_builtins["_getattr_"] = getattr
-            safe_builtins["getattr"] = getattr
-            safe_builtins["_setattr_"] = setattr
-            safe_builtins["setattr"] = setattr
-            safe_builtins["_getitem_"] = self.custom_get_item
-            safe_builtins["_getiter_"] = self.custom_get_iter
-            safe_builtins["_print_"] = self._custom_print
+            builtins = safe_builtins.copy()
+            builtins["_write_"] = self.custom_write
+            builtins["__import__"] = self.custom_import
+            builtins["_getattr_"] = getattr
+            builtins["getattr"] = getattr
+            builtins["_setattr_"] = setattr
+            builtins["setattr"] = setattr
+            builtins["_getitem_"] = self.custom_get_item
+            builtins["_getiter_"] = self.custom_get_iter
+            builtins["_print_"] = self._custom_print
 
-            restricted_globals = dict(__builtins__=safe_builtins)
+            # Layer in our own additional set of builtins that we have
+            # considered safe.
+            for key in self.safe_builtins:
+                builtins[key] = __builtins__[key]
+
+            restricted_globals = dict(__builtins__=builtins)
             restricted_globals["get_query_result"] = self.get_query_result
+            restricted_globals["get_source_schema"] = self.get_source_schema
+            restricted_globals["get_current_user"] = self.get_current_user
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row
@@ -216,16 +257,11 @@ class Python(BaseQueryRunner):
             restricted_globals["TYPE_DATE"] = TYPE_DATE
             restricted_globals["TYPE_FLOAT"] = TYPE_FLOAT
 
-            restricted_globals["sorted"] = sorted
-            restricted_globals["reversed"] = reversed
-            restricted_globals["min"] = min
-            restricted_globals["max"] = max
-
             # TODO: Figure out the best way to have a timeout on a script
             #       One option is to use ETA with Celery + timeouts on workers
             #       And replacement of worker process every X requests handled.
 
-            exec(code) in restricted_globals, self._script_locals
+            exec((code), restricted_globals, self._script_locals)
 
             result = self._script_locals['result']
             result['log'] = self._custom_print.lines

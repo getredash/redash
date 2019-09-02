@@ -1,0 +1,51 @@
+.fileinput {
+    position: relative;
+    padding-right: 35px;
+    
+    .close {
+          position: absolute;
+          top: 5px;
+          font-size: 12px;
+          float: none;
+          opacity: 1;
+          font-weight: 500;
+          border: 1px solid #ccc;
+          width: 19px;
+          text-align: center;
+          height: 19px;
+          line-height: 15px;
+          border-radius: 50%;
+          right: 0;
+        
+          &:hover {
+            background: #eee;
+          }
+    }
+     
+    .btn-file {
+        
+    }
+    
+    .input-group-addon {
+        padding: 0 10px;
+        vertical-align: middle; 
+    }
+    
+    .fileinput-preview {
+        width: 200px;
+        height: 150px;
+        position: relative;
+        
+        img {
+            display: inline-block;
+            vertical-align: middle;
+            margin-top: -13px;
+        }
+        
+        &:after {
+            content: "";
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+} 

@@ -40,6 +40,25 @@ class TestAccessPermissionRevoke(BaseTestCase):
                                             grantee=self.factory.user)
         self.assertEqual(1, AccessPermission.revoke(q, self.factory.user, ACCESS_TYPE_MODIFY))
 
+    def test_deletes_permission_for_only_given_grantee_on_given_grant_type(self):
+        q = self.factory.create_query()
+        first_user  = self.factory.create_user()
+        second_user = self.factory.create_user()
+
+        AccessPermission.grant(obj=q, access_type=ACCESS_TYPE_MODIFY,
+                               grantor=self.factory.user,
+                               grantee=first_user)
+
+        AccessPermission.grant(obj=q, access_type=ACCESS_TYPE_MODIFY,
+                               grantor=self.factory.user,
+                               grantee=second_user)
+
+        AccessPermission.grant(obj=q, access_type=ACCESS_TYPE_VIEW,
+                               grantor=self.factory.user,
+                               grantee=second_user)
+
+        self.assertEqual(1, AccessPermission.revoke(q, second_user, ACCESS_TYPE_VIEW))
+
     def test_deletes_all_permissions_if_no_type_given(self):
         q = self.factory.create_query()
 

@@ -1,0 +1,237 @@
+/* --------------------------------------------------------
+    Chart Helper Classes
+-----------------------------------------------------------*/
+.main-chart {
+    margin: 0px -8px 0 -10px;
+    overflow: hidden;
+    position: relative;
+    bottom: -10px;
+}
+
+.mc-item {
+    width: 100%;
+    height: 250px;
+}
+
+.mc-pie {
+    width: 100%;
+    height: 300px;
+}
+
+@media (min-width: @screen-sm-min) {
+    .mc-info {
+        position: absolute;
+        bottom: 10px;
+        z-index: 1;
+        padding: 10px 20px 15px;
+        left: 10px;
+        background-color: rgba(0, 150, 136, 0.55);
+        color: #fff;
+        max-width: 270px;
+        
+        span {
+            font-size: 33px;
+        }
+        
+        small {
+            display: block;
+            margin-top: -3px;
+            margin-left: 3px;
+            line-height: 130%;
+        }
+    }
+}
+
+/* --------------------------------------------------------
+    Overview Small Charts
+-----------------------------------------------------------*/
+.o-item {
+    padding: 0 20px 15px 20px;
+    color: #fff;
+    margin-bottom: @grid-gutter-width;
+    box-shadow: @tile-shadow;
+}
+
+.oi-number {
+    font-size: 23px;
+    display: block;
+    margin-top: 6px;
+    margin-bottom: 3px; 
+    line-height: 100%;
+}
+
+.oi-title {
+    text-transform: uppercase;
+    .text-overflow();
+    line-height: 100%;
+    padding: 10px 15px;
+    width: auto;
+    margin: 0 -21px 20px;
+}
+
+
+/* --------------------------------------------------------
+    Count Box
+-----------------------------------------------------------*/
+.count-box {
+    padding: 20px 23px 0;
+    
+    [class*="col-"] {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+.cb-item {
+    background: rgba(255,255,255,0.22);
+    padding: 10px 0;
+    text-align: center;
+    margin-bottom: 16px;
+    
+    & > h3 {
+        margin: 0;
+        line-height: 100%;
+        color: #fff;
+        font-weight: normal;
+    }
+    
+    & > small {
+        line-height: 100%;
+        margin-top: 1px;
+        display: block;
+        font-size: 11px;
+        color: #fff;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Flot Charts
+-----------------------------------------------------------*/
+.flot-legend {
+    text-align: center;
+    margin: 10px 0 5px;
+    
+    table {
+        display: inline-block;
+    }
+    
+    .legendColorBox {
+        & > div {
+            border: #fff !important;
+            
+            & > div {
+                border-radius: 50%;
+            }
+        }
+    }
+    
+    .legendLabel {
+        padding: 0 8px 0 3px;
+    }
+}
+
+[class*="flc-"] {
+    text-align: center;
+    margin: 20px 0 5px;
+    
+    table {
+        display: inline-block;
+    }
+    
+    .legendColorBox {
+        & > div {
+            border: #fff !important;
+            
+            & > div {
+                border-radius: 50%;
+            }
+        }
+    }
+    
+    .legendLabel {
+        padding: 0 8px 0 3px;
+    }
+}
+
+/* --------------------------------------------------------
+    Easy Pie Charts
+-----------------------------------------------------------*/
+.pie-overviews {
+    margin-bottom: -15px;
+}
+
+.po-item {
+    display: inline-block;
+    position: relative;
+    margin: 0 5px 10px;
+    padding-bottom: 13px;
+    color: #fff;
+}
+
+.poi-percent {
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    margin-top: 32px;
+    font-size: 27px;
+    text-shadow: none;
+    padding-left: 2px;
+    
+    &:after {
+        content: '%';
+        font-size: 11px;
+    }
+}
+
+.poi-title {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    
+    i {
+        font-size: 15px;
+        font-weight: normal;
+        -webkit-font-smoothing: antialiased;
+        .opacity(0.5);
+        
+        &:hover {
+            .opacity(1);
+            cursor: pointer;
+        }
+    }
+}
+
+/* --------------------------------------------------------
+    Chart Tooltips
+-----------------------------------------------------------*/
+#jqstooltip,
+.chart-tooltip {
+    min-width: 21px;
+    min-height: 23px;
+    text-align: center;
+    border: 0;
+    background: #333;
+}
+
+#jqstooltip .jqsfield,
+.chart-tooltip {
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    text-align: center;
+    color: #fff;
+}
+
+#jqstooltip .jqsfield {
+    & > span {
+        display: none;
+    }
+}
+
+.chart-tooltip {
+    position: absolute;
+    padding: 6px 10px 5px;
+}

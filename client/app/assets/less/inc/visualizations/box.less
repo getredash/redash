@@ -1,0 +1,45 @@
+.box {
+  font: 10px sans-serif;
+  line, rect, circle {
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 1.5px;
+  }
+  .center {
+    stroke-dasharray: 3, 3;
+  }
+  .outlier {
+    fill: none;
+    stroke: #000;
+  }
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.grid-background {
+  fill: #ddd;
+}
+
+.grid path,
+.grid line {
+  fill: none;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.grid .minor line {
+  stroke-opacity: .5;
+}
+
+.grid text {
+  display: none;
+}
