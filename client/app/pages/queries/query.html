@@ -85,9 +85,12 @@
       <div class="editor__left__data-source">
         <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode"
           on-select="updateDataSource()" data-test="SelectDataSource">
-          <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
+          <ui-select-match placeholder="Select Data Source..." class="align-items-center">
+            <img src="/static/images/db-logos/{{$select.selected.type}}.png" width="20" height="20" style="vertical-align: top">
+            {{$select.selected.name}}
+          </ui-select-match>
           <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
-            {{ds.name}}
+            <img src="/static/images/db-logos/{{ds.type}}.png" width="20" height="20" class="m-r-5">{{ds.name}}
           </ui-select-choices>
         </ui-select>
       </div>
