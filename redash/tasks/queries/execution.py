@@ -247,6 +247,7 @@ def cleanup_query_results():
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 
+
 @job(settings.SCHEMAS_REFRESH_QUEUE)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
