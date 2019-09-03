@@ -27,7 +27,6 @@ const PublicDashboardPage = {
     this.logoUrl = logoUrl;
     this.public = true;
     this.globalParameters = [];
-    this.loadingWidgets = 0;
 
     this.extractGlobalParameters = () => {
       this.globalParameters = this.dashboard.getParametersDefs();
@@ -35,10 +34,14 @@ const PublicDashboardPage = {
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
+    this.forceDashboardGridReload = () => {
+      this.dashboard.widgets = [...this.dashboard.widgets];
+    };
+
     this.loadWidget = (widget, forceRefresh = false) => {
       widget.getParametersDefs(); // Force widget to read parameters values from URL
-      this.loadingWidgets += 1;
-      return widget.load(forceRefresh).finally(() => { this.loadingWidgets -= 1; });
+      this.forceDashboardGridReload();
+      return widget.load(forceRefresh).finally(this.forceDashboardGridReload);
     };
 
     this.refreshWidget = widget => this.loadWidget(widget, true);
