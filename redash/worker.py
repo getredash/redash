@@ -19,6 +19,7 @@ logger = get_logger(__name__)
 
 job = partial(rq_job, connection=redis_connection)
 
+
 class CurrentJobFilter(logging.Filter):
     def filter(self, record):
         current_job = get_current_job()
@@ -27,6 +28,7 @@ class CurrentJobFilter(logging.Filter):
         record.job_description = current_job.description if current_job else ''
 
         return True
+
 
 def get_job_logger(name):
     logger = logging.getLogger('rq.job.' + name)
@@ -39,6 +41,7 @@ def get_job_logger(name):
     logger.propagate = False
 
     return logger
+
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,

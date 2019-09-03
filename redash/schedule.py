@@ -42,7 +42,7 @@ def schedule_periodic_jobs():
         schedule(cleanup_query_results, interval=timedelta(minutes=5))
 
     if settings.VERSION_CHECK:
-        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users evenly.
+        # We schedule the version check to run at a random time in order to spread the requests from all users evenly.
         rq_scheduler.cron('{minute} {hour} * * *'.format(
             minute=randint(0, 59),
             hour=randint(0, 23)),

@@ -248,6 +248,7 @@ def cleanup_query_results():
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 
+
 @job(settings.SCHEMAS_REFRESH_QUEUE)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
@@ -366,7 +367,8 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        self.logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
+        self.logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]",
+                         self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
