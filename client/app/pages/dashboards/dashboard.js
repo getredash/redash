@@ -133,6 +133,8 @@ function DashboardCtrl(
     this.globalParameters = this.dashboard.getParametersDefs();
   };
 
+  // ANGULAR_REMOVE_ME This forces Widgets re-rendering
+  // use state when Dashboard is migrated to React
   this.forceDashboardGridReload = () => {
     this.dashboard.widgets = [...this.dashboard.widgets];
   };

@@ -34,6 +34,8 @@ const PublicDashboardPage = {
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
+    // ANGULAR_REMOVE_ME This forces Widgets re-rendering
+    // use state when PublicDashboard is migrated to React
     this.forceDashboardGridReload = () => {
       this.dashboard.widgets = [...this.dashboard.widgets];
     };
