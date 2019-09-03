@@ -14,9 +14,38 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
+  scheduler:
+    build: .
+    command: scheduler
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    depends_on:
+      - server
+    environment:
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+  rq_worker:
+    build: .
+    command: dev_rq_worker
+    deploy:
+      replicas: 2
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    depends_on:
+      - server
+    tty: true
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "default periodic schemas"
   worker:
     build: ../
-    command: scheduler
+    command: worker
     depends_on:
       - server
     environment:
@@ -24,7 +53,7 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries,celery,schemas"
+      QUEUES: "queries,scheduled_queries"
       WORKERS_COUNT: 2
   cypress:
     build:
