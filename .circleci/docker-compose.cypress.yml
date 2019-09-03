@@ -27,6 +27,8 @@ services:
     depends_on:
       - server
       - worker
+      - rq_worker
+      - scheduler
     environment:
       CYPRESS_baseUrl: "http://server:5000"
       PERCY_TOKEN: ${PERCY_TOKEN}
