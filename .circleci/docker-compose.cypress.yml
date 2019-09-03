@@ -16,7 +16,7 @@ services:
       REDASH_RATELIMIT_ENABLED: "false"
   scheduler:
     build: ../
-    command: scheduler
+    command: worker
     depends_on:
       - server
     environment:
