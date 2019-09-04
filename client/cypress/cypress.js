@@ -28,6 +28,7 @@ function startServer() {
 }
 
 function stopServer() {
+  execSync('docker-compose -p cypress logs', { stdio: 'inherit' });
   console.log('Stopping the server...');
   execSync('docker-compose -p cypress down', { stdio: 'inherit' });
 }
