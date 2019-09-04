@@ -232,9 +232,21 @@ class DataSourceGroup(db.Model):
     __tablename__ = "data_source_groups"
 
 
+class DBPersistence(object):
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, data):
+        self._data = data
+
+
+QueryResultPersistence = settings.dynamic_settings.QueryResultPersistence or DBPersistence
+
 @python_2_unicode_compatible
 @generic_repr('id', 'org_id', 'data_source_id', 'query_hash', 'runtime', 'retrieved_at')
-class QueryResult(db.Model, BelongsToOrgMixin):
+class QueryResult(db.Model, BelongsToOrgMixin, QueryResultPersistence):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
@@ -242,7 +254,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref('query_results'))
     query_hash = Column(db.String(32), index=True)
     query_text = Column('query', db.Text)
-    data = Column(db.Text)
+    _data = Column('data', db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
@@ -304,22 +316,12 @@ class QueryResult(db.Model, BelongsToOrgMixin):
                            data_source=data_source,
                            retrieved_at=retrieved_at,
                            data=data)
+        
+        
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
-        # TODO: Investigate how big an impact this select-before-update makes.
-        queries = Query.query.filter(
-            Query.query_hash == query_hash,
-            Query.data_source == data_source
-        )
-        for q in queries:
-            q.latest_query_data = query_result
-            # don't auto-update the updated_at timestamp
-            q.skip_updated_at = True
-            db.session.add(q)
-        query_ids = [q.id for q in queries]
-        logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
-        return query_result, query_ids
+        return query_result 
 
     @property
     def groups(self):
@@ -639,6 +641,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                    WHERE queries.id in :ids"""
 
         return db.session.execute(query, {'ids': tuple(query_ids)}).fetchall()
+    
+    @classmethod
+    def update_latest_result(cls, query_result):
+        # TODO: Investigate how big an impact this select-before-update makes.
+        queries = Query.query.filter(
+            Query.query_hash == query_result.query_hash,
+            Query.data_source == query_result.data_source
+        )
+
+        for q in queries:
+            q.latest_query_data = query_result
+            # don't auto-update the updated_at timestamp
+            q.skip_updated_at = True
+            db.session.add(q)
+
+        query_ids = [q.id for q in queries]
+        logging.info("Updated %s queries with result (%s).", len(query_ids), query_result.query_hash)
+        
+        return query_ids
+
 
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',

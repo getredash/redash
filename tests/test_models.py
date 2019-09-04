@@ -299,7 +299,7 @@ class QueryArchiveTest(BaseTestCase):
     def test_archived_query_doesnt_return_in_all(self):
         query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
         yesterday = utcnow() - datetime.timedelta(days=1)
-        query_result, _ = models.QueryResult.store_result(
+        query_result = models.QueryResult.store_result(
             query.org_id, query.data_source, query.query_hash, query.query_text,
             "1", 123, yesterday)
 
@@ -438,7 +438,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.data = "data"
 
     def test_stores_the_result(self):
-        query_result, _ = models.QueryResult.store_result(
+        query_result = models.QueryResult.store_result(
             self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
@@ -448,45 +448,6 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(query_result.query_text, self.query)
         self.assertEqual(query_result.query_hash, self.query_hash)
         self.assertEqual(query_result.data_source, self.data_source)
-
-    def test_updates_existing_queries(self):
-        query1 = self.factory.create_query(query_text=self.query)
-        query2 = self.factory.create_query(query_text=self.query)
-        query3 = self.factory.create_query(query_text=self.query)
-
-        query_result, _ = models.QueryResult.store_result(
-            self.data_source.org_id, self.data_source, self.query_hash,
-            self.query, self.data, self.runtime, self.utcnow)
-
-        self.assertEqual(query1.latest_query_data, query_result)
-        self.assertEqual(query2.latest_query_data, query_result)
-        self.assertEqual(query3.latest_query_data, query_result)
-
-    def test_doesnt_update_queries_with_different_hash(self):
-        query1 = self.factory.create_query(query_text=self.query)
-        query2 = self.factory.create_query(query_text=self.query)
-        query3 = self.factory.create_query(query_text=self.query + "123")
-
-        query_result, _ = models.QueryResult.store_result(
-            self.data_source.org_id, self.data_source, self.query_hash,
-            self.query, self.data, self.runtime, self.utcnow)
-
-        self.assertEqual(query1.latest_query_data, query_result)
-        self.assertEqual(query2.latest_query_data, query_result)
-        self.assertNotEqual(query3.latest_query_data, query_result)
-
-    def test_doesnt_update_queries_with_different_data_source(self):
-        query1 = self.factory.create_query(query_text=self.query)
-        query2 = self.factory.create_query(query_text=self.query)
-        query3 = self.factory.create_query(query_text=self.query, data_source=self.factory.create_data_source())
-
-        query_result, _ = models.QueryResult.store_result(
-            self.data_source.org_id, self.data_source, self.query_hash,
-            self.query, self.data, self.runtime, self.utcnow)
-
-        self.assertEqual(query1.latest_query_data, query_result)
-        self.assertEqual(query2.latest_query_data, query_result)
-        self.assertNotEqual(query3.latest_query_data, query_result)
 
 
 class TestEvents(BaseTestCase):
