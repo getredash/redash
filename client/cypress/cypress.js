@@ -23,8 +23,8 @@ function startServer() {
   console.log('Starting the server...');
 
   execSync('docker-compose -p cypress build --build-arg skip_ds_deps=true', { stdio: 'inherit' });
-  execSync('docker-compose -p cypress up -d', { stdio: 'inherit' });
-  execSync('docker-compose -p cypress run server create_db', { stdio: 'inherit' });
+  execSync('docker-compose -p cypress up &', { stdio: 'inherit' });
+  execSync('sleep 1 && docker-compose -p cypress run server create_db', { stdio: 'inherit' });
 }
 
 function stopServer() {
