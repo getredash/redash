@@ -319,3 +319,26 @@ class TestRemoteUserAuth(BaseTestCase):
         })
 
         self.assert_correct_user_attributes(self.get_test_user())
+
+
+class TestUserForgotPassword(BaseTestCase):
+    def test_user_should_receive_password_reset_link(self):
+        user = self.factory.create_user()
+
+        with patch('redash.handlers.authentication.send_password_reset_email') as send_password_reset_email_mock:
+            response = self.post_request('/forgot', org=user.org, data={'email': user.email})
+            self.assertEqual(response.status_code, 200)
+            send_password_reset_email_mock.assert_called_with(user)
+
+    def test_disabled_user_should_not_receive_password_reset_link(self):
+        user = self.factory.create_user()
+        user.disable()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        with patch('redash.handlers.authentication.send_password_reset_email') as send_password_reset_email_mock,\
+                patch('redash.handlers.authentication.send_user_disabled_email') as send_user_disabled_email_mock:
+            response = self.post_request('/forgot', org=user.org, data={'email': user.email})
+            self.assertEqual(response.status_code, 200)
+            send_password_reset_email_mock.assert_not_called()
+            send_user_disabled_email_mock.assert_called_with(user)

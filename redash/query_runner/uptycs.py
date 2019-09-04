@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Uptycs(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -39,10 +40,6 @@ class Uptycs(BaseSQLQueryRunner):
             "required": ["url", "customer_id", "key", "secret"],
             "secret": ["secret", "key"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def generate_header(self, key, secret):
         header = {}

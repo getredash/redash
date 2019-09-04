@@ -50,3 +50,18 @@ Cypress.Commands.add('fillInputs', (elements) => {
     cy.getByTestId(testId).clear().type(value);
   });
 });
+
+Cypress.Commands.add('dragBy', { prevSubject: true }, (subject, offsetLeft, offsetTop, force = false) => {
+  if (!offsetLeft) {
+    offsetLeft = 1;
+  }
+  if (!offsetTop) {
+    offsetTop = 1;
+  }
+  return cy.wrap(subject)
+    .trigger('mouseover', { force })
+    .trigger('mousedown', 'topLeft', { force })
+    .trigger('mousemove', 1, 1, { force }) // must have at least 2 mousemove events for react-grid-layout to trigger onLayoutChange
+    .trigger('mousemove', offsetLeft, offsetTop, { force })
+    .trigger('mouseup', { force });
+});

@@ -24,8 +24,8 @@ def comment_for(failure):
 
 @celery.task(name="redash.tasks.send_aggregated_errors")
 def send_aggregated_errors():
-    for key in redis_connection.scan_iter(key("*")):
-        user_id = re.search(r'\d+', key).group()
+    for k in redis_connection.scan_iter(key("*")):
+        user_id = re.search(r'\d+', k).group()
         send_failure_report(user_id)
 
 

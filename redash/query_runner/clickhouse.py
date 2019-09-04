@@ -67,21 +67,29 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        r = requests.post(
-            self.configuration.get('url', "http://127.0.0.1:8123"),
-            data=data.encode("utf-8"),
-            stream=stream,
-            timeout=self.configuration.get('timeout', 30),
-            params={
-                'user': self.configuration.get('user', "default"),
-                'password':  self.configuration.get('password', ""),
-                'database': self.configuration['dbname']
-            }
-        )
-        if r.status_code != 200:
-            raise Exception(r.text)
-        # logging.warning(r.json())
-        return r.json()
+        url = self.configuration.get('url', "http://127.0.0.1:8123")
+        try:
+            r = requests.post(
+                url,
+                data=data.encode("utf-8"),
+                stream=stream,
+                timeout=self.configuration.get('timeout', 30),
+                params={
+                    'user': self.configuration.get('user', "default"),
+                    'password':  self.configuration.get('password', ""),
+                    'database': self.configuration['dbname']
+                }
+            )
+            if r.status_code != 200:
+                raise Exception(r.text)
+            # logging.warning(r.json())
+            return r.json()
+        except requests.RequestException as e:
+            if e.response:
+                details = "({}, Status Code: {})".format(e.__class__.__name__, e.response.status_code)
+            else:
+                details = "({})".format(e.__class__.__name__)
+            raise Exception("Connection error to: {} {}.".format(url, details))
 
     @staticmethod
     def _define_column_type(column):
@@ -149,5 +157,6 @@ class ClickHouse(BaseSQLQueryRunner):
             logging.exception(e)
             error = unicode(e)
         return data, error
+
 
 register(ClickHouse)

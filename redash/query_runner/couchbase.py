@@ -2,9 +2,11 @@ import datetime
 import logging
 
 from dateutil.parser import parse
+from six import text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils.compat import long
 import json
 
 logger = logging.getLogger(__name__)
@@ -17,7 +19,7 @@ except ImportError as e:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT,
@@ -68,7 +70,7 @@ def parse_results(results):
 
 
 class Couchbase(BaseQueryRunner):
-
+    should_annotate_query = False
     noop_query = 'Select 1'
 
     @classmethod
@@ -106,10 +108,6 @@ class Couchbase(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return True
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         result = self.call_service(self.noop_query, '')

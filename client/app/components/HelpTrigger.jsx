@@ -152,7 +152,7 @@ export class HelpTrigger extends React.Component {
     return (
       <React.Fragment>
         <Tooltip title={tooltip}>
-          <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
+          <a onClick={this.openDrawer} className={className}>
             {this.props.children}
           </a>
         </Tooltip>

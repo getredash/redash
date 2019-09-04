@@ -183,12 +183,13 @@ class GroupDataSources extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                There are no data sources in this group yet.
+                <p>
+                  There are no data sources in this group yet.
+                </p>
                 {currentUser.isAdmin && (
-                  <div className="m-t-5">
-                    <a href="javascript:void(0)" onClick={this.addDataSources}>Click here</a>
-                    {' '} to add data sources.
-                  </div>
+                  <Button type="primary" onClick={this.addDataSources}>
+                    <i className="fa fa-plus m-r-5" />Add Data Sources
+                  </Button>
                 )}
               </div>
             )}

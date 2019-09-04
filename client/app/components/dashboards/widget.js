@@ -92,6 +92,8 @@ function DashboardWidgetCtrl($scope, $location, $uibModal, $window, $rootScope, 
     return this.widget.load(refresh, maxAge);
   };
 
+  this.forceRefresh = () => this.load(true);
+
   this.refresh = (buttonId) => {
     this.refreshClickButtonId = buttonId;
     this.load(true).finally(() => {

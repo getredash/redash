@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyhive import hive
+    from pyhive.exc import DatabaseError
     from thrift.transport import THttpClient
     enabled = True
 except ImportError:
@@ -36,6 +37,7 @@ types_map = {
 
 
 class Hive(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -59,10 +61,6 @@ class Hive(BaseSQLQueryRunner):
             "order": ["host", "port", "database", "username"],
             "required": ["host"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
@@ -98,14 +96,13 @@ class Hive(BaseSQLQueryRunner):
             database=self.configuration.get('database', 'default'),
             username=self.configuration.get('username', None),
         )
-        
-        return connection
 
+        return connection
 
     def run_query(self, query, user):
         connection = None
         try:
-            connection = self._get_connection() 
+            connection = self._get_connection()
             cursor = connection.cursor()
 
             cursor.execute(query)
@@ -132,6 +129,12 @@ class Hive(BaseSQLQueryRunner):
             if connection:
                 connection.cancel()
             error = "Query cancelled by user."
+            json_data = None
+        except DatabaseError as e:
+            try:
+                error = e.args[0].status.errorMessage
+            except AttributeError:
+                error = str(e)
             json_data = None
         finally:
             if connection:
@@ -214,7 +217,7 @@ class HiveHttp(Hive):
 
         # create connection
         connection = hive.connect(thrift_transport=transport)
-        
+
         return connection
 
 
