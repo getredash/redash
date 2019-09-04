@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyhive import hive
+    from pyhive.exc import DatabaseError
     from thrift.transport import THttpClient
     enabled = True
 except ImportError:
@@ -128,6 +129,12 @@ class Hive(BaseSQLQueryRunner):
             if connection:
                 connection.cancel()
             error = "Query cancelled by user."
+            json_data = None
+        except DatabaseError as e:
+            try:
+                error = e.args[0].status.errorMessage
+            except AttributeError:
+                error = str(e)
             json_data = None
         finally:
             if connection:
