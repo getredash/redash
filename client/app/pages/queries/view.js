@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray, omit } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isArray } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -261,7 +261,7 @@ function QueryViewCtrl(
     if (request.options && request.options.parameters) {
       request.options = {
         ...request.options,
-        parameters: map(request.options.parameters, p => omit(p, 'pendingValue')),
+        parameters: map(request.options.parameters, p => p.toSaveableObject()),
       };
     }
 

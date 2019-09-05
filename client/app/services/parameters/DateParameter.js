@@ -75,6 +75,8 @@ class DateParameter extends Parameter {
       this.value = normalizedValue;
     }
     this.$$value = normalizedValue;
+
+    this.updateLocals();
     this.clearPendingValue();
     return this;
   }

@@ -1,4 +1,4 @@
-import { isNull, isObject, isFunction, isUndefined, isEqual, has } from 'lodash';
+import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from 'lodash';
 import {
   TextParameter, NumberParameter, EnumParameter, QueryBasedDropdownParameter,
   DateParameter, DateRangeParameter,
@@ -16,12 +16,7 @@ class Parameter {
     this.locals = [];
 
     // Used for URL serialization
-    Object.defineProperty(this, 'urlPrefix', {
-      configurable: true,
-      enumerable: false, // don't save it
-      writable: true,
-      value: 'p_',
-    });
+    this.urlPrefix = 'p_';
   }
 
   static create(param, parentQueryId) {
@@ -94,11 +89,20 @@ class Parameter {
     return value;
   }
 
+  updateLocals() {
+    if (isArray(this.locals)) {
+      each(this.locals, (local) => {
+        local.setValue(this.value);
+      });
+    }
+  }
+
   setValue(value) {
     const normalizedValue = this.normalizeValue(value);
     this.value = normalizedValue;
     this.$$value = normalizedValue;
 
+    this.updateLocals();
     this.clearPendingValue();
     return this;
   }
@@ -140,6 +144,10 @@ class Parameter {
 
   toQueryTextFragment() {
     return `{{ ${this.name} }}`;
+  }
+
+  toSaveableObject() {
+    return omit(this, ['urlPrefix', 'pendingValue']);
   }
 }
 
