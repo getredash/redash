@@ -32,7 +32,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (with defaults)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with custom label', () => {
@@ -53,7 +53,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (custom label)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with non-numeric value', () => {
@@ -77,7 +77,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (non-numeric value)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with target value (trend positive)', () => {
@@ -97,7 +97,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (target value + trend positive)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with custom row number (trend negative)', () => {
@@ -122,7 +122,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (row number + trend negative)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with count rows', () => {
@@ -141,7 +141,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (count rows)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with formatting', () => {
@@ -171,7 +171,7 @@ describe('Counter', () => {
 
     // wait a bit before taking snapshot
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Counter (format target value)', { widths: [viewportWidth] });
+    cy.percySnapshot('Visualizations - Counter (custom formatting)', { widths: [viewportWidth] });
   });
 
   it('creates Counter with target value formatting', () => {
