@@ -150,10 +150,6 @@ class JiraJQL(BaseHTTPQueryRunner):
     def name(cls):
         return "JIRA (JQL)"
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def __init__(self, configuration):
         super(JiraJQL, self).__init__(configuration)
         self.syntax = 'json'

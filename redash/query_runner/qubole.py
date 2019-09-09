@@ -19,6 +19,7 @@ except ImportError:
 
 
 class Qubole(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def configuration_schema(cls):
@@ -61,10 +62,6 @@ class Qubole(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         headers = self._get_header()

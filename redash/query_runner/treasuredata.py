@@ -34,6 +34,7 @@ TD_TYPES_MAPPING = {
 
 
 class TreasureData(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -66,10 +67,6 @@ class TreasureData(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
