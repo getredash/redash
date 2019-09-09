@@ -228,7 +228,7 @@ class QueryExecutor(object):
         run_time = time.time() - started_at
 
         logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]",
-                         self.query_hash, data and len(data), error)
+                    self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
