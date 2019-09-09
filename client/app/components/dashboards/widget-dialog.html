@@ -5,7 +5,7 @@
   </div>
 </div>
 <div class="modal-body">
-  <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body"></visualization-renderer>
+  <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body" context="'widget'"></visualization-renderer>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-click="$ctrl.dismiss()">Close</button>
