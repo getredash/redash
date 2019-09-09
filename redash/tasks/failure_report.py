@@ -1,9 +1,9 @@
+import logging
 import datetime
 import re
 from collections import Counter
 from flask import render_template
 from redash.tasks.general import send_mail
-from redash.worker import celery
 from redash import redis_connection, settings, models
 from redash.utils import json_dumps, json_loads, base_url
 
@@ -69,3 +69,13 @@ def notify_of_failure(message, query):
             'schedule_failures': query.schedule_failures,
             'failed_at': datetime.datetime.utcnow().strftime("%B %d, %Y %I:%M%p UTC")
         }))
+
+
+def track_failure(query, error):
+    logging.debug(error)
+
+    query.schedule_failures += 1
+    models.db.session.add(query)
+    models.db.session.commit()
+
+    notify_of_failure(error, query)
