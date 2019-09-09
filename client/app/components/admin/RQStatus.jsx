@@ -26,7 +26,7 @@ const workersColumns = [Columns.custom(
   ), { title: 'State', dataIndex: 'state' },
 )].concat(map(['Hostname', 'PID', 'Name', 'Queues', 'Successful Job Count',
   'Failed Job Count', 'Birth Date', 'Total Working Time'],
-c => ({ title: c, dataIndex: c.toLowerCase().replace(' ', '_') })));
+c => ({ title: c, dataIndex: c.toLowerCase().replace(/\s/g, '_') })));
 
 const queuesColumns = map(
   ['Name', 'Started', 'Queued'],
