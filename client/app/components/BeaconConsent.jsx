@@ -13,12 +13,15 @@ export function BeaconConsent() {
 
   return (
     <div className="m-t-10 tiled">
-      <Card title="Would you like to share aggregated usage information with the Redash team?" bordered={false}>
-        <Text>
-          Shared data includes: number of users, queries, dashboards, alerts, widgets and visulizations. Also types of
-          data sources, alert destination and visualizations.
-        </Text>
-        <Text>All the data is aggregated and does not include anything sensitive or private.</Text>
+      <Card title="Would you be ok with sharing anonymous usage data with the Redash team?" bordered={false}>
+        <Text>Help Redash improve by automatically sending anonymous usage data:</Text>
+        <div className="m-t-5">
+          <ul>
+            <li> Number of users, queries, dashboards, alerts, widgets and visualizations.</li>
+            <li> Types of data sources, alert destinations and visualizations.</li>
+          </ul>
+        </div>
+        <Text>All data is aggregated and will never include any sensitive or private data.</Text>
         <div className="m-t-15">
           <Button type="primary" className="m-r-5">
             Yes
@@ -27,8 +30,7 @@ export function BeaconConsent() {
         </div>
         <div className="m-t-15">
           <Text type="secondary">
-            You can always change your descision from the <a href="settings/organization">Organization Settings</a>{' '}
-            screen.
+            You can change this setting anytime from the <a href="settings/organization">Organization Settings</a> page.
           </Text>
         </div>
       </Card>
