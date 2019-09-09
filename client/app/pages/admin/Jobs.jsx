@@ -12,6 +12,7 @@ import { WorkersTable, QueuesTable, OtherJobsTable } from '@/components/admin/RQ
 import { $http } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
+import moment from 'moment';
 
 class Jobs extends React.Component {
   state = {
@@ -53,7 +54,11 @@ class Jobs extends React.Component {
       { started: 0, queued: 0 },
     );
 
-    const startedJobs = flatMap(values(queues), queue => queue.started);
+    const startedJobs = flatMap(values(queues), queue => queue.started.map(job => ({
+      ...job,
+      enqueued_at: moment.utc(job.enqueued_at),
+      started_at: moment.utc(job.started_at),
+    })));
 
     this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters, workers });
   };

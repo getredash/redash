@@ -147,7 +147,7 @@ def fetch_jobs(queue, job_ids):
             'queue': queue.name,
             'enqueued_at': job.enqueued_at,
             'started_at': job.started_at
-        } for job in Job.fetch_many(job_ids, connection=redis_connection)]
+        } for job in Job.fetch_many(job_ids, connection=redis_connection) if job is not None]
 
 
 def rq_queues():
