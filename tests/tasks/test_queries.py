@@ -7,7 +7,7 @@ import mock
 from tests import BaseTestCase
 from redash import redis_connection, models
 from redash.query_runner.pg import PostgreSQL
-from redash.tasks.query_execution import QueryExecutionError, enqueue_query, execute_query
+from redash.tasks.queries.execution import QueryExecutionError, enqueue_query, execute_query
 
 
 FakeResult = namedtuple('FakeResult', 'id')
