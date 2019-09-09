@@ -76,6 +76,7 @@ VisualizationRenderer.propTypes = {
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   filters: FiltersType,
   showFilters: PropTypes.bool,
+  context: PropTypes.oneOf(['query', 'widget']).isRequired,
 };
 
 VisualizationRenderer.defaultProps = {
