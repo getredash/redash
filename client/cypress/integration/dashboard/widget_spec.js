@@ -139,4 +139,32 @@ describe('Widget', () => {
       });
     });
   });
+
+  it('shows horizontal scrollbar for overflowing tabular content', function () {
+    const queryData = {
+      query: `select '${'loremipsum'.repeat(15)}' FROM generate_series(1,15)`,
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization').should('exist');
+      cy.percySnapshot('Shows horizontal scrollbar for overflowing tabular content');
+    });
+  });
+
+  it('shows fixed pagination for overflowing tabular content ', function () {
+    const queryData = {
+      query: 'select \'lorem ipsum\' FROM generate_series(1,50)',
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization').should('exist');
+      cy.percySnapshot('Shows fixed pagination for overflowing tabular content');
+    });
+  });
 });
