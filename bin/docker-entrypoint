@@ -46,7 +46,7 @@ rq_worker() {
   exec /app/manage.py rq worker $QUEUES
 }
 
-dev_rq_worker() {
+dev_worker() {
   echo "Starting dev RQ worker..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
