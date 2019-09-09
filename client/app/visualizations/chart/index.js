@@ -9,6 +9,8 @@ import getChartData from './getChartData';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
+import Renderer from './Renderer';
+
 const DEFAULT_OPTIONS = {
   globalSeriesType: 'column',
   sortX: true,
@@ -318,7 +320,7 @@ export default function init(ngModule) {
         showDataLabels: options.globalSeriesType === 'pie',
         dateTimeFormat: clientConfig.dateTimeFormat,
       }, options),
-      Renderer: angular2react('chartRenderer', ChartRenderer, $injector),
+      Renderer,
       Editor: angular2react('chartEditor', ChartEditor, $injector),
 
       defaultColumns: 3,

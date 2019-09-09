@@ -14,6 +14,14 @@ import prepareLayout from './prepareLayout';
 import updateData from './updateData';
 import applyLayoutFixes from './applyLayoutFixes';
 
+export {
+  Plotly,
+  prepareData,
+  prepareLayout,
+  updateData,
+  applyLayoutFixes,
+};
+
 Plotly.register([bar, pie, histogram, box, heatmap]);
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
