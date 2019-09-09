@@ -20,7 +20,7 @@
       <div class="alert alert-danger" data-test="ErrorMessage">Error: {{$ctrl.error}}</div>
     </div>
 
-    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body" ng-if="$ctrl.queryResult">
+    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body" ng-if="$ctrl.queryResult" context="'widget'">
     </visualization-renderer>
   </div>
 

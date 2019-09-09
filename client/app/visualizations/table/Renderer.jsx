@@ -8,7 +8,7 @@ import { prepareColumns, filterRows, sortRows } from './utils';
 
 import './renderer.less';
 
-export default function Renderer({ options, data }) {
+export default function Renderer({ options, data, context }) {
   const [rowKeyPrefix, setRowKeyPrefix] = useState(`row:1:${options.itemsPerPage}:`);
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState([]);
@@ -67,6 +67,7 @@ export default function Renderer({ options, data }) {
         dataSource={preparedRows}
         rowKey={(record, index) => rowKeyPrefix + index}
         pagination={{
+          size: context === 'widget' ? 'small' : '',
           position: 'bottom',
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
