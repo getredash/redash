@@ -1,6 +1,6 @@
 import chroma from 'chroma-js';
 import _ from 'lodash';
-import { createFormatter } from '@/lib/value-format';
+import { createNumberFormatter as createFormatter } from '@/lib/value-format';
 
 export const AdditionalColors = {
   White: '#ffffff',
@@ -13,10 +13,7 @@ export function darkenColor(color) {
 }
 
 export function createNumberFormatter(format, placeholder) {
-  const formatter = createFormatter({
-    displayAs: 'number',
-    numberFormat: format,
-  });
+  const formatter = createFormatter(format);
   return (value) => {
     if (_.isNumber(value) && isFinite(value)) {
       return formatter(value);

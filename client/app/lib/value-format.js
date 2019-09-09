@@ -64,15 +64,6 @@ export function createNumberFormatter(format) {
   return value => toString(value);
 }
 
-export function createFormatter(column) {
-  switch (column.displayAs) {
-    case 'number': return createNumberFormatter(column.numberFormat);
-    case 'boolean': return createBooleanFormatter(column.booleanValues);
-    case 'datetime': return createDateTimeFormatter(column.dateTimeFormat);
-    default: return createTextFormatter(column.allowHTML && column.highlightLinks);
-  }
-}
-
 export function formatSimpleTemplate(str, data) {
   if (!isString(str)) {
     return '';
