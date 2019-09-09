@@ -4,7 +4,7 @@ from flask_mail import Message
 from redash import mail, models, settings
 from redash.models import users
 from redash.version_check import run_version_check
-from redash.worker import celery, job, get_job_logger
+from redash.worker import job, get_job_logger
 
 logger = get_job_logger(__name__)
 

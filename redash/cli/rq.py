@@ -3,12 +3,12 @@ import socket
 import sys
 import datetime
 
-from redash import redis_connection
-from redash.schedule import rq_scheduler, schedule_periodic_jobs
-
 from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
+
+from redash import redis_connection
+from redash.schedule import rq_scheduler, schedule_periodic_jobs
 
 manager = AppGroup(help="RQ management commands.")
 

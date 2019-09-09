@@ -2,13 +2,14 @@ import logging
 import time
 
 from celery.exceptions import SoftTimeLimitExceeded
-from .execution import enqueue_query
 from redash import models, redis_connection, settings, statsd_client
 from redash.models.parameterized_query import (InvalidParameterError,
                                                QueryDetachedFromDataSourceError)
 from redash.tasks.failure_report import track_failure
 from redash.utils import json_dumps
 from redash.worker import job, get_job_logger
+
+from .execution import enqueue_query
 
 logger = get_job_logger(__name__)
 
