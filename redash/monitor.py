@@ -160,17 +160,18 @@ def rq_queues():
 
 
 def rq_workers():
-    return [{'name': w.name,
-             'hostname': w.hostname,
-             'pid': w.pid,
-             'queues': ", ".join([q.name for q in w.queues]),
-             'state': w.state,
-             'last_heartbeat': w.last_heartbeat,
-             'birth_date': w.birth_date,
-             'successful_job_count': w.successful_job_count,
-             'failed_job_count': w.failed_job_count,
-             'total_working_time': w.total_working_time
-             } for w in Worker.all(connection=redis_connection)]
+    return [{
+        'name': w.name,
+        'hostname': w.hostname,
+        'pid': w.pid,
+        'queues': ", ".join([q.name for q in w.queues]),
+        'state': w.state,
+        'last_heartbeat': w.last_heartbeat,
+        'birth_date': w.birth_date,
+        'successful_job_count': w.successful_job_count,
+        'failed_job_count': w.failed_job_count,
+        'total_working_time': w.total_working_time
+    } for w in Worker.all(connection=redis_connection)]
 
 
 def rq_status():
