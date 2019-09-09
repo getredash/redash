@@ -25,7 +25,7 @@ class Jobs extends React.Component {
   };
 
   componentDidMount() {
-    recordEvent('view', 'page', 'admin/jobs');
+    recordEvent('view', 'page', 'admin/rq_status');
     $http
       .get('/api/admin/queries/rq_status')
       .then(({ data }) => this.processQueues(data))
