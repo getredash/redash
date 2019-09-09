@@ -234,4 +234,21 @@
     .hide-in-percy, .pace {
         visibility: hidden;
     }
+
+    [data-percy="show-scrollbars"] {
+        overflow: scroll;
+
+        &::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: green;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: red;
+        }
+    }
 }
