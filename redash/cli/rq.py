@@ -38,4 +38,4 @@ def healthcheck():
         time_since_seen = [datetime.datetime.utcnow() - hb for hb in heartbeats]
         active = [t.seconds < 60 for t in time_since_seen]
 
-        sys.exit(not int(all(active)))
+        sys.exit(int(not all(active)))
