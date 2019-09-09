@@ -168,6 +168,12 @@
           <input type="checkbox" ng-model="$ctrl.options.series.percentValues"> Normalize values to percentage
         </label>
       </div>
+
+      <div ng-if="['bubble', 'scatter'].indexOf($ctrl.options.globalSeriesType) === -1" class="checkbox">
+        <label class="control-label">
+          <input type="checkbox" ng-model="$ctrl.options.missingValuesAsZero"> Treat missing/null values as 0
+        </label>
+      </div>
     </div>
   </div>
 
