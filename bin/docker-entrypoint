@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-worker() {
+celery_worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries}
   WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
@@ -22,19 +22,19 @@ dev_scheduler() {
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
 }
 
-rq_worker() {
+worker() {
   echo "Starting RQ worker..."
 
   exec /app/manage.py rq worker $QUEUES
 }
 
-dev_rq_worker() {
+dev_worker() {
   echo "Starting dev RQ worker..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
-dev_worker() {
+dev_celery_worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries}
 
@@ -65,12 +65,12 @@ help() {
   echo ""
 
   echo "server -- start Redash server (with gunicorn)"
-  echo "worker -- start Celery worker"
-  echo "dev_worker -- start Celery worker process which picks up code changes and reloads"
+  echo "celery_worker -- start Celery worker"
+  echo "dev_celery_worker -- start Celery worker process which picks up code changes and reloads"
+  echo "worker -- start a single RQ worker"
+  echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
-  echo "rq_worker -- start a single RQ worker"
   echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
-  echo "dev_rq_worker -- start a single RQ worker with code reloading"
   echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
@@ -109,13 +109,13 @@ case "$1" in
     shift
     dev_scheduler
     ;;
-  rq_worker)
+  celery_worker)
     shift
-    rq_worker
+    celery_worker
     ;;
-  dev_rq_worker)
+  dev_celery_worker)
     shift
-    dev_rq_worker
+    dev_celery_worker
     ;;
   dev_worker)
     shift

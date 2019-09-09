@@ -30,9 +30,9 @@ services:
       - server
     environment:
       REDASH_REDIS_URL: "redis://redis:6379/0"
-  rq_worker:
+  worker:
     build: .
-    command: dev_rq_worker
+    command: dev_worker
     deploy:
       replicas: 2
     volumes:
@@ -48,9 +48,9 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "default periodic schemas"
-  worker:
+  celery-worker:
     build: .
-    command: dev_worker
+    command: dev_celery_worker
     volumes:
       - type: bind
         source: .

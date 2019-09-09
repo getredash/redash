@@ -21,9 +21,9 @@ services:
       - server
     environment:
       REDASH_REDIS_URL: "redis://redis:6379/0"
-  rq_worker:
+  worker:
     build: ../
-    command: rq_worker
+    command: worker
     depends_on:
       - server
     environment:
@@ -32,9 +32,9 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "default periodic schemas"
-  worker:
+  celery_worker:
     build: ../
-    command: worker
+    command: celery_worker
     depends_on:
       - server
     environment:
@@ -50,8 +50,8 @@ services:
       dockerfile: .circleci/Dockerfile.cypress
     depends_on:
       - server
+      - celery_worker
       - worker
-      - rq_worker
       - scheduler
     environment:
       CYPRESS_baseUrl: "http://server:5000"
