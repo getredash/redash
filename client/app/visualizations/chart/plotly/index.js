@@ -13,6 +13,7 @@ import prepareData from './prepareData';
 import prepareLayout from './prepareLayout';
 import updateData from './updateData';
 import applyLayoutFixes from './applyLayoutFixes';
+import { prepareCustomChartData, createCustomChartRenderer } from './customChartUtils';
 
 export {
   Plotly,
@@ -20,6 +21,8 @@ export {
   prepareLayout,
   updateData,
   applyLayoutFixes,
+  prepareCustomChartData,
+  createCustomChartRenderer,
 };
 
 Plotly.register([bar, pie, histogram, box, heatmap]);
