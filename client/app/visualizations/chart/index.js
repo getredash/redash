@@ -6,7 +6,6 @@ import { registerVisualization } from '@/visualizations';
 import { clientConfig } from '@/services/auth';
 import ColorPalette from '@/visualizations/ColorPalette';
 import getChartData from './getChartData';
-import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
 import Renderer from './Renderer';
@@ -72,26 +71,6 @@ function initEditorForm(options, columns) {
 
   return result;
 }
-
-const ChartRenderer = {
-  template,
-  bindings: {
-    data: '<',
-    options: '<',
-  },
-  controller($scope) {
-    this.chartSeries = [];
-
-    const update = () => {
-      if (this.data) {
-        this.chartSeries = getChartData(this.data.rows, this.options);
-      }
-    };
-
-    $scope.$watch('$ctrl.data', update);
-    $scope.$watch('$ctrl.options', update, true);
-  },
-};
 
 const ChartEditor = {
   template: editorTemplate,
@@ -308,7 +287,6 @@ const ChartEditor = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('chartRenderer', ChartRenderer);
   ngModule.component('chartEditor', ChartEditor);
 
   ngModule.run(($injector) => {
