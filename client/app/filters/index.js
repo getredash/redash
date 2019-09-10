@@ -1,5 +1,6 @@
 import moment from 'moment';
 import { capitalize as _capitalize, isEmpty } from 'lodash';
+import { formatDate, formatDateTime } from './datetime';
 
 export const IntervalEnum = {
   NEVER: 'Never',
@@ -167,4 +168,19 @@ export function join(arr) {
   }
 
   return arr.join(' / ');
+}
+
+export function formatColumnValue(value, columnType = null) {
+  if (moment.isMoment(value)) {
+    if (columnType === 'date') {
+      return formatDate(value);
+    }
+    return formatDateTime(value);
+  }
+
+  if (typeof value === 'boolean') {
+    return value.toString();
+  }
+
+  return value;
 }

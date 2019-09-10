@@ -3,11 +3,11 @@ import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
-import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
 import './pivot.less';
 
+import Renderer from './Renderer';
 import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
@@ -67,12 +67,12 @@ const PivotTableRenderer = {
 export default function init(ngModule) {
   ngModule.component('pivotTableRenderer', PivotTableRenderer);
 
-  ngModule.run(($injector) => {
+  ngModule.run(() => {
     registerVisualization({
       type: 'PIVOT',
       name: 'Pivot Table',
       getOptions: options => merge({}, DEFAULT_OPTIONS, options),
-      Renderer: angular2react('pivotTableRenderer', PivotTableRenderer, $injector),
+      Renderer,
       Editor,
 
       defaultRows: 10,
