@@ -155,7 +155,24 @@ class OrganizationSettings extends React.Component {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Multi-byte Search">
+        <Form.Item label="Feature Flags">
+          <Checkbox
+            name="feature_show_permissions_control"
+            checked={formValues.feature_show_permissions_control}
+            onChange={e => this.handleChange('feature_show_permissions_control', e.target.checked)}
+          >
+            Enable experimental multiple owners support
+          </Checkbox>
+        </Form.Item>
+        <Form.Item>
+          <Checkbox
+            name="send_email_on_failed_scheduled_queries"
+            checked={formValues.send_email_on_failed_scheduled_queries}
+            onChange={e => this.handleChange('send_email_on_failed_scheduled_queries', e.target.checked)}
+          >Email query owners when scheduled queries fail
+          </Checkbox>
+        </Form.Item>
+        <Form.Item>
           <Checkbox
             name="multi_byte_search_enabled"
             checked={formValues.multi_byte_search_enabled}
@@ -164,21 +181,13 @@ class OrganizationSettings extends React.Component {
           Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
-        <Form.Item label="Email Reports">
+        <Form.Item label="Anonymous Usage Data Sharing">
           <Checkbox
-            name="send_email_on_failed_scheduled_queries"
-            checked={formValues.send_email_on_failed_scheduled_queries}
-            onChange={e => this.handleChange('send_email_on_failed_scheduled_queries', e.target.checked)}
-          >Email query owners when scheduled queries fail
-          </Checkbox>
-        </Form.Item>
-        <Form.Item label="Feature Flags">
-          <Checkbox
-            name="feature_show_permissions_control"
-            checked={formValues.feature_show_permissions_control}
-            onChange={e => this.handleChange('feature_show_permissions_control', e.target.checked)}
+            name="beacon_consent"
+            checked={formValues.beacon_consent}
+            onChange={e => this.handleChange('beacon_consent', e.target.checked)}
           >
-            Enable experimental multiple owners support
+            Help Redash improve by automatically sending anonymous usage data
           </Checkbox>
         </Form.Item>
       </React.Fragment>
