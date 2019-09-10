@@ -316,10 +316,20 @@ export default function init(ngModule) {
       type: 'CHART',
       name: 'Chart',
       isDefault: true,
-      getOptions: options => merge({}, DEFAULT_OPTIONS, {
-        showDataLabels: options.globalSeriesType === 'pie',
-        dateTimeFormat: clientConfig.dateTimeFormat,
-      }, options),
+      getOptions: (options) => {
+        const result = merge({}, DEFAULT_OPTIONS, {
+          showDataLabels: options.globalSeriesType === 'pie',
+          dateTimeFormat: clientConfig.dateTimeFormat,
+        }, options);
+
+        // Backward compatibility
+        if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
+          result.series.percentValues = result.series.stacking === 'percent';
+          result.series.stacking = 'stack';
+        }
+
+        return result;
+      },
       Renderer,
       Editor: angular2react('chartEditor', ChartEditor, $injector),
 

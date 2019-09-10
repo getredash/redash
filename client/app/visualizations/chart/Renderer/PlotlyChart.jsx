@@ -1,42 +1,21 @@
 import { isArray, isObject } from 'lodash';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 import resizeObserver from '@/services/resizeObserver';
 
 import getChartData from '../getChartData';
 import { Plotly, prepareData, prepareLayout, updateData, applyLayoutFixes } from '../plotly';
 
-export default function PlotlyChart(props) {
+export default function PlotlyChart({ options, data }) {
   const [container, setContainer] = useState(null);
 
-  const options = useMemo(() => {
-    const result = { ...props.options };
-    if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
-      // Backward compatibility
-      result.series = {
-        ...result.series,
-        percentValues: result.series.stacking === 'percent',
-        stacking: 'stack',
-      };
-    }
-    return result;
-  }, [props.options]);
-
-  const plotlyData = useMemo(() => {
-    const series = getChartData(props.data.rows, options);
-    return prepareData(series, options);
-  }, [props.data, options]);
-
-  const plotlyLayout = useMemo(() => {
-    if (container) {
-      return prepareLayout(container, options, plotlyData);
-    }
-    return null;
-  }, [container, options, plotlyData]);
-
   useEffect(() => {
-    if (container && plotlyLayout) {
+    if (container) {
       const plotlyOptions = { showLink: false, displaylogo: false };
+
+      const chartData = getChartData(data.rows, options);
+      const plotlyData = prepareData(chartData, options);
+      const plotlyLayout = prepareLayout(container, options, plotlyData);
 
       // It will auto-purge previous graph
       Plotly.newPlot(container, plotlyData, plotlyLayout, plotlyOptions).then(() => {
@@ -51,19 +30,22 @@ export default function PlotlyChart(props) {
           Plotly.relayout(container, plotlyLayout);
         }
       });
-    }
-  }, [options, plotlyData, plotlyLayout, container]);
 
-  useEffect(() => {
-    if (container) {
       const unwatch = resizeObserver(container, () => {
         applyLayoutFixes(container, plotlyLayout, (e, u) => Plotly.relayout(e, u));
       });
       return unwatch;
     }
-  }, [plotlyLayout, container]);
+  }, [options, data, container]);
 
-  return <div className="chart-visualization-container plotly-chart-container" ref={setContainer} />;
+  // Cleanup when component destroyed
+  useEffect(() => {
+    if (container) {
+      return () => Plotly.purge(container);
+    }
+  }, [container]);
+
+  return <div className="chart-visualization-container" ref={setContainer} />;
 }
 
 PlotlyChart.propTypes = RendererPropTypes;

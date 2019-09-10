@@ -29,13 +29,13 @@ Plotly.setPlotConfig({
 
 const PlotlyChart = () => ({
   restrict: 'E',
-  template: '<div class="plotly-chart-container" resize-event="handleResize()"></div>',
+  template: '<div class="chart-visualization-container" resize-event="handleResize()"></div>',
   scope: {
     options: '=',
     series: '=',
   },
   link(scope, element) {
-    const plotlyElement = element[0].querySelector('.plotly-chart-container');
+    const plotlyElement = element[0].querySelector('.chart-visualization-container');
     const plotlyOptions = { showLink: false, displaylogo: false };
     let layout = {};
     let data = [];
@@ -85,7 +85,7 @@ const PlotlyChart = () => ({
 
 const CustomPlotlyChart = clientConfig => ({
   restrict: 'E',
-  template: '<div class="plotly-chart-container" resize-event="handleResize()"></div>',
+  template: '<div class="chart-visualization-container" resize-event="handleResize()"></div>',
   scope: {
     series: '=',
     options: '=',
