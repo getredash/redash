@@ -3,13 +3,22 @@ import { react2angular } from 'react2angular';
 import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
 import Typography from 'antd/lib/typography';
+import { clientConfig } from '@/services/auth';
 
 const Text = Typography.Text;
 
 export function BeaconConsent() {
-  //   if (!clientConfig.showBeaconConsentMessage) {
-  //     return;
-  //   }
+  if (!clientConfig.showBeaconConsentMessage) {
+    return;
+  }
+
+  // import OrgSettings from '@/services/organizationSettings';
+  // OrgSettings.save(this.state.formValues)
+  //   .then((response) => {
+  //     const settings = get(response, 'settings');
+  //     this.setState({ settings, formValues: { ...settings } });
+  //   })
+  //   .finally(() => this.setState({ submitting: false }));
 
   return (
     <div className="m-t-10 tiled">
@@ -22,7 +31,7 @@ export function BeaconConsent() {
           </ul>
         </div>
         <Text>All data is aggregated and will never include any sensitive or private data.</Text>
-        <div className="m-t-15">
+        <div className="m-t-5">
           <Button type="primary" className="m-r-5">
             Yes
           </Button>
