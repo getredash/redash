@@ -1,24 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { react2angular } from 'react2angular';
 import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
 import Typography from 'antd/lib/typography';
 import { clientConfig } from '@/services/auth';
+import OrgSettings from '@/services/organizationSettings';
 
 const Text = Typography.Text;
 
 export function BeaconConsent() {
-  if (!clientConfig.showBeaconConsentMessage) {
-    return;
+  const [hide, setHide] = useState(false);
+
+  if (!clientConfig.showBeaconConsentMessage || hide) {
+    return null;
   }
 
-  // import OrgSettings from '@/services/organizationSettings';
-  // OrgSettings.save(this.state.formValues)
-  //   .then((response) => {
-  //     const settings = get(response, 'settings');
-  //     this.setState({ settings, formValues: { ...settings } });
-  //   })
-  //   .finally(() => this.setState({ submitting: false }));
+  const hideConsentCard = () => {
+    clientConfig.showBeaconConsentMessage = false;
+    setHide(true);
+  };
+
+  const confirmConsent = (confirm) => {
+    let message = '🙏 Thank you.';
+
+    if (!confirm) {
+      message = 'Settings Saved.';
+    }
+
+    OrgSettings.save({ beacon_consent: confirm }, message)
+      // .then(() => {
+      //   // const settings = get(response, 'settings');
+      //   // this.setState({ settings, formValues: { ...settings } });
+      // })
+      .finally(hideConsentCard);
+  };
 
   return (
     <div className="m-t-10 tiled">
@@ -32,10 +47,12 @@ export function BeaconConsent() {
         </div>
         <Text>All data is aggregated and will never include any sensitive or private data.</Text>
         <div className="m-t-5">
-          <Button type="primary" className="m-r-5">
+          <Button type="primary" className="m-r-5" onClick={() => confirmConsent(true)}>
             Yes
           </Button>
-          <Button type="default">No</Button>
+          <Button type="default" onClick={() => confirmConsent(false)}>
+            No
+          </Button>
         </div>
         <div className="m-t-15">
           <Text type="secondary">
