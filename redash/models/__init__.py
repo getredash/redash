@@ -804,7 +804,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
                 'less than': lambda v, t: v < t,
                 'equals': lambda v, t: v == t,
             }
-            should_trigger = operators.get(self.options['op'], lambda: False)
+            should_trigger = operators.get(self.options['op'], lambda v, t: False)
 
             value = data['rows'][0][self.options['column']]
             threshold = self.options['value']
