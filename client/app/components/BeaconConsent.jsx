@@ -4,6 +4,7 @@ import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
 import Typography from 'antd/lib/typography';
 import { clientConfig } from '@/services/auth';
+import { HelpTrigger } from '@/components/HelpTrigger';
 import OrgSettings from '@/services/organizationSettings';
 
 const Text = Typography.Text;
@@ -37,7 +38,15 @@ export function BeaconConsent() {
 
   return (
     <div className="m-t-10 tiled">
-      <Card title="Would you be ok with sharing anonymous usage data with the Redash team?" bordered={false}>
+      <Card
+        title={(
+          <>
+            Would you be ok with sharing anonymous usage data with the Redash team?{' '}
+            <HelpTrigger type="USAGE_DATA_SHARING" />
+          </>
+        )}
+        bordered={false}
+      >
         <Text>Help Redash improve by automatically sending anonymous usage data:</Text>
         <div className="m-t-5">
           <ul>

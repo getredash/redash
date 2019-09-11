@@ -181,7 +181,7 @@ class OrganizationSettings extends React.Component {
           Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
-        <Form.Item label="Anonymous Usage Data Sharing">
+        <Form.Item label={<>Anonymous Usage Data Sharing <HelpTrigger type="USAGE_DATA_SHARING" /></>}>
           <Checkbox
             name="beacon_consent"
             checked={formValues.beacon_consent}
