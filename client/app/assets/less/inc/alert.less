@@ -70,10 +70,22 @@
         font-size: 10px;
         color: #00000070;
 
-        & + div {
+        & + * {
             vertical-align: top;
         }
     }
+
+    .alert-threshold {
+        width: 90px;
+    }
+}
+
+.alert-criteria-hint code {
+    overflow: hidden;
+    max-width: 100px;
+    display: inline-block;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 .alert-state {

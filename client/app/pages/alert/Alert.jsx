@@ -35,6 +35,8 @@ import { EditInPlace } from '../../components/EditInPlace';
 
 const NEW_ALERT_ID = 'new';
 
+const VALID_STRING_CONDITIONS = ['equals'];
+
 function isNewAlert() {
   return $route.current.params.alertId === NEW_ALERT_ID;
 }
@@ -45,13 +47,26 @@ function WarningIcon() {
 
 function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
   const columnValue = resultValues && head(resultValues)[alertOptions.column];
-  const isColumnValueInValid = columnValue && isNaN(columnValue);
+  const invalidMessage = () => {
+    // bail if condition is valid for strings
+    if (includes(VALID_STRING_CONDITIONS, alertOptions.op)) {
+      return null;
+    }
+
+    if (isNaN(alertOptions.value)) {
+      return <small><WarningIcon /> Threshold value type is invalid.</small>;
+    }
+
+    if (isNaN(columnValue)) {
+      return <small><WarningIcon /> Column value type is invalid.</small>;
+    }
+
+    return null;
+  };
+
   const columnHint = (
-    <small>
+    <small className="alert-criteria-hint">
       Top row value is <code className="p-0">{toString(columnValue) || 'unknown'}</code>
-      {isColumnValueInValid && (
-      <><br /><WarningIcon /> Invalid value type.</>
-      )}
     </small>
   );
 
@@ -60,6 +75,7 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
       label="Trigger when"
       className="alert-trigger"
       help={columnHint}
+      extra={invalidMessage()}
     >
       <div className="input-title">
         <span>Value column</span>
@@ -97,7 +113,7 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
       </div>
       <div className="input-title">
         <span>Threshold</span>
-        <InputNumber value={alertOptions.value} onChange={value => onChange({ value })} />
+        <Input className="alert-threshold" value={alertOptions.value} onChange={e => onChange({ value: e.target.value })} />
       </div>
     </HorizontalFormItem>
   );
