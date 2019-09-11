@@ -28,6 +28,7 @@ import Icon from 'antd/lib/icon';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import Switch from 'antd/lib/switch';
+import List from 'antd/lib/list';
 
 import { STATE_CLASS } from '../alerts/AlertsList';
 import { EditInPlace } from '../../components/EditInPlace';
@@ -598,7 +599,6 @@ class AlertPage extends React.Component {
                   />
                   <HorizontalFormItem>
                     <Button type="primary" onClick={this.save}>Save</Button>{' '}
-                    <Button type="danger" onClick={this.delete}>Delete Alert</Button>
                   </HorizontalFormItem>
                 </>
               )}
@@ -614,6 +614,27 @@ class AlertPage extends React.Component {
                 </Tooltip>
               </h4>
               <AlertDestinations alertId={alert.id} />
+              <h4 style={{ marginTop: 60, marginBottom: 6 }}>Danger Zone</h4>
+              <List
+                className="alert-danger-actions"
+                footer={<div />} // so there's a border underneath last child
+                dataSource={[
+                  [
+                    'Delete this Alert',
+                    'Once deleted, it\'s gone forever.',
+                    <Button type="danger" onClick={this.delete}>Delete</Button>,
+                  ],
+                ]}
+                renderItem={([title, desc, button]) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={title}
+                      description={desc}
+                    />
+                    {button}
+                  </List.Item>
+                )}
+              />
             </div>
           )}
         </div>
