@@ -10,13 +10,14 @@ import Select from 'antd/lib/select';
 import Checkbox from 'antd/lib/checkbox';
 import Tooltip from 'antd/lib/tooltip';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import { HelpTrigger } from '@/components/HelpTrigger';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import { clientConfig } from '@/services/auth';
 import settingsMenu from '@/services/settingsMenu';
 import recordEvent from '@/services/recordEvent';
 import OrgSettings from '@/services/organizationSettings';
+import { HelpTrigger } from '@/components/HelpTrigger';
+import DynamicComponent from '@/components/DynamicComponent';
 
 const Option = Select.Option;
 
@@ -181,15 +182,17 @@ class OrganizationSettings extends React.Component {
           Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
           </Checkbox>
         </Form.Item>
-        <Form.Item label={<>Anonymous Usage Data Sharing <HelpTrigger type="USAGE_DATA_SHARING" /></>}>
-          <Checkbox
-            name="beacon_consent"
-            checked={formValues.beacon_consent}
-            onChange={e => this.handleChange('beacon_consent', e.target.checked)}
-          >
-            Help Redash improve by automatically sending anonymous usage data
-          </Checkbox>
-        </Form.Item>
+        <DynamicComponent name="BeaconConsentSetting">
+          <Form.Item label={<>Anonymous Usage Data Sharing <HelpTrigger type="USAGE_DATA_SHARING" /></>}>
+            <Checkbox
+              name="beacon_consent"
+              checked={formValues.beacon_consent}
+              onChange={e => this.handleChange('beacon_consent', e.target.checked)}
+            >
+              Help Redash improve by automatically sending anonymous usage data
+            </Checkbox>
+          </Form.Item>
+        </DynamicComponent>
       </React.Fragment>
     );
   }
