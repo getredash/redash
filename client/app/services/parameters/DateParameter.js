@@ -81,7 +81,7 @@ class DateParameter extends Parameter {
     return this;
   }
 
-  getValue() {
+  getExecutionValue() {
     if (this.hasDynamicValue) {
       return this.$$value.value().format(DATETIME_FORMATS[this.type]);
     }

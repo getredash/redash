@@ -536,7 +536,7 @@ export class ParameterMappingListInput extends React.Component {
       param = param.clone().setValue(mapping.value);
     }
 
-    let value = Parameter.getValue(param);
+    let value = Parameter.getExecutionValue(param);
 
     // in case of dynamic value display the name instead of value
     if (param.hasDynamicValue) {

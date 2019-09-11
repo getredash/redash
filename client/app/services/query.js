@@ -115,9 +115,9 @@ class Parameters {
     return !isEmpty(this.get());
   }
 
-  getValues(extra = {}) {
+  getExecutionValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getValue(extra)));
+    return zipObject(map(params, i => i.name), map(params, i => i.getExecutionValue(extra)));
   }
 
   hasPendingValues() {
@@ -355,7 +355,7 @@ function QueryResource(
   };
 
   QueryService.prototype.getQueryResult = function getQueryResult(maxAge) {
-    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getValues(), maxAge);
+    const execute = () => QueryResult.getByQueryId(this.id, this.getParameters().getExecutionValues(), maxAge);
     return this.prepareQueryResultExecution(execute, maxAge);
   };
 
@@ -365,7 +365,7 @@ function QueryResource(
       return new QueryResultError("Can't execute empty query.");
     }
 
-    const parameters = this.getParameters().getValues({ joinListValues: true });
+    const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
     const execute = () => QueryResult.get(this.data_source_id, queryText, parameters, maxAge, this.id);
     return this.prepareQueryResultExecution(execute, maxAge);
   };

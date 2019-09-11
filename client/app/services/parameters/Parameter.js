@@ -40,12 +40,12 @@ class Parameter {
     }
   }
 
-  static getValue(param, extra = {}) {
-    if (!isObject(param) || !isFunction(param.getValue)) {
+  static getExecutionValue(param, extra = {}) {
+    if (!isObject(param) || !isFunction(param.getExecutionValue)) {
       return null;
     }
 
-    return param.getValue(extra);
+    return param.getExecutionValue(extra);
   }
 
   static setValue(param, value) {
@@ -57,7 +57,7 @@ class Parameter {
   }
 
   get isEmpty() {
-    return isNull(this.getValue());
+    return isNull(this.getExecutionValue());
   }
 
   get hasPendingValue() {
@@ -107,7 +107,7 @@ class Parameter {
     return this;
   }
 
-  getValue() {
+  getExecutionValue() {
     return this.value;
   }
 

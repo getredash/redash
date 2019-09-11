@@ -10,7 +10,7 @@ class QueryBasedDropdownParameter extends Parameter {
     this.setValue(parameter.value);
   }
 
-  getValue(extra = {}) {
+  getExecutionValue(extra = {}) {
     const { joinListValues } = extra;
     if (joinListValues && isArray(this.value)) {
       const separator = get(this.multiValuesOptions, 'separator', ',');
