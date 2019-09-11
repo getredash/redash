@@ -29,6 +29,7 @@ def reduce_item(reduced_item, key, value):
 
 
 class Dgraph(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = """
     {
       test() {
@@ -64,13 +65,7 @@ class Dgraph(BaseQueryRunner):
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def annotate_query(cls):
-        """Dgraph uses '#' as a comment delimiter, not '/* */'"""
-        return False
-
     def run_dgraph_query_raw(self, query):
-
         servers = self.configuration.get('servers')
 
         client_stub = pydgraph.DgraphClientStub(servers)

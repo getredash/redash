@@ -228,6 +228,7 @@ class VisualizationWidget extends React.Component {
               visualization={widget.visualization}
               queryResult={widgetQueryResult}
               filters={filters}
+              context="widget"
             />
           </div>
         );

@@ -7,13 +7,12 @@ import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
 import heatmap from 'plotly.js/lib/heatmap';
 
-import {
-  prepareData,
-  prepareLayout,
-  updateData,
-  updateLayout,
-  normalizeValue,
-} from './utils';
+import { normalizeValue } from './utils';
+
+import prepareData from './prepareData';
+import prepareLayout from './prepareLayout';
+import updateData from './updateData';
+import applyLayoutFixes from './applyLayoutFixes';
 
 Plotly.register([bar, pie, histogram, box, heatmap]);
 Plotly.setPlotConfig({
@@ -41,12 +40,11 @@ const PlotlyChart = () => ({
       }
 
       data = prepareData(scope.series, scope.options);
-      updateData(data, scope.options);
-      layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
+      layout = prepareLayout(plotlyElement, scope.options, data);
 
       // It will auto-purge previous graph
       Plotly.newPlot(plotlyElement, data, layout, plotlyOptions).then(() => {
-        updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+        applyLayoutFixes(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
       });
 
       plotlyElement.on('plotly_restyle', (updates) => {
@@ -72,7 +70,7 @@ const PlotlyChart = () => ({
     }, true);
 
     scope.handleResize = debounce(() => {
-      updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+      applyLayoutFixes(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
     }, 50);
   },
 });

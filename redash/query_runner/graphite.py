@@ -26,6 +26,8 @@ def _transform_result(response):
 
 
 class Graphite(BaseQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -48,10 +50,6 @@ class Graphite(BaseQueryRunner):
             'required': ['url'],
             'secret': ['password']
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(Graphite, self).__init__(configuration)

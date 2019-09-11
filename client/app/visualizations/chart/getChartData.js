@@ -26,12 +26,11 @@ export default function getChartData(data, options) {
     let sizeValue = null;
     let zValue = null;
 
-    forOwn(row, (v, definition) => {
+    forOwn(row, (value, definition) => {
       definition = '' + definition;
       const definitionParts = definition.split('::') || definition.split('__');
       const name = definitionParts[0];
       const type = mappings ? mappings[definition] : definitionParts[1];
-      let value = v;
 
       if (type === 'unused') {
         return;
@@ -42,9 +41,6 @@ export default function getChartData(data, options) {
         point[type] = value;
       }
       if (type === 'y') {
-        if (value == null) {
-          value = 0;
-        }
         yValues[name] = value;
         point[type] = value;
       }

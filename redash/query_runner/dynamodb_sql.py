@@ -33,6 +33,8 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -56,10 +58,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def test_connection(self):
         engine = self._connect()
         list(engine.connection.list_tables())
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):

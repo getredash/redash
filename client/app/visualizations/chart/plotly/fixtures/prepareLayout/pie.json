@@ -1,0 +1,30 @@
+{
+  "input": {
+    "options": {
+      "globalSeriesType": "pie",
+      "textFormat": ""
+    },
+    "series": [
+      { "name": "a" }
+    ]
+  },
+  "output": {
+    "layout": {
+      "margin": { "l": 10, "r": 10, "b": 10, "t": 25, "pad": 4 },
+      "width": 400,
+      "height": 300,
+      "autosize": true,
+      "showlegend": true,
+      "annotations": [
+        {
+          "x": 0.49,
+          "y": 0.985,
+          "xanchor": "center",
+          "yanchor": "top",
+          "text": "a",
+          "showarrow": false
+        }
+      ]
+    }
+  }
+}
