@@ -7,7 +7,6 @@ import Modal from 'antd/lib/modal';
 import Menu from 'antd/lib/menu';
 import recordEvent from '@/services/recordEvent';
 import { Moment } from '@/components/proptypes';
-import { Timer } from '@/components/Timer';
 
 import './Widget.less';
 
@@ -60,19 +59,6 @@ function WidgetDeleteButton({ onClick }) {
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
 WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
-function RefreshIndicator({ refreshStartedAt }) {
-  return (
-    <div className="refresh-indicator">
-      <div className="refresh-icon">
-        <i className="zmdi zmdi-refresh zmdi-hc-spin" />
-      </div>
-      <Timer from={refreshStartedAt} />
-    </div>
-  );
-}
-
-RefreshIndicator.propTypes = { refreshStartedAt: Moment.isRequired };
-
 class Widget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -119,11 +105,12 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { className, children, header, footer, canEdit, isPublic, refreshStartedAt, menuOptions } = this.props;
+    const { widget, className, children, header, footer, canEdit, isPublic,
+      onDelete, menuOptions, ...otherProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
-        <div className={cx('tile body-container', className)} data-refreshing={!!refreshStartedAt}>
+        <div className={cx('tile body-container', className)} {...otherProps}>
           <div className="widget-actions">
             {showDropdownButton && (
               <WidgetDropdownButton
@@ -135,7 +122,6 @@ class Widget extends React.Component {
             {canEdit && <WidgetDeleteButton onClick={this.deleteWidget} />}
           </div>
           <div className="body-row widget-header">
-            {refreshStartedAt && <RefreshIndicator refreshStartedAt={refreshStartedAt} />}
             {header}
           </div>
           {children}

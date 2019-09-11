@@ -31,7 +31,7 @@ function TextboxWidget(props) {
 
   return (
     <Widget {...props} menuOptions={canEdit ? TextboxMenuOptions : null} className="widget-text">
-      <HtmlContent className="body-row-auto scrollbox tiled t-body p-15 markdown">
+      <HtmlContent className="body-row-auto scrollbox t-body p-15 markdown">
         {markdown.toHTML(text || '')}
       </HtmlContent>
     </Widget>

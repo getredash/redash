@@ -10,6 +10,8 @@ import { formatDateTime } from '@/filters/datetime';
 import HtmlContent from '@/components/HtmlContent';
 import { Parameters } from '@/components/Parameters';
 import { TimeAgo } from '@/components/TimeAgo';
+import { Timer } from '@/components/Timer';
+import { Moment } from '@/components/proptypes';
 import QueryLink from '@/components/QueryLink';
 import { FiltersType } from '@/components/Filters';
 import ExpandedWidgetDialog from '@/components/dashboards/ExpandedWidgetDialog';
@@ -57,11 +59,25 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
   ]);
 }
 
-function VisualizationWidgetHeader({ widget, parameters, onParametersUpdate }) {
+function RefreshIndicator({ refreshStartedAt }) {
+  return (
+    <div className="refresh-indicator">
+      <div className="refresh-icon">
+        <i className="zmdi zmdi-refresh zmdi-hc-spin" />
+      </div>
+      <Timer from={refreshStartedAt} />
+    </div>
+  );
+}
+
+RefreshIndicator.propTypes = { refreshStartedAt: Moment.isRequired };
+
+function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission('view_query');
 
   return (
     <>
+      <RefreshIndicator refreshStartedAt={refreshStartedAt} />
       <div className="t-header widget clearfix">
         <div className="th-title">
           <p>
@@ -83,11 +99,16 @@ function VisualizationWidgetHeader({ widget, parameters, onParametersUpdate }) {
 
 VisualizationWidgetHeader.propTypes = {
   widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  refreshStartedAt: Moment,
   parameters: PropTypes.arrayOf(PropTypes.object),
   onParametersUpdate: PropTypes.func,
 };
 
-VisualizationWidgetHeader.defaultProps = { onParametersUpdate: () => {}, parameters: [] };
+VisualizationWidgetHeader.defaultProps = {
+  refreshStartedAt: null,
+  onParametersUpdate: () => {},
+  parameters: [],
+};
 
 function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
   const widgetQueryResult = widget.getQueryResult();
@@ -259,6 +280,7 @@ class VisualizationWidget extends React.Component {
         header={(
           <VisualizationWidgetHeader
             widget={widget}
+            refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
             parameters={localParameters}
             onParametersUpdate={onRefresh}
           />
@@ -271,7 +293,7 @@ class VisualizationWidget extends React.Component {
             onExpand={this.expandWidget}
           />
         )}
-        refreshStartedAt={isRefreshing ? widget.refreshStartedAt : null}
+        data-refreshing={isRefreshing}
       >
         {this.renderVisualization()}
       </Widget>

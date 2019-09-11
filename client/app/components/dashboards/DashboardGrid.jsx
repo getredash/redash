@@ -8,6 +8,7 @@ import { VisualizationWidget, TextboxWidget, RestrictedWidget } from '@/componen
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 import AutoHeightController from './AutoHeightController';
+import { WidgetTypeEnum } from '@/services/widget';
 
 import 'react-grid-layout/css/styles.css';
 import './dashboard-grid.less';
@@ -201,6 +202,7 @@ class DashboardGrid extends React.Component {
               canEdit: dashboard.canEdit(),
               onDelete: () => onRemoveWidget(widget.id),
             };
+            const { type } = widget;
             return (
               <div
                 key={widget.id}
@@ -209,7 +211,7 @@ class DashboardGrid extends React.Component {
                 data-test={`WidgetId${widget.id}`}
                 className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
               >
-                {widget.getType() === 'visualization' && (
+                {type === WidgetTypeEnum.VISUALIZATION && (
                   <VisualizationWidget
                     {...widgetProps}
                     dashboard={dashboard}
@@ -218,8 +220,8 @@ class DashboardGrid extends React.Component {
                     onParameterMappingsChange={onParameterMappingsChange}
                   />
                 )}
-                {widget.getType() === 'textbox' && <TextboxWidget {...widgetProps} />}
-                {widget.getType() === 'restricted' && <RestrictedWidget widget={widget} />}
+                {type === WidgetTypeEnum.TEXTBOX && <TextboxWidget {...widgetProps} />}
+                {type === WidgetTypeEnum.RESTRICTED && <RestrictedWidget widget={widget} />}
               </div>
             );
           })}

@@ -5,6 +5,12 @@ import { registeredVisualizations } from '@/visualizations';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
+export const WidgetTypeEnum = {
+  TEXTBOX: 'textbox',
+  VISUALIZATION: 'visualization',
+  RESTRICTED: 'restricted',
+};
+
 function calculatePositionOptions(widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
@@ -93,6 +99,15 @@ function WidgetFactory($http, $location, Query) {
       }
     }
 
+    get type() {
+      if (this.visualization) {
+        return WidgetTypeEnum.VISUALIZATION;
+      } else if (this.restricted) {
+        return WidgetTypeEnum.RESTRICTED;
+      }
+      return WidgetTypeEnum.TEXTBOX;
+    }
+
     getQuery() {
       if (!this.query && this.visualization) {
         this.query = new Query(this.visualization.query);
@@ -110,15 +125,6 @@ function WidgetFactory($http, $location, Query) {
         return `${this.visualization.query.name} (${this.visualization.name})`;
       }
       return truncate(this.text, 20);
-    }
-
-    getType() {
-      if (this.visualization) {
-        return 'visualization';
-      } else if (this.restricted) {
-        return 'restricted';
-      }
-      return 'textbox';
     }
 
     load(force, maxAge) {
