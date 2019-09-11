@@ -557,7 +557,7 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { queryResult } = this.state;
+    const { queryResult, editable } = this.state;
 
     return (
       <div className="container alert-page">
@@ -614,27 +614,31 @@ class AlertPage extends React.Component {
                 </Tooltip>
               </h4>
               <AlertDestinations alertId={alert.id} />
-              <h4 style={{ marginTop: 60, marginBottom: 6 }}>Danger Zone</h4>
-              <List
-                className="alert-danger-actions"
-                footer={<div />} // so there's a border underneath last child
-                dataSource={[
-                  [
-                    'Delete this Alert',
-                    'Once deleted, it\'s gone forever.',
-                    <Button type="danger" onClick={this.delete}>Delete</Button>,
-                  ],
-                ]}
-                renderItem={([title, desc, button]) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={title}
-                      description={desc}
-                    />
-                    {button}
-                  </List.Item>
-                )}
-              />
+              {editable && (
+                <>
+                  <h4 style={{ marginTop: 60, marginBottom: 6 }}>Danger Zone</h4>
+                  <List
+                    className="alert-danger-actions"
+                    footer={<div />} // so there's a border underneath last child
+                    dataSource={[
+                      [
+                        'Delete this Alert',
+                        'Once deleted, it\'s gone forever.',
+                        <Button type="danger" onClick={this.delete}>Delete</Button>,
+                      ],
+                    ]}
+                    renderItem={([title, desc, button]) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          title={title}
+                          description={desc}
+                        />
+                        {button}
+                      </List.Item>
+                    )}
+                  />
+                </>
+              )}
             </div>
           )}
         </div>
