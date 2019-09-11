@@ -791,14 +791,25 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         data = json_loads(self.query_rel.latest_query_data.data)
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
-            value = data['rows'][0][self.options['column']]
-            op = self.options['op']
+            operators = {
+                '>': lambda v, t: v > t,
+                '>=': lambda v, t: v >= t,
+                '<': lambda v, t: v < t,
+                '<=': lambda v, t: v <= t,
+                '==': lambda v, t: v == t,
+                '!=': lambda v, t: v != t,
 
-            if op == 'greater than' and value > self.options['value']:
-                new_state = self.TRIGGERED_STATE
-            elif op == 'less than' and value < self.options['value']:
-                new_state = self.TRIGGERED_STATE
-            elif op == 'equals' and value == self.options['value']:
+                # backward compatibility
+                'greater than': lambda v, t: v > t,
+                'less than': lambda v, t: v < t,
+                'equals': lambda v, t: v == t,
+            }
+            should_trigger = operators.get(self.options['op'], lambda v, t: False)
+
+            value = data['rows'][0][self.options['column']]
+            threshold = self.options['value']
+
+            if should_trigger(value, threshold):
                 new_state = self.TRIGGERED_STATE
             else:
                 new_state = self.OK_STATE
