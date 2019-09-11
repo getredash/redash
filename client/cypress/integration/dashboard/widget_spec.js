@@ -139,4 +139,36 @@ describe('Widget', () => {
       });
     });
   });
+
+  it('sets the correct height of table visualization', function () {
+    const queryData = {
+      query: `select '${'loremipsum'.repeat(15)}' FROM generate_series(1,15)`,
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization')
+        .its('0.offsetHeight')
+        .should('eq', 381);
+      cy.percySnapshot('Shows correct height of table visualization');
+    });
+  });
+
+  it('shows fixed pagination for overflowing tabular content ', function () {
+    const queryData = {
+      query: 'select \'lorem ipsum\' FROM generate_series(1,50)',
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization')
+        .next('.ant-pagination.mini')
+        .should('be.visible');
+      cy.percySnapshot('Shows fixed mini pagination for overflowing tabular content');
+    });
+  });
 });
