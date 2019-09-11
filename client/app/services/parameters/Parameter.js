@@ -147,7 +147,7 @@ class Parameter {
   }
 
   toSaveableObject() {
-    return omit(this, ['urlPrefix', 'pendingValue', 'parentQueryId']);
+    return omit(this, ['$$value', 'urlPrefix', 'pendingValue', 'parentQueryId']);
   }
 }
 

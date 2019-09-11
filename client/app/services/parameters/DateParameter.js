@@ -48,7 +48,7 @@ class DateParameter extends Parameter {
   }
 
   get hasDynamicValue() {
-    return isDynamicDate(this.$$value);
+    return isDynamicDate(this.normalizedValue);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -83,7 +83,7 @@ class DateParameter extends Parameter {
 
   getExecutionValue() {
     if (this.hasDynamicValue) {
-      return this.$$value.value().format(DATETIME_FORMATS[this.type]);
+      return this.normalizedValue.value().format(DATETIME_FORMATS[this.type]);
     }
     if (isNull(this.value) && this.useCurrentDateTime) {
       return moment().format(DATETIME_FORMATS[this.type]);

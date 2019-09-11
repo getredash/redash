@@ -77,7 +77,7 @@ class DateRangeParameter extends Parameter {
   }
 
   get hasDynamicValue() {
-    return isDynamicDateRange(this.$$value);
+    return isDynamicDateRange(this.normalizedValue);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -125,7 +125,7 @@ class DateRangeParameter extends Parameter {
   getExecutionValue() {
     if (this.hasDynamicValue) {
       const format = date => date.format(DATETIME_FORMATS[this.type]);
-      const [start, end] = this.$$value.value().map(format);
+      const [start, end] = this.normalizedValue.value().map(format);
       return { start, end };
     }
     return this.value;
