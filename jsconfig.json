@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": "client/app",
+    "baseUrl": "client",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./app/*"]
     }
   },
   "exclude": ["node_modules"]
