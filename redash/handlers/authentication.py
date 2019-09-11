@@ -225,7 +225,7 @@ def client_config():
         }
     else:
         client_config = {}
-    
+ 
     if current_user.has_permission('admin') and current_org.get_setting('beacon_consent') is None:
         client_config['showBeaconConsentMessage'] = True
 

@@ -41,7 +41,7 @@ def usage_data():
 
     UNION ALL
 
-    SELECT 'textbox_count' as name, count(0) as value 
+    SELECT 'textbox_count' as name, count(0) as value
     FROM widgets
     WHERE visualization_id is null
     """
