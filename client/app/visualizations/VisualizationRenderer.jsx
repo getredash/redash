@@ -60,14 +60,13 @@ export function VisualizationRenderer(props) {
   return (
     <React.Fragment>
       {showFilters && <Filters filters={filters} onChange={setFilters} />}
-      <div>
-        <Renderer
-          key={`visualization${visualization.id}`}
-          options={options}
-          data={filteredData}
-          visualizationName={visualization.name}
-        />
-      </div>
+      <Renderer
+        key={`visualization${visualization.id}`}
+        options={options}
+        data={filteredData}
+        visualizationName={visualization.name}
+        context={props.context}
+      />
     </React.Fragment>
   );
 }
@@ -77,6 +76,7 @@ VisualizationRenderer.propTypes = {
   queryResult: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   filters: FiltersType,
   showFilters: PropTypes.bool,
+  context: PropTypes.oneOf(['query', 'widget']).isRequired,
 };
 
 VisualizationRenderer.defaultProps = {

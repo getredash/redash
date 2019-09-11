@@ -62,9 +62,7 @@ def parse_ym_response(response):
 
 
 class YandexMetrica(BaseSQLQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
     def type(cls):

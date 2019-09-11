@@ -25,6 +25,7 @@ export const RendererPropTypes = {
   data: Data.isRequired,
   options: VisualizationOptions.isRequired,
   onOptionsChange: PropTypes.func, // (newOptions) => void
+  context: PropTypes.oneOf(['query', 'widget']).isRequired,
 };
 
 // For each visualization's editor

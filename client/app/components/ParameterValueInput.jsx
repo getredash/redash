@@ -107,7 +107,6 @@ class ParameterValueInput extends React.Component {
         value={value}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
-        dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
         showArrow
         style={{ minWidth: 60 }}
@@ -141,7 +140,7 @@ class ParameterValueInput extends React.Component {
     const { className } = this.props;
     const { value } = this.state;
 
-    const normalize = val => !isNaN(val) && val || 0;
+    const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
