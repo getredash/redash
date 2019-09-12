@@ -2,9 +2,25 @@
 
 // TODO: Change .pivot-table-renderer to .pivot-table-visualization-container
 .pivot-table-renderer {
-  &.hide-controls {
-    .pvtAxisContainer, .pvtRenderer, .pvtVals {
-      display: none !important;
+  &[data-hide-controls] {
+    .pvtAxisContainer, .pvtRenderers, .pvtVals {
+      display: none;
+    }
+  }
+
+  &[data-hide-row-totals] {
+    td:last-child, th:last-child {
+      &.pvtTotalLabel:not(:empty), &.pvtTotal, &.pvtGrandTotal {
+        display: none;
+      }
+    }
+  }
+
+  &[data-hide-column-totals] {
+    tbody > tr:last-child {
+      & > .pvtTotalLabel, & > .pvtTotal, & > .pvtGrandTotal {
+        display: none;
+      }
     }
   }
 }
