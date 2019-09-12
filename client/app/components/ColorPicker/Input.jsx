@@ -1,14 +1,23 @@
-import { chunk, map } from 'lodash';
+import { isNil, isArray, chunk, map, toPairs, toString } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
 import TextInput from 'antd/lib/input';
 import Typography from 'antd/lib/typography';
+import Tooltip from 'antd/lib/tooltip';
 import Swatch from './Swatch';
 
 import './input.less';
 
+function preparePresets(presetColors, presetColumns) {
+  presetColors = isArray(presetColors) ? map(presetColors, v => [toString(v), v]) : toPairs(presetColors);
+  return chunk(presetColors, presetColumns);
+}
+
 function validateColor(value, callback, prefix = '#') {
+  if (isNil(value)) {
+    callback(null);
+  }
   value = tinycolor(value);
   if (value.isValid()) {
     callback(prefix + value.toHex().toUpperCase());
@@ -19,7 +28,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
   const [inputValue, setInputValue] = useState('');
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  presetColors = chunk(presetColors, presetColumns);
+  const presets = preparePresets(presetColors, presetColumns);
 
   function handleInputChange(value) {
     setInputValue(value);
@@ -34,9 +43,13 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
 
   return (
     <React.Fragment>
-      {map(presetColors, (group, index) => (
+      {map(presets, (group, index) => (
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
-          {map(group, c => <Swatch key={c} color={c} size={30} onClick={() => validateColor(c, onChange)} />)}
+          {map(group, ([title, value]) => (
+            <Tooltip key={value} title={title} mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <Swatch color={value} size={30} onClick={() => validateColor(value, onChange)} />
+            </Tooltip>
+          ))}
         </div>
       ))}
       <div className="color-picker-input">
@@ -55,7 +68,10 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
 
 Input.propTypes = {
   color: PropTypes.string,
-  presetColors: PropTypes.arrayOf(PropTypes.string),
+  presetColors: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.objectOf(PropTypes.string),
+  ]),
   presetColumns: PropTypes.number,
   onChange: PropTypes.func,
   onPressEnter: PropTypes.func,

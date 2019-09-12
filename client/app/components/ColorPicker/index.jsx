@@ -12,7 +12,7 @@ import Swatch from './Swatch';
 
 import './index.less';
 
-function getPreviewColor(value, fallback = '') {
+function validateColor(value, fallback = null) {
   value = tinycolor(value);
   return value.isValid() ? '#' + value.toHex().toUpperCase() : fallback;
 }
@@ -21,7 +21,7 @@ export default function ColorPicker({
   color, placement, presetColors, presetColumns, triggerSize, interactive, children, onChange,
 }) {
   const [visible, setVisible] = useState(false);
-  const [currentColor, setCurrentColor] = useState('#FFFFFF');
+  const [currentColor, setCurrentColor] = useState('');
 
   function handleApply() {
     setVisible(false);
@@ -57,10 +57,7 @@ export default function ColorPicker({
 
   useEffect(() => {
     if (visible) {
-      const value = tinycolor(color);
-      if (value.isValid()) {
-        setCurrentColor('#' + value.toHex().toUpperCase());
-      }
+      setCurrentColor(validateColor(color));
     }
   }, [color, visible]);
 
@@ -93,7 +90,7 @@ export default function ColorPicker({
       visible={visible}
       onVisibleChange={setVisible}
     >
-      {children || (<Swatch className="color-picker-trigger" color={getPreviewColor(color)} size={triggerSize} />)}
+      {children || (<Swatch className="color-picker-trigger" color={validateColor(color)} size={triggerSize} />)}
     </Popover>
   );
 }
@@ -105,7 +102,10 @@ ColorPicker.propTypes = {
     'topLeft', 'topRight', 'bottomLeft', 'bottomRight',
     'leftTop', 'leftBottom', 'rightTop', 'rightBottom',
   ]),
-  presetColors: PropTypes.arrayOf(PropTypes.string),
+  presetColors: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.string),
+    PropTypes.objectOf(PropTypes.string),
+  ]),
   presetColumns: PropTypes.number,
   triggerSize: PropTypes.number,
   interactive: PropTypes.bool,
