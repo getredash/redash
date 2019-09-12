@@ -1,57 +1,99 @@
-import React, { useState } from 'react';
+import { toString } from 'lodash';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import cx from 'classnames';
+import tinycolor from 'tinycolor2';
 import Popover from 'antd/lib/popover';
+import Card from 'antd/lib/card';
+import Tooltip from 'antd/lib/tooltip';
+import Icon from 'antd/lib/icon';
 
-import Panel from './Panel';
+import ColorInput from './Input';
 import Swatch from './Swatch';
 
 import './index.less';
+
+function getPreviewColor(value, fallback = '') {
+  value = tinycolor(value);
+  return value.isValid() ? '#' + value.toHex().toUpperCase() : fallback;
+}
 
 export default function ColorPicker({
   color, placement, presetColors, presetColumns, triggerSize, interactive, children, onChange,
 }) {
   const [visible, setVisible] = useState(false);
-  const [currentColor, setCurrentColor] = useState(color);
+  const [currentColor, setCurrentColor] = useState('#FFFFFF');
 
-  function handleApply(selectedColor, shouldClose = true) {
-    onChange(selectedColor);
-    if (shouldClose) {
-      setVisible(false);
+  function handleApply() {
+    setVisible(false);
+    if (!interactive) {
+      onChange(currentColor);
     }
   }
 
-  function handleCancel(unused, shouldClose = true) {
-    if (shouldClose) {
-      setVisible(false);
+  function handleCancel() {
+    setVisible(false);
+  }
+
+  const actions = [];
+  if (!interactive) {
+    actions.push((
+      <Tooltip key="cancel" title="Cancel">
+        <Icon type="close" onClick={handleCancel} />
+      </Tooltip>
+    ));
+    actions.push((
+      <Tooltip key="apply" title="Apply">
+        <Icon type="check" onClick={handleApply} />
+      </Tooltip>
+    ));
+  }
+
+  function handleInputChange(newColor) {
+    setCurrentColor(newColor);
+    if (interactive) {
+      onChange(newColor);
     }
   }
+
+  useEffect(() => {
+    if (visible) {
+      const value = tinycolor(color);
+      if (value.isValid()) {
+        setCurrentColor('#' + value.toHex().toUpperCase());
+      }
+    }
+  }, [color, visible]);
 
   return (
     <Popover
-      overlayClassName={cx(
-        'color-picker',
-        interactive ? 'color-picker-interactive' : 'color-picker-with-actions',
-      )}
+      overlayClassName={`color-picker ${interactive ? 'color-picker-interactive' : 'color-picker-with-actions'}`}
       overlayStyle={{ '--color-picker-selected-color': currentColor }}
       content={(
-        <Panel
-          color={color}
-          presetColors={presetColors}
-          presetColumns={presetColumns}
-          interactive={interactive}
-          visible={visible}
-          onChange={setCurrentColor}
-          onApply={handleApply}
-          onCancel={handleCancel}
-        />
+        <Card
+          className="color-picker-panel"
+          bordered={false}
+          title={toString(currentColor).toUpperCase()}
+          headStyle={{
+            backgroundColor: currentColor,
+            color: tinycolor(currentColor).isLight() ? '#000000' : '#ffffff',
+          }}
+          actions={actions}
+        >
+          <ColorInput
+            color={currentColor}
+            presetColors={presetColors}
+            presetColumns={presetColumns}
+            onChange={handleInputChange}
+            onPressEnter={handleApply}
+          />
+        </Card>
       )}
       trigger="click"
       placement={placement}
       visible={visible}
       onVisibleChange={setVisible}
     >
-      {children || (<Swatch className="color-picker-trigger" color={color} size={triggerSize} />)}
+      {children || (<Swatch className="color-picker-trigger" color={getPreviewColor(color)} size={triggerSize} />)}
     </Popover>
   );
 }
@@ -82,5 +124,5 @@ ColorPicker.defaultProps = {
   onChange: () => {},
 };
 
-ColorPicker.Panel = Panel;
+ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;
