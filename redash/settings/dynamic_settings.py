@@ -15,5 +15,5 @@ def query_time_limit(is_scheduled, user_id, org_id):
 from datetime import timedelta
 from redash.schedule import schedule
 
-schedule(my_task, interval=timedelta(minutes=5))
+schedule(func=my_func, interval=timedelta(minutes=5))
 """
