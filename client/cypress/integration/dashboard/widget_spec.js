@@ -151,7 +151,7 @@ describe('Widget', () => {
       cy.visit(this.dashboardUrl);
       cy.getByTestId('TableVisualization')
         .its('0.offsetHeight')
-        .should('eq', 380);
+        .should('eq', 381);
       cy.percySnapshot('Shows correct height of table visualization');
     });
   });
