@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
 import TextInput from 'antd/lib/input';
 import Typography from 'antd/lib/typography';
-import Tooltip from 'antd/lib/tooltip';
 import Swatch from './Swatch';
 
 import './input.less';
@@ -46,9 +45,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
       {map(presets, (group, index) => (
         <div className="color-picker-input-swatches" key={`preset-row-${index}`}>
           {map(group, ([title, value]) => (
-            <Tooltip key={value} title={title} mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Swatch color={value} size={30} onClick={() => validateColor(value, onChange)} />
-            </Tooltip>
+            <Swatch key={value} color={value} title={title} size={30} onClick={() => validateColor(value, onChange)} />
           ))}
         </div>
       ))}
