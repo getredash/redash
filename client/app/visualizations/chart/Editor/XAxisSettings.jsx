@@ -1,48 +1,18 @@
-import { isString, isObject } from 'lodash';
 import React from 'react';
 import Switch from 'antd/lib/switch';
-import Input from 'antd/lib/input';
-import Select from 'antd/lib/select';
 import { EditorPropTypes } from '@/visualizations';
 
-export default function XAxisSettings({ options, onOptionsChange }) {
-  function handleNameChange(event) {
-    const text = event.target.value;
-    if (isString(text) && (text !== '')) {
-      onOptionsChange({ xAxis: { title: { text } } });
-    } else {
-      onOptionsChange({ xAxis: { title: null } });
-    }
-  }
+import AxisSettings from './AxisSettings';
 
+export default function XAxisSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor="chart-editor-x-axis-type">Scale</label>
-        <Select
-          id="chart-editor-x-axis-type"
-          className="w-100"
-          data-test="Chart.XAxis.Type"
-          defaultValue={options.xAxis.type}
-          onChange={type => onOptionsChange({ xAxis: { type } })}
-        >
-          <Select.Option value="-">Auto Detect</Select.Option>
-          <Select.Option value="datetime">Datetime</Select.Option>
-          <Select.Option value="linear">Linear</Select.Option>
-          <Select.Option value="logarithmic">Logarithmic</Select.Option>
-          <Select.Option value="category">Category</Select.Option>
-        </Select>
-      </div>
-
-      <div className="m-b-15">
-        <label htmlFor="chart-editor-x-axis-name">Name</label>
-        <Input
-          id="chart-editor-x-axis-name"
-          data-test="Chart.XAxis.Name"
-          defaultValue={isObject(options.xAxis.title) ? options.xAxis.title.text : null}
-          onChange={handleNameChange}
-        />
-      </div>
+      <AxisSettings
+        id="XAxis"
+        features={{ autoDetectType: true }}
+        options={options.xAxis}
+        onChange={xAxis => onOptionsChange({ xAxis })}
+      />
 
       <div className="m-b-15">
         <label className="d-flex align-items-center" htmlFor="chart-editor-x-axis-sort">
