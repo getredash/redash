@@ -1,6 +1,4 @@
 import { merge } from 'lodash';
-import 'pivottable';
-import 'pivottable/dist/pivot.css';
 import { registerVisualization } from '@/visualizations';
 
 import Renderer from './Renderer';
