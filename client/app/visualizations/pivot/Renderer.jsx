@@ -44,12 +44,13 @@ export default function Renderer({ data, options, onOptionsChange }) {
     onOptionsChange(validOptions);
   };
 
+  // Legacy behavior: hideControls when controls.enabled is true
   const hideControls = get(options, 'controls.enabled');
   const hideRowTotals = !get(options, 'rendererOptions.table.rowTotals');
   const hideColumnTotals = !get(options, 'rendererOptions.table.colTotals');
   return (
     <div
-      className="pivot-table-renderer"
+      className="pivot-table-visualization-container"
       data-hide-controls={hideControls || null}
       data-hide-row-totals={hideRowTotals || null}
       data-hide-column-totals={hideColumnTotals || null}

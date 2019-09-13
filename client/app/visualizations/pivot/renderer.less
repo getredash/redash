@@ -1,7 +1,6 @@
 @redash-gray: rgba(102, 136, 153, 1);
 
-// TODO: Change .pivot-table-renderer to .pivot-table-visualization-container
-.pivot-table-renderer {
+.pivot-table-visualization-container {
   &[data-hide-controls] {
     .pvtAxisContainer, .pvtRenderers, .pvtVals {
       display: none;
@@ -28,16 +27,6 @@
 .pvtAxisContainer, .pvtVals {
   border: 1px solid fade(@redash-gray, 15%);
   background: #fff;
-}
-
-.pvtUi {
-  td, th {
-    padding: 5px;
-  }
-
-  li.ui-sortable-handle {
-    padding: 5px 5px 5px 0;
-  }
 }
 
 .pvtAxisContainer li span.pvtAttr {
