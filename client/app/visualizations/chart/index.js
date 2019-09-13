@@ -1,7 +1,6 @@
 import {
   some, partial, intersection, without, includes, sortBy, each, map, keys, difference, merge, isNil, trim, pick,
 } from 'lodash';
-import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 import { clientConfig } from '@/services/auth';
 import ColorPalette from '@/visualizations/ColorPalette';
@@ -9,6 +8,7 @@ import getChartData from './getChartData';
 import editorTemplate from './chart-editor.html';
 
 import Renderer from './Renderer';
+import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
   globalSeriesType: 'column',
@@ -72,7 +72,8 @@ function initEditorForm(options, columns) {
   return result;
 }
 
-const ChartEditor = {
+// TODO: Remove
+export const ChartEditor = {
   template: editorTemplate,
   bindings: {
     data: '<',
@@ -286,36 +287,32 @@ const ChartEditor = {
   },
 };
 
-export default function init(ngModule) {
-  ngModule.component('chartEditor', ChartEditor);
+export default function init() {
+  registerVisualization({
+    type: 'CHART',
+    name: 'Chart',
+    isDefault: true,
+    getOptions: (options) => {
+      const result = merge({}, DEFAULT_OPTIONS, {
+        showDataLabels: options.globalSeriesType === 'pie',
+        dateTimeFormat: clientConfig.dateTimeFormat,
+      }, options);
 
-  ngModule.run(($injector) => {
-    registerVisualization({
-      type: 'CHART',
-      name: 'Chart',
-      isDefault: true,
-      getOptions: (options) => {
-        const result = merge({}, DEFAULT_OPTIONS, {
-          showDataLabels: options.globalSeriesType === 'pie',
-          dateTimeFormat: clientConfig.dateTimeFormat,
-        }, options);
+      // Backward compatibility
+      if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
+        result.series.percentValues = result.series.stacking === 'percent';
+        result.series.stacking = 'stack';
+      }
 
-        // Backward compatibility
-        if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
-          result.series.percentValues = result.series.stacking === 'percent';
-          result.series.stacking = 'stack';
-        }
+      return result;
+    },
+    Renderer,
+    Editor,
 
-        return result;
-      },
-      Renderer,
-      Editor: angular2react('chartEditor', ChartEditor, $injector),
-
-      defaultColumns: 3,
-      defaultRows: 8,
-      minColumns: 1,
-      minRows: 5,
-    });
+    defaultColumns: 3,
+    defaultRows: 8,
+    minColumns: 1,
+    minRows: 5,
   });
 }
 
