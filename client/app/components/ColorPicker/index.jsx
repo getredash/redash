@@ -103,8 +103,8 @@ ColorPicker.propTypes = {
     'leftTop', 'leftBottom', 'rightTop', 'rightBottom',
   ]),
   presetColors: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.objectOf(PropTypes.string),
+    PropTypes.arrayOf(PropTypes.string), // array of colors (no tooltips)
+    PropTypes.objectOf(PropTypes.string), // color name => color value
   ]),
   presetColumns: PropTypes.number,
   triggerSize: PropTypes.number,

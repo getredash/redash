@@ -1,4 +1,4 @@
-import { isNil, isArray, chunk, map, toPairs, toString } from 'lodash';
+import { isNil, isArray, chunk, map, filter, toPairs } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import tinycolor from 'tinycolor2';
@@ -9,8 +9,18 @@ import Swatch from './Swatch';
 import './input.less';
 
 function preparePresets(presetColors, presetColumns) {
-  presetColors = isArray(presetColors) ? map(presetColors, v => [toString(v), v]) : toPairs(presetColors);
-  return chunk(presetColors, presetColumns);
+  presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
+  presetColors = map(presetColors, ([title, value]) => {
+    if (isNil(value)) {
+      return [title, null];
+    }
+    value = tinycolor(value);
+    if (value.isValid()) {
+      return [title, '#' + value.toHex().toUpperCase()];
+    }
+    return null;
+  });
+  return chunk(filter(presetColors), presetColumns);
 }
 
 function validateColor(value, callback, prefix = '#') {
@@ -66,8 +76,8 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
 Input.propTypes = {
   color: PropTypes.string,
   presetColors: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.string),
-    PropTypes.objectOf(PropTypes.string),
+    PropTypes.arrayOf(PropTypes.string), // array of colors (no tooltips)
+    PropTypes.objectOf(PropTypes.string), // color name => color value
   ]),
   presetColumns: PropTypes.number,
   onChange: PropTypes.func,
