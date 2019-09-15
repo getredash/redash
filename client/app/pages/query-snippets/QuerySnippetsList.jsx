@@ -78,13 +78,13 @@ class QuerySnippetsList extends React.Component {
     if (isNewOrEditPage) {
       if (querySnippetId === 'new') {
         if (policy.isCreateQuerySnippetEnabled()) {
-          this.showSnippetDialog(null, false);
+          this.showSnippetDialog();
         } else {
           navigateTo('/query_snippets');
         }
       } else {
         QuerySnippet.get({ id: querySnippetId }).$promise
-          .then(querySnippet => this.showSnippetDialog(querySnippet, false))
+          .then(this.showSnippetDialog)
           .catch((error = {}) => {
             // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
             if (error.status && error.data) {
@@ -116,11 +116,9 @@ class QuerySnippetsList extends React.Component {
     });
   }
 
-  showSnippetDialog = (querySnippet = null, updateUrl = true) => {
+  showSnippetDialog = (querySnippet = null) => {
     const canSave = !querySnippet || canEditQuerySnippet(querySnippet);
-    if (updateUrl) {
-      navigateTo('/query_snippets/' + get(querySnippet, 'id', 'new'), true, false);
-    }
+    navigateTo('/query_snippets/' + get(querySnippet, 'id', 'new'), true, false);
     QuerySnippetDialog.showModal({
       querySnippet,
       onSubmit: this.saveQuerySnippet,
@@ -128,8 +126,7 @@ class QuerySnippetsList extends React.Component {
     }).result
       .then(() => this.props.controller.update())
       .finally(() => {
-        const toggleNavigationReload = !updateUrl;
-        navigateTo('/query_snippets', true, toggleNavigationReload);
+        navigateTo('/query_snippets', true, false);
       });
   };
 
