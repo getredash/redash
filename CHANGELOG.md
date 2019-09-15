@@ -1,6 +1,6 @@
 # Change Log
 
-## v8.0.0-beta - UNRELEASED
+## v8.0.0-beta - 2019-08-18
 
 After months of being heads down with hard work, it's finally time to wrap up the V8 release 🤩 This release includes many long awaited improvements to parameters, UX improvements, further React migration and other changes, fixes and improvements.
 
