@@ -434,7 +434,7 @@ class Parameters {
         parameters = fallback();
       }
     } else {
-      parameters = fallback();
+      parameters = [];
     }
 
     return parameters;
