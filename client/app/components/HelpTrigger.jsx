@@ -32,6 +32,10 @@ export const TYPES = {
     '/user-guide/users/authentication-options',
     'Guide: Authentication Options',
   ],
+  USAGE_DATA_SHARING: [
+    '/open-source/admin-guide/usage-data',
+    'Help: Anonymous Usage Data Sharing',
+  ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
     'Guide: Help Setting up Amazon Athena',
