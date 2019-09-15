@@ -8,7 +8,7 @@ While this version is already running on the hosted platform to make sure it's s
 
 Starting from this release we will no longer build a tarball distribution of the codebase and recommend everyone to switch over to using our Docker images. We're planning on dropping Python 2 support towards its EOL this year and switching over to the Docker image will make this transition much simpler.
 
-This release was made possible by contributions from over 41 people: @aidarbek, @AntonZarutsky, @ariarijp, @arikfr, @combineads, @deecay, @dependabot[bot], @fmy, @gabrieldutra, @guwenqing, @guyco33, @ialeinikov, @Jakdaw, @jezdez, @justinclift, @k-tomoyasu, @katty0324, @koooge, @kravets-levko, @ktmud, @KumanoTanaka, @kyoshidajp, @nason, @oldPadavan, @openjck, @osule, @otsaloma, @ranbena, @rauchy, @rueian, @sekiyama58, @shinsuke-nara, @taminif, @The-Alchemist, @vv-p, @washort, @wudi-ayuan, @ygrishaev, @yoavbls, @yoshiken, @yusukegoto and the support of over 500 organizations who subscribed to our hosted version and by that sponsor the team's work.
+This release was made possible by contributions from over 40 people: @aidarbek, @AntonZarutsky, @ariarijp, @arikfr, @combineads, @deecay, @fmy, @gabrieldutra, @guwenqing, @guyco33, @ialeinikov, @Jakdaw, @jezdez, @justinclift, @k-tomoyasu, @katty0324, @koooge, @kravets-levko, @ktmud, @KumanoTanaka, @kyoshidajp, @nason, @oldPadavan, @openjck, @osule, @otsaloma, @ranbena, @rauchy, @rueian, @sekiyama58, @shinsuke-nara, @taminif, @The-Alchemist, @vv-p, @washort, @wudi-ayuan, @ygrishaev, @yoavbls, @yoshiken, @yusukegoto and the support of over 500 organizations who subscribed to our hosted version and by that sponsor the team's work.
 
 ### Parameters
 
