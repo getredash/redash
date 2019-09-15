@@ -8,7 +8,7 @@ While this version is already running on the hosted platform to make sure it's s
 
 Starting from this release we will no longer build a tarball distribution of the codebase and recommend everyone to switch over to using our Docker images. We're planning on dropping Python 2 support towards its EOL this year and switching over to the Docker image will make this transition much simpler.
 
-This release was made possible by contributions from over 35 people and the support of over 500 organizations who subscribed to our hosted version and by that sponsor the team's work. 🙏 (TBD: full contributors list when we finalize the release)
+This release was made possible by contributions from over 41 people: @aidarbek, @AntonZarutsky, @ariarijp, @arikfr, @combineads, @deecay, @dependabot[bot], @fmy, @gabrieldutra, @guwenqing, @guyco33, @ialeinikov, @Jakdaw, @jezdez, @justinclift, @k-tomoyasu, @katty0324, @koooge, @kravets-levko, @ktmud, @KumanoTanaka, @kyoshidajp, @nason, @oldPadavan, @openjck, @osule, @otsaloma, @ranbena, @rauchy, @rueian, @sekiyama58, @shinsuke-nara, @taminif, @The-Alchemist, @vv-p, @washort, @wudi-ayuan, @ygrishaev, @yoavbls, @yoshiken, @yusukegoto and the support of over 500 organizations who subscribed to our hosted version and by that sponsor the team's work.
 
 ### Parameters
 
@@ -21,7 +21,7 @@ This release was made possible by contributions from over 35 people and the supp
 
 ### Data Sources
 
-- New Data Sources: Couchbase and Phoenix.
+- New Data Sources: Couchbase, Phoenix and Dgraph.
 - New JSON data source (and deprecated old URL data source).
 - Snowflake: update connector to latest version.
 - PostgreSQL: show only accessible tables in schema.
@@ -36,11 +36,15 @@ This release was made possible by contributions from over 35 people and the supp
 - Google Sheets:
     - Support for Team Drive.
     - Friendlier error message in case of an API error and more reliable test connection.
-- MySQL: support for calling Stored Procedures and better handling of query cancellation.
+- MySQL: 
+    - Support for calling Stored Procedures and better handling of query cancellation.
+    - Switch to using `mysqlclient` (a maintained fork of `Python-MySQL`).
 - MongoDB: Support serializing Decimal128 values.
 - Presto: support for passwords in connection settings.
 - Amazon Athena: allow to specify custom work group.
 - Query Results: querying a column with a dictionary or array fails
+- Clickhouse: make sure we don't show password in error messages.
+- Enable Cassandra support by default.
 
 ### Visualizations
 
@@ -85,6 +89,7 @@ This release was made possible by contributions from over 35 people and the supp
 - Fix: adding widget to dashboard from a query page is broken.
 - Fix: default time format option was wrong.
 - Fix: when too many errors of a scheduled queries occur it causes an OverflowError.
+- Fix: when forking a query maintain the same visualizations order.
 
 ## v7.0.0 - 2019-03-17
 
