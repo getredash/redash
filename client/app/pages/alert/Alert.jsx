@@ -55,11 +55,11 @@ function Criteria({ columnNames, resultValues, alertOptions, onChange }) {
     }
 
     if (isNaN(alertOptions.value)) {
-      return <small><WarningIcon /> Threshold value type is invalid.</small>;
+      return <small><WarningIcon /> Value column type doesn&apos;t match threshold type.</small>;
     }
 
     if (isNaN(columnValue)) {
-      return <small><WarningIcon /> Column value type is invalid.</small>;
+      return <small><WarningIcon /> Value column isn&apos;t supported by condition type.</small>;
     }
 
     return null;
