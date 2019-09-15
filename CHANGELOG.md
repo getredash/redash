@@ -1,5 +1,27 @@
 # Change Log
 
+## v8.0.0-beta.2 - 2019-09-16
+
+This is an update to the previous beta release, which includes:
+
+* Add options for users to share anonymous usage information with us (see [docs](https://redash.io/help/open-source/admin-guide/usage-data) for details).
+* Visualizations:
+    - Allow the user to decide how to handle null values in charts.
+* Upgrade Sentry-SDK to latest version.
+* Make horizontal table scroll visible in dashboard widgets without scrolling.
+* Data Sources:
+    * Add support for Azure Data Explorer (Kusto).
+    * MySQL: fix connections without SSL configuration failing.
+    * Amazon Redshift: option to set query group for adhoc/scheduled queries.
+    * Hive: make error message more friendly.
+    * Qubole: add support to run Quantum queries.
+* Display data source icon in query editor.
+* Fix: allow users with view only acces to use the queries in Query Results
+* Dashboard: when updating parameters refersh only widgets that use those parameters.
+
+This release had contributions from 12 people: @arikfr, @cclauss, @gabrieldutra, @justinclift, @kravets-levko, @ranbena, @rauchy, @sandeepV2, @shinsuke-nara, @spacentropy, @sphenlee, @swfz.
+
+
 ## v8.0.0-beta - 2019-08-18
 
 After months of being heads down with hard work, it's finally time to wrap up the V8 release 🤩 This release includes many long awaited improvements to parameters, UX improvements, further React migration and other changes, fixes and improvements.
