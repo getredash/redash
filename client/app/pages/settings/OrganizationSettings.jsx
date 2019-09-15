@@ -10,13 +10,14 @@ import Select from 'antd/lib/select';
 import Checkbox from 'antd/lib/checkbox';
 import Tooltip from 'antd/lib/tooltip';
 import LoadingState from '@/components/items-list/components/LoadingState';
-import { HelpTrigger } from '@/components/HelpTrigger';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import { clientConfig } from '@/services/auth';
 import settingsMenu from '@/services/settingsMenu';
 import recordEvent from '@/services/recordEvent';
 import OrgSettings from '@/services/organizationSettings';
+import { HelpTrigger } from '@/components/HelpTrigger';
+import DynamicComponent from '@/components/DynamicComponent';
 
 const Option = Select.Option;
 
@@ -155,23 +156,6 @@ class OrganizationSettings extends React.Component {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item label="Multi-byte Search">
-          <Checkbox
-            name="multi_byte_search_enabled"
-            checked={formValues.multi_byte_search_enabled}
-            onChange={e => this.handleChange('multi_byte_search_enabled', e.target.checked)}
-          >
-          Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
-          </Checkbox>
-        </Form.Item>
-        <Form.Item label="Email Reports">
-          <Checkbox
-            name="send_email_on_failed_scheduled_queries"
-            checked={formValues.send_email_on_failed_scheduled_queries}
-            onChange={e => this.handleChange('send_email_on_failed_scheduled_queries', e.target.checked)}
-          >Email query owners when scheduled queries fail
-          </Checkbox>
-        </Form.Item>
         <Form.Item label="Feature Flags">
           <Checkbox
             name="feature_show_permissions_control"
@@ -181,6 +165,34 @@ class OrganizationSettings extends React.Component {
             Enable experimental multiple owners support
           </Checkbox>
         </Form.Item>
+        <Form.Item>
+          <Checkbox
+            name="send_email_on_failed_scheduled_queries"
+            checked={formValues.send_email_on_failed_scheduled_queries}
+            onChange={e => this.handleChange('send_email_on_failed_scheduled_queries', e.target.checked)}
+          >Email query owners when scheduled queries fail
+          </Checkbox>
+        </Form.Item>
+        <Form.Item>
+          <Checkbox
+            name="multi_byte_search_enabled"
+            checked={formValues.multi_byte_search_enabled}
+            onChange={e => this.handleChange('multi_byte_search_enabled', e.target.checked)}
+          >
+          Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
+          </Checkbox>
+        </Form.Item>
+        <DynamicComponent name="BeaconConsentSetting">
+          <Form.Item label={<>Anonymous Usage Data Sharing <HelpTrigger type="USAGE_DATA_SHARING" /></>}>
+            <Checkbox
+              name="beacon_consent"
+              checked={formValues.beacon_consent}
+              onChange={e => this.handleChange('beacon_consent', e.target.checked)}
+            >
+              Help Redash improve by automatically sending anonymous usage data
+            </Checkbox>
+          </Form.Item>
+        </DynamicComponent>
       </React.Fragment>
     );
   }
