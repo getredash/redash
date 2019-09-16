@@ -424,7 +424,7 @@ class Parameters {
     const fallback = () => map(this.query.options.parameters, i => i.name);
 
     let parameters = [];
-    if (this.query.query) {
+    if (this.query.query !== undefined) {
       try {
         const parts = Mustache.parse(this.query.query);
         parameters = uniq(collectParams(parts));

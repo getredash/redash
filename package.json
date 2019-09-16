@@ -84,6 +84,7 @@
     "react-pivottable": "^0.9.0",
     "react-sortable-hoc": "^1.9.1",
     "react2angular": "^3.2.1",
+    "tinycolor2": "^1.4.1",
     "ui-select": "^0.19.8"
   },
   "devDependencies": {
