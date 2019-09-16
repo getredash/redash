@@ -14,7 +14,6 @@ import { Alert as AlertService } from '@/services/alert';
 import { QuerySelector } from '@/components/QuerySelector';
 import { HelpTrigger } from '@/components/HelpTrigger';
 import { PageHeader } from '@/components/PageHeader';
-import AlertDestinations from '@/components/alerts/AlertDestinations';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import { TimeAgo } from '@/components/TimeAgo';
 
@@ -28,6 +27,7 @@ import Criteria from './components/Criteria';
 import NotificationTemplate from './components/NotificationTemplate';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
+import AlertDestinations from './components/AlertDestinations';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 
