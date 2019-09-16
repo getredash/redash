@@ -100,7 +100,9 @@ describe('Pivot', () => {
         addWidget(id, this.pivotWithoutColTotals, { position: { autoHeight: false, col: 4, sizeY: 10, sizeX: 2 } });
         addWidget(id, this.pivotWithControlsId, { position: { autoHeight: false, row: 9, sizeY: 13 } });
         cy.visit(`/dashboard/${slug}`);
-        cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+
+        // temporary waiting for testing purposes
+        cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.percySnapshot('Visualizations - Pivot Table');
       });
   });
