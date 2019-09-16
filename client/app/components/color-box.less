@@ -1,19 +1,10 @@
-@import '../assets/less/inc/variables';
-
+// ANGULAR_REMOVE_ME
 color-box {
   vertical-align: text-bottom;
-  display: inline;
+  display: inline-block;
+  margin-right: 5px;
 
-  span {
-    width: 12px !important;
-    height: 12px !important;
-    display: inline-block !important;
-    margin-right: 5px;
-    vertical-align: middle;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
-   & ~ span {
+  & ~ span {
     vertical-align: bottom;
-    color: @input-color;
-   }
+  }
 }
