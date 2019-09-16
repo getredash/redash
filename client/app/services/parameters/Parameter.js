@@ -64,6 +64,7 @@ class Parameter {
     return this.pendingValue !== undefined && !isEqual(this.pendingValue, this.normalizedValue);
   }
 
+  /** Get normalized value to be used in inputs */
   get normalizedValue() {
     return this.$$value;
   }
@@ -107,6 +108,7 @@ class Parameter {
     return this;
   }
 
+  /** Get execution value for a query */
   getExecutionValue() {
     return this.value;
   }
@@ -125,8 +127,10 @@ class Parameter {
     this.pendingValue = undefined;
   }
 
+  /** Update URL with Parameter value */
   toUrlParams() {
     const prefix = this.urlPrefix;
+    // `null` removes the parameter from the URL in case it exists
     return {
       [`${prefix}${this.name}`]: !this.isEmpty ? this.value : null,
       [`${prefix}${this.name}.start`]: null,
@@ -134,6 +138,7 @@ class Parameter {
     };
   }
 
+  /** Set parameter value from the URL */
   fromUrlParams(query) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
@@ -146,6 +151,7 @@ class Parameter {
     return `{{ ${this.name} }}`;
   }
 
+  /** Get a saveable version of the Parameter by omitting unnecessary props */
   toSaveableObject() {
     return omit(this, ['$$value', 'urlPrefix', 'pendingValue', 'parentQueryId']);
   }
