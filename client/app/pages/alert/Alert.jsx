@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { head, includes } from 'lodash';
+import { head, includes, template as templateBuilder } from 'lodash';
 import cx from 'classnames';
 
 import { $route } from '@/services/ng';
@@ -18,10 +18,11 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import { TimeAgo } from '@/components/TimeAgo';
 
 import Form from 'antd/lib/form';
-// import Button from 'antd/lib/button';
+import Button from 'antd/lib/button';
 import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 import Modal from 'antd/lib/modal';
+import Input from 'antd/lib/input';
 
 import Criteria from './components/Criteria';
 import NotificationTemplate from './components/NotificationTemplate';
@@ -32,10 +33,11 @@ import AlertDestinations from './components/AlertDestinations';
 import { routesToAngularRoutes } from '@/lib/utils';
 
 import { STATE_CLASS } from '../alerts/AlertsList';
-import { EditInPlace } from '../../components/EditInPlace';
 
 
 const NEW_ALERT_ID = 'new';
+
+const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
 
 function isNewAlert() {
   return $route.current.params.alertId === NEW_ALERT_ID;
@@ -139,7 +141,13 @@ class AlertPage extends React.Component {
     }
   }
 
-  getDefaultName = () => 'New Alert';
+  getDefaultName = () => {
+    const { alert } = this.state;
+    if (!alert.query) {
+      return undefined;
+    }
+    return defaultNameBuilder(alert);
+  }
 
   onQuerySelected = (query) => {
     this.setState(({ alert }) => ({
@@ -184,11 +192,10 @@ class AlertPage extends React.Component {
   }
 
   setName = (name) => {
-    // TODO templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
-    }, () => this.save());
+    });
   }
 
   save = () => {
@@ -270,13 +277,14 @@ class AlertPage extends React.Component {
     }
 
     const { queryResult, editMode } = this.state;
+    const title = name || this.getDefaultName();
 
     return (
       <div className="container alert-page">
         <div className="p-b-10 m-l-0 m-r-0 page-header--new">
           <div className="page-title p-0">
             <h3>
-              <EditInPlace isEditable={editMode} onDone={this.setName} ignoreBlanks value={name || this.getDefaultName()} editor="input" />
+              {editMode ? <Input value={title} onChange={e => this.setName(e.target.value)} /> : title }
             </h3>
           </div>
         </div>
@@ -332,6 +340,11 @@ class AlertPage extends React.Component {
                       <Rearm value={pendingRearm} onChange={this.onRearmChange} />
                       <br />
                       Set to {options.subject || options.template ? 'custom' : 'default'} notification template.
+                    </HorizontalFormItem>
+                  )}
+                  {isNewAlert() && (
+                    <HorizontalFormItem>
+                      <Button type="primary" onClick={this.save}>Save</Button>
                     </HorizontalFormItem>
                   )}
                 </>
