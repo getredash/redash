@@ -93,6 +93,39 @@ export const Destination = PropTypes.shape({
   type: PropTypes.string.isRequired,
 });
 
+export const Query = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  data_source_id: PropTypes.number.isRequired,
+  created_at: PropTypes.string.isRequired,
+  updated_at: PropTypes.string,
+  user: UserProfile.isRequired,
+  query: PropTypes.string,
+  queryHash: PropTypes.string,
+  is_safe: PropTypes.bool.isRequired,
+  is_draft: PropTypes.bool.isRequired,
+  is_archived: PropTypes.bool.isRequired,
+  api_key: PropTypes.string.isRequired,
+});
+
+export const Alert = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  created_at: PropTypes.string.isRequired,
+  last_triggered_at: PropTypes.string,
+  updated_at: PropTypes.string,
+  rearm: PropTypes.number,
+  state: PropTypes.oneOf(['ok', 'triggered', 'unknown']).isRequired,
+  user: UserProfile.isRequired,
+  query: Query.isRequired,
+  options: PropTypes.shape({
+    column: PropTypes.string,
+    op: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
+});
+
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
   const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);

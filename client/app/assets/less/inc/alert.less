@@ -47,59 +47,26 @@
     position: relative;
 }
 
-.alert-trigger {
-    margin: 40px 0 24px !important;
-}
+
 
 .alert-notification {
     width: auto !important;
 }
 
-.input-title {
-    display: inline-block;
-    width: auto;
-    margin-right: 8px;
-    position: relative;
-    vertical-align: middle;
-
-    & > span {
-        position: absolute;
-        top: -16px;
-        left: 0;
-        line-height: normal;
-        font-size: 10px;
-        color: #00000070;
-
-        & + * {
-            vertical-align: top;
-        }
-    }
-
-    .alert-threshold {
-        width: 90px;
-    }
-}
-
-.alert-criteria-hint code {
-    overflow: hidden;
-    max-width: 100px;
-    display: inline-block;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-}
-
 .alert-state {
-    text-transform: uppercase;
-    vertical-align: middle;
-    margin-left: 7px;
-    margin-top: 0 !important;
-}
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 30px;
 
-.status-indicator {
-    padding: 2px 6px;
-    color: white !important;
-    border-radius: 2px;
-    margin-right: 10px;
+    .alert-state-indicator {
+        text-transform: uppercase;
+        font-size: 14px;
+        padding: 5px 8px;
+    }
+
+    .alert-last-triggered {
+        color: #333;
+    }
+    
 }
 
 .alert-query-selector {
@@ -125,17 +92,6 @@
 
     &::after {
         margin-right: 0 !important;
-    }
-}
-
-.rearm {
-    .ant-form-item-children > * {
-        vertical-align: top;
-        margin-right: 8px !important;
-
-        &.ant-select {
-            width: auto !important;
-        }
     }
 }
 
@@ -216,42 +172,6 @@
             width: 35px;
             height: 35px;
         }
-    }
-}
-
-.alert-template {
-    display: flex;
-    flex-direction: column;
-
-    input {
-        margin-bottom: 10px;
-    }
-
-    textarea {
-        margin-bottom: 0 !important;
-    }
-
-    input, textarea {
-        font-family: "Roboto Mono", monospace;
-        font-size: 12px;
-        letter-spacing: -0.4px  ;
-
-        &[disabled] {
-            color: inherit;
-            cursor: auto;
-        }
-    }
-
-    .alert-custom-template {
-        margin-top: 10px;
-        padding: 4px 10px 2px;
-        background: #fbfbfb;
-        border: 1px dashed #d9d9d9;
-        border-radius: 3px;
-    }
-
-    .alert-template-preview {
-        margin: 0 0 0 5px !important;
     }
 }
 
