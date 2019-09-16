@@ -10,6 +10,8 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
+import QueryEditor from "@/components/queries/QueryEditor";
+import DynamicComponent from "@/components/DynamicComponent";
 import recordEvent from "@/services/recordEvent";
 import { ExecutionStatus } from "@/services/query-result";
 import routes from "@/services/routes";
@@ -218,6 +220,7 @@ function QuerySource(props) {
                     </Select.Option>
                   ))}
                 </Select>
+                <DynamicComponent name="SelectDataSourceExtra" dataSourceId={dataSource ? dataSource.id : undefined} />
               </div>
             )}
             <div className="editor__left__schema">
