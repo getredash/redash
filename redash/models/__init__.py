@@ -235,7 +235,13 @@ class DataSourceGroup(db.Model):
 class DBPersistence(object):
     @property
     def data(self):
-        return self._data
+        if self._data is None:
+            return None
+
+        if not hasattr(self, '_deserialized_data'):
+            self._deserialized_data = json_loads(self._data)
+
+        return self._deserialized_data
 
     @data.setter
     def data(self, data):
@@ -268,7 +274,7 @@ class QueryResult(db.Model, BelongsToOrgMixin, QueryResultPersistence):
             'id': self.id,
             'query_hash': self.query_hash,
             'query': self.query_text,
-            'data': json_loads(self.data),
+            'data': self.data,
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
@@ -316,12 +322,12 @@ class QueryResult(db.Model, BelongsToOrgMixin, QueryResultPersistence):
                            data_source=data_source,
                            retrieved_at=retrieved_at,
                            data=data)
-        
-        
+
+
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
 
-        return query_result 
+        return query_result
 
     @property
     def groups(self):
@@ -641,7 +647,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                    WHERE queries.id in :ids"""
 
         return db.session.execute(query, {'ids': tuple(query_ids)}).fetchall()
-    
+
     @classmethod
     def update_latest_result(cls, query_result):
         # TODO: Investigate how big an impact this select-before-update makes.
@@ -658,7 +664,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_result.query_hash)
-        
+
         return query_ids
 
 
@@ -810,7 +816,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = json_loads(self.query_rel.latest_query_data.data)
+        data = self.query_rel.latest_query_data.data
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
             operators = {
@@ -847,7 +853,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if template is None:
             return ''
 
-        data = json_loads(self.query_rel.latest_query_data.data)
+        data = self.query_rel.latest_query_data.data
         host = base_url(self.query_rel.org)
 
         col_name = self.options['column']

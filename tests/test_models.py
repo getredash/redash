@@ -435,14 +435,14 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.query_hash = gen_query_hash(self.query)
         self.runtime = 123
         self.utcnow = utcnow()
-        self.data = "data"
+        self.data = '{"a": 1}'
 
     def test_stores_the_result(self):
         query_result = models.QueryResult.store_result(
             self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
-        self.assertEqual(query_result.data, self.data)
+        self.assertEqual(query_result._data, self.data)
         self.assertEqual(query_result.runtime, self.runtime)
         self.assertEqual(query_result.retrieved_at, self.utcnow)
         self.assertEqual(query_result.query_text, self.query)

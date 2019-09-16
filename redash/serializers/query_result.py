@@ -68,7 +68,7 @@ def serialize_query_result(query_result, is_api_user):
 def serialize_query_result_to_csv(query_result):
     s = cStringIO.StringIO()
 
-    query_data = json_loads(query_result.data)
+    query_data = query_result.data
 
     fieldnames, special_columns = _get_column_lists(query_data['columns'] or [])
 
@@ -89,7 +89,7 @@ def serialize_query_result_to_csv(query_result):
 def serialize_query_result_to_xlsx(query_result):
     s = cStringIO.StringIO()
 
-    query_data = json_loads(query_result.data)
+    query_data = query_result.data
     book = xlsxwriter.Workbook(s, {'constant_memory': True})
     sheet = book.add_worksheet("result")
 
