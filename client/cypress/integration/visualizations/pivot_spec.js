@@ -1,6 +1,7 @@
 /* global cy, Cypress */
 
 import { createQuery, createVisualization, createDashboard, addWidget } from '../../support/redash-api';
+import { getWidgetTestId } from '../../support/dashboard';
 
 const { get } = Cypress._;
 
@@ -81,28 +82,35 @@ describe('Pivot', () => {
       vals: ['value'],
     };
 
-    const pivotWithControls = { ...options, controls: { enabled: false } };
-    const pivotWithoutRowTotals = { ...options, rendererOptions: { table: { rowTotals: false } } };
-    const pivotWithoutColTotals = { ...options, rendererOptions: { table: { colTotals: false } } };
+    const pivotTables = [
+      { name: 'Pivot',
+        options,
+        position: { autoHeight: false, sizeY: 10, sizeX: 2 } },
+      { name: 'Pivot without Row Totals',
+        options: { ...options, rendererOptions: { table: { rowTotals: false } } },
+        position: { autoHeight: false, col: 2, sizeY: 10, sizeX: 2 } },
+      { name: 'Pivot without Col Totals',
+        options: { ...options, rendererOptions: { table: { colTotals: false } } },
+        position: { autoHeight: false, col: 4, sizeY: 10, sizeX: 2 } },
+      { name: 'Pivot with Controls',
+        options: { ...options, controls: { enabled: false } },
+        position: { autoHeight: false, row: 9, sizeY: 13 } },
+    ];
 
-    createVisualization(this.queryId, 'PIVOT', 'Pivot', options)
-      .then((visualization) => { this.pivotId = visualization.id; })
-      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot with Controls', pivotWithControls))
-      .then((visualization) => { this.pivotWithControlsId = visualization.id; })
-      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot without Row Totals', pivotWithoutRowTotals))
-      .then((visualization) => { this.pivotWithoutRowTotals = visualization.id; })
-      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot without Col Totals', pivotWithoutColTotals))
-      .then((visualization) => { this.pivotWithoutColTotals = visualization.id; })
-      .then(() => createDashboard('Pivot Visualization'))
-      .then(({ slug, id }) => {
-        addWidget(id, this.pivotId, { position: { autoHeight: false, sizeY: 10, sizeX: 2 } });
-        addWidget(id, this.pivotWithoutRowTotals, { position: { autoHeight: false, col: 2, sizeY: 10, sizeX: 2 } });
-        addWidget(id, this.pivotWithoutColTotals, { position: { autoHeight: false, col: 4, sizeY: 10, sizeX: 2 } });
-        addWidget(id, this.pivotWithControlsId, { position: { autoHeight: false, row: 9, sizeY: 13 } });
-        cy.visit(`/dashboard/${slug}`);
-
-        // temporary waiting for testing purposes
-        cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
+    createDashboard('Pivot Visualization')
+      .then((dashboard) => {
+        this.dashboardUrl = `/dashboard/${dashboard.slug}`;
+        return cy.all(
+          pivotTables.map(pivot => () => createVisualization(this.queryId, 'PIVOT', pivot.name, pivot.options)
+            .then(visualization => addWidget(dashboard.id, visualization.id, { position: pivot.position }))),
+        );
+      })
+      .then((widgets) => {
+        cy.visit(this.dashboardUrl);
+        widgets.forEach((widget) => {
+          cy.getByTestId(getWidgetTestId(widget))
+            .within(() => cy.getByTestId('PivotTableVisualization').should('exist'));
+        });
         cy.percySnapshot('Visualizations - Pivot Table');
       });
   });

@@ -54,6 +54,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
       data-hide-controls={hideControls || null}
       data-hide-row-totals={hideRowTotals || null}
       data-hide-column-totals={hideColumnTotals || null}
+      data-test="PivotTableVisualization"
     >
       <PivotTableUI {...pick(config, VALID_OPTIONS)} onChange={onChange} />
     </div>
