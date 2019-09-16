@@ -37,7 +37,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
 
   useEffect(() => {
     setConfig({ data: formatRows(data), ...options });
-  }, [data]);
+  }, [data, options]);
 
   const onChange = (updatedOptions) => {
     const validOptions = pick(updatedOptions, VALID_OPTIONS);
