@@ -24,6 +24,7 @@ const VALID_OPTIONS = [
   'hiddenFromDragDrop',
   'menuLimit',
   'unusedOrientationCutoff',
+  'controls',
   'rendererOptions',
 ];
 

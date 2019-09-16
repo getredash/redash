@@ -66,7 +66,12 @@ Cypress.Commands.add('dragBy', { prevSubject: true }, (subject, offsetLeft, offs
     .trigger('mouseup', { force });
 });
 
-Cypress.Commands.add('all', (fns) => {
+Cypress.Commands.add('all', (...functions) => {
+  if (Cypress._.isEmpty(functions)) {
+    return [];
+  }
+
+  const fns = Cypress._.isArray(functions[0]) ? functions[0] : functions;
   const results = [];
 
   fns.reduce((prev, fn) => {
