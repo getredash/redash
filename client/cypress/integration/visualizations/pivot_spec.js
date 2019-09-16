@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery, createVisualization, createDashboard, addWidget } from '../../support/redash-api';
 
 const { get } = Cypress._;
 
@@ -15,19 +15,21 @@ const SQL = `
   SELECT 'c' AS stage1, 'c1' AS stage2, 19 AS value UNION ALL
   SELECT 'c' AS stage1, 'c2' AS stage2, 92 AS value UNION ALL
   SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS v
+  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value
 `;
 
 describe('Pivot', () => {
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
-      cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
-    });
+    createQuery({ name: 'Pivot Visualization', query: SQL })
+      .its('id')
+      .as('queryId');
   });
 
-  it('creates Pivot with controls', () => {
+  it('creates Pivot with controls', function () {
+    cy.visit(`queries/${this.queryId}/source`);
+    cy.getByTestId('ExecuteButton').click();
+
     const visualizationName = 'Pivot';
 
     cy.getByTestId('NewVisualization').click();
@@ -39,7 +41,10 @@ describe('Pivot', () => {
     cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
   });
 
-  it('creates Pivot without controls', () => {
+  it('creates Pivot without controls', function () {
+    cy.visit(`queries/${this.queryId}/source`);
+    cy.getByTestId('ExecuteButton').click();
+
     const visualizationName = 'Pivot';
 
     cy.server();
@@ -65,5 +70,38 @@ describe('Pivot', () => {
         .find('.pvtAxisContainer, .pvtRenderer, .pvtVals')
         .should('be.not.visible');
     });
+  });
+
+  it('takes a snapshot with different configured Pivots', function () {
+    const options = {
+      aggregatorName: 'Sum',
+      controls: { enabled: true },
+      cols: ['stage1'],
+      rows: ['stage2'],
+      vals: ['value'],
+    };
+
+    const pivotWithControls = { ...options, controls: { enabled: false } };
+    const pivotWithoutRowTotals = { ...options, rendererOptions: { table: { rowTotals: false } } };
+    const pivotWithoutColTotals = { ...options, rendererOptions: { table: { colTotals: false } } };
+
+    createVisualization(this.queryId, 'PIVOT', 'Pivot', options)
+      .then((visualization) => { this.pivotId = visualization.id; })
+      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot with Controls', pivotWithControls))
+      .then((visualization) => { this.pivotWithControlsId = visualization.id; })
+      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot without Row Totals', pivotWithoutRowTotals))
+      .then((visualization) => { this.pivotWithoutRowTotals = visualization.id; })
+      .then(() => createVisualization(this.queryId, 'PIVOT', 'Pivot without Col Totals', pivotWithoutColTotals))
+      .then((visualization) => { this.pivotWithoutColTotals = visualization.id; })
+      .then(() => createDashboard('Pivot Visualization'))
+      .then(({ slug, id }) => {
+        addWidget(id, this.pivotId, { position: { autoHeight: false, sizeY: 10, sizeX: 2 } });
+        addWidget(id, this.pivotWithoutRowTotals, { position: { autoHeight: false, col: 2, sizeY: 10, sizeX: 2 } });
+        addWidget(id, this.pivotWithoutColTotals, { position: { autoHeight: false, col: 4, sizeY: 10, sizeX: 2 } });
+        addWidget(id, this.pivotWithControlsId, { position: { autoHeight: false, row: 9, sizeY: 13 } });
+        cy.visit(`/dashboard/${slug}`);
+        cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.percySnapshot('Visualizations - Pivot Table');
+      });
   });
 });
