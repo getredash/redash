@@ -144,7 +144,7 @@ class AlertPage extends React.Component {
         const canEdit = currentUser.canEdit(alert);
         this.setState({
           alert,
-          pendingRearm: alert.rearm,
+          pendingRearm: alert.rearm || 0,
           editMode: editMode && canEdit,
           canEdit,
         });
@@ -385,7 +385,7 @@ class AlertPage extends React.Component {
                     </>
                   ) : (
                     <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
-                      <Rearm value={pendingRearm} onChange={this.onRearmChange} />
+                      <Rearm value={pendingRearm} />
                       <br />
                       Set to {options.subject || options.template ? 'custom' : 'default'} notification template.
                     </HorizontalFormItem>

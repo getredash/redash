@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { toLower } from 'lodash';
+import { toLower, isNumber } from 'lodash';
 
 import InputNumber from 'antd/lib/input-number';
 import Select from 'antd/lib/select';
@@ -30,7 +30,7 @@ function RearmByDuration({ value, onChange, editMode }) {
     }
   }, []);
 
-  if (!count || !durationIdx) {
+  if (!isNumber(count) || !isNumber(durationIdx)) {
     return null;
   }
 
@@ -44,7 +44,7 @@ function RearmByDuration({ value, onChange, editMode }) {
     onChange(count * DURATIONS[newIdx][1]);
   };
 
-  const plural = count !== 1 && 's';
+  const plural = count !== 1 ? 's' : '';
 
   if (editMode) {
     return (
@@ -90,18 +90,14 @@ function RearmEditor({ value, onChange }) {
         </Select.Option>
         <Select.Option value={2} label="At most every">At most every ... <em>when alert is evaluated</em></Select.Option>
       </Select>
-      {selected === 2 && <RearmByDuration value={value} onChange={onChange} editMode />}
+      {selected === 2 && value && <RearmByDuration value={value} onChange={onChange} editMode />}
     </div>
   );
 }
 
 RearmEditor.propTypes = {
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.number,
-};
-
-RearmEditor.defaultProps = {
-  value: 0,
+  value: PropTypes.number.isRequired,
 };
 
 function RearmViewer({ value }) {
@@ -119,15 +115,11 @@ function RearmViewer({ value }) {
       );
   }
 
-  return <span>When triggered, notifications are sent {phrase}.</span>;
+  return <span>Notifications are sent {phrase}.</span>;
 }
 
 RearmViewer.propTypes = {
-  value: PropTypes.number,
-};
-
-RearmViewer.defaultProps = {
-  value: 0,
+  value: PropTypes.number.isRequired,
 };
 
 export default function Rearm({ editMode, ...props }) {
@@ -135,12 +127,12 @@ export default function Rearm({ editMode, ...props }) {
 }
 
 Rearm.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.number,
+  onChange: PropTypes.func,
+  value: PropTypes.number.isRequired,
   editMode: PropTypes.bool,
 };
 
 Rearm.defaultProps = {
-  value: 0,
+  onChange: null,
   editMode: false,
 };
