@@ -31,7 +31,17 @@
     max-width: 100px;
     display: inline-block;
     text-overflow: ellipsis;
+    white-space: nowrap;
     vertical-align: middle;
+    padding: 0;
+
+    &[data-passing="true"] {
+      color: #4caf50;
+    }
+
+    &[data-passing="false"] {
+      color: #f44336;
+    }
   }
 }
 
