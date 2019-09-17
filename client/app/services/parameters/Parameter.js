@@ -69,15 +69,6 @@ class Parameter {
     return this.$$value;
   }
 
-  // TODO: Remove this property when finally moved to React
-  get ngModel() {
-    return this.normalizedValue;
-  }
-
-  set ngModel(value) {
-    this.setValue(value);
-  }
-
   clone() {
     return Parameter.create(this, this.parentQueryId);
   }
