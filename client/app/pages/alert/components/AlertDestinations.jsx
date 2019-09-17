@@ -182,7 +182,9 @@ export default class AlertDestinations extends React.Component {
     return (
       <div className="alert-destinations">
         <Tooltip title="Click to add an existing &quot;Alert Destination&quot;" mouseEnterDelay={0.5}>
-          <Button type="primary" size="small" className="add-button" onClick={this.showAddAlertSubDialog}><i className="fa fa-plus" /> Add</Button>
+          <Button type="primary" size="small" className="add-button" onClick={this.showAddAlertSubDialog}>
+            <i className="fa fa-plus f-12 m-r-5" /> Add
+          </Button>
         </Tooltip>
         <ul>
           <li className="destination-wrapper">

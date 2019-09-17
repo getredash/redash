@@ -23,6 +23,8 @@ import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
+import Dropdown from 'antd/lib/dropdown';
+import Menu from 'antd/lib/menu';
 
 import Criteria from './components/Criteria';
 import NotificationTemplate from './components/NotificationTemplate';
@@ -98,13 +100,21 @@ AlertState.defaultProps = {
   lastTriggered: null,
 };
 
-function SetupInstructions() {
+function SetupInstructions({ className }) {
   return (
-    <HelpTrigger className="alert-setup-instructions" type="ALERT_SETUP">
+    <HelpTrigger className={cx('f-13', className)} type="ALERT_SETUP">
       Setup Instructions <i className="fa fa-question-circle" />
     </HelpTrigger>
   );
 }
+
+SetupInstructions.propTypes = {
+  className: PropTypes.string,
+};
+
+SetupInstructions.defaultProps = {
+  className: '',
+};
 
 class AlertPage extends React.Component {
   state = {
@@ -112,6 +122,7 @@ class AlertPage extends React.Component {
     queryResult: null,
     pendingRearm: null,
     editMode: false,
+    saving: false,
   }
 
   componentDidMount() {
@@ -198,6 +209,11 @@ class AlertPage extends React.Component {
     });
   }
 
+  edit = () => {
+    const { id } = this.state.alert;
+    navigateTo(`/alerts/${id}/edit`);
+  }
+
   save = () => {
     const { alert, pendingRearm } = this.state;
 
@@ -207,16 +223,18 @@ class AlertPage extends React.Component {
 
     alert.rearm = pendingRearm || null;
 
+    this.setState({ saving: true });
+
     alert.$save().then(() => {
       if (isNewAlert()) {
         notification.success('Saved new Alert.');
-        navigateTo(`/alerts/${alert.id}`, true);
       } else {
-        this.setState({ alert });
         notification.success('Saved.');
       }
+      navigateTo(`/alerts/${alert.id}`, true);
     }).catch(() => {
       notification.error('Failed saving alert.');
+      this.setState({ saving: false });
     });
   };
 
@@ -257,9 +275,9 @@ class AlertPage extends React.Component {
     if (query === undefined) { // as opposed to `null` which means query was previously set
       return (
         <div className="container alert-page new-alert">
-          <PageHeader title={this.getDefaultName()} />
-          <SetupInstructions />
+          <PageHeader title="New Alert" />
           <div className="row bg-white tiled p-20">
+            <SetupInstructions className="pull-right" />
             <div className="m-b-30">
               Start by selecting the query that you would like to monitor using the search bar.
               <br />
@@ -276,7 +294,7 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { queryResult, editMode } = this.state;
+    const { queryResult, editMode, saving } = this.state;
     const title = name || this.getDefaultName();
 
     return (
@@ -286,9 +304,34 @@ class AlertPage extends React.Component {
             <h3>
               {editMode ? <Input value={title} onChange={e => this.setName(e.target.value)} /> : title }
             </h3>
+            <span className="flex-fill" />
+            {editMode ? (
+              <>
+                <SetupInstructions className="m-r-10" />
+                <Button type="primary" onClick={() => this.save()}>
+                  {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <Button type="default" onClick={() => this.edit()}><i className="fa fa-edit m-r-5" />Edit</Button>
+            )}
+            <Dropdown
+              className="m-l-5"
+              trigger={['click']}
+              placement="bottomRight"
+              overlay={(
+                <Menu>
+                  <Menu.Item>
+                    <a onClick={() => this.delete()}>Delete Alert</a>
+                  </Menu.Item>
+                </Menu>
+              )}
+            >
+              <Button><Icon type="ellipsis" rotate={90} /></Button>
+            </Dropdown>
           </div>
         </div>
-        {editMode && <SetupInstructions />}
         <div className="row bg-white tiled p-10 p-t-20">
           <div className="col-md-8">
             <Form>
