@@ -100,7 +100,7 @@ export const Query = PropTypes.shape({
   data_source_id: PropTypes.number.isRequired,
   created_at: PropTypes.string.isRequired,
   updated_at: PropTypes.string,
-  user: UserProfile.isRequired,
+  user: UserProfile,
   query: PropTypes.string,
   queryHash: PropTypes.string,
   is_safe: PropTypes.bool.isRequired,
@@ -110,14 +110,14 @@ export const Query = PropTypes.shape({
 });
 
 export const Alert = PropTypes.shape({
-  id: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  created_at: PropTypes.string.isRequired,
+  id: PropTypes.number,
+  name: PropTypes.string,
+  created_at: PropTypes.string,
   last_triggered_at: PropTypes.string,
   updated_at: PropTypes.string,
   rearm: PropTypes.number,
-  state: PropTypes.oneOf(['ok', 'triggered', 'unknown']).isRequired,
-  user: UserProfile.isRequired,
+  state: PropTypes.oneOf(['ok', 'triggered', 'unknown']),
+  user: UserProfile,
   query: Query.isRequired,
   options: PropTypes.shape({
     column: PropTypes.string,

@@ -97,7 +97,11 @@ function RearmEditor({ value, onChange }) {
 
 RearmEditor.propTypes = {
   onChange: PropTypes.func.isRequired,
-  value: PropTypes.number.isRequired,
+  value: PropTypes.number,
+};
+
+RearmEditor.defaultProps = {
+  value: 0,
 };
 
 function RearmViewer({ value }) {
@@ -119,7 +123,11 @@ function RearmViewer({ value }) {
 }
 
 RearmViewer.propTypes = {
-  value: PropTypes.number.isRequired,
+  value: PropTypes.number,
+};
+
+RearmViewer.defaultProps = {
+  value: 0,
 };
 
 export default function Rearm({ editMode, ...props }) {

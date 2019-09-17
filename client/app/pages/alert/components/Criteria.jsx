@@ -105,8 +105,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="ant-form-explain">
-        {columnHint}
-        {invalidMessage()}
+        {columnHint}<br />{invalidMessage()}
       </div>
     </div>
   );

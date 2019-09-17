@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { head, includes, template as templateBuilder } from 'lodash';
+import { head, includes, template as templateBuilder, trim } from 'lodash';
 import cx from 'classnames';
 
 import { $route } from '@/services/ng';
@@ -31,14 +31,11 @@ import NotificationTemplate from './components/NotificationTemplate';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
 import AlertDestinations from './components/AlertDestinations';
-
-import { routesToAngularRoutes } from '@/lib/utils';
-
 import { STATE_CLASS } from '../alerts/AlertsList';
+import { routesToAngularRoutes } from '@/lib/utils';
 
 
 const NEW_ALERT_ID = 'new';
-
 const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
 
 function isNewAlert() {
@@ -122,6 +119,7 @@ class AlertPage extends React.Component {
     queryResult: null,
     pendingRearm: null,
     editMode: false,
+    canEdit: false,
     saving: false,
   }
 
@@ -137,15 +135,18 @@ class AlertPage extends React.Component {
           pendingRearm: 0,
         }),
         editMode: true,
+        canEdit: true,
       });
     } else {
       const { alertId } = $route.current.params;
       const { editMode } = $route.current.locals;
       AlertService.get({ id: alertId }).$promise.then((alert) => {
+        const canEdit = currentUser.canEdit(alert);
         this.setState({
           alert,
           pendingRearm: alert.rearm,
-          editMode: editMode && currentUser.canEdit(alert),
+          editMode: editMode && canEdit,
+          canEdit,
         });
         this.onQuerySelected(alert.query);
       });
@@ -155,7 +156,7 @@ class AlertPage extends React.Component {
   getDefaultName = () => {
     const { alert } = this.state;
     if (!alert.query) {
-      return undefined;
+      return 'New Alert';
     }
     return defaultNameBuilder(alert);
   }
@@ -217,17 +218,14 @@ class AlertPage extends React.Component {
   save = () => {
     const { alert, pendingRearm } = this.state;
 
-    if (alert.name === undefined || alert.name === '') {
-      alert.name = this.getDefaultName();
-    }
-
+    alert.name = trim(alert.name) || this.getDefaultName();
     alert.rearm = pendingRearm || null;
 
-    this.setState({ saving: true });
+    this.setState({ saving: true, alert });
 
     alert.$save().then(() => {
       if (isNewAlert()) {
-        notification.success('Saved new Alert.');
+        notification.success('Created new Alert.');
       } else {
         notification.success('Saved.');
       }
@@ -275,7 +273,7 @@ class AlertPage extends React.Component {
     if (query === undefined) { // as opposed to `null` which means query was previously set
       return (
         <div className="container alert-page new-alert">
-          <PageHeader title="New Alert" />
+          <PageHeader title={this.getDefaultName()} />
           <div className="row bg-white tiled p-20">
             <SetupInstructions className="pull-right" />
             <div className="m-b-30">
@@ -294,42 +292,49 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { queryResult, editMode, saving } = this.state;
-    const title = name || this.getDefaultName();
+    const { queryResult, editMode, canEdit, saving } = this.state;
+    const isNew = isNewAlert();
 
     return (
       <div className="container alert-page">
         <div className="p-b-10 m-l-0 m-r-0 page-header--new">
           <div className="page-title p-0">
             <h3>
-              {editMode ? <Input value={title} onChange={e => this.setName(e.target.value)} /> : title }
+              {editMode && query ? (
+                <Input placeholder={this.getDefaultName()} value={name} onChange={e => this.setName(e.target.value)} />
+              ) : name || this.getDefaultName() }
             </h3>
             <span className="flex-fill" />
-            {editMode ? (
+            {editMode && (
               <>
                 <SetupInstructions className="m-r-10" />
-                <Button type="primary" onClick={() => this.save()}>
-                  {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
-                  Save Changes
-                </Button>
+                {!isNew && (
+                  <Button type="primary" onClick={() => this.save()}>
+                    {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
+                    Save Changes
+                  </Button>
+                )}
               </>
-            ) : (
+            )}
+            {!editMode && canEdit && (
               <Button type="default" onClick={() => this.edit()}><i className="fa fa-edit m-r-5" />Edit</Button>
             )}
-            <Dropdown
-              className="m-l-5"
-              trigger={['click']}
-              placement="bottomRight"
-              overlay={(
-                <Menu>
-                  <Menu.Item>
-                    <a onClick={() => this.delete()}>Delete Alert</a>
-                  </Menu.Item>
-                </Menu>
-              )}
-            >
-              <Button><Icon type="ellipsis" rotate={90} /></Button>
-            </Dropdown>
+            {canEdit && !isNew && (
+              <Dropdown
+                className="m-l-5"
+                trigger={['click']}
+                placement="bottomRight"
+                overlay={(
+                  <Menu>
+                    <Menu.Item>
+                      <a onClick={() => this.delete()}>Delete Alert</a>
+                    </Menu.Item>
+                  </Menu>
+                )}
+              >
+                <Button><Icon type="ellipsis" rotate={90} /></Button>
+              </Dropdown>
+            )}
           </div>
         </div>
         <div className="row bg-white tiled p-10 p-t-20">
@@ -385,9 +390,9 @@ class AlertPage extends React.Component {
                       Set to {options.subject || options.template ? 'custom' : 'default'} notification template.
                     </HorizontalFormItem>
                   )}
-                  {isNewAlert() && (
+                  {isNew && (
                     <HorizontalFormItem>
-                      <Button type="primary" onClick={this.save}>Save</Button>
+                      <Button type="primary" onClick={this.save}>Create Alert</Button>
                     </HorizontalFormItem>
                   )}
                 </>
