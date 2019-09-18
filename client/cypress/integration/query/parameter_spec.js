@@ -236,8 +236,9 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
+      // Dynamic Dates are expected in UTC format
       cy.getByTestId('TableVisualization')
-        .should('contain', Cypress.moment(this.now).format('DD/MM/YY'));
+        .should('contain', Cypress.moment(this.now).utc().format('DD/MM/YY'));
     });
 
     it('sets dirty state when edited', () => {
@@ -318,8 +319,9 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
+      // Dynamic Dates are expected in UTC format
       cy.getByTestId('TableVisualization')
-        .should('contain', Cypress.moment(this.now).format('YYYY-MM-DD HH:mm'));
+        .should('contain', Cypress.moment(this.now).utc().format('YYYY-MM-DD HH:mm'));
     });
 
     it('sets dirty state when edited', () => {
@@ -397,7 +399,8 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterApplyButton')
         .click();
 
-      const lastMonth = Cypress.moment(this.now).subtract(1, 'month');
+      // Dynamic Date Ranges are expected in UTC format
+      const lastMonth = Cypress.moment(this.now).utc().subtract(1, 'month');
       cy.getByTestId('TableVisualization')
         .should('contain', lastMonth.startOf('month').format('YYYY-MM-DD') + ' - ' +
                            lastMonth.endOf('month').format('YYYY-MM-DD'));
