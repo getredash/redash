@@ -1,4 +1,4 @@
-import { isNil, each, includes, isString, map, sortBy } from 'lodash';
+import { isNil, each, includes, isString, map, sortBy, toString } from 'lodash';
 import { cleanNumber, normalizeValue, getSeriesAxis } from './utils';
 import { ColorPaletteArray } from '@/visualizations/ColorPalette';
 
@@ -46,8 +46,9 @@ function getHoverInfoPattern(options) {
   return result;
 }
 
-function prepareBarSeries(series, options) {
+function prepareBarSeries(series, options, additionalOptions) {
   series.type = 'bar';
+  series.offsetgroup = toString(additionalOptions.index);
   if (options.showDataLabels) {
     series.textposition = 'inside';
   }
