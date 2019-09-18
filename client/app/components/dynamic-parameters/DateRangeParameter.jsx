@@ -115,8 +115,7 @@ class DateRangeParameter extends React.Component {
     }
 
     if (hasDynamicValue) {
-      const dynamicDateRange = value;
-      additionalAttributes.placeholder = [dynamicDateRange && dynamicDateRange.name];
+      additionalAttributes.placeholder = [value && value.name];
       additionalAttributes.value = null;
     }
 
