@@ -31,16 +31,6 @@ DisabledInput.propTypes = {
   minWidth: PropTypes.number.isRequired,
 };
 
-function testsCriteria(v1, operator, v2) {
-  if (operator === 'greater than') {
-    return v1 > v2;
-  } else if (operator === 'less than') {
-    return v1 < v2;
-  } else if (operator === 'equals') {
-    return toString(v1) === toString(v2);
-  }
-}
-
 export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
   const columnValue = resultValues && head(resultValues)[alertOptions.column];
   const invalidMessage = () => {
@@ -60,11 +50,9 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     return null;
   };
 
-  const passing = testsCriteria(columnValue, alertOptions.op, alertOptions.value);
-
   const columnHint = (
     <small className="alert-criteria-hint">
-      Top row value is <code data-passing={passing}>{toString(columnValue) || 'unknown'}</code>
+      Top row value is <code className="p-0">{toString(columnValue) || 'unknown'}</code>
     </small>
   );
 
