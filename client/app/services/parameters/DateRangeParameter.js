@@ -135,9 +135,7 @@ class DateRangeParameter extends Parameter {
     const prefix = this.urlPrefix;
     if (isObject(this.value) && this.value.start && this.value.end) {
       return {
-        [`${prefix}${this.name}`]: null,
-        [`${prefix}${this.name}.start`]: this.value.start,
-        [`${prefix}${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}`]: `${this.value.start}--${this.value.end}`,
       };
     }
     return super.toUrlParams();
@@ -146,12 +144,13 @@ class DateRangeParameter extends Parameter {
   fromUrlParams(query) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
-    const keyStart = `${prefix}${this.name}.start`;
-    const keyEnd = `${prefix}${this.name}.end`;
     if (has(query, key)) {
-      this.setValue(query[key]);
-    } else if (has(query, keyStart) && has(query, keyEnd)) {
-      this.setValue([query[keyStart], query[keyEnd]]);
+      const dates = query[key].split('--');
+      if (dates.length === 2) {
+        this.setValue(dates);
+      } else {
+        this.setValue(query[key]);
+      }
     }
   }
 

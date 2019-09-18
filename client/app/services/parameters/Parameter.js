@@ -124,8 +124,6 @@ class Parameter {
     // `null` removes the parameter from the URL in case it exists
     return {
       [`${prefix}${this.name}`]: !this.isEmpty ? this.value : null,
-      [`${prefix}${this.name}.start`]: null,
-      [`${prefix}${this.name}.end`]: null,
     };
   }
 

@@ -48,8 +48,6 @@ class EnumParameter extends Parameter {
 
     return {
       [`${prefix}${this.name}`]: !this.isEmpty ? urlParam : null,
-      [`${prefix}${this.name}.start`]: null,
-      [`${prefix}${this.name}.end`]: null,
     };
   }
 
