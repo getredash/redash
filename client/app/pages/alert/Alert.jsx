@@ -11,9 +11,7 @@ import navigateTo from '@/services/navigateTo';
 import notification from '@/services/notification';
 import { Alert as AlertService } from '@/services/alert';
 
-import { QuerySelector } from '@/components/QuerySelector';
 import { HelpTrigger } from '@/components/HelpTrigger';
-import { PageHeader } from '@/components/PageHeader';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import { TimeAgo } from '@/components/TimeAgo';
 
@@ -277,31 +275,9 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { query, name, options } = alert;
-    if (query === undefined) { // as opposed to `null` which means query was previously set
-      return (
-        <div className="container alert-page new-alert">
-          <PageHeader title={this.getDefaultName()} />
-          <div className="row bg-white tiled p-20">
-            <SetupInstructions className="pull-right" />
-            <div className="m-b-30">
-              Start by selecting the query that you would like to monitor using the search bar.
-              <br />
-              Keep in mind that Alerts do not work with queries that use parameters.
-            </div>
-            <QuerySelector
-              onChange={this.onQuerySelected}
-              selectedQuery={query}
-              className="alert-query-selector"
-              type="select"
-            />
-          </div>
-        </div>
-      );
-    }
-
-    const { queryResult, editMode, canEdit, saving, canceling } = this.state;
     const isNew = isNewAlert();
+    const { query, name, options } = alert;
+    const { queryResult, editMode, canEdit, saving, canceling } = this.state;
 
     return (
       <div className="container alert-page">
@@ -353,6 +329,13 @@ class AlertPage extends React.Component {
         </div>
         <div className="row bg-white tiled p-10 p-t-20">
           <div className="col-md-8">
+            {isNew && (
+              <div className="m-b-30">
+                Start by selecting the query that you would like to monitor using the search bar.
+                <br />
+                Keep in mind that Alerts do not work with queries that use parameters.
+              </div>
+            )}
             <Form>
               {!editMode && (
                 <HorizontalFormItem>
@@ -404,12 +387,12 @@ class AlertPage extends React.Component {
                       Set to {options.subject || options.template ? 'custom' : 'default'} notification template.
                     </HorizontalFormItem>
                   )}
-                  {isNew && (
-                    <HorizontalFormItem>
-                      <Button type="primary" onClick={this.save}>Create Alert</Button>
-                    </HorizontalFormItem>
-                  )}
                 </>
+              )}
+              {isNew && (
+                <HorizontalFormItem>
+                  <Button type="primary" onClick={this.save} disabled={!query} className="btn-create-alert">Create Alert</Button>
+                </HorizontalFormItem>
               )}
             </Form>
           </div>
