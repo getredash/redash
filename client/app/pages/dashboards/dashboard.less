@@ -22,7 +22,8 @@
     padding: 0;
   }
 
-  .pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+  .pivot-table-renderer > table,
+  visualization-renderer > .visualization-renderer-wrapper {
     overflow: visible;
   }
 
@@ -65,7 +66,7 @@
       right: 0;
       bottom: 0;
 
-      > div {
+      > .visualization-renderer-wrapper {
         flex-grow: 1;
         position: relative;
       }
