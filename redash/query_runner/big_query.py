@@ -83,6 +83,7 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
 
 class BigQuery(BaseQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -132,10 +133,6 @@ class BigQuery(BaseQueryRunner):
             "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'location', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def _get_bigquery_service(self):
         scope = [

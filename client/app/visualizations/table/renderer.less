@@ -8,7 +8,7 @@
     margin-bottom: 0;
   }
 
-  .ant-table-body {
+  .ant-table {
     overflow-x: auto;
   }
 
@@ -100,4 +100,27 @@
       }
     }
   }
+
+  /* START table x scroll */
+  .dashboard-widget-wrapper:not(.widget-auto-height-enabled) & {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    & div {
+      height: inherit;
+    }
+
+    .ant-spin-container {
+      display: flex;
+      flex-direction: column;
+
+      .ant-table {
+        flex-grow: 1;
+      }
+    }
+  }
+  /* END */
 }

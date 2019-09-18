@@ -225,6 +225,9 @@ def client_config():
         }
     else:
         client_config = {}
+ 
+    if current_user.has_permission('admin') and current_org.get_setting('beacon_consent') is None:
+        client_config['showBeaconConsentMessage'] = True
 
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
@@ -249,18 +252,6 @@ def client_config():
     client_config.update(number_format_config())
 
     return client_config
-
-
-def messages():
-    messages = []
-
-    if not current_user.is_email_verified:
-        messages.append('email-not-verified')
-
-    if settings.ALLOW_PARAMETERS_IN_EMBEDS:
-        messages.append('using-deprecated-embed-feature')
-
-    return messages
 
 
 def messages():

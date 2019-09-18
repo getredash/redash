@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import EmptyState from '@/components/items-list/components/EmptyState';
 
+import './CardsList.less';
+
 const { Search } = Input;
 
 export default class CardsList extends React.Component {

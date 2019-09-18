@@ -3,6 +3,8 @@ import logging
 from dateutil import parser
 import requests
 
+from six import text_type
+
 from redash import settings
 from redash.utils import json_loads
 
@@ -54,6 +56,7 @@ class NotSupported(Exception):
 
 class BaseQueryRunner(object):
     deprecated = False
+    should_annotate_query = True
     noop_query = None
 
     def __init__(self, configuration):
@@ -73,12 +76,16 @@ class BaseQueryRunner(object):
         return True
 
     @classmethod
-    def annotate_query(cls):
-        return True
-
-    @classmethod
     def configuration_schema(cls):
         return {}
+
+    def annotate_query(self, query, metadata):
+        if not self.should_annotate_query:
+            return query
+
+        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
+        annotated_query = u"/* {} */ {}".format(annotation, query)
+        return annotated_query
 
     def test_connection(self):
         if self.noop_query is None:
@@ -148,6 +155,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
 
 
 class BaseHTTPQueryRunner(BaseQueryRunner):
+    should_annotate_query = False
     response_error = "Endpoint returned unexpected status code"
     requires_authentication = False
     requires_url = True
@@ -299,7 +307,7 @@ def guess_type_from_string(string_value):
     except (ValueError, OverflowError):
         pass
 
-    if unicode(string_value).lower() in ('true', 'false'):
+    if text_type(string_value).lower() in ('true', 'false'):
         return TYPE_BOOLEAN
 
     try:
