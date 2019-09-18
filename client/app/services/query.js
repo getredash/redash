@@ -27,50 +27,50 @@ const DYNAMIC_PREFIX = 'd_';
 const DYNAMIC_DATE_RANGES = {
   today: {
     name: 'Today',
-    value: () => [moment().startOf('day'), moment().endOf('day')],
+    value: () => [moment.utc().startOf('day'), moment.utc().endOf('day')],
   },
   yesterday: {
     name: 'Yesterday',
-    value: () => [moment().subtract(1, 'day').startOf('day'), moment().subtract(1, 'day').endOf('day')],
+    value: () => [moment.utc().subtract(1, 'day').startOf('day'), moment.utc().subtract(1, 'day').endOf('day')],
   },
   this_week: {
     name: 'This week',
-    value: () => [moment().startOf('week'), moment().endOf('week')],
+    value: () => [moment.utc().startOf('week'), moment.utc().endOf('week')],
   },
   this_month: {
     name: 'This month',
-    value: () => [moment().startOf('month'), moment().endOf('month')],
+    value: () => [moment.utc().startOf('month'), moment.utc().endOf('month')],
   },
   this_year: {
     name: 'This year',
-    value: () => [moment().startOf('year'), moment().endOf('year')],
+    value: () => [moment.utc().startOf('year'), moment.utc().endOf('year')],
   },
   last_week: {
     name: 'Last week',
-    value: () => [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+    value: () => [moment.utc().subtract(1, 'week').startOf('week'), moment.utc().subtract(1, 'week').endOf('week')],
   },
   last_month: {
     name: 'Last month',
-    value: () => [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+    value: () => [moment.utc().subtract(1, 'month').startOf('month'), moment.utc().subtract(1, 'month').endOf('month')],
   },
   last_year: {
     name: 'Last year',
-    value: () => [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+    value: () => [moment.utc().subtract(1, 'year').startOf('year'), moment.utc().subtract(1, 'year').endOf('year')],
   },
   last_7_days: {
     name: 'Last 7 days',
-    value: () => [moment().subtract(7, 'days'), moment()],
+    value: () => [moment.utc().subtract(7, 'days'), moment.utc()],
   },
 };
 
 const DYNAMIC_DATES = {
   now: {
     name: 'Today/Now',
-    value: () => moment(),
+    value: () => moment.utc(),
   },
   yesterday: {
     name: 'Yesterday',
-    value: () => moment().subtract(1, 'day'),
+    value: () => moment.utc().subtract(1, 'day'),
   },
 };
 
