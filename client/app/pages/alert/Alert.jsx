@@ -37,6 +37,7 @@ import { routesToAngularRoutes } from '@/lib/utils';
 
 const NEW_ALERT_ID = 'new';
 const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
+const spinnerIcon = <i className="fa fa-spinner fa-pulse m-r-5" />;
 
 function isNewAlert() {
   return $route.current.params.alertId === NEW_ALERT_ID;
@@ -121,6 +122,7 @@ class AlertPage extends React.Component {
     editMode: false,
     canEdit: false,
     saving: false,
+    canceling: false,
   }
 
   componentDidMount() {
@@ -236,6 +238,12 @@ class AlertPage extends React.Component {
     });
   };
 
+  cancel = () => {
+    const { alert } = this.state;
+    this.setState({ canceling: true });
+    navigateTo(`/alerts/${alert.id}`, true);
+  };
+
   delete = () => {
     const { alert } = this.state;
 
@@ -292,7 +300,7 @@ class AlertPage extends React.Component {
       );
     }
 
-    const { queryResult, editMode, canEdit, saving } = this.state;
+    const { queryResult, editMode, canEdit, saving, canceling } = this.state;
     const isNew = isNewAlert();
 
     return (
@@ -309,10 +317,16 @@ class AlertPage extends React.Component {
               <>
                 <SetupInstructions className="m-r-10" />
                 {!isNew && (
-                  <Button type="primary" onClick={() => this.save()}>
-                    {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
-                    Save Changes
-                  </Button>
+                  <>
+                    <Button className="m-r-5" onClick={() => this.cancel()}>
+                      {canceling ? spinnerIcon : <i className="fa fa-times m-r-5" />}
+                      Cancel
+                    </Button>
+                    <Button type="primary" onClick={() => this.save()}>
+                      {saving ? spinnerIcon : <i className="fa fa-check m-r-5" />}
+                      Save Changes
+                    </Button>
+                  </>
                 )}
               </>
             )}
