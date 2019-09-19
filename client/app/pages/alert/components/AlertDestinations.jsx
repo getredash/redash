@@ -85,8 +85,18 @@ export default class AlertDestinations extends React.Component {
     const { dests, subs } = this.state;
 
     SelectItemsDialog.showModal({
+      width: 570,
+      showCount: true,
+      extraFooterContent: (
+        <>
+          <i className="fa fa-info-circle" />{' '}
+          Create new destinations in{' '}
+          <Tooltip title="Opens page in a new tab.">
+            <a href="/destinations/new" target="_blank">Alert Destinations</a>
+          </Tooltip>
+        </>
+      ),
       dialogTitle: 'Add Existing Alert Destinations',
-      selectedItemsTitle: 'Pending Destinations',
       inputPlaceholder: 'Search destinations...',
       searchItems: (searchTerm) => {
         searchTerm = searchTerm.toLowerCase();
@@ -101,22 +111,13 @@ export default class AlertDestinations extends React.Component {
             <div className="destination-wrapper">
               <img src={`${IMG_ROOT}/${item.type}.png`} className="destination-icon" alt={name} />
               <span className="flex-fill">{item.name}</span>
-              <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} />
+              <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} deselectedIcon="fa-plus" />
             </div>
           ),
           isDisabled: alreadyInGroup,
           className: isSelected || alreadyInGroup ? 'selected' : '',
         };
       },
-      renderStagedItem: item => ({
-        content: (
-          <div className="destination-wrapper">
-            <img src={`${IMG_ROOT}/${item.type}.png`} className="destination-icon" alt={name} />
-            <span className="flex-fill">{item.name}</span>
-            <ListItemAddon isStaged />
-          </div>
-        ),
-      }),
       save: (items) => {
         const promises = map(items, item => this.subscribe(item));
         return Promise.all(promises).then(() => {
