@@ -12,7 +12,7 @@ import './Query.less';
 export default function QueryFormItem({ query, onChange, editMode }) {
   const queryHint = query && query.schedule ? (
     <small>
-      Scheduled to refresh <SchedulePhrase className="alert-query-schedule" schedule={query.schedule} isNew={false} />
+      Scheduled to refresh <i className="alert-query-schedule"><SchedulePhrase schedule={query.schedule} isNew={false} /></i>
     </small>
   ) : (
     <small>
