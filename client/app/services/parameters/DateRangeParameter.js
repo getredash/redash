@@ -144,6 +144,11 @@ class DateRangeParameter extends Parameter {
   fromUrlParams(query) {
     const prefix = this.urlPrefix;
     const key = `${prefix}${this.name}`;
+
+    // backward compatibility
+    const keyStart = `${prefix}${this.name}.start`;
+    const keyEnd = `${prefix}${this.name}.end`;
+
     if (has(query, key)) {
       const dates = query[key].split('--');
       if (dates.length === 2) {
@@ -151,6 +156,8 @@ class DateRangeParameter extends Parameter {
       } else {
         this.setValue(query[key]);
       }
+    } else if (has(query, keyStart) && has(query, keyEnd)) {
+      this.setValue([query[keyStart], query[keyEnd]]);
     }
   }
 
