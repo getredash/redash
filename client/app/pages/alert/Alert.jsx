@@ -191,7 +191,7 @@ class AlertPage extends React.Component {
     const { alert, pendingRearm } = this.state;
 
     alert.name = trim(alert.name) || this.getDefaultName();
-    alert.rearm = pendingRearm || null;
+    alert.options.rearm = pendingRearm || null;
 
     this.setState({ saving: true, alert });
 

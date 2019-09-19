@@ -78,3 +78,25 @@ export function addWidget(dashboardId, visualizationId, options = {}) {
       return body;
     });
 }
+
+export function createAlert(queryId, options = {}, name) {
+  const defaultOptions = {
+    column: '?column?',
+    op: 'greater than',
+    rearm: 0,
+    value: 1,
+  };
+
+  const data = {
+    query_id: queryId,
+    name: name || 'Alert for query ' + queryId,
+    options: merge(defaultOptions, options),
+  };
+
+  return cy.request('POST', 'api/alerts', data)
+    .then(({ body }) => {
+      const id = get(body, 'id');
+      assert.isDefined(id, 'Alert api call returns alert id');
+      return body;
+    });
+}

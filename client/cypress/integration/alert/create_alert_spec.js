@@ -8,7 +8,6 @@ describe('Create Alert', () => {
   it('renders the initial page and takes a screenshot', () => {
     cy.visit('/alerts/new');
     cy.getByTestId('QuerySelector').should('exist');
-    // cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Create Alert initial screen');
   });
 
@@ -18,7 +17,6 @@ describe('Create Alert', () => {
       cy.getByTestId('QuerySelector').click().type('Create Alert Query');
       cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       cy.getByTestId('Criteria').should('exist');
-      // cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.percySnapshot('Create Alert second screen');
     });
   });
