@@ -1,4 +1,4 @@
-import { merge } from 'lodash';
+import { merge, extend } from 'lodash';
 import React from 'react';
 import Tabs from 'antd/lib/tabs';
 import { EditorPropTypes } from '@/visualizations';
@@ -14,8 +14,12 @@ import CustomChartSettings from './CustomChartSettings';
 export default function Editor(props) {
   const { options, onOptionsChange } = props;
 
-  const optionsChanged = (newOptions) => {
-    onOptionsChange(merge({}, options, newOptions));
+  const optionsChanged = (newOptions, deepUpdate = true) => {
+    if (deepUpdate) {
+      onOptionsChange(merge({}, options, newOptions));
+    } else {
+      onOptionsChange(extend({}, options, newOptions));
+    }
   };
 
   const isCustomChart = options.globalSeriesType === 'custom';

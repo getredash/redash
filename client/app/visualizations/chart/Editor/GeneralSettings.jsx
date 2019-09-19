@@ -1,12 +1,84 @@
-import { mapValues, includes } from 'lodash';
-import React from 'react';
+import { isArray, map, mapValues, includes, some, each, difference } from 'lodash';
+import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import Switch from 'antd/lib/switch';
 import { EditorPropTypes } from '@/visualizations';
 
 import ChartTypeSelect from './ChartTypeSelect';
+import ColumnMappingSelect from './ColumnMappingSelect';
 
-export default function GeneralSettings({ options, onOptionsChange }) {
+function getAvailableColumnMappingTypes(options) {
+  const result = ['x', 'y'];
+
+  if (!includes(['custom', 'heatmap'], options.globalSeriesType)) {
+    result.push('series');
+  }
+
+  if (some(options.seriesOptions, { type: 'bubble' })) {
+    result.push('size');
+  }
+
+  if (some(options.seriesOptions, { type: 'heatmap' })) {
+    result.push('zVal');
+  }
+
+  if (!includes(['custom', 'heatmap'], options.globalSeriesType)) {
+    result.push('yError');
+  }
+
+  return result;
+}
+
+function getMappedColumns(options, availableColumns) {
+  const mappedColumns = {};
+  const availableTypes = getAvailableColumnMappingTypes(options);
+  each(availableTypes, (type) => {
+    mappedColumns[type] = ColumnMappingSelect.MappingTypes[type].multiple ? [] : null;
+  });
+
+  availableColumns = map(availableColumns, c => c.name);
+  const usedColumns = [];
+
+  each(options.columnMapping, (type, column) => {
+    if (includes(availableColumns, column) && includes(availableTypes, type)) {
+      const { multiple } = ColumnMappingSelect.MappingTypes[type];
+      if (multiple) {
+        mappedColumns[type].push(column);
+      } else {
+        mappedColumns[type] = column;
+      }
+      usedColumns.push(column);
+    }
+  });
+
+  return {
+    mappedColumns,
+    unusedColumns: difference(availableColumns, usedColumns),
+  };
+}
+
+function mappedColumnsToColumnMappings(mappedColumns) {
+  const result = {};
+  each(mappedColumns, (value, type) => {
+    if (isArray(value)) {
+      each(value, (v) => {
+        result[v] = type;
+      });
+    } else {
+      if (value) {
+        result[value] = type;
+      }
+    }
+  });
+  return result;
+}
+
+export default function GeneralSettings({ options, data, onOptionsChange }) {
+  const { mappedColumns, unusedColumns } = useMemo(
+    () => getMappedColumns(options, data.columns),
+    [options, data.columns],
+  );
+
   function handleGlobalSeriesTypeChange(globalSeriesType) {
     onOptionsChange({
       globalSeriesType,
@@ -16,6 +88,14 @@ export default function GeneralSettings({ options, onOptionsChange }) {
         type: globalSeriesType,
       })),
     });
+  }
+
+  function handleColumnMappingChange(value, type) {
+    const columnMapping = mappedColumnsToColumnMappings({
+      ...mappedColumns,
+      [type]: value,
+    });
+    onOptionsChange({ columnMapping }, false);
   }
 
   return (
@@ -30,6 +110,16 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           onChange={handleGlobalSeriesTypeChange}
         />
       </div>
+
+      {map(mappedColumns, (value, type) => (
+        <ColumnMappingSelect
+          key={type}
+          type={type}
+          value={value}
+          availableColumns={unusedColumns}
+          onChange={handleColumnMappingChange}
+        />
+      ))}
 
       {includes(['pie'], options.globalSeriesType) && (
         <div className="m-b-15">
