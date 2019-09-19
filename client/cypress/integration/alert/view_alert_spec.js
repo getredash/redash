@@ -11,7 +11,7 @@ describe('View Alert', () => {
       .then(({ id: alertId }) => {
         cy.visit(`/alerts/${alertId}`);
         cy.getByTestId('Criteria').should('exist');
-        cy.percySnapshot('Create Alert second screen');
+        cy.percySnapshot('View Alert screen');
       });
   });
 });

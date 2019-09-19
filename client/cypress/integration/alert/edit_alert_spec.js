@@ -11,7 +11,7 @@ describe('Edit Alert', () => {
       .then(({ id: alertId }) => {
         cy.visit(`/alerts/${alertId}/edit`);
         cy.getByTestId('Criteria').should('exist');
-        cy.percySnapshot('Create Alert second screen');
+        cy.percySnapshot('Edit Alert screen');
       });
   });
 });
