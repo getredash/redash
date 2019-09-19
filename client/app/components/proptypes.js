@@ -86,6 +86,13 @@ export const UserProfile = PropTypes.shape({
   isDisabled: PropTypes.bool,
 });
 
+export const Destination = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+});
+
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
   op: PropTypes.oneOf(['greater than', 'less than', 'equals']),
