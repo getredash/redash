@@ -72,6 +72,10 @@ export const TYPES = {
     '/user-guide/alerts/setting-up-an-alert',
     'Guide: Setting Up a New Alert',
   ],
+  MAIL_CONFIG: [
+    '/open-source/setup/#Mail-Configuration',
+    'Guide: Mail Configuration',
+  ],
 };
 
 export class HelpTrigger extends React.Component {

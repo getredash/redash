@@ -17,6 +17,7 @@ import { TimeAgo } from '@/components/TimeAgo';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
+import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 import Modal from 'antd/lib/modal';
 import Input from 'antd/lib/input';
@@ -26,6 +27,7 @@ import Menu from 'antd/lib/menu';
 import Criteria from './components/Criteria';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
+import AlertDestinations from './components/AlertDestinations';
 import { STATE_CLASS } from '../alerts/AlertsList';
 import { routesToAngularRoutes } from '@/lib/utils';
 
@@ -354,10 +356,16 @@ class AlertPage extends React.Component {
               </HelpTrigger>
             )}
           </div>
-          {!editMode && (
+          {!editMode && alert.id && (
             <div className="col-md-4">
-              <h4>Destinations</h4>
-              <div><i className="fa fa-hand-o-right" /> In next PR</div>
+              <h4>Destinations{' '}
+                <Tooltip title="Open Alert Destinations page in a new tab.">
+                  <a href="/destinations" target="_blank">
+                    <i className="fa fa-external-link" />
+                  </a>
+                </Tooltip>
+              </h4>
+              <AlertDestinations alertId={alert.id} />
             </div>
           )}
         </div>

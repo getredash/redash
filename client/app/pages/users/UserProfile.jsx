@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 
-import { EmailSettingsWarning } from '@/components/EmailSettingsWarning';
+import EmailSettingsWarning from '@/components/EmailSettingsWarning';
 import UserEdit from '@/components/users/UserEdit';
 import UserShow from '@/components/users/UserShow';
 import LoadingState from '@/components/items-list/components/LoadingState';
@@ -47,7 +47,7 @@ class UserProfile extends React.Component {
     const UserComponent = canEdit ? UserEdit : UserShow;
     return (
       <React.Fragment>
-        <EmailSettingsWarning featureName="invite emails" />
+        <EmailSettingsWarning featureName="invite emails" className="m-b-20" adminOnly />
         <div className="row">
           {user ? <UserComponent user={user} /> : <LoadingState className="" />}
         </div>
