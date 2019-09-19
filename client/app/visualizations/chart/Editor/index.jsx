@@ -11,6 +11,8 @@ import ColorsSettings from './ColorsSettings';
 import DataLabelsSettings from './DataLabelsSettings';
 import CustomChartSettings from './CustomChartSettings';
 
+import './editor.less';
+
 export default function Editor(props) {
   const { options, onOptionsChange } = props;
 

@@ -1,0 +1,17 @@
+.chart-editor-series-drag-handle {
+  cursor: move;
+}
+
+.chart-editor-series-in-sorting {
+  td {
+    background-color: transparent !important;
+  }
+}
+
+.chart-editor-series-dragged {
+  td {
+    // TODO: replace with @table-row-hover-bg
+    // Cannot do it not because of conflict between Antd and Bootstrap variables
+    background-color: mix(#ffffff, rgb(102, 136, 153), 95%) !important;
+  }
+}
