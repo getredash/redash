@@ -147,11 +147,12 @@ export function QuerySelector(props) {
         filterOption={false}
         defaultActiveFirstOption={false}
         className={props.className}
+        data-test="QuerySelector"
       >
         {searchResults && searchResults.map((q) => {
           const disabled = q.is_draft;
           return (
-            <Option value={q.id} key={q.id} disabled={disabled}>
+            <Option value={q.id} key={q.id} disabled={disabled} className="query-selector-result" data-test={`QueryId${q.id}`}>
               {q.name}{' '}
               <QueryTagsControl isDraft={q.is_draft} tags={q.tags} className={cx('inline-tags-control', { disabled })} />
             </Option>
@@ -162,7 +163,7 @@ export function QuerySelector(props) {
   }
 
   return (
-    <React.Fragment>
+    <span data-test="QuerySelector">
       {selectedQuery ? (
         <Input value={selectedQuery.name} suffix={clearIcon} readOnly />
       ) : (
@@ -176,7 +177,7 @@ export function QuerySelector(props) {
       <div className="scrollbox" style={{ maxHeight: '50vh', marginTop: 15 }}>
         {searchResults && renderResults()}
       </div>
-    </React.Fragment>
+    </span>
   );
 }
 

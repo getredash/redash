@@ -55,7 +55,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
   );
 
   return (
-    <>
+    <div data-test="Criteria">
       <div className="input-title">
         <span>Value column</span>
         {editMode ? (
@@ -110,7 +110,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
           </small>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
