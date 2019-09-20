@@ -181,9 +181,9 @@ export default class AlertDestinations extends React.Component {
     const { mailSettingsMissing } = clientConfig;
 
     return (
-      <div className="alert-destinations">
+      <div className="alert-destinations" data-test="AlertDestinations">
         <Tooltip title="Click to add an existing &quot;Alert Destination&quot;" mouseEnterDelay={0.5}>
-          <Button type="primary" size="small" className="add-button" onClick={this.showAddAlertSubDialog}>
+          <Button data-test="ShowAddAlertSubDialog" type="primary" size="small" className="add-button" onClick={this.showAddAlertSubDialog}>
             <i className="fa fa-plus f-12 m-r-5" /> Add
           </Button>
         </Tooltip>
@@ -199,6 +199,7 @@ export default class AlertDestinations extends React.Component {
                 checked={!!currentUserEmailSub}
                 loading={!subs}
                 onChange={() => this.onUserEmailToggle(currentUserEmailSub)}
+                data-test="UserEmailToggle"
               />
             )}
           </li>
