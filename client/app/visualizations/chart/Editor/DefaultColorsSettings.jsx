@@ -14,7 +14,7 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
 
   const series = useMemo(() => map(
     getChartData(data.rows, options),
-    ({ name }) => ({ key: name, color: options.seriesOptions[name].color }),
+    ({ name }) => ({ key: name, color: (options.seriesOptions[name] || {}).color || null }),
   ), [options, data]);
 
   const updateSeriesOption = useCallback((key, prop, value) => {
