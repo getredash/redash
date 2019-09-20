@@ -58,7 +58,7 @@ export function VisualizationRenderer(props) {
   lastOptions.current = options;
 
   return (
-    <React.Fragment>
+    <div className="visualization-renderer">
       {showFilters && <Filters filters={filters} onChange={setFilters} />}
       <div className="visualization-renderer-wrapper">
         <Renderer
@@ -69,7 +69,7 @@ export function VisualizationRenderer(props) {
           context={props.context}
         />
       </div>
-    </React.Fragment>
+    </div>
   );
 }
 
