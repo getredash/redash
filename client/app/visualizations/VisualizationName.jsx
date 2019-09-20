@@ -1,15 +1,16 @@
+import React from 'react';
 import { react2angular } from 'react2angular';
 import { VisualizationType, registeredVisualizations } from './index';
 
+import './VisualizationName.less';
+
 export function VisualizationName({ visualization }) {
   const config = registeredVisualizations[visualization.type];
-  if (config) {
-    if (visualization.name !== config.name) {
-      return visualization.name;
-    }
-  }
-
-  return null;
+  return (
+    <span className="visualization-name">
+      {config && (visualization.name !== config.name) ? visualization.name : null}
+    </span>
+  );
 }
 
 VisualizationName.propTypes = {
