@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Collapse from 'antd/lib/collapse';
 import Form from 'antd/lib/form';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -7,10 +8,11 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes, isFunction } from 'lodash';
+import { includes, isFunction, filter, difference, isEmpty } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
 import AceEditorInput from '@/components/AceEditorInput';
+import { toHuman } from '@/filters';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
 
@@ -157,7 +159,7 @@ class DynamicForm extends React.Component {
   renderField(field, props) {
     const { getFieldDecorator } = this.props.form;
     const { name, type, initialValue } = field;
-    const fieldLabel = field.title || helper.toHuman(name);
+    const fieldLabel = field.title || toHuman(name);
 
     const options = {
       rules: fieldRules(field),
@@ -183,11 +185,11 @@ class DynamicForm extends React.Component {
     return getFieldDecorator(name, options)(<Input {...props} />);
   }
 
-  renderFields() {
-    return this.props.fields.map((field) => {
+  renderFields(fields) {
+    return fields.map((field) => {
       const FormItem = Form.Item;
       const { name, title, type, readOnly, autoFocus, contentAfter } = field;
-      const fieldLabel = title || helper.toHuman(name);
+      const fieldLabel = title || toHuman(name);
       const { feedbackIcons, form } = this.props;
 
       const formItemProps = {
@@ -243,12 +245,21 @@ class DynamicForm extends React.Component {
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const { id, hideSubmitButton, saveText } = this.props;
+    const { id, hideSubmitButton, saveText, fields } = this.props;
     const saveButton = !hideSubmitButton;
+    const advancedFields = filter(fields, { advanced: true });
+    const regularFields = difference(fields, advancedFields);
 
     return (
       <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
-        {this.renderFields()}
+        {this.renderFields(regularFields)}
+        {!isEmpty(advancedFields) && (
+          <Collapse className="m-b-15">
+            <Collapse.Panel header="Advanced Options">
+              {this.renderFields(advancedFields)}
+            </Collapse.Panel>
+          </Collapse>
+        )}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
       </Form>

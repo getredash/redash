@@ -11,6 +11,7 @@ function orderedInputs(properties, order, targetOptions) {
       type: properties[key].type,
       placeholder: properties[key].default && properties[key].default.toString(),
       required: properties[key].required,
+      advanced: properties[key].advanced,
       initialValue: targetOptions[key],
     };
 
@@ -42,26 +43,37 @@ function normalizeSchema(configurationSchema) {
     }
 
     prop.required = includes(configurationSchema.required, name);
+    prop.advanced = includes(configurationSchema.advanced, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
-  if (Object.keys(options).length === 0) {
-    const properties = configurationSchema.properties;
-    Object.keys(properties).forEach((property) => {
-      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
+function setDefaultValueToFields(configurationSchema, options = {}) {
+  const properties = configurationSchema.properties;
+  Object.keys(properties).forEach((property) => {
+    if (!isUndefined(properties[property].default)) {
+      // set default value for checkboxes
+      if (properties[property].type === 'checkbox') {
         options[property] = properties[property].default;
       }
-    });
-  }
+
+      // set default value for advanced options
+      if (properties[property].advanced) {
+        options[property] = properties[property].default;
+      }
+    }
+  });
 }
 
 function getFields(type = {}, target = { options: {} }) {
   const configurationSchema = type.configuration_schema;
   normalizeSchema(configurationSchema);
-  setDefaultValueForCheckboxes(configurationSchema, target.options);
+
+  const hasTargetObject = Object.keys(target.options).length > 0;
+  if (!hasTargetObject) {
+    setDefaultValueToFields(configurationSchema, target.options);
+  }
 
   const isNewTarget = !target.id;
   const inputs = [
@@ -90,10 +102,6 @@ function updateTargetWithValues(target, values) {
   });
 }
 
-function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-}
-
 function getBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -106,6 +114,5 @@ function getBase64(file) {
 export default {
   getFields,
   updateTargetWithValues,
-  toHuman,
   getBase64,
 };
