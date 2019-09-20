@@ -53,13 +53,8 @@ function setDefaultValueToFields(configurationSchema, options = {}) {
   const properties = configurationSchema.properties;
   Object.keys(properties).forEach((property) => {
     if (!isUndefined(properties[property].default)) {
-      // set default value for checkboxes
-      if (properties[property].type === 'checkbox') {
-        options[property] = properties[property].default;
-      }
-
-      // set default value for advanced options
-      if (properties[property].advanced) {
+      // set default value for checkboxes and for advanced options
+      if (properties[property].type === 'checkbox' || properties[property].advanced) {
         options[property] = properties[property].default;
       }
     }
