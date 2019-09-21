@@ -254,8 +254,8 @@ class DynamicForm extends React.Component {
       <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields(regularFields)}
         {!isEmpty(advancedFields) && (
-          <Collapse className="m-b-15">
-            <Collapse.Panel header="Advanced Options">
+          <Collapse className="m-t-30 m-b-10">
+            <Collapse.Panel header="More Options">
               {this.renderFields(advancedFields)}
             </Collapse.Panel>
           </Collapse>
