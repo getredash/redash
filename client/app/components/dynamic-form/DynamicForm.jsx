@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Collapse from 'antd/lib/collapse';
+import cx from 'classnames';
 import Form from 'antd/lib/form';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -11,10 +11,13 @@ import Icon from 'antd/lib/icon';
 import { includes, isFunction, filter, difference, isEmpty } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
+import Collapse from '@/components/Collapse';
 import AceEditorInput from '@/components/AceEditorInput';
 import { toHuman } from '@/filters';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
+
+import './DynamicForm.less';
 
 const fieldRules = ({ type, required, minLength }) => {
   const requiredRule = required;
@@ -56,6 +59,7 @@ class DynamicForm extends React.Component {
     this.state = {
       isSubmitting: false,
       inProgressActions: [],
+      showExtraOptions: false,
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
@@ -246,19 +250,31 @@ class DynamicForm extends React.Component {
       loading: this.state.isSubmitting,
     };
     const { id, hideSubmitButton, saveText, fields } = this.props;
+    const { showExtraOptions } = this.state;
     const saveButton = !hideSubmitButton;
     const advancedFields = filter(fields, { advanced: true });
     const regularFields = difference(fields, advancedFields);
 
     return (
-      <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
+      <Form id={id} className="dynamic-form" layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields(regularFields)}
         {!isEmpty(advancedFields) && (
-          <Collapse className="m-t-30 m-b-10">
-            <Collapse.Panel header="More Options">
-              {this.renderFields(advancedFields)}
-            </Collapse.Panel>
-          </Collapse>
+          <>
+            <Button
+              type="dashed"
+              block
+              className="extra-options-button m-t-30 m-b-10"
+              onClick={() => this.setState({ showExtraOptions: !showExtraOptions })}
+            >
+              Additional Settings
+              <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraOptions, 'fa-caret-down': !showExtraOptions })} />
+            </Button>
+            <Collapse collapsed={!showExtraOptions}>
+              <div className="m-t-15">
+                {this.renderFields(advancedFields)}
+              </div>
+            </Collapse>
+          </>
         )}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}

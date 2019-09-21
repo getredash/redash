@@ -1,0 +1,17 @@
+@import '~@/assets/less/ant';
+
+.dynamic-form{
+  .extra-options-button {
+    &, &:focus, &:hover {
+      height: 40px;
+      font-weight: 500;
+      background-color: @btn-danger-bg;
+      border-color: @btn-danger-border;
+      color: @btn-default-color;
+    }
+
+    &:focus, &:hover {
+      background-color: fade(@btn-danger-bg, 15%);
+    }
+  }
+}
