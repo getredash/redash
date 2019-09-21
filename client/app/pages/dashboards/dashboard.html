@@ -110,7 +110,10 @@
       is-editing="$ctrl.layoutEditing && !$ctrl.isGridDisabled"
       on-layout-change="$ctrl.onLayoutChange"
       on-breakpoint-change="$ctrl.onBreakpointChanged"
+      on-load-widget="$ctrl.loadWidget"
+      on-refresh-widget="$ctrl.refreshWidget"
       on-remove-widget="$ctrl.removeWidget"
+      on-parameter-mappings-change="$ctrl.extractGlobalParameters"
     />
   </div>
 

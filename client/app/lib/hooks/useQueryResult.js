@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { invoke } from 'lodash';
 
 function getQueryResultData(queryResult) {
   return {
-    columns: (queryResult && queryResult.getColumns()) || [],
-    rows: (queryResult && queryResult.getData()) || [],
-    filters: (queryResult && queryResult.getFilters()) || [],
+    columns: invoke(queryResult, 'getColumns') || [],
+    rows: invoke(queryResult, 'getData') || [],
+    filters: invoke(queryResult, 'getFilters') || [],
   };
 }
 

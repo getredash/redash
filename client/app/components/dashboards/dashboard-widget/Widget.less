@@ -1,26 +1,7 @@
-@import '../../assets/less/inc/variables';
+@import '../../../assets/less/inc/variables';
 
 .tile .t-header .th-title a.query-link {
   color: rgba(0, 0, 0, 0.5);
-}
-
-visualization-name:empty + span {
-  color: rgba(0, 0, 0, 0.8);
-}
-
-visualization-name {
-  font-size: 15px;
-  font-weight: 500;
-  color: rgba(0, 0, 0, 0.8);
-  
-  &:after {
-    content: "−";
-    margin-left: 5px;
-  }
-  
-  &:empty:after {
-    content: none;
-  }
 }
 
 .th-title p.hidden-print {
@@ -28,27 +9,46 @@ visualization-name {
 }
 
 .widget-wrapper {
+  .widget-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+
+    .action {
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 100%;
+      display: block;
+      padding: 4px 10px 3px;
+    }
+
+    .action:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  }
+
   .parameter-container {
     margin: 0 15px;
   }
-  
+
   .body-container {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    
+
     .body-row {
       flex: 0 1 auto;
     }
-    
+
     .body-row-auto {
       flex: 1 1 auto;
     }
   }
-  
+
   .spinner-container {
     position: relative;
-    
+
     .spinner {
       display: flex;
       align-items: center;
@@ -61,31 +61,12 @@ visualization-name {
       height: 100%;
     }
   }
-  
-  .dropdown-header {
-    padding: 0;
-    
-    .actions {
-      position: static;
-    }
-  }
-  
-  .t-header.widget {
-    .dropdown {
-      margin-top: -15px;
-      margin-right: -15px;
-      
-      .actions {
-        position: static;
-      }
-    }
-  }
-  
+
   .scrollbox:empty {
     padding: 0 !important;
     font-size: 1px !important;
   }
-  
+
   .widget-text {
     :first-child {
       margin-top: 0;
@@ -103,23 +84,23 @@ visualization-name {
   .widget-menu-remove {
     display: block;
   }
-  
+
   a.query-link {
     pointer-events: none;
     cursor: move;
   }
-  
+
   .th-title {
     cursor: move;
   }
-  
+
   .refresh-indicator {
     transition-duration: 0s;
-    
-    rd-timer {
+
+    .rd-timer {
       display: none;
     }
-    
+
     .refresh-indicator-mini();
   }
 }
@@ -138,7 +119,7 @@ visualization-name {
 
   .refresh-icon {
     position: relative;
-    
+
     &:before {
       content: "";
       position: absolute;
@@ -161,7 +142,7 @@ visualization-name {
     }
   }
 
-  rd-timer {
+  .rd-timer {
     font-size: 13px;
     display: inline-block;
     font-variant-numeric: tabular-nums;
@@ -193,7 +174,7 @@ visualization-name {
     opacity: 0;
   }
 
-  rd-timer {
+  .rd-timer {
     transition-delay: 0s;
     opacity: 1;
     transform: translateX(0);
@@ -268,35 +249,5 @@ visualization-name {
         color: fade(@redash-black, 95%);
       }
     }
-  }
-}
-
-
-// react-grid-layout overrides
-.react-grid-item {
-  
-  // placeholder color
-  &.react-grid-placeholder {
-    border-radius: 3px;
-    background-color: #E0E6EB;
-    opacity: 0.5;
-  }
-  
-  // resize placeholder behind widget, the lib's default is above 🤷‍♂️
-  &.resizing {
-    z-index: 3;
-  }
-  
-  // auto-height animation
-  &.cssTransforms:not(.resizing) {
-    transition-property: transform, height; // added ", height"
-  }
-  
-  // resize handle size
-  & > .react-resizable-handle::after {
-    width: 11px;
-    height: 11px;
-    right: 5px;
-    bottom: 5px;
   }
 }
