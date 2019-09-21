@@ -14,6 +14,11 @@ function orderedInputs(properties, order, targetOptions) {
       initialValue: targetOptions[key],
     };
 
+    if (input.type === 'select') {
+      input.placeholder = 'Select an option';
+      input.options = properties[key].options;
+    }
+
     if (position > -1) {
       inputs[position] = input;
     } else {
@@ -41,27 +46,35 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'text';
     }
 
+    if (prop.type === 'enum') {
+      prop.type = 'select';
+    }
+
     prop.required = includes(configurationSchema.required, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
-  if (Object.keys(options).length === 0) {
-    const properties = configurationSchema.properties;
-    Object.keys(properties).forEach((property) => {
-      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
+function setDefaultValueToFields(configurationSchema, options = {}) {
+  const properties = configurationSchema.properties;
+  Object.keys(properties).forEach((property) => {
+    if (!isUndefined(properties[property].default)) {
+      // set default value for checkboxes and for selects
+      if (includes(['checkbox', 'select'], properties[property].type)) {
         options[property] = properties[property].default;
       }
-    });
-  }
+    }
+  });
 }
 
 function getFields(type = {}, target = { options: {} }) {
   const configurationSchema = type.configuration_schema;
   normalizeSchema(configurationSchema);
-  setDefaultValueForCheckboxes(configurationSchema, target.options);
+  const hasTargetObject = Object.keys(target.options).length > 0;
+  if (!hasTargetObject) {
+    setDefaultValueToFields(configurationSchema, target.options);
+  }
 
   const isNewTarget = !target.id;
   const inputs = [

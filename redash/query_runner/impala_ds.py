@@ -47,8 +47,12 @@ class Impala(BaseSQLQueryRunner):
                     "type": "number"
                 },
                 "protocol": {
-                    "type": "string",
-                    "title": "Please specify beeswax or hiveserver2"
+                    "type": "enum",
+                    "options": [
+                        {"value": "beeswax"},
+                        {"value": "hiveserver2"}
+                    ],
+                    "title": "Protocol"
                 },
                 "database": {
                     "type": "string"
