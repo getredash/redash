@@ -46,7 +46,11 @@ describe('View Alert', () => {
     });
 
     beforeEach(() => {
-      cy.login();
+      cy.login(); // as admin
+    });
+
+    afterEach(() => {
+      cy.logout();
     });
 
     it('hides remove button from non-author', function () {
