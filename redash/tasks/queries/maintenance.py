@@ -94,9 +94,9 @@ def cleanup_query_results():
     logging.info("Running query results clean up (removing maximum of %d unused results, that are %d days old or more)",
                  settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
 
-    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
+    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
     deleted_count = models.QueryResult.query.filter(
-        models.QueryResult.id.in_(unused_query_results.subquery())
+        models.QueryResult.id.in_(unused_query_results.limit(settings.QUERY_RESULTS_CLEANUP_COUNT).subquery())
     ).delete(synchronize_session=False)
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)

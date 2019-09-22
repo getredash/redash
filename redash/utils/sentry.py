@@ -26,5 +26,6 @@ def init():
             release=__version__,
             before_send=before_send,
             send_default_pii=True,
-            integrations=[FlaskIntegration(), CeleryIntegration(), SqlalchemyIntegration(), RedisIntegration(), RqIntegration()]
+            integrations=[FlaskIntegration(), CeleryIntegration(), SqlalchemyIntegration(),
+                          RedisIntegration(), RqIntegration()]
         )
