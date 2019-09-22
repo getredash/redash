@@ -37,7 +37,7 @@ def list(organization=None):
 
 @manager.command()
 def list_types():
-    print ("Enabled Query Runners:")
+    print("Enabled Query Runners:")
     types = sorted(query_runners.keys())
     for query_runner_type in types:
         print(query_runner_type)
