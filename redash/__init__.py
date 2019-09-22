@@ -6,7 +6,6 @@ import urllib
 import urlparse
 
 import redis
-from rq import Queue
 from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
