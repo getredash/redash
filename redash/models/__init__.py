@@ -252,7 +252,7 @@ QueryResultPersistence = settings.dynamic_settings.QueryResultPersistence or DBP
 
 @python_2_unicode_compatible
 @generic_repr('id', 'org_id', 'data_source_id', 'query_hash', 'runtime', 'retrieved_at')
-class QueryResult(db.Model, BelongsToOrgMixin, QueryResultPersistence):
+class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
