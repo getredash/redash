@@ -12,6 +12,10 @@ describe('Widget', () => {
     });
   });
 
+  const confirmDeletionInModal = () => {
+    cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
+  };
+
   it('adds widget', function () {
     createQuery().then(({ id: queryId }) => {
       cy.visit(this.dashboardUrl);
@@ -32,9 +36,11 @@ describe('Widget', () => {
       editDashboard();
       cy.getByTestId(elTestId)
         .within(() => {
-          cy.get('.widget-menu-remove').click();
-        })
-        .should('not.exist');
+          cy.getByTestId('WidgetDeleteButton').click();
+        });
+
+      confirmDeletionInModal();
+      cy.getByTestId(elTestId).should('not.exist');
     });
   });
 
@@ -140,7 +146,7 @@ describe('Widget', () => {
     });
   });
 
-  it('shows horizontal scrollbar for overflowing tabular content', function () {
+  it('sets the correct height of table visualization', function () {
     const queryData = {
       query: `select '${'loremipsum'.repeat(15)}' FROM generate_series(1,15)`,
     };
@@ -149,8 +155,10 @@ describe('Widget', () => {
 
     createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
-      cy.getByTestId('TableVisualization').should('exist');
-      cy.percySnapshot('Shows horizontal scrollbar for overflowing tabular content');
+      cy.getByTestId('TableVisualization')
+        .its('0.offsetHeight')
+        .should('eq', 381);
+      cy.percySnapshot('Shows correct height of table visualization');
     });
   });
 
@@ -163,8 +171,10 @@ describe('Widget', () => {
 
     createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
-      cy.getByTestId('TableVisualization').should('exist');
-      cy.percySnapshot('Shows fixed pagination for overflowing tabular content');
+      cy.getByTestId('TableVisualization')
+        .next('.ant-pagination.mini')
+        .should('be.visible');
+      cy.percySnapshot('Shows fixed mini pagination for overflowing tabular content');
     });
   });
 });

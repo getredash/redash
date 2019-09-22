@@ -22,7 +22,8 @@
     padding: 0;
   }
 
-  .pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+  .pivot-table-renderer > table,
+  .visualization-renderer > .visualization-renderer-wrapper {
     overflow: visible;
   }
 
@@ -56,7 +57,7 @@
   }
 
   .dashboard-widget-wrapper:not(.widget-auto-height-enabled) {
-    visualization-renderer {
+    .visualization-renderer {
       display: flex;
       flex-direction: column;
       position: absolute;
@@ -65,7 +66,7 @@
       right: 0;
       bottom: 0;
 
-      > div {
+      > .visualization-renderer-wrapper {
         flex-grow: 1;
         position: relative;
       }
@@ -80,7 +81,7 @@
     .map-visualization-container,
     .word-cloud-visualization-container,
     .box-plot-deprecated-visualization-container,
-    .plotly-chart-container {
+    .chart-visualization-container {
       position: absolute;
       left: 0;
       top: 0;

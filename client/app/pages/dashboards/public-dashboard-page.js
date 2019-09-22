@@ -34,11 +34,25 @@ const PublicDashboardPage = {
 
     const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
+    // ANGULAR_REMOVE_ME This forces Widgets re-rendering
+    // use state when PublicDashboard is migrated to React
+    this.forceDashboardGridReload = () => {
+      this.dashboard.widgets = [...this.dashboard.widgets];
+    };
+
+    this.loadWidget = (widget, forceRefresh = false) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      this.forceDashboardGridReload();
+      return widget.load(forceRefresh).finally(this.forceDashboardGridReload);
+    };
+
+    this.refreshWidget = widget => this.loadWidget(widget, true);
+
     this.refreshDashboard = () => {
       loadDashboard($http, $route).then((data) => {
         this.dashboard = new Dashboard(data);
         this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
-        this.dashboard.widgets.forEach(widget => widget.load(!!refreshRate));
+        this.dashboard.widgets.forEach(widget => this.loadWidget(widget, !!refreshRate));
         this.filters = []; // TODO: implement (@/services/dashboard.js:collectDashboardFilters)
         this.filtersOnChange = (allFilters) => {
           this.filters = allFilters;

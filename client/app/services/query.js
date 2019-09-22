@@ -349,10 +349,11 @@ export class Parameter {
   }
 
   toUrlParams() {
-    if (this.isEmpty) {
-      return {};
-    }
     const prefix = this.urlPrefix;
+    if (this.isEmpty) {
+      return { [`${prefix}${this.name}`]: null };
+    }
+
     if (isDateRangeParameter(this.type) && isObject(this.value)) {
       return {
         [`${prefix}${this.name}.start`]: this.value.start,
@@ -424,7 +425,7 @@ class Parameters {
     const fallback = () => map(this.query.options.parameters, i => i.name);
 
     let parameters = [];
-    if (this.query.query) {
+    if (this.query.query !== undefined) {
       try {
         const parts = Mustache.parse(this.query.query);
         parameters = uniq(collectParams(parts));

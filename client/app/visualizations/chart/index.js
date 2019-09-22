@@ -6,8 +6,9 @@ import { registerVisualization } from '@/visualizations';
 import { clientConfig } from '@/services/auth';
 import ColorPalette from '@/visualizations/ColorPalette';
 import getChartData from './getChartData';
-import template from './chart.html';
 import editorTemplate from './chart-editor.html';
+
+import Renderer from './Renderer';
 
 const DEFAULT_OPTIONS = {
   globalSeriesType: 'column',
@@ -27,6 +28,8 @@ const DEFAULT_OPTIONS = {
   percentFormat: '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+
+  missingValuesAsZero: true,
 };
 
 function initEditorForm(options, columns) {
@@ -68,26 +71,6 @@ function initEditorForm(options, columns) {
 
   return result;
 }
-
-const ChartRenderer = {
-  template,
-  bindings: {
-    data: '<',
-    options: '<',
-  },
-  controller($scope) {
-    this.chartSeries = [];
-
-    const update = () => {
-      if (this.data) {
-        this.chartSeries = getChartData(this.data.rows, this.options);
-      }
-    };
-
-    $scope.$watch('$ctrl.data', update);
-    $scope.$watch('$ctrl.options', update, true);
-  },
-};
 
 const ChartEditor = {
   template: editorTemplate,
@@ -304,7 +287,6 @@ const ChartEditor = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('chartRenderer', ChartRenderer);
   ngModule.component('chartEditor', ChartEditor);
 
   ngModule.run(($injector) => {
@@ -312,11 +294,21 @@ export default function init(ngModule) {
       type: 'CHART',
       name: 'Chart',
       isDefault: true,
-      getOptions: options => merge({}, DEFAULT_OPTIONS, {
-        showDataLabels: options.globalSeriesType === 'pie',
-        dateTimeFormat: clientConfig.dateTimeFormat,
-      }, options),
-      Renderer: angular2react('chartRenderer', ChartRenderer, $injector),
+      getOptions: (options) => {
+        const result = merge({}, DEFAULT_OPTIONS, {
+          showDataLabels: options.globalSeriesType === 'pie',
+          dateTimeFormat: clientConfig.dateTimeFormat,
+        }, options);
+
+        // Backward compatibility
+        if (['normal', 'percent'].indexOf(result.series.stacking) >= 0) {
+          result.series.percentValues = result.series.stacking === 'percent';
+          result.series.stacking = 'stack';
+        }
+
+        return result;
+      },
+      Renderer,
       Editor: angular2react('chartEditor', ChartEditor, $injector),
 
       defaultColumns: 3,

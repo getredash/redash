@@ -90,21 +90,6 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-tarball:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: npm run build
-      - run: rm -rf ./node_modules/
-      - run: .circleci/pack
-      - store_artifacts:
-          path: /tmp/artifacts/
   build-docker-image:
     docker:
       - image: circleci/node:8
@@ -130,16 +115,6 @@ workflows:
       - frontend-e2e-tests:
           requires:
             - frontend-lint
-      - build-tarball:
-          requires:
-            - backend-unit-tests
-            - frontend-unit-tests
-            - frontend-e2e-tests
-          filters:
-            branches:
-              only:
-                - master
-                - /release\/.*/
       - build-docker-image:
           requires:
             - backend-unit-tests

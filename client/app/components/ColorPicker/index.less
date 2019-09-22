@@ -1,0 +1,40 @@
+.color-picker {
+  &.color-picker-with-actions {
+    &.ant-popover-placement-top,
+    &.ant-popover-placement-topLeft,
+    &.ant-popover-placement-topRight,
+    &.ant-popover-placement-leftBottom,
+    &.ant-popover-placement-rightBottom {
+      > .ant-popover-content > .ant-popover-arrow {
+        border-color: #fafafa; // same as card actions
+      }
+    }
+  }
+
+  &.ant-popover-placement-bottom,
+  &.ant-popover-placement-bottomLeft,
+  &.ant-popover-placement-bottomRight,
+  &.ant-popover-placement-leftTop,
+  &.ant-popover-placement-rightTop {
+    > .ant-popover-content > .ant-popover-arrow {
+      border-color: var(--color-picker-selected-color);
+    }
+  }
+
+  .ant-popover-inner-content {
+    padding: 0;
+  }
+
+  .ant-card-head {
+    text-align: center;
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .ant-card-body {
+    padding: 10px;
+  }
+}
+
+.color-picker-trigger {
+  cursor: pointer;
+}
