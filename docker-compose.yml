@@ -33,8 +33,6 @@ services:
   worker:
     build: .
     command: dev_worker
-    deploy:
-      replicas: 2
     volumes:
       - type: bind
         source: .
