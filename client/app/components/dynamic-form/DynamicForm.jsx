@@ -59,7 +59,7 @@ class DynamicForm extends React.Component {
     this.state = {
       isSubmitting: false,
       inProgressActions: [],
-      showExtraOptions: false,
+      showExtraFields: false,
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
@@ -250,27 +250,27 @@ class DynamicForm extends React.Component {
       loading: this.state.isSubmitting,
     };
     const { id, hideSubmitButton, saveText, fields } = this.props;
-    const { showExtraOptions } = this.state;
+    const { showExtraFields } = this.state;
     const saveButton = !hideSubmitButton;
-    const advancedFields = filter(fields, { advanced: true });
-    const regularFields = difference(fields, advancedFields);
+    const extraFields = filter(fields, { extra: true });
+    const regularFields = difference(fields, extraFields);
 
     return (
       <Form id={id} className="dynamic-form" layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields(regularFields)}
-        {!isEmpty(advancedFields) && (
+        {!isEmpty(extraFields) && (
           <div className="extra-options">
             <Button
               type="dashed"
               block
               className="extra-options-button"
-              onClick={() => this.setState({ showExtraOptions: !showExtraOptions })}
+              onClick={() => this.setState({ showExtraFields: !showExtraFields })}
             >
               Additional Settings
-              <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraOptions, 'fa-caret-down': !showExtraOptions })} />
+              <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraFields, 'fa-caret-down': !showExtraFields })} />
             </Button>
-            <Collapse collapsed={!showExtraOptions} className="extra-options-content">
-              {this.renderFields(advancedFields)}
+            <Collapse collapsed={!showExtraFields} className="extra-options-content">
+              {this.renderFields(extraFields)}
             </Collapse>
           </div>
         )}

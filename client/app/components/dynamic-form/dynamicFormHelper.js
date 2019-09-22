@@ -11,7 +11,7 @@ function orderedInputs(properties, order, targetOptions) {
       type: properties[key].type,
       placeholder: properties[key].default && properties[key].default.toString(),
       required: properties[key].required,
-      advanced: properties[key].advanced,
+      extra: properties[key].extra,
       initialValue: targetOptions[key],
     };
 
@@ -43,7 +43,7 @@ function normalizeSchema(configurationSchema) {
     }
 
     prop.required = includes(configurationSchema.required, name);
-    prop.advanced = includes(configurationSchema.advanced, name);
+    prop.extra = includes(configurationSchema.extra_options, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];
