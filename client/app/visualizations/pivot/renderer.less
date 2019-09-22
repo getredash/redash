@@ -1,9 +1,25 @@
 @redash-gray: rgba(102, 136, 153, 1);
 
-.pivot-table-renderer {
-  &.hide-controls {
-    .pvtAxisContainer, .pvtRenderer, .pvtVals {
-      display: none !important;
+.pivot-table-visualization-container {
+  &[data-hide-controls] {
+    .pvtAxisContainer, .pvtRenderers, .pvtVals {
+      display: none;
+    }
+  }
+
+  &[data-hide-row-totals] {
+    td:last-child, th:last-child {
+      &.pvtTotalLabel:not(:empty), &.pvtTotal, &.pvtGrandTotal {
+        display: none;
+      }
+    }
+  }
+
+  &[data-hide-column-totals] {
+    tbody > tr:last-child {
+      & > .pvtTotalLabel, & > .pvtTotal, & > .pvtGrandTotal {
+        display: none;
+      }
     }
   }
 }
@@ -11,16 +27,6 @@
 .pvtAxisContainer, .pvtVals {
   border: 1px solid fade(@redash-gray, 15%);
   background: #fff;
-}
-
-.pvtUi {
-  td, th {
-    padding: 5px;
-  }
-
-  li.ui-sortable-handle {
-    padding: 5px 5px 5px 0;
-  }
 }
 
 .pvtAxisContainer li span.pvtAttr {
@@ -80,4 +86,3 @@ table.pvtTable tbody tr td {
     border-radius: 3px;
   }
 }
-
