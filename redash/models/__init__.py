@@ -23,7 +23,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner, TYPE_BOOLEAN, TYPE_DATE, TYPE_DATETIME)
-from redash.utils import generate_token, json_dumps, json_loads, mustache_render
+from redash.utils import generate_token, json_dumps, json_loads, mustache_render, base_url
 from redash.utils.configuration import ConfigurationContainer
 from redash.models.parameterized_query import ParameterizedQuery
 
@@ -821,20 +821,33 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_template(self):
-        if not self.template:
+    def render_template(self, template):
+        if not template:
             return ''
         data = json_loads(self.query_rel.latest_query_data.data)
-        context = {'rows': data['rows'], 'cols': data['columns'], 'state': self.state}
-        return mustache_render(self.template, context)
+        host = base_url(self.query_rel.org);
+        context = {
+            ALERT_NAME: self.name,
+            ALERT_URL: '{host}/alerts/{alert_id}'.format(host=host, alert_id=self.id),
+            ALERT_STATUS: self.state,
+            ALERT_EVALUATION_TIME: datetime.datetime.now(), # could be problematic cuz utc?
+            ALERT_CONDITION: self.options['op'],
+            ALERT_THRESHOLD: self.options['value'],
+            QUERY_NAME: self.query_rel.name,
+            QUERY_URL: '{host}/queries/{query_id}'.format(host=host, query_id=self.query_rel.id),
+            QUERY_RESULT_VALUE: data['rows'][0][self.options['value']],
+            QUERY_RESULT_ROWS: data['rows'],
+            QUERY_RESULT_COLS: data['columns'],
+        }
+        return mustache_render(template, context)
 
     @property
-    def template(self):
-        return self.options.get('template', '')
+    def custom_body(self):
+        return self.render_template(self.options.custom_body);
 
     @property
     def custom_subject(self):
-        return self.options.get('subject', '')
+        return self.render_template(self.options.custom_subject);
 
     @property
     def groups(self):

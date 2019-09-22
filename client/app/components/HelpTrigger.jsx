@@ -76,6 +76,10 @@ export const TYPES = {
     '/open-source/setup/#Mail-Configuration',
     'Guide: Mail Configuration',
   ],
+  ALERT_NOTIF_TEMPLATE_GUIDE: [
+    '/user-guide/alerts/custom-alert-template', // TODO: doesn't exist yet
+    'Guide: Custom Alerts Notifications',
+  ],
 };
 
 export class HelpTrigger extends React.Component {

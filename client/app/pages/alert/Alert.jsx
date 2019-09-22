@@ -25,6 +25,7 @@ import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 
 import Criteria from './components/Criteria';
+import NotificationTemplate from './components/NotificationTemplate';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
 import AlertDestinations from './components/AlertDestinations';
@@ -349,10 +350,24 @@ class AlertPage extends React.Component {
                       <HorizontalFormItem label="When triggered, send notification">
                         <Rearm value={pendingRearm || 0} onChange={this.onRearmChange} editMode />
                       </HorizontalFormItem>
+                      <HorizontalFormItem label="Template">
+                        <NotificationTemplate
+                          alert={alert}
+                          query={query}
+                          columnNames={queryResult.getColumnNames()}
+                          resultValues={queryResult.getData()}
+                          subject={options.custom_subject}
+                          setSubject={subject => this.setAlertOptions({ custom_subject: subject })}
+                          body={options.custom_body}
+                          setBody={body => this.setAlertOptions({ custom_body: body })}
+                        />
+                      </HorizontalFormItem>
                     </>
                   ) : (
                     <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
                       <Rearm value={pendingRearm || 0} />
+                      <br />
+                      Set to {options.custom_subject || options.custom_body ? 'custom' : 'default'} notification template.
                     </HorizontalFormItem>
                   )}
                 </>
