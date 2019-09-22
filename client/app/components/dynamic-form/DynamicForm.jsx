@@ -245,7 +245,7 @@ class DynamicForm extends React.Component {
     const submitProps = {
       type: 'primary',
       htmlType: 'submit',
-      className: 'w-100',
+      className: 'w-100 m-t-20',
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
@@ -259,22 +259,20 @@ class DynamicForm extends React.Component {
       <Form id={id} className="dynamic-form" layout="vertical" onSubmit={this.handleSubmit}>
         {this.renderFields(regularFields)}
         {!isEmpty(advancedFields) && (
-          <>
+          <div className="extra-options">
             <Button
               type="dashed"
               block
-              className="extra-options-button m-t-30 m-b-10"
+              className="extra-options-button"
               onClick={() => this.setState({ showExtraOptions: !showExtraOptions })}
             >
               Additional Settings
               <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraOptions, 'fa-caret-down': !showExtraOptions })} />
             </Button>
-            <Collapse collapsed={!showExtraOptions}>
-              <div className="m-t-15">
-                {this.renderFields(advancedFields)}
-              </div>
+            <Collapse collapsed={!showExtraOptions} className="extra-options-content">
+              {this.renderFields(advancedFields)}
             </Collapse>
-          </>
+          </div>
         )}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
