@@ -22,8 +22,8 @@
     padding: 0;
   }
 
-  .pivot-table-renderer > table,
-  visualization-renderer > .visualization-renderer-wrapper {
+  .pivot-table-visualization-container > table,
+  .visualization-renderer > .visualization-renderer-wrapper {
     overflow: visible;
   }
 
@@ -57,7 +57,7 @@
   }
 
   .dashboard-widget-wrapper:not(.widget-auto-height-enabled) {
-    visualization-renderer {
+    .visualization-renderer {
       display: flex;
       flex-direction: column;
       position: absolute;

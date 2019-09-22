@@ -12,6 +12,10 @@ describe('Textbox', () => {
     });
   });
 
+  const confirmDeletionInModal = () => {
+    cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
+  };
+
   it('adds textbox', function () {
     cy.visit(this.dashboardUrl);
     editDashboard();
@@ -21,7 +25,7 @@ describe('Textbox', () => {
     });
     cy.contains('button', 'Add to Dashboard').click();
     cy.getByTestId('TextboxDialog').should('not.exist');
-    cy.get('.textbox').should('exist');
+    cy.get('.widget-text').should('exist');
   });
 
   it('removes textbox by X button', function () {
@@ -31,9 +35,11 @@ describe('Textbox', () => {
 
       cy.getByTestId(elTestId)
         .within(() => {
-          cy.get('.widget-menu-remove').click();
-        })
-        .should('not.exist');
+          cy.getByTestId('WidgetDeleteButton').click();
+        });
+
+      confirmDeletionInModal();
+      cy.getByTestId(elTestId).should('not.exist');
     });
   });
 
@@ -42,15 +48,15 @@ describe('Textbox', () => {
       cy.visit(this.dashboardUrl);
       cy.getByTestId(elTestId)
         .within(() => {
-          cy.get('.widget-menu-regular')
-            .click({ force: true })
-            .within(() => {
-              cy.get('li a')
-                .contains('Remove From Dashboard')
-                .click({ force: true });
-            });
-        })
-        .should('not.exist');
+          cy.getByTestId('WidgetDropdownButton')
+            .click();
+        });
+      cy.getByTestId('WidgetDropdownButtonMenu')
+        .contains('Remove from Dashboard')
+        .click();
+
+      confirmDeletionInModal();
+      cy.getByTestId(elTestId).should('not.exist');
     });
   });
 
@@ -70,8 +76,10 @@ describe('Textbox', () => {
         cy.getByTestId(elTestId1)
           .as('textbox1')
           .within(() => {
-            cy.get('.widget-menu-remove').click();
+            cy.getByTestId('WidgetDeleteButton').click();
           });
+
+        confirmDeletionInModal();
         cy.get('@textbox1').should('not.exist');
 
         // remove 2nd textbox and make sure it's gone
@@ -79,8 +87,10 @@ describe('Textbox', () => {
           .as('textbox2')
           .within(() => {
             // unclickable https://github.com/getredash/redash/issues/3202
-            cy.get('.widget-menu-remove').click();
+            cy.getByTestId('WidgetDeleteButton').click();
           });
+
+        confirmDeletionInModal();
         cy.get('@textbox2').should('not.exist'); // <-- fails because of the bug
       });
   });
@@ -91,14 +101,13 @@ describe('Textbox', () => {
       cy.getByTestId(elTestId)
         .as('textboxEl')
         .within(() => {
-          cy.get('.widget-menu-regular')
-            .click({ force: true })
-            .within(() => {
-              cy.get('li a')
-                .contains('Edit')
-                .click({ force: true });
-            });
+          cy.getByTestId('WidgetDropdownButton')
+            .click();
         });
+
+      cy.getByTestId('WidgetDropdownButtonMenu')
+        .contains('Edit')
+        .click();
 
       const newContent = '[edited]';
       cy.getByTestId('TextboxDialog')
