@@ -107,7 +107,8 @@
           <li role="menuitem">
             <a
               ng-show="$ctrl.currentUser.hasPermission('create_dashboard')"
-              ng-click="$ctrl.newDashboard()"
+              ng-mouseup="$ctrl.newDashboard()"
+              class="clickable"
               >Dashboard</a
             >
           </li>
