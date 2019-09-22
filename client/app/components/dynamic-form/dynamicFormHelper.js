@@ -49,26 +49,21 @@ function normalizeSchema(configurationSchema) {
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function setDefaultValueToFields(configurationSchema, options = {}) {
-  const properties = configurationSchema.properties;
-  Object.keys(properties).forEach((property) => {
-    if (!isUndefined(properties[property].default)) {
-      // set default value for checkboxes and for advanced options
-      if (properties[property].type === 'checkbox' || properties[property].advanced) {
+function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
+  if (Object.keys(options).length === 0) {
+    const properties = configurationSchema.properties;
+    Object.keys(properties).forEach((property) => {
+      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
         options[property] = properties[property].default;
       }
-    }
-  });
+    });
+  }
 }
 
 function getFields(type = {}, target = { options: {} }) {
   const configurationSchema = type.configuration_schema;
   normalizeSchema(configurationSchema);
-
-  const hasTargetObject = Object.keys(target.options).length > 0;
-  if (!hasTargetObject) {
-    setDefaultValueToFields(configurationSchema, target.options);
-  }
+  setDefaultValueForCheckboxes(configurationSchema, target.options);
 
   const isNewTarget = !target.id;
   const inputs = [
