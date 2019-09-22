@@ -56,10 +56,11 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
 
+    const filledExtraFields = filter(props.fields, field => field.extra && field.initialValue !== undefined);
     this.state = {
       isSubmitting: false,
       inProgressActions: [],
-      showExtraFields: false,
+      showExtraFields: !isEmpty(filledExtraFields),
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
