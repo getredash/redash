@@ -35,6 +35,15 @@ def list(organization=None):
             ds.id, ds.name, ds.type, ds.options.to_json()))
 
 
+@manager.command()
+def list_types():
+    print("Enabled Query Runners:")
+    types = sorted(query_runners.keys())
+    for query_runner_type in types:
+        print(query_runner_type)
+    print("Total of {}.".format(len(types)))
+
+
 def validate_data_source_type(type):
     if type not in query_runners.keys():
         print("Error: the type \"{}\" is not supported (supported types: {})."
