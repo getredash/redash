@@ -45,19 +45,13 @@ describe('View Alert', () => {
       });
     });
 
-    beforeEach(() => {
-      cy.login(); // as admin
-    });
-
-    afterEach(() => {
-      cy.logout();
-    });
-
     it('hides remove button from non-author', function () {
       cy.server();
       cy.route('GET', 'api/alerts/*/subscriptions').as('Subscriptions');
 
-      addDestinationSubscription(this.alertId, 'Test Email Destination')
+      cy.logout()
+        .then(() => cy.login()) // as admin
+        .then(() => addDestinationSubscription(this.alertId, 'Test Email Destination'))
         .then(() => {
           cy.visit(this.alertUrl);
 
