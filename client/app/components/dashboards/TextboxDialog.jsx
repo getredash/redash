@@ -14,7 +14,6 @@ import './TextboxDialog.less';
 
 class TextboxDialog extends React.Component {
   static propTypes = {
-    dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     dialog: DialogPropType.isRequired,
     onConfirm: PropTypes.func.isRequired,
     text: PropTypes.string,

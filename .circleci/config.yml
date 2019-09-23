@@ -33,6 +33,9 @@ jobs:
           name: Create Test Database
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
+          name: List Enabled Query Runners
+          command: docker-compose run --rm redash manage ds list_types
+      - run:
           name: Run Tests
           command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
@@ -90,21 +93,6 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-tarball:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
-      - run: npm install
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: npm run build
-      - run: rm -rf ./node_modules/
-      - run: .circleci/pack
-      - store_artifacts:
-          path: /tmp/artifacts/
   build-docker-image:
     docker:
       - image: circleci/node:8
@@ -130,16 +118,6 @@ workflows:
       - frontend-e2e-tests:
           requires:
             - frontend-lint
-      - build-tarball:
-          requires:
-            - backend-unit-tests
-            - frontend-unit-tests
-            - frontend-e2e-tests
-          filters:
-            branches:
-              only:
-                - master
-                - /release\/.*/
       - build-docker-image:
           requires:
             - backend-unit-tests

@@ -58,16 +58,18 @@ export function VisualizationRenderer(props) {
   lastOptions.current = options;
 
   return (
-    <React.Fragment>
+    <div className="visualization-renderer">
       {showFilters && <Filters filters={filters} onChange={setFilters} />}
-      <Renderer
-        key={`visualization${visualization.id}`}
-        options={options}
-        data={filteredData}
-        visualizationName={visualization.name}
-        context={props.context}
-      />
-    </React.Fragment>
+      <div className="visualization-renderer-wrapper">
+        <Renderer
+          key={`visualization${visualization.id}`}
+          options={options}
+          data={filteredData}
+          visualizationName={visualization.name}
+          context={props.context}
+        />
+      </div>
+    </div>
   );
 }
 

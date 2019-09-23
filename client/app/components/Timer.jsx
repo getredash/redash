@@ -1,5 +1,5 @@
+import React, { useMemo, useEffect } from 'react';
 import moment from 'moment';
-import { useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { Moment } from '@/components/proptypes';
@@ -17,7 +17,7 @@ export function Timer({ from }) {
   const diff = moment.now() - startTime;
   const format = diff > 1000 * 60 * 60 ? 'HH:mm:ss' : 'mm:ss'; // no HH under an hour
 
-  return moment.utc(diff).format(format);
+  return (<span className="rd-timer">{moment.utc(diff).format(format)}</span>);
 }
 
 Timer.propTypes = {
