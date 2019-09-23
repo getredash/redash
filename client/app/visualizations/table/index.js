@@ -1,12 +1,11 @@
 import _ from 'lodash';
-import { angular2react } from 'angular2react';
 import { getColumnCleanName } from '@/services/query-result';
 import { clientConfig } from '@/services/auth';
 import { registerVisualization } from '@/visualizations';
 import editorTemplate from './table-editor.html';
-import './table-editor.less';
 
 import Renderer from './Renderer';
+import Editor from './Editor';
 import { ColumnTypes } from './utils';
 
 const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
@@ -110,7 +109,8 @@ function getColumnsOptions(columns, visualizationColumns) {
   return _.sortBy(options, 'order');
 }
 
-const GridEditor = {
+// TODO: Remove
+export const GridEditor = {
   bindings: {
     data: '<',
     options: '<',
@@ -138,29 +138,25 @@ const GridEditor = {
   },
 };
 
-export default function init(ngModule) {
-  ngModule.component('gridEditor', GridEditor);
+export default function init() {
+  registerVisualization({
+    type: 'TABLE',
+    name: 'Table',
+    getOptions: (options, { columns }) => {
+      options = { ...DEFAULT_OPTIONS, ...options };
+      options.columns = _.map(
+        getColumnsOptions(columns, options.columns),
+        col => ({ ...getDefaultFormatOptions(col), ...col }),
+      );
+      return options;
+    },
+    Renderer,
+    Editor,
 
-  ngModule.run(($injector) => {
-    registerVisualization({
-      type: 'TABLE',
-      name: 'Table',
-      getOptions: (options, { columns }) => {
-        options = { ...DEFAULT_OPTIONS, ...options };
-        options.columns = _.map(
-          getColumnsOptions(columns, options.columns),
-          col => ({ ...getDefaultFormatOptions(col), ...col }),
-        );
-        return options;
-      },
-      Renderer,
-      Editor: angular2react('gridEditor', GridEditor, $injector),
-
-      autoHeight: true,
-      defaultRows: 14,
-      defaultColumns: 3,
-      minColumns: 2,
-    });
+    autoHeight: true,
+    defaultRows: 14,
+    defaultColumns: 3,
+    minColumns: 2,
   });
 }
 
