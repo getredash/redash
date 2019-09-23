@@ -847,7 +847,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def custom_subject(self):
-        return self.render_template(self.options.custom_subject);
+        return self.render_template(self.options.custom_subject)
 
     @property
     def groups(self):
