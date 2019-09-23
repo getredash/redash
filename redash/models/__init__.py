@@ -826,26 +826,26 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             return ''
 
         data = json_loads(self.query_rel.latest_query_data.data)
-        host = base_url(self.query_rel.org);
+        host = base_url(self.query_rel.org)
 
-        col_name = self.options['column'];
+        col_name = self.options['column']
         if data['rows'] and col_name in data['rows'][0]:
             result_value = data['rows'][0][col_name]
         else:
             result_value = ''
 
         context = {
-            ALERT_NAME: self.name,
-            ALERT_URL: '{host}/alerts/{alert_id}'.format(host=host, alert_id=self.id),
-            ALERT_STATUS: self.state,
-            ALERT_EVALUATION_TIME: datetime.datetime.now(), # could be problematic cuz utc?
-            ALERT_CONDITION: self.options['op'],
-            ALERT_THRESHOLD: self.options['value'],
-            QUERY_NAME: self.query_rel.name,
-            QUERY_URL: '{host}/queries/{query_id}'.format(host=host, query_id=self.query_rel.id),
-            QUERY_RESULT_VALUE: result_value,
-            QUERY_RESULT_ROWS: data['rows'],
-            QUERY_RESULT_COLS: data['columns'],
+            'ALERT_NAME': self.name,
+            'ALERT_URL': '{host}/alerts/{alert_id}'.format(host=host, alert_id=self.id),
+            'ALERT_STATUS': self.state,
+            'ALERT_EVALUATION_TIME': datetime.datetime.now(), # could be problematic cuz utc?
+            'ALERT_CONDITION': self.options['op'],
+            'ALERT_THRESHOLD': self.options['value'],
+            'QUERY_NAME': self.query_rel.name,
+            'QUERY_URL': '{host}/queries/{query_id}'.format(host=host, query_id=self.query_rel.id),
+            'QUERY_RESULT_VALUE': result_value,
+            'QUERY_RESULT_ROWS': data['rows'],
+            'QUERY_RESULT_COLS': data['columns'],
         }
         return mustache_render(template, context)
 
