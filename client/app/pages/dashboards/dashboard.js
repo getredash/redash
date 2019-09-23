@@ -133,9 +133,19 @@ function DashboardCtrl(
     this.globalParameters = this.dashboard.getParametersDefs();
   };
 
-  $scope.$on('dashboard.update-parameters', () => {
-    this.extractGlobalParameters();
-  });
+  // ANGULAR_REMOVE_ME This forces Widgets re-rendering
+  // use state when Dashboard is migrated to React
+  this.forceDashboardGridReload = () => {
+    this.dashboard.widgets = [...this.dashboard.widgets];
+  };
+
+  this.loadWidget = (widget, forceRefresh = false) => {
+    widget.getParametersDefs(); // Force widget to read parameters values from URL
+    this.forceDashboardGridReload();
+    return widget.load(forceRefresh).finally(this.forceDashboardGridReload);
+  };
+
+  this.refreshWidget = widget => this.loadWidget(widget, true);
 
   const collectFilters = (dashboard, forceRefresh, updatedParameters = []) => {
     const affectedWidgets = updatedParameters.length > 0 ? this.dashboard.widgets.filter(
@@ -146,10 +156,7 @@ function DashboardCtrl(
       ),
     ) : this.dashboard.widgets;
 
-    const queryResultPromises = _.compact(affectedWidgets.map((widget) => {
-      widget.getParametersDefs(); // Force widget to read parameters values from URL
-      return widget.load(forceRefresh);
-    }));
+    const queryResultPromises = _.compact(affectedWidgets.map(widget => this.loadWidget(widget, forceRefresh)));
 
     return $q.all(queryResultPromises).then((queryResults) => {
       this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());

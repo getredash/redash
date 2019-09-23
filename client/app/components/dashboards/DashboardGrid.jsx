@@ -4,10 +4,11 @@ import { chain, cloneDeep, find } from 'lodash';
 import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import { DashboardWidget } from '@/components/dashboards/widget';
+import { VisualizationWidget, TextboxWidget, RestrictedWidget } from '@/components/dashboards/dashboard-widget';
 import { FiltersType } from '@/components/Filters';
 import cfg from '@/config/dashboard-grid-options';
 import AutoHeightController from './AutoHeightController';
+import { WidgetTypeEnum } from '@/services/widget';
 
 import 'react-grid-layout/css/styles.css';
 import './dashboard-grid.less';
@@ -41,16 +42,22 @@ class DashboardGrid extends React.Component {
     widgets: PropTypes.arrayOf(WidgetType).isRequired,
     filters: FiltersType,
     onBreakpointChange: PropTypes.func,
+    onLoadWidget: PropTypes.func,
+    onRefreshWidget: PropTypes.func,
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
+    onParameterMappingsChange: PropTypes.func,
   };
 
   static defaultProps = {
     isPublic: false,
     filters: [],
+    onLoadWidget: () => {},
+    onRefreshWidget: () => {},
     onRemoveWidget: () => {},
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
+    onParameterMappingsChange: () => {},
   };
 
   static normalizeFrom(widget) {
@@ -168,7 +175,8 @@ class DashboardGrid extends React.Component {
 
   render() {
     const className = cx('dashboard-wrapper', this.props.isEditing ? 'editing-mode' : 'preview-mode');
-    const { onRemoveWidget, dashboard, widgets } = this.props;
+    const { onLoadWidget, onRefreshWidget, onRemoveWidget,
+      onParameterMappingsChange, filters, dashboard, isPublic, widgets } = this.props;
 
     return (
       <div className={className}>
@@ -186,23 +194,37 @@ class DashboardGrid extends React.Component {
           onBreakpointChange={this.onBreakpointChange}
           breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
         >
-          {widgets.map(widget => (
-            <div
-              key={widget.id}
-              data-grid={DashboardGrid.normalizeFrom(widget)}
-              data-widgetid={widget.id}
-              data-test={`WidgetId${widget.id}`}
-              className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
-            >
-              <DashboardWidget
-                widget={widget}
-                dashboard={dashboard}
-                filters={this.props.filters}
-                deleted={() => onRemoveWidget(widget.id)}
-                public={this.props.isPublic}
-              />
-            </div>
-          ))}
+          {widgets.map((widget) => {
+            const widgetProps = {
+              widget,
+              filters,
+              isPublic,
+              canEdit: dashboard.canEdit(),
+              onDelete: () => onRemoveWidget(widget.id),
+            };
+            const { type } = widget;
+            return (
+              <div
+                key={widget.id}
+                data-grid={DashboardGrid.normalizeFrom(widget)}
+                data-widgetid={widget.id}
+                data-test={`WidgetId${widget.id}`}
+                className={cx('dashboard-widget-wrapper', { 'widget-auto-height-enabled': this.autoHeightCtrl.exists(widget.id) })}
+              >
+                {type === WidgetTypeEnum.VISUALIZATION && (
+                  <VisualizationWidget
+                    {...widgetProps}
+                    dashboard={dashboard}
+                    onLoad={() => onLoadWidget(widget)}
+                    onRefresh={() => onRefreshWidget(widget)}
+                    onParameterMappingsChange={onParameterMappingsChange}
+                  />
+                )}
+                {type === WidgetTypeEnum.TEXTBOX && <TextboxWidget {...widgetProps} />}
+                {type === WidgetTypeEnum.RESTRICTED && <RestrictedWidget widget={widget} />}
+              </div>
+            );
+          })}
         </ResponsiveGridLayout>
       </div>
     );
