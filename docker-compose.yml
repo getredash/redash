@@ -8,6 +8,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - email
     ports:
       - "5000:5000"
       - "5678:5678"
@@ -46,4 +47,9 @@ services:
     ports:
       - "15432:5432"
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
+    restart: unless-stopped
+  email:
+    image: djfarrelly/maildev
+    ports:
+      - "1080:80"
     restart: unless-stopped
