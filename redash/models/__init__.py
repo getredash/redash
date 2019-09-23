@@ -829,7 +829,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         host = base_url(self.query_rel.org);
 
         col_name = self.options['column'];
-        if data['rows'] and col_name in data['rows'][0]"
+        if data['rows'] and col_name in data['rows'][0]:
             result_value = data['rows'][0][col_name]
         else:
             result_value = ''
