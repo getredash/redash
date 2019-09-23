@@ -1,9 +1,17 @@
+import { isNil, trimStart } from 'lodash';
 import React from 'react';
 import Switch from 'antd/lib/switch';
 import Input from 'antd/lib/input';
 import { EditorPropTypes } from '@/visualizations';
 
 const { TextArea } = Input;
+
+const defaultCustomCode = trimStart(`
+// Available variables are x, ys, element, and Plotly
+// Type console.log(x, ys); for more info about x and ys
+// To plot your graph call Plotly.plot(element, ...)
+// Plotly examples and docs: https://plot.ly/javascript/
+`);
 
 export default function CustomChartSettings({ options, onOptionsChange }) {
   return (
@@ -14,7 +22,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           id="chart-editor-custom-code"
           className="form-control v-resizable"
           rows="10"
-          defaultValue={options.customCode}
+          defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
           onChange={event => onOptionsChange({ customCode: event.target.value })}
         />
       </div>
