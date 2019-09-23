@@ -1,5 +1,6 @@
 import { includes, map, extend, fromPairs } from 'lodash';
 import React, { useMemo, useRef, useState, useContext, useCallback } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Table from 'antd/lib/table';
 import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
@@ -39,7 +40,7 @@ const SortableBody = (props) => {
   );
 };
 
-function getTableColumns(options, updateSeriesOption) {
+function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption) {
   const result = [
     {
       title: 'Order',
@@ -59,8 +60,8 @@ function getTableColumns(options, updateSeriesOption) {
       render: (unused, item) => (
         <Input
           placeholder={item.key}
-          value={item.name}
-          onChange={event => updateSeriesOption(item.key, 'name', event.target.value)}
+          defaultValue={item.name}
+          onChange={event => debouncedUpdateSeriesOption(item.key, 'name', event.target.value)}
         />
       ),
     },
@@ -125,10 +126,11 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
       },
     });
   }, [onOptionsChange]);
+  const [debouncedUpdateSeriesOption] = useDebouncedCallback(updateSeriesOption, 200);
 
   const columns = useMemo(
-    () => getTableColumns(options, updateSeriesOption),
-    [options, updateSeriesOption],
+    () => getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption),
+    [options, updateSeriesOption, debouncedUpdateSeriesOption],
   );
 
   return (

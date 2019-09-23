@@ -1,5 +1,6 @@
 import { includes } from 'lodash';
 import React from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Switch from 'antd/lib/switch';
 import Input from 'antd/lib/input';
 import Popover from 'antd/lib/popover';
@@ -11,6 +12,8 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
     ['line', 'area', 'column', 'scatter', 'pie', 'heatmap'],
     options.globalSeriesType,
   );
+
+  const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
@@ -46,7 +49,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           id="chart-editor-number-format"
           data-test="Chart.DataLabels.NumberFormat"
           defaultValue={options.numberFormat}
-          onChange={e => onOptionsChange({ numberFormat: e.target.value })}
+          onChange={e => debouncedOnOptionsChange({ numberFormat: e.target.value })}
         />
       </div>
 
@@ -68,7 +71,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           id="chart-editor-percent-format"
           data-test="Chart.DataLabels.PercentFormat"
           defaultValue={options.percentFormat}
-          onChange={e => onOptionsChange({ percentFormat: e.target.value })}
+          onChange={e => debouncedOnOptionsChange({ percentFormat: e.target.value })}
         />
       </div>
 
@@ -90,7 +93,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           id="chart-editor-datetime-format"
           data-test="Chart.DataLabels.DateTimeFormat"
           defaultValue={options.dateTimeFormat}
-          onChange={e => onOptionsChange({ dateTimeFormat: e.target.value })}
+          onChange={e => debouncedOnOptionsChange({ dateTimeFormat: e.target.value })}
         />
       </div>
 
@@ -124,7 +127,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           data-test="Chart.DataLabels.TextFormat"
           placeholder="(auto)"
           defaultValue={options.textFormat}
-          onChange={e => onOptionsChange({ textFormat: e.target.value })}
+          onChange={e => debouncedOnOptionsChange({ textFormat: e.target.value })}
         />
       </div>
     </React.Fragment>

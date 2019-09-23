@@ -1,6 +1,7 @@
 import { isString, isObject, isFinite, isNumber, merge } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -16,11 +17,12 @@ export default function AxisSettings({ id, options, features, onChange }) {
     onChange(merge({}, options, newOptions));
   }
 
-  function handleNameChange(event) {
-    const text = event.target.value;
+  const [handleNameChange] = useDebouncedCallback((text) => {
     const title = isString(text) && (text !== '') ? { text } : null;
     optionsChanged({ title });
-  }
+  }, 200);
+
+  const [handleMinMaxChange] = useDebouncedCallback(opts => optionsChanged(opts), 200);
 
   return (
     <React.Fragment>
@@ -47,7 +49,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
           id={`chart-editor-${id}-name`}
           data-test={`Chart.${id}.Name`}
           defaultValue={isObject(options.title) ? options.title.text : null}
-          onChange={handleNameChange}
+          onChange={event => handleNameChange(event.target.value)}
         />
       </div>
 
@@ -61,7 +63,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
               placeholder="Auto"
               data-test={`Chart.${id}.RangeMin`}
               defaultValue={toNumber(options.rangeMin)}
-              onChange={value => optionsChanged({ rangeMin: toNumber(value) })}
+              onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
             />
           </Grid.Col>
           <Grid.Col span={12}>
@@ -72,7 +74,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
               placeholder="Auto"
               data-test={`Chart.${id}.RangeMax`}
               defaultValue={toNumber(options.rangeMax)}
-              onChange={value => optionsChanged({ rangeMax: toNumber(value) })}
+              onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
             />
           </Grid.Col>
         </Grid.Row>
