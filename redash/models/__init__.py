@@ -843,7 +843,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def custom_body(self):
-        return self.render_template(self.options.custom_body);
+        return self.render_template(self.options.custom_body)
 
     @property
     def custom_subject(self):
