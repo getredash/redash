@@ -8,7 +8,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes, isFunction, filter, difference, isEmpty } from 'lodash';
+import { includes, isFunction, filter, difference, isEmpty, some, isNumber, isBoolean } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
 import Collapse from '@/components/Collapse';
@@ -56,11 +56,14 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const filledExtraFields = filter(props.fields, field => field.extra && field.initialValue !== undefined);
+    const hasFilledExtraField = some(props.fields, (field) => {
+      const { extra, initialValue } = field;
+      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || isBoolean(initialValue) && initialValue);
+    });
     this.state = {
       isSubmitting: false,
       inProgressActions: [],
-      showExtraFields: !isEmpty(filledExtraFields),
+      showExtraFields: hasFilledExtraField,
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
