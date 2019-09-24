@@ -14,7 +14,6 @@ import { Query as QueryService } from '@/services/query';
 import { HelpTrigger } from '@/components/HelpTrigger';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import { TimeAgo } from '@/components/TimeAgo';
-import { BigMessage } from '@/components/BigMessage';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
@@ -29,6 +28,7 @@ import Rearm from './components/Rearm';
 import Query from './components/Query';
 import { STATE_CLASS } from '../alerts/AlertsList';
 import { routesToAngularRoutes } from '@/lib/utils';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 
 
 const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
@@ -97,7 +97,7 @@ class AlertPage extends React.Component {
   _isMounted = false;
 
   state = {
-    alert: undefined,
+    alert: null,
     queryResult: null,
     pendingRearm: null,
     editMode: false,
@@ -135,11 +135,9 @@ class AlertPage extends React.Component {
           });
           this.onQuerySelected(alert.query);
         }
-      }).catch(() => {
+      }).catch((err) => {
         if (this._isMounted) {
-          this.setState({
-            alert: null,
-          });
+          throw new PromiseRejectionError(err);
         }
       });
     }
@@ -259,21 +257,8 @@ class AlertPage extends React.Component {
 
   render() {
     const { alert } = this.state;
-
-    // loading
-    if (alert === undefined) {
+    if (!alert) {
       return <LoadingState className="m-t-30" />;
-    }
-
-    // 404
-    if (alert === null) {
-      return (
-        <div className="container alert-page">
-          <BigMessage icon="fa-exclamation-circle" className="help-message m-t-30">
-            Sorry, this page does not exist.
-          </BigMessage>
-        </div>
-      );
     }
 
     const isNew = isNewAlert();
