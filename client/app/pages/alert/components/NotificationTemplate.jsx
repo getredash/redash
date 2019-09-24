@@ -19,7 +19,6 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
 
   return {
     ALERT_STATUS: 'TRIGGERED',
-    ALERT_EVALUATION_TIME: new Date(),
     ALERT_CONDITION: alert.options.op,
     ALERT_THRESHOLD: alert.options.value,
     ALERT_NAME: alert.name,

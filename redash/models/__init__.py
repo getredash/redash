@@ -837,8 +837,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         context = {
             'ALERT_NAME': self.name,
             'ALERT_URL': '{host}/alerts/{alert_id}'.format(host=host, alert_id=self.id),
-            'ALERT_STATUS': self.state,
-            'ALERT_EVALUATION_TIME': datetime.datetime.now(), # could be problematic cuz utc?
+            'ALERT_STATUS': self.state.upper(),
             'ALERT_CONDITION': self.options['op'],
             'ALERT_THRESHOLD': self.options['value'],
             'QUERY_NAME': self.query_rel.name,
@@ -851,11 +850,11 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def custom_body(self):
-        return self.render_template(self.options.custom_body)
+        return self.render_template(self.options['custom_body'])
 
     @property
     def custom_subject(self):
-        return self.render_template(self.options.custom_subject)
+        return self.render_template(self.options['custom_subject'])
 
     @property
     def groups(self):
