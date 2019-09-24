@@ -1,10 +1,10 @@
-import { isArray, indexOf, get, map, includes, every, some, toNumber, toLower } from 'lodash';
+import { isArray, indexOf, get, map, includes, every, some, toNumber } from 'lodash';
 import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
-import { formatDateTime, formatDate } from '@/filters/datetime';
+import { formatColumnValue } from '@/filters';
 
 const ALL_VALUES = '###Redash::Filters::SelectAll###';
 const NONE_VALUES = '###Redash::Filters::Clear###';
@@ -71,21 +71,6 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-function formatValue(value, columnType) {
-  if (moment.isMoment(value)) {
-    if (columnType === 'date') {
-      return formatDate(value);
-    }
-    return formatDateTime(value);
-  }
-
-  if (typeof value === 'boolean') {
-    return value.toString();
-  }
-
-  return value;
-}
-
 export function Filters({ filters, onChange }) {
   if (filters.length === 0) {
     return null;
@@ -99,7 +84,7 @@ export function Filters({ filters, onChange }) {
         <div className="row">
           {map(filters, (filter) => {
             const options = map(filter.values, (value, index) => (
-              <Select.Option key={index}>{formatValue(value, get(filter, 'column.type'))}</Select.Option>
+              <Select.Option key={index}>{formatColumnValue(value, get(filter, 'column.type'))}</Select.Option>
             ));
 
             return (
@@ -115,10 +100,10 @@ export function Filters({ filters, onChange }) {
                     mode={filter.multiple ? 'multiple' : 'default'}
                     value={isArray(filter.current) ?
                       map(filter.current,
-                        value => ({ key: `${indexOf(filter.values, value)}`, label: formatValue(value) })) :
-                      ({ key: `${indexOf(filter.values, filter.current)}`, label: formatValue(filter.current) })}
+                        value => ({ key: `${indexOf(filter.values, value)}`, label: formatColumnValue(value) })) :
+                      ({ key: `${indexOf(filter.values, filter.current)}`, label: formatColumnValue(filter.current) })}
                     allowClear={filter.multiple}
-                    filterOption={(searchText, option) => includes(toLower(option.props.children), toLower(searchText))}
+                    optionFilterProp="children"
                     showSearch
                     onChange={values => onChange(filter, values)}
                   >
