@@ -95,6 +95,8 @@ AlertState.defaultProps = {
 };
 
 class AlertPage extends React.Component {
+  _isMounted = false;
+
   state = {
     alert: null,
     queryResult: null,
@@ -106,13 +108,14 @@ class AlertPage extends React.Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
+
     if (isNewAlert()) {
       this.setState({
         alert: new AlertService({
           options: {
             op: 'greater than',
             value: 1,
-            rearm: 0,
           },
           pendingRearm: 0,
         }),
@@ -124,15 +127,21 @@ class AlertPage extends React.Component {
       const { editMode } = $route.current.locals;
       AlertService.get({ id: alertId }).$promise.then((alert) => {
         const canEdit = currentUser.canEdit(alert);
-        this.setState({
-          alert,
-          pendingRearm: alert.rearm,
-          editMode: editMode && canEdit,
-          canEdit,
-        });
-        this.onQuerySelected(alert.query);
+        if (this._isMounted) {
+          this.setState({
+            alert,
+            pendingRearm: alert.rearm,
+            editMode: editMode && canEdit,
+            canEdit,
+          });
+          this.onQuerySelected(alert.query);
+        }
       });
     }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   getDefaultName = () => {
@@ -152,15 +161,17 @@ class AlertPage extends React.Component {
     if (query) {
       // get cached result for column names and values
       new QueryService(query).getQueryResultPromise().then((queryResult) => {
-        this.setState({ queryResult });
-        let { column } = this.state.alert.options;
-        const columns = queryResult.getColumnNames();
+        if (this._isMounted) {
+          this.setState({ queryResult });
+          let { column } = this.state.alert.options;
+          const columns = queryResult.getColumnNames();
 
-        // default to first column name if none chosen, or irrelevant in current query
-        if (!column || !includes(columns, column)) {
-          column = head(queryResult.getColumnNames());
+          // default to first column name if none chosen, or irrelevant in current query
+          if (!column || !includes(columns, column)) {
+            column = head(queryResult.getColumnNames());
+          }
+          this.setAlertOptions({ column });
         }
-        this.setAlertOptions({ column });
       });
     }
   }
@@ -193,7 +204,7 @@ class AlertPage extends React.Component {
     const { alert, pendingRearm } = this.state;
 
     alert.name = trim(alert.name) || this.getDefaultName();
-    alert.options.rearm = pendingRearm || null;
+    alert.rearm = pendingRearm || null;
 
     this.setState({ saving: true, alert });
 
@@ -206,7 +217,9 @@ class AlertPage extends React.Component {
       navigateTo(`/alerts/${alert.id}`, true);
     }).catch(() => {
       notification.error('Failed saving alert.');
-      this.setState({ saving: false });
+      if (this._isMounted) {
+        this.setState({ saving: false });
+      }
     });
   };
 
