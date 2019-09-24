@@ -1,5 +1,5 @@
 import React from 'react';
-import { each, includes, isUndefined } from 'lodash';
+import { each, includes, isUndefined, isEmpty, map } from 'lodash';
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -46,8 +46,14 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'text';
     }
 
-    if (prop.type === 'enum') {
+    if (!isEmpty(prop.enum)) {
       prop.type = 'select';
+      prop.options = map(prop.enum, value => ({ value, name: value }));
+    }
+
+    if (!isEmpty(prop.extendedEnum)) {
+      prop.type = 'select';
+      prop.options = prop.extendedEnum;
     }
 
     prop.required = includes(configurationSchema.required, name);
@@ -58,12 +64,15 @@ function normalizeSchema(configurationSchema) {
 
 function setDefaultValueToFields(configurationSchema, options = {}) {
   const properties = configurationSchema.properties;
-  Object.keys(properties).forEach((property) => {
-    if (!isUndefined(properties[property].default)) {
-      // set default value for checkboxes and for selects
-      if (includes(['checkbox', 'select'], properties[property].type)) {
-        options[property] = properties[property].default;
-      }
+  Object.keys(properties).forEach((key) => {
+    const property = properties[key];
+    // set default value for checkboxes
+    if (!isUndefined(property.default) && property.type === 'checkbox') {
+      options[key] = property.default;
+    }
+    // set default or first value when value has predefined options
+    if (property.type === 'select') {
+      options[key] = includes(property.enum, property.default) ? property.default : property.enum[0];
     }
   });
 }
