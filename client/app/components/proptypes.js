@@ -91,7 +91,7 @@ export const Destination = PropTypes.shape({
   name: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
-)};
+});
 
 export const Query = PropTypes.shape({
   id: PropTypes.number.isRequired,
