@@ -14,6 +14,7 @@ import { Query as QueryService } from '@/services/query';
 import { HelpTrigger } from '@/components/HelpTrigger';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import { TimeAgo } from '@/components/TimeAgo';
+import { BigMessage } from '@/components/BigMessage';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
@@ -96,7 +97,7 @@ class AlertPage extends React.Component {
   _isMounted = false;
 
   state = {
-    alert: null,
+    alert: undefined,
     queryResult: null,
     pendingRearm: null,
     editMode: false,
@@ -133,6 +134,12 @@ class AlertPage extends React.Component {
             canEdit,
           });
           this.onQuerySelected(alert.query);
+        }
+      }).catch(() => {
+        if (this._isMounted) {
+          this.setState({
+            alert: null,
+          });
         }
       });
     }
@@ -252,8 +259,21 @@ class AlertPage extends React.Component {
 
   render() {
     const { alert } = this.state;
-    if (!alert) {
+
+    // loading
+    if (alert === undefined) {
       return <LoadingState className="m-t-30" />;
+    }
+
+    // 404
+    if (alert === null) {
+      return (
+        <div className="container alert-page">
+          <BigMessage icon="fa-exclamation-circle" className="help-message m-t-30">
+            Sorry, this page does not exist.
+          </BigMessage>
+        </div>
+      );
     }
 
     const isNew = isNewAlert();
