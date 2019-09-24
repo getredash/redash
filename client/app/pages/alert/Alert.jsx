@@ -374,7 +374,7 @@ class AlertPage extends React.Component {
               <h4>Destinations{' '}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
                   <a href="/destinations" target="_blank">
-                    <i className="fa fa-external-link" />
+                    <i className="fa fa-external-link f-13" />
                   </a>
                 </Tooltip>
               </h4>
