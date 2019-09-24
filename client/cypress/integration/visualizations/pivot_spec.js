@@ -96,6 +96,7 @@ describe('Pivot', () => {
         cy.getByTestId('QueryEditor')
           .get('.ace_text-input')
           .type("{selectall}SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value", { force: true });
+        cy.getByTestId('SaveButton').click();
         cy.getByTestId('ExecuteButton').click();
 
         cy.getByTestId(`QueryPageVisualization${visualization.id}`)
