@@ -126,7 +126,7 @@ export const Alert = PropTypes.shape({
   rearm: PropTypes.number,
   state: PropTypes.oneOf(['ok', 'triggered', 'unknown']),
   user: UserProfile,
-  query: Query.isRequired,
+  query: Query,
   options: PropTypes.shape({
     column: PropTypes.string,
     op: PropTypes.string,
