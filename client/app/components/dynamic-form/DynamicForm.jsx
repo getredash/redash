@@ -153,8 +153,14 @@ class DynamicForm extends React.Component {
         mode={mode}
         getPopupContainer={trigger => trigger.parentNode}
       >
-        {options && options.map(({ value, title }) => (
-          <Option key={`${value}`} value={value} disabled={readOnly}>{ title || value }</Option>
+        {options && options.map(option => (
+          <Option
+            key={`${option.value}`}
+            value={option.value}
+            disabled={readOnly}
+          >
+            {option.name || option.value}
+          </Option>
         ))}
       </Select>,
     );
