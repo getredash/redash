@@ -87,13 +87,8 @@ export default class AlertEdit extends React.Component {
           <div className="d-flex">
             <Form className="flex-fill">
               <HorizontalFormItem label="Query">
-                <Query query={query} onChange={onQuerySelected} editMode />
+                <Query query={query} queryResult={queryResult} onChange={onQuerySelected} editMode />
               </HorizontalFormItem>
-              {query && !queryResult && (
-                <HorizontalFormItem className="m-t-30">
-                  <Icon type="loading" className="m-r-5" /> Loading query data
-                </HorizontalFormItem>
-              )}
               {queryResult && options && (
                 <>
                   <HorizontalFormItem label="Trigger when" className="alert-criteria">

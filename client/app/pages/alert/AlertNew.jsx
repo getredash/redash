@@ -5,7 +5,6 @@ import { HelpTrigger } from '@/components/HelpTrigger';
 import { Alert as AlertType } from '@/components/proptypes';
 
 import Form from 'antd/lib/form';
-import Icon from 'antd/lib/icon';
 import Button from 'antd/lib/button';
 
 import Title from './components/Title';
@@ -44,13 +43,8 @@ export default class AlertNew extends React.Component {
                 Keep in mind that Alerts do not work with queries that use parameters.
               </div>
               <HorizontalFormItem label="Query">
-                <Query query={query} onChange={onQuerySelected} editMode />
+                <Query query={query} queryResult={queryResult} onChange={onQuerySelected} editMode />
               </HorizontalFormItem>
-              {query && !queryResult && (
-                <HorizontalFormItem className="m-t-30">
-                  <Icon type="loading" className="m-r-5" /> Loading query data
-                </HorizontalFormItem>
-              )}
               {queryResult && options && (
                 <>
                   <HorizontalFormItem label="Trigger when" className="alert-criteria">

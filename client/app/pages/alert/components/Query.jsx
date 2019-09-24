@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 
 import { QuerySelector } from '@/components/QuerySelector';
 import { SchedulePhrase } from '@/components/queries/SchedulePhrase';
+import { Query as QueryType } from '@/components/proptypes';
 
 import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 
 import './Query.less';
 
-export default function QueryFormItem({ query, onChange, editMode }) {
+export default function QueryFormItem({ query, queryResult, onChange, editMode }) {
   const queryHint = query && query.schedule ? (
     <small>
       Scheduled to refresh <i className="alert-query-schedule"><SchedulePhrase schedule={query.schedule} isNew={false} /></i>
@@ -41,18 +42,25 @@ export default function QueryFormItem({ query, onChange, editMode }) {
       <div className="ant-form-explain">
         {query && queryHint}
       </div>
+      {query && !queryResult && (
+        <div className="m-t-30">
+          <Icon type="loading" className="m-r-5" /> Loading query data
+        </div>
+      )}
     </>
   );
 }
 
 QueryFormItem.propTypes = {
-  query: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  query: QueryType,
+  queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onChange: PropTypes.func,
   editMode: PropTypes.bool,
 };
 
 QueryFormItem.defaultProps = {
   query: null,
+  queryResult: null,
   onChange: () => {},
   editMode: false,
 };
