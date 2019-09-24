@@ -821,8 +821,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_template(self, template):
-        if not template:
+    def render_template(self, template=None):
+        if template is None:
             return ''
 
         data = json_loads(self.query_rel.latest_query_data.data)
@@ -850,11 +850,13 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @property
     def custom_body(self):
-        return self.render_template(self.options['custom_body'])
+        template = self.options.get('custom_body', self.options.get('template'))
+        return self.render_template(template)
 
     @property
     def custom_subject(self):
-        return self.render_template(self.options['custom_subject'])
+        template = self.options.get('custom_subject')
+        return self.render_template(template)
 
     @property
     def groups(self):
