@@ -110,7 +110,6 @@ class AlertPage extends React.Component {
           options: {
             op: 'greater than',
             value: 1,
-            rearm: 0,
           },
           pendingRearm: 0,
         }),
@@ -191,7 +190,7 @@ class AlertPage extends React.Component {
     const { alert, pendingRearm } = this.state;
 
     alert.name = trim(alert.name) || this.getDefaultName();
-    alert.options.rearm = pendingRearm || null;
+    alert.rearm = pendingRearm || null;
 
     this.setState({ saving: true, alert });
 
