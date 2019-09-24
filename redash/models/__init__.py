@@ -804,12 +804,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
                 'less than': lambda v, t: v < t,
                 'equals': lambda v, t: v == t,
             }
-            should_trigger = operators.get(self.options['op'], lambda v, t: False)
+            passes_condition = operators.get(self.options['op'], lambda v, t: False)
 
             value = data['rows'][0][self.options['column']]
             threshold = self.options['value']
 
-            if should_trigger(value, threshold):
+            if not passes_condition(value, threshold):
                 new_state = self.TRIGGERED_STATE
             else:
                 new_state = self.OK_STATE
