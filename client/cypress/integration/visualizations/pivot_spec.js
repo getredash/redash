@@ -16,7 +16,7 @@ const SQL = `
   SELECT 'c' AS stage1, 'c1' AS stage2, 19 AS value UNION ALL
   SELECT 'c' AS stage1, 'c2' AS stage2, 92 AS value UNION ALL
   SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value
+  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value\
 `;
 
 function createPivotThroughUI(visualizationName, options = {}) {
@@ -95,14 +95,15 @@ describe('Pivot', () => {
 
         cy.getByTestId('QueryEditor')
           .get('.ace_text-input')
-          .clear({ force: true })
-          .type("SELECT 'a' AS stage1, 'a1' AS stage2, 11 AS value", { force: true });
+          .first()
+          .focus()
+          .type(" UNION ALL\nSELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
         cy.getByTestId('SaveButton').click();
         cy.getByTestId('ExecuteButton').click();
 
         cy.getByTestId(`QueryPageVisualization${visualization.id}`)
           .find('.pvtGrandTotal')
-          .should('have.text', '1'); // assert number of rows is 1
+          .should('have.text', '12'); // assert number of rows is 12
       });
   });
 
