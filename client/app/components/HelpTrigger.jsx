@@ -77,7 +77,7 @@ export const TYPES = {
     'Guide: Mail Configuration',
   ],
   ALERT_NOTIF_TEMPLATE_GUIDE: [
-    '/user-guide/alerts/custom-alert-template', // TODO: doesn't exist yet
+    '/user-guide/alerts/custom-alert-notifications',
     'Guide: Custom Alerts Notifications',
   ],
 };
