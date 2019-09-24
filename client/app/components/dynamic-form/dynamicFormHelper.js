@@ -72,7 +72,8 @@ function setDefaultValueToFields(configurationSchema, options = {}) {
     }
     // set default or first value when value has predefined options
     if (property.type === 'select') {
-      options[key] = includes(property.enum, property.default) ? property.default : property.enum[0];
+      const optionValues = map(property.options, option => option.value);
+      options[key] = includes(optionValues, property.default) ? property.default : optionValues[0];
     }
   });
 }

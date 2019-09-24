@@ -24,6 +24,11 @@ class ConfigurationContainer(Mutable):
         self.set_schema(schema)
 
     def set_schema(self, schema):
+        if isinstance(schema, dict):
+            for prop in schema.get('properties', {}).values():
+                if 'extendedEnum' in prop:
+                    prop['enum'] = map(lambda v : v['value'], prop['extendedEnum'])
+                    del prop['extendedEnum']
         self._schema = schema
 
     @property
