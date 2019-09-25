@@ -52,9 +52,10 @@ export class QueryBasedParameterInput extends React.Component {
       if (this.props.queryId === queryId) {
         this.setState({ options, loading: false });
 
-        if (this.props.mode === 'multiple' && isArray(this.props.value)) {
+        if (this.props.mode === 'multiple') {
+          const value = isArray(this.props.value) ? this.props.value : [this.props.value];
           const optionValues = map(options, option => option.value);
-          const validValues = intersection(this.props.value, optionValues);
+          const validValues = intersection(value, optionValues);
           if (!isEqual(this.props.value, validValues)) {
             this.props.onSelect(validValues);
           }
