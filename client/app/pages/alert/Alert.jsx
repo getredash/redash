@@ -93,7 +93,8 @@ class AlertPage extends React.Component {
 
     return alert.$save().then(() => {
       notification.success('Saved.');
-      navigateTo(`/alerts/${alert.id}`, true);
+      navigateTo(`/alerts/${alert.id}`, true, false);
+      this.setState({ mode: MODES.VIEW });
     }).catch(() => {
       notification.error('Failed saving alert.');
     });
@@ -148,7 +149,7 @@ class AlertPage extends React.Component {
     const doDelete = () => {
       alert.$delete(() => {
         notification.success('Alert deleted successfully.');
-        navigateTo('/alerts', true);
+        navigateTo('/alerts');
       }, () => {
         notification.error('Failed deleting alert.');
       });
@@ -163,6 +164,18 @@ class AlertPage extends React.Component {
       maskClosable: true,
       autoFocusButton: null,
     });
+  }
+
+  edit = () => {
+    const { id } = this.state.alert;
+    navigateTo(`/alerts/${id}/edit`, true, false);
+    this.setState({ mode: MODES.EDIT });
+  }
+
+  cancel = () => {
+    const { id } = this.state.alert;
+    navigateTo(`/alerts/${id}`, true, false);
+    this.setState({ mode: MODES.VIEW });
   }
 
   render() {
@@ -187,8 +200,8 @@ class AlertPage extends React.Component {
     return (
       <div className="container alert-page">
         {mode === MODES.NEW && <AlertNew {...commonProps} />}
-        {mode === MODES.VIEW && <AlertView canEdit={canEdit} {...commonProps} />}
-        {mode === MODES.EDIT && <AlertEdit {...commonProps} />}
+        {mode === MODES.VIEW && <AlertView canEdit={canEdit} onEdit={this.edit} {...commonProps} />}
+        {mode === MODES.EDIT && <AlertEdit cancel={this.cancel} {...commonProps} />}
       </div>
     );
   }

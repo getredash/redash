@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import navigateTo from '@/services/navigateTo';
-
 import { HelpTrigger } from '@/components/HelpTrigger';
 import { Alert as AlertType } from '@/components/proptypes';
 
@@ -46,9 +44,8 @@ export default class AlertEdit extends React.Component {
   }
 
   cancel = () => {
-    const { alert } = this.props;
     this.setState({ canceling: true });
-    navigateTo(`/alerts/${alert.id}`, true);
+    this.props.cancel();
   };
 
   render() {
@@ -122,6 +119,7 @@ AlertEdit.propTypes = {
   pendingRearm: PropTypes.number,
   delete: PropTypes.func.isRequired,
   save: PropTypes.func.isRequired,
+  cancel: PropTypes.func.isRequired,
   onQuerySelected: PropTypes.func.isRequired,
   onNameChange: PropTypes.func.isRequired,
   onCriteriaChange: PropTypes.func.isRequired,

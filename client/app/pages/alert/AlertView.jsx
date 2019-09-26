@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import navigateTo from '@/services/navigateTo';
-
 import { TimeAgo } from '@/components/TimeAgo';
 import { Alert as AlertType } from '@/components/proptypes';
 
@@ -48,13 +46,8 @@ AlertState.defaultProps = {
 };
 
 export default class AlertView extends React.Component {
-  edit = () => {
-    const { id } = this.props.alert;
-    navigateTo(`/alerts/${id}/edit`, true);
-  }
-
   render() {
-    const { alert, queryResult, canEdit } = this.props;
+    const { alert, queryResult, canEdit, onEdit } = this.props;
     const { query, name, options, rearm } = alert;
 
     return (
@@ -62,7 +55,7 @@ export default class AlertView extends React.Component {
         <Title name={name} alert={alert}>
           {canEdit && (
             <>
-              <Button type="default" onClick={() => this.edit()}><i className="fa fa-edit m-r-5" />Edit</Button>
+              <Button type="default" onClick={onEdit}><i className="fa fa-edit m-r-5" />Edit</Button>
               <Dropdown
                 className="m-l-5"
                 trigger={['click']}
@@ -125,6 +118,7 @@ AlertView.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
   canEdit: PropTypes.bool.isRequired,
   delete: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
 };
 
 AlertView.defaultProps = {
