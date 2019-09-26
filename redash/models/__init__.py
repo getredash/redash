@@ -821,7 +821,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    def render_template(self, template=None):
+    def render_template(self, template):
         if template is None:
             return ''
 
