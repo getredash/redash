@@ -832,7 +832,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if data['rows'] and col_name in data['rows'][0]:
             result_value = data['rows'][0][col_name]
         else:
-            result_value = ''
+            result_value = None
 
         context = {
             'ALERT_NAME': self.name,
