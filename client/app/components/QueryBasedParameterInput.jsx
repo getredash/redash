@@ -1,4 +1,4 @@
-import { find, isArray, map, intersection } from 'lodash';
+import { find, isArray, map, intersection, isEqual } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -69,7 +69,12 @@ export class QueryBasedParameterInput extends React.Component {
 
       // stale queryId check
       if (this.props.queryId === queryId) {
-        this.setState({ options, loading: false }, () => this.setValue(this.props.value));
+        this.setState({ options, loading: false }, () => {
+          const updatedValue = this.setValue(this.props.value);
+          if (!isEqual(updatedValue, this.props.value)) {
+            this.props.onSelect(updatedValue);
+          }
+        });
       }
     }
   }
