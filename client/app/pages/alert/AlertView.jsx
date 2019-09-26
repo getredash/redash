@@ -87,7 +87,7 @@ export default class AlertView extends React.Component {
                 <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
               </HorizontalFormItem>
               <HorizontalFormItem label="Query">
-                <Query query={query} onChange={this.onQuerySelected} />
+                <Query query={query} queryResult={queryResult} onChange={this.onQuerySelected} />
               </HorizontalFormItem>
               {query && !queryResult && (
                 <HorizontalFormItem className="m-t-30">
