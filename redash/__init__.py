@@ -17,7 +17,7 @@ from .app import create_app  # noqa
 from .query_runner import import_query_runners
 from .destinations import import_destinations
 
-__version__ = '8.0.0-beta.2'
+__version__ = '9.0.0-alpha'
 
 
 if os.environ.get("REMOTE_DEBUG"):
