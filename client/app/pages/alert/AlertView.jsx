@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 
 import { TimeAgo } from '@/components/TimeAgo';
 import { Alert as AlertType } from '@/components/proptypes';
@@ -9,6 +10,7 @@ import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
+import Tooltip from 'antd/lib/tooltip';
 
 import Title from './components/Title';
 import Criteria from './components/Criteria';
@@ -53,25 +55,23 @@ export default class AlertView extends React.Component {
     return (
       <>
         <Title name={name} alert={alert}>
-          {canEdit && (
-            <>
-              <Button type="default" onClick={onEdit}><i className="fa fa-edit m-r-5" />Edit</Button>
-              <Dropdown
-                className="m-l-5"
-                trigger={['click']}
-                placement="bottomRight"
-                overlay={(
-                  <Menu>
-                    <Menu.Item>
-                      <a onClick={this.props.delete}>Delete Alert</a>
-                    </Menu.Item>
-                  </Menu>
-                )}
-              >
-                <Button><Icon type="ellipsis" rotate={90} /></Button>
-              </Dropdown>
-            </>
-          )}
+          <Tooltip title={canEdit ? '' : 'You do not have sufficient permissions to edit this alert'}>
+            <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}><i className="fa fa-edit m-r-5" />Edit</Button>
+            <Dropdown
+              className={cx('m-l-5', { disabled: !canEdit })}
+              trigger={[canEdit ? 'click' : undefined]}
+              placement="bottomRight"
+              overlay={(
+                <Menu>
+                  <Menu.Item>
+                    <a onClick={this.props.delete}>Delete Alert</a>
+                  </Menu.Item>
+                </Menu>
+              )}
+            >
+              <Button><Icon type="ellipsis" rotate={90} /></Button>
+            </Dropdown>
+          </Tooltip>
         </Title>
         <div className="row bg-white tiled p-20">
           <div className="d-flex col-md-8">

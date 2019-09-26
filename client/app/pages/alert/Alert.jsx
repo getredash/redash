@@ -68,6 +68,11 @@ class AlertPage extends React.Component {
           // force view mode if can't edit
           if (!canEdit) {
             this.setState({ mode: MODES.VIEW });
+            notification.warn(
+              'You cannot edit this alert',
+              'You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page.',
+              { duration: 0 },
+            );
           }
 
           this.setState({ alert, canEdit, pendingRearm: alert.rearm });
