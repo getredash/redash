@@ -1,18 +1,4 @@
 .table-editor-container {
-  .btn-group.btn-group-justified {
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
-
-    .btn {
-      flex-grow: 1;
-    }
-
-    .btn-xs {
-      padding: 4px;
-    }
-  }
-
   .table-editor-query-columns {
     display: flex;
     flex-direction: row;
@@ -37,7 +23,21 @@
       padding: 10px;
       margin-left: -10px;
       margin-right: -10px;
+      margin-bottom: 15px;
       border-bottom: 1px solid #f0f0f0;
+    }
+
+    .table-column-editor-align-content {
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+
+      .ant-radio-button-wrapper {
+        flex-grow: 1;
+        text-align: center;
+        height: 28px;
+        line-height: 26px;
+      }
     }
   }
 }

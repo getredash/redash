@@ -1,7 +1,91 @@
-/* eslint-disable react/prop-types */
 import { extend, trim } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
+import Input from 'antd/lib/input';
+import Popover from 'antd/lib/popover';
+import Icon from 'antd/lib/icon';
 import { formatSimpleTemplate } from '@/lib/value-format';
+
+function Editor({ column, onChange }) {
+  return (
+    <React.Fragment>
+      <div className="m-b-15">
+        <label htmlFor={`table-column-editor-${column.name}-image-url`}>URL template</label>
+        <Input
+          id={`table-column-editor-${column.name}-image-url`}
+          defaultValue={column.imageUrlTemplate}
+          onChange={event => onChange({ imageUrlTemplate: event.target.value })}
+        />
+      </div>
+
+      <div className="m-b-15">
+        <label htmlFor={`table-column-editor-${column.name}-image-width`}>
+          Size
+          <Popover
+            content="Any positive integer value that specifies size in pixels. Leave empty to use default value."
+            placement="topLeft"
+            arrowPointAtCenter
+          >
+            <Icon className="m-l-5" type="question-circle" theme="filled" />
+          </Popover>
+        </label>
+        <div className="d-flex align-items-center">
+          <Input
+            id={`table-column-editor-${column.name}-image-width`}
+            placeholder="Width"
+            defaultValue={column.imageWidth}
+            onChange={event => onChange({ imageWidth: event.target.value })}
+          />
+          <span className="p-l-5 p-r-5">&times;</span>
+          <Input
+            id={`table-column-editor-${column.name}-image-height`}
+            placeholder="Height"
+            defaultValue={column.imageHeight}
+            onChange={event => onChange({ imageHeight: event.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="m-b-15">
+        <label htmlFor={`table-column-editor-${column.name}-image-title`}>Title template</label>
+        <Input
+          id={`table-column-editor-${column.name}-image-title`}
+          defaultValue={column.imageTitleTemplate}
+          onChange={event => onChange({ imageTitleTemplate: event.target.value })}
+        />
+      </div>
+
+      <div className="m-b-15">
+        <Popover
+          content={(
+            <React.Fragment>
+              <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
+              <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
+              <div>This syntax is applicable to URL, Title and Size options.</div>
+            </React.Fragment>
+          )}
+          placement="topLeft"
+          arrowPointAtCenter
+        >
+          <span style={{ cursor: 'default' }}>
+            Format specs <Icon className="m-l-5" type="question-circle" theme="filled" />
+          </span>
+        </Popover>
+      </div>
+    </React.Fragment>
+  );
+}
+
+Editor.propTypes = {
+  column: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    imageUrlTemplate: PropTypes.string,
+    imageWidth: PropTypes.string,
+    imageHeight: PropTypes.string,
+    imageTitleTemplate: PropTypes.string,
+  }).isRequired,
+  onChange: PropTypes.func.isRequired,
+};
 
 export default function initImageColumn(column) {
   function prepareData(row) {
@@ -33,7 +117,7 @@ export default function initImageColumn(column) {
     return result;
   }
 
-  function ImageColumn({ row }) {
+  function ImageColumn({ row }) { // eslint-disable-line react/prop-types
     const { text, ...props } = prepareData(row);
     return <img alt="" {...props} />;
   }
@@ -44,3 +128,4 @@ export default function initImageColumn(column) {
 }
 
 initImageColumn.friendlyName = 'Image';
+initImageColumn.Editor = Editor;
