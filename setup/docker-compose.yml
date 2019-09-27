@@ -44,6 +44,7 @@ services:
   nginx:
     image: redash/nginx:latest
     ports:
+      - "443:443"
       - "80:80"
     volumes:
       - ./ssl/nginx.conf:/etc/nginx/conf.d/default.conf
