@@ -2,13 +2,9 @@ import _ from 'lodash';
 import { getColumnCleanName } from '@/services/query-result';
 import { clientConfig } from '@/services/auth';
 import { registerVisualization } from '@/visualizations';
-import editorTemplate from './table-editor.html';
 
 import Renderer from './Renderer';
 import Editor from './Editor';
-import { ColumnTypes } from './utils';
-
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
@@ -108,35 +104,6 @@ function getColumnsOptions(columns, visualizationColumns) {
 
   return _.sortBy(options, 'order');
 }
-
-// TODO: Remove
-export const GridEditor = {
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  template: editorTemplate,
-  controller($scope) {
-    this.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
-    this.displayAsOptions = _.map(ColumnTypes, ({ friendlyName: name }, value) => ({ name, value }));
-
-    this.currentTab = 'columns';
-    this.setCurrentTab = (tab) => {
-      this.currentTab = tab;
-    };
-
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-
-    this.templateHint = `
-      All columns can be referenced using <code>{{ column_name }}</code> syntax.
-      Use <code>{{ @ }}</code> to reference current (this) column.
-      This syntax is applicable to URL, Title and Size options.
-    `;
-  },
-};
 
 export default function init() {
   registerVisualization({
