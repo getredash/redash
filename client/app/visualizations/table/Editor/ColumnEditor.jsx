@@ -17,8 +17,8 @@ export default function ColumnEditor({ column, onChange }) {
   const AdditionalOptions = ColumnTypes[column.displayAs].Editor || null;
 
   return (
-    <div>
-      <div className="table-editor-column-header">
+    <div className="table-visualization-editor-column">
+      <div className="table-visualization-editor-column-header">
         <Input
           value={column.title}
           onChange={event => handleChange({ title: event.target.value })}
@@ -31,7 +31,7 @@ export default function ColumnEditor({ column, onChange }) {
         />
       </div>
       <Radio.Group
-        className="table-column-editor-align-content m-b-15"
+        className="table-visualization-editor-column-align-content m-b-15"
         value={column.alignContent}
         onChange={event => handleChange({ alignContent: event.target.value })}
       >
