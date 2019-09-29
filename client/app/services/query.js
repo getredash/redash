@@ -254,7 +254,7 @@ export class Parameter {
     }
 
     if (this.type === 'query' && !isEmptyValue(value)) {
-      if (this.multiValuesOptions && !isArray(value) && value !== null) {
+      if (this.multiValuesOptions && !isArray(value)) {
         value = [value];
       }
     }
