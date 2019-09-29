@@ -1,4 +1,4 @@
-import { isArray, get, map, join, has } from 'lodash';
+import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from 'lodash';
 import { Query } from '@/services/query';
 import { Parameter } from '.';
 
@@ -8,6 +8,19 @@ class QueryBasedDropdownParameter extends Parameter {
     this.queryId = parameter.queryId;
     this.multiValuesOptions = parameter.multiValuesOptions;
     this.setValue(parameter.value);
+  }
+
+  normalizeValue(value) {
+    if (isUndefined(value) || isNull(value) || (isArray(value) && isEmpty(value))) {
+      return null;
+    }
+
+    if (this.multiValuesOptions) {
+      value = isArray(value) ? value : [value];
+    } else {
+      value = isArray(value) ? value[0] : value;
+    }
+    return value;
   }
 
   getExecutionValue(extra = {}) {

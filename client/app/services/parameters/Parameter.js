@@ -57,7 +57,7 @@ class Parameter {
   }
 
   get isEmpty() {
-    return isNull(this.getExecutionValue());
+    return this.isEmptyValue(this.value);
   }
 
   get hasPendingValue() {
@@ -71,6 +71,10 @@ class Parameter {
 
   clone() {
     return Parameter.create(this, this.parentQueryId);
+  }
+
+  isEmptyValue(value) {
+    return isNull(this.normalizeValue(value));
   }
 
   // eslint-disable-next-line class-methods-use-this

@@ -23,6 +23,10 @@ class EnumParameter extends Parameter {
     } else if (!value || isArray(value) || !includes(enumOptionsArray, value)) {
       value = enumOptionsArray[0];
     }
+
+    if (isArray(value) && isEmpty(value)) {
+      return null;
+    }
     return value;
   }
 
