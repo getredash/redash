@@ -70,7 +70,8 @@ function RefreshIndicator({ refreshStartedAt }) {
   );
 }
 
-RefreshIndicator.propTypes = { refreshStartedAt: Moment.isRequired };
+RefreshIndicator.propTypes = { refreshStartedAt: Moment };
+RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
 function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission('view_query');
@@ -293,7 +294,7 @@ class VisualizationWidget extends React.Component {
             onExpand={this.expandWidget}
           />
         )}
-        data-refreshing={isRefreshing}
+        tileProps={{ 'data-refreshing': isRefreshing }}
       >
         {this.renderVisualization()}
       </Widget>
