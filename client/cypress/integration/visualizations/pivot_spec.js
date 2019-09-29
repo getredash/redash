@@ -16,8 +16,24 @@ const SQL = `
   SELECT 'c' AS stage1, 'c1' AS stage2, 19 AS value UNION ALL
   SELECT 'c' AS stage1, 'c2' AS stage2, 92 AS value UNION ALL
   SELECT 'c' AS stage1, 'c3' AS stage2, 63 AS value UNION ALL
-  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value
+  SELECT 'c' AS stage1, 'c4' AS stage2, 44 AS value\
 `;
+
+function createPivotThroughUI(visualizationName, options = {}) {
+  cy.getByTestId('NewVisualization').click();
+  cy.getByTestId('VisualizationType').click();
+  cy.getByTestId('VisualizationType.PIVOT').click();
+  cy.getByTestId('VisualizationName').clear().type(visualizationName);
+  if (options.hideControls) {
+    cy.getByTestId('PivotEditor.HideControls').click();
+    cy.getByTestId('VisualizationPreview')
+      .find('table')
+      .find('.pvtAxisContainer, .pvtRenderer, .pvtVals')
+      .should('be.not.visible');
+  }
+  cy.getByTestId('VisualizationPreview').find('table').should('exist');
+  cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
+}
 
 describe('Pivot', () => {
   beforeEach(() => {
@@ -32,13 +48,8 @@ describe('Pivot', () => {
     cy.getByTestId('ExecuteButton').click();
 
     const visualizationName = 'Pivot';
+    createPivotThroughUI(visualizationName);
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.PIVOT').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
-    cy.getByTestId('VisualizationPreview').find('table').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
     cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
   });
 
@@ -51,18 +62,8 @@ describe('Pivot', () => {
     cy.server();
     cy.route('POST', 'api/visualizations').as('SaveVisualization');
 
-    cy.getByTestId('NewVisualization').click();
-    cy.getByTestId('VisualizationType').click();
-    cy.getByTestId('VisualizationType.PIVOT').click();
-    cy.getByTestId('VisualizationName').clear().type(visualizationName);
+    createPivotThroughUI(visualizationName, { hideControls: true });
 
-    cy.getByTestId('PivotEditor.HideControls').click();
-    cy.getByTestId('VisualizationPreview')
-      .find('table')
-      .find('.pvtAxisContainer, .pvtRenderer, .pvtVals')
-      .should('be.not.visible');
-
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
     cy.wait('@SaveVisualization').then((xhr) => {
       const visualizationId = get(xhr, 'response.body.id');
       // Added visualization should also have hidden controls
@@ -71,6 +72,39 @@ describe('Pivot', () => {
         .find('.pvtAxisContainer, .pvtRenderer, .pvtVals')
         .should('be.not.visible');
     });
+  });
+
+  it('updates the visualization when results change', function () {
+    const options = {
+      aggregatorName: 'Count',
+      data: [], // force it to have a data object, although it shouldn't
+      controls: { enabled: false },
+      cols: ['stage1'],
+      rows: ['stage2'],
+      vals: ['value'],
+    };
+
+    createVisualization(this.queryId, 'PIVOT', 'Pivot', options)
+      .then((visualization) => {
+        cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
+        cy.getByTestId('ExecuteButton').click();
+
+        cy.getByTestId(`QueryPageVisualization${visualization.id}`)
+          .find('.pvtGrandTotal')
+          .should('have.text', '11'); // assert number of rows is 11
+
+        cy.getByTestId('QueryEditor')
+          .get('.ace_text-input')
+          .first()
+          .focus()
+          .type(" UNION ALL\nSELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
+        cy.getByTestId('SaveButton').click();
+        cy.getByTestId('ExecuteButton').click();
+
+        cy.getByTestId(`QueryPageVisualization${visualization.id}`)
+          .find('.pvtGrandTotal')
+          .should('have.text', '12'); // assert number of rows is 12
+      });
   });
 
   it('takes a snapshot with different configured Pivots', function () {
