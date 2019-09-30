@@ -128,12 +128,11 @@ class Vertica(BaseSQLQueryRunner):
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
-                columns_data = [(i[0], i[1]) for i in cursor.description]
+                columns_data = [(i[0], types_map.get(i[1], None)) for i in cursor.description]
 
-                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor.fetchall()]
-                columns = [{'name': col[0],
-                            'friendly_name': col[0],
-                            'type': types_map.get(col[1], None)} for col in columns_data]
+                columns = self.fetch_columns(column_data)
+                rows = [dict(zip(([c['name'] for c in columns]), r))
+                        for i, r in enumerate(cursor.fetchall())]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json_dumps(data)
