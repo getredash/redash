@@ -14,7 +14,7 @@ export const SortableContainerWrapper = sortableContainer(({ children }) => chil
 
 export const SortableElement = sortableElement(({ children }) => children);
 
-export function SortableContainer({ disabled, containerProps, children, ...wrapperProps }) {
+export function SortableContainer({ disabled, containerComponent, containerProps, children, ...wrapperProps }) {
   const containerRef = useRef();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -59,22 +59,24 @@ export function SortableContainer({ disabled, containerProps, children, ...wrapp
     containerProps.ref = containerRef;
   }
 
-  // order of props matters - we override some of them
+  const ContainerComponent = containerComponent;
   return (
     <SortableContainerWrapper {...wrapperProps}>
-      <div {...containerProps}>{children}</div>
+      <ContainerComponent {...containerProps}>{children}</ContainerComponent>
     </SortableContainerWrapper>
   );
 }
 
 SortableContainer.propTypes = {
   disabled: PropTypes.bool,
+  containerComponent: PropTypes.elementType,
   containerProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   children: PropTypes.node,
 };
 
 SortableContainer.defaultProps = {
   disabled: false,
+  containerComponent: 'div',
   containerProps: {},
   children: null,
 };

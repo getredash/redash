@@ -1,62 +1,34 @@
 import { includes, map, extend, fromPairs } from 'lodash';
-import React, { useMemo, useRef, useState, useContext, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Table from 'antd/lib/table';
 import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
-import Icon from 'antd/lib/icon';
-import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import { sortableElement } from 'react-sortable-hoc';
+import { SortableContainer, DragHandle } from '@/components/sortable';
 import { EditorPropTypes } from '@/visualizations';
 import ChartTypeSelect from './ChartTypeSelect';
 import getChartData from '../getChartData';
 
-const SortableEventsContext = React.createContext({
-  onSortStart: () => {},
-  onSortEnd: () => {},
-});
-
-const DragHandle = sortableHandle(({ children }) => children);
-
 const SortableBodyRow = sortableElement(props => <tr {...props} />);
-
-const SortableBody = (props) => {
-  const SortableContainer = useMemo(() => sortableContainer(({ children }) => children), []);
-  const containerRef = useRef(null);
-
-  const sortableEvents = useContext(SortableEventsContext);
-
-  return (
-    <SortableContainer
-      axis="y"
-      lockAxis="y"
-      lockToContainerEdges
-      useDragHandle
-      helperClass="chart-editor-series-dragged"
-      helperContainer={() => containerRef.current}
-      {...sortableEvents}
-    >
-      <tbody ref={containerRef} {...props} />
-    </SortableContainer>
-  );
-};
 
 function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOption) {
   const result = [
     {
       title: 'Order',
       dataIndex: 'zIndex',
+      className: 'text-nowrap',
       render: (unused, item) => (
-        <DragHandle>
-          <span className="chart-editor-series-drag-handle text-nowrap">
-            <Icon type="swap" rotate={90} />
-            <span className="m-l-5">{item.zIndex + 1}</span>
-          </span>
-        </DragHandle>
+        <span className="d-flex align-items-center">
+          <DragHandle />
+          {item.zIndex + 1}
+        </span>
       ),
     },
     {
       title: 'Label',
       dataIndex: 'name',
+      className: 'text-nowrap',
       render: (unused, item) => (
         <Input
           placeholder={item.key}
@@ -71,6 +43,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     result.push({
       title: 'Y Axis',
       dataIndex: 'yAxis',
+      className: 'text-nowrap',
       render: (unused, item) => (
         <Radio.Group
           className="text-nowrap"
@@ -85,6 +58,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
     result.push({
       title: 'Type',
       dataIndex: 'type',
+      className: 'text-nowrap',
       render: (unused, item) => (
         <ChartTypeSelect
           className="w-100"
@@ -105,17 +79,11 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
     ({ name }, zIndex) => extend({ key: name }, options.seriesOptions[name], { zIndex }),
   ), [options, data]);
 
-  const [isSorting, setIsSorting] = useState(false);
-
-  const sortableEvents = useMemo(() => ({
-    onSortStart: () => setIsSorting(true),
-    onSortEnd: ({ oldIndex, newIndex }) => {
-      setIsSorting(false);
-      const seriesOptions = [...series];
-      seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
-      onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => ([key, { zIndex }]))) });
-    },
-  }), [series]);
+  const handleSortEnd = useCallback(({ oldIndex, newIndex }) => {
+    const seriesOptions = [...series];
+    seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
+    onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => ([key, { zIndex }]))) });
+  }, [series]);
 
   const updateSeriesOption = useCallback((key, prop, value) => {
     onOptionsChange({
@@ -134,23 +102,30 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
   );
 
   return (
-    <SortableEventsContext.Provider value={sortableEvents}>
+    <SortableContainer
+      axis="y"
+      lockAxis="y"
+      lockToContainerEdges
+      useDragHandle
+      helperClass="chart-editor-series-dragged-item"
+      helperContainer={container => container.querySelector('tbody')}
+      onSortEnd={handleSortEnd}
+      containerProps={{
+        className: 'chart-editor-series',
+      }}
+    >
       <Table
-        className={isSorting ? 'chart-editor-series-in-sorting' : null}
         dataSource={series}
         columns={columns}
         components={{
           body: {
-            wrapper: SortableBody,
             row: SortableBodyRow,
           },
         }}
-        onRow={item => ({
-          index: item.zIndex,
-        })}
+        onRow={item => ({ index: item.zIndex })}
         pagination={false}
       />
-    </SortableEventsContext.Provider>
+    </SortableContainer>
   );
 }
 
