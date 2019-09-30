@@ -1,14 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend } from 'lodash';
+import { size, filter, forEach, extend, some } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/parameters';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
+import Form from 'antd/lib/form';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
+
 
 import './Parameters.less';
 
@@ -23,6 +25,10 @@ const SortableItem = sortableElement(({ className, parameterName, disabled, chil
   </div>
 ));
 const SortableContainer = sortableContainer(({ children }) => children);
+
+function isPendingValueEmpty({ pendingValue }) {
+  return pendingValue === '' || pendingValue === null;
+}
 
 function updateUrl(parameters) {
   const params = extend({}, $location.search());
@@ -137,6 +143,8 @@ export class Parameters extends React.Component {
 
   renderParameter(param, index) {
     const { editable } = this.props;
+    const isEmpty = param.pendingValue === '' || param.pendingValue === null;
+
     return (
       <div
         key={param.name}
@@ -156,15 +164,20 @@ export class Parameters extends React.Component {
             </button>
           )}
         </div>
-        <ParameterValueInput
-          type={param.type}
-          value={param.normalizedValue}
-          parameter={param}
-          enumOptions={param.enumOptions}
-          queryId={param.queryId}
-          allowMultipleValues={!!param.multiValuesOptions}
-          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
-        />
+        <Form.Item
+          validateStatus={isEmpty ? 'error' : ''}
+          help={isEmpty ? 'Required field' : null}
+        >
+          <ParameterValueInput
+            type={param.type}
+            value={param.normalizedValue}
+            parameter={param}
+            enumOptions={param.enumOptions}
+            queryId={param.queryId}
+            allowMultipleValues={!!param.multiValuesOptions}
+            onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          />
+        </Form.Item>
       </div>
     );
   }
@@ -173,6 +186,8 @@ export class Parameters extends React.Component {
     const { parameters, dragging } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+    const canApplyChanges = !!dirtyParamCount && !some(parameters, isPendingValueEmpty);
+
     return (
       <SortableContainer
         axis="xy"
@@ -184,7 +199,7 @@ export class Parameters extends React.Component {
       >
         <div
           className="parameter-container"
-          onKeyDown={dirtyParamCount ? this.handleKeyDown : null}
+          onKeyDown={canApplyChanges ? this.handleKeyDown : null}
           data-draggable={editable || null}
           data-dragging={dragging || null}
         >
@@ -194,7 +209,7 @@ export class Parameters extends React.Component {
             </SortableItem>
           ))}
 
-          <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
+          <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} show={canApplyChanges} />
         </div>
       </SortableContainer>
     );

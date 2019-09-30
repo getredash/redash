@@ -43,9 +43,11 @@ class ParameterValueInput extends React.Component {
 
   constructor(props) {
     super(props);
+    const { parameter } = props;
+    const value = parameter.hasPendingValue ? parameter.pendingValue : props.value;
     this.state = {
-      value: props.parameter.hasPendingValue ? props.parameter.pendingValue : props.value,
-      isDirty: props.parameter.hasPendingValue,
+      value,
+      isDirty: parameter.hasPendingValue,
     };
   }
 
@@ -53,8 +55,9 @@ class ParameterValueInput extends React.Component {
     const { value, parameter } = this.props;
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
+      const newValue = parameter.hasPendingValue ? parameter.pendingValue : value;
       this.setState({
-        value: parameter.hasPendingValue ? parameter.pendingValue : value,
+        value: newValue,
         isDirty: parameter.hasPendingValue,
       });
     }

@@ -16,17 +16,32 @@
 .parameter-block {
   display: inline-block;
   background: white;
-  padding: 0 12px 6px 0;
+  padding: 0 12px 10px 0;
   vertical-align: top;
 
   .parameter-container[data-draggable] & {
     margin: 4px 0 0 4px;
-    padding: 3px 6px 6px;
+    padding: 3px 6px 19px;
   }
 
   &.parameter-dragged {
     box-shadow:  0 4px 9px -3px rgba(102, 136, 153, 0.15);
     width: auto !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 0 !important;
+  }
+
+  .ant-form-explain {
+    position: absolute;
+    left: 0;
+    bottom: -21px;
+    font-size: 12px;
+  }
+
+  .ant-form-item-control {
+    line-height: normal;
   }
 }
 
@@ -119,6 +134,17 @@
       background: #f77b74;
       border-radius: 7px;
       box-shadow: 0px 0px 0 1px white, -1px 1px 0 1px #5d6f7d85;
+    }
+  }
+
+  .query-visualizations-wrapper & {
+    &[data-draggable] {
+      margin-bottom: -7px;
+    }
+    .parameter-apply-button {
+      @media (min-width: 768px) {
+        bottom: -23px;
+      }
     }
   }
 }

@@ -310,6 +310,10 @@ class MappingEditor extends React.Component {
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
         inputError = 'A parameter with this name already exists';
       }
+    } else if (mapping.type === MappingType.StaticValue) {
+      if (mapping.param.isEmpty) {
+        inputError = 'Required field';
+      }
     }
 
     this.setState({ mapping, inputError });
