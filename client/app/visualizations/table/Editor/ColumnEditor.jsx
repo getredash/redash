@@ -7,7 +7,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Select from 'antd/lib/select';
 import Icon from 'antd/lib/icon';
 
-import { ColumnTypes } from '../utils';
+import ColumnTypes from '../columns';
 
 export default function ColumnEditor({ column, onChange }) {
   function handleChange(changes) {
