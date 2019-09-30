@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray, omit } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isEmpty, isArray, omit } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -42,7 +42,7 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    if ($scope.isDirty) {
+    if ($scope.isDirty || !isEmpty(selectedQueryText)) {
       $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
     } else {
       $scope.queryResult = $scope.query.getQueryResult(maxAge);

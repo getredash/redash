@@ -70,6 +70,7 @@ class Widget extends React.Component {
     isPublic: PropTypes.bool,
     refreshStartedAt: Moment,
     menuOptions: PropTypes.node,
+    tileProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     onDelete: PropTypes.func,
   };
 
@@ -82,6 +83,7 @@ class Widget extends React.Component {
     isPublic: false,
     refreshStartedAt: null,
     menuOptions: null,
+    tileProps: {},
     onDelete: () => {},
   };
 
@@ -105,12 +107,12 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { widget, className, children, header, footer, canEdit, isPublic,
-      onDelete, menuOptions, ...otherProps } = this.props;
+    const { className, children, header, footer, canEdit, isPublic,
+      menuOptions, tileProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
-        <div className={cx('tile body-container', className)} {...otherProps}>
+        <div className={cx('tile body-container', className)} {...tileProps}>
           <div className="widget-actions">
             {showDropdownButton && (
               <WidgetDropdownButton
