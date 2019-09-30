@@ -1,32 +1,25 @@
 @import '../assets/less/ant';
 
-.drag-handle {
-  background: linear-gradient(90deg, transparent 0px, white 1px, white 2px)
-              center,
-              linear-gradient(transparent 0px, white 1px, white 2px) center, #111111;
-  background-size: 2px 2px;
-  display: inline-block;
-  width: 6px;
-  height: 36px;
-  vertical-align: bottom;
-  margin-right: 5px;
-  cursor: move;
-}
-
 .parameter-block {
   display: inline-block;
   background: white;
   padding: 0 12px 6px 0;
   vertical-align: top;
+  z-index: 1;
 
-  .parameter-container[data-draggable] & {
+  .drag-handle {
+    padding: 0 5px;
+    margin-left: -5px;
+    height: 36px;
+  }
+
+  .parameter-container.sortable-container & {
     margin: 4px 0 0 4px;
     padding: 3px 6px 6px;
   }
 
   &.parameter-dragged {
     box-shadow:  0 4px 9px -3px rgba(102, 136, 153, 0.15);
-    width: auto !important;
   }
 }
 
@@ -53,20 +46,13 @@
 .parameter-container {
   position: relative;
 
-  &[data-draggable] {
+  &.sortable-container {
     padding: 0 4px 4px 0;
-    transition: background-color 200ms ease-out;
-    transition-delay: 300ms; // short pause before returning to original bgcolor
-  }
-
-  &[data-dragging] {
-    transition-delay: 0s;
-    background-color: #f6f8f9;
   }
 
   .parameter-apply-button {
     display: none; // default for mobile
-    
+
     // "floating" on desktop
     @media (min-width: 768px) {
       position: absolute;
@@ -83,7 +69,7 @@
       display: block;
       pointer-events: none; // so tooltip doesn't remain after button hides
     }
-  
+
     &[data-show="true"] {
       opacity: 1;
       display: block;
@@ -118,7 +104,7 @@
       line-height: 15px;
       background: #f77b74;
       border-radius: 7px;
-      box-shadow: 0px 0px 0 1px white, -1px 1px 0 1px #5d6f7d85;
+      box-shadow: 0 0 0 1px white, -1px 1px 0 1px #5d6f7d85;
     }
   }
 }

@@ -210,13 +210,13 @@ CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
                     'task_id=%(task_id)s %(message)s')))
 
 # Mail settings:
-MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
+MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'email')
 MAIL_PORT = int(os.environ.get('REDASH_MAIL_PORT', 25))
 MAIL_USE_TLS = parse_boolean(os.environ.get('REDASH_MAIL_USE_TLS', 'false'))
 MAIL_USE_SSL = parse_boolean(os.environ.get('REDASH_MAIL_USE_SSL', 'false'))
 MAIL_USERNAME = os.environ.get('REDASH_MAIL_USERNAME', None)
 MAIL_PASSWORD = os.environ.get('REDASH_MAIL_PASSWORD', None)
-MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', None)
+MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', 'john@example.com')
 MAIL_MAX_EMAILS = os.environ.get('REDASH_MAIL_MAX_EMAILS', None)
 MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHMENTS', 'false'))
 

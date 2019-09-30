@@ -1,0 +1,30 @@
+.drag-handle {
+  vertical-align: bottom;
+  cursor: move;
+
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: center;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 6px;
+
+    background:
+      linear-gradient(90deg, transparent 0px, white 1px, white 2px) center,
+      linear-gradient(transparent 0px, white 1px, white 2px) center,
+      #111111;
+    background-size: 2px 2px;
+  }
+}
+
+.sortable-container {
+  transition: background-color 200ms ease-out;
+  transition-delay: 300ms; // short pause before returning to original bgcolor
+
+  &.sortable-container-dragging {
+    transition-delay: 0s;
+    background-color: #f6f8f9;
+  }
+}
