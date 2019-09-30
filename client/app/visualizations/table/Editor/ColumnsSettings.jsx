@@ -1,23 +1,20 @@
 import { map } from 'lodash';
-import React, { useRef } from 'react';
-import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import React from 'react';
 import Collapse from 'antd/lib/collapse';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
 import Typography from 'antd/lib/typography';
+import { sortableElement } from 'react-sortable-hoc';
+import { SortableContainer, DragHandle } from '@/components/sortable';
 import { EditorPropTypes } from '@/visualizations';
 
 import ColumnEditor from './ColumnEditor';
 
 const { Text } = Typography;
 
-const SortableContainer = sortableContainer(props => <div {...props} />);
 const SortableItem = sortableElement(Collapse.Panel);
-const DragHandle = sortableHandle(() => <div className="drag-handle" />);
 
 export default function ColumnsSettings({ options, onOptionsChange }) {
-  const containerRef = useRef();
-
   function handleColumnChange(newColumn, event) {
     if (event) {
       event.stopPropagation();
@@ -37,38 +34,39 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
       axis="y"
       lockAxis="y"
       useDragHandle
-      helperContainer={() => containerRef.current.firstChild}
+      helperContainer={container => container.firstChild}
       onSortEnd={handleColumnsReorder}
+      containerProps={{
+        className: 'table-visualization-editor-columns',
+      }}
     >
-      <div ref={containerRef} className="table-visualization-editor-columns">
-        <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
-          {map(options.columns, (column, index) => (
-            <SortableItem
-              key={column.name}
-              index={index}
-              header={(
-                <React.Fragment>
-                  <DragHandle />
-                  {column.name}
-                  {(column.title !== '') && (column.title !== column.name) && (
-                    <Text type="secondary" className="m-l-5"><i>({column.title})</i></Text>
-                  )}
-                </React.Fragment>
-              )}
-              extra={(
-                <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                  <Icon
-                    type={column.visible ? 'eye' : 'eye-invisible'}
-                    onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
-                  />
-                </Tooltip>
-              )}
-            >
-              <ColumnEditor column={column} onChange={handleColumnChange} />
-            </SortableItem>
-          ))}
-        </Collapse>
-      </div>
+      <Collapse bordered={false} defaultActiveKey={[]} expandIconPosition="right">
+        {map(options.columns, (column, index) => (
+          <SortableItem
+            key={column.name}
+            index={index}
+            header={(
+              <React.Fragment>
+                <DragHandle />
+                {column.name}
+                {(column.title !== '') && (column.title !== column.name) && (
+                  <Text type="secondary" className="m-l-5"><i>({column.title})</i></Text>
+                )}
+              </React.Fragment>
+            )}
+            extra={(
+              <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Icon
+                  type={column.visible ? 'eye' : 'eye-invisible'}
+                  onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
+                />
+              </Tooltip>
+            )}
+          >
+            <ColumnEditor column={column} onChange={handleColumnChange} />
+          </SortableItem>
+        ))}
+      </Collapse>
     </SortableContainer>
   );
 }
