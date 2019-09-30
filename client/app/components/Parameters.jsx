@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
-import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
@@ -11,18 +11,6 @@ import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
 
 import './Parameters.less';
-
-const DragHandle = sortableHandle(({ parameterName }) => (
-  <div className="drag-handle" data-test={`DragHandle-${parameterName}`} />
-));
-
-const SortableItem = sortableElement(({ className, parameterName, disabled, children }) => (
-  <div className={className} data-editable={!disabled || null}>
-    {!disabled && <DragHandle parameterName={parameterName} />}
-    {children}
-  </div>
-));
-const SortableContainer = sortableContainer(({ children }) => children);
 
 function updateUrl(parameters) {
   const params = extend({}, $location.search());
@@ -50,12 +38,12 @@ export class Parameters extends React.Component {
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
     const { parameters } = props;
-    this.state = { parameters, dragging: false };
+    this.state = { parameters };
     if (!props.disableUrlUpdate) {
       updateUrl(parameters);
     }
@@ -101,11 +89,6 @@ export class Parameters extends React.Component {
         return { parameters };
       });
     }
-    this.setState({ dragging: false });
-  };
-
-  onBeforeSortStart = () => {
-    this.setState({ dragging: true });
   };
 
   applyChanges = () => {
@@ -170,32 +153,32 @@ export class Parameters extends React.Component {
   }
 
   render() {
-    const { parameters, dragging } = this.state;
+    const { parameters } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
       <SortableContainer
+        disabled={!editable}
         axis="xy"
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
+        containerProps={{
+          className: 'parameter-container',
+          onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
+        }}
       >
-        <div
-          className="parameter-container"
-          onKeyDown={dirtyParamCount ? this.handleKeyDown : null}
-          data-draggable={editable || null}
-          data-dragging={dragging || null}
-        >
-          {parameters.map((param, index) => (
-            <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
+        {parameters.map((param, index) => (
+          <SortableElement key={param.name} index={index}>
+            <div className="parameter-block" data-editable={editable || null}>
+              {editable && <DragHandle data-test={`DragHandle-${param.name}`} />}
               {this.renderParameter(param, index)}
-            </SortableItem>
-          ))}
-
-          <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
-        </div>
+            </div>
+          </SortableElement>
+        ))}
+        <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
       </SortableContainer>
     );
   }
