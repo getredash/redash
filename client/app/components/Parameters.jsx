@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, some } from 'lodash';
+import { size, filter, forEach, extend, some, trim } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { $location } from '@/services/ng';
@@ -26,8 +26,8 @@ const SortableItem = sortableElement(({ className, parameterName, disabled, chil
 ));
 const SortableContainer = sortableContainer(({ children }) => children);
 
-function isPendingValueEmpty({ pendingValue }) {
-  return pendingValue === '' || pendingValue === null;
+function isPendingValueEmpty({ hasPendingValue, pendingValue }) {
+  return hasPendingValue ? trim(pendingValue) === '' : false;
 }
 
 function updateUrl(parameters) {
@@ -143,7 +143,7 @@ export class Parameters extends React.Component {
 
   renderParameter(param, index) {
     const { editable } = this.props;
-    const isEmpty = param.pendingValue === '' || param.pendingValue === null;
+    const isEmpty = param.hasPendingValue ? isPendingValueEmpty(param) : param.isEmpty;
 
     return (
       <div
