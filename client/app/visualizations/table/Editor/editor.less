@@ -1,31 +1,17 @@
 .table-visualization-editor-columns {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: stretch;
-  overflow: auto;
+  .ant-collapse-item {
+    background: #ffffff;
+
+    .drag-handle {
+      height: 20px;
+      margin-left: -8px;
+      margin-right: 8px;
+    }
+  }
 }
 
 .table-visualization-editor-column {
-  min-width: 200px;
-  width: 200px;
-  padding: 0 10px;
-  border-right: 1px solid #f0f0f0;
-  background: #ffffff;
-  cursor: move;
-
-  &:last-child {
-    border-right: none;
-  }
-
-  .table-visualization-editor-column-header {
-    background: rgba(102, 136, 153, 0.05);
-    padding: 10px;
-    margin-left: -10px;
-    margin-right: -10px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #f0f0f0;
-  }
+  padding-left: 6px;
 
   .table-visualization-editor-column-align-content {
     display: flex;
@@ -35,8 +21,9 @@
     .ant-radio-button-wrapper {
       flex-grow: 1;
       text-align: center;
-      height: 28px;
-      line-height: 26px;
+      // fit <Input> height
+      height: 35px;
+      line-height: 33px;
     }
   }
 }

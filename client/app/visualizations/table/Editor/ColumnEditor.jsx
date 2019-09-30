@@ -1,11 +1,13 @@
 import { map, keys } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import * as Grid from 'antd/lib/grid';
 import Input from 'antd/lib/input';
 import Radio from 'antd/lib/radio';
 import Checkbox from 'antd/lib/checkbox';
 import Select from 'antd/lib/select';
 import Icon from 'antd/lib/icon';
+import Tooltip from 'antd/lib/tooltip';
 
 import ColumnTypes from '../columns';
 
@@ -18,27 +20,28 @@ export default function ColumnEditor({ column, onChange }) {
 
   return (
     <div className="table-visualization-editor-column">
-      <div className="table-visualization-editor-column-header">
-        <Input
-          value={column.title}
-          onChange={event => handleChange({ title: event.target.value })}
-          addonBefore={(
-            <Checkbox
-              checked={column.visible}
-              onChange={event => handleChange({ visible: event.target.checked })}
-            />
-          )}
-        />
-      </div>
-      <Radio.Group
-        className="table-visualization-editor-column-align-content m-b-15"
-        value={column.alignContent}
-        onChange={event => handleChange({ alignContent: event.target.value })}
-      >
-        <Radio.Button value="left"><Icon type="align-left" /></Radio.Button>
-        <Radio.Button value="center"><Icon type="align-center" /></Radio.Button>
-        <Radio.Button value="right"><Icon type="align-right" /></Radio.Button>
-      </Radio.Group>
+      <Grid.Row gutter={15} type="flex" align="middle" className="m-b-15">
+        <Grid.Col span={16}>
+          <Input value={column.title} onChange={event => handleChange({ title: event.target.value })} />
+        </Grid.Col>
+        <Grid.Col span={8}>
+          <Radio.Group
+            className="table-visualization-editor-column-align-content"
+            value={column.alignContent}
+            onChange={event => handleChange({ alignContent: event.target.value })}
+          >
+            <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <Radio.Button value="left"><Icon type="align-left" /></Radio.Button>
+            </Tooltip>
+            <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <Radio.Button value="center"><Icon type="align-center" /></Radio.Button>
+            </Tooltip>
+            <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <Radio.Button value="right"><Icon type="align-right" /></Radio.Button>
+            </Tooltip>
+          </Radio.Group>
+        </Grid.Col>
+      </Grid.Row>
 
       <div className="m-b-15">
         <label htmlFor={`table-column-editor-${column.name}-allow-search`}>
