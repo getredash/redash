@@ -34,7 +34,7 @@ const WidgetType = PropTypes.shape({
 const SINGLE = 'single-column';
 const MULTI = 'multi-column';
 
-class DashboardGrid extends React.Component {
+export class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
     isPublic: PropTypes.bool,

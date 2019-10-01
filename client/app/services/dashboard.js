@@ -149,6 +149,11 @@ function DashboardService($resource, $http, $location, currentUser) {
     { slug: '@slug' },
     {
       get: { method: 'GET', transformResponse: transform },
+      getByToken: {
+        method: 'GET',
+        url: 'api/dashboards/public/:token',
+        transformResponse: transform,
+      },
       save: { method: 'POST', transformResponse: transform },
       query: { method: 'GET', isArray: false, transformResponse: transform },
       recent: {
