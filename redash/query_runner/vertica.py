@@ -123,13 +123,15 @@ class Vertica(BaseSQLQueryRunner):
 
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
-            logger.debug("Vetica running query: %s", query)
+            logger.debug("Vertica running query: %s", query)
             cursor.execute(query)
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
                 columns_data = [(i[0], i[1]) for i in cursor.description]
-
+                
+                # bug -- same name columns will always be assigned single last value
+                # corrected with fetch_columns in pull request https://github.com/getredash/redash/pull/4201
                 rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor.fetchall()]
                 columns = [{'name': col[0],
                             'friendly_name': col[0],
