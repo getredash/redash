@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { isEmpty, includes, compact } from 'lodash';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { isEmpty, includes, compact, map } from 'lodash';
 import { $location } from '@/services/ng';
 import { collectDashboardFilters } from '@/services/dashboard';
 
@@ -18,33 +18,31 @@ function useDashboard(dashboard) {
   const [widgets, setWidgets] = useState(dashboard.widgets);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
 
-  const loadWidget = (widget, forceRefresh = false) => {
+  const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setWidgets(dashboard.widgets);
-    return widget.load(forceRefresh).then((result) => {
-      setWidgets(dashboard.widgets);
-      return result;
-    });
-  };
+    setWidgets([...dashboard.widgets]); // TODO: Explore a better way to do this
+    return widget.load(forceRefresh).then(() => setWidgets([...dashboard.widgets]));
+  }, [dashboard]);
 
-  const refreshWidget = widget => loadWidget(widget, true);
+  const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
-  const collectFilters = (forceRefresh = false, updatedParameters = []) => {
+  const collectFilters = useCallback((forceRefresh = false, updatedParameters = []) => {
     const affectedWidgets = getAffectedWidgets(widgets, updatedParameters);
-    const queryResultPromises = compact(affectedWidgets.map(widget => loadWidget(widget, forceRefresh)));
+    const loadWidgetPromises = compact(affectedWidgets.map(widget => loadWidget(widget, forceRefresh)));
 
-    return Promise.all(queryResultPromises).then((queryResults) => {
+    return Promise.all(loadWidgetPromises).then(() => {
+      const queryResults = compact(map(widgets, widget => widget.getQueryResult()));
       const updatedFilters = collectDashboardFilters(dashboard, queryResults, $location.search());
       setFilters(updatedFilters);
     });
-  };
+  }, [dashboard, widgets, loadWidget]);
 
   const refreshDashboard = updatedParameters => collectFilters(true, updatedParameters);
   const loadDashboard = () => collectFilters();
 
   useEffect(() => {
     loadDashboard();
-  }, []);
+  }, [dashboard]);
 
   return {
     widgets,
