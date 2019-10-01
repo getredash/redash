@@ -1,6 +1,6 @@
 # Contributing Guide
 
-Thank you for taking the time to contribute! :tada::+1:
+Thank you for taking the time for your valuable contribution! :tada::+1:
 
 The following is a set of guidelines for contributing to Redash. These are guidelines, not rules, please use your best judgement and feel free to propose changes to this document in a pull request.
 
