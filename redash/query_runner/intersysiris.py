@@ -69,44 +69,6 @@ _configuration_schema = {
 cfg = _configuration_schema['properties']
 
 
-def get_odbc_connection(user,
-                        password,
-                        host,
-                        port,
-                        namespace
-                        ):
-
-    cfg = InterSysIris.configuration_schema()['properties']
-
-    user = user if user is not None and (len(user) >= 0) \
-        else cfg['user']['default']
-
-    password = password if password is not None and (len(password) > 0) \
-        else cfg['password']['default']
-
-    host = host if host is not None and (len(host) > 0) \
-        else cfg['host']['default']
-
-    port = port if port is not None and (len(str(port)) > 0) \
-        else cfg['port']['default']
-
-    namespace = namespace if namespace is not None and (len(namespace) > 0) \
-        else cfg['namespace']['default']
-
-    driver = "{InterSystems ODBC}"
-
-    if host[-1] == '/':
-        host = host[:-1]
-
-    connection_string = \
-        'DRIVER={};SERVER={};PORT={};DATABASE={};UID={};PWD={}' \
-        .format(driver, host, port, namespace, user, password)
-
-    connection = pyodbc.connect(connection_string)
-
-    return connection
-
-
 class InterSysIris(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -150,7 +112,7 @@ class InterSysIris(BaseSQLQueryRunner):
         if len(tablefilter) > 0:
             filters = tablefilter.replace(',', ';').replace(' ', '').split(';')
             tablefilter_str = ' '.join(["and (TABLE_SCHEMA not like '{}')".format(f)
-                for f in filters if len(f) > 0])
+                              for f in filters if len(f) > 0])
 
         query_table = """
         SELECT '"' || TABLE_SCHEMA || '"."' || TABLE_NAME || '"' as tbl_name,
@@ -194,16 +156,35 @@ class InterSysIris(BaseSQLQueryRunner):
         cursor = None
 
         try:
-            connection = get_odbc_connection(
-                            user=self.configuration.get('user'),
-                            password=self.configuration.get('password'),
-                            host=self.configuration.get('host'),
-                            port=self.configuration.get('port'),
-                            namespace=self.configuration.get('namespace'),
-                            )
+            user=self.configuration.get('user')
+            password=self.configuration.get('password')
+            host=self.configuration.get('host')
+            port=self.configuration.get('port')
+            namespace=self.configuration.get('namespace')
+            cfg = InterSysIris.configuration_schema()['properties']
+            user = user if user is not None and (len(user) >= 0) \
+                else cfg['user']['default']
+            password = password if password is not None and (len(password) > 0) \
+                else cfg['password']['default']
+            host = host if host is not None and (len(host) > 0) \
+                else cfg['host']['default']
+            port = port if port is not None and (len(str(port)) > 0) \
+                else cfg['port']['default']
+            namespace = namespace if namespace is not None and (len(namespace) > 0) \
+                else cfg['namespace']['default']
+            driver = "{InterSystems ODBC}"
 
+            if host[-1] == '/':
+                host = host[:-1]
+
+            connection_string = \
+                'DRIVER={};SERVER={};PORT={};DATABASE={};UID={};PWD={}' \
+                .format(driver, host, port, namespace, user, password)
+
+            connection = pyodbc.connect(connection_string)
             cursor = connection.cursor()
             cursor.execute(query)
+
             if cursor.description is not None:
                 columns_raw = [col[0] for col in cursor.description]
                 columns = self.fetch_columns([(i, None) for i in columns_raw])
@@ -237,5 +218,6 @@ class InterSysIris(BaseSQLQueryRunner):
             if connection:
                 connection.close()
         return json_data, error
+
 
 register(InterSysIris)
