@@ -294,7 +294,7 @@ default_query_runners = [
     'redash.query_runner.cass',
     'redash.query_runner.dgraph',
     'redash.query_runner.azure_kusto',
-    'redash.query_runner.intersysiris', 
+    'redash.query_runner.intersysiris',
 
 ]
 

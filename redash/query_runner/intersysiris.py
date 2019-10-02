@@ -150,7 +150,7 @@ class InterSysIris(BaseSQLQueryRunner):
         if len(tablefilter) > 0:
             filters = tablefilter.replace(',', ';').replace(' ', '').split(';')
             tablefilter_str = ' '.join(["and (TABLE_SCHEMA not like '{}')".format(f)
-                                   for f in filters if len(f) > 0])
+                for f in filters if len(f) > 0])
 
         query_table = """
         SELECT '"' || TABLE_SCHEMA || '"."' || TABLE_NAME || '"' as tbl_name,
@@ -205,7 +205,7 @@ class InterSysIris(BaseSQLQueryRunner):
             cursor = connection.cursor()
             cursor.execute(query)
             if cursor.description is not None:
-                columns_raw =  [col[0] for col in cursor.description]
+                columns_raw = [col[0] for col in cursor.description]
                 columns = self.fetch_columns([(i, None) for i in columns_raw])
                 rows = cursor.fetchall()
                 row_data = [dict(zip(columns_raw, row)) for row in rows]
@@ -215,7 +215,6 @@ class InterSysIris(BaseSQLQueryRunner):
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None
-
 
         except pyodbc.Error as e:
             try:
