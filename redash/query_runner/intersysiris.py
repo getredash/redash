@@ -204,11 +204,11 @@ class InterSysIris(BaseSQLQueryRunner):
 
             cursor = connection.cursor()
             cursor.execute(query)
-
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], None) for i in cursor.description])
+                columns_raw =  [col[0] for col in cursor.description]
+                columns = self.fetch_columns([(i, None) for i in columns_raw])
                 rows = cursor.fetchall()
-                row_data = [dict(zip(columns0, row)) for row in rows]
+                row_data = [dict(zip(columns_raw, row)) for row in rows]
                 data = {'columns': columns, 'rows': row_data}
                 error = None
                 json_data = json_dumps(data)
@@ -234,7 +234,7 @@ class InterSysIris(BaseSQLQueryRunner):
             reraise(unicode_err, None, sys.exc_info()[2])
         finally:
             if cursor:
-                cursor.close()
+                cursor.close
             if connection:
                 connection.close()
         return json_data, error
