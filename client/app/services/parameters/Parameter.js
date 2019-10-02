@@ -69,12 +69,31 @@ class Parameter {
     return this.$$value;
   }
 
+  get currentValueValidationError() {
+    const value = this.hasPendingValue ? this.pendingValue : this.value;
+
+    if (this.isValueInvalid(value)) {
+      return 'Invalid value';
+    }
+
+    if (this.isEmptyValue(value)) {
+      return 'Required field';
+    }
+
+    return null;
+  }
+
   clone() {
     return Parameter.create(this, this.parentQueryId);
   }
 
   isEmptyValue(value) {
     return isNull(this.normalizeValue(value));
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  isValueInvalid() {
+    return false; // accepts any input
   }
 
   // eslint-disable-next-line class-methods-use-this

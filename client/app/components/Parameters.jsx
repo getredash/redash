@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, some, trim } from 'lodash';
+import { size, filter, forEach, extend, some } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { $location } from '@/services/ng';
@@ -25,10 +25,6 @@ const SortableItem = sortableElement(({ className, parameterName, disabled, chil
   </div>
 ));
 const SortableContainer = sortableContainer(({ children }) => children);
-
-function isPendingValueEmpty({ hasPendingValue, pendingValue }) {
-  return hasPendingValue ? trim(pendingValue) === '' : false;
-}
 
 function updateUrl(parameters) {
   const params = extend({}, $location.search());
@@ -143,7 +139,7 @@ export class Parameters extends React.Component {
 
   renderParameter(param, index) {
     const { editable } = this.props;
-    const isEmpty = param.hasPendingValue ? isPendingValueEmpty(param) : param.isEmpty;
+    const errorMessage = param.currentValueValidationError;
 
     return (
       <div
@@ -165,8 +161,8 @@ export class Parameters extends React.Component {
           )}
         </div>
         <Form.Item
-          validateStatus={isEmpty ? 'error' : ''}
-          help={isEmpty ? 'Required field' : null}
+          validateStatus={errorMessage ? 'error' : ''}
+          help={errorMessage || null}
         >
           <ParameterValueInput
             type={param.type}
@@ -186,7 +182,9 @@ export class Parameters extends React.Component {
     const { parameters, dragging } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
-    const canApplyChanges = !!dirtyParamCount && !some(parameters, isPendingValueEmpty);
+
+    // show apply button if there are any changes and all param values are valid
+    const canApplyChanges = !!dirtyParamCount && !some(parameters, p => p.currentValueValidationError !== null);
 
     return (
       <SortableContainer
