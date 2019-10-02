@@ -132,7 +132,7 @@ class Vertica(BaseSQLQueryRunner):
 
                 columns = self.fetch_columns(column_data)
                 rows = [dict(zip(([c['name'] for c in columns]), r))
-                        for i, r in enumerate(cursor.fetchall())]
+                        for r in cursor.fetchall()]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json_dumps(data)
