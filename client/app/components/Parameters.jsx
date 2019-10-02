@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, some } from 'lodash';
+import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/parameters';
+import { hasValueValidationErrors } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import Form from 'antd/lib/form';
@@ -182,9 +183,7 @@ export class Parameters extends React.Component {
     const { parameters, dragging } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
-
-    // show apply button if there are any changes and all param values are valid
-    const canApplyChanges = !!dirtyParamCount && !some(parameters, p => p.currentValueValidationError !== null);
+    const canApplyChanges = !!dirtyParamCount && !hasValueValidationErrors(parameters);
 
     return (
       <SortableContainer

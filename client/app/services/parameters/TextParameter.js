@@ -1,4 +1,4 @@
-import { toString, isEmpty } from 'lodash';
+import { toString, isEmpty, trim } from 'lodash';
 import { Parameter } from '.';
 
 class TextParameter extends Parameter {
@@ -14,6 +14,11 @@ class TextParameter extends Parameter {
       return null;
     }
     return normalizedValue;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  isEmptyValue(value) {
+    return !trim(value);
   }
 }
 
