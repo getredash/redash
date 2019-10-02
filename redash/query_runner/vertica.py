@@ -123,10 +123,9 @@ class Vertica(BaseSQLQueryRunner):
 
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
-            logger.debug("Vetica running query: %s", query)
+            logger.debug("Vertica running query: %s", query)
             cursor.execute(query)
 
-            # TODO - very similar to pg.py
             if cursor.description is not None:
                 columns_data = [(i[0], types_map.get(i[1], None)) for i in cursor.description]
 
