@@ -111,8 +111,7 @@ class InterSysIris(BaseSQLQueryRunner):
 
         if len(tablefilter) > 0:
             filters = tablefilter.replace(',', ';').replace(' ', '').split(';')
-            tablefilter_str = ' '.join(["and (TABLE_SCHEMA not like '{}')".format(f)
-                              for f in filters if len(f) > 0])
+            tablefilter_str = ' '.join(["and (TABLE_SCHEMA not like '{}')".format(f) for f in filters if len(f) > 0])
 
         query_table = """
         SELECT '"' || TABLE_SCHEMA || '"."' || TABLE_NAME || '"' as tbl_name,
@@ -156,11 +155,11 @@ class InterSysIris(BaseSQLQueryRunner):
         cursor = None
 
         try:
-            user=self.configuration.get('user')
-            password=self.configuration.get('password')
-            host=self.configuration.get('host')
-            port=self.configuration.get('port')
-            namespace=self.configuration.get('namespace')
+            user = self.configuration.get('user')
+            password = self.configuration.get('password')
+            host = self.configuration.get('host')
+            port = self.configuration.get('port')
+            namespace = self.configuration.get('namespace')
             cfg = InterSysIris.configuration_schema()['properties']
             user = user if user is not None and (len(user) >= 0) \
                 else cfg['user']['default']
