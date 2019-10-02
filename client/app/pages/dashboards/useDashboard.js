@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { isEmpty, includes, compact, map } from 'lodash';
+import { isEmpty, isNaN, includes, compact, map } from 'lodash';
 import { $location } from '@/services/ng';
 import { collectDashboardFilters } from '@/services/dashboard';
 
@@ -13,20 +13,26 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
   ) : widgets;
 }
 
+function getRefreshRateFromUrl() {
+  const refreshRate = parseFloat($location.search().refresh);
+  return isNaN(refreshRate) ? null : Math.max(30, refreshRate);
+}
+
 function useDashboard(dashboard) {
   const [filters, setFilters] = useState([]);
   const [widgets, setWidgets] = useState(dashboard.widgets);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
+  const refreshRate = useMemo(getRefreshRateFromUrl, []);
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setWidgets([...dashboard.widgets]); // TODO: Explore a better way to do this
-    return widget.load(forceRefresh).then(() => setWidgets([...dashboard.widgets]));
+    setWidgets([...dashboard.widgets]);
+    return widget.load(forceRefresh).finally(() => setWidgets([...dashboard.widgets]));
   }, [dashboard]);
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
-  const collectFilters = useCallback((forceRefresh = false, updatedParameters = []) => {
+  const loadDashboard = useCallback((forceRefresh = false, updatedParameters = []) => {
     const affectedWidgets = getAffectedWidgets(widgets, updatedParameters);
     const loadWidgetPromises = compact(affectedWidgets.map(widget => loadWidget(widget, forceRefresh)));
 
@@ -37,12 +43,18 @@ function useDashboard(dashboard) {
     });
   }, [dashboard, widgets, loadWidget]);
 
-  const refreshDashboard = updatedParameters => collectFilters(true, updatedParameters);
-  const loadDashboard = () => collectFilters();
+  const refreshDashboard = updatedParameters => loadDashboard(true, updatedParameters);
 
   useEffect(() => {
     loadDashboard();
   }, [dashboard]);
+
+  useEffect(() => {
+    if (refreshRate) {
+      const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
+      return () => clearInterval(refreshTimer);
+    }
+  }, [refreshRate]);
 
   return {
     widgets,
