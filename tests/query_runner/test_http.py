@@ -35,7 +35,7 @@ class TestBaseHTTPQueryRunner(TestCase):
 
     def test_get_auth_empty_requires_authentication(self):
         query_runner = RequiresAuthQueryRunner({})
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             ValueError,
             "Username and Password required",
             query_runner.get_auth
@@ -128,7 +128,7 @@ class TestBaseHTTPQueryRunner(TestCase):
 
         url = 'https://example.com/'
         query_runner = BaseHTTPQueryRunner({})
-        self.assertRaisesRegexp(
+        self.assertRaisesRegex(
             ValueError,
             exception_message,
             query_runner.get_response,

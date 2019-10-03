@@ -16,7 +16,7 @@ class TestConvertType(TestCase):
         self.assertEqual(convert_type('FALSE', TYPE_BOOLEAN), False)
 
     def test_converts_strings(self):
-        self.assertEqual(convert_type(u'Текст', TYPE_STRING), u'Текст')
+        self.assertEqual(convert_type('Текст', TYPE_STRING), 'Текст')
         self.assertEqual(convert_type(None, TYPE_STRING), '')
         self.assertEqual(convert_type('', TYPE_STRING), '')
         self.assertEqual(convert_type('redash', TYPE_STRING), 'redash')

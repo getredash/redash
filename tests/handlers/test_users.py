@@ -112,7 +112,7 @@ class TestUserListGet(BaseTestCase):
 
     def make_request_and_return_ids(self, *args, **kwargs):
         rv = self.make_request(*args, **kwargs)
-        return map(lambda u: u['id'], rv.json['results'])
+        return [u['id'] for u in rv.json['results']]
 
     def assertUsersListMatches(self, actual_ids, expected_ids, unexpected_ids):
         actual_ids = set(actual_ids)
@@ -305,7 +305,7 @@ class TestUserResourcePost(BaseTestCase):
                 current = sess['user_id']
 
         # make sure the session's `user_id` has changed to reflect the new identity, thus not logging the user out
-        self.assertNotEquals(previous, current)
+        self.assertNotEqual(previous, current)
 
     def test_admin_can_change_user_groups(self):
         admin_user = self.factory.create_admin()
@@ -409,7 +409,7 @@ class TestUserDisable(BaseTestCase):
             # login handler should not be called
             login_user_mock.assert_not_called()
             # check if error is raised
-            self.assertEquals(rv.status_code, 200)
+            self.assertEqual(rv.status_code, 200)
             self.assertIn('Wrong email or password', rv.data)
 
     def test_disabled_user_should_not_access_api(self):
@@ -418,7 +418,7 @@ class TestUserDisable(BaseTestCase):
         # 1. create user; the user should have access to API
         user = self.factory.create_user()
         rv = self.make_request('get', '/api/dashboards', user=user)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         # 2. disable user; now API access should be forbidden
         user.disable()
@@ -426,7 +426,7 @@ class TestUserDisable(BaseTestCase):
         self.db.session.commit()
 
         rv = self.make_request('get', '/api/dashboards', user=user)
-        self.assertNotEquals(rv.status_code, 200)
+        self.assertNotEqual(rv.status_code, 200)
 
     def test_disabled_user_should_not_receive_restore_password_email(self):
         admin_user = self.factory.create_admin()
@@ -461,7 +461,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         other_user = models.User.query.get(other_user.id)
-        self.assertNotEquals(orig_api_key, other_user.api_key)
+        self.assertNotEqual(orig_api_key, other_user.api_key)
 
     def test_admin_can_regenerate_other_user_api_key(self):
         user1 = self.factory.create_user()
@@ -472,7 +472,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
         user = models.User.query.get(user2.id)
-        self.assertEquals(orig_user2_api_key, user.api_key)
+        self.assertEqual(orig_user2_api_key, user.api_key)
 
     def test_admin_can_regenerate_api_key_myself(self):
         admin_user = self.factory.create_admin()
@@ -482,7 +482,7 @@ class TestUserRegenerateApiKey(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         user = models.User.query.get(admin_user.id)
-        self.assertNotEquals(orig_api_key, user.api_key)
+        self.assertNotEqual(orig_api_key, user.api_key)
 
     def test_user_can_regenerate_api_key_myself(self):
         user = self.factory.create_user()
@@ -492,4 +492,4 @@ class TestUserRegenerateApiKey(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
 
         user = models.User.query.get(user.id)
-        self.assertNotEquals(orig_api_key, user.api_key)
+        self.assertNotEqual(orig_api_key, user.api_key)

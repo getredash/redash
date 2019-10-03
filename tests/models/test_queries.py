@@ -14,7 +14,7 @@ class QueryTest(BaseTestCase):
 
         q.query_text = "SELECT 2;"
         db.session.flush()
-        self.assertNotEquals(old_hash, q.query_hash)
+        self.assertNotEqual(old_hash, q.query_hash)
 
     def create_tagged_query(self, tags):
         ds = self.factory.create_data_source(group=self.factory.default_group)
@@ -22,31 +22,31 @@ class QueryTest(BaseTestCase):
         return query
 
     def test_all_tags(self):
-        self.create_tagged_query(tags=[u'tag1'])
-        self.create_tagged_query(tags=[u'tag1', u'tag2'])
-        self.create_tagged_query(tags=[u'tag1', u'tag2', u'tag3'])
+        self.create_tagged_query(tags=['tag1'])
+        self.create_tagged_query(tags=['tag1', 'tag2'])
+        self.create_tagged_query(tags=['tag1', 'tag2', 'tag3'])
 
         self.assertEqual(
             list(Query.all_tags(self.factory.user)),
-            [(u'tag1', 3), (u'tag2', 2), (u'tag3', 1)]
+            [('tag1', 3), ('tag2', 2), ('tag3', 1)]
         )
 
     def test_search_finds_in_name(self):
-        q1 = self.factory.create_query(name=u"Testing seåřċħ")
-        q2 = self.factory.create_query(name=u"Testing seåřċħing")
-        q3 = self.factory.create_query(name=u"Testing seå řċħ")
-        queries = list(Query.search(u"seåřċħ", [self.factory.default_group.id]))
+        q1 = self.factory.create_query(name="Testing seåřċħ")
+        q2 = self.factory.create_query(name="Testing seåřċħing")
+        q3 = self.factory.create_query(name="Testing seå řċħ")
+        queries = list(Query.search("seåřċħ", [self.factory.default_group.id]))
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
     def test_search_finds_in_description(self):
-        q1 = self.factory.create_query(description=u"Testing seåřċħ")
-        q2 = self.factory.create_query(description=u"Testing seåřċħing")
-        q3 = self.factory.create_query(description=u"Testing seå řċħ")
+        q1 = self.factory.create_query(description="Testing seåřċħ")
+        q2 = self.factory.create_query(description="Testing seåřċħing")
+        q3 = self.factory.create_query(description="Testing seå řċħ")
 
-        queries = Query.search(u"seåřċħ", [self.factory.default_group.id])
+        queries = Query.search("seåřċħ", [self.factory.default_group.id])
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -54,19 +54,19 @@ class QueryTest(BaseTestCase):
 
     def test_search_finds_in_multi_byte_name_and_description(self):
         q1 = self.factory.create_query(name="日本語の名前テスト")
-        q2 = self.factory.create_query(description=u"日本語の説明文テスト")
-        q3 = self.factory.create_query(description=u"Testing search")
+        q2 = self.factory.create_query(description="日本語の説明文テスト")
+        q3 = self.factory.create_query(description="Testing search")
 
-        queries = Query.search(u"テスト", [self.factory.default_group.id], multi_byte_search=True)
+        queries = Query.search("テスト", [self.factory.default_group.id], multi_byte_search=True)
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
     def test_search_by_id_returns_query(self):
-        q1 = self.factory.create_query(description=u"Testing search")
-        q2 = self.factory.create_query(description=u"Testing searching")
-        q3 = self.factory.create_query(description=u"Testing sea rch")
+        q1 = self.factory.create_query(description="Testing search")
+        q2 = self.factory.create_query(description="Testing searching")
+        q3 = self.factory.create_query(description="Testing sea rch")
         db.session.flush()
         queries = Query.search(str(q3.id), [self.factory.default_group.id])
 
@@ -75,20 +75,20 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q2, queries)
 
     def test_search_by_number(self):
-        q = self.factory.create_query(description=u"Testing search 12345")
+        q = self.factory.create_query(description="Testing search 12345")
         db.session.flush()
         queries = Query.search('12345', [self.factory.default_group.id])
 
         self.assertIn(q, queries)
 
     def test_search_respects_groups(self):
-        other_group = Group(org=self.factory.org, name=u"Other Group")
+        other_group = Group(org=self.factory.org, name="Other Group")
         db.session.add(other_group)
         ds = self.factory.create_data_source(group=other_group)
 
-        q1 = self.factory.create_query(description=u"Testing search", data_source=ds)
-        q2 = self.factory.create_query(description=u"Testing searching")
-        q3 = self.factory.create_query(description=u"Testing sea rch")
+        q1 = self.factory.create_query(description="Testing search", data_source=ds)
+        q2 = self.factory.create_query(description="Testing searching")
+        q3 = self.factory.create_query(description="Testing sea rch")
 
         queries = list(Query.search("Testing", [self.factory.default_group.id]))
 
