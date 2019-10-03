@@ -12,7 +12,7 @@ class ResultSet(object):
         self.rows = []
 
     def add_row(self, row):
-        for key in row.keys():
+        for key in list(row.keys()):
             self.add_column(key)
 
         self.rows.append(row)
@@ -22,7 +22,7 @@ class ResultSet(object):
             self.columns[column] = {'name': column, 'type': column_type, 'friendly_name': column}
 
     def to_json(self):
-        return json_dumps({'rows': self.rows, 'columns': self.columns.values()})
+        return json_dumps({'rows': self.rows, 'columns': list(self.columns.values())})
 
     def merge(self, set):
         self.rows = self.rows + set.rows
@@ -32,7 +32,7 @@ def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']
 
-    for k, v in issue['fields'].iteritems():#
+    for k, v in issue['fields'].items():#
         output_name = field_mapping.get_output_field_name(k)
         member_names = field_mapping.get_dict_members(k)
 
@@ -102,7 +102,7 @@ class FieldMapping:
 
     def __init__(cls, query_field_mapping):
         cls.mapping = []
-        for k, v in query_field_mapping.iteritems():
+        for k, v in query_field_mapping.items():
             field_name = k
             member_name = None
 

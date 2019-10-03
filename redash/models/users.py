@@ -8,7 +8,7 @@ from operator import or_
 from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
 from passlib.apps import custom_app_context as pwd_context
-from six import python_2_unicode_compatible, string_types, text_type
+from six import string_types, text_type
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.dialects import postgresql
 
@@ -39,7 +39,7 @@ def sync_last_active_at():
     for user_id in user_ids:
         timestamp = redis_connection.hget(LAST_ACTIVE_KEY, user_id)
         active_at = dt_from_timestamp(timestamp)
-        user = User.query.filter(User.id == user_id).first()
+        user = User.query.filter(User.id == user_id.decode()).first()
         if user:
             user.active_at = active_at
         redis_connection.hdel(LAST_ACTIVE_KEY, user_id)
@@ -69,14 +69,12 @@ class PermissionsCheckMixin(object):
 
     def has_permissions(self, permissions):
         has_permissions = reduce(lambda a, b: a and b,
-                                 map(lambda permission: permission in self.permissions,
-                                     permissions),
+                                 [permission in self.permissions for permission in permissions],
                                  True)
 
         return has_permissions
 
 
-@python_2_unicode_compatible
 @generic_repr('id', 'name', 'email')
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
@@ -105,7 +103,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     )
 
     def __str__(self):
-        return u'%s (%s)' % (self.name, self.email)
+        return '%s (%s)' % (self.name, self.email)
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('email') is not None:
@@ -165,7 +163,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if self._profile_image_url is not None:
             return self._profile_image_url
 
-        email_md5 = hashlib.md5(self.email.lower()).hexdigest()
+        email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
         return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
@@ -200,7 +198,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def search(cls, base_query, term):
-        term = u'%{}%'.format(term)
+        term = '%{}%'.format(term)
         search_filter = or_(cls.name.ilike(term), cls.email.like(term))
 
         return base_query.filter(search_filter)
@@ -234,12 +232,11 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     def get_id(self):
         identity = hashlib.md5(
-            "{},{}".format(self.email, self.password_hash)
+            "{},{}".format(self.email, self.password_hash).encode()
         ).hexdigest()
-        return u"{0}-{1}".format(self.id, identity)
+        return "{0}-{1}".format(self.id, identity)
 
 
-@python_2_unicode_compatible
 @generic_repr('id', 'name', 'type', 'org_id')
 class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
@@ -382,7 +379,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         self.org = org
 
     def __repr__(self):
-        return u"<{}>".format(self.name)
+        return "<{}>".format(self.name)
 
     def is_api_user(self):
         return True

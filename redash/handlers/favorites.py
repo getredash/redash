@@ -35,7 +35,7 @@ class QueryFavoriteResource(BaseResource):
 
         models.Favorite.query.filter(
             models.Favorite.object_id == query_id,
-            models.Favorite.object_type == u'Query',
+            models.Favorite.object_type == 'Query',
             models.Favorite.user == self.current_user,
         ).delete()
         models.db.session.commit()

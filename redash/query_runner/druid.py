@@ -55,7 +55,7 @@ class Druid(BaseQueryRunner):
         try:
             cursor.execute(query)
             columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+            rows = [dict(list(zip((c['name'] for c in columns), row))) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             error = None
@@ -91,7 +91,7 @@ class Druid(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Druid)

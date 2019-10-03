@@ -6,7 +6,6 @@ from six import text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
-from redash.utils.compat import long
 import json
 
 logger = logging.getLogger(__name__)
@@ -21,7 +20,6 @@ TYPES_MAP = {
     str: TYPE_STRING,
     text_type: TYPE_STRING,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
     datetime.datetime: TYPE_DATETIME,
@@ -45,7 +43,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = u'{}.{}'.format(key, inner_key)
+                    column_name = '{}.{}'.format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append({
                             "name": column_name,
@@ -122,7 +120,7 @@ class Couchbase(BaseQueryRunner):
             table_name = row.get(name_param)
             schema[table_name] = {'name': table_name, 'columns': defaultColumns}
 
-        return schema.values()
+        return list(schema.values())
 
     def get_schema(self, get_stats=False):
 
