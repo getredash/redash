@@ -5,7 +5,7 @@ from redash.destinations import *
 
 
 class ChatWork(BaseDestination):
-    ALERTS_DEFAULT_MESSAGE_TEMPLATE = u'{alert_name} changed state to {new_state}.\\n{alert_url}\\n{query_url}'
+    ALERTS_DEFAULT_MESSAGE_TEMPLATE = '{alert_name} changed state to {new_state}.\\n{alert_url}\\n{query_url}'
 
     @classmethod
     def configuration_schema(cls):

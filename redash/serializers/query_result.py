@@ -1,4 +1,4 @@
-import cStringIO
+import io
 import csv
 import xlsxwriter
 from funcy import rpartial, project
@@ -50,7 +50,7 @@ def _get_column_lists(columns):
     for col in columns:
         fieldnames.append(col['name'])
 
-        for col_type in special_types.keys():
+        for col_type in list(special_types.keys()):
             if col['type'] == col_type:
                 special_columns[col['name']] = special_types[col_type]
 
@@ -66,7 +66,7 @@ def serialize_query_result(query_result, is_api_user):
 
 
 def serialize_query_result_to_csv(query_result):
-    s = cStringIO.StringIO()
+    s = io.StringIO()
 
     query_data = json_loads(query_result.data)
 
@@ -77,7 +77,7 @@ def serialize_query_result_to_csv(query_result):
     writer.writeheader()
 
     for row in query_data['rows']:
-        for col_name, converter in special_columns.iteritems():
+        for col_name, converter in special_columns.items():
             if col_name in row:
                 row[col_name] = converter(row[col_name])
 
@@ -87,7 +87,7 @@ def serialize_query_result_to_csv(query_result):
 
 
 def serialize_query_result_to_xlsx(query_result):
-    s = cStringIO.StringIO()
+    s = io.StringIO()
 
     query_data = json_loads(query_result.data)
     book = xlsxwriter.Workbook(s, {'constant_memory': True})

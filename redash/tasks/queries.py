@@ -199,7 +199,7 @@ def refresh_queries():
                     try:
                         query_text = query.parameterized.apply(parameters).query
                     except InvalidParameterError as e:
-                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
+                        error = "Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
                         track_failure(query, error)
                         continue
                     except QueryDetachedFromDataSourceError as e:
@@ -255,19 +255,19 @@ def cleanup_query_results():
 @celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
-    logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
+    logger.info("task=refresh_schema state=start ds_id=%s", ds.id)
     start_time = time.time()
     try:
         ds.get_schema(refresh=True)
-        logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+        logger.info("task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
         statsd_client.incr('refresh_schema.success')
     except SoftTimeLimitExceeded:
-        logger.info(u"task=refresh_schema state=timeout ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+        logger.info("task=refresh_schema state=timeout ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
         statsd_client.incr('refresh_schema.timeout')
     except Exception:
-        logger.warning(u"Failed refreshing schema for the data source: %s", ds.name, exc_info=1)
+        logger.warning("Failed refreshing schema for the data source: %s", ds.name, exc_info=1)
         statsd_client.incr('refresh_schema.error')
-        logger.info(u"task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+        logger.info("task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
 
 
 @celery.task(name="redash.tasks.refresh_schemas")
@@ -278,19 +278,19 @@ def refresh_schemas():
     blacklist = [int(ds_id) for ds_id in redis_connection.smembers('data_sources:schema:blacklist') if ds_id]
     global_start_time = time.time()
 
-    logger.info(u"task=refresh_schemas state=start")
+    logger.info("task=refresh_schemas state=start")
 
     for ds in models.DataSource.query:
         if ds.paused:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
+            logger.info("task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
         elif ds.id in blacklist:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
+            logger.info("task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
         elif ds.org.is_disabled:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
+            logger.info("task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
             refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
 
-    logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
+    logger.info("task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
 
 def signal_handler(*args):
@@ -370,7 +370,7 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
+        logger.info("task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
@@ -409,7 +409,7 @@ class QueryExecutor(object):
 
     def _log_progress(self, state):
         logger.info(
-            u"task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
+            "task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
             "task_id=%s queue=%s query_id=%s username=%s",
             state, self.query_hash, self.data_source.type, self.data_source.id,
             self.task.request.id,

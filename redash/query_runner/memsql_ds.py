@@ -78,17 +78,14 @@ class MemSQL(BaseSQLQueryRunner):
 
         columns_query = "show columns in %s"
 
-        for schema_name in filter(lambda a: len(a) > 0,
-                                  map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]),
-                                                               self._run_query_internal(
-                                                                       tables_query % schema_name))):
+        for schema_name in [a for a in [str(a['Database']) for a in self._run_query_internal(schemas_query)] if len(a) > 0]:
+            for table_name in [a for a in [str(a['Tables_in_%s' % schema_name]) for a in self._run_query_internal(
+                                                                       tables_query % schema_name)] if len(a) > 0]:
                 table_name = '.'.join((schema_name, table_name))
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
-                                                           self._run_query_internal(columns_query % table_name)))
+                columns = [a for a in [str(a['Field']) for a in self._run_query_internal(columns_query % table_name)] if len(a) > 0]
 
                 schema[table_name] = {'name': table_name, 'columns': columns}
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
 
@@ -110,13 +107,13 @@ class MemSQL(BaseSQLQueryRunner):
             #         'type': types_map.get(column[COLUMN_TYPE], None)
             #     })
 
-            rows = [dict(zip(list(row.keys()), list(row.values()))) for row in res]
+            rows = [dict(list(zip(list(row.keys()), list(row.values())))) for row in res]
 
             # ====================================================================================================
             # temporary - until https://github.com/memsql/memsql-python/pull/8 gets merged
             # ====================================================================================================
             columns = []
-            column_names = rows[0].keys() if rows else None
+            column_names = list(rows[0].keys()) if rows else None
 
             if column_names:
                 for column in column_names:

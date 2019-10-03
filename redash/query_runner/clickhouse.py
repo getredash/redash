@@ -64,7 +64,7 @@ class ClickHouse(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def _send_query(self, data, stream=False):
         url = self.configuration.get('url', "http://127.0.0.1:8123")
@@ -136,7 +136,7 @@ class ClickHouse(BaseSQLQueryRunner):
 
         if 'totals' in result:
             totals = result['totals']
-            for column, value in columns_totals.iteritems():
+            for column, value in columns_totals.items():
                 totals[column] = value
             rows.append(totals)
 
@@ -155,7 +155,7 @@ class ClickHouse(BaseSQLQueryRunner):
         except Exception as e:
             data = None
             logging.exception(e)
-            error = unicode(e)
+            error = str(e)
         return data, error
 
 

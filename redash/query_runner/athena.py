@@ -180,7 +180,7 @@ class Athena(BaseQueryRunner):
                         schema[table_name] = {'name': table_name, 'columns': column}
                         for partition in table.get('PartitionKeys', []):
                             schema[table_name]['columns'].append(partition['Name'])
-        return schema.values()
+        return list(schema.values())
 
     def get_schema(self, get_stats=False):
         if self.configuration.get('glue', False):
@@ -204,7 +204,7 @@ class Athena(BaseQueryRunner):
                 schema[table_name] = {'name': table_name, 'columns': []}
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         cursor = pyathena.connect(
@@ -220,7 +220,7 @@ class Athena(BaseQueryRunner):
             cursor.execute(query)
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+            rows = [dict(list(zip(([c['name'] for c in columns]), r))) for i, r in enumerate(cursor.fetchall())]
             qbytes = None
             athena_query_id = None
             try:

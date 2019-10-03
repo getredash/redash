@@ -114,7 +114,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != 'public':
-                table_name = u'{}.{}'.format(row['table_schema'],
+                table_name = '{}.{}'.format(row['table_schema'],
                                              row['table_name'])
             else:
                 table_name = row['table_name']
@@ -164,7 +164,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
     def _get_connection(self):
         connection = psycopg2.connect(
@@ -192,7 +192,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in cursor.description])
                 rows = [
-                    dict(zip((c['name'] for c in columns), row))
+                    dict(list(zip((c['name'] for c in columns), row)))
                     for row in cursor
                 ]
 
@@ -327,7 +327,7 @@ class Redshift(PostgreSQL):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
 
 class CockroachDB(PostgreSQL):

@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import click
 import simplejson
@@ -52,7 +52,7 @@ def status():
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
-    for name, item in current_app.config.iteritems():
+    for name, item in current_app.config.items():
         print("{} = {}".format(name, item))
 
 

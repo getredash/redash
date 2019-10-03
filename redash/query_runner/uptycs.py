@@ -129,7 +129,7 @@ class Uptycs(BaseSQLQueryRunner):
             table_json = {"name": table_name, "columns": columns}
             redash_json.append(table_json)
 
-        logger.debug("%s", schema.values())
+        logger.debug("%s", list(schema.values()))
         return redash_json
 
 

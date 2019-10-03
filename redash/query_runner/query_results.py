@@ -38,7 +38,7 @@ def _load_query(user, query_id):
     # TODO: this duplicates some of the logic we already have in the redash.handlers.query_results.
     # We should merge it so it's consistent.
     if not has_access(query.data_source, user, view_only):
-        raise PermissionError(u"You do not have access to query id {}.".format(
+        raise PermissionError("You do not have access to query id {}.".format(
             query.id))
 
     return query
@@ -78,7 +78,7 @@ def create_tables_from_query_ids(user,
 
 
 def fix_column_name(name):
-    return u'"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
+    return '"{}"'.format(re.sub('[:."\s]', '_', name, flags=re.UNICODE))
 
 
 def flatten(value):
@@ -94,15 +94,15 @@ def create_table(connection, table_name, query_results):
         safe_columns = [fix_column_name(column) for column in columns]
 
         column_list = ", ".join(safe_columns)
-        create_table = u"CREATE TABLE {table_name} ({column_list})".format(
+        create_table = "CREATE TABLE {table_name} ({column_list})".format(
             table_name=table_name, column_list=column_list)
         logger.debug("CREATE TABLE query: %s", create_table)
         connection.execute(create_table)
     except sqlite3.OperationalError as exc:
-        raise CreateTableError(u"Error creating table {}: {}".format(
+        raise CreateTableError("Error creating table {}: {}".format(
             table_name, exc.message))
 
-    insert_template = u"insert into {table_name} ({column_list}) values ({place_holders})".format(
+    insert_template = "insert into {table_name} ({column_list}) values ({place_holders})".format(
         table_name=table_name,
         column_list=column_list,
         place_holders=','.join(['?'] * len(columns)))
@@ -153,7 +153,7 @@ class Results(BaseQueryRunner):
                         elif columns[j]['type'] != guess:
                             columns[j]['type'] = TYPE_STRING
 
-                    rows.append(dict(zip(column_names, row)))
+                    rows.append(dict(list(zip(column_names, row))))
 
                 data = {'columns': columns, 'rows': rows}
                 error = None

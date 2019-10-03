@@ -102,7 +102,7 @@ class Cassandra(BaseQueryRunner):
                 schema[table_name] = {'name': table_name, 'columns': []}
             schema[table_name]['columns'].append(column_name)
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = None
@@ -126,9 +126,9 @@ class Cassandra(BaseQueryRunner):
 
             column_names = result.column_names
 
-            columns = self.fetch_columns(map(lambda c: (c, 'string'), column_names))
+            columns = self.fetch_columns([(c, 'string') for c in column_names])
 
-            rows = [dict(zip(column_names, row)) for row in result]
+            rows = [dict(list(zip(column_names, row))) for row in result]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data, cls=CassandraJSONEncoder)

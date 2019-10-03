@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 try:
     import pymapd
@@ -82,7 +82,7 @@ class Mapd(BaseSQLQueryRunner):
         try:
             cursor.execute(query)
             columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+            rows = [dict(list(zip((c['name'] for c in columns), row))) for row in cursor]
             data = {'columns': columns, 'rows': rows}
             error = None
             json_data = json_dumps(data)
@@ -102,7 +102,7 @@ class Mapd(BaseSQLQueryRunner):
         finally:
             connection.close
 
-        return schema.values()
+        return list(schema.values())
 
     def test_connection(self):
         connection = self.connect_database()

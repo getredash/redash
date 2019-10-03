@@ -1,5 +1,5 @@
 import codecs
-import cStringIO
+import io
 import csv
 import datetime
 import decimal
@@ -144,7 +144,7 @@ class UnicodeWriter:
 
     def __init__(self, f, dialect=csv.excel, encoding=WRITER_ENCODING, **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = io.StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
@@ -175,7 +175,7 @@ class UnicodeWriter:
 def collect_parameters_from_request(args):
     parameters = {}
 
-    for k, v in args.iteritems():
+    for k, v in args.items():
         if k.startswith('p_'):
             parameters[k[2:]] = v
 

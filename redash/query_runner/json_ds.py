@@ -3,11 +3,10 @@ import yaml
 import socket
 import ipaddress
 import datetime
-from urlparse import urlparse
+from urllib.parse import urlparse
 from funcy import compact, project
 from six import text_type
 from redash.utils import json_dumps
-from redash.utils.compat import long
 from redash.query_runner import (BaseHTTPQueryRunner, register,
                                  TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
                                  TYPE_INTEGER, TYPE_STRING)
@@ -41,7 +40,6 @@ TYPES_MAP = {
     str: TYPE_STRING,
     text_type: TYPE_STRING,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
     datetime.datetime: TYPE_DATETIME,
@@ -116,7 +114,7 @@ def parse_json(data, path, fields):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = u'{}.{}'.format(key, inner_key)
+                    column_name = '{}.{}'.format(key, inner_key)
                     if fields and key not in fields and column_name not in fields:
                         continue
 

@@ -10,9 +10,9 @@ from six import string_types, text_type
 
 
 def _pluck_name_and_value(default_column, row):
-    row = {k.lower(): v for k, v in row.items()}
-    name_column = "name" if "name" in row.keys() else default_column.lower()
-    value_column = "value" if "value" in row.keys() else default_column.lower()
+    row = {k.lower(): v for k, v in list(row.items())}
+    name_column = "name" if "name" in list(row.keys()) else default_column.lower()
+    value_column = "value" if "value" in list(row.keys()) else default_column.lower()
 
     return {"name": row[name_column], "value": text_type(row[value_column])}
 
@@ -33,19 +33,19 @@ def dropdown_values(query_id, org):
     data = _load_result(query_id, org)
     first_column = data["columns"][0]["name"]
     pluck = partial(_pluck_name_and_value, first_column)
-    return map(pluck, data["rows"])
+    return list(map(pluck, data["rows"]))
 
 
 def join_parameter_list_values(parameters, schema):
     updated_parameters = {}
-    for (key, value) in parameters.iteritems():
+    for (key, value) in parameters.items():
         if isinstance(value, list):
             definition = next((definition for definition in schema if definition["name"] == key), {})
             multi_values_options = definition.get('multiValuesOptions', {})
             separator = str(multi_values_options.get('separator', ','))
             prefix = str(multi_values_options.get('prefix', ''))
             suffix = str(multi_values_options.get('suffix', ''))
-            updated_parameters[key] = separator.join(map(lambda v: prefix + v + suffix, value))
+            updated_parameters[key] = separator.join([prefix + v + suffix for v in value])
         else:
             updated_parameters[key] = value
     return updated_parameters
@@ -71,10 +71,10 @@ def _collect_query_parameters(query):
 
 def _parameter_names(parameter_values):
     names = []
-    for key, value in parameter_values.iteritems():
+    for key, value in parameter_values.items():
         if isinstance(value, dict):
-            for inner_key in value.keys():
-                names.append(u'{}.{}'.format(key, inner_key))
+            for inner_key in list(value.keys()):
+                names.append('{}.{}'.format(key, inner_key))
         else:
             names.append(key)
 
@@ -122,7 +122,7 @@ class ParameterizedQuery(object):
         self.parameters = {}
 
     def apply(self, parameters):
-        invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
+        invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
         if invalid_parameter_names:
             raise InvalidParameterError(invalid_parameter_names)
         else:
@@ -170,7 +170,7 @@ class ParameterizedQuery(object):
 
     @property
     def is_safe(self):
-        text_parameters = filter(lambda p: p["type"] == "text", self.schema)
+        text_parameters = [p for p in self.schema if p["type"] == "text"]
         return not any(text_parameters)
 
     @property
@@ -185,8 +185,8 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        parameter_names = u", ".join(parameters)
-        message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
+        parameter_names = ", ".join(parameters)
+        message = "The following parameter values are incompatible with their definitions: {}".format(parameter_names)
         super(InvalidParameterError, self).__init__(message)
 
 
