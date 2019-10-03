@@ -43,7 +43,10 @@ function useDashboard(dashboard) {
     });
   }, [dashboard, widgets, loadWidget]);
 
-  const refreshDashboard = updatedParameters => loadDashboard(true, updatedParameters);
+  const refreshDashboard = useCallback(
+    updatedParameters => loadDashboard(true, updatedParameters),
+    [loadDashboard],
+  );
 
   useEffect(() => {
     loadDashboard();
