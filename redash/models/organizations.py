@@ -1,4 +1,3 @@
-from six import python_2_unicode_compatible
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy_utils.models import generic_repr
 
@@ -10,7 +9,6 @@ from .types import MutableDict, PseudoJSON
 from .users import User, Group
 
 
-@python_2_unicode_compatible
 @generic_repr('id', 'name', 'slug')
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = 'google_apps_domains'
@@ -26,7 +24,7 @@ class Organization(TimestampMixin, db.Model):
     __tablename__ = 'organizations'
 
     def __str__(self):
-        return u'%s (%s)' % (self.name, self.id)
+        return '%s (%s)' % (self.name, self.id)
 
     @classmethod
     def get_by_slug(cls, slug):

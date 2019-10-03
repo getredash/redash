@@ -43,7 +43,7 @@ class BaseResource(Resource):
 
     # TODO: this should probably be somewhere else
     def update_model(self, model, updates):
-        for k, v in updates.items():
+        for k, v in list(updates.items()):
             setattr(model, k, v)
 
 

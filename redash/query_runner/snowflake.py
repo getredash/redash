@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 try:
     import snowflake.connector
@@ -92,7 +92,7 @@ class Snowflake(BaseQueryRunner):
 
             columns = self.fetch_columns(
                     [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row))
+            rows = [dict(list(zip((c['name'] for c in columns), row)))
                     for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
@@ -129,7 +129,7 @@ class Snowflake(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Snowflake)

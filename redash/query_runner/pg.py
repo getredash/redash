@@ -64,9 +64,9 @@ def _wait(conn, timeout=None):
 
 
 def full_table_name(schema, name):
-    if '.' in name: 
+    if '.' in name:
         name = u'"{}"'.format(name)
-    
+
     return u'{}.{}'.format(schema, name)
 
 
@@ -186,7 +186,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
     def _get_connection(self):
         connection = psycopg2.connect(
@@ -214,7 +214,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in cursor.description])
                 rows = [
-                    dict(zip((c['name'] for c in columns), row))
+                    dict(list(zip((c['name'] for c in columns), row)))
                     for row in cursor
                 ]
 
@@ -304,7 +304,7 @@ class Redshift(PostgreSQL):
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
-        
+
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
 
@@ -312,11 +312,11 @@ class Redshift(PostgreSQL):
             query_group = self.configuration.get('scheduled_query_group')
         else:
             query_group = self.configuration.get('adhoc_query_group')
-        
+
         if query_group:
             set_query_group = 'set query_group to {};'.format(query_group)
             annotated = '{}\n{}'.format(set_query_group, annotated)
-        
+
         return annotated
 
     def _get_tables(self, schema):
@@ -349,7 +349,7 @@ class Redshift(PostgreSQL):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
 
 class CockroachDB(PostgreSQL):

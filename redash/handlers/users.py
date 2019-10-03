@@ -274,7 +274,7 @@ class UserResource(BaseResource):
             'action': 'edit',
             'object_id': user.id,
             'object_type': 'user',
-            'updated_fields': params.keys()
+            'updated_fields': list(params.keys())
         })
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))

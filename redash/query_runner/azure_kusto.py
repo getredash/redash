@@ -137,7 +137,7 @@ class AzureKusto(BaseQueryRunner):
         results = json_loads(results)
 
         schema_as_json = json_loads(results['rows'][0]['DatabaseSchema'])
-        tables_list = schema_as_json['Databases'][self.configuration['database']]['Tables'].values()
+        tables_list = list(schema_as_json['Databases'][self.configuration['database']]['Tables'].values())
 
         schema = {}
 
@@ -150,7 +150,7 @@ class AzureKusto(BaseQueryRunner):
             for column in table['OrderedColumns']:
                 schema[table_name]['columns'].append(column['Name'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(AzureKusto)

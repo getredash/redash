@@ -23,7 +23,7 @@ def _transform_result(results):
                 if column not in result_columns:
                     result_columns.append(column)
             tags = series.get('tags', {})
-            for key in tags.keys():
+            for key in list(tags.keys()):
                 if key not in result_columns:
                     result_columns.append(key)
 

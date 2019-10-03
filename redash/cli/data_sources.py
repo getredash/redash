@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from sys import exit
 
 import click
@@ -45,9 +45,9 @@ def list_types():
 
 
 def validate_data_source_type(type):
-    if type not in query_runners.keys():
+    if type not in list(query_runners.keys()):
         print("Error: the type \"{}\" is not supported (supported types: {})."
-               .format(type, ", ".join(query_runners.keys())))
+               .format(type, ", ".join(list(query_runners.keys()))))
         print("OJNK")
         exit(1)
 
@@ -99,11 +99,11 @@ def new(name=None, type=None, options=None, organization='default'):
             print("{}. {}".format(i + 1, query_runner_name))
 
         idx = 0
-        while idx < 1 or idx > len(query_runners.keys()):
-            idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())),
+        while idx < 1 or idx > len(list(query_runners.keys())):
+            idx = click.prompt("[{}-{}]".format(1, len(list(query_runners.keys()))),
                                type=int)
 
-        type = query_runners.keys()[idx - 1]
+        type = list(query_runners.keys())[idx - 1]
     else:
         validate_data_source_type(type)
 
@@ -119,7 +119,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
         options_obj = {}
 
-        for k, prop in schema['properties'].iteritems():
+        for k, prop in schema['properties'].items():
             required = k in schema.get('required', [])
             default_value = "<<DEFAULT_VALUE>>"
             if required:

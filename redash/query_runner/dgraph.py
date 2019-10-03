@@ -15,13 +15,13 @@ def reduce_item(reduced_item, key, value):
     # Reduction Condition 1
     if type(value) is list:
         for i, sub_item in enumerate(value):
-            reduce_item(reduced_item, u'{}.{}'.format(key, i), sub_item)
+            reduce_item(reduced_item, '{}.{}'.format(key, i), sub_item)
 
     # Reduction Condition 2
     elif type(value) is dict:
-        sub_keys = value.keys()
+        sub_keys = list(value.keys())
         for sub_key in sub_keys:
-            reduce_item(reduced_item, u'{}.{}'.format(key, sub_key), value[sub_key])
+            reduce_item(reduced_item, '{}.{}'.format(key, sub_key), value[sub_key])
 
     # Base Condition
     else:
@@ -93,7 +93,7 @@ class Dgraph(BaseQueryRunner):
         try:
             data = self.run_dgraph_query_raw(query)
 
-            first_key = next(iter(data.keys()))
+            first_key = next(iter(list(data.keys())))
             first_node = data[first_key]
 
             data_to_be_processed = first_node
@@ -105,7 +105,7 @@ class Dgraph(BaseQueryRunner):
                 reduced_item = {}
                 reduce_item(reduced_item, first_key, item)
 
-                header += reduced_item.keys()
+                header += list(reduced_item.keys())
 
                 processed_data.append(reduced_item)
 
@@ -138,7 +138,7 @@ class Dgraph(BaseQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Dgraph)
