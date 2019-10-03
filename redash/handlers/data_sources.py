@@ -19,7 +19,7 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        available_query_runners = filter(lambda q: not q.deprecated, query_runners.values())
+        available_query_runners = [q for q in list(query_runners.values()) if not q.deprecated]
         return [q.to_dict() for q in sorted(available_query_runners, key=lambda q: q.name())]
 
 
@@ -109,7 +109,7 @@ class DataSourceListResource(BaseResource):
             'object_type': 'datasource',
         })
 
-        return sorted(response.values(), key=lambda d: d['name'].lower())
+        return sorted(list(response.values()), key=lambda d: d['name'].lower())
 
     @require_admin
     def post(self):

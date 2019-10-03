@@ -55,7 +55,7 @@ def parse_response(data):
         types[col['name']] = col['type']
 
     for row in rows:
-        for key, value in row.iteritems():
+        for key, value in row.items():
             row[key] = convert_type(value, types[key])
 
     return {'columns': columns, 'rows': rows}
@@ -120,7 +120,7 @@ class Drill(BaseHTTPQueryRunner):
         """
         allowed_schemas = self.configuration.get('allowed_schemas')
         if allowed_schemas:
-            query += "and TABLE_SCHEMA in ({})".format(', '.join(map(lambda x: "'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', x)), allowed_schemas.split(','))))
+            query += "and TABLE_SCHEMA in ({})".format(', '.join(["'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', x)) for x in allowed_schemas.split(',')]))
 
         results, error = self.run_query(query, None)
 
@@ -132,14 +132,14 @@ class Drill(BaseHTTPQueryRunner):
         schema = {}
 
         for row in results['rows']:
-            table_name = u'{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+            table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Drill)

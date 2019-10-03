@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from click import argument
 from flask.cli import AppGroup
 

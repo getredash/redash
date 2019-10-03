@@ -43,7 +43,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         abort(400, message=e.message)
 
     if query.missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
+        return error_response('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
 
     if max_age == 0:
         query_result = None
@@ -76,7 +76,7 @@ def get_download_filename(query_result, query, filetype):
         filename = to_filename(query.name) if query.name != '' else str(query.id)
     else:
         filename = str(query_result.id)
-    return u"{}_{}.{}".format(filename, retrieved_at, filetype)
+    return "{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):

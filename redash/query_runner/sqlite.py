@@ -57,7 +57,7 @@ class Sqlite(BaseSQLQueryRunner):
             for row_column in results_table['rows']:
                 schema[table_name]['columns'].append(row_column['name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = sqlite3.connect(self._dbpath)
@@ -69,7 +69,7 @@ class Sqlite(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], None) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                rows = [dict(list(zip((c['name'] for c in columns), row))) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None

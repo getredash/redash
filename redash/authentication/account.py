@@ -48,7 +48,7 @@ def send_verify_email(user, org):
     }
     html_content = render_template('emails/verify.html', **context)
     text_content = render_template('emails/verify.txt', **context)
-    subject = u"{}, please verify your email address".format(user.name)
+    subject = "{}, please verify your email address".format(user.name)
 
     send_mail.delay([user.email], subject, html_content, text_content)
 
@@ -57,7 +57,7 @@ def send_invite_email(inviter, invited, invite_url, org):
     context = dict(inviter=inviter, invited=invited, org=org, invite_url=invite_url)
     html_content = render_template('emails/invite.html', **context)
     text_content = render_template('emails/invite.txt', **context)
-    subject = u"{} invited you to join Redash".format(inviter.name)
+    subject = "{} invited you to join Redash".format(inviter.name)
 
     send_mail.delay([invited.email], subject, html_content, text_content)
 
@@ -67,7 +67,7 @@ def send_password_reset_email(user):
     context = dict(user=user, reset_link=reset_link)
     html_content = render_template('emails/reset.html', **context)
     text_content = render_template('emails/reset.txt', **context)
-    subject = u"Reset your password"
+    subject = "Reset your password"
 
     send_mail.delay([user.email], subject, html_content, text_content)
     return reset_link
@@ -76,6 +76,6 @@ def send_password_reset_email(user):
 def send_user_disabled_email(user):
     html_content = render_template('emails/reset_disabled.html', user=user)
     text_content = render_template('emails/reset_disabled.txt', user=user)
-    subject = u"Your Redash account is disabled"
+    subject = "Your Redash account is disabled"
 
     send_mail.delay([user.email], subject, html_content, text_content)

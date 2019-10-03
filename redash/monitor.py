@@ -99,7 +99,7 @@ def get_waiting_in_queue(queue_name):
 def parse_tasks(task_lists, state):
     rows = []
 
-    for task in itertools.chain(*task_lists.values()):
+    for task in itertools.chain(*list(task_lists.values())):
         task_row = {
             'state': state,
             'task_name': task['name'],
