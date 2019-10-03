@@ -129,7 +129,7 @@ class Vertica(BaseSQLQueryRunner):
             if cursor.description is not None:
                 columns_data = [(i[0], types_map.get(i[1], None)) for i in cursor.description]
 
-                columns = self.fetch_columns(column_data)
+                columns = self.fetch_columns(columns_data)
                 rows = [dict(zip(([c['name'] for c in columns]), r))
                         for r in cursor.fetchall()]
 
