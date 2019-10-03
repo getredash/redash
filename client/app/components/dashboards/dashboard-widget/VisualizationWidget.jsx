@@ -123,10 +123,10 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     }
   };
 
-  return (
+  return widgetQueryResult ? (
     <>
       <span>
-        {(!isPublic && !!widgetQueryResult) && (
+        {!isPublic && (
           <a
             className="refresh-button hidden-print btn btn-sm btn-default btn-transparent"
             onClick={() => refreshWidget(1)}
@@ -162,7 +162,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
         </a>
       </span>
     </>
-  );
+  ) : null;
 }
 
 VisualizationWidgetFooter.propTypes = {
