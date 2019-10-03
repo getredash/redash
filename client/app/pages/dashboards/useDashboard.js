@@ -34,9 +34,11 @@ function useDashboard(dashboard) {
 
   const loadDashboard = useCallback((forceRefresh = false, updatedParameters = []) => {
     const affectedWidgets = getAffectedWidgets(widgets, updatedParameters);
-    const loadWidgetPromises = compact(affectedWidgets.map(widget => loadWidget(widget, forceRefresh)));
+    const loadWidgetPromises = compact(
+      affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error)),
+    );
 
-    return Promise.all(loadWidgetPromises).finally(() => {
+    return Promise.all(loadWidgetPromises).then(() => {
       const queryResults = compact(map(widgets, widget => widget.getQueryResult()));
       const updatedFilters = collectDashboardFilters(dashboard, queryResults, $location.search());
       setFilters(updatedFilters);
