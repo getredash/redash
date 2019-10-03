@@ -146,14 +146,16 @@ function WidgetFactory($http, $location, Query) {
         }
         this.queryResult = this.getQuery().getQueryResult(maxAge);
 
-        this.queryResult.toPromise()
+        return this.queryResult.toPromise()
           .then((result) => {
             this.loading = false;
             this.data = result;
+            return result;
           })
           .catch((error) => {
             this.loading = false;
             this.data = error;
+            return error;
           });
       }
 

@@ -7,7 +7,7 @@ export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
   _.each(queryResults, (queryResult) => {
-    const queryFilters = queryResult ? queryResult.getFilters() : [];
+    const queryFilters = queryResult && queryResult.getFilters ? queryResult.getFilters() : [];
     _.each(queryFilters, (queryFilter) => {
       const hasQueryStringValue = _.has(urlParams, queryFilter.name);
 

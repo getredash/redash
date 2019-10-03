@@ -36,7 +36,7 @@ function useDashboard(dashboard) {
     const affectedWidgets = getAffectedWidgets(widgets, updatedParameters);
     const loadWidgetPromises = compact(affectedWidgets.map(widget => loadWidget(widget, forceRefresh)));
 
-    return Promise.all(loadWidgetPromises).then(() => {
+    return Promise.all(loadWidgetPromises).finally(() => {
       const queryResults = compact(map(widgets, widget => widget.getQueryResult()));
       const updatedFilters = collectDashboardFilters(dashboard, queryResults, $location.search());
       setFilters(updatedFilters);
