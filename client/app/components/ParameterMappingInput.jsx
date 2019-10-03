@@ -1,6 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty } from 'lodash';
+import { isString, extend, each, has, map, includes, findIndex, find,
+  fromPairs, clone, isEmpty } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -157,6 +158,13 @@ export class ParameterMappingInput extends React.Component {
     if (newMapping.value !== mapping.value) {
       newMapping.param = newMapping.param.clone();
       newMapping.param.setValue(newMapping.value);
+    }
+    if (has(update, 'type')) {
+      if (update.type === MappingType.StaticValue) {
+        newMapping.value = newMapping.param.value;
+      } else {
+        newMapping.value = null;
+      }
     }
     onChange(newMapping);
   };
