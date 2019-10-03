@@ -23,8 +23,8 @@ from redash.utils import json_dumps, json_loads
 from tests.factories import Factory, user_factory
 
 
-logging.disable("INFO")
-logging.getLogger("metrics").setLevel("ERROR")
+logging.disable(logging.INFO)
+logging.getLogger("metrics").setLevel(logging.ERROR)
 
 
 def authenticate_request(c, user):
@@ -114,7 +114,7 @@ class BaseTestCase(TestCase):
         return self.client.post(path, data=data, headers=headers)
 
     def assertResponseEqual(self, expected, actual):
-        for k, v in expected.iteritems():
+        for k, v in expected.items():
             if isinstance(v, datetime.datetime) or isinstance(actual[k],
                                                               datetime.datetime):
                 continue

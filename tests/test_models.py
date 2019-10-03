@@ -16,16 +16,16 @@ class DashboardTest(BaseTestCase):
     def test_appends_suffix_to_slug_when_duplicate(self):
         d1 = self.factory.create_dashboard()
         db.session.flush()
-        self.assertEquals(d1.slug, 'test')
+        self.assertEqual(d1.slug, 'test')
 
         d2 = self.factory.create_dashboard(user=d1.user)
         db.session.flush()
-        self.assertNotEquals(d1.slug, d2.slug)
+        self.assertNotEqual(d1.slug, d2.slug)
 
         d3 = self.factory.create_dashboard(user=d1.user)
         db.session.flush()
-        self.assertNotEquals(d1.slug, d3.slug)
-        self.assertNotEquals(d2.slug, d3.slug)
+        self.assertNotEqual(d1.slug, d3.slug)
+        self.assertNotEqual(d2.slug, d3.slug)
 
 
 class ShouldScheduleNextTest(TestCase):
@@ -294,7 +294,7 @@ class QueryArchiveTest(BaseTestCase):
         db.session.flush()
         query.archive()
 
-        self.assertEquals(query.is_archived, True)
+        self.assertEqual(query.is_archived, True)
 
     def test_archived_query_doesnt_return_in_all(self):
         query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})

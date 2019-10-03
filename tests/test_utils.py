@@ -55,4 +55,4 @@ class TestJsonDumps(TestCase):
 class TestGenerateToken(TestCase):
     def test_format(self):
         token = generate_token(40)
-        self.assertRegexpMatches(token, r"[a-zA-Z0-9]{40}")
+        self.assertRegex(token, r"[a-zA-Z0-9]{40}")

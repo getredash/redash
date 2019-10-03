@@ -10,10 +10,10 @@ class TestDashboardListResource(BaseTestCase):
     def test_create_new_dashboard(self):
         dashboard_name = 'Test Dashboard'
         rv = self.make_request('post', '/api/dashboards', data={'name': dashboard_name})
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['name'], 'Test Dashboard')
-        self.assertEquals(rv.json['user_id'], self.factory.user.id)
-        self.assertEquals(rv.json['layout'], [])
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], 'Test Dashboard')
+        self.assertEqual(rv.json['user_id'], self.factory.user.id)
+        self.assertEqual(rv.json['layout'], [])
 
 
 class TestDashboardListGetResource(BaseTestCase):
@@ -25,16 +25,16 @@ class TestDashboardListGetResource(BaseTestCase):
         rv = self.make_request('get', '/api/dashboards')
 
         assert len(rv.json['results']) == 3
-        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id, d3.id])
+        assert set([d['id'] for d in rv.json['results']]) == set([d1.id, d2.id, d3.id])
 
     def test_filters_with_tags(self):
-        d1 = self.factory.create_dashboard(tags=[u'test'])
+        d1 = self.factory.create_dashboard(tags=['test'])
         d2 = self.factory.create_dashboard()
         d3 = self.factory.create_dashboard()
 
         rv = self.make_request('get', '/api/dashboards?tags=test')
         assert len(rv.json['results']) == 1
-        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id])
+        assert set([d['id'] for d in rv.json['results']]) == set([d1.id])
 
     def test_search_term(self):
         d1 = self.factory.create_dashboard(name="Sales")
@@ -43,14 +43,14 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request('get', '/api/dashboards?q=sales')
         assert len(rv.json['results']) == 2
-        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id])
+        assert set([d['id'] for d in rv.json['results']]) == set([d1.id, d2.id])
 
 
 class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()
         rv = self.make_request('get', '/api/dashboards/{0}'.format(d1.slug))
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
         actual = json_loads(rv.data)
@@ -69,13 +69,13 @@ class TestDashboardResourceGet(BaseTestCase):
         db.session.commit()
 
         rv = self.make_request('get', '/api/dashboards/{0}'.format(dashboard.slug))
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
         self.assertTrue(rv.json['widgets'][0]['restricted'])
         self.assertNotIn('restricted', rv.json['widgets'][1])
 
     def test_get_non_existing_dashboard(self):
         rv = self.make_request('get', '/api/dashboards/not_existing')
-        self.assertEquals(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 404)
 
 
 class TestDashboardResourcePost(BaseTestCase):
@@ -84,8 +84,8 @@ class TestDashboardResourcePost(BaseTestCase):
         new_name = 'New Name'
         rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
                                data={'name': new_name, 'layout': '[]'})
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['name'], new_name)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], new_name)
 
     def test_raises_error_in_case_of_conflict(self):
         d = self.factory.create_dashboard()
@@ -130,7 +130,7 @@ class TestDashboardResourceDelete(BaseTestCase):
         d = self.factory.create_dashboard()
 
         rv = self.make_request('delete', '/api/dashboards/{0}'.format(d.slug))
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         d = Dashboard.get_by_slug_and_org(d.slug, d.org)
         self.assertTrue(d.is_archived)

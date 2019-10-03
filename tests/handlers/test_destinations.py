@@ -88,5 +88,5 @@ class DestinationTypesTest(BaseTestCase):
         with patch.object(Slack, 'deprecated', return_value=True):
             rv = self.make_request('get', "/api/destinations/types", user=admin)
 
-        types = map(lambda x: x['type'], rv.json)
+        types = [x['type'] for x in rv.json]
         self.assertNotIn('slack', types)

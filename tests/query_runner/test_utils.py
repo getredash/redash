@@ -6,7 +6,7 @@ from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_BO
 
 class TestGuessType(TestCase):
     def test_handles_unicode(self):
-        self.assertEqual(guess_type(u'Текст'), TYPE_STRING)
+        self.assertEqual(guess_type('Текст'), TYPE_STRING)
 
     def test_detects_booleans(self):
         self.assertEqual(guess_type('true'), TYPE_BOOLEAN)
