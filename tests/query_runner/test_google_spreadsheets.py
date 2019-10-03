@@ -11,7 +11,7 @@ from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, pars
 
 class TestValueEvalList(TestCase):
     def test_handles_unicode(self):
-        values = [u'יוניקוד', 'test', 'value']
+        values = ['יוניקוד', 'test', 'value']
         self.assertEqual(values, _value_eval_list(values, [TYPE_STRING]*len(values)))
 
     def test_handles_boolean(self):
@@ -66,7 +66,7 @@ class TestParseWorksheet(TestCase):
         worksheet = [['Column', 'Another Column', 'Column'], ['A', 'TRUE', '1'], ['B', 'FALSE', '2'], ['C', 'TRUE', '3'], ['D', 'FALSE', '4']]
         parsed = parse_worksheet(worksheet)
 
-        columns = map(lambda c: c['name'], parsed['columns'])
+        columns = [c['name'] for c in parsed['columns']]
         self.assertEqual('Column', columns[0])
         self.assertEqual('Another Column', columns[1])
         self.assertEqual('Column1', columns[2])

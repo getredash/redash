@@ -17,7 +17,7 @@ class VisualizationResourceTest(BaseTestCase):
 
         rv = self.make_request('post', '/api/visualizations', data=data)
 
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
         data.pop('query_id')
         self.assertDictContainsSubset(data, rv.json)
 
@@ -26,16 +26,16 @@ class VisualizationResourceTest(BaseTestCase):
         models.db.session.commit()
         rv = self.make_request('delete', '/api/visualizations/{}'.format(visualization.id))
 
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(models.Visualization.query.count(), 0)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(models.Visualization.query.count(), 0)
 
     def test_update_visualization(self):
         visualization = self.factory.create_visualization()
         models.db.session.commit()
         rv = self.make_request('post', '/api/visualizations/{0}'.format(visualization.id), data={'name': 'After Update'})
 
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['name'], 'After Update')
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], 'After Update')
 
     def test_only_owner_collaborator_or_admin_can_create_visualization(self):
         query = self.factory.create_query()
@@ -55,17 +55,17 @@ class VisualizationResourceTest(BaseTestCase):
         }
 
         rv = self.make_request('post', '/api/visualizations', data=data, user=admin)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         rv = self.make_request('post', '/api/visualizations', data=data, user=other_user)
-        self.assertEquals(rv.status_code, 403)
+        self.assertEqual(rv.status_code, 403)
 
         self.make_request('post', '/api/queries/{}/acl'.format(query.id), data={'access_type': 'modify', 'user_id': other_user.id})
         rv = self.make_request('post', '/api/visualizations', data=data, user=other_user)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         rv = self.make_request('post', '/api/visualizations', data=data, user=admin_from_diff_org)
-        self.assertEquals(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 404)
 
     def test_only_owner_collaborator_or_admin_can_edit_visualization(self):
         vis = self.factory.create_visualization()
@@ -82,17 +82,17 @@ class VisualizationResourceTest(BaseTestCase):
         models.db.session.refresh(admin_from_diff_org)
 
         rv = self.make_request('post', path, user=admin, data=data)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         rv = self.make_request('post', path, user=other_user, data=data)
-        self.assertEquals(rv.status_code, 403)
+        self.assertEqual(rv.status_code, 403)
 
         self.make_request('post', '/api/queries/{}/acl'.format(vis.query_id), data={'access_type': 'modify', 'user_id': other_user.id})
         rv = self.make_request('post', path, user=other_user, data=data)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         rv = self.make_request('post', path, user=admin_from_diff_org, data=data)
-        self.assertEquals(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 404)
 
     def test_only_owner_collaborator_or_admin_can_delete_visualization(self):
         vis = self.factory.create_visualization()
@@ -108,26 +108,26 @@ class VisualizationResourceTest(BaseTestCase):
         models.db.session.refresh(other_user)
         models.db.session.refresh(admin_from_diff_org)
         rv = self.make_request('delete', path, user=admin)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         vis = self.factory.create_visualization()
         models.db.session.commit()
         path = '/api/visualizations/{}'.format(vis.id)
 
         rv = self.make_request('delete', path, user=other_user)
-        self.assertEquals(rv.status_code, 403)
+        self.assertEqual(rv.status_code, 403)
 
         self.make_request('post', '/api/queries/{}/acl'.format(vis.query_id), data={'access_type': 'modify', 'user_id': other_user.id})
 
         rv = self.make_request('delete', path, user=other_user)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
         vis = self.factory.create_visualization()
         models.db.session.commit()
         path = '/api/visualizations/{}'.format(vis.id)
 
         rv = self.make_request('delete', path, user=admin_from_diff_org)
-        self.assertEquals(rv.status_code, 404)
+        self.assertEqual(rv.status_code, 404)
 
     def test_deleting_a_visualization_deletes_dashboard_widgets(self):
         vis = self.factory.create_visualization()

@@ -1,6 +1,6 @@
 import datetime
 import csv
-import cStringIO
+import io
 
 from tests import BaseTestCase
 
@@ -44,7 +44,7 @@ class CsvSerializationTest(BaseTestCase):
 
     def test_serializes_booleans_correctly(self):
         with self.app.test_request_context('/'):
-            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
+            parsed = csv.DictReader(io.StringIO(self.get_csv_content()))
         rows = list(parsed)
 
         self.assertEqual(rows[0]['bool'], 'true')
@@ -53,7 +53,7 @@ class CsvSerializationTest(BaseTestCase):
 
     def test_serializes_datatime_with_correct_format(self):
         with self.app.test_request_context('/'):
-            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
+            parsed = csv.DictReader(io.StringIO(self.get_csv_content()))
         rows = list(parsed)
 
         self.assertEqual(rows[0]['datetime'], '26/05/19 12:39')
@@ -65,7 +65,7 @@ class CsvSerializationTest(BaseTestCase):
 
     def test_serializes_datatime_as_is_in_case_of_error(self):
         with self.app.test_request_context('/'):
-            parsed = csv.DictReader(cStringIO.StringIO(self.get_csv_content()))
+            parsed = csv.DictReader(io.StringIO(self.get_csv_content()))
         rows = list(parsed)
 
         self.assertEqual(rows[3]['datetime'], '459')
