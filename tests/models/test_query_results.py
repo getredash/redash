@@ -1,4 +1,3 @@
-#encoding: utf8
 import datetime
 
 from tests import BaseTestCase

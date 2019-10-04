@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from tests import BaseTestCase, authenticated_user
 
 from redash import redis_connection

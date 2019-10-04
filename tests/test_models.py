@@ -1,4 +1,3 @@
-#encoding: utf8
 import calendar
 import datetime
 from unittest import TestCase
