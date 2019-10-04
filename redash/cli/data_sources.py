@@ -15,11 +15,11 @@ from redash.utils.configuration import ConfigurationContainer
 manager = AppGroup(help="Data sources management commands.")
 
 
-@manager.command()
+@manager.command(name='list')
 @click.option('--org', 'organization', default=None,
               help="The organization the user belongs to (leave blank for "
               "all organizations).")
-def list(organization=None):
+def list_command(organization=None):
     """List currently configured data sources."""
     if organization:
         org = models.Organization.get_by_slug(organization)
@@ -45,9 +45,9 @@ def list_types():
 
 
 def validate_data_source_type(type):
-    if type not in list(query_runners.keys()):
+    if type not in query_runners.keys():
         print("Error: the type \"{}\" is not supported (supported types: {})."
-               .format(type, ", ".join(list(query_runners.keys()))))
+               .format(type, ", ".join(query_runners.keys())))
         print("OJNK")
         exit(1)
 
@@ -100,7 +100,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
         idx = 0
         while idx < 1 or idx > len(list(query_runners.keys())):
-            idx = click.prompt("[{}-{}]".format(1, len(list(query_runners.keys()))),
+            idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())),
                                type=int)
 
         type = list(query_runners.keys())[idx - 1]
