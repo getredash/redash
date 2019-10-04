@@ -13,7 +13,7 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
         user.update_group_assignments(["g_unknown"])
         db.session.refresh(user)
 
-        self.assertItemsEqual([user.org.default_group.id], user.group_ids)
+        self.assertCountEqual([user.org.default_group.id], user.group_ids)
 
     def test_update_group_assignments(self):
         user = self.factory.user
@@ -22,7 +22,7 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
         user.update_group_assignments(["g1"])
         db.session.refresh(user)
 
-        self.assertItemsEqual([user.org.default_group.id, new_group.id], user.group_ids)
+        self.assertCountEqual([user.org.default_group.id, new_group.id], user.group_ids)
 
 
 class TestUserFindByEmail(BaseTestCase):

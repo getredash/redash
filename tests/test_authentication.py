@@ -279,7 +279,7 @@ class TestRemoteUserAuth(BaseTestCase):
         self.assertEqual(user.email, email)
         self.assertEqual(user.name, name)
         self.assertEqual(user.org, org or self.factory.org)
-        self.assertItemsEqual(user.group_ids, groups)
+        self.assertCountEqual(user.group_ids, groups)
 
     def get_test_user(self, email='test@example.com', org=None):
         """Helper to fetch an user from the database."""
