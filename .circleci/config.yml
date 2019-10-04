@@ -63,8 +63,8 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm install
       - run: npm run bundle
       - run: npm test
@@ -99,8 +99,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
       - run: .circleci/update_version
       - run: npm run bundle
       - run: .circleci/docker_build
