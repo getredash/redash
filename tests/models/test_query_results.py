@@ -1,4 +1,3 @@
-#encoding: utf8
 import datetime
 
 from unittest import TestCase
@@ -79,7 +78,7 @@ class TestDBPersistence(TestCase):
         self.assertDictEqual(p.data, {"test": 1})
         p.data = '{"test": 2}'
         self.assertDictEqual(p.data, {"test": 2})
-    
+
     @patch('redash.models.json_loads')
     def test_calls_json_loads_only_once(self, json_loads_patch):
         json_loads_patch.return_value = '1'

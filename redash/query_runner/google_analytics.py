@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 from base64 import b64decode
 from datetime import datetime

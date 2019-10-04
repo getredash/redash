@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import re
 import logging
 from collections import OrderedDict
@@ -51,7 +49,7 @@ TYPES_MAP = dict(
 
 class Salesforce(BaseQueryRunner):
     should_annotate_query = False
-    
+
     @classmethod
     def enabled(cls):
         return enabled

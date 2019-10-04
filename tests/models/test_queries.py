@@ -1,5 +1,3 @@
-# encoding: utf8
-
 from tests import BaseTestCase
 import datetime
 from redash.models import Query, QueryResult, Group, Event, db
