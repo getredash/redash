@@ -93,7 +93,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating user: %s" % e.message)
+        print("Failed creating user: %s" % e)
         exit(1)
 
 
@@ -141,7 +141,7 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating root user: %s" % e.message)
+        print("Failed creating root user: %s" % e)
         exit(1)
 
 
@@ -222,7 +222,7 @@ def invite(email, name, inviter_email, groups, is_admin=False,
             invite_user(org, user_from, user)
             print("An invitation was sent to [%s] at [%s]." % (name, email))
         except IntegrityError as e:
-            if "email" in e.message:
+            if "email" in str(e):
                 print("Cannot invite. User already exists [%s]" % email)
             else:
                 print(e)
