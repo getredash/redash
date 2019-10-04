@@ -230,11 +230,11 @@ def invite(email, name, inviter_email, groups, is_admin=False,
         print("The inviter [%s] was not found." % inviter_email)
 
 
-@manager.command()
+@manager.command(name='list')
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
         " organizations)")
-def list(organization=None):
+def list_command(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
