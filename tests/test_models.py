@@ -220,8 +220,10 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query.latest_query_data = query_result
         query2.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()),
-                         [query2, query])
+        outdated_queries = models.Query.outdated_queries()
+        self.assertEqual(len(outdated_queries), 2)
+        self.assertIn(query, outdated_queries)
+        self.assertIn(query2, outdated_queries)
 
     def test_enqueues_only_for_relevant_data_source(self):
         """
