@@ -36,7 +36,7 @@ def create(name, permissions=None, organization='default'):
             permissions=permissions))
         models.db.session.commit()
     except Exception as e:
-        print("Failed create group: %s" % e.message)
+        print("Failed create group: %s" % e)
         exit(1)
 
 
@@ -67,7 +67,7 @@ def change_permissions(group_id, permissions=None):
         models.db.session.add(group)
         models.db.session.commit()
     except Exception as e:
-        print("Failed change permission: %s" % e.message)
+        print("Failed change permission: %s" % e)
         exit(1)
 
 
