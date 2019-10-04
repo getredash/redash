@@ -33,8 +33,8 @@ def sign(key, path, expires):
     if not key:
         return None
 
-    h = hmac.new(str(key), msg=path, digestmod=hashlib.sha1)
-    h.update(str(expires))
+    h = hmac.new(key.encode(), msg=path.encode(), digestmod=hashlib.sha1)
+    h.update(str(expires).encode())
 
     return h.hexdigest()
 
