@@ -80,10 +80,10 @@ def extract_permissions_string(permissions):
     return permissions
 
 
-@manager.command()
+@manager.command(name='list')
 @option('--org', 'organization', default=None,
         help="The organization to limit to (leave blank for all).")
-def list(organization=None):
+def list_command(organization=None):
     """List all groups"""
     if organization:
         org = models.Organization.get_by_slug(organization)

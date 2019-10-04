@@ -29,8 +29,8 @@ def show_google_apps_domains():
         ', '.join(organization.google_apps_domains)))
 
 
-@manager.command()
-def list():
+@manager.command(name='list')
+def list_command():
     """List all organizations"""
     orgs = models.Organization.query
     for i, org in enumerate(orgs.order_by(models.Organization.name)):
