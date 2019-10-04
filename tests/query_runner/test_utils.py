@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from unittest import TestCase
 
 from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_BOOLEAN, TYPE_STRING, guess_type
