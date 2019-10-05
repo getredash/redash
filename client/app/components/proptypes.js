@@ -93,10 +93,45 @@ export const Destination = PropTypes.shape({
   type: PropTypes.string.isRequired,
 });
 
+export const Query = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  data_source_id: PropTypes.number.isRequired,
+  created_at: PropTypes.string.isRequired,
+  updated_at: PropTypes.string,
+  user: UserProfile,
+  query: PropTypes.string,
+  queryHash: PropTypes.string,
+  is_safe: PropTypes.bool.isRequired,
+  is_draft: PropTypes.bool.isRequired,
+  is_archived: PropTypes.bool.isRequired,
+  api_key: PropTypes.string.isRequired,
+});
+
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
   op: PropTypes.oneOf(['greater than', 'less than', 'equals']),
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  custom_subject: PropTypes.string,
+  custom_body: PropTypes.string,
+});
+
+export const Alert = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+  created_at: PropTypes.string,
+  last_triggered_at: PropTypes.string,
+  updated_at: PropTypes.string,
+  rearm: PropTypes.number,
+  state: PropTypes.oneOf(['ok', 'triggered', 'unknown']),
+  user: UserProfile,
+  query: Query.isRequired,
+  options: PropTypes.shape({
+    column: PropTypes.string,
+    op: PropTypes.string,
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  }).isRequired,
 });
 
 function checkMoment(isRequired, props, propName, componentName) {
