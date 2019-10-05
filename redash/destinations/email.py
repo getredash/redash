@@ -38,7 +38,8 @@ class Email(BaseDestination):
             html = alert.custom_body
         else:
             html = """
-            Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a> </br>.
+            Check <a href="{host}/alerts/{alert_id}">alert</a> / check
+            <a href="{host}/queries/{query_id}">query</a> </br>.
             """.format(host=host, alert_id=alert.id, query_id=query.id)
         logging.debug("Notifying: %s", recipients)
 

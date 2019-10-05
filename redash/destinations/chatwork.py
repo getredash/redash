@@ -41,7 +41,6 @@ class ChatWork(BaseDestination):
             message = ''
             if alert.custom_subject:
                 message = alert.custom_subject + '\n'
-            
             if alert.custom_body:
                 message += alert.custom_body
             else:
@@ -49,9 +48,11 @@ class ChatWork(BaseDestination):
                 query_url = '{host}/queries/{query_id}'.format(host=host, query_id=query.id)
                 message_template = options.get('message_template', ChatWork.ALERTS_DEFAULT_MESSAGE_TEMPLATE)
                 message += message_template.replace('\\n', '\n').format(
-                alert_name=alert.name, new_state=new_state.upper(),
-                alert_url=alert_url,
-                query_url=query_url)
+                    alert_name=alert.name,
+                    new_state=new_state.upper(),
+                    alert_url=alert_url,
+                    query_url=query_url
+                )
 
             headers = {'X-ChatWorkToken': options.get('api_token')}
             payload = {'body': message}

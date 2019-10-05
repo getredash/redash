@@ -35,8 +35,6 @@ class Mattermost(BaseDestination):
         return 'fa-bolt'
 
     def notify(self, alert, query, user, new_state, app, host, options):
-        
-
         if alert.custom_subject:
             text = alert.custom_subject
         elif new_state == "triggered":
@@ -51,9 +49,12 @@ class Mattermost(BaseDestination):
                 "value": alert.custom_body
             }]}]
 
-        if options.get('username'): payload['username'] = options.get('username')
-        if options.get('icon_url'): payload['icon_url'] = options.get('icon_url')
-        if options.get('channel'): payload['channel'] = options.get('channel')
+        if options.get('username'):
+            payload['username'] = options.get('username')
+        if options.get('icon_url'):
+            payload['icon_url'] = options.get('icon_url')
+        if options.get('channel'):
+            payload['channel'] = options.get('channel')
 
         try:
             resp = requests.post(options.get('url'), data=json_dumps(payload), timeout=5.0)
