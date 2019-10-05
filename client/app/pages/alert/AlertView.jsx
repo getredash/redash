@@ -16,6 +16,7 @@ import Title from './components/Title';
 import Criteria from './components/Criteria';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
+import AlertDestinations from './components/AlertDestinations';
 import HorizontalFormItem from './components/HorizontalFormItem';
 import { STATE_CLASS } from '../alerts/AlertsList';
 
@@ -98,14 +99,22 @@ export default class AlertView extends React.Component {
                   </HorizontalFormItem>
                   <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
                     <Rearm value={rearm || 0} />
+                    <br />
+                    Set to {options.custom_subject || options.custom_body ? 'custom' : 'default'} notification template.
                   </HorizontalFormItem>
                 </>
               )}
             </Form>
           </div>
           <div className="col-md-4">
-            <h4>Destinations</h4>
-            <div><i className="fa fa-hand-o-right" /> In next PR</div>
+            <h4>Destinations{' '}
+              <Tooltip title="Open Alert Destinations page in a new tab.">
+                <a href="/destinations" target="_blank">
+                  <i className="fa fa-external-link f-13" />
+                </a>
+              </Tooltip>
+            </h4>
+            <AlertDestinations alertId={alert.id} />
           </div>
         </div>
       </>

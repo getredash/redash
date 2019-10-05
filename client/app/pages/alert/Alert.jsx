@@ -17,6 +17,7 @@ import AlertNew from './AlertNew';
 import Modal from 'antd/lib/modal';
 
 import { routesToAngularRoutes } from '@/lib/utils';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 
 const MODES = {
   NEW: 0,
@@ -58,6 +59,7 @@ class AlertPage extends React.Component {
           },
         }),
         pendingRearm: 0,
+        canEdit: true,
       });
     } else {
       const { alertId } = $route.current.params;
@@ -200,6 +202,7 @@ class AlertPage extends React.Component {
       onRearmChange: this.onRearmChange,
       onNameChange: this.onNameChange,
       onCriteriaChange: this.setAlertOptions,
+      onNotificationTemplateChange: this.setAlertOptions,
     };
 
     return (

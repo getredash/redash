@@ -9,6 +9,7 @@ import Button from 'antd/lib/button';
 
 import Title from './components/Title';
 import Criteria from './components/Criteria';
+import NotificationTemplate from './components/NotificationTemplate';
 import Rearm from './components/Rearm';
 import Query from './components/Query';
 import HorizontalFormItem from './components/HorizontalFormItem';
@@ -26,7 +27,7 @@ export default class AlertNew extends React.Component {
   }
 
   render() {
-    const { alert, queryResult, pendingRearm } = this.props;
+    const { alert, queryResult, pendingRearm, onNotificationTemplateChange } = this.props;
     const { onQuerySelected, onNameChange, onRearmChange, onCriteriaChange } = this.props;
     const { query, name, options } = alert;
     const { saving } = this.state;
@@ -59,6 +60,18 @@ export default class AlertNew extends React.Component {
                   <HorizontalFormItem label="When triggered, send notification">
                     <Rearm value={pendingRearm || 0} onChange={onRearmChange} editMode />
                   </HorizontalFormItem>
+                  <HorizontalFormItem label="Template">
+                    <NotificationTemplate
+                      alert={alert}
+                      query={query}
+                      columnNames={queryResult.getColumnNames()}
+                      resultValues={queryResult.getData()}
+                      subject={options.custom_subject}
+                      setSubject={subject => onNotificationTemplateChange({ custom_subject: subject })}
+                      body={options.custom_body}
+                      setBody={body => onNotificationTemplateChange({ custom_body: body })}
+                    />
+                  </HorizontalFormItem>
                 </>
               )}
               <HorizontalFormItem>
@@ -87,6 +100,7 @@ AlertNew.propTypes = {
   onNameChange: PropTypes.func.isRequired,
   onRearmChange: PropTypes.func.isRequired,
   onCriteriaChange: PropTypes.func.isRequired,
+  onNotificationTemplateChange: PropTypes.func.isRequired,
 };
 
 AlertNew.defaultProps = {
