@@ -31,6 +31,7 @@ import Query from './components/Query';
 import AlertDestinations from './components/AlertDestinations';
 import { STATE_CLASS } from '../alerts/AlertsList';
 import { routesToAngularRoutes } from '@/lib/utils';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 
 
 const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
@@ -136,6 +137,10 @@ class AlertPage extends React.Component {
             canEdit,
           });
           this.onQuerySelected(alert.query);
+        }
+      }).catch((err) => {
+        if (this._isMounted) {
+          throw new PromiseRejectionError(err);
         }
       });
     }
