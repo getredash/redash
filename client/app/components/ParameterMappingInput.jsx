@@ -229,7 +229,6 @@ export class ParameterMappingInput extends React.Component {
         queryId={mapping.param.queryId}
         parameter={mapping.param}
         onSelect={value => this.updateParamMapping({ value })}
-        allowMultipleValues={!!mapping.param.multiValuesOptions}
       />
     );
   }
