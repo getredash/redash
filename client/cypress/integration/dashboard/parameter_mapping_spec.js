@@ -51,7 +51,8 @@ describe('Parameter Mapping', () => {
       .click();
   };
 
-  it('has widget mapping as the default', function () {
+  it('supports widget parameters', function () {
+    // widget parameter mapping is the default for the API
     cy.getByTestId(this.widgetTestId)
       .within(() => {
         cy.getByTestId('TableVisualization')
