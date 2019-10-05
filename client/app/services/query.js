@@ -28,8 +28,16 @@ function collectParams(parts) {
   return parameters;
 }
 
+function hasInvalidValue(parameter) {
+  return parameter.currentValueValidationError !== null;
+}
+
+export function getValueValidationErrors(parameters = []) {
+  return parameters.filter(hasInvalidValue).map(p => p.title);
+}
+
 export function hasValueValidationErrors(parameters = []) {
-  return some(parameters, p => p.currentValueValidationError !== null);
+  return some(parameters, hasInvalidValue);
 }
 
 class Parameters {
@@ -128,6 +136,10 @@ class Parameters {
     return hasValueValidationErrors(this.get());
   }
 
+  getValueValidationErrors() {
+    return getValueValidationErrors(this.get());
+  }
+
   applyPendingValues() {
     each(this.get(), p => p.applyPendingValue());
   }
@@ -184,6 +196,28 @@ function QueryResultErrorFactory($q) {
   return QueryResultError;
 }
 
+function InvalidParameterValueErrorFactory(QueryResultError) {
+  class InvalidParameterValueError extends QueryResultError {
+    constructor(invalidParameters) {
+      super('Failed to execute query');
+      this.invalidParameters = invalidParameters;
+      this.updatedAt = moment.utc();
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    getError() {
+      const params = this.invalidParameters.map(x => `"${x}"`).join(', ');
+      if (this.invalidParameters.length > 1) {
+        return `Parameters ${params} have invalid values.`;
+      }
+
+      return `Parameter ${params} has an invalid value.`;
+    }
+  }
+
+  return InvalidParameterValueError;
+}
+
 function QueryResource(
   $resource,
   $http,
@@ -191,6 +225,7 @@ function QueryResource(
   $q,
   currentUser,
   QueryResultError,
+  InvalidParameterValueError,
   QueryResult,
 ) {
   const QueryService = $resource(
@@ -318,7 +353,8 @@ function QueryResource(
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
     if (parameters.hasValueValidationErrors()) {
-      return new QueryResultError("Can't execute query with invalid parameter values");
+      const errors = parameters.getValueValidationErrors();
+      return new InvalidParameterValueError(errors);
     }
 
     if (parameters.isRequired()) {
@@ -408,6 +444,7 @@ function QueryResource(
 
 export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
+  ngModule.factory('InvalidParameterValueError', InvalidParameterValueErrorFactory);
   ngModule.factory('Query', QueryResource);
 
   ngModule.run(($injector) => {
