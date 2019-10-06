@@ -11,6 +11,7 @@ function orderedInputs(properties, order, targetOptions) {
       type: properties[key].type,
       placeholder: properties[key].default && properties[key].default.toString(),
       required: properties[key].required,
+      extra: properties[key].extra,
       initialValue: targetOptions[key],
     };
 
@@ -57,6 +58,7 @@ function normalizeSchema(configurationSchema) {
     }
 
     prop.required = includes(configurationSchema.required, name);
+    prop.extra = includes(configurationSchema.extra_options, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];
@@ -113,10 +115,6 @@ function updateTargetWithValues(target, values) {
   });
 }
 
-function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-}
-
 function getBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -129,6 +127,5 @@ function getBase64(file) {
 export default {
   getFields,
   updateTargetWithValues,
-  toHuman,
   getBase64,
 };

@@ -39,6 +39,7 @@ class ClickHouse(BaseSQLQueryRunner):
                 }
             },
             "required": ["dbname"],
+            "extra_options": ["timeout"],
             "secret": ["password"]
         }
 
