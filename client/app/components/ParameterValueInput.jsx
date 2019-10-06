@@ -25,7 +25,6 @@ class ParameterValueInput extends React.Component {
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    allowMultipleValues: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -36,7 +35,6 @@ class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
-    allowMultipleValues: false,
     onSelect: () => {},
     className: '',
   };
@@ -95,13 +93,13 @@ class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { enumOptions, allowMultipleValues } = this.props;
+    const { enumOptions, parameter } = this.props;
     const { value } = this.state;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
     return (
       <Select
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
         value={value}
@@ -119,12 +117,12 @@ class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter, allowMultipleValues } = this.props;
+    const { queryId, parameter } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? 'multiple' : 'default'}
         optionFilterProp="children"
         parameter={parameter}
         value={value}

@@ -54,7 +54,8 @@ class QueryBasedDropdownParameter extends Parameter {
     if (has(query, key)) {
       if (this.multiValuesOptions) {
         try {
-          this.setValue(JSON.parse(query[key]));
+          const valueFromJson = JSON.parse(query[key]);
+          this.setValue(isArray(valueFromJson) ? valueFromJson : query[key]);
         } catch (e) {
           this.setValue(query[key]);
         }

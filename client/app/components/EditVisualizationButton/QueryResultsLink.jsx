@@ -20,7 +20,7 @@ export default function QueryResultsLink(props) {
   }
 
   return (
-    <a target="_self" disabled={props.disabled} href={href}>
+    <a target="_blank" rel="noopener noreferrer" disabled={props.disabled} href={href} download>
       {props.children}
     </a>
   );

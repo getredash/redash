@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Form from 'antd/lib/form';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
@@ -7,12 +8,16 @@ import Checkbox from 'antd/lib/checkbox';
 import Button from 'antd/lib/button';
 import Upload from 'antd/lib/upload';
 import Icon from 'antd/lib/icon';
-import { includes, isFunction } from 'lodash';
+import { includes, isFunction, filter, difference, isEmpty, some, isNumber, isBoolean } from 'lodash';
 import Select from 'antd/lib/select';
 import notification from '@/services/notification';
+import Collapse from '@/components/Collapse';
 import AceEditorInput from '@/components/AceEditorInput';
+import { toHuman } from '@/filters';
 import { Field, Action, AntdForm } from '../proptypes';
 import helper from './dynamicFormHelper';
+
+import './DynamicForm.less';
 
 const fieldRules = ({ type, required, minLength }) => {
   const requiredRule = required;
@@ -51,9 +56,14 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
 
+    const hasFilledExtraField = some(props.fields, (field) => {
+      const { extra, initialValue } = field;
+      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || isBoolean(initialValue) && initialValue);
+    });
     this.state = {
       isSubmitting: false,
       inProgressActions: [],
+      showExtraFields: hasFilledExtraField,
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
@@ -146,9 +156,21 @@ class DynamicForm extends React.Component {
     };
 
     return getFieldDecorator(name, decoratorOptions)(
-      <Select {...props} optionFilterProp="children" loading={loading || false} mode={mode}>
-        {options && options.map(({ value, title }) => (
-          <Option key={`${value}`} value={value} disabled={readOnly}>{ title || value }</Option>
+      <Select
+        {...props}
+        optionFilterProp="children"
+        loading={loading || false}
+        mode={mode}
+        getPopupContainer={trigger => trigger.parentNode}
+      >
+        {options && options.map(option => (
+          <Option
+            key={`${option.value}`}
+            value={option.value}
+            disabled={readOnly}
+          >
+            {option.name || option.value}
+          </Option>
         ))}
       </Select>,
     );
@@ -157,7 +179,7 @@ class DynamicForm extends React.Component {
   renderField(field, props) {
     const { getFieldDecorator } = this.props.form;
     const { name, type, initialValue } = field;
-    const fieldLabel = field.title || helper.toHuman(name);
+    const fieldLabel = field.title || toHuman(name);
 
     const options = {
       rules: fieldRules(field),
@@ -183,11 +205,11 @@ class DynamicForm extends React.Component {
     return getFieldDecorator(name, options)(<Input {...props} />);
   }
 
-  renderFields() {
-    return this.props.fields.map((field) => {
+  renderFields(fields) {
+    return fields.map((field) => {
       const FormItem = Form.Item;
       const { name, title, type, readOnly, autoFocus, contentAfter } = field;
-      const fieldLabel = title || helper.toHuman(name);
+      const fieldLabel = title || toHuman(name);
       const { feedbackIcons, form } = this.props;
 
       const formItemProps = {
@@ -239,16 +261,35 @@ class DynamicForm extends React.Component {
     const submitProps = {
       type: 'primary',
       htmlType: 'submit',
-      className: 'w-100',
+      className: 'w-100 m-t-20',
       disabled: this.state.isSubmitting,
       loading: this.state.isSubmitting,
     };
-    const { id, hideSubmitButton, saveText } = this.props;
+    const { id, hideSubmitButton, saveText, fields } = this.props;
+    const { showExtraFields } = this.state;
     const saveButton = !hideSubmitButton;
+    const extraFields = filter(fields, { extra: true });
+    const regularFields = difference(fields, extraFields);
 
     return (
-      <Form id={id} layout="vertical" onSubmit={this.handleSubmit}>
-        {this.renderFields()}
+      <Form id={id} className="dynamic-form" layout="vertical" onSubmit={this.handleSubmit}>
+        {this.renderFields(regularFields)}
+        {!isEmpty(extraFields) && (
+          <div className="extra-options">
+            <Button
+              type="dashed"
+              block
+              className="extra-options-button"
+              onClick={() => this.setState({ showExtraFields: !showExtraFields })}
+            >
+              Additional Settings
+              <i className={cx('fa m-l-5', { 'fa-caret-up': showExtraFields, 'fa-caret-down': !showExtraFields })} />
+            </Button>
+            <Collapse collapsed={!showExtraFields} className="extra-options-content">
+              {this.renderFields(extraFields)}
+            </Collapse>
+          </div>
+        )}
         {saveButton && <Button {...submitProps}>{saveText}</Button>}
         {this.renderActions()}
       </Form>
