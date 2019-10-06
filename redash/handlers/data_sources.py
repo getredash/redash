@@ -121,8 +121,6 @@ class DataSourceListResource(BaseResource):
             abort(400)
 
         config = ConfigurationContainer(filter_none(req['options']), schema)
-        # from IPython import embed
-        # embed()
         if not config.is_valid():
             abort(400)
 
