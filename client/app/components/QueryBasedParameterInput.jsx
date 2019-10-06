@@ -1,4 +1,4 @@
-import { find, isFunction, isArray, isEqual, toString, map, intersection } from 'lodash';
+import { find, isArray, map, intersection, isEqual } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -29,6 +29,7 @@ export class QueryBasedParameterInput extends React.Component {
     super(props);
     this.state = {
       options: [],
+      value: null,
       loading: false,
     };
   }
@@ -41,6 +42,24 @@ export class QueryBasedParameterInput extends React.Component {
     if (this.props.queryId !== prevProps.queryId) {
       this._loadOptions(this.props.queryId);
     }
+    if (this.props.value !== prevProps.value) {
+      this.setValue(this.props.value);
+    }
+  }
+
+  setValue(value) {
+    const { options } = this.state;
+    if (this.props.mode === 'multiple') {
+      value = isArray(value) ? value : [value];
+      const optionValues = map(options, option => option.value);
+      const validValues = intersection(value, optionValues);
+      this.setState({ value: validValues });
+      return validValues;
+    }
+    const found = find(options, option => option.value === this.props.value) !== undefined;
+    value = found ? value : options[0].value;
+    this.setState({ value });
+    return value;
   }
 
   async _loadOptions(queryId) {
@@ -50,20 +69,12 @@ export class QueryBasedParameterInput extends React.Component {
 
       // stale queryId check
       if (this.props.queryId === queryId) {
-        this.setState({ options, loading: false });
-
-        if (this.props.mode === 'multiple' && isArray(this.props.value)) {
-          const optionValues = map(options, option => option.value);
-          const validValues = intersection(this.props.value, optionValues);
-          if (!isEqual(this.props.value, validValues)) {
-            this.props.onSelect(validValues);
+        this.setState({ options, loading: false }, () => {
+          const updatedValue = this.setValue(this.props.value);
+          if (!isEqual(updatedValue, this.props.value)) {
+            this.props.onSelect(updatedValue);
           }
-        } else {
-          const found = find(options, option => option.value === this.props.value) !== undefined;
-          if (!found && isFunction(this.props.onSelect)) {
-            this.props.onSelect(options[0].value);
-          }
-        }
+        });
       }
     }
   }
@@ -78,7 +89,7 @@ export class QueryBasedParameterInput extends React.Component {
           disabled={loading || (options.length === 0)}
           loading={loading}
           mode={mode}
-          value={isArray(value) ? value : toString(value)}
+          value={this.state.value}
           onChange={onSelect}
           dropdownMatchSelectWidth={false}
           optionFilterProp="children"
