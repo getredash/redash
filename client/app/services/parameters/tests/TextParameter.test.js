@@ -2,18 +2,19 @@ import { Parameter } from '..';
 
 describe('TextParameter', () => {
   let param;
+
   beforeEach(() => {
     param = Parameter.create({ name: 'param', title: 'Param', type: 'text' });
   });
 
   describe('normalizeValue', () => {
     test('converts Strings', () => {
-      const normalizedValue = param.normalizeValue('exampleString'); // TODO: use faker??
+      const normalizedValue = param.normalizeValue('exampleString');
       expect(normalizedValue).toBe('exampleString');
     });
 
     test('converts Numbers', () => {
-      const normalizedValue = param.normalizeValue(3); // TODO: use faker??
+      const normalizedValue = param.normalizeValue(3);
       expect(normalizedValue).toBe('3');
     });
 
@@ -23,7 +24,6 @@ describe('TextParameter', () => {
       test.each(emptyValues)('normalizes empty value \'%s\' as null', (emptyValue) => {
         const normalizedValue = param.normalizeValue(emptyValue);
         expect(normalizedValue).toBeNull();
-        expect(param.isEmpty).toBeTruthy();
       });
     });
   });
