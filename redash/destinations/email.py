@@ -21,7 +21,8 @@ class Email(BaseDestination):
                     "title": "Subject Template"
                 }
             },
-            "required": ["addresses"]
+            "required": ["addresses"],
+            "extra_options": ["subject_template"]
         }
 
     @classmethod
