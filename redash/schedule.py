@@ -17,14 +17,6 @@ rq_scheduler = Scheduler(connection=redis_connection,
 
 
 def schedule(**kwargs):
-    """Schedule a job to run periodically.
-    A good place to provide custom jobs you'd like to run periodically is your `dynamic_settings` module, for example:
-
-    from datetime import timedelta
-    from redash.schedule import schedule
-
-    schedule(func=my_func, interval=timedelta(minutes=5))
-    """
     interval = kwargs['interval']
     if isinstance(interval, timedelta):
         interval = interval.seconds
@@ -54,3 +46,6 @@ def schedule_periodic_jobs():
             minute=randint(0, 59),
             hour=randint(0, 23)),
             func=version_check)
+
+    # Add your own custom periodic jobs in your dynamic_settings module.
+    settings.dynamic_settings.schedule_periodic_jobs(schedule)
