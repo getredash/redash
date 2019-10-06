@@ -146,9 +146,21 @@ class DynamicForm extends React.Component {
     };
 
     return getFieldDecorator(name, decoratorOptions)(
-      <Select {...props} optionFilterProp="children" loading={loading || false} mode={mode}>
-        {options && options.map(({ value, title }) => (
-          <Option key={`${value}`} value={value} disabled={readOnly}>{ title || value }</Option>
+      <Select
+        {...props}
+        optionFilterProp="children"
+        loading={loading || false}
+        mode={mode}
+        getPopupContainer={trigger => trigger.parentNode}
+      >
+        {options && options.map(option => (
+          <Option
+            key={`${option.value}`}
+            value={option.value}
+            disabled={readOnly}
+          >
+            {option.name || option.value}
+          </Option>
         ))}
       </Select>,
     );
