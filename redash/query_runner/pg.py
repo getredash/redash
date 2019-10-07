@@ -63,24 +63,29 @@ def _wait(conn, timeout=None):
             raise psycopg2.OperationalError("select.error received")
 
 
+def full_table_name(schema, name):
+    if '.' in name: 
+        name = u'"{}"'.format(name)
+    
+    return u'{}.{}'.format(schema, name)
+
+
 def build_schema(query_result, schema):
-    # By default we omit the public schema name from the table name. But there are 
+    # By default we omit the public schema name from the table name. But there are
     # edge cases, where this might cause conflicts. For example:
     # * We have a schema named "main" with table "users".
-    # * We have a table named "main.users" in the public schema. 
+    # * We have a table named "main.users" in the public schema.
     # (while this feels unlikely, this actually happened)
     # In this case if we omit the schema name for the public table, we will have
     # a conflict.
-
-    full_table_name = lambda r: u'{}.{}'.format(r['table_schema'], r['table_name'])
-    table_names = set(map(full_table_name, query_result['rows']))
+    table_names = set(map(lambda r: full_table_name(r['table_schema'], r['table_name']), query_result['rows']))
 
     for row in query_result['rows']:
         if row['table_schema'] != 'public':
-            table_name = full_table_name(row)
+            table_name = full_table_name(row['table_schema'], row['table_name'])
         else:
             if row['table_name'] in table_names:
-                table_name = u'{}."{}"'.format(row['table_schema'], row['table_name'])
+                table_name = full_table_name(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
@@ -140,7 +145,6 @@ class PostgreSQL(BaseSQLQueryRunner):
         results = json_loads(results)
 
         build_schema(results, schema)
-
 
     def _get_tables(self, schema):
         '''
