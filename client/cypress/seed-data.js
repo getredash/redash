@@ -32,4 +32,15 @@ exports.seedData = [
       type: 'pg',
     },
   },
+  {
+    route: '/api/destinations',
+    type: 'json',
+    data: {
+      name: 'Test Email Destination',
+      options: {
+        addresses: 'test@example.com',
+      },
+      type: 'email',
+    },
+  },
 ];

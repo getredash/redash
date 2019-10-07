@@ -70,12 +70,12 @@ class HangoutsChat(BaseDestination):
                 ]
             }
 
-            if alert.template:
+            if alert.custom_body:
                 data["cards"][0]["sections"].append({
                     "widgets": [
                         {
                             "textParagraph": {
-                                "text": alert.render_template()
+                                "text": alert.custom_body
                             }
                         }
                     ]
