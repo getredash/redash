@@ -21,10 +21,6 @@ from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 
-try:
-    buffer
-except NameError:
-    buffer = bytes
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
@@ -101,7 +97,7 @@ class JSONEncoder(simplejson.JSONEncoder):
             result = o.isoformat()
             if o.microsecond:
                 result = result[:12]
-        elif isinstance(o, buffer):
+        elif isinstance(o, memoryview):
             result = binascii.hexlify(o)
         else:
             result = super(JSONEncoder, self).default(o)
