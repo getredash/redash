@@ -496,13 +496,20 @@ describe('Parameter', () => {
     });
 
     it('disables "Execute" button', () => {
+      // sets "Redash" as param values
+      expectAppliedChanges(() => {
+        cy.getByTestId('ParameterApplyButton').click();
+      });
+
       cy.getByTestId('ParameterName-test-parameter-1')
         .find('input')
-        .as('Input')
-        .type('Redash');
+        .as('Input');
+
+      cy.get('@Input').clear().type('SomeOtherValue');
       cy.getByTestId('ExecuteButton').should('be.disabled');
 
-      cy.get('@Input').clear();
+      // back to previous value
+      cy.get('@Input').clear().type('Redash');
       cy.getByTestId('ExecuteButton').should('not.be.disabled');
     });
   });
