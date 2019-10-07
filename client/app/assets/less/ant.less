@@ -60,6 +60,11 @@
   font-weight: normal;
 }
 
+.ant-select-dropdown-menu-item em {
+  color: @input-color-placeholder;
+  font-size: 11px;
+}
+
 // Fix for disabled button styles inside Tooltip component.
 // Tooltip wraps disabled buttons with `<span>` and moves all styles
 // and classes to that `<span>`. This resets all button styles and
@@ -361,5 +366,11 @@
       background: white;
       border-radius: 50%;
     }
+  }
+
+  // for form items that contain text
+  &.form-item-line-height-normal .@{form-prefix-cls}-item-control {
+    line-height: 20px;
+    margin-top: 9px;
   }
 }
