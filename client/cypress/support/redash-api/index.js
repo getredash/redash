@@ -106,6 +106,7 @@ export function createUser({ name, email, password }) {
     method: 'POST',
     url: 'api/users',
     body: { name, email },
+    qs: { no_invite: 1 },
     failOnStatusCode: false,
   })
     .then((xhr) => {
