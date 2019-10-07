@@ -232,19 +232,23 @@ class DataSourceGroup(db.Model):
     __tablename__ = "data_source_groups"
 
 
+DESERIALIZED_DATA_ATTR = '_deserialized_data'
+
 class DBPersistence(object):
     @property
     def data(self):
         if self._data is None:
             return None
 
-        if not hasattr(self, '_deserialized_data'):
-            self._deserialized_data = json_loads(self._data)
+        if not hasattr(self, DESERIALIZED_DATA_ATTR):
+            setattr(self, DESERIALIZED_DATA_ATTR, json_loads(self._data))
 
         return self._deserialized_data
 
     @data.setter
     def data(self, data):
+        if hasattr(self, DESERIALIZED_DATA_ATTR):
+            delattr(self, DESERIALIZED_DATA_ATTR)
         self._data = data
 
 
