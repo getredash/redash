@@ -118,6 +118,11 @@ Criteria.propTypes = {
   columnNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   resultValues: PropTypes.arrayOf(PropTypes.object).isRequired,
   alertOptions: AlertOptionsType.isRequired,
-  onChange: PropTypes.func.isRequired,
-  editMode: PropTypes.bool.isRequired,
+  onChange: PropTypes.func,
+  editMode: PropTypes.bool,
+};
+
+Criteria.defaultProps = {
+  onChange: () => {},
+  editMode: false,
 };
