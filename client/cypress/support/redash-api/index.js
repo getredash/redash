@@ -123,12 +123,17 @@ export function createUser({ name, email, password }) {
       const id = get(body, 'id');
       assert.isDefined(id, 'User api call returns user id');
 
-      return cy.request({
-        url: body.invite_link,
-        method: 'POST',
-        form: true,
-        body: { password },
-      });
+      if (body.is_invitation_pending) {
+        const url = get(body, 'invite_link');
+        assert.isDefined(url, 'User api call returns user invite link');
+
+        return cy.request({
+          url,
+          method: 'POST',
+          form: true,
+          body: { password },
+        });
+      }
     });
 }
 
