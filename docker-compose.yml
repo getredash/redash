@@ -20,6 +20,7 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
+      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
   worker:
     build: .
     command: dev_worker
@@ -36,6 +37,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery,schemas"
       WORKERS_COUNT: 2
+      REDASH_MAIL_DEFAULT_SENDER: redash@example.com
   redis:
     image: redis:3-alpine
     restart: unless-stopped
