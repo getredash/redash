@@ -31,7 +31,8 @@ class TestDataSourceListGet(BaseTestCase):
         self.factory.create_data_source(group=self.factory.org.default_group)
         self.factory.create_data_source(group=self.factory.org.default_group)
         response = self.make_request("get", "/api/data_sources", user=self.factory.user)
-        self.assertTrue(all(left <= right for left, right in pairwise(response.json)))
+        ids = [d['id'] for d in response.json]
+        self.assertTrue(all(left <= right for left, right in pairwise(ids)))
 
 
 class DataSourceTypesTest(BaseTestCase):
