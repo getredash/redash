@@ -18,7 +18,7 @@ class QueryFavoriteResource(BaseResource):
         try:
             models.db.session.commit()
         except IntegrityError as e:
-            if 'unique_favorite' in e.message:
+            if 'unique_favorite' in str(e):
                 models.db.session.rollback()
             else:
                 raise e
@@ -56,7 +56,7 @@ class DashboardFavoriteResource(BaseResource):
         try:
             models.db.session.commit()
         except IntegrityError as e:
-            if 'unique_favorite' in e.message:
+            if 'unique_favorite' in str(e):
                 models.db.session.rollback()
             else:
                 raise e

@@ -230,7 +230,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
-            error = e.message
+            error = str(e)
             json_data = None
         except (KeyboardInterrupt, InterruptException):
             connection.cancel()
