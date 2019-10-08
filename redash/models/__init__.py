@@ -176,7 +176,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @property
     def pause_reason(self):
-        return redis_connection.get(self._pause_key)
+        rv = redis_connection.get(self._pause_key)
+        if not rv:
+            return rv
+
+        return rv.decode()
 
     def pause(self, reason=None):
         redis_connection.set(self._pause_key, reason or '')
