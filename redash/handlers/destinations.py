@@ -48,7 +48,7 @@ class DestinationResource(BaseResource):
         except ValidationError:
             abort(400)
         except IntegrityError as e:
-            if 'name' in e.message:
+            if 'name' in str(e):
                 abort(400, message="Alert Destination with the name {} already exists.".format(req['name']))
             abort(500)
 
@@ -112,7 +112,7 @@ class DestinationListResource(BaseResource):
             models.db.session.add(destination)
             models.db.session.commit()
         except IntegrityError as e:
-            if 'name' in e.message:
+            if 'name' in str(e):
                 abort(400, message="Alert Destination with the name {} already exists.".format(req['name']))
             abort(500)
 
