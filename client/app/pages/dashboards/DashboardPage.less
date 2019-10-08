@@ -1,0 +1,33 @@
+.dashboard-header {
+  padding: 0 15px !important;
+  margin: 0 0 10px !important;
+
+  h3 {
+    margin: 0.2em 0;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  .favorites-control {
+    font-size: 19px;
+    margin-right: 5px;
+  }
+
+  .profile-image {
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    margin: 3px 5px 0 0;
+  }
+
+  .tags-control a {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover {
+    .tags-control a {
+      opacity: 1;
+    }
+  }
+}

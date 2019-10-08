@@ -245,6 +245,17 @@ edit-in-place p.editable:hover {
     margin-left: 15px;
     margin-right: 15px;
   }
+
+  .tags-control a {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover {
+    .tags-control a {
+      opacity: 1;
+    }
+  }
 }
 
 a.label-tag {

@@ -418,14 +418,14 @@ function DashboardCtrl(
 }
 
 export default function init(ngModule) {
-  ngModule.component('dashboardPage', {
+  ngModule.component('dashboardPageOld', {
     template,
     controller: DashboardCtrl,
   });
 
   return {
-    '/dashboard/:dashboardSlug': {
-      template: '<dashboard-page></dashboard-page>',
+    '/dashboardold/:dashboardSlug': {
+      template: '<dashboard-page-old></dashboard-page-old>',
       reloadOnSearch: false,
     },
   };
