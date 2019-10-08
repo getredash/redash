@@ -138,7 +138,7 @@ class UserListResource(BaseResource):
             models.db.session.add(user)
             models.db.session.commit()
         except IntegrityError as e:
-            if "email" in e.message:
+            if "email" in str(e):
                 abort(400, message='Email already taken.')
             abort(500)
 
@@ -263,7 +263,7 @@ class UserResource(BaseResource):
             if current_user.id == user.id:
                 login_user(user, remember=True)
         except IntegrityError as e:
-            if "email" in e.message:
+            if "email" in str(e):
                 message = "Email already taken."
             else:
                 message = "Error updating record"

@@ -199,7 +199,7 @@ def refresh_queries():
                     try:
                         query_text = query.parameterized.apply(parameters).query
                     except InvalidParameterError as e:
-                        error = "Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
+                        error = "Skipping refresh of {} because of invalid parameters: {}".format(query.id, str(e))
                         track_failure(query, error)
                         continue
                     except QueryDetachedFromDataSourceError as e:
@@ -408,7 +408,7 @@ class QueryExecutor(object):
         self.metadata['Query Hash'] = self.query_hash
         self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
         self.metadata['Scheduled'] = self.scheduled_query is not None
-            
+
         return query_runner.annotate_query(self.query, self.metadata)
 
     def _log_progress(self, state):
