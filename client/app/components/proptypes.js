@@ -56,6 +56,7 @@ export const Field = PropTypes.shape({
   content: PropTypes.node,
   mode: PropTypes.string,
   required: PropTypes.bool,
+  extra: PropTypes.bool,
   readOnly: PropTypes.bool,
   autoFocus: PropTypes.bool,
   minLength: PropTypes.number,
