@@ -100,7 +100,7 @@ def create_table(connection, table_name, query_results):
         connection.execute(create_table)
     except sqlite3.OperationalError as exc:
         raise CreateTableError("Error creating table {}: {}".format(
-            table_name, exc.message))
+            table_name, str(exc)))
 
     insert_template = "insert into {table_name} ({column_list}) values ({place_holders})".format(
         table_name=table_name,
