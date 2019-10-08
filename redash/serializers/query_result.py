@@ -87,7 +87,7 @@ def serialize_query_result_to_csv(query_result):
 
 
 def serialize_query_result_to_xlsx(query_result):
-    s = io.StringIO()
+    s = io.BytesIO()
 
     query_data = query_result.data
     book = xlsxwriter.Workbook(s, {'constant_memory': True})
@@ -102,7 +102,7 @@ def serialize_query_result_to_xlsx(query_result):
         for (c, name) in enumerate(column_names):
             v = row.get(name)
             if isinstance(v, list) or isinstance(v, dict):
-                v = str(v).encode('utf-8')
+                v = str(v)
             sheet.write(r + 1, c, v)
 
     book.close()
