@@ -52,11 +52,10 @@ class Slack(BaseDestination):
                 "short": True
             }
         ]
-        if alert.template:
-            description = alert.render_template()
+        if alert.custom_body:
             fields.append({
                 "title": "Description",
-                "value": description
+                "value": alert.custom_body
             })
         if new_state == "triggered":
             if alert.custom_subject:
