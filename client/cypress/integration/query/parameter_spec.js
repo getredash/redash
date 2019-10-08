@@ -17,6 +17,22 @@ describe('Parameter', () => {
       });
   };
 
+  const expectValueValidationError = (edit, expectedInvalidString = 'Required field') => {
+    cy.getByTestId('ParameterName-test-parameter')
+      .find('.ant-form-item-control')
+      .should('not.have.class', 'has-error')
+      .find('.ant-form-explain')
+      .should('not.exist');
+
+    edit();
+
+    cy.getByTestId('ParameterName-test-parameter')
+      .find('.ant-form-item-control')
+      .should('have.class', 'has-error')
+      .find('.ant-form-explain')
+      .should('contain', expectedInvalidString);
+  };
+
   beforeEach(() => {
     cy.login();
   });
@@ -28,7 +44,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'text' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'text', value: 'text' },
           ],
         },
       };
@@ -56,6 +72,23 @@ describe('Parameter', () => {
           .type('Redash');
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('input')
+          .clear();
+      });
+    });
+
+    it('shows validation error when value is spaces only', () => {
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('input')
+          .clear()
+          .type('     ');
+      });
+    });
   });
 
   describe('Number Parameter', () => {
@@ -65,7 +98,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'number' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'number', value: 1 },
           ],
         },
       };
@@ -102,6 +135,23 @@ describe('Parameter', () => {
           .find('input')
           .type('{selectall}42');
       });
+    });
+
+    it('shows validation error when value is empty', () => {
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('input')
+          .clear();
+      });
+    });
+
+    it('shows validation error when value not a number', () => {
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('input')
+          .clear()
+          .type('text');
+      }, 'Invalid value');
     });
   });
 
@@ -178,6 +228,22 @@ describe('Parameter', () => {
           .click();
       });
     });
+
+    it('shows validation error when multi-selection is empty', () => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        AllowMultipleValuesCheckbox
+        QuotationSelect
+        DoubleQuotationMarkOption
+        SaveParameterSettings
+      `);
+
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('.ant-select-remove-icon')
+          .click();
+      });
+    });
   });
 
   describe('Date Parameter', () => {
@@ -242,6 +308,16 @@ describe('Parameter', () => {
 
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDate('15'));
+    });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDate('15');
+
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('.ant-calendar-picker-clear')
+          .click({ force: true });
+      });
     });
   });
 
@@ -333,6 +409,26 @@ describe('Parameter', () => {
           .click();
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .as('Input')
+        .click({ force: true });
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('.ant-calendar-date', '15')
+        .click();
+
+      cy.get('.ant-calendar-ok-btn')
+        .click();
+
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('.ant-calendar-picker-clear')
+          .click({ force: true });
+      });
+    });
   });
 
   describe('Date Range Parameter', () => {
@@ -406,6 +502,16 @@ describe('Parameter', () => {
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDateRange('15', '20'));
     });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDateRange('15', '20');
+
+      expectValueValidationError(() => {
+        cy.getByTestId('ParameterName-test-parameter')
+          .find('.ant-calendar-picker-clear')
+          .click({ force: true });
+      });
+    });
   });
 
   describe('Apply Changes', () => {
@@ -413,10 +519,12 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterName-test-parameter-1')
         .find('input')
         .as('Input')
+        .clear()
         .type('Redash');
 
       cy.getByTestId('ParameterName-test-parameter-2')
         .find('input')
+        .clear()
         .type('Redash');
 
       cy.location('search').should('not.contain', 'Redash');
@@ -436,8 +544,8 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter-1}} {{ test-parameter-2 }}'",
         options: {
           parameters: [
-            { name: 'test-parameter-1', title: 'Test Parameter 1', type: 'text' },
-            { name: 'test-parameter-2', title: 'Test Parameter 2', type: 'text' },
+            { name: 'test-parameter-1', title: 'Test Parameter 1', type: 'text', value: 'text' },
+            { name: 'test-parameter-2', title: 'Test Parameter 2', type: 'text', value: 'text' },
           ],
         },
       };
@@ -453,13 +561,36 @@ describe('Parameter', () => {
       cy.getByTestId('ParameterName-test-parameter-1')
         .find('input')
         .as('Param')
+        .clear()
         .type('Redash');
 
       cy.getByTestId('ParameterApplyButton')
         .should('be', 'visible');
 
+      // back to previous content
       cy.get('@Param')
-        .clear();
+        .clear()
+        .type('text');
+
+      cy.getByTestId('ParameterApplyButton')
+        .should('not.be', 'visible');
+    });
+
+    it('shows and hides according to value validation state', () => {
+      cy.getByTestId('ParameterApplyButton')
+        .should('not.be', 'visible');
+
+      cy.getByTestId('ParameterName-test-parameter-1')
+        .find('input')
+        .as('Param')
+        .clear()
+        .type('Redash');
+
+      cy.getByTestId('ParameterApplyButton')
+        .should('be', 'visible');
+
+      // validation error
+      cy.get('@Param').clear();
 
       cy.getByTestId('ParameterApplyButton')
         .should('not.be', 'visible');
