@@ -410,7 +410,7 @@ class TestUserDisable(BaseTestCase):
             login_user_mock.assert_not_called()
             # check if error is raised
             self.assertEqual(rv.status_code, 200)
-            self.assertIn('Wrong email or password', rv.data)
+            self.assertIn('Wrong email or password', rv.data.decode())
 
     def test_disabled_user_should_not_access_api(self):
         # Note: some API does not require user, so check the one which requires
