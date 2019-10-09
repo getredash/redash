@@ -288,7 +288,7 @@ class QueryResultResource(BaseResource):
 
             response.headers.add_header(
                 "Content-Disposition",
-                'attachment; filename="{}"'.format(filename.encode("utf-8"))
+                'attachment; filename="{}"'.format(filename)
             )
 
             return response
