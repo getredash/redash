@@ -4,6 +4,7 @@ import notification from '@/services/notification';
 import { $location, $rootScope } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
 import { currentUser } from '@/services/auth';
+import recordEvent from '@/services/recordEvent';
 import ShareDashboardDialog from './ShareDashboardDialog';
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
@@ -69,11 +70,14 @@ function useDashboard(dashboardData) {
     }).result.finally(() => setDashboard(extend({}, dashboard)));
   });
 
-  const updateDashboard = useCallback((data) => {
+  const updateDashboard = useCallback((data, includeVersion = true) => {
     setDashboard(extend({}, dashboard, data));
     // for some reason the request uses the id as slug
-    data = { ...data, slug: dashboard.id, version: dashboard.version };
-    Dashboard.save(
+    data = { ...data, slug: dashboard.id };
+    if (includeVersion) {
+      data = { ...data, version: dashboard.version };
+    }
+    return Dashboard.save(
       data,
       updatedDashboard => setDashboard(extend({}, dashboard, pick(updatedDashboard, keys(data)))),
       (error) => {
@@ -87,8 +91,16 @@ function useDashboard(dashboardData) {
           );
         }
       },
-    );
+    ).$promise;
   }, [dashboard]);
+
+  const togglePublished = useCallback(
+    () => {
+      recordEvent('toggle_published', 'dashboard', dashboard.id);
+      updateDashboard({ is_draft: !dashboard.is_draft }, false);
+    },
+    [dashboard, updateDashboard],
+  );
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
@@ -141,6 +153,7 @@ function useDashboard(dashboardData) {
     setFilters,
     refreshDashboard,
     updateDashboard,
+    togglePublished,
     loadWidget,
     refreshWidget,
     canEditDashboard,

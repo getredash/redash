@@ -13,6 +13,7 @@ import { FavoritesControl } from '@/components/FavoritesControl';
 import { EditInPlace } from '@/components/EditInPlace';
 import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
 import { Dashboard } from '@/services/dashboard';
+import recordEvent from '@/services/recordEvent';
 import { $route } from '@/services/ng';
 import getTags from '@/services/getTags';
 import { clientConfig } from '@/services/auth';
@@ -117,7 +118,7 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard } = dashboardOptions;
+  const { dashboard, togglePublished } = dashboardOptions;
   return (
     <Dropdown
       trigger={['click']}
@@ -126,7 +127,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
         <Menu>
           <Menu.Item>Edit</Menu.Item>
           <Menu.Item>Manage Permissions</Menu.Item>
-          {!dashboard.is_draft && <Menu.Item>Unpublish</Menu.Item>}
+          {!dashboard.is_draft && <Menu.Item><a onClick={togglePublished}>Unpublish</a></Menu.Item>}
           <Menu.Item>Archive</Menu.Item>
         </Menu>
       )}
@@ -141,7 +142,7 @@ DashboardMoreOptionsButton.propTypes = {
 };
 
 function DashboardControl({ dashboardOptions }) {
-  const { dashboard, updateDashboard, editingLayout,
+  const { dashboard, editingLayout, togglePublished,
     canEditDashboard, fullscreen, toggleFullscreen, openShareDialog } = dashboardOptions;
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
@@ -153,7 +154,7 @@ function DashboardControl({ dashboardOptions }) {
       {(!dashboard.is_archived && !editingLayout) && (
         <span className="hidden-print">
           {showPublishButton && (
-            <Button className="m-r-5" onClick={() => updateDashboard({ is_draft: false })}>
+            <Button className="m-r-5" onClick={togglePublished}>
               <span className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
@@ -240,7 +241,10 @@ function DashboardPage() {
 
   useEffect(() => {
     Dashboard.get({ slug: $route.current.params.dashboardSlug }).$promise
-      .then(setDashboard)
+      .then((dashboardData) => {
+        recordEvent('view', 'dashboard', dashboardData.id);
+        setDashboard(dashboardData);
+      })
       .catch((error) => { throw new PromiseRejectionError(error); });
   }, []);
 
