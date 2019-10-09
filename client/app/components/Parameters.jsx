@@ -12,7 +12,6 @@ import Form from 'antd/lib/form';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
 
-
 import './Parameters.less';
 
 function updateUrl(parameters) {
