@@ -7,6 +7,7 @@ import Button from 'antd/lib/button';
 import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 import Icon from 'antd/lib/icon';
+import Tooltip from 'antd/lib/tooltip';
 import { DashboardGrid } from '@/components/dashboards/DashboardGrid';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { EditInPlace } from '@/components/EditInPlace';
@@ -71,13 +72,15 @@ function RefreshButton({ dashboardOptions }) {
   };
   return (
     <Button.Group>
-      <Button
-        type={refreshRate ? 'primary' : 'default'}
-        onClick={() => refreshDashboard()}
-      >
-        <i className={cx('zmdi zmdi-refresh m-r-5', { 'zmdi-hc-spin': refreshing })} />
-        {refreshRate ? durationHumanize(refreshRate) : 'Refresh'}
-      </Button>
+      <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
+        <Button
+          type={refreshRate ? 'primary' : 'default'}
+          onClick={() => refreshDashboard()}
+        >
+          <i className={cx('zmdi zmdi-refresh m-r-5', { 'zmdi-hc-spin': refreshing })} />
+          {refreshRate ? durationHumanize(refreshRate) : 'Refresh'}
+        </Button>
+      </Tooltip>
       <Dropdown
         trigger={['click']}
         placement="bottomRight"
@@ -148,10 +151,14 @@ function DashboardHeader({ dashboardOptions }) {
                 )}
                 <RefreshButton dashboardOptions={dashboardOptions} />
                 <span className="hidden-xs">
-                  <Button type={fullscreen ? 'primary' : 'default'} className="m-l-5 p-l-10 p-r-10" onClick={toggleFullscreen}>
-                    <i className="zmdi zmdi-fullscreen" />
-                  </Button>
-                  <Button className="m-l-5 p-l-10 p-r-10"><i className="zmdi zmdi-share" /></Button>
+                  <Tooltip title="Enable/Disable Fullscreen display">
+                    <Button type={fullscreen ? 'primary' : 'default'} className="m-l-5 p-l-10 p-r-10" onClick={toggleFullscreen}>
+                      <i className="zmdi zmdi-fullscreen" />
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title="Dashboard Sharing Options">
+                    <Button className="m-l-5 p-l-10 p-r-10"><i className="zmdi zmdi-share" /></Button>
+                  </Tooltip>
                   {canEditDashboard && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
                 </span>
               </>
