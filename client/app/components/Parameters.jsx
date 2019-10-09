@@ -189,7 +189,7 @@ export class Parameters extends React.Component {
             </div>
           </SortableElement>
         ))}
-        <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} show={canApplyChanges} />
+        <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} shouldShow={canApplyChanges} />
       </SortableContainer>
     );
   }

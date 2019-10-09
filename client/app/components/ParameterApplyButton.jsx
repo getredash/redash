@@ -5,12 +5,12 @@ import Badge from 'antd/lib/badge';
 import Tooltip from 'antd/lib/tooltip';
 import { KeyboardShortcuts } from '@/services/keyboard-shortcuts';
 
-function ParameterApplyButton({ paramCount, onClick, show }) {
+function ParameterApplyButton({ paramCount, onClick, shouldShow }) {
   // show spinner when count is empty so the fade out is consistent
   const icon = !paramCount ? 'spinner fa-pulse' : 'check';
 
   return (
-    <div className="parameter-apply-button" data-show={show} data-test="ParameterApplyButton">
+    <div className="parameter-apply-button" data-show={shouldShow} data-test="ParameterApplyButton">
       <Badge count={paramCount}>
         <Tooltip title={`${KeyboardShortcuts.modKey} + Enter`}>
           <span>
@@ -27,7 +27,7 @@ function ParameterApplyButton({ paramCount, onClick, show }) {
 ParameterApplyButton.propTypes = {
   onClick: PropTypes.func.isRequired,
   paramCount: PropTypes.number.isRequired,
-  show: PropTypes.bool.isRequired,
+  shouldShow: PropTypes.bool.isRequired,
 };
 
 export default ParameterApplyButton;

@@ -32,10 +32,6 @@ function hasInvalidValue(parameter) {
   return parameter.currentValueValidationError !== null;
 }
 
-export function getValueValidationErrors(parameters = []) {
-  return parameters.filter(hasInvalidValue).map(p => p.title);
-}
-
 export function hasValueValidationErrors(parameters = []) {
   return some(parameters, hasInvalidValue);
 }
@@ -137,7 +133,7 @@ class Parameters {
   }
 
   getValueValidationErrors() {
-    return getValueValidationErrors(this.get());
+    return this.get().filter(hasInvalidValue).map(p => p.title);
   }
 
   applyPendingValues() {
