@@ -29,12 +29,29 @@ function updateRefreshRateOnUrl(refreshRate) {
   }
 }
 
+function useFullscreenHandler() {
+  const [fullscreen, setFullscreen] = useState(has($location.search(), 'fullscreen'));
+  useEffect(() => {
+    const params = extend({}, $location.search(), { fullscreen: '1' });
+    document.querySelector('body').classList.toggle('headless', fullscreen);
+    if (fullscreen) {
+      $location.search(params);
+    } else {
+      $location.search(omit(params, ['fullscreen']));
+    }
+  }, [fullscreen]);
+
+  const toggleFullscreen = () => setFullscreen(!fullscreen);
+  return [fullscreen, toggleFullscreen];
+}
+
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [widgets, setWidgets] = useState(dashboard.widgets);
   const [editingLayout, setEditingLayout] = useState(false);
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
   const canEditDashboard = useMemo(
@@ -124,6 +141,8 @@ function useDashboard(dashboardData) {
     setRefreshRate,
     editingLayout,
     setEditingLayout,
+    fullscreen,
+    toggleFullscreen,
   };
 }
 

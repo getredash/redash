@@ -131,7 +131,8 @@ DashboardMoreOptionsButton.propTypes = {
 };
 
 function DashboardHeader({ dashboardOptions }) {
-  const { dashboard, updateDashboard, editingLayout, canEditDashboard } = dashboardOptions;
+  const { dashboard, updateDashboard, editingLayout,
+    canEditDashboard, fullscreen, toggleFullscreen } = dashboardOptions;
   return (
     <div className="row dashboard-header">
       <DashboardPageTitle dashboardOptions={dashboardOptions} editingLayout={editingLayout} />
@@ -147,7 +148,9 @@ function DashboardHeader({ dashboardOptions }) {
                 )}
                 <RefreshButton dashboardOptions={dashboardOptions} />
                 <span className="hidden-xs">
-                  <Button className="m-l-5 p-l-10 p-r-10"><i className="zmdi zmdi-fullscreen" /></Button>
+                  <Button type={fullscreen ? 'primary' : 'default'} className="m-l-5 p-l-10 p-r-10" onClick={toggleFullscreen}>
+                    <i className="zmdi zmdi-fullscreen" />
+                  </Button>
                   <Button className="m-l-5 p-l-10 p-r-10"><i className="zmdi zmdi-share" /></Button>
                   {canEditDashboard && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
                 </span>
