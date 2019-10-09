@@ -31,3 +31,34 @@
     }
   }
 }
+
+.dashboard-control {
+  margin: 8px 0;
+
+  .icon-button {
+    width: 32px;
+    padding: 0 10px;
+  }
+
+  .save-status {
+    vertical-align: middle;
+    margin-right: 7px;
+    font-size: 12px;
+    text-align: left;
+    display: inline-block;
+
+    &[data-saving] {
+      opacity: 0.6;
+      width: 45px;
+
+      &:after {
+        content: '';
+        animation: saving 2s linear infinite;
+      }
+    }
+
+    &[data-error] {
+      color: #F44336;
+    }
+  }
+}

@@ -99,7 +99,7 @@ function RefreshButton({ dashboardOptions }) {
           </Menu>
         )}
       >
-        <Button className="hidden-xs p-l-10 p-r-10" type={refreshRate ? 'primary' : 'default'}>
+        <Button className="icon-button hidden-xs" type={refreshRate ? 'primary' : 'default'}>
           <i className="fa fa-angle-down" />
           <span className="sr-only">Split button!</span>
         </Button>
@@ -124,7 +124,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
         </Menu>
       )}
     >
-      <Button className="m-l-5"><Icon type="ellipsis" rotate={90} /></Button>
+      <Button className="icon-button m-l-5"><Icon type="ellipsis" rotate={90} /></Button>
     </Dropdown>
   );
 }
@@ -133,39 +133,49 @@ DashboardMoreOptionsButton.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardHeader({ dashboardOptions }) {
+function DashboardControl({ dashboardOptions }) {
   const { dashboard, updateDashboard, editingLayout,
     canEditDashboard, fullscreen, toggleFullscreen } = dashboardOptions;
   return (
-    <div className="row dashboard-header">
-      <DashboardPageTitle dashboardOptions={dashboardOptions} editingLayout={editingLayout} />
-      <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
-        {!dashboard.is_archived && (
-          <span className="hidden-print">
-            {!editingLayout && (
-              <>
-                {dashboard.is_draft && (
-                  <Button className="m-r-5" onClick={() => updateDashboard({ is_draft: false })}>
-                    <span className="fa fa-paper-plane m-r-5" /> Publish
-                  </Button>
-                )}
-                <RefreshButton dashboardOptions={dashboardOptions} />
-                <span className="hidden-xs">
-                  <Tooltip title="Enable/Disable Fullscreen display">
-                    <Button type={fullscreen ? 'primary' : 'default'} className="m-l-5 p-l-10 p-r-10" onClick={toggleFullscreen}>
-                      <i className="zmdi zmdi-fullscreen" />
-                    </Button>
-                  </Tooltip>
-                  <Tooltip title="Dashboard Sharing Options">
-                    <Button className="m-l-5 p-l-10 p-r-10"><i className="zmdi zmdi-share" /></Button>
-                  </Tooltip>
-                  {canEditDashboard && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
-                </span>
-              </>
-            )}
+    <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
+      {!dashboard.is_archived && (
+      <span className="hidden-print">
+        {!editingLayout && (
+        <>
+          {dashboard.is_draft && (
+          <Button className="m-r-5" onClick={() => updateDashboard({ is_draft: false })}>
+            <span className="fa fa-paper-plane m-r-5" /> Publish
+          </Button>
+          )}
+          <RefreshButton dashboardOptions={dashboardOptions} />
+          <span className="hidden-xs">
+            <Tooltip title="Enable/Disable Fullscreen display">
+              <Button type={fullscreen ? 'primary' : 'default'} className="icon-button m-l-5" onClick={toggleFullscreen}>
+                <i className="zmdi zmdi-fullscreen" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Dashboard Sharing Options">
+              <Button className="icon-button m-l-5"><i className="zmdi zmdi-share" /></Button>
+            </Tooltip>
+            {canEditDashboard && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
           </span>
+        </>
         )}
-      </div>
+      </span>
+      )}
+    </div>
+  );
+}
+
+DashboardControl.propTypes = {
+  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
+
+function DashboardHeader({ dashboardOptions }) {
+  return (
+    <div className="row dashboard-header">
+      <DashboardPageTitle dashboardOptions={dashboardOptions} />
+      <DashboardControl dashboardOptions={dashboardOptions} />
     </div>
   );
 }

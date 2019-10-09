@@ -130,7 +130,7 @@ describe('Dashboard', () => {
     });
 
     it('hides menu button', () => {
-      cy.get('.dashboard__control').should('exist');
+      cy.get('.dashboard-control').should('exist');
       cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
 
       cy.viewport(768, 800);
