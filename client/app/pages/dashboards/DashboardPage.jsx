@@ -26,6 +26,10 @@ function getDashboardTags() {
   return getTags('api/dashboards/tags').then(tags => map(tags, t => t.name));
 }
 
+function buttonType(value) {
+  return value ? 'primary' : 'default';
+}
+
 function DashboardPageTitle({ dashboardOptions }) {
   const { dashboard, canEditDashboard, updateDashboard, editingLayout } = dashboardOptions;
   return (
@@ -74,7 +78,7 @@ function RefreshButton({ dashboardOptions }) {
     <Button.Group>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
         <Button
-          type={refreshRate ? 'primary' : 'default'}
+          type={buttonType(refreshRate)}
           onClick={() => refreshDashboard()}
         >
           <i className={cx('zmdi zmdi-refresh m-r-5', { 'zmdi-hc-spin': refreshing })} />
@@ -99,7 +103,7 @@ function RefreshButton({ dashboardOptions }) {
           </Menu>
         )}
       >
-        <Button className="icon-button hidden-xs" type={refreshRate ? 'primary' : 'default'}>
+        <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" />
           <span className="sr-only">Split button!</span>
         </Button>
@@ -135,33 +139,45 @@ DashboardMoreOptionsButton.propTypes = {
 
 function DashboardControl({ dashboardOptions }) {
   const { dashboard, updateDashboard, editingLayout,
-    canEditDashboard, fullscreen, toggleFullscreen } = dashboardOptions;
+    canEditDashboard, fullscreen, toggleFullscreen, openShareDialog } = dashboardOptions;
+  const showPublishButton = dashboard.is_draft;
+  const showRefreshButton = true;
+  const showFullscreenButton = !dashboard.is_draft;
+  const showShareButton = dashboard.publicAccessEnabled || canEditDashboard && !dashboard.is_draft;
+  const showMoreOptionsButton = canEditDashboard;
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
-      {!dashboard.is_archived && (
-      <span className="hidden-print">
-        {!editingLayout && (
-        <>
-          {dashboard.is_draft && (
-          <Button className="m-r-5" onClick={() => updateDashboard({ is_draft: false })}>
-            <span className="fa fa-paper-plane m-r-5" /> Publish
-          </Button>
+      {(!dashboard.is_archived && !editingLayout) && (
+        <span className="hidden-print">
+          {showPublishButton && (
+            <Button className="m-r-5" onClick={() => updateDashboard({ is_draft: false })}>
+              <span className="fa fa-paper-plane m-r-5" /> Publish
+            </Button>
           )}
-          <RefreshButton dashboardOptions={dashboardOptions} />
+          {showRefreshButton && <RefreshButton dashboardOptions={dashboardOptions} />}
           <span className="hidden-xs">
-            <Tooltip title="Enable/Disable Fullscreen display">
-              <Button type={fullscreen ? 'primary' : 'default'} className="icon-button m-l-5" onClick={toggleFullscreen}>
-                <i className="zmdi zmdi-fullscreen" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="Dashboard Sharing Options">
-              <Button className="icon-button m-l-5"><i className="zmdi zmdi-share" /></Button>
-            </Tooltip>
-            {canEditDashboard && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
+            {showFullscreenButton && (
+              <Tooltip title="Enable/Disable Fullscreen display">
+                <Button type={buttonType(fullscreen)} className="icon-button m-l-5" onClick={toggleFullscreen}>
+                  <i className="zmdi zmdi-fullscreen" />
+                </Button>
+              </Tooltip>
+            )}
+            {showShareButton && (
+              <Tooltip title="Dashboard Sharing Options">
+                <Button
+                  className="icon-button m-l-5"
+                  type={buttonType(dashboard.publicAccessEnabled)}
+                  onClick={openShareDialog}
+                  data-test="OpenShareForm"
+                >
+                  <i className="zmdi zmdi-share" />
+                </Button>
+              </Tooltip>
+            )}
+            {showMoreOptionsButton && <DashboardMoreOptionsButton dashboardOptions={dashboardOptions} />}
           </span>
-        </>
-        )}
-      </span>
+        </span>
       )}
     </div>
   );

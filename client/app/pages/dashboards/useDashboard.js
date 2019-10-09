@@ -1,9 +1,10 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { isEmpty, isNaN, includes, compact, map, has, pick, keys, extend, omit } from 'lodash';
+import { isEmpty, isNaN, includes, compact, map, has, pick, keys, extend, every } from 'lodash';
 import notification from '@/services/notification';
 import { $location } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
 import { currentUser } from '@/services/auth';
+import ShareDashboardDialog from './ShareDashboardDialog';
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters) ? widgets.filter(
@@ -22,11 +23,10 @@ function getRefreshRateFromUrl() {
 
 function updateRefreshRateOnUrl(refreshRate) {
   const params = extend({}, $location.search(), { refresh: refreshRate });
-  if (refreshRate) {
-    $location.search(params);
-  } else {
-    $location.search(omit(params, ['refresh']));
+  if (!refreshRate) {
+    delete params.refresh;
   }
+  $location.search(params);
 }
 
 function useFullscreenHandler() {
@@ -34,11 +34,10 @@ function useFullscreenHandler() {
   useEffect(() => {
     const params = extend({}, $location.search(), { fullscreen: '1' });
     document.querySelector('body').classList.toggle('headless', fullscreen);
-    if (fullscreen) {
-      $location.search(params);
-    } else {
-      $location.search(omit(params, ['fullscreen']));
+    if (!fullscreen) {
+      delete params.fullscreen;
     }
+    $location.search(params);
   }, [fullscreen]);
 
   const toggleFullscreen = () => setFullscreen(!fullscreen);
@@ -71,6 +70,17 @@ function useDashboard(dashboardData) {
     () => has(dashboard, 'user.id') && (currentUser.id === dashboard.user.id || currentUser.hasPermission('admin')),
     [dashboard],
   );
+  const hasOnlySafeQueries = useMemo(
+    () => every(widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
+    [widgets],
+  );
+
+  const openShareDialog = useCallback(() => {
+    ShareDashboardDialog.showModal({
+      dashboard,
+      hasOnlySafeQueries,
+    }).result.finally(() => setDashboard(extend({}, dashboard)));
+  });
 
   const updateDashboard = useCallback((data) => {
     setDashboard(extend({}, dashboard, data));
@@ -147,6 +157,7 @@ function useDashboard(dashboardData) {
     setEditingLayout,
     fullscreen,
     toggleFullscreen,
+    openShareDialog,
   };
 }
 
