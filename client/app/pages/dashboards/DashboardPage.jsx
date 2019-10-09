@@ -124,7 +124,10 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
       placement="bottomRight"
       overlay={(
         <Menu>
-          {!dashboard.is_archived && <Menu.Item>Edit</Menu.Item>}
+          <Menu.Item>Edit</Menu.Item>
+          <Menu.Item>Manage Permissions</Menu.Item>
+          {!dashboard.is_draft && <Menu.Item>Unpublish</Menu.Item>}
+          <Menu.Item>Archive</Menu.Item>
         </Menu>
       )}
     >
