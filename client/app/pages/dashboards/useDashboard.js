@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { isEmpty, isNaN, includes, compact, map, has, pick, keys, extend, every } from 'lodash';
 import notification from '@/services/notification';
-import { $location } from '@/services/ng';
+import { $location, $rootScope } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
 import { currentUser } from '@/services/auth';
 import ShareDashboardDialog from './ShareDashboardDialog';
@@ -21,34 +21,22 @@ function getRefreshRateFromUrl() {
   return isNaN(refreshRate) ? null : Math.max(30, refreshRate);
 }
 
-function updateRefreshRateOnUrl(refreshRate) {
-  const params = extend({}, $location.search(), { refresh: refreshRate });
-  if (!refreshRate) {
-    delete params.refresh;
-  }
-  $location.search(params);
-}
-
-function useFullscreenHandler() {
+function useFullscreenHandler(updateUrlSearch) {
   const [fullscreen, setFullscreen] = useState(has($location.search(), 'fullscreen'));
   useEffect(() => {
-    const params = extend({}, $location.search(), { fullscreen: '1' });
     document.querySelector('body').classList.toggle('headless', fullscreen);
-    if (!fullscreen) {
-      delete params.fullscreen;
-    }
-    $location.search(params);
+    updateUrlSearch('fullscreen', fullscreen ? true : null);
   }, [fullscreen]);
 
   const toggleFullscreen = () => setFullscreen(!fullscreen);
   return [fullscreen, toggleFullscreen];
 }
 
-function useRefreshRateHandler(refreshDashboard) {
+function useRefreshRateHandler(refreshDashboard, updateUrlSearch) {
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
 
   useEffect(() => {
-    updateRefreshRateOnUrl(refreshRate);
+    updateUrlSearch('refresh', refreshRate || null);
     if (refreshRate) {
       const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
       return () => clearInterval(refreshTimer);
@@ -64,7 +52,6 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [widgets, setWidgets] = useState(dashboard.widgets);
   const [editingLayout, setEditingLayout] = useState(false);
-  const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const canEditDashboard = useMemo(
     () => has(dashboard, 'user.id') && (currentUser.id === dashboard.user.id || currentUser.hasPermission('admin')),
@@ -132,7 +119,13 @@ function useDashboard(dashboardData) {
     [loadDashboard],
   );
 
-  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard);
+  const updateUrlSearch = useCallback((...params) => {
+    $location.search(...params);
+    $rootScope.$applyAsync();
+  }, []);
+
+  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard, updateUrlSearch);
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler(updateUrlSearch);
 
   useEffect(() => {
     setDashboard(dashboardData);
