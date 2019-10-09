@@ -73,7 +73,6 @@ def serialize_query_result_to_csv(query_result):
     fieldnames, special_columns = _get_column_lists(query_data['columns'] or [])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
-    writer.writer = UnicodeWriter(s)
     writer.writeheader()
 
     for row in query_data['rows']:

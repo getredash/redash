@@ -16,9 +16,9 @@ data = {
         {"datetime": None, "bool": None, "date": None},
         {"datetime": 459, "bool": None, "date": 123},
         {"datetime": "459", "bool": None, "date": "123"},
-    ], 
+    ],
     "columns": [
-        {"friendly_name": "bool", "type": "boolean", "name": "bool"}, 
+        {"friendly_name": "bool", "type": "boolean", "name": "bool"},
         {"friendly_name": "date", "type": "datetime", "name": "datetime"},
         {"friendly_name": "date", "type": "date", "name": "date"}
     ]
