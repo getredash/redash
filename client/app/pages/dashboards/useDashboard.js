@@ -45,6 +45,20 @@ function useFullscreenHandler() {
   return [fullscreen, toggleFullscreen];
 }
 
+function useRefreshRateHandler(refreshDashboard) {
+  const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
+
+  useEffect(() => {
+    updateRefreshRateOnUrl(refreshRate);
+    if (refreshRate) {
+      const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
+      return () => clearInterval(refreshTimer);
+    }
+  }, [refreshRate]);
+
+  return [refreshRate, setRefreshRate];
+}
+
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
@@ -53,7 +67,6 @@ function useDashboard(dashboardData) {
   const [editingLayout, setEditingLayout] = useState(false);
   const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
-  const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
   const canEditDashboard = useMemo(
     () => has(dashboard, 'user.id') && (currentUser.id === dashboard.user.id || currentUser.hasPermission('admin')),
     [dashboard],
@@ -109,21 +122,12 @@ function useDashboard(dashboardData) {
     [loadDashboard],
   );
 
+  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard);
+
   useEffect(() => {
     setDashboard(dashboardData);
-  }, [dashboardData]);
-
-  useEffect(() => {
     loadDashboard();
-  }, [dashboard]);
-
-  useEffect(() => {
-    updateRefreshRateOnUrl(refreshRate);
-    if (refreshRate) {
-      const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
-      return () => clearInterval(refreshTimer);
-    }
-  }, [refreshRate]);
+  }, [dashboardData]);
 
   return {
     dashboard,
