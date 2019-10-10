@@ -10,6 +10,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_ipaddr
 from flask_migrate import Migrate
 from statsd import StatsClient
+from urllib.parse import urlparse, urlunparse
 
 from . import settings
 from .app import create_app  # noqa
@@ -39,7 +40,17 @@ def setup_logging():
 
 setup_logging()
 
-redis_connection = redis.from_url(settings.REDIS_URL)
+
+def fix_redis_url(url):
+    """Make sure that the Redis URL includes the `decode_responses` option."""
+    parsed = urlparse(url)
+    query = 'decode_responses=True'
+    if parsed.query:
+        query = "{}&{}".format(parsed.query, query)
+
+    return urlunparse([parsed.scheme, parsed.netloc, parsed.path, parsed.params, query, parsed.fragment])
+
+redis_connection = redis.from_url(fix_redis_url(settings.REDIS_URL))
 mail = Mail()
 migrate = Migrate()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
