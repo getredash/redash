@@ -96,13 +96,15 @@ class ParameterValueInput extends React.Component {
     const { enumOptions, parameter } = this.props;
     const { value } = this.state;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
+    // Antd Select doesn't handle null in multiple mode
+    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
     return (
       <Select
         className={this.props.className}
         mode={parameter.multiValuesOptions ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
-        value={value}
+        value={normalize(value)}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
         showSearch
