@@ -44,8 +44,31 @@ def healthcheck():
         all_workers = Worker.all()
 
         local_workers = [w for w in all_workers if w.hostname == hostname]
+        row_format ="{:>10}" * (len(local_workers) + 1)
+
+        print("Local worker PIDs:")
+        local_worker_pids = set([w.pid for w in local_workers])
+        print(row_format.format("", *local_worker_pids))
+
+        print("Time since seen:")
         heartbeats = [w.last_heartbeat for w in local_workers]
         time_since_seen = [datetime.datetime.utcnow() - hb for hb in heartbeats]
-        active = [t.seconds < 60 for t in time_since_seen]
+        print(row_format.format("", *[t.seconds for t in time_since_seen]))
+        seen_lately = [t.seconds < 60 for t in time_since_seen]
 
-        sys.exit(int(not all(active)))
+        print("State:")
+        states = [w.state for w in local_workers]
+        print(row_format.format("", *states))
+        busy = [s == "busy" for s in states]
+
+        print("Jobs in queues:")
+        jobs_in_queues = [sum([len(q.jobs) for q in w.queues]) for w in local_workers]
+        print(row_format.format("", *jobs_in_queues))
+        has_nothing_to_do = [j == 0 for j in jobs_in_queues]
+
+        print("Healty:")
+        # a healthy worker is either busy, has been seen lately or has nothing to do
+        healthy = [any(w) for w in zip(busy, seen_lately, has_nothing_to_do)]
+        print(row_format.format("", *healthy))
+
+        sys.exit(int(not all(healthy)))
