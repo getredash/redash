@@ -22,7 +22,7 @@ def schedule(**kwargs):
         interval = interval.seconds
 
     kwargs['interval'] = interval
-    kwargs['result_ttl'] = kwargs.get('result_ttl', interval)
+    kwargs['result_ttl'] = kwargs.get('result_ttl', interval * 2)
 
     rq_scheduler.schedule(scheduled_time=datetime.utcnow(), **kwargs)
 
