@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { map } from 'lodash';
+import { map, isEmpty } from 'lodash';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Dropdown from 'antd/lib/dropdown';
@@ -13,6 +13,8 @@ import { DashboardGrid } from '@/components/dashboards/DashboardGrid';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { EditInPlace } from '@/components/EditInPlace';
 import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
+import { Parameters } from '@/components/Parameters';
+import { Filters } from '@/components/Filters';
 import { Dashboard } from '@/services/dashboard';
 import recordEvent from '@/services/recordEvent';
 import { $route } from '@/services/ng';
@@ -220,14 +222,24 @@ DashboardHeader.propTypes = {
 
 function DashboardComponent(props) {
   const dashboardOptions = useDashboard(props.dashboard);
-  const { dashboard, widgets, filters, loadWidget,
-    refreshWidget, editingLayout } = dashboardOptions;
+  const { dashboard, widgets, filters, setFilters, loadWidget,
+    globalParameters, refreshDashboard, refreshWidget, editingLayout } = dashboardOptions;
 
   return (
     <>
       <DashboardHeader
         dashboardOptions={dashboardOptions}
       />
+      {!isEmpty(globalParameters) && (
+        <div className="dashboard-parameters m-b-10 p-15 bg-white tiled">
+          <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
+        </div>
+      )}
+      {!isEmpty(filters) && (
+        <div className="m-b-10 p-15 bg-white tiled">
+          <Filters filters={filters} onChange={setFilters} />
+        </div>
+      )}
       <div id="dashboard-container">
         <DashboardGrid
           dashboard={dashboard}
