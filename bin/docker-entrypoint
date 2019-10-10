@@ -23,9 +23,15 @@ dev_scheduler() {
 }
 
 worker() {
-  echo "Starting RQ worker..."
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  echo "Starting $WORKERS_COUNT RQ workers for queues $QUEUES..."
 
-  exec /app/manage.py rq worker $QUEUES
+  for i in `seq 1 $WORKERS_COUNT`;
+  do
+    exec /app/manage.py rq worker $QUEUES &
+  done    
+
+  sleep infinity
 }
 
 rq_scheduler() {
