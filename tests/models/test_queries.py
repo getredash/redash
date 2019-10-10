@@ -2,8 +2,8 @@
 
 from tests import BaseTestCase
 import datetime
-from redash.models import Query, Group, Event, db
-from redash.utils import utcnow
+from redash.models import Query, QueryResult, Group, Event, db
+from redash.utils import utcnow, gen_query_hash
 import mock
 
 
@@ -375,3 +375,59 @@ class TestQueryFork(BaseTestCase):
 
         self.assertEqual(count_table, 1)
         self.assertEqual(count_vis, 1)
+
+
+class TestQueryUpdateLatestResult(BaseTestCase):
+    def setUp(self):
+        super(TestQueryUpdateLatestResult, self).setUp()
+        self.data_source = self.factory.data_source
+        self.query = "SELECT 1"
+        self.query_hash = gen_query_hash(self.query)
+        self.runtime = 123
+        self.utcnow = utcnow()
+        self.data = "data"
+
+    def test_updates_existing_queries(self):
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query)
+
+        query_result = QueryResult.store_result(
+            self.data_source.org_id, self.data_source, self.query_hash,
+            self.query, self.data, self.runtime, self.utcnow)
+
+        Query.update_latest_result(query_result)
+
+        self.assertEqual(query1.latest_query_data, query_result)
+        self.assertEqual(query2.latest_query_data, query_result)
+        self.assertEqual(query3.latest_query_data, query_result)
+
+    def test_doesnt_update_queries_with_different_hash(self):
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query + "123")
+
+        query_result = QueryResult.store_result(
+            self.data_source.org_id, self.data_source, self.query_hash,
+            self.query, self.data, self.runtime, self.utcnow)
+
+        Query.update_latest_result(query_result)
+
+        self.assertEqual(query1.latest_query_data, query_result)
+        self.assertEqual(query2.latest_query_data, query_result)
+        self.assertNotEqual(query3.latest_query_data, query_result)
+
+    def test_doesnt_update_queries_with_different_data_source(self):
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query, data_source=self.factory.create_data_source())
+
+        query_result = QueryResult.store_result(
+            self.data_source.org_id, self.data_source, self.query_hash,
+            self.query, self.data, self.runtime, self.utcnow)
+
+        Query.update_latest_result(query_result)
+
+        self.assertEqual(query1.latest_query_data, query_result)
+        self.assertEqual(query2.latest_query_data, query_result)
+        self.assertNotEqual(query3.latest_query_data, query_result)

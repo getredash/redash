@@ -232,9 +232,31 @@ class DataSourceGroup(db.Model):
     __tablename__ = "data_source_groups"
 
 
+DESERIALIZED_DATA_ATTR = '_deserialized_data'
+
+class DBPersistence(object):
+    @property
+    def data(self):
+        if self._data is None:
+            return None
+
+        if not hasattr(self, DESERIALIZED_DATA_ATTR):
+            setattr(self, DESERIALIZED_DATA_ATTR, json_loads(self._data))
+
+        return self._deserialized_data
+
+    @data.setter
+    def data(self, data):
+        if hasattr(self, DESERIALIZED_DATA_ATTR):
+            delattr(self, DESERIALIZED_DATA_ATTR)
+        self._data = data
+
+
+QueryResultPersistence = settings.dynamic_settings.QueryResultPersistence or DBPersistence
+
 @python_2_unicode_compatible
 @generic_repr('id', 'org_id', 'data_source_id', 'query_hash', 'runtime', 'retrieved_at')
-class QueryResult(db.Model, BelongsToOrgMixin):
+class QueryResult(db.Model, QueryResultPersistence, BelongsToOrgMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
@@ -242,7 +264,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source = db.relationship(DataSource, backref=backref('query_results'))
     query_hash = Column(db.String(32), index=True)
     query_text = Column('query', db.Text)
-    data = Column(db.Text)
+    _data = Column('data', db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
 
@@ -256,7 +278,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'id': self.id,
             'query_hash': self.query_hash,
             'query': self.query_text,
-            'data': json_loads(self.data),
+            'data': self.data,
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
@@ -304,22 +326,12 @@ class QueryResult(db.Model, BelongsToOrgMixin):
                            data_source=data_source,
                            retrieved_at=retrieved_at,
                            data=data)
+
+
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
-        # TODO: Investigate how big an impact this select-before-update makes.
-        queries = Query.query.filter(
-            Query.query_hash == query_hash,
-            Query.data_source == data_source
-        )
-        for q in queries:
-            q.latest_query_data = query_result
-            # don't auto-update the updated_at timestamp
-            q.skip_updated_at = True
-            db.session.add(q)
-        query_ids = [q.id for q in queries]
-        logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
-        return query_result, query_ids
+        return query_result
 
     @property
     def groups(self):
@@ -640,6 +652,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         return db.session.execute(query, {'ids': tuple(query_ids)}).fetchall()
 
+    @classmethod
+    def update_latest_result(cls, query_result):
+        # TODO: Investigate how big an impact this select-before-update makes.
+        queries = Query.query.filter(
+            Query.query_hash == query_result.query_hash,
+            Query.data_source == query_result.data_source
+        )
+
+        for q in queries:
+            q.latest_query_data = query_result
+            # don't auto-update the updated_at timestamp
+            q.skip_updated_at = True
+            db.session.add(q)
+
+        query_ids = [q.id for q in queries]
+        logging.info("Updated %s queries with result (%s).", len(query_ids), query_result.query_hash)
+
+        return query_ids
+
+
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash', 'options']
@@ -788,7 +820,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         return super(Alert, cls).get_by_id_and_org(object_id, org, Query)
 
     def evaluate(self):
-        data = json_loads(self.query_rel.latest_query_data.data)
+        data = self.query_rel.latest_query_data.data
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
             operators = {
@@ -825,7 +857,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         if template is None:
             return ''
 
-        data = json_loads(self.query_rel.latest_query_data.data)
+        data = self.query_rel.latest_query_data.data
         host = base_url(self.query_rel.org)
 
         col_name = self.options['column']
