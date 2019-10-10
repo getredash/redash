@@ -92,7 +92,7 @@ export default class AlertDestinations extends React.Component {
           <i className="fa fa-info-circle" />{' '}
           Create new destinations in{' '}
           <Tooltip title="Opens page in a new tab.">
-            <a href="/destinations/new" target="_blank">Alert Destinations</a>
+            <a href="destinations/new" target="_blank">Alert Destinations</a>
           </Tooltip>
         </>
       ),
