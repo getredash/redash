@@ -7,6 +7,7 @@ import Button from 'antd/lib/button';
 import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 import Icon from 'antd/lib/icon';
+import Modal from 'antd/lib/modal';
 import Tooltip from 'antd/lib/tooltip';
 import { DashboardGrid } from '@/components/dashboards/DashboardGrid';
 import { FavoritesControl } from '@/components/FavoritesControl';
@@ -118,7 +119,20 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard, togglePublished } = dashboardOptions;
+  const { dashboard, togglePublished, archiveDashboard } = dashboardOptions;
+
+  const archive = () => {
+    Modal.confirm({
+      title: 'Archive Dashboard',
+      content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
+      okText: 'Archive',
+      okType: 'danger',
+      onOk: archiveDashboard,
+      maskClosable: true,
+      autoFocusButton: null,
+    });
+  };
+
   return (
     <Dropdown
       trigger={['click']}
@@ -128,7 +142,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
           <Menu.Item>Edit</Menu.Item>
           <Menu.Item>Manage Permissions</Menu.Item>
           {!dashboard.is_draft && <Menu.Item><a onClick={togglePublished}>Unpublish</a></Menu.Item>}
-          <Menu.Item>Archive</Menu.Item>
+          <Menu.Item><a onClick={archive}>Archive</a></Menu.Item>
         </Menu>
       )}
     >

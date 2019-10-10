@@ -131,6 +131,11 @@ function useDashboard(dashboardData) {
     [loadDashboard],
   );
 
+  const archiveDashboard = useCallback(() => {
+    recordEvent('archive', 'dashboard', dashboard.id);
+    dashboard.$delete().then(() => loadDashboard());
+  }, [dashboard, updateDashboard]);
+
   const updateUrlSearch = useCallback((...params) => {
     $location.search(...params);
     $rootScope.$applyAsync();
@@ -154,6 +159,7 @@ function useDashboard(dashboardData) {
     refreshDashboard,
     updateDashboard,
     togglePublished,
+    archiveDashboard,
     loadWidget,
     refreshWidget,
     canEditDashboard,
