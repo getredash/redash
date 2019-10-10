@@ -22,11 +22,13 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         notify_of_failure(message, query)
         return key(query.user.id)
 
-    @mock.patch('redash.tasks.failure_report.render_template')
-    def send_email(self, user, render_template):
+    @mock.patch('redash.tasks.failure_report.current_app')
+    def send_email(self, user, current_app):
+        current_app.jinja_env.get_template().render = mock.Mock(return_value='')
+
         send_failure_report(user.id)
 
-        _, context = render_template.call_args
+        _, context = current_app.jinja_env.get_template().render.call_args
         return context['failures']
 
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
