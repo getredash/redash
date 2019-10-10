@@ -68,6 +68,18 @@ export const TYPES = {
     '/user-guide/querying/query-results-data-source',
     'Guide: Help Setting up Query Results',
   ],
+  ALERT_SETUP: [
+    '/user-guide/alerts/setting-up-an-alert',
+    'Guide: Setting Up a New Alert',
+  ],
+  MAIL_CONFIG: [
+    '/open-source/setup/#Mail-Configuration',
+    'Guide: Mail Configuration',
+  ],
+  ALERT_NOTIF_TEMPLATE_GUIDE: [
+    '/user-guide/alerts/custom-alert-notifications',
+    'Guide: Custom Alerts Notifications',
+  ],
 };
 
 export class HelpTrigger extends React.Component {

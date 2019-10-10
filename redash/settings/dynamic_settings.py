@@ -29,3 +29,9 @@ def schedule_periodic_jobs(schedule):
 
     for job in jobs:
         schedule(**job)
+
+
+# This provides the ability to override the way we store QueryResult's data column.
+# Reference implementation: redash.models.DBPersistence
+QueryResultPersistence = None
+
