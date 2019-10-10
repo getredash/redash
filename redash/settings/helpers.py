@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse, urlunparse
 
 
 def fix_assets_path(path):
@@ -34,3 +35,13 @@ def int_or_none(value):
         return value
 
     return int(value)
+
+
+def fix_redis_url(url):
+    """Make sure that the Redis URL includes the `decode_responses` option."""
+    parsed = urlparse(url)
+    query = 'decode_responses=True'
+    if parsed.query:
+        query = "{}&{}".format(parsed.query, query)
+
+    return urlunparse([parsed.scheme, parsed.netloc, parsed.path, parsed.params, query, parsed.fragment])
