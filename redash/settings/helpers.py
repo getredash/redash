@@ -37,11 +37,14 @@ def int_or_none(value):
     return int(value)
 
 
-def fix_redis_url(url):
+def add_decode_responses_to_redis_url(url):
     """Make sure that the Redis URL includes the `decode_responses` option."""
     parsed = urlparse(url)
+
     query = 'decode_responses=True'
-    if parsed.query:
+    if parsed.query and 'decode_responses' not in parsed.query:
         query = "{}&{}".format(parsed.query, query)
+    elif 'decode_responses' in parsed.query:
+        query = parsed.query
 
     return urlunparse([parsed.scheme, parsed.netloc, parsed.path, parsed.params, query, parsed.fragment])
