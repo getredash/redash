@@ -10,6 +10,10 @@ def query_time_limit(is_scheduled, user_id, org_id):
     return scheduled_time_limit if is_scheduled else adhoc_time_limit
 
 
+# This provides the ability to override the way we store QueryResult's data column.
+# Reference implementation: redash.models.DBPersistence
+QueryResultPersistence = None
+
 # Provide any custom tasks you'd like to run periodically
 def custom_tasks():
     return {

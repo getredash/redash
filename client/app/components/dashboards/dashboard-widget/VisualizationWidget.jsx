@@ -84,7 +84,7 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          <HtmlContent className="text-muted query--description">
+          <HtmlContent className="text-muted markdown query--description">
             {markdown.toHTML(widget.getQuery().description || '')}
           </HtmlContent>
         </div>

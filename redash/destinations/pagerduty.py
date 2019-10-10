@@ -60,8 +60,8 @@ class PagerDuty(BaseDestination):
             }
         }
 
-        if alert.template:
-            data['payload']['custom_details'] = alert.render_template()
+        if alert.custom_body:
+            data['payload']['custom_details'] = alert.custom_body
 
         if new_state == 'triggered':
             data['event_action'] = 'trigger'

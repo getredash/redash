@@ -39,7 +39,7 @@ class Webhook(BaseDestination):
                 'url_base': host,
             }
 
-            data['alert']['description'] = alert.render_template()
+            data['alert']['description'] = alert.custom_body
             data['alert']['title'] = alert.custom_subject
 
             headers = {'Content-Type': 'application/json'}
