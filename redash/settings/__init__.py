@@ -4,10 +4,13 @@ import ssl
 from funcy import distinct, remove
 from flask_talisman import talisman
 
-from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
+from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string, add_decode_responses_to_redis_url
 from .organization import DATE_FORMAT, TIME_FORMAT  # noqa
 
-REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
+# _REDIS_URL is the unchanged REDIS_URL we get from env vars, to be used later with Celery
+_REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
+# This is the one to use for Redash' own connection:
+REDIS_URL = add_decode_responses_to_redis_url(_REDIS_URL)
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
 
 STATSD_HOST = os.environ.get('REDASH_STATSD_HOST', "127.0.0.1")
@@ -24,7 +27,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
 # Celery related settings
-CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
+CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", _REDIS_URL)
 CELERY_RESULT_BACKEND = os.environ.get(
     "REDASH_CELERY_RESULT_BACKEND",
     os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER))

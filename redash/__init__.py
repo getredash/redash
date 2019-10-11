@@ -1,8 +1,6 @@
 import logging
 import os
 import sys
-import urllib.request, urllib.parse, urllib.error
-import urllib.parse
 
 import redis
 from flask_mail import Mail
