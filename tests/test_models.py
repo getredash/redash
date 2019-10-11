@@ -157,7 +157,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.assertIn(query, queries)
 
     def test_outdated_queries_works_scheduled_queries_tracker(self):
-        two_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=2)
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
         query = self.factory.create_query(schedule={'interval':'3600', 'time': None, 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
