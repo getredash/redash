@@ -57,7 +57,7 @@ class Parameter {
   }
 
   get isEmpty() {
-    return this.isEmptyValue(this.value);
+    return isNull(this.normalizedValue);
   }
 
   get hasPendingValue() {
