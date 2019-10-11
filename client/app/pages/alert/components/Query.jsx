@@ -34,7 +34,7 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
         />
       ) : (
         <Tooltip title="Open query in a new tab.">
-          <a href={`/queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
+          <a href={`queries/${query.id}`} target="_blank" rel="noopener noreferrer" className="alert-query-link">
             {query.name}<i className="fa fa-external-link" />
           </a>
         </Tooltip>
