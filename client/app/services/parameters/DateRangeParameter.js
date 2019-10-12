@@ -164,6 +164,27 @@ class DateRangeParameter extends Parameter {
   toQueryTextFragment() {
     return `{{ ${this.name}.start }} {{ ${this.name}.end }}`;
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  getInvalidTextFragmentError(queryText) {
+    const find = name => (new RegExp(`{{\\s*${name}\\s*}}`)).test(queryText);
+
+    const start = `${this.name}.start`;
+    if (!find(start)) {
+      return `Must include {{ ${start} }} in query`;
+    }
+
+    const end = `${this.name}.end`;
+    if (!find(end)) {
+      return `Must include {{ ${end} }} in query`;
+    }
+
+    if (find(this.name)) {
+      return `Must remove {{ ${this.name} }} from query`;
+    }
+
+    return null;
+  }
 }
 
 export default DateRangeParameter;

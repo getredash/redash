@@ -5,12 +5,12 @@ import {
 } from '.';
 
 class Parameter {
-  constructor(parameter, parentQueryId) {
+  constructor(parameter, query) {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
     this.global = parameter.global; // backward compatibility in Widget service
-    this.parentQueryId = parentQueryId;
+    this.query = query;
 
     // Used for meta-parameters (i.e. dashboard-level params)
     this.locals = [];
@@ -19,24 +19,24 @@ class Parameter {
     this.urlPrefix = 'p_';
   }
 
-  static create(param, parentQueryId) {
+  static create(param, query) {
     switch (param.type) {
       case 'number':
-        return new NumberParameter(param, parentQueryId);
+        return new NumberParameter(param, query);
       case 'enum':
-        return new EnumParameter(param, parentQueryId);
+        return new EnumParameter(param, query);
       case 'query':
-        return new QueryBasedDropdownParameter(param, parentQueryId);
+        return new QueryBasedDropdownParameter(param, query);
       case 'date':
       case 'datetime-local':
       case 'datetime-with-seconds':
-        return new DateParameter(param, parentQueryId);
+        return new DateParameter(param, query);
       case 'date-range':
       case 'datetime-range':
       case 'datetime-range-with-seconds':
-        return new DateRangeParameter(param, parentQueryId);
+        return new DateRangeParameter(param, query);
       default:
-        return new TextParameter({ ...param, type: 'text' }, parentQueryId);
+        return new TextParameter({ ...param, type: 'text' }, query);
     }
   }
 
@@ -69,13 +69,24 @@ class Parameter {
     return this.$$value;
   }
 
-  get currentValueValidationError() {
-    const value = this.hasPendingValue ? this.pendingValue : this.value;
+  get validationError() {
+    let error;
 
-    if (this.isValueInvalid(value)) {
-      return 'Invalid value';
+    // text fragment validation
+    const queryText = this.query.query;
+    error = queryText && this.getInvalidTextFragmentError(queryText);
+    if (error) {
+      return error;
     }
 
+    // invalid value validation
+    const value = this.hasPendingValue ? this.pendingValue : this.value;
+    error = this.getInvalidValueError(value);
+    if (error) {
+      return error;
+    }
+
+    // no value validation
     if (this.isEmptyValue(value)) {
       return 'Required field';
     }
@@ -84,7 +95,7 @@ class Parameter {
   }
 
   clone() {
-    return Parameter.create(this, this.parentQueryId);
+    return Parameter.create(this, this.query);
   }
 
   isEmptyValue(value) {
@@ -92,8 +103,8 @@ class Parameter {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  isValueInvalid() {
-    return false; // accepts any input
+  getInvalidValueError() {
+    return null; // accepts any input by default
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -163,9 +174,19 @@ class Parameter {
     return `{{ ${this.name} }}`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getInvalidTextFragmentError(queryText) {
+    const regex = new RegExp(`{{\\s*${this.name}\\s*}}`);
+    if (!regex.test(queryText)) {
+      return `Could not find ${this.toQueryTextFragment()} in query`;
+    }
+
+    return null;
+  }
+
   /** Get a saveable version of the Parameter by omitting unnecessary props */
   toSaveableObject() {
-    return omit(this, ['$$value', 'urlPrefix', 'pendingValue', 'parentQueryId']);
+    return omit(this, ['$$value', 'urlPrefix', 'pendingValue', 'query']);
   }
 }
 

@@ -151,7 +151,7 @@ describe('Parameter', () => {
           .find('input')
           .clear()
           .type('text');
-      }, 'Invalid value');
+      }, 'Only numbers are allowed');
     });
   });
 

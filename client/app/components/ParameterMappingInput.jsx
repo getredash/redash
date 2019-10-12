@@ -311,7 +311,7 @@ class MappingEditor extends React.Component {
         inputError = 'A parameter with this name already exists';
       }
     } else if (mapping.type === MappingType.StaticValue) {
-      inputError = mapping.param.currentValueValidationError;
+      inputError = mapping.param.validationError;
     }
 
     this.setState({ mapping, inputError });

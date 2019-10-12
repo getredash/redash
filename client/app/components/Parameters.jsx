@@ -5,10 +5,11 @@ import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/parameters';
-import { hasValueValidationErrors } from '@/services/query';
+import { hasValidationErrors } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import Form from 'antd/lib/form';
+import Tooltip from 'antd/lib/tooltip';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
 
@@ -113,7 +114,7 @@ export class Parameters extends React.Component {
       .result.then((updated) => {
         this.setState(({ parameters }) => {
           const updatedParameter = extend(parameter, updated);
-          parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
+          parameters[index] = Parameter.create(updatedParameter, updatedParameter.query);
           onParametersEdit();
           return { parameters };
         });
@@ -122,7 +123,7 @@ export class Parameters extends React.Component {
 
   renderParameter(param, index) {
     const { editable } = this.props;
-    const errorMessage = param.currentValueValidationError;
+    const errorMessage = param.validationError;
 
     return (
       <div
@@ -145,7 +146,7 @@ export class Parameters extends React.Component {
         </div>
         <Form.Item
           validateStatus={errorMessage ? 'error' : ''}
-          help={errorMessage || null}
+          help={errorMessage ? <Tooltip title={errorMessage}>{errorMessage}</Tooltip> : null}
         >
           <ParameterValueInput
             type={param.type}
@@ -164,7 +165,7 @@ export class Parameters extends React.Component {
     const { parameters } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
-    const canApplyChanges = !!dirtyParamCount && !hasValueValidationErrors(parameters);
+    const canApplyChanges = !!dirtyParamCount && !hasValidationErrors(parameters);
 
     return (
       <SortableContainer

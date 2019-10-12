@@ -28,12 +28,12 @@ function collectParams(parts) {
   return parameters;
 }
 
-function hasInvalidValue(parameter) {
-  return parameter.currentValueValidationError !== null;
+function hasValidationError(parameter) {
+  return parameter.validationError !== null;
 }
 
-export function hasValueValidationErrors(parameters = []) {
-  return some(parameters, hasInvalidValue);
+export function hasValidationErrors(parameters = []) {
+  return some(parameters, hasValidationError);
 }
 
 class Parameters {
@@ -86,14 +86,14 @@ class Parameters {
           type: 'text',
           value: null,
           global: false,
-        }));
+        }, this.query));
       }
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
     const parameters = this.query.options.parameters;
     this.query.options.parameters = parameters.filter(parameterExists)
-      .map(p => (p instanceof Parameter ? p : Parameter.create(p, this.query.id)));
+      .map(p => (p instanceof Parameter ? p : Parameter.create(p, this.query)));
   }
 
   initFromQueryString(query) {
@@ -110,7 +110,7 @@ class Parameters {
   add(parameterDef) {
     this.query.options.parameters = this.query.options.parameters
       .filter(p => p.name !== parameterDef.name);
-    const param = Parameter.create(parameterDef);
+    const param = Parameter.create(parameterDef, this.query);
     this.query.options.parameters.push(param);
     return param;
   }
@@ -128,12 +128,12 @@ class Parameters {
     return some(this.get(), p => p.hasPendingValue);
   }
 
-  hasValueValidationErrors() {
-    return hasValueValidationErrors(this.get());
+  hasValidationErrors() {
+    return hasValidationErrors(this.get());
   }
 
-  getValueValidationErrors() {
-    return this.get().filter(hasInvalidValue).map(p => p.title);
+  getValidationErrors() {
+    return this.get().filter(hasValidationError).map(p => p.title);
   }
 
   applyPendingValues() {
@@ -192,8 +192,8 @@ function QueryResultErrorFactory($q) {
   return QueryResultError;
 }
 
-function InvalidParameterValueErrorFactory(QueryResultError) {
-  class InvalidParameterValueError extends QueryResultError {
+function InvalidParameterErrorFactory(QueryResultError) {
+  return class InvalidParameterError extends QueryResultError {
     constructor(invalidParameters) {
       super('Failed to execute query');
       this.invalidParameters = invalidParameters;
@@ -204,14 +204,12 @@ function InvalidParameterValueErrorFactory(QueryResultError) {
     getError() {
       const params = this.invalidParameters.map(x => `"${x}"`).join(', ');
       if (this.invalidParameters.length > 1) {
-        return `Parameters ${params} have invalid values.`;
+        return `Parameters ${params} are invalid.`;
       }
 
-      return `Parameter ${params} has an invalid value.`;
+      return `Parameter ${params} is invalid.`;
     }
-  }
-
-  return InvalidParameterValueError;
+  };
 }
 
 function QueryResource(
@@ -221,7 +219,7 @@ function QueryResource(
   $q,
   currentUser,
   QueryResultError,
-  InvalidParameterValueError,
+  InvalidParameterError,
   QueryResult,
 ) {
   const QueryService = $resource(
@@ -348,9 +346,9 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
-    if (parameters.hasValueValidationErrors()) {
-      const errors = parameters.getValueValidationErrors();
-      return new InvalidParameterValueError(errors);
+    if (parameters.hasValidationErrors()) {
+      const errors = parameters.getValidationErrors();
+      return new InvalidParameterError(errors);
     }
 
     if (parameters.isRequired()) {
@@ -440,7 +438,7 @@ function QueryResource(
 
 export default function init(ngModule) {
   ngModule.factory('QueryResultError', QueryResultErrorFactory);
-  ngModule.factory('InvalidParameterValueError', InvalidParameterValueErrorFactory);
+  ngModule.factory('InvalidParameterError', InvalidParameterErrorFactory);
   ngModule.factory('Query', QueryResource);
 
   ngModule.run(($injector) => {

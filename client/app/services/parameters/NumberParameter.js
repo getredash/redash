@@ -17,8 +17,8 @@ class NumberParameter extends Parameter {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  isValueInvalid(value) {
-    return isNaN(value);
+  getInvalidValueError(value) {
+    return isNaN(value) && 'Only numbers are allowed';
   }
 }
 
