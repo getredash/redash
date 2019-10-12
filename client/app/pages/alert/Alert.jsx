@@ -27,6 +27,14 @@ const MODES = {
 
 const defaultNameBuilder = template('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
 
+
+// backwards compatibility
+const normalizeCondition = new Proxy({
+  'greater than': '>',
+  'less than': '<',
+  equals: '=',
+}, { get: (obj, prop) => obj[prop] || prop });
+
 export function getDefaultName(alert) {
   if (!alert.query) {
     return 'New Alert';
@@ -54,7 +62,7 @@ class AlertPage extends React.Component {
       this.setState({
         alert: new AlertService({
           options: {
-            op: 'greater than',
+            op: '>',
             value: 1,
           },
         }),
@@ -76,6 +84,8 @@ class AlertPage extends React.Component {
               { duration: 0 },
             );
           }
+
+          alert.options.op = normalizeCondition[alert.options.op];
 
           this.setState({ alert, canEdit, pendingRearm: alert.rearm });
           this.onQuerySelected(alert.query);
