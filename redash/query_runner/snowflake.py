@@ -106,11 +106,7 @@ class Snowflake(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         query = """
-        SELECT col.table_schema,
-               col.table_name,
-               col.column_name
-        FROM {database}.information_schema.columns col
-        WHERE col.table_schema <> 'INFORMATION_SCHEMA'
+        show columns in database {database} schema INFORMATION_SCHEMA
         """.format(database=self.configuration['database'])
 
         results, error = self.run_query(query, None)
