@@ -183,7 +183,7 @@ class ParameterValueInput extends React.Component {
     const { isDirty } = this.state;
 
     return (
-      <div className="parameter-input" data-dirty={isDirty || null}>
+      <div className="parameter-input" data-dirty={isDirty || null} data-test="ParameterValueInput">
         {this.renderInput()}
       </div>
     );
