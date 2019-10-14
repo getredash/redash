@@ -20,6 +20,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
         <label htmlFor="chart-editor-custom-code">Custom code</label>
         <TextArea
           id="chart-editor-custom-code"
+          data-test="Chart.Custom.Code"
           className="form-control v-resizable"
           rows="10"
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
