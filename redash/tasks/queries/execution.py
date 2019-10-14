@@ -60,7 +60,7 @@ class QueryTask(object):
             error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
-            error = result.message
+            error = str(result)
             status = 4
         elif task_status == 'REVOKED':
             error = 'Query execution cancelled.'
