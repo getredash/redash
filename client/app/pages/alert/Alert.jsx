@@ -27,14 +27,6 @@ const MODES = {
 
 const defaultNameBuilder = template('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
 
-
-// backwards compatibility
-const normalizeCondition = new Proxy({
-  'greater than': '>',
-  'less than': '<',
-  equals: '=',
-}, { get: (obj, prop) => obj[prop] || prop });
-
 export function getDefaultName(alert) {
   if (!alert.query) {
     return 'New Alert';
@@ -51,7 +43,7 @@ class AlertPage extends React.Component {
     pendingRearm: null,
     canEdit: false,
     mode: null,
-  }
+  };
 
   componentDidMount() {
     this._isMounted = true;
@@ -84,8 +76,6 @@ class AlertPage extends React.Component {
               { duration: 0 },
             );
           }
-
-          alert.options.op = normalizeCondition[alert.options.op];
 
           this.setState({ alert, canEdit, pendingRearm: alert.rearm });
           this.onQuerySelected(alert.query);
@@ -139,18 +129,18 @@ class AlertPage extends React.Component {
         }
       });
     }
-  }
+  };
 
   onNameChange = (name) => {
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
     });
-  }
+  };
 
   onRearmChange = (pendingRearm) => {
     this.setState({ pendingRearm });
-  }
+  };
 
   setAlertOptions = (obj) => {
     const { alert } = this.state;
@@ -158,7 +148,7 @@ class AlertPage extends React.Component {
     this.setState({
       alert: Object.assign(alert, { options }),
     });
-  }
+  };
 
   delete = () => {
     const { alert } = this.state;
@@ -181,19 +171,19 @@ class AlertPage extends React.Component {
       maskClosable: true,
       autoFocusButton: null,
     });
-  }
+  };
 
   edit = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}/edit`, true, false);
     this.setState({ mode: MODES.EDIT });
-  }
+  };
 
   cancel = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}`, true, false);
     this.setState({ mode: MODES.VIEW });
-  }
+  };
 
   render() {
     const { alert } = this.state;
