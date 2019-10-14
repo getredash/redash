@@ -98,9 +98,9 @@ class JSONEncoder(simplejson.JSONEncoder):
             if o.microsecond:
                 result = result[:12]
         elif isinstance(o, memoryview):
-            result = binascii.hexlify(o)
+            result = binascii.hexlify(o).decode()
         elif isinstance(o, bytes):
-            result = binascii.hexlify(o)
+            result = binascii.hexlify(o).decode()
         else:
             result = super(JSONEncoder, self).default(o)
         return result
@@ -116,6 +116,7 @@ def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
     simplejson.dumps function."""
     kwargs.setdefault('cls', JSONEncoder)
+    kwargs.setdefault('encoding', None)
     return simplejson.dumps(data, *args, **kwargs)
 
 

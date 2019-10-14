@@ -50,7 +50,7 @@ pystache==0.5.4
 parsedatetime==2.1
 PyJWT==1.6.4
 cryptography==2.3
-simplejson==3.10.0
+simplejson==3.16.0
 ua-parser==0.7.3
 user-agents==1.1.0
 python-geoip-geolite2==2015.303
