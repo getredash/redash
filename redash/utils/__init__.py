@@ -99,6 +99,8 @@ class JSONEncoder(simplejson.JSONEncoder):
                 result = result[:12]
         elif isinstance(o, memoryview):
             result = binascii.hexlify(o)
+        elif isinstance(o, bytes):
+            result = binascii.hexlify(o)
         else:
             result = super(JSONEncoder, self).default(o)
         return result

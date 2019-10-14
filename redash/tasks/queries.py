@@ -61,7 +61,7 @@ class QueryTask(object):
             error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
-            error = result.message
+            error = str(result)
             status = 4
         elif task_status == 'REVOKED':
             error = 'Query execution cancelled.'
@@ -390,7 +390,7 @@ class QueryExecutor(object):
                 self.data_source.org_id, self.data_source,
                 self.query_hash, self.query, data,
                 run_time, utcnow())
-            
+
             updated_query_ids = models.Query.update_latest_result(query_result)
 
             models.db.session.commit()  # make sure that alert sees the latest query result
