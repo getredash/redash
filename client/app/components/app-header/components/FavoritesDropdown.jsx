@@ -17,10 +17,13 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
 
   const fetchItems = useCallback(() => {
     setLoading(true);
-    fetch().$promise.then(({ results }) => {
-      setLoading(false);
-      setItems(results);
-    });
+    fetch().$promise
+      .then(({ results }) => {
+        setItems(results);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   // fetch items on init

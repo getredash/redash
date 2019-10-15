@@ -78,7 +78,7 @@ function Desktop() {
         </Dropdown>
       </div>
       <div className="header-logo">
-        <a href={clientConfig.basePath}>
+        <a href="./">
           <img src={logoUrl} alt="Redash" />
         </a>
       </div>
@@ -184,7 +184,7 @@ function Mobile() {
   return (
     <div className="app-header" data-platform="mobile" ref={ref}>
       <div className="header-logo">
-        <a href={clientConfig.basePath}>
+        <a href="./">
           <img src={logoUrl} alt="Redash" />
         </a>
       </div>
