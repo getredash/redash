@@ -26,7 +26,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
     def send_email(self, user, render_template):
         send_failure_report(user.id)
 
-        _, context = render_template.call_args
+        _, context = render_template.call_args[0]
         return context['failures']
 
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
