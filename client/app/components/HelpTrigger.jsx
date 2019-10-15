@@ -80,6 +80,10 @@ export const TYPES = {
     '/user-guide/alerts/custom-alert-notifications',
     'Guide: Custom Alerts Notifications',
   ],
+  FAVORITES: [
+    '/user-guide/querying/favorites-tagging/#Favorites',
+    'Guide: Favorites',
+  ],
 };
 
 export class HelpTrigger extends React.Component {

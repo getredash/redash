@@ -1,0 +1,102 @@
+nav.app-header {
+  height: 51px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  background: white;
+  box-shadow: 0 4px 9px -3px rgba(102, 136, 153, .15);
+
+  & > * {
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item-button {
+    padding: 0 15px;
+    font-size: 18px;
+  }
+
+  .ant-menu-root {
+    margin: 0 10px;
+    line-height: 50px;
+    height: 50px;
+    border-bottom: 0;
+  }
+  
+  .ant-btn {
+    font-weight: 500;
+
+    &:not(.ant-btn-primary) {
+      border: 0;
+      box-shadow: none;
+    }
+
+    .anticon {
+      margin-right: 0;
+    }
+  }
+    
+  .ant-menu-item {
+    padding: 0;
+
+    .anticon-down {
+      font-size: 13px !important;
+      transform: none;
+      position: relative;
+      top: 2px;
+    }
+  }
+
+  .dropdown-menu-item {
+    button {
+      padding-right: 5px;
+      padding-left: 5px;
+      margin-right: 25px;
+      margin-left: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ant-dropdown-trigger {
+      margin-right: 0;
+      position: absolute;
+      top: 20px;
+      right: 10px;
+      left: 0;
+      text-align: right;
+      bottom: 8px;
+    }
+  }
+  
+  .header-logo img {
+    height: 40px;
+    width: 40px;
+    margin: 0 10px;
+  }
+  
+  .searchbar {
+    width: 185px;
+  }
+  
+  .profile-img {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+}
+
+.update-available {
+  display: inline !important;
+
+  .fa {
+    color: #52c41a;
+    vertical-align: text-bottom;
+    font-size: 16px;
+  }
+}
+
+.ant-dropdown-menu-item .help-trigger {
+  display: inline;
+  color: #2196F3;
+}

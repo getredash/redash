@@ -4,7 +4,6 @@ import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import frontendVersion from '@/version.json';
 import template from './app-header.html';
-import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
@@ -49,7 +48,7 @@ function controller($rootScope, $location, $route, $uibModal, Auth, currentUser,
 }
 
 export default function init(ngModule) {
-  ngModule.component('appHeader', {
+  ngModule.component('appHeaderOld', {
     template,
     controller,
   });
