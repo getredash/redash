@@ -12,7 +12,7 @@ except ImportError:
 class PagerDuty(BaseDestination):
 
     KEY_STRING = '{alert_id}_{query_id}'
-    DESCRIPTION_STR = u'Alert - Redash Alert: {alert_name}'
+    DESCRIPTION_STR = u'Alert: {alert_name}'
 
     @classmethod
     def enabled(cls):
@@ -29,7 +29,7 @@ class PagerDuty(BaseDestination):
                 },
                 'description': {
                     'type': 'string',
-                    'title': 'Description for the event, defaults to query',
+                    'title': 'Description for the event, defaults to alert name',
                 }
             },
             "required": ["integration_key"]
