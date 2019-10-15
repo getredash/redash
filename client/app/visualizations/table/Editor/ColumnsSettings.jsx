@@ -48,15 +48,18 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
             header={(
               <React.Fragment>
                 <DragHandle />
-                {column.name}
-                {(column.title !== '') && (column.title !== column.name) && (
-                  <Text type="secondary" className="m-l-5"><i>({column.title})</i></Text>
-                )}
+                <span data-test={`Table.Column.${column.name}.Name`}>
+                  {column.name}
+                  {(column.title !== '') && (column.title !== column.name) && (
+                    <Text type="secondary" className="m-l-5"><i>({column.title})</i></Text>
+                  )}
+                </span>
               </React.Fragment>
             )}
             extra={(
               <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
                 <Icon
+                  data-test={`Table.Column.${column.name}.Visibility`}
                   type={column.visible ? 'eye' : 'eye-invisible'}
                   onClick={event => handleColumnChange({ ...column, visible: !column.visible }, event)}
                 />
