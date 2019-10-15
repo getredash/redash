@@ -37,7 +37,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
             <label className="d-flex align-items-center" htmlFor="chart-editor-y-axis-sort">
               <Switch
                 id="chart-editor-y-axis-sort"
-                data-test="Chart.YAxis.Sort"
+                data-test="Chart.LeftYAxis.Sort"
                 defaultChecked={options.sortY}
                 onChange={sortY => onOptionsChange({ sortY })}
               />
@@ -49,7 +49,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
             <label className="d-flex align-items-center" htmlFor="chart-editor-y-axis-reverse">
               <Switch
                 id="chart-editor-y-axis-reverse"
-                data-test="Chart.YAxis.Reverse"
+                data-test="Chart.LeftYAxis.Reverse"
                 defaultChecked={options.reverseY}
                 onChange={reverseY => onOptionsChange({ reverseY })}
               />
