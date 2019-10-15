@@ -34,6 +34,7 @@ export default function ColumnsSettings({ options, onOptionsChange }) {
       axis="y"
       lockAxis="y"
       useDragHandle
+      helperClass="table-editor-columns-dragged-item"
       helperContainer={container => container.firstChild}
       onSortEnd={handleColumnsReorder}
       containerProps={{
