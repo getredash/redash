@@ -51,6 +51,15 @@ nav .app-header {
       transform: none;
       position: relative;
       top: 1px;
+
+      svg {
+        transition: transform .2s cubic-bezier(.75,0,.25,1);
+      }
+    }
+
+    .ant-dropdown-open .anticon-down svg,
+    .anticon-down.ant-dropdown-open svg {
+      transform: rotate(180deg);
     }
   }
 
