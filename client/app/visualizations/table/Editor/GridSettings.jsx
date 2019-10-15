@@ -11,12 +11,13 @@ export default function GridSettings({ options, onOptionsChange }) {
       <label htmlFor="table-editor-items-per-page">Items per page</label>
       <Select
         id="table-editor-items-per-page"
+        data-test="Table.ItemsPerPage"
         className="w-100"
         defaultValue={options.itemsPerPage}
         onChange={itemsPerPage => onOptionsChange({ itemsPerPage })}
       >
         {map(ALLOWED_ITEM_PER_PAGE, value => (
-          <Select.Option key={`ipp${value}`} value={value}>{value}</Select.Option>
+          <Select.Option key={`ipp${value}`} value={value} data-test={`Table.ItemsPerPage.${value}`}>{value}</Select.Option>
         ))}
       </Select>
     </div>
