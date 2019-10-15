@@ -71,7 +71,7 @@ export function AppHeader() {
             </Menu>
           )}
         >
-          <Button type="primary">
+          <Button type="primary" data-test="CreateButton">
               Create <Icon type="down" style={{ marginRight: 0 }} />
           </Button>
         </Dropdown>
@@ -142,7 +142,7 @@ export function AppHeader() {
                     </Menu.Item>
                   )}
                   <Menu.Divider />
-                  <Menu.Item key="logout" onClick={Auth.logout}>Log Out</Menu.Item>
+                  <Menu.Item key="logout" onClick={Auth.logout}>Log out</Menu.Item>
                   <Menu.Divider />
                   <Menu.Item key="9" disabled>
                     Version: {clientConfig.version}
