@@ -48,6 +48,7 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
       width: '1%',
       render: (unused, item) => (
         <ColorPicker
+          data-test={`Chart.Series.${item.key}.Color`}
           interactive
           presetColors={colors}
           placement="topRight"

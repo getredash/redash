@@ -28,7 +28,9 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
           onChange={value => onOptionsChange({ colorScheme: value || null })}
         >
           {map(ColorSchemes, scheme => (
-            <Select.Option key={scheme} value={scheme}>{scheme}</Select.Option>
+            <Select.Option key={scheme} value={scheme} data-test={`Chart.Colors.Heatmap.ColorScheme.${scheme}`}>
+              {scheme}
+            </Select.Option>
           ))}
         </Select>
       </div>
@@ -38,6 +40,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
           <Grid.Col span={12}>
             <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-min-color">Min Color:</label>
             <ColorPicker
+              data-test="Chart.Colors.Heatmap.MinColor"
               id="chart-editor-colors-heatmap-min-color"
               interactive
               placement="topLeft"
@@ -49,6 +52,7 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
           <Grid.Col span={12}>
             <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-max-color">Max Color:</label>
             <ColorPicker
+              data-test="Chart.Colors.Heatmap.MaxColor"
               id="chart-editor-colors-heatmap-max-color"
               interactive
               placement="topRight"
