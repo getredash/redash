@@ -24,6 +24,7 @@ function Editor({ column, onChange }) {
         </label>
         <Input
           id={`table-column-editor-${column.name}-datetime-format`}
+          data-test="Table.ColumnEditor.DateTime.Format"
           defaultValue={column.dateTimeFormat}
           onChange={event => onChange({ dateTimeFormat: event.target.value })}
         />

@@ -24,6 +24,7 @@ function Editor({ column, onChange }) {
         </label>
         <Input
           id={`table-column-editor-${column.name}-number-format`}
+          data-test="Table.ColumnEditor.Number.Format"
           defaultValue={column.numberFormat}
           onChange={event => onChange({ numberFormat: event.target.value })}
         />

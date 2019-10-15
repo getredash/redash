@@ -19,6 +19,7 @@ function Editor({ column, onChange }) {
           </label>
           <Input
             id={`table-column-editor-${column.name}-boolean-false`}
+            data-test="Table.ColumnEditor.Boolean.False"
             defaultValue={column.booleanValues[0]}
             onChange={event => handleChange(0, event.target.value)}
           />
@@ -32,6 +33,7 @@ function Editor({ column, onChange }) {
           </label>
           <Input
             id={`table-column-editor-${column.name}-boolean-true`}
+            data-test="Table.ColumnEditor.Boolean.True"
             defaultValue={column.booleanValues[1]}
             onChange={event => handleChange(1, event.target.value)}
           />

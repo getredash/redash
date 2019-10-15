@@ -11,6 +11,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-allow-html`}>
           <Checkbox
             id={`table-column-editor-${column.name}-allow-html`}
+            data-test="Table.ColumnEditor.Text.AllowHTML"
             checked={column.allowHTML}
             onChange={event => onChange({ allowHTML: event.target.checked })}
           />
@@ -23,6 +24,7 @@ function Editor({ column, onChange }) {
           <label htmlFor={`table-column-editor-${column.name}-highlight-links`}>
             <Checkbox
               id={`table-column-editor-${column.name}-highlight-links`}
+              data-test="Table.ColumnEditor.Text.HighlightLinks"
               checked={column.highlightLinks}
               onChange={event => onChange({ highlightLinks: event.target.checked })}
             />
