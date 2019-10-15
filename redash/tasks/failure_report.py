@@ -2,10 +2,9 @@ import logging
 import datetime
 import re
 from collections import Counter
-from flask import current_app
 from redash.tasks.general import send_mail
 from redash import redis_connection, settings, models
-from redash.utils import json_dumps, json_loads, base_url
+from redash.utils import json_dumps, json_loads, base_url, render_template
 
 
 def key(user_id):
@@ -50,8 +49,7 @@ def send_failure_report(user_id):
         }
 
         subject = "Redash failed to execute {} of your scheduled queries".format(len(unique_errors.keys()))
-        html, text = [
-            current_app.jinja_env.get_template('emails/failures.{}'.format(f)).render(**context) for f in ['html', 'txt']]
+        html, text = [render_template('emails/failures.{}'.format(f), context) for f in ['html', 'txt']]
 
         send_mail.delay([user.email], subject, html, text)
 

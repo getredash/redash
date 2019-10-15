@@ -15,6 +15,7 @@ from six import string_types
 import pystache
 import pytz
 import simplejson
+from flask import current_app
 from funcy import select_values
 from redash import settings
 from sqlalchemy.orm.query import Query
@@ -205,3 +206,11 @@ def deprecated():
         return K
 
     return wrapper
+
+
+def render_template(path, context):
+    """ Render a template with context, without loading the entire app context.
+    Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
+    function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
+    """
+    current_app.jinja_env.get_template(path).render(**context)
