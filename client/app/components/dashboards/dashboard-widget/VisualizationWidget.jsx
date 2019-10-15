@@ -84,7 +84,7 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
           <p>
             <QueryLink query={widget.getQuery()} visualization={widget.visualization} readOnly={!canViewQuery} />
           </p>
-          <HtmlContent className="text-muted query--description">
+          <HtmlContent className="text-muted markdown query--description">
             {markdown.toHTML(widget.getQuery().description || '')}
           </HtmlContent>
         </div>
@@ -214,14 +214,14 @@ class VisualizationWidget extends React.Component {
   };
 
   editParameterMappings = () => {
-    const { widget, dashboard, onParameterMappingsChange } = this.props;
+    const { widget, dashboard, onRefresh, onParameterMappingsChange } = this.props;
     EditParameterMappingsDialog.showModal({
       dashboard,
       widget,
     }).result.then((valuesChanged) => {
       // refresh widget if any parameter value has been updated
       if (valuesChanged) {
-        this.refresh();
+        onRefresh();
       }
       onParameterMappingsChange();
       this.setState({ localParameters: widget.getLocalParameters() });
