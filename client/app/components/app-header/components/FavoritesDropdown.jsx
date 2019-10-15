@@ -44,10 +44,10 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
         items.map(item => (
           <Menu.Item key={item.id}>
             <a href={urlCompiled(item)}>
-              <span className="btn-favourite">
+              <span className="btn-favourite m-r-5">
                 <i className="fa fa-star" />
               </span>
-              {' '}{item.name}
+              {item.name}
             </a>
           </Menu.Item>
         ))
