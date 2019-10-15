@@ -1,4 +1,4 @@
-nav.app-header {
+nav .app-header {
   height: 49px;
   padding-bottom: 1px;
   box-sizing: content-box;
@@ -11,6 +11,10 @@ nav.app-header {
   & > * {
     display: flex;
     align-items: center;
+  }
+
+  &[data-platform="mobile"] {
+    display: none;
   }
 
   .menu-item-button {
@@ -28,14 +32,14 @@ nav.app-header {
   .ant-btn {
     font-weight: 500;
 
-    &:not(.ant-btn-primary) {
-      border: 0;
-      box-shadow: none;
-    }
-
     .anticon {
       margin-right: 0;
     }
+  }
+
+  &[data-platform="desktop"] .ant-btn:not(.ant-btn-primary) {
+    border: 0;
+    box-shadow: none;
   }
     
   .ant-menu-item {
@@ -73,7 +77,6 @@ nav.app-header {
   .header-logo img {
     height: 40px;
     width: 40px;
-    margin: 0 10px;
   }
   
   .searchbar {
@@ -119,9 +122,26 @@ nav.app-header {
   }
 
   @media (max-width: 800px) {
-    .header-logo {
+    &[data-platform="desktop"] {
       display: none;
     }
+
+    &[data-platform="mobile"] {
+      display: flex;
+      padding: 0 15px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      box-sizing: border-box;
+      z-index: 1000;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  body {
+    margin-top: 59px !important; // compensate for app header fixed position
   }
 }
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { react2angular } from 'react2angular';
 
 import Dropdown from 'antd/lib/dropdown';
@@ -29,10 +29,9 @@ function onSearch(q) {
   $route.reload();
 }
 
-
-export function AppHeader() {
+function Desktop() {
   return (
-    <nav className="app-header">
+    <div className="app-header" data-platform="desktop">
       <div>
         <Menu mode="horizontal" selectable={false}>
           <Menu.Item key="dashboards" className="dropdown-menu-item">
@@ -74,13 +73,15 @@ export function AppHeader() {
           )}
         >
           <Button type="primary" data-test="CreateButton">
-              Create <Icon type="down" style={{ marginRight: 0 }} />
+            Create <Icon type="down" />
           </Button>
         </Dropdown>
       </div>
-      <span className="header-logo">
-        <a href={clientConfig.basePath}><img src={logoUrl} alt="Redash" /></a>
-      </span>
+      <div className="header-logo">
+        <a href={clientConfig.basePath}>
+          <img src={logoUrl} alt="Redash" />
+        </a>
+      </div>
       <div>
         <Input.Search
           className="searchbar"
@@ -139,14 +140,14 @@ export function AppHeader() {
                     <Menu.Divider />
                   )}
                   {currentUser.hasPermission('super_admin') && (
-                    <Menu.Item key="satus">
+                    <Menu.Item key="status">
                       <a href="admin/status">System Status</a>
                     </Menu.Item>
                   )}
                   <Menu.Divider />
-                  <Menu.Item key="logout" onClick={Auth.logout}>Log out</Menu.Item>
+                  <Menu.Item key="logout" onClick={() => Auth.logout()}>Log out</Menu.Item>
                   <Menu.Divider />
-                  <Menu.Item key="9" disabled>
+                  <Menu.Item key="version" disabled>
                     Version: {clientConfig.version}
                     {frontendVersion !== clientConfig.version && (
                       <>{' '}({frontendVersion.substring(0, 8)})</>
@@ -162,7 +163,7 @@ export function AppHeader() {
                     )}
                   </Menu.Item>
                 </Menu>
-)}
+              )}
             >
               <Button data-test="ProfileDropdown" className="profile-dropdown">
                 <img src={currentUser.profile_image_url} alt={currentUser.name} />
@@ -173,6 +174,73 @@ export function AppHeader() {
           </Menu.Item>
         </Menu>
       </div>
+    </div>
+  );
+}
+
+function Mobile() {
+  const ref = useRef();
+
+  return (
+    <div className="app-header" data-platform="mobile" ref={ref}>
+      <div className="header-logo">
+        <a href={clientConfig.basePath}>
+          <img src={logoUrl} alt="Redash" />
+        </a>
+      </div>
+      <div>
+        <Dropdown
+          overlayStyle={{ minWidth: 200 }}
+          trigger={['click']}
+          getPopupContainer={() => ref.current}
+          overlay={(
+            <Menu mode="vertical" selectable={false}>
+              <Menu.Item key="dashboards">
+                <a href="dashboards">Dashboards</a>
+              </Menu.Item>
+              <Menu.Item key="queries">
+                <a href="queries">Queries</a>
+              </Menu.Item>
+              <Menu.Item key="alerts">
+                <a href="alerts">Alerts</a>
+              </Menu.Item>
+              <Menu.Item key="profile">
+                <a href="users/me">Edit Profile</a>
+              </Menu.Item>
+              <Menu.Divider />
+              {currentUser.isAdmin && (
+                <Menu.Item key="settings">
+                  <a href="data_sources">Settings</a>
+                </Menu.Item>
+              )}
+              {currentUser.hasPermission('super_admin') && (
+                <Menu.Item key="status">
+                  <a href="admin/status">System Status</a>
+                </Menu.Item>
+              )}
+              {currentUser.hasPermission('super_admin') && (
+                <Menu.Divider />
+              )}
+              <Menu.Item key="help">
+                {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                <a href="https://redash.io/help" target="_blank" rel="noopener">Help</a>
+              </Menu.Item>
+              <Menu.Item key="logout" onClick={() => Auth.logout()}>Log out</Menu.Item>
+            </Menu>
+          )}
+        >
+          <Button><Icon type="menu" /></Button>
+        </Dropdown>
+      </div>
+    </div>
+  );
+}
+
+export function AppHeader() {
+  return (
+    <nav>
+      <Desktop />
+      <Mobile />
     </nav>
   );
 }
