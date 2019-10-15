@@ -162,13 +162,9 @@ export function AppHeader() {
                 </Menu>
 )}
             >
-              <Button data-test="ProfileDropdown">
-                <img
-                  className="profile-img"
-                  src={currentUser.profile_image_url}
-                  alt={currentUser.name}
-                />
-                {currentUser.name}
+              <Button data-test="ProfileDropdown" className="profile-dropdown">
+                <img src={currentUser.profile_image_url} alt={currentUser.name} />
+                <span>{currentUser.name}</span>
                 <Icon type="down" />
               </Button>
             </Dropdown>

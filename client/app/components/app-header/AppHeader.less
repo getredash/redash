@@ -77,12 +77,49 @@ nav.app-header {
   .searchbar {
     width: 185px;
   }
+
+  .profile-dropdown {
+    span {
+      max-width: 130px; // arbitrary, prevents layout mess up if username long
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      vertical-align: top;
+    }
+
+    img {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .ant-btn,
+    .menu-item-button {
+      padding: 0 10px;
+    }
   
-  .profile-img {
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    margin-right: 5px;
+    .ant-menu-root {
+      margin: 0 5px;
+    }
+
+    .dropdown-menu-item button {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .searchbar {
+      width: 140px;
+    }
+  }
+
+  @media (max-width: 800px) {
+    .header-logo {
+      display: none;
+    }
   }
 }
 
