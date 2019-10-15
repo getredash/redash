@@ -31,14 +31,16 @@ def schedule_periodic_jobs():
     for job in rq_scheduler.get_jobs():
         job.delete()
 
-    schedule(func=refresh_queries, interval=30)
-    schedule(func=empty_schedules, interval=timedelta(minutes=60))
-    schedule(func=refresh_schemas, interval=timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE))
-    schedule(func=sync_user_details, timeout=60, ttl=45, interval=timedelta(minutes=1))
-    schedule(func=send_aggregated_errors, interval=timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL))
+    jobs = [
+        {"func": refresh_queries, "interval": 30},
+        {"func": empty_schedules, "interval": timedelta(minutes=60)},
+        {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
+        {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},
+        {"func": send_aggregated_errors, "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL)}
+    ]
 
     if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-        schedule(func=cleanup_query_results, interval=timedelta(minutes=5))
+        jobs.append({"func": cleanup_query_results, "interval": timedelta(minutes=5)})
 
     if settings.VERSION_CHECK:
         # We schedule the version check to run at a random time in order to spread the requests from all users evenly.
@@ -48,4 +50,7 @@ def schedule_periodic_jobs():
             func=version_check)
 
     # Add your own custom periodic jobs in your dynamic_settings module.
-    settings.dynamic_settings.schedule_periodic_jobs(schedule)
+    jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
+
+    for job in jobs:
+        schedule(**job)
