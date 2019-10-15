@@ -210,7 +210,7 @@ def deprecated():
 
 def render_template(path, context):
     """ Render a template with context, without loading the entire app context.
-    Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any function 
+    Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any function
     decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
     """
     current_app.jinja_env.get_template(path).render(**context)
