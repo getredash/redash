@@ -112,7 +112,7 @@ export const Query = PropTypes.shape({
 
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
-  op: PropTypes.oneOf(['greater than', 'less than', 'equals']),
+  op: PropTypes.oneOf(['>', '>=', '<', '<=', '==', '!=']),
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   custom_subject: PropTypes.string,
   custom_body: PropTypes.string,
