@@ -131,8 +131,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             defaultValue={options.direction.type}
             onChange={type => onOptionsChange({ direction: { type } })}
           >
-            <Select.Option value="counterclockwise">Counterclockwise</Select.Option>
-            <Select.Option value="clockwise">Clockwise</Select.Option>
+            <Select.Option value="counterclockwise" data-test="Chart.PieDirection.Counterclockwise">Counterclockwise</Select.Option>
+            <Select.Option value="clockwise" data-test="Chart.PieDirection.Clockwise">Clockwise</Select.Option>
           </Select>
         </div>
       )}
@@ -177,8 +177,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             disabled={!includes(['line', 'area', 'column'], options.globalSeriesType)}
             onChange={stacking => onOptionsChange({ series: { stacking } })}
           >
-            <Select.Option value={null}>Disabled</Select.Option>
-            <Select.Option value="stack">Stack</Select.Option>
+            <Select.Option value={null} data-test="Chart.Stacking.Disabled">Disabled</Select.Option>
+            <Select.Option value="stack" data-test="Chart.Stacking.Stack">Stack</Select.Option>
           </Select>
         </div>
       )}
@@ -207,8 +207,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             defaultValue={options.missingValuesAsZero ? 1 : 0}
             onChange={value => onOptionsChange({ missingValuesAsZero: !!value })}
           >
-            <Select.Option value={0}>keep</Select.Option>
-            <Select.Option value={1}>convert to 0</Select.Option>
+            <Select.Option value={0} data-test="Chart.MissingValues.Keep">keep</Select.Option>
+            <Select.Option value={1} data-test="Chart.MissingValues.Zero">convert to 0</Select.Option>
           </Select>
         </div>
       )}

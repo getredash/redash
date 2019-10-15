@@ -26,7 +26,7 @@ export default function ChartTypeSelect(props) {
   return (
     <Select {...props}>
       {map(chartTypes, ({ type, name, icon }) => (
-        <Select.Option key={type} value={type}>
+        <Select.Option key={type} value={type} data-test={`Chart.ChartType.${type}`}>
           <i className={`m-r-5 fa fa-${icon}`} />
           {name}
         </Select.Option>

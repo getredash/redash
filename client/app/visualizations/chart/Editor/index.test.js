@@ -4,8 +4,6 @@ import enzyme from 'enzyme';
 import getOptions from '../getOptions';
 import Editor from './index';
 
-const testData = { columns: [], rows: [] };
-
 function findByTestID(wrapper, testId) {
   return wrapper.find(`[data-test="${testId}"]`);
 }
@@ -14,12 +12,12 @@ function elementExists(wrapper, testId) {
   return findByTestID(wrapper, testId).length > 0;
 }
 
-function mount(options) {
+function mount(options, data) {
   options = getOptions(options);
   return enzyme.mount((
     <Editor
       visualizationName="Test"
-      data={testData}
+      data={data}
       options={options}
       onOptionsChange={() => {}}
     />
@@ -28,7 +26,7 @@ function mount(options) {
 
 describe('Visualizations -> Chart -> Editor (wrapper)', () => {
   test('Renders generic wrapper', () => {
-    const el = mount({ globalSeriesType: 'column' });
+    const el = mount({ globalSeriesType: 'column' }, { columns: [], rows: [] });
 
     expect(elementExists(el, 'Chart.EditorTabs.General')).toBeTruthy();
     expect(elementExists(el, 'Chart.EditorTabs.XAxis')).toBeTruthy();
@@ -42,7 +40,7 @@ describe('Visualizations -> Chart -> Editor (wrapper)', () => {
   });
 
   test('Renders wrapper for custom charts', () => {
-    const el = mount({ globalSeriesType: 'custom' });
+    const el = mount({ globalSeriesType: 'custom' }, { columns: [], rows: [] });
 
     expect(elementExists(el, 'Chart.EditorTabs.General')).toBeTruthy();
     expect(elementExists(el, 'Chart.EditorTabs.XAxis')).toBeFalsy();
