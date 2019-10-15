@@ -43,7 +43,7 @@ class AlertPage extends React.Component {
     pendingRearm: null,
     canEdit: false,
     mode: null,
-  }
+  };
 
   componentDidMount() {
     this._isMounted = true;
@@ -54,7 +54,7 @@ class AlertPage extends React.Component {
       this.setState({
         alert: new AlertService({
           options: {
-            op: 'greater than',
+            op: '>',
             value: 1,
           },
         }),
@@ -129,18 +129,18 @@ class AlertPage extends React.Component {
         }
       });
     }
-  }
+  };
 
   onNameChange = (name) => {
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
     });
-  }
+  };
 
   onRearmChange = (pendingRearm) => {
     this.setState({ pendingRearm });
-  }
+  };
 
   setAlertOptions = (obj) => {
     const { alert } = this.state;
@@ -148,7 +148,7 @@ class AlertPage extends React.Component {
     this.setState({
       alert: Object.assign(alert, { options }),
     });
-  }
+  };
 
   delete = () => {
     const { alert } = this.state;
@@ -171,19 +171,19 @@ class AlertPage extends React.Component {
       maskClosable: true,
       autoFocusButton: null,
     });
-  }
+  };
 
   edit = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}/edit`, true, false);
     this.setState({ mode: MODES.EDIT });
-  }
+  };
 
   cancel = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}`, true, false);
     this.setState({ mode: MODES.VIEW });
-  }
+  };
 
   render() {
     const { alert } = this.state;
