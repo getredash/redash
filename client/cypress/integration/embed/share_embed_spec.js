@@ -6,7 +6,7 @@ describe('Embedded Queries', () => {
   });
 
   it('can be shared without parameters', () => {
-    createQuery({ query: 'select name from users' })
+    createQuery({ query: 'select name from users order by name' })
       .then((query) => {
         cy.visit(`/queries/${query.id}/source`);
         cy.getByTestId('ExecuteButton').click();
