@@ -1,3 +1,5 @@
+/* eslint-disable no-template-curly-in-string */
+
 import React from 'react';
 import { react2angular } from 'react2angular';
 
@@ -37,13 +39,13 @@ export function AppHeader() {
             <Button onClick={() => navigateTo('dashboards')}>
               Dashboards
             </Button>
-            <DropdownFavorites fetch={Dashboard.favorites} itemUrlFormat="dashboard/{slug}" />
+            <DropdownFavorites fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
           </Menu.Item>
           <Menu.Item key="queries" className="dropdown-menu-item">
             <Button onClick={() => navigateTo('queries')}>
               Queries
             </Button>
-            <DropdownFavorites fetch={Query.favorites} itemUrlFormat={'queries/{id}'} />
+            <DropdownFavorites fetch={Query.favorites} urlTemplate="queries/${id}" />
           </Menu.Item>
           <Menu.Item key="alerts">
             <Button onClick={() => navigateTo('alerts')}>

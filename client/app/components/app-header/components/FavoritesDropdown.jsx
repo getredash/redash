@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
+import { isEmpty, template } from 'lodash';
 
 import Dropdown from 'antd/lib/dropdown';
 import Icon from 'antd/lib/icon';
@@ -8,17 +8,12 @@ import Menu from 'antd/lib/menu';
 
 import { HelpTrigger } from '@/components/HelpTrigger';
 
-const urlRegex = new RegExp(/\/{(.*)}$/);
-
-export default function FavoritesDropdown({ fetch, itemUrlFormat }) {
+export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const [items, setItems] = useState();
   const [loading, setLoading] = useState(false);
 
   const noItems = isEmpty(items);
-  const urlFragment = useMemo(() => {
-    const match = itemUrlFormat.match(urlRegex);
-    return isEmpty(match) ? '' : match[1];
-  }, [itemUrlFormat]);
+  const urlCompiled = useMemo(() => template(urlTemplate), []);
 
   const fetchItems = useCallback(() => {
     setLoading(true);
@@ -27,8 +22,6 @@ export default function FavoritesDropdown({ fetch, itemUrlFormat }) {
       setItems(results);
     });
   }, []);
-
-  const getItemUrl = item => itemUrlFormat.replace(`{${urlFragment}}`, item[urlFragment]);
 
   // fetch items on init
   useEffect(fetchItems, []);
@@ -47,7 +40,7 @@ export default function FavoritesDropdown({ fetch, itemUrlFormat }) {
       {!noItems && (
         items.map(item => (
           <Menu.Item key={item.id}>
-            <a href={getItemUrl(item)}>
+            <a href={urlCompiled(item)}>
               <span className="btn-favourite">
                 <i className="fa fa-star" />
               </span>
@@ -68,5 +61,5 @@ export default function FavoritesDropdown({ fetch, itemUrlFormat }) {
 
 FavoritesDropdown.propTypes = {
   fetch: PropTypes.func.isRequired,
-  itemUrlFormat: PropTypes.string.isRequired,
+  urlTemplate: PropTypes.string.isRequired,
 };
