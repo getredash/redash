@@ -10,25 +10,18 @@ def query_time_limit(is_scheduled, user_id, org_id):
     return scheduled_time_limit if is_scheduled else adhoc_time_limit
 
 
-def schedule_periodic_jobs(schedule):
+def periodic_jobs():
     """Schedule any custom periodic jobs here. For example:
 
     from time import timedelta
     from somewhere import some_job, some_other_job
 
-    jobs = [{
-        "func": some_job,
-        "interval": timedelta(hours=1)
-    }, {
-        "func": some_other_job,
-        "interval": timedelta(days=1)
-    }]
+    return [
+        {"func": some_job, "interval": timedelta(hours=1)},
+        {"func": some_other_job, "interval": timedelta(days=1)}
+    ]
     """
-
-    jobs = []
-
-    for job in jobs:
-        schedule(**job)
+    pass
 
 
 # This provides the ability to override the way we store QueryResult's data column.
