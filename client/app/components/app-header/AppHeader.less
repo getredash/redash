@@ -1,4 +1,5 @@
 nav .app-header {
+  @text-color: #333;
   height: 49px;
   padding-bottom: 1px;
   box-sizing: content-box;
@@ -20,6 +21,7 @@ nav .app-header {
   .menu-item-button {
     padding: 0 15px;
     font-size: 18px;
+    color: @text-color !important;
   }
 
   .ant-menu-root {
@@ -41,16 +43,19 @@ nav .app-header {
     border: 0;
     box-shadow: none;
     height: 40px;
+    color: @text-color;
   }
     
   .ant-menu-item {
     padding: 0;
+    color: @text-color;
 
     .anticon-down {
       font-size: 13px !important;
       transform: none;
       position: relative;
       top: 1px;
+      color: @text-color;
 
       svg {
         transition: transform .2s cubic-bezier(.75,0,.25,1);
