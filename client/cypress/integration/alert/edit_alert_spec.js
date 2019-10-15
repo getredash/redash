@@ -28,7 +28,7 @@ describe('Edit Alert', () => {
   it('previews rendered template correctly', () => {
     const options = {
       value: '123',
-      op: 'equals',
+      op: '=',
       custom_subject: '{{ ALERT_CONDITION }}',
       custom_body: '{{ ALERT_THRESHOLD }}',
     };
