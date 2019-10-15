@@ -14,6 +14,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-link-url`}>URL template</label>
         <Input
           id={`table-column-editor-${column.name}-link-url`}
+          data-test="Table.ColumnEditor.Link.UrlTemplate"
           defaultValue={column.linkUrlTemplate}
           onChange={event => onChange({ linkUrlTemplate: event.target.value })}
         />
@@ -23,6 +24,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-link-text`}>Text template</label>
         <Input
           id={`table-column-editor-${column.name}-link-text`}
+          data-test="Table.ColumnEditor.Link.TextTemplate"
           defaultValue={column.linkTextTemplate}
           onChange={event => onChange({ linkTextTemplate: event.target.value })}
         />
@@ -32,6 +34,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-link-title`}>Title template</label>
         <Input
           id={`table-column-editor-${column.name}-link-title`}
+          data-test="Table.ColumnEditor.Link.TitleTemplate"
           defaultValue={column.linkTitleTemplate}
           onChange={event => onChange({ linkTitleTemplate: event.target.value })}
         />
@@ -41,6 +44,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-link-open-in-new-tab`}>
           <Checkbox
             id={`table-column-editor-${column.name}-link-open-in-new-tab`}
+            data-test="Table.ColumnEditor.Link.OpenInNewTab"
             checked={column.linkOpenInNewTab}
             onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}
           />

@@ -13,6 +13,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-image-url`}>URL template</label>
         <Input
           id={`table-column-editor-${column.name}-image-url`}
+          data-test="Table.ColumnEditor.Image.UrlTemplate"
           defaultValue={column.imageUrlTemplate}
           onChange={event => onChange({ imageUrlTemplate: event.target.value })}
         />
@@ -32,6 +33,7 @@ function Editor({ column, onChange }) {
         <div className="d-flex align-items-center">
           <Input
             id={`table-column-editor-${column.name}-image-width`}
+            data-test="Table.ColumnEditor.Image.Width"
             placeholder="Width"
             defaultValue={column.imageWidth}
             onChange={event => onChange({ imageWidth: event.target.value })}
@@ -39,6 +41,7 @@ function Editor({ column, onChange }) {
           <span className="p-l-5 p-r-5">&times;</span>
           <Input
             id={`table-column-editor-${column.name}-image-height`}
+            data-test="Table.ColumnEditor.Image.Height"
             placeholder="Height"
             defaultValue={column.imageHeight}
             onChange={event => onChange({ imageHeight: event.target.value })}
@@ -50,6 +53,7 @@ function Editor({ column, onChange }) {
         <label htmlFor={`table-column-editor-${column.name}-image-title`}>Title template</label>
         <Input
           id={`table-column-editor-${column.name}-image-title`}
+          data-test="Table.ColumnEditor.Image.TitleTemplate"
           defaultValue={column.imageTitleTemplate}
           onChange={event => onChange({ imageTitleTemplate: event.target.value })}
         />
