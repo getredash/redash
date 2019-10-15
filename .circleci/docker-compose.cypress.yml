@@ -14,9 +14,16 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
-  worker:
+  scheduler:
     build: ../
     command: scheduler
+    depends_on:
+      - server
+    environment:
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+  worker:
+    build: ../
+    command: worker
     depends_on:
       - server
     environment:
@@ -24,7 +31,18 @@ services:
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-      QUEUES: "queries,scheduled_queries,celery,schemas"
+      QUEUES: "default periodic schemas"
+  celery_worker:
+    build: ../
+    command: celery_worker
+    depends_on:
+      - server
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "queries,scheduled_queries"
       WORKERS_COUNT: 2
   cypress:
     build:
@@ -32,7 +50,9 @@ services:
       dockerfile: .circleci/Dockerfile.cypress
     depends_on:
       - server
+      - celery_worker
       - worker
+      - scheduler
     environment:
       CYPRESS_baseUrl: "http://server:5000"
       PERCY_TOKEN: ${PERCY_TOKEN}
