@@ -35,11 +35,11 @@ export default function AxisSettings({ id, options, features, onChange }) {
           defaultValue={options.type}
           onChange={type => optionsChanged({ type })}
         >
-          {features.autoDetectType && <Select.Option value="-">Auto Detect</Select.Option>}
-          <Select.Option value="datetime">Datetime</Select.Option>
-          <Select.Option value="linear">Linear</Select.Option>
-          <Select.Option value="logarithmic">Logarithmic</Select.Option>
-          <Select.Option value="category">Category</Select.Option>
+          {features.autoDetectType && <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>Auto Detect</Select.Option>}
+          <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>Datetime</Select.Option>
+          <Select.Option value="linear" data-test={`Chart.${id}.Type.Linear`}>Linear</Select.Option>
+          <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>Logarithmic</Select.Option>
+          <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>Category</Select.Option>
         </Select>
       </div>
 
