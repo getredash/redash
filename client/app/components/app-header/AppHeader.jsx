@@ -238,7 +238,7 @@ function Mobile() {
 
 export function AppHeader() {
   return (
-    <nav>
+    <nav className="app-header-wrapper">
       <Desktop />
       <Mobile />
     </nav>
