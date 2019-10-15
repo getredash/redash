@@ -31,6 +31,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
       className: 'text-nowrap',
       render: (unused, item) => (
         <Input
+          data-test={`Chart.Series.${item.key}.Label`}
           placeholder={item.key}
           defaultValue={item.name}
           onChange={event => debouncedUpdateSeriesOption(item.key, 'name', event.target.value)}
@@ -50,8 +51,8 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
           value={item.yAxis === 1 ? 1 : 0}
           onChange={event => updateSeriesOption(item.key, 'yAxis', event.target.value)}
         >
-          <Radio value={0}>left</Radio>
-          <Radio value={1}>right</Radio>
+          <Radio value={0} data-test={`Chart.Series.${item.key}.UseLeftAxis`}>left</Radio>
+          <Radio value={1} data-test={`Chart.Series.${item.key}.UseRightAxis`}>right</Radio>
         </Radio.Group>
       ),
     });
@@ -62,6 +63,7 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
       render: (unused, item) => (
         <ChartTypeSelect
           className="w-100"
+          data-test={`Chart.Series.${item.key}.Type`}
           dropdownMatchSelectWidth={false}
           value={item.type}
           onChange={value => updateSeriesOption(item.key, 'type', value)}

@@ -23,7 +23,7 @@ function mount(options, done) {
   ));
 }
 
-describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
+describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
   test('Sets Show Data Labels option', (done) => {
     const el = mount({
       globalSeriesType: 'column',
