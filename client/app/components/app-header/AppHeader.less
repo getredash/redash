@@ -1,5 +1,4 @@
 nav .app-header {
-  @text-color: #333;
   height: 49px;
   padding-bottom: 1px;
   box-sizing: content-box;
@@ -8,6 +7,14 @@ nav .app-header {
   margin-bottom: 10px;
   background: white;
   box-shadow: 0 4px 9px -3px rgba(102, 136, 153, .15);
+
+  .darker {
+    color: #333 !important;
+
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
 
   & > * {
     display: flex;
@@ -21,7 +28,7 @@ nav .app-header {
   .menu-item-button {
     padding: 0 15px;
     font-size: 18px;
-    color: @text-color !important;
+    .darker();
   }
 
   .ant-menu-root {
@@ -44,7 +51,7 @@ nav .app-header {
     box-shadow: none;
     height: 40px;
     background-color: transparent; //so it doesn't interfere with click animation of adjacent buttons
-    color: @text-color;
+    .darker();
   }
 
   .ant-menu-item {
@@ -52,13 +59,11 @@ nav .app-header {
     height: 52px;
     display: inline-flex;
     align-items: center;
-    color: @text-color;
 
     .anticon-down {
       font-size: 13px !important;
       transform: none;
       position: relative;
-      color: @text-color;
       top: 2px;
 
       svg {
@@ -92,6 +97,7 @@ nav .app-header {
       padding-top: 14px;
       padding-right: 10px;
       margin-right: 0;
+      .darker();
     }
   }
 
