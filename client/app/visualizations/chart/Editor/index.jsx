@@ -25,6 +25,7 @@ export default function Editor(props) {
   };
 
   const isCustomChart = options.globalSeriesType === 'custom';
+  const isPieChart = options.globalSeriesType === 'pie';
 
   return (
     <Tabs animated={false} tabBarGutter={0}>
@@ -32,12 +33,12 @@ export default function Editor(props) {
         <GeneralSettings {...props} onOptionsChange={optionsChanged} />
         {isCustomChart && <CustomChartSettings {...props} onOptionsChange={optionsChanged} />}
       </Tabs.TabPane>
-      {!isCustomChart && (
+      {!isCustomChart && !isPieChart && (
         <Tabs.TabPane key="x-axis" tab={<span data-test="Chart.EditorTabs.XAxis">X Axis</span>}>
           <XAxisSettings {...props} onOptionsChange={optionsChanged} />
         </Tabs.TabPane>
       )}
-      {!isCustomChart && (
+      {!isCustomChart && !isPieChart && (
         <Tabs.TabPane key="y-axis" tab={<span data-test="Chart.EditorTabs.YAxis">Y Axis</span>}>
           <YAxisSettings {...props} onOptionsChange={optionsChanged} />
         </Tabs.TabPane>
