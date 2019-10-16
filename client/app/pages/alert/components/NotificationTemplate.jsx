@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { head, isEmpty } from 'lodash';
+import { head, isEmpty, isNull, isUndefined } from 'lodash';
 import Mustache from 'mustache';
 
 import { HelpTrigger } from '@/components/HelpTrigger';
@@ -25,7 +25,7 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
     ALERT_URL: `${window.location.origin}/alerts/${alert.id}`,
     QUERY_NAME: query.name,
     QUERY_URL: `${window.location.origin}/queries/${query.id}`,
-    QUERY_RESULT_VALUE: topValue || 'UNKNOWN',
+    QUERY_RESULT_VALUE: isNull(topValue) || isUndefined(topValue) ? 'UNKNOWN' : topValue,
     QUERY_RESULT_ROWS: resultValues,
     QUERY_RESULT_COLS: columnNames,
   };
