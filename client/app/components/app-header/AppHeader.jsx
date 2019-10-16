@@ -10,7 +10,7 @@ import Menu from 'antd/lib/menu';
 import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
 
-import DropdownFavorites from './components/FavoritesDropdown';
+import FavoritesDropdown from './components/FavoritesDropdown';
 import { HelpTrigger } from '@/components/HelpTrigger';
 import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 
@@ -39,7 +39,7 @@ function Desktop() {
               <Button onClick={() => navigateTo('dashboards')}>
                 Dashboards
               </Button>
-              <DropdownFavorites fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
+              <FavoritesDropdown fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
             </Menu.Item>
           )}
           {currentUser.hasPermission('view_query') && (
@@ -47,7 +47,7 @@ function Desktop() {
               <Button onClick={() => navigateTo('queries')}>
                 Queries
               </Button>
-              <DropdownFavorites fetch={Query.favorites} urlTemplate="queries/${id}" />
+              <FavoritesDropdown fetch={Query.favorites} urlTemplate="queries/${id}" />
             </Menu.Item>
           )}
           {currentUser.hasPermission('list_alerts') && (
