@@ -34,23 +34,29 @@ function Desktop() {
     <div className="app-header" data-platform="desktop">
       <div>
         <Menu mode="horizontal" selectable={false}>
-          <Menu.Item key="dashboards" className="dropdown-menu-item">
-            <Button onClick={() => navigateTo('dashboards')}>
-              Dashboards
-            </Button>
-            <DropdownFavorites fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
-          </Menu.Item>
-          <Menu.Item key="queries" className="dropdown-menu-item">
-            <Button onClick={() => navigateTo('queries')}>
-              Queries
-            </Button>
-            <DropdownFavorites fetch={Query.favorites} urlTemplate="queries/${id}" />
-          </Menu.Item>
-          <Menu.Item key="alerts">
-            <Button onClick={() => navigateTo('alerts')}>
-              Alerts
-            </Button>
-          </Menu.Item>
+          {currentUser.hasPermission('list_dashboards') && (
+            <Menu.Item key="dashboards" className="dropdown-menu-item">
+              <Button onClick={() => navigateTo('dashboards')}>
+                Dashboards
+              </Button>
+              <DropdownFavorites fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
+            </Menu.Item>
+          )}
+          {currentUser.hasPermission('view_query') && (
+            <Menu.Item key="queries" className="dropdown-menu-item">
+              <Button onClick={() => navigateTo('queries')}>
+                Queries
+              </Button>
+              <DropdownFavorites fetch={Query.favorites} urlTemplate="queries/${id}" />
+            </Menu.Item>
+          )}
+          {currentUser.hasPermission('list_alerts') && (
+            <Menu.Item key="alerts">
+              <Button onClick={() => navigateTo('alerts')}>
+                Alerts
+              </Button>
+            </Menu.Item>
+          )}
         </Menu>
         <Dropdown
           trigger={['click']}
