@@ -43,19 +43,23 @@ nav .app-header {
     border: 0;
     box-shadow: none;
     height: 40px;
+    background-color: transparent; //so it doesn't interfere with click animation of adjacent buttons
     color: @text-color;
   }
-    
+
   .ant-menu-item {
     padding: 0;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
     color: @text-color;
 
     .anticon-down {
       font-size: 13px !important;
       transform: none;
       position: relative;
-      top: 1px;
       color: @text-color;
+      top: 2px;
 
       svg {
         transition: transform .2s cubic-bezier(.75,0,.25,1);
@@ -72,7 +76,7 @@ nav .app-header {
     button {
       padding-right: 5px;
       padding-left: 5px;
-      margin-right: 25px;
+      margin-right: 30px;
       margin-left: 10px;
       position: relative;
       z-index: 1;
@@ -82,31 +86,33 @@ nav .app-header {
       position: absolute;
       top: 5px;
       right: 0;
-      left: 0;
+      left: 10px;
       bottom: 5px;
       text-align: right;
-      padding-top: 15px;
+      padding-top: 14px;
       padding-right: 10px;
       margin-right: 0;
     }
   }
-  
+
   .header-logo img {
     height: 40px;
     width: 40px;
   }
-  
+
   .searchbar {
     width: 185px;
   }
 
   .profile-dropdown {
+    display: flex;
+    align-items: center;
+
     span {
       max-width: 130px; // arbitrary, prevents layout mess up if username long
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      vertical-align: top;
     }
 
     img {
@@ -175,4 +181,8 @@ nav .app-header {
 .ant-dropdown-menu-item .help-trigger {
   display: inline;
   color: #2196F3;
+}
+
+.ant-dropdown-menu.favorites-dropdown {
+  margin-left: -10px;
 }

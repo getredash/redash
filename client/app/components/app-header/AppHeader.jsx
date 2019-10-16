@@ -95,9 +95,11 @@ function Desktop() {
           </Menu.Item>
           {currentUser.isAdmin && (
             <Menu.Item key="settings">
-              <a href="data_sources" className="menu-item-button">
-                <i className="fa fa-sliders" />
-              </a>
+              <Tooltip title="Settings">
+                <Button onClick={() => navigateTo('data_sources')} className="menu-item-button">
+                  <i className="fa fa-sliders" />
+                </Button>
+              </Tooltip>
             </Menu.Item>
           )}
           <Menu.Item key="profile">
