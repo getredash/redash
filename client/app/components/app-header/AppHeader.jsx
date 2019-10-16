@@ -16,7 +16,6 @@ import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog
 
 import { currentUser, Auth, clientConfig } from '@/services/auth';
 import { $location, $route } from '@/services/ng';
-import navigateTo from '@/services/navigateTo';
 import { Dashboard } from '@/services/dashboard';
 import { Query } from '@/services/query';
 import frontendVersion from '@/version.json';
@@ -36,25 +35,19 @@ function Desktop() {
         <Menu mode="horizontal" selectable={false}>
           {currentUser.hasPermission('list_dashboards') && (
             <Menu.Item key="dashboards" className="dropdown-menu-item">
-              <Button onClick={() => navigateTo('dashboards')}>
-                Dashboards
-              </Button>
+              <Button href="dashboards">Dashboards</Button>
               <FavoritesDropdown fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
             </Menu.Item>
           )}
           {currentUser.hasPermission('view_query') && (
             <Menu.Item key="queries" className="dropdown-menu-item">
-              <Button onClick={() => navigateTo('queries')}>
-                Queries
-              </Button>
+              <Button href="queries">Queries</Button>
               <FavoritesDropdown fetch={Query.favorites} urlTemplate="queries/${id}" />
             </Menu.Item>
           )}
           {currentUser.hasPermission('list_alerts') && (
             <Menu.Item key="alerts">
-              <Button onClick={() => navigateTo('alerts')}>
-                Alerts
-              </Button>
+              <Button href="alerts">Alerts</Button>
             </Menu.Item>
           )}
         </Menu>
@@ -102,7 +95,7 @@ function Desktop() {
           {currentUser.isAdmin && (
             <Menu.Item key="settings">
               <Tooltip title="Settings">
-                <Button onClick={() => navigateTo('data_sources')} className="menu-item-button">
+                <Button href="data_sources" className="menu-item-button">
                   <i className="fa fa-sliders" />
                 </Button>
               </Tooltip>
