@@ -22,11 +22,11 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         notify_of_failure(message, query)
         return key(query.user.id)
 
-    @mock.patch('redash.tasks.failure_report.render_template')
+    @mock.patch('redash.tasks.failure_report.render_template', return_value='')
     def send_email(self, user, render_template):
         send_failure_report(user.id)
 
-        _, context = render_template.call_args
+        _, context = render_template.call_args[0]
         return context['failures']
 
     def test_schedules_email_if_failure_count_is_beneath_limit(self):
@@ -93,7 +93,7 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
             self.notify(query=query)
 
         self.notify(query=query)
-        
+
         failures = self.send_email(query.user)
         latest_failure = dateutil.parser.parse(failures[0]['failed_at'])
         self.assertNotEqual(2000, latest_failure.year)
