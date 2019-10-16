@@ -51,14 +51,14 @@ def slugify(s):
 
 def gen_query_hash(sql):
     """Return hash of the given query after stripping all comments, line breaks
-    and multiple spaces, and lower casing all text.
+    and multiple spaces.
 
-    TODO: possible issue - the following queries will get the same id:
+    The following queries will get different ids:
         1. SELECT 1 FROM table WHERE column='Value';
         2. SELECT 1 FROM table where column='value';
     """
     sql = COMMENTS_REGEX.sub("", sql)
-    sql = "".join(sql.split()).lower()
+    sql = "".join(sql.split())
     return hashlib.md5(sql.encode("utf-8")).hexdigest()
 
 
