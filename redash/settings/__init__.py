@@ -26,6 +26,8 @@ SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
+RQ_REDIS_URL = os.environ.get("RQ_REDIS_URL", _REDIS_URL)
+
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", _REDIS_URL)
 CELERY_RESULT_BACKEND = os.environ.get(
