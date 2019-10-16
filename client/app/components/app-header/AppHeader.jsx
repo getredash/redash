@@ -69,7 +69,7 @@ function Desktop() {
               )}
               {currentUser.hasPermission('create_dashboard') && (
                 <Menu.Item key="new-dashboard">
-                  <a className="clickable" onMouseUp={CreateDashboardDialog.showModal}>New Dashboard</a>
+                  <a onMouseUp={CreateDashboardDialog.showModal}>New Dashboard</a>
                 </Menu.Item>
               )}
               <Menu.Item key="new-alert">
@@ -200,18 +200,24 @@ function Mobile() {
         <Dropdown
           overlayStyle={{ minWidth: 200 }}
           trigger={['click']}
-          getPopupContainer={() => ref.current}
+          getPopupContainer={() => ref.current} // so the overlay menu stays with the fixed header when page scrolls
           overlay={(
             <Menu mode="vertical" selectable={false}>
-              <Menu.Item key="dashboards">
-                <a href="dashboards">Dashboards</a>
-              </Menu.Item>
-              <Menu.Item key="queries">
-                <a href="queries">Queries</a>
-              </Menu.Item>
-              <Menu.Item key="alerts">
-                <a href="alerts">Alerts</a>
-              </Menu.Item>
+              {currentUser.hasPermission('list_dashboards') && (
+                <Menu.Item key="dashboards">
+                  <a href="dashboards">Dashboards</a>
+                </Menu.Item>
+              )}
+              {currentUser.hasPermission('view_query') && (
+                <Menu.Item key="queries">
+                  <a href="queries">Queries</a>
+                </Menu.Item>
+              )}
+              {currentUser.hasPermission('list_alerts') && (
+                <Menu.Item key="alerts">
+                  <a href="alerts">Alerts</a>
+                </Menu.Item>
+              )}
               <Menu.Item key="profile">
                 <a href="users/me">Edit Profile</a>
               </Menu.Item>

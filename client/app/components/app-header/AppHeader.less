@@ -87,6 +87,8 @@ nav .app-header {
       z-index: 1;
     }
 
+    // this is a trick to get the dropdown menu to be placed at the bottom left
+    // of the menu item and not the dropdown trigger
     .ant-dropdown-trigger {
       position: absolute;
       top: 5px;
@@ -97,6 +99,7 @@ nav .app-header {
       padding-top: 14px;
       padding-right: 10px;
       margin-right: 0;
+      user-select: none; // or else double clicking it causes the header logo to get selected
       .darker();
     }
   }
