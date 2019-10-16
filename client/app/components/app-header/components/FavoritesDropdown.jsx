@@ -38,7 +38,12 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
         <Menu.Item />
       )}
       {!loading && noItems && (
-        <Menu.Item>No favorites selected yet <HelpTrigger type="FAVORITES" /></Menu.Item>
+        <Menu.Item>
+          <span className="btn-favourite m-r-5">
+            <i className="fa fa-star" />
+          </span>
+          No favorites selected yet <HelpTrigger type="FAVORITES" />
+        </Menu.Item>
       )}
       {!noItems && (
         items.map(item => (
