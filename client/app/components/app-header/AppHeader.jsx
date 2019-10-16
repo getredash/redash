@@ -63,7 +63,7 @@ function Desktop() {
               )}
               {currentUser.hasPermission('create_dashboard') && (
                 <Menu.Item key="new-dashboard">
-                  <a className="clickable" onClick={CreateDashboardDialog.showModal}>New Dashboard</a>
+                  <a className="clickable" onMouseUp={CreateDashboardDialog.showModal}>New Dashboard</a>
                 </Menu.Item>
               )}
               <Menu.Item key="new-alert">
