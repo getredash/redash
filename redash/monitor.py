@@ -31,7 +31,8 @@ def get_queues():
     scheduled_queue_names = db.session.query(DataSource.scheduled_queue_name).distinct()
     query = db.session.execute(union_all(queue_names, scheduled_queue_names))
 
-    return ['celery'] + [row[0] for row in query]
+    general_rq_queues = map(lambda q: 'rq:queue:' + q, ['default', 'periodic', 'schemas'])
+    return ['celery'] + general_rq_queues + [row[0] for row in query]
 
 
 def get_queues_status():
