@@ -12,13 +12,23 @@ import { AlertOptions as AlertOptionsType } from '@/components/proptypes';
 import './Criteria.less';
 
 const CONDITIONS = {
-  '>': '\u003e',
-  '>=': '\u2265',
-  '<': '\u003c',
-  '<=': '\u2264',
-  '==': '\u003d',
-  '!=': '\u2260',
+  '>': ['\u003e', 'greater than'],
+  '>=': ['\u2265', 'greater than or equals'],
+  '<': ['\u003c', 'less than'],
+  '<=': ['\u2264', 'less than or equals'],
+  '==': ['\u003d', 'equals'],
+  '!=': ['\u2260', 'not equal to'],
 };
+
+function getConditionOption(key) {
+  const [char, text] = CONDITIONS[key];
+  return <Select.Option value={key} label={char}>{char} {text}</Select.Option>;
+}
+
+export function getConditionText(key) {
+  const [, text] = CONDITIONS[key];
+  return text;
+}
 
 const VALID_STRING_CONDITIONS = ['==', '!='];
 
@@ -87,33 +97,21 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             dropdownMatchSelectWidth={false}
             style={{ width: 55 }}
           >
-            <Select.Option value=">" label={CONDITIONS['>']}>
-              {CONDITIONS['>']} greater than
-            </Select.Option>
-            <Select.Option value=">=" label={CONDITIONS['>=']}>
-              {CONDITIONS['>=']} greater than or equals
-            </Select.Option>
+            {getConditionOption('>')}
+            {getConditionOption('>=')}
             <Select.Option disabled key="dv1">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
-            <Select.Option value="<" label={CONDITIONS['<']}>
-              {CONDITIONS['<']} less than
-            </Select.Option>
-            <Select.Option value="<=" label={CONDITIONS['<=']}>
-              {CONDITIONS['<=']} less than or equals
-            </Select.Option>
+            {getConditionOption('<')}
+            {getConditionOption('<=')}
             <Select.Option disabled key="dv2">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
-            <Select.Option value="==" label={CONDITIONS['==']}>
-              {CONDITIONS['==']} equals
-            </Select.Option>
-            <Select.Option value="!=" label={CONDITIONS['!=']}>
-              {CONDITIONS['!=']} not equal to
-            </Select.Option>
+            {getConditionOption('==')}
+            {getConditionOption('!=')}
           </Select>
         ) : (
-          <DisabledInput minWidth={50}>{CONDITIONS[alertOptions.op]}</DisabledInput>
+          <DisabledInput minWidth={50}>{head(CONDITIONS[alertOptions.op])}</DisabledInput>
         )}
       </div>
       <div className="input-title">

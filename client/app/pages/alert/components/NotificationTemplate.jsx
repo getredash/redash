@@ -10,6 +10,7 @@ import Input from 'antd/lib/input';
 import Select from 'antd/lib/select';
 import Modal from 'antd/lib/modal';
 import Switch from 'antd/lib/switch';
+import { getConditionText } from './Criteria';
 
 import './NotificationTemplate.less';
 
@@ -19,7 +20,7 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
 
   return {
     ALERT_STATUS: 'TRIGGERED',
-    ALERT_CONDITION: alert.options.op,
+    ALERT_CONDITION: getConditionText(alert.options.op),
     ALERT_THRESHOLD: alert.options.value,
     ALERT_NAME: alert.name,
     ALERT_URL: `${window.location.origin}/alerts/${alert.id}`,

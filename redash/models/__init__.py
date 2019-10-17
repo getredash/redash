@@ -785,6 +785,15 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     OK_STATE = 'ok'
     TRIGGERED_STATE = 'triggered'
 
+    CONDITION_TEXTS = {
+        '>': 'greater than',
+        '>=': 'greater than or equals',
+        '<': 'less than',
+        '<=': 'less than or equals',
+        '==': 'equals',
+        '!=': 'not equal to',
+    }
+
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
@@ -870,7 +879,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             'ALERT_NAME': self.name,
             'ALERT_URL': '{host}/alerts/{alert_id}'.format(host=host, alert_id=self.id),
             'ALERT_STATUS': self.state.upper(),
-            'ALERT_CONDITION': self.options['op'],
+            'ALERT_CONDITION': self.conditionText,
             'ALERT_THRESHOLD': self.options['value'],
             'QUERY_NAME': self.query_rel.name,
             'QUERY_URL': '{host}/queries/{query_id}'.format(host=host, query_id=self.query_rel.id),
@@ -893,6 +902,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     @property
     def groups(self):
         return self.query_rel.groups
+
+    @property
+    def conditionText(self):
+        condition = self.options['op'];
+        default = condition # backwards compatibility
+        return self.CONDITION_TEXTS.get(condition, default);
 
 
 def generate_slug(ctx):

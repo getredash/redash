@@ -13,6 +13,7 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import AlertView from './AlertView';
 import AlertEdit from './AlertEdit';
 import AlertNew from './AlertNew';
+import { getConditionText } from './components/Criteria';
 
 import Modal from 'antd/lib/modal';
 
@@ -25,13 +26,14 @@ const MODES = {
   EDIT: 2,
 };
 
-const defaultNameBuilder = template('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
+// eslint-disable-next-line no-template-curly-in-string
+const defaultNameBuilder = template('${query.name}: ${options.column} ${conditionText} ${options.value}');
 
 export function getDefaultName(alert) {
   if (!alert.query) {
     return 'New Alert';
   }
-  return defaultNameBuilder(alert);
+  return defaultNameBuilder({ ...alert, conditionText: getConditionText(alert.options.op) });
 }
 
 class AlertPage extends React.Component {
