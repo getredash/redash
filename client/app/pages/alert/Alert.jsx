@@ -55,6 +55,7 @@ class AlertPage extends React.Component {
           options: {
             op: '>',
             value: 1,
+            muted: false,
           },
         }),
         pendingRearm: 0,
@@ -159,6 +160,30 @@ class AlertPage extends React.Component {
     });
   };
 
+  mute = () => {
+    const { alert } = this.state;
+    return alert.$mute()
+      .then(() => {
+        this.setAlertOptions({ muted: true });
+        notification.warn('Notifications have been muted.');
+      })
+      .catch(() => {
+        notification.error('Failed muting notifications.');
+      });
+  }
+
+  unmute = () => {
+    const { alert } = this.state;
+    return alert.$unmute()
+      .then(() => {
+        this.setAlertOptions({ muted: false });
+        notification.success('Notifications have been restored.');
+      })
+      .catch(() => {
+        notification.error('Failed restoring notifications.');
+      });
+  }
+
   edit = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}/edit`, true, false);
@@ -177,11 +202,15 @@ class AlertPage extends React.Component {
       return <LoadingState className="m-t-30" />;
     }
 
+    const muted = !!alert.options.muted;
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
 
     const menuButton = (
       <MenuButton
         doDelete={this.delete}
+        muted={muted}
+        mute={this.mute}
+        unmute={this.unmute}
         canEdit={canEdit}
       />
     );
@@ -202,7 +231,15 @@ class AlertPage extends React.Component {
     return (
       <div className="container alert-page">
         {mode === MODES.NEW && <AlertNew {...commonProps} />}
-        {mode === MODES.VIEW && <AlertView canEdit={canEdit} onEdit={this.edit} {...commonProps} />}
+        {mode === MODES.VIEW && (
+          <AlertView
+            canEdit={canEdit}
+            onEdit={this.edit}
+            muted={muted}
+            unmute={this.unmute}
+            {...commonProps}
+          />
+        )}
         {mode === MODES.EDIT && <AlertEdit cancel={this.cancel} {...commonProps} />}
       </div>
     );

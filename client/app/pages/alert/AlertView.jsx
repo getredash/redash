@@ -9,6 +9,7 @@ import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
+import AntAlert from 'antd/lib/alert';
 
 import Title from './components/Title';
 import Criteria from './components/Criteria';
@@ -47,6 +48,17 @@ AlertState.defaultProps = {
 };
 
 export default class AlertView extends React.Component {
+  state = {
+    unmuting: false,
+  }
+
+  unmute = () => {
+    this.setState({ unmuting: true });
+    this.props.unmute().finally(() => {
+      this.setState({ unmuting: false });
+    });
+  }
+
   render() {
     const { alert, queryResult, canEdit, onEdit, menuButton } = this.props;
     const { query, name, options, rearm } = alert;
@@ -92,6 +104,24 @@ export default class AlertView extends React.Component {
             </Form>
           </div>
           <div className="col-md-4">
+            {options.muted && (
+              <AntAlert
+                className="m-b-20"
+                message={<><i className="fa fa-bell-slash-o" /> Notifications are muted</>}
+                description={(
+                  <>
+                    Notifications for this alert will not be sent.<br />
+                    {canEdit && (
+                      <>
+                        To restore notifications click
+                        <Button size="small" type="primary" onClick={this.unmute} loading={this.state.unmuting} className="m-t-5 m-l-5">Unmute</Button>
+                      </>
+                    )}
+                  </>
+                )}
+                type="warning"
+              />
+            )}
             <h4>Destinations{' '}
               <Tooltip title="Open Alert Destinations page in a new tab.">
                 <a href="destinations" target="_blank">
@@ -113,8 +143,10 @@ AlertView.propTypes = {
   canEdit: PropTypes.bool.isRequired,
   onEdit: PropTypes.func.isRequired,
   menuButton: PropTypes.node.isRequired,
+  unmute: PropTypes.func,
 };
 
 AlertView.defaultProps = {
   queryResult: null,
+  unmute: null,
 };
