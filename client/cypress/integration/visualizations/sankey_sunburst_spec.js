@@ -35,14 +35,13 @@ describe('Sankey and Sunburst', () => {
     cy.getByTestId('VisualizationType.SUNBURST_SEQUENCE').click();
     cy.getByTestId('VisualizationName').clear().type(visualizationName);
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
-
-    cy.getByTestId('QueryPageShowDataOnly').click();
 
     // wait a bit before taking snapshot
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Sunburst', { widths: [viewportWidth] });
+
+    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
+    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
   });
 
   it('creates Sankey', () => {
@@ -53,13 +52,12 @@ describe('Sankey and Sunburst', () => {
     cy.getByTestId('VisualizationType.SANKEY').click();
     cy.getByTestId('VisualizationName').clear().type(visualizationName);
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
-    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
-
-    cy.getByTestId('QueryPageShowDataOnly').click();
 
     // wait a bit before taking snapshot
-    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Sankey', { widths: [viewportWidth] });
+
+    cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
+    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
   });
 });
