@@ -3,7 +3,7 @@
  */
 
 import * as d3 from 'd3';
-import { has, map, keys, groupBy, sortBy, filter, find, compact, identity } from 'lodash';
+import { has, map, keys, groupBy, sortBy, filter, find, compact, first, every, identity } from 'lodash';
 
 const exitNode = '<<<Exit>>>';
 const colors = d3.scale.category10();
@@ -25,43 +25,41 @@ function getAncestors(node) {
   return path;
 }
 
-function buildNodes(data) {
-  let values;
+function buildNodesFromHierarchyData(data) {
+  const grouped = groupBy(data, 'sequence');
 
-  // TODO: Split to two functions for each type + detection as a separate func
-  if (
-    has(data[0], 'sequence') &&
-    has(data[0], 'stage') &&
-    has(data[0], 'node') &&
-    has(data[0], 'value')
-  ) {
-    const grouped = groupBy(data, 'sequence');
+  return map(grouped, (value) => {
+    const sorted = sortBy(value, 'stage');
+    return {
+      size: value[0].value || 0,
+      sequence: value[0].sequence,
+      nodes: map(sorted, i => i.node),
+    };
+  });
+}
 
-    values = map(grouped, (value) => {
-      const sorted = sortBy(value, 'stage');
-      return {
-        size: value[0].value || 0,
-        sequence: value[0].sequence,
-        nodes: map(sorted, i => i.node),
-      };
-    });
-  } else {
-    // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
-    const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
-    const dataKeys = sortBy(filter(keys(data[0]), validKey), identity);
+function buildNodesFromTableData(data) {
+  // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
+  const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
+  const dataKeys = sortBy(filter(keys(data[0]), validKey), identity);
 
-    values = map(data, (row, sequence) => ({
-      size: row.value || 0,
-      sequence,
-      nodes: compact(map(dataKeys, key => row[key])),
-    }));
-  }
+  return map(data, (row, sequence) => ({
+    size: row.value || 0,
+    sequence,
+    nodes: compact(map(dataKeys, key => row[key])),
+  }));
+}
 
-  return values;
+function isDataInHierarchyFormat(data) {
+  const firstRow = first(data);
+  return every(
+    ['sequence', 'stage', 'node', 'value'],
+    field => has(firstRow, field),
+  );
 }
 
 function buildHierarchy(data) {
-  data = buildNodes(data);
+  data = isDataInHierarchyFormat(data) ? buildNodesFromHierarchyData(data) : buildNodesFromTableData(data);
 
   // build tree
   const root = {
