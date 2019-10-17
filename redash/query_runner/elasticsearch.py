@@ -151,7 +151,7 @@ class BaseElasticSearch(BaseQueryRunner):
             '''
             path = path or []
             result = []
-            for field, description in list(doc['properties'].items()):
+            for field, description in doc['properties'].items():
                 if 'properties' in description:
                     result.extend(parse_doc(description, path + [field]))
                 else:
@@ -166,10 +166,10 @@ class BaseElasticSearch(BaseQueryRunner):
             # make a schema for each index
             # the index contains a mappings dict with documents
             # in a hierarchical format
-            for name, index in list(mappings.items()):
+            for name, index in mappings.items():
                 columns = []
                 schema[name] = {'name': name}
-                for doc, items in list(index['mappings'].items()):
+                for doc, items in index['mappings'].items():
                     columns.extend(parse_doc(items))
 
                 # remove duplicates

@@ -218,7 +218,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         groups = DataSourceGroup.query.filter(
             DataSourceGroup.data_source == self
         )
-        return dict([(g.group_id, g.view_only) for g in groups])
+        return dict([(group.group_id, group.view_only) for group in groups])
 
 
 @generic_repr('id', 'data_source_id', 'group_id', 'view_only')
@@ -543,8 +543,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .filter(Query.schedule.isnot(None))
             .order_by(Query.id)
         )
-        return [x for x in queries if x.schedule["until"] is not None and pytz.utc.localize(
-                    datetime.datetime.strptime(x.schedule['until'], '%Y-%m-%d')
+        return [query for query in queries if query.schedule["until"] is not None and pytz.utc.localize(
+                    datetime.datetime.strptime(query.schedule['until'], '%Y-%m-%d')
                 ) <= now]
 
     @classmethod

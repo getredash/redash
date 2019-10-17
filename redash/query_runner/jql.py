@@ -12,7 +12,7 @@ class ResultSet(object):
         self.rows = []
 
     def add_row(self, row):
-        for key in list(row.keys()):
+        for key in row.keys():
             self.add_column(key)
 
         self.rows.append(row)

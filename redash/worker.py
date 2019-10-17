@@ -90,6 +90,6 @@ def add_periodic_tasks(sender, **kwargs):
     """Load all periodic tasks from extensions and add them to Celery."""
     # Populate the redash.extensions.periodic_tasks dictionary
     extensions.load_periodic_tasks(logger)
-    for params in list(extensions.periodic_tasks.values()):
+    for params in extensions.periodic_tasks.values():
         # Add it to Celery's periodic task registry, too.
         sender.add_periodic_task(**params)

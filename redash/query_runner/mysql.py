@@ -197,7 +197,7 @@ class Mysql(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in desc])
                 rows = [
-                    dict(list(zip((c['name'] for c in columns), row)))
+                    dict(zip((column['name'] for column in columns), row))
                     for row in data
                 ]
 
@@ -226,8 +226,12 @@ class Mysql(BaseSQLQueryRunner):
         ssl_params = {}
 
         if self.configuration.get('use_ssl'):
-            config_map = dict(ssl_cacert='ca', ssl_cert='cert', ssl_key='key')
-            for key, cfg in list(config_map.items()):
+            config_map = {
+                "ssl_cacert": "ca",
+                "ssl_cert": "cert",
+                "ssl_key": "key",
+            }
+            for key, cfg in config_map.items():
                 val = self.configuration.get(key)
                 if val:
                     ssl_params[cfg] = val

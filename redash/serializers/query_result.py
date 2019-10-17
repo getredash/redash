@@ -41,7 +41,7 @@ def _get_column_lists(columns):
     special_types = {
         TYPE_BOOLEAN: _convert_bool,
         TYPE_DATE: rpartial(_convert_datetime, date_format),
-        TYPE_DATETIME: rpartial(_convert_datetime, datetime_format)
+        TYPE_DATETIME: rpartial(_convert_datetime, datetime_format),
     }
 
     fieldnames = []
@@ -50,7 +50,7 @@ def _get_column_lists(columns):
     for col in columns:
         fieldnames.append(col['name'])
 
-        for col_type in list(special_types.keys()):
+        for col_type in special_types.keys():
             if col['type'] == col_type:
                 special_columns[col['name']] = special_types[col_type]
 
@@ -86,24 +86,24 @@ def serialize_query_result_to_csv(query_result):
 
 
 def serialize_query_result_to_xlsx(query_result):
-    s = io.BytesIO()
+    output = io.BytesIO()
 
     query_data = query_result.data
-    book = xlsxwriter.Workbook(s, {'constant_memory': True})
+    book = xlsxwriter.Workbook(output, {'constant_memory': True})
     sheet = book.add_worksheet("result")
 
     column_names = []
-    for (c, col) in enumerate(query_data['columns']):
+    for c, col in enumerate(query_data['columns']):
         sheet.write(0, c, col['name'])
         column_names.append(col['name'])
 
-    for (r, row) in enumerate(query_data['rows']):
-        for (c, name) in enumerate(column_names):
+    for r, row in enumerate(query_data['rows']):
+        for c, name in enumerate(column_names):
             v = row.get(name)
-            if isinstance(v, list) or isinstance(v, dict):
+            if isinstance(v, (dict, list)):
                 v = str(v)
             sheet.write(r + 1, c, v)
 
     book.close()
 
-    return s.getvalue()
+    return output.getvalue()

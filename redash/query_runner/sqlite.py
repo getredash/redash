@@ -66,7 +66,7 @@ class Sqlite(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], None) for i in cursor.description])
-                rows = [dict(list(zip((c['name'] for c in columns), row))) for row in cursor]
+                rows = [dict(zip((column['name'] for column in columns), row)) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None

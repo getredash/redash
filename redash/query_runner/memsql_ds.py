@@ -107,13 +107,13 @@ class MemSQL(BaseSQLQueryRunner):
             #         'type': types_map.get(column[COLUMN_TYPE], None)
             #     })
 
-            rows = [dict(list(zip(list(row.keys()), list(row.values())))) for row in res]
+            rows = [dict(zip(row.keys(), row.values())) for row in res]
 
             # ====================================================================================================
             # temporary - until https://github.com/memsql/memsql-python/pull/8 gets merged
             # ====================================================================================================
             columns = []
-            column_names = list(rows[0].keys()) if rows else None
+            column_names = rows[0].keys() if rows else None
 
             if column_names:
                 for column in column_names:

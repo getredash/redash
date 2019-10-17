@@ -137,7 +137,7 @@ class SqlServer(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(list(zip((c['name'] for c in columns), row))) for row in data]
+                rows = [dict(zip((column['name'] for column in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json_dumps(data)

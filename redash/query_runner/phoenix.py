@@ -99,7 +99,7 @@ class Phoenix(BaseQueryRunner):
             cursor.execute(query)
             column_tuples = [(i[0], TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [dict(list(zip(([c['name'] for c in columns]), r))) for i, r in enumerate(cursor.fetchall())]
+            rows = [dict(zip(([column['name'] for column in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)
             error = None

@@ -112,7 +112,7 @@ class TestUserListGet(BaseTestCase):
 
     def make_request_and_return_ids(self, *args, **kwargs):
         rv = self.make_request(*args, **kwargs)
-        return [u['id'] for u in rv.json['results']]
+        return [user['id'] for user in rv.json['results']]
 
     def assertUsersListMatches(self, actual_ids, expected_ids, unexpected_ids):
         actual_ids = set(actual_ids)

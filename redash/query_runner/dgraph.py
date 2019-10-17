@@ -19,7 +19,7 @@ def reduce_item(reduced_item, key, value):
 
     # Reduction Condition 2
     elif type(value) is dict:
-        sub_keys = list(value.keys())
+        sub_keys = value.keys()
         for sub_key in sub_keys:
             reduce_item(reduced_item, '{}.{}'.format(key, sub_key), value[sub_key])
 
@@ -105,7 +105,7 @@ class Dgraph(BaseQueryRunner):
                 reduced_item = {}
                 reduce_item(reduced_item, first_key, item)
 
-                header += list(reduced_item.keys())
+                header += reduced_item.keys()
 
                 processed_data.append(reduced_item)
 

@@ -10,9 +10,9 @@ from six import string_types, text_type
 
 
 def _pluck_name_and_value(default_column, row):
-    row = {k.lower(): v for k, v in list(row.items())}
-    name_column = "name" if "name" in list(row.keys()) else default_column.lower()
-    value_column = "value" if "value" in list(row.keys()) else default_column.lower()
+    row = {k.lower(): v for k, v in row.items()}
+    name_column = "name" if "name" in row.keys() else default_column.lower()
+    value_column = "value" if "value" in row.keys() else default_column.lower()
 
     return {"name": row[name_column], "value": text_type(row[value_column])}
 
@@ -73,7 +73,7 @@ def _parameter_names(parameter_values):
     names = []
     for key, value in parameter_values.items():
         if isinstance(value, dict):
-            for inner_key in list(value.keys()):
+            for inner_key in value.keys():
                 names.append('{}.{}'.format(key, inner_key))
         else:
             names.append(key)
@@ -170,7 +170,7 @@ class ParameterizedQuery(object):
 
     @property
     def is_safe(self):
-        text_parameters = [p for p in self.schema if p["type"] == "text"]
+        text_parameters = [param for param in self.schema if param["type"] == "text"]
         return not any(text_parameters)
 
     @property

@@ -137,7 +137,7 @@ class AzureKusto(BaseQueryRunner):
         results = json_loads(results)
 
         schema_as_json = json_loads(results['rows'][0]['DatabaseSchema'])
-        tables_list = list(schema_as_json['Databases'][self.configuration['database']]['Tables'].values())
+        tables_list = schema_as_json['Databases'][self.configuration['database']]['Tables'].values()
 
         schema = {}
 

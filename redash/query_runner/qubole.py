@@ -106,7 +106,7 @@ class Qubole(BaseQueryRunner):
 
                 data = results.split('\r\n')
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data.pop(0).split('\t')])
-                rows = [dict(list(zip((c['name'] for c in columns), row.split('\t')))) for row in data]
+                rows = [dict(zip((column['name'] for column in columns), row.split('\t'))) for row in data]
 
             json_data = json_dumps({'columns': columns, 'rows': rows})
         except KeyboardInterrupt:

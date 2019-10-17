@@ -214,7 +214,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in cursor.description])
                 rows = [
-                    dict(list(zip((c['name'] for c in columns), row)))
+                    dict(zip((column['name'] for column in columns), row))
                     for row in cursor
                 ]
 
