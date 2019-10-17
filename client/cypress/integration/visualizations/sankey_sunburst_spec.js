@@ -17,6 +17,8 @@ const SQL = `
 `;
 
 describe('Sankey and Sunburst', () => {
+  const viewportWidth = Cypress.config('viewportWidth');
+
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
@@ -35,6 +37,12 @@ describe('Sankey and Sunburst', () => {
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
     cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+
+    cy.getByTestId('QueryPageShowDataOnly').click();
+
+    // wait a bit before taking snapshot
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Sunburst', { widths: [viewportWidth] });
   });
 
   it('creates Sankey', () => {
@@ -47,5 +55,11 @@ describe('Sankey and Sunburst', () => {
     cy.getByTestId('VisualizationPreview').find('svg').should('exist');
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
     cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+
+    cy.getByTestId('QueryPageShowDataOnly').click();
+
+    // wait a bit before taking snapshot
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot('Visualizations - Sankey', { widths: [viewportWidth] });
   });
 });
