@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { head, includes, toString, isEmpty } from 'lodash';
+import { head, includes, toString, isEmpty, get } from 'lodash';
 
 import Input from 'antd/lib/input';
 import Icon from 'antd/lib/icon';
@@ -26,8 +26,7 @@ function getConditionOption(key) {
 }
 
 export function getConditionText(key) {
-  const [, text] = CONDITIONS[key];
-  return text;
+  return get(CONDITIONS, [key, 1], key);
 }
 
 const VALID_STRING_CONDITIONS = ['==', '!='];

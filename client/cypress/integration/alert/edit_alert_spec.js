@@ -28,7 +28,7 @@ describe('Edit Alert', () => {
   it('previews rendered template correctly', () => {
     const options = {
       value: '123',
-      op: '=',
+      op: '==',
       custom_subject: '{{ ALERT_CONDITION }}',
       custom_body: '{{ ALERT_THRESHOLD }}',
     };
@@ -38,7 +38,7 @@ describe('Edit Alert', () => {
       .then(({ id: alertId }) => {
         cy.visit(`/alerts/${alertId}/edit`);
         cy.get('.alert-template-preview').click();
-        cy.getByTestId('CustomSubject').should('have.value', options.op);
+        cy.getByTestId('CustomSubject').should('have.value', 'equals');
         cy.getByTestId('CustomBody').should('have.value', options.value);
       });
   });
