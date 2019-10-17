@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { head, includes, toString } from 'lodash';
+import { head, includes, toString, isEmpty } from 'lodash';
 
 import Input from 'antd/lib/input';
 import Icon from 'antd/lib/icon';
@@ -34,7 +34,7 @@ DisabledInput.propTypes = {
 };
 
 export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
-  const columnValue = resultValues && head(resultValues)[alertOptions.column];
+  const columnValue = !isEmpty(resultValues) ? head(resultValues)[alertOptions.column] : null;
   const invalidMessage = (() => {
     // bail if condition is valid for strings
     if (includes(VALID_STRING_CONDITIONS, alertOptions.op)) {
