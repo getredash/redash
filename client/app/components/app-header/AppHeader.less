@@ -1,3 +1,5 @@
+@mobileBreakpoint: ~"(max-width: 767px)";
+
 nav .app-header {
   height: 49px;
   padding-bottom: 1px;
@@ -143,18 +145,24 @@ nav .app-header {
       margin: 0 5px;
     }
 
-    .dropdown-menu-item .ant-btn {
-      margin-left: 0;
+    .profile-dropdown {
+      span {
+        display: none;
+      }
+
+      img {
+        margin-right: 0;
+      }
     }
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 800px) {
     .searchbar {
       width: 140px;
     }
   }
 
-  @media (max-width: 800px) {
+  @media @mobileBreakpoint {
     &[data-platform="desktop"] {
       display: none;
     }
@@ -172,7 +180,7 @@ nav .app-header {
   }
 }
 
-@media (max-width: 800px) {
+@media @mobileBreakpoint {
   .app-header-wrapper {
     margin-top: 59px !important; // compensate for app header fixed position
   }
