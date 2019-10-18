@@ -1,4 +1,3 @@
-import logging
 import time
 
 from flask import make_response, request
@@ -16,15 +15,15 @@ from redash.models.parameterized_query import (ParameterizedQuery, InvalidParame
 from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
-def error_response(message, http_status=400):
-    return {'job': {'status': 4, 'error': message}}, http_status
+def error_response(message, data=None, http_status=400):
+    return {'job': {'status': 4, 'error': message, 'error_data': data}}, http_status
 
 
 error_messages = {
-    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
-    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', 403),
-    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
-    'select_data_source': error_response('Please select data source to run this query.', 401)
+    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', None, 403),
+    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', None, 403),
+    'no_permission': error_response('You do not have permission to run queries with this data source.', None, 403),
+    'select_data_source': error_response('Please select data source to run this query.', None, 401)
 }
 
 
@@ -39,11 +38,15 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     try:
         query.apply(parameters)
-    except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
+    except QueryDetachedFromDataSourceError as e:
         abort(400, message=e.message)
+    except InvalidParameterError as e:
+        return error_response(e.message, {'parameters': e.parameter_errors})
 
-    if query.missing_params:
-        return error_response('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
+    missing_params_error = query.missing_params_error
+    if missing_params_error:
+        message, parameter_errors = missing_params_error
+        return error_response(message, {'parameters': parameter_errors})
 
     if max_age == 0:
         query_result = None
