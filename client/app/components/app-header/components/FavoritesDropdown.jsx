@@ -13,7 +13,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const [loading, setLoading] = useState(false);
 
   const noItems = isEmpty(items);
-  const urlCompiled = useMemo(() => template(urlTemplate), []);
+  const urlCompiled = useMemo(() => template(urlTemplate), [urlTemplate]);
 
   const fetchItems = useCallback(() => {
     setLoading(true);
