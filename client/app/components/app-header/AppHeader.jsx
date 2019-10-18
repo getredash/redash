@@ -28,7 +28,7 @@ function onSearch(q) {
   $route.reload();
 }
 
-function Desktop() {
+function DesktopNavbar() {
   return (
     <div className="app-header" data-platform="desktop">
       <div>
@@ -150,9 +150,7 @@ function Desktop() {
                   <Menu.Divider />
                   <Menu.Item key="version" disabled>
                     Version: {clientConfig.version}
-                    {frontendVersion !== clientConfig.version && (
-                      {` (${frontendVersion.substring(0, 8)})`}
-                    )}
+                    {frontendVersion !== clientConfig.version && ` (${frontendVersion.substring(0, 8)})`}
                     {clientConfig.newVersionAvailable && currentUser.hasPermission('super_admin') && (
                       <Tooltip title="Update Available" placement="rightTop">
                         {' '}
@@ -179,7 +177,7 @@ function Desktop() {
   );
 }
 
-function Mobile() {
+function MobileNavbar() {
   const ref = useRef();
 
   return (
@@ -246,8 +244,8 @@ function Mobile() {
 export function AppHeader() {
   return (
     <nav className="app-header-wrapper">
-      <Desktop />
-      <Mobile />
+      <DesktopNavbar />
+      <MobileNavbar />
     </nav>
   );
 }
