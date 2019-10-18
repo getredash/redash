@@ -24,7 +24,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [fetch]);
 
   // fetch items on init
   useEffect(fetchItems, []);
