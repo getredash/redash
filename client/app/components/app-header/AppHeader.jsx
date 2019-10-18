@@ -151,7 +151,7 @@ function Desktop() {
                   <Menu.Item key="version" disabled>
                     Version: {clientConfig.version}
                     {frontendVersion !== clientConfig.version && (
-                      <>{' '}({frontendVersion.substring(0, 8)})</>
+                      {` (${frontendVersion.substring(0, 8)})`}
                     )}
                     {clientConfig.newVersionAvailable && currentUser.hasPermission('super_admin') && (
                       <Tooltip title="Update Available" placement="rightTop">
