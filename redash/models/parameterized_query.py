@@ -122,23 +122,29 @@ class ParameterizedQuery(object):
         self.parameters = {}
 
     def apply(self, parameters):
-        invalid_parameter_names = [key for (key, value) in parameters.iteritems() if not self._valid(key, value)]
-        if invalid_parameter_names:
-            raise InvalidParameterError(invalid_parameter_names)
+        has_invalid_parameters = any([key for (key, value) in parameters.iteritems() if self._invalid_message(key, value)])
+
+        if has_invalid_parameters:
+            invalid_parameter_messages = {key: self._invalid_message(key, value) for (key, value) in parameters.iteritems()}
+            compacted = {k: v for k, v in invalid_parameter_messages.iteritems() if v is not None}
+            raise InvalidParameterError(compacted)
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(self.template, join_parameter_list_values(parameters, self.schema))
 
         return self
 
-    def _valid(self, name, value):
+    def _invalid_message(self, name, value):
         if not self.schema:
-            return True
+            return 'Schema missing'
 
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return False
+            return 'Definition missing'
+
+        if value is None:
+            return 'Required field'
 
         enum_options = definition.get('enumOptions')
         query_id = definition.get('queryId')
@@ -166,7 +172,11 @@ class ParameterizedQuery(object):
 
         validate = validators.get(definition["type"], lambda x: False)
 
-        return validate(value)
+        if not validate(value):
+            return 'Invalid value'
+        
+        return None;
+
 
     @property
     def is_safe(self):
@@ -185,9 +195,12 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        parameter_names = u", ".join(parameters)
-        message = u"The following parameter values are incompatible with their definitions: {}".format(parameter_names)
-        super(InvalidParameterError, self).__init__(message)
+        parameter_names = u', '.join('"{}"'.format(name) for name in keys(parameters))
+        if (len(parameters) > 1):
+            message = u'Parameters {} are invalid.'.format(parameter_names)
+        else:
+            message = u'Parameter {} is invalid.'.format(parameter_names)
+        super(InvalidParameterError, self).__init__(message, parameters)
 
 
 class QueryDetachedFromDataSourceError(Exception):

@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
+import { uniqBy, each, isNumber, isString, includes, extend, forOwn, get } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -56,7 +56,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       logger('Unknown error', response);
       queryResult.update({
         job: {
-          error: response.data.message || 'unknown error occurred. Please try again later.',
+          error: get(response, 'data.message', 'unknown error occurred. Please try again later.'),
           status: 4,
         },
       });
@@ -132,7 +132,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         this.status = 'processing';
       } else if (this.job.status === 4) {
         this.status = statuses[this.job.status];
-        this.deferred.reject(new QueryResultError(this.job.error));
+        this.deferred.reject(new QueryResultError(this.job.error, this.job.data));
       } else {
         this.status = undefined;
       }
@@ -157,13 +157,12 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return this.status || statuses[this.job.status];
     }
 
-    getError() {
+    getError(getExtraData = false) {
       // TODO: move this logic to the server...
       if (this.job.error === 'None') {
         return undefined;
       }
-
-      return this.job.error;
+      return getExtraData ? this.job.data : this.job.error;
     }
 
     getLog() {

@@ -537,8 +537,9 @@ class Parameters {
 
 function QueryResultErrorFactory($q) {
   class QueryResultError {
-    constructor(errorMessage) {
+    constructor(errorMessage, extraData = {}) {
       this.errorMessage = errorMessage;
+      this.extraData = extraData;
       this.updatedAt = moment.utc();
     }
 
@@ -546,8 +547,8 @@ function QueryResultErrorFactory($q) {
       return this.updatedAt;
     }
 
-    getError() {
-      return this.errorMessage;
+    getError(getExtraData = false) {
+      return getExtraData ? this.extraData : this.errorMessage;
     }
 
     toPromise() {
@@ -706,23 +707,6 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
-    const missingParams = parameters.getMissing();
-
-    if (missingParams.length > 0) {
-      let paramsWord = 'parameter';
-      let valuesWord = 'value';
-      if (missingParams.length > 1) {
-        paramsWord = 'parameters';
-        valuesWord = 'values';
-      }
-
-      return new QueryResult({
-        job: {
-          error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`,
-          status: 4,
-        },
-      });
-    }
 
     if (parameters.isRequired()) {
       // Need to clear latest results, to make sure we don't use results for different params.

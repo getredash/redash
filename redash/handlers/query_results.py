@@ -39,8 +39,11 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     try:
         query.apply(parameters)
-    except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
+    except QueryDetachedFromDataSourceError as e:
         abort(400, message=e.message)
+    except InvalidParameterError as e:
+        message, parameters = e.args
+        return {'job': {'status': 4, 'error': message, 'data': {'parameters': parameters}}}, 400
 
     if query.missing_params:
         return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))

@@ -2,6 +2,7 @@ import PromiseRejectionError from '@/lib/promise-rejection-error';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
 import dashboardGridOptions from '@/config/dashboard-grid-options';
+import _ from 'lodash';
 import './dashboard.less';
 
 function loadDashboard($http, $route) {
@@ -18,6 +19,7 @@ const PublicDashboardPage = {
     'ngInject';
 
     this.filters = [];
+    let currentQueryResultsErrorData;
 
     this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
@@ -70,6 +72,38 @@ const PublicDashboardPage = {
     };
 
     this.refreshDashboard();
+
+    this.getQueryResultsErrorData = () => {
+      const dashboardErrors = _.map(this.dashboard.widgets, (widget) => {
+        // get result
+        const result = widget.getQueryResult();
+        if (!result) {
+          return null;
+        }
+
+        // get error
+        const errorData = result.getError(true);
+        if (_.isEmpty(errorData)) {
+          return null;
+        }
+
+        // dashboard params only
+        const localParamNames = _.map(widget.getLocalParameters(), p => p.name);
+        const filtered = _.omit(errorData.parameters, localParamNames);
+
+        return filtered;
+      });
+
+      const merged = _.assign({}, ...dashboardErrors);
+      const errorData = _.isEmpty(merged) ? null : { parameters: merged };
+
+      // avoiding Angular infdig
+      if (!_.isEqual(currentQueryResultsErrorData, errorData)) {
+        currentQueryResultsErrorData = errorData;
+      }
+
+      return currentQueryResultsErrorData;
+    };
   },
 };
 

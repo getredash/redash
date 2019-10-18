@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend } from 'lodash';
+import { size, filter, forEach, extend, get } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/query';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
+import Form from 'antd/lib/form';
+import Tooltip from 'antd/lib/tooltip';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
 
@@ -29,6 +31,9 @@ export class Parameters extends React.Component {
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
+    queryResultErrorData: PropTypes.shape({
+      parameters: PropTypes.objectOf(PropTypes.string),
+    }),
   };
 
   static defaultProps = {
@@ -38,6 +43,7 @@ export class Parameters extends React.Component {
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+    queryResultErrorData: {},
   };
 
   constructor(props) {
@@ -119,7 +125,9 @@ export class Parameters extends React.Component {
   };
 
   renderParameter(param, index) {
-    const { editable } = this.props;
+    const { editable, queryResultErrorData } = this.props;
+    const error = !param.hasPendingValue && get(queryResultErrorData, ['parameters', param.name]);
+
     return (
       <div
         key={param.name}
@@ -139,14 +147,19 @@ export class Parameters extends React.Component {
             </button>
           )}
         </div>
-        <ParameterValueInput
-          type={param.type}
-          value={param.normalizedValue}
-          parameter={param}
-          enumOptions={param.enumOptions}
-          queryId={param.queryId}
-          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
-        />
+        <Form.Item
+          validateStatus={error ? 'error' : ''}
+          help={error ? <Tooltip title={error}>{error}</Tooltip> : null}
+        >
+          <ParameterValueInput
+            type={param.type}
+            value={param.normalizedValue}
+            parameter={param}
+            enumOptions={param.enumOptions}
+            queryId={param.queryId}
+            onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          />
+        </Form.Item>
       </div>
     );
   }
@@ -155,6 +168,7 @@ export class Parameters extends React.Component {
     const { parameters } = this.state;
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+
     return (
       <SortableContainer
         disabled={!editable}

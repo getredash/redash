@@ -21,9 +21,10 @@ const VisualizationEmbed = {
           this.loading = false;
           this.queryResult = result;
         })
-        .catch((error) => {
+        .catch((result) => {
           this.loading = false;
-          this.error = error.getError();
+          this.queryResult = result;
+          this.error = result.getError();
         });
     };
 
