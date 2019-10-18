@@ -106,6 +106,13 @@ def _is_date_range(obj):
     except (KeyError, TypeError):
         return False
 
+def _is_date_range_type(type):
+    return type in ["date-range", "datetime-range", "datetime-range-with-seconds"]
+
+def _is_tag_in_template(name, template):
+    tags = _collect_query_parameters(template)
+    return name in tags
+
 
 def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
@@ -135,16 +142,17 @@ class ParameterizedQuery(object):
         return self
 
     def _invalid_message(self, name, value):
+        if value is None:
+            return 'Required field'
+
+        # no validation if no schema
         if not self.schema:
-            return 'Schema missing'
+            return None
 
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return 'Definition missing'
-
-        if value is None:
-            return 'Required field'
+            return 'Missing definition'
 
         enum_options = definition.get('enumOptions')
         query_id = definition.get('queryId')
@@ -153,7 +161,7 @@ class ParameterizedQuery(object):
         if isinstance(enum_options, string_types):
             enum_options = enum_options.split('\n')
 
-        validators = {
+        value_validators = {
             "text": lambda value: isinstance(value, string_types),
             "number": _is_number,
             "enum": lambda value: _is_value_within_options(value,
@@ -170,12 +178,32 @@ class ParameterizedQuery(object):
             "datetime-range-with-seconds": _is_date_range,
         }
 
-        validate = validators.get(definition["type"], lambda x: False)
+        validate_value = value_validators.get(definition["type"], lambda x: False)
 
-        if not validate(value):
+        if not validate_value(value):
             return 'Invalid value'
-        
+
+        tag_error_msg = self._validate_tag(name, definition["type"])
+        if tag_error_msg is not None:
+            return tag_error_msg
+
         return None;
+
+    def _validate_tag(self, name, type):
+        error_msg = u'{{{{ {0} }}}} not found in query'
+        if _is_date_range_type(type):
+            start_tag = u'{}.start'.format(name)
+            if not _is_tag_in_template(start_tag, self.template):
+                return error_msg.format(start_tag)
+
+            end_tag =  u'{}.end'.format(name)
+            if not _is_tag_in_template(end_tag, self.template):
+                return error_msg.format(end_tag)
+
+        elif not _is_tag_in_template(name, self.template):
+                return error_msg.format(name)
+                
+        return None
 
 
     @property
@@ -195,7 +223,7 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
-        parameter_names = u', '.join('"{}"'.format(name) for name in keys(parameters))
+        parameter_names = u', '.join(u'"{}"'.format(name) for name in parameters.keys())
         if (len(parameters) > 1):
             message = u'Parameters {} are invalid.'.format(parameter_names)
         else:
