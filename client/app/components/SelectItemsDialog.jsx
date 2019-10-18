@@ -29,6 +29,7 @@ class SelectItemsDialog extends React.Component {
     renderItem: PropTypes.func,
     // right list; args/results save as for `renderItem`. if not specified - `renderItem` will be used
     renderStagedItem: PropTypes.func,
+    defaultSelectedItem: PropTypes.func, // (item) => bool
     save: PropTypes.func, // (selectedItems[]) => Promise<any>
     width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     extraFooterContent: PropTypes.node,
@@ -42,6 +43,7 @@ class SelectItemsDialog extends React.Component {
     itemKey: item => item.id,
     renderItem: () => '',
     renderStagedItem: null, // hidden by default
+    defaultSelectedItem: () => false, // no items are selected by default
     save: items => items,
     width: '80%',
     extraFooterContent: null,
@@ -57,13 +59,16 @@ class SelectItemsDialog extends React.Component {
   };
 
   // eslint-disable-next-line react/sort-comp
-  loadItems = (searchTerm = '') => {
+  loadItems = (searchTerm = '', assignSelected = false) => {
     this.setState({ searchTerm, loading: true }, () => {
       this.props.searchItems(searchTerm)
         .then((items) => {
           // If another search appeared while loading data - just reject this set
           if (this.state.searchTerm === searchTerm) {
             this.setState({ items, loading: false });
+          }
+          if (assignSelected) {
+            this.setState({ selected: filter(items, this.props.defaultSelectedItem) });
           }
         })
         .catch(() => {
@@ -77,7 +82,7 @@ class SelectItemsDialog extends React.Component {
   search = debounce(this.loadItems, 200);
 
   componentDidMount() {
-    this.loadItems();
+    this.loadItems('', true);
   }
 
   isSelected(item) {
