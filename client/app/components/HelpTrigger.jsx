@@ -1,4 +1,3 @@
-import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -86,7 +85,7 @@ export const TYPES = {
   ],
 };
 
-export class HelpTrigger extends React.Component {
+export default class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
@@ -240,9 +239,3 @@ export class HelpTrigger extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('helpTrigger', react2angular(HelpTrigger));
-}
-
-init.init = true;

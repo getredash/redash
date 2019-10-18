@@ -11,7 +11,7 @@ import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
-import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
+import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 class EditDataSource extends React.Component {
   static propTypes = {

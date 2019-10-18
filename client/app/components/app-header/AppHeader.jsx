@@ -11,7 +11,7 @@ import Input from 'antd/lib/input';
 import Tooltip from 'antd/lib/tooltip';
 
 import FavoritesDropdown from './components/FavoritesDropdown';
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 
 import { currentUser, Auth, clientConfig } from '@/services/auth';

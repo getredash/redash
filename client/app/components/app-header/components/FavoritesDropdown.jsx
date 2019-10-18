@@ -6,7 +6,7 @@ import Dropdown from 'antd/lib/dropdown';
 import Icon from 'antd/lib/icon';
 import Menu from 'antd/lib/menu';
 
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 
 export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const [items, setItems] = useState();
