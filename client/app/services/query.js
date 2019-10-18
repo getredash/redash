@@ -2,7 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, filter, includes, union, uniq, has, get, intersection,
+  zipObject, isEmpty, map, includes, union, uniq, has, get, intersection,
   isNull, isUndefined, isArray, isObject, identity, extend, each, join, some, startsWith,
 } from 'lodash';
 
@@ -498,10 +498,6 @@ class Parameters {
     const param = new Parameter(parameterDef);
     this.query.options.parameters.push(param);
     return param;
-  }
-
-  getMissing() {
-    return map(filter(this.get(), p => p.isEmpty), i => i.title);
   }
 
   isRequired() {
