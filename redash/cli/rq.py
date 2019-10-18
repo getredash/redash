@@ -23,7 +23,7 @@ def scheduler():
 @argument('queues', nargs=-1)
 def worker(queues='default'):
     if not queues:
-        queues = ('default', )
+        queues = ('default',)
     with Connection(rq_redis_connection):
         w = Worker(queues)
         w.work()

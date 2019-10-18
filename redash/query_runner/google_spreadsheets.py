@@ -50,7 +50,7 @@ def _get_columns_and_column_names(row):
 
 def _value_eval_list(row_values, col_types):
     value_list = []
-    raw_values = list(zip(col_types, row_values))
+    raw_values = zip(col_types, row_values)
     for typ, rval in raw_values:
         try:
             if rval is None or rval == '':
@@ -100,7 +100,7 @@ def parse_worksheet(worksheet):
             columns[j]['type'] = guess_type(value)
 
     column_types = [c['type'] for c in columns]
-    rows = [dict(list(zip(column_names, _value_eval_list(row, column_types)))) for row in worksheet[HEADER_INDEX + 1:]]
+    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
     data = {'columns': columns, 'rows': rows}
 
     return data

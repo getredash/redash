@@ -92,7 +92,7 @@ class Snowflake(BaseQueryRunner):
 
             columns = self.fetch_columns(
                     [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
-            rows = [dict(list(zip((c['name'] for c in columns), row)))
+            rows = [dict(zip((column['name'] for column in columns), row))
                     for row in cursor]
 
             data = {'columns': columns, 'rows': rows}

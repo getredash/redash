@@ -69,7 +69,7 @@ def generate_rows_and_columns(csv_response):
                 'name': i['name']}
                for i in meta_columns]
     column_names = [c['name'] for c in columns]
-    rows = [dict(list(zip(column_names, row))) for row in reader]
+    rows = [dict(zip(column_names, row)) for row in reader]
     return columns, rows
 
 

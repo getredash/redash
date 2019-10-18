@@ -23,10 +23,10 @@ COLUMN_TYPES = {
         'pageViewsInterval', 'pageViews', 'firstVisitYear', 'firstVisitMonth',
         'firstVisitDayOfMonth', 'firstVisitDayOfWeek', 'firstVisitMinute',
         'firstVisitDekaminute',
-    )
+    ),
 }
 
-for type_, elements in list(COLUMN_TYPES.items()):
+for type_, elements in COLUMN_TYPES.items():
     for el in elements:
         if 'first' in el:
             el = el.replace('first', 'last')

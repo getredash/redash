@@ -25,7 +25,7 @@ class TestDashboardListGetResource(BaseTestCase):
         rv = self.make_request('get', '/api/dashboards')
 
         assert len(rv.json['results']) == 3
-        assert set([d['id'] for d in rv.json['results']]) == set([d1.id, d2.id, d3.id])
+        assert set([result['id'] for result in rv.json['results']]) == set([d1.id, d2.id, d3.id])
 
     def test_filters_with_tags(self):
         d1 = self.factory.create_dashboard(tags=['test'])
@@ -34,7 +34,7 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request('get', '/api/dashboards?tags=test')
         assert len(rv.json['results']) == 1
-        assert set([d['id'] for d in rv.json['results']]) == set([d1.id])
+        assert set([result['id'] for result in rv.json['results']]) == set([d1.id])
 
     def test_search_term(self):
         d1 = self.factory.create_dashboard(name="Sales")
@@ -43,7 +43,7 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request('get', '/api/dashboards?q=sales')
         assert len(rv.json['results']) == 2
-        assert set([d['id'] for d in rv.json['results']]) == set([d1.id, d2.id])
+        assert set([result['id'] for result in rv.json['results']]) == set([d1.id, d2.id])
 
 
 class TestDashboardResourceGet(BaseTestCase):

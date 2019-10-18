@@ -120,7 +120,7 @@ class Salesforce(BaseQueryRunner):
         child_desc = sf.__getattr__(child_type).describe()
         child_type_map = dict((f['name'], f['type'])for f in child_desc['fields'])
         columns = []
-        for key in list(child.keys()):
+        for key in child.keys():
             if key != 'attributes':
                 if isinstance(child[key], OrderedDict) and 'attributes' in child[key]:
                     columns.extend(self._build_columns(sf, child[key], parents + [key]))

@@ -223,7 +223,7 @@ class Athena(BaseQueryRunner):
             cursor.execute(query)
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [dict(list(zip(([c['name'] for c in columns]), r))) for i, r in enumerate(cursor.fetchall())]
+            rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             qbytes = None
             athena_query_id = None
             try:

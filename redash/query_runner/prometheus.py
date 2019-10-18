@@ -44,7 +44,7 @@ def convert_query_range(payload):
     query_range = {}
 
     for key in ['start', 'end']:
-        if key not in list(payload.keys()):
+        if key not in payload.keys():
             continue
         value = payload[key][0]
 
@@ -134,10 +134,10 @@ class Prometheus(BaseQueryRunner):
             query = 'query={}'.format(query) if not query.startswith('query=') else query
 
             payload = parse_qs(query)
-            query_type = 'query_range' if 'step' in list(payload.keys()) else 'query'
+            query_type = 'query_range' if 'step' in payload.keys() else 'query'
 
             # for the range of until now
-            if query_type == 'query_range' and ('end' not in list(payload.keys()) or 'now' in payload['end']):
+            if query_type == 'query_range' and ('end' not in payload.keys() or 'now' in payload['end']):
                 date_now = datetime.now()
                 payload.update({'end': [date_now]})
 
@@ -153,7 +153,7 @@ class Prometheus(BaseQueryRunner):
             if len(metrics) == 0:
                 return None, 'query result is empty.'
 
-            metric_labels = list(metrics[0]['metric'].keys())
+            metric_labels = metrics[0]['metric'].keys()
 
             for label_name in metric_labels:
                 columns.append({

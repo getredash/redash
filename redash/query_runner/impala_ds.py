@@ -117,7 +117,7 @@ class Impala(BaseSQLQueryRunner):
                     'type': types_map.get(column[COLUMN_TYPE], None)
                 })
 
-            rows = [dict(list(zip(column_names, row))) for row in cursor]
+            rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)

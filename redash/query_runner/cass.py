@@ -128,7 +128,7 @@ class Cassandra(BaseQueryRunner):
 
             columns = self.fetch_columns([(c, 'string') for c in column_names])
 
-            rows = [dict(list(zip(column_names, row))) for row in result]
+            rows = [dict(zip(column_names, row)) for row in result]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data, cls=CassandraJSONEncoder)

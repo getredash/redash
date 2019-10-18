@@ -120,7 +120,7 @@ class Drill(BaseHTTPQueryRunner):
         """
         allowed_schemas = self.configuration.get('allowed_schemas')
         if allowed_schemas:
-            query += "and TABLE_SCHEMA in ({})".format(', '.join(["'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', x)) for x in allowed_schemas.split(',')]))
+            query += "and TABLE_SCHEMA in ({})".format(', '.join(["'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', allowed_schema)) for allowed_schema in allowed_schemas.split(',')]))
 
         results, error = self.run_query(query, None)
 
