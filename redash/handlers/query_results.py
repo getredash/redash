@@ -206,10 +206,13 @@ class QueryResultResource(BaseResource):
             return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
         else:
             if not query.parameterized.is_safe:
+                unsafe_params = {param["name"]: 'Unsafe parameter' for param in query.parameterized.unsafe_params}
                 if current_user.is_api_user():
-                    return error_messages['unsafe_when_shared']
+                    message = 'This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization'
+                    return {'job': {'status': 4, 'error': message, 'data': {'parameters': unsafe_params}}}, 403
                 else:
-                    return error_messages['unsafe_on_view_only']
+                    message = 'This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.'
+                    return {'job': {'status': 4, 'error': message, 'data': {'parameters': unsafe_params}}}, 403
             else:
                 return error_messages['no_permission']
 
