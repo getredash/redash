@@ -105,7 +105,7 @@ export function ProfileImage({ user }) {
   if (!isString(user.profile_image_url) || (user.profile_image_url === '')) {
     return null;
   }
-  return <img src={user.profile_image_url} className="profile__image--navbar m-r-5" width="13" alt={user.name} />;
+  return <img src={user.profile_image_url} className="profile__image--sidebar m-r-5" width="13" alt={user.name} />;
 }
 
 ProfileImage.propTypes = {
