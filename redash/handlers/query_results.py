@@ -16,15 +16,13 @@ from redash.models.parameterized_query import (ParameterizedQuery, InvalidParame
 from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
-def error_response(message, http_status=400):
-    return {'job': {'status': 4, 'error': message}}, http_status
+def error_response(message, data=None, http_status=400):
+    return {'job': {'status': 4, 'error': message, 'data': data}}, http_status
 
 
 error_messages = {
-    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
-    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', 403),
-    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
-    'select_data_source': error_response('Please select data source to run this query.', 401)
+    'no_permission': error_response('You do not have permission to run queries with this data source.', None, 403),
+    'select_data_source': error_response('Please select data source to run this query.', None, 401)
 }
 
 
@@ -43,7 +41,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         abort(400, message=e.message)
     except InvalidParameterError as e:
         message, parameters = e.args
-        return {'job': {'status': 4, 'error': message, 'data': {'parameters': parameters}}}, 400
+        return error_response(message, {'parameters': parameters}, 400)
 
     if query.missing_params:
         parameter_names = u', '.join(u'"{}"'.format(name) for name in query.missing_params)
@@ -207,12 +205,12 @@ class QueryResultResource(BaseResource):
         else:
             if not query.parameterized.is_safe:
                 unsafe_params = {param["name"]: 'Unsafe parameter' for param in query.parameterized.unsafe_params}
+                message = 'This query contains potentially unsafe parameters and cannot be executed '
                 if current_user.is_api_user():
-                    message = 'This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization'
-                    return {'job': {'status': 4, 'error': message, 'data': {'parameters': unsafe_params}}}, 403
+                    message += 'on a shared dashboard or an embedded visualization.'
                 else:
-                    message = 'This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.'
-                    return {'job': {'status': 4, 'error': message, 'data': {'parameters': unsafe_params}}}, 403
+                    message += 'with read-only access to this data source.'
+                return error_response(message, {'parameters': unsafe_params}, 403)
             else:
                 return error_messages['no_permission']
 

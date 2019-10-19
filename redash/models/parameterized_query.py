@@ -106,8 +106,10 @@ def _is_date_range(obj):
     except (KeyError, TypeError):
         return False
 
+
 def _is_date_range_type(type):
     return type in ["date-range", "datetime-range", "datetime-range-with-seconds"]
+
 
 def _is_tag_in_template(name, template):
     tags = _collect_query_parameters(template)
@@ -129,11 +131,11 @@ class ParameterizedQuery(object):
         self.parameters = {}
 
     def apply(self, parameters):
-        has_invalid_parameters = any([key for (key, value) in parameters.iteritems() if self._invalid_message(key, value)])
+        has_invalid_params = any([key for (key, value) in parameters.iteritems() if self._invalid_message(key, value)])
 
-        if has_invalid_parameters:
-            invalid_parameter_messages = {key: self._invalid_message(key, value) for (key, value) in parameters.iteritems()}
-            compacted = {k: v for k, v in invalid_parameter_messages.iteritems() if v is not None}
+        if has_invalid_params:
+            invalid_messages = {key: self._invalid_message(key, value) for (key, value) in parameters.iteritems()}
+            compacted = {k: v for k, v in invalid_messages.iteritems() if v is not None}
             raise InvalidParameterError(compacted)
         else:
             self.parameters.update(parameters)
@@ -187,7 +189,7 @@ class ParameterizedQuery(object):
         if tag_error_msg is not None:
             return tag_error_msg
 
-        return None;
+        return None
 
     def _validate_tag(self, name, type):
         error_msg = u'{{{{ {0} }}}} not found in query'
@@ -196,15 +198,14 @@ class ParameterizedQuery(object):
             if not _is_tag_in_template(start_tag, self.template):
                 return error_msg.format(start_tag)
 
-            end_tag =  u'{}.end'.format(name)
+            end_tag = u'{}.end'.format(name)
             if not _is_tag_in_template(end_tag, self.template):
                 return error_msg.format(end_tag)
 
         elif not _is_tag_in_template(name, self.template):
                 return error_msg.format(name)
-                
-        return None
 
+        return None
 
     @property
     def is_safe(self):
