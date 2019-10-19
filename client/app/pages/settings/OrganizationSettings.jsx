@@ -16,7 +16,7 @@ import { clientConfig } from '@/services/auth';
 import settingsMenu from '@/services/settingsMenu';
 import recordEvent from '@/services/recordEvent';
 import OrgSettings from '@/services/organizationSettings';
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import DynamicComponent from '@/components/DynamicComponent';
 
 const Option = Select.Option;

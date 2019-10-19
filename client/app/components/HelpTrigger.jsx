@@ -1,4 +1,3 @@
-import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -68,9 +67,25 @@ export const TYPES = {
     '/user-guide/querying/query-results-data-source',
     'Guide: Help Setting up Query Results',
   ],
+  ALERT_SETUP: [
+    '/user-guide/alerts/setting-up-an-alert',
+    'Guide: Setting Up a New Alert',
+  ],
+  MAIL_CONFIG: [
+    '/open-source/setup/#Mail-Configuration',
+    'Guide: Mail Configuration',
+  ],
+  ALERT_NOTIF_TEMPLATE_GUIDE: [
+    '/user-guide/alerts/custom-alert-notifications',
+    'Guide: Custom Alerts Notifications',
+  ],
+  FAVORITES: [
+    '/user-guide/querying/favorites-tagging/#Favorites',
+    'Guide: Favorites',
+  ],
 };
 
-export class HelpTrigger extends React.Component {
+export default class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
@@ -224,9 +239,3 @@ export class HelpTrigger extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('helpTrigger', react2angular(HelpTrigger));
-}
-
-init.init = true;

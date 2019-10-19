@@ -36,6 +36,8 @@ SQLAlchemy-Utils==0.33.11
 sqlparse==0.2.4
 statsd==2.1.2
 gunicorn==19.7.1
+rq==1.1.0
+rq-scheduler==0.9
 celery==4.3.0
 kombu==4.6.3
 jsonschema==2.4.0

@@ -52,7 +52,6 @@ QUERY_RESULTS_CLEANUP_COUNT = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_C
 QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE", "7"))
 
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
-SCHEMAS_REFRESH_QUEUE = os.environ.get("REDASH_SCHEMAS_REFRESH_QUEUE", "celery")
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 INVITATION_TOKEN_MAX_AGE = int(os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7))
@@ -208,15 +207,19 @@ CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
                    (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] '
                     'task_name=%(task_name)s '
                     'task_id=%(task_id)s %(message)s')))
+RQ_WORKER_JOB_LOG_FORMAT = os.environ.get("REDASH_RQ_WORKER_JOB_LOG_FORMAT",
+                                          (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] '
+                                           'job.description=%(job_description)s '
+                                           'job.id=%(job_id)s %(message)s'))
 
 # Mail settings:
-MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'email')
+MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
 MAIL_PORT = int(os.environ.get('REDASH_MAIL_PORT', 25))
 MAIL_USE_TLS = parse_boolean(os.environ.get('REDASH_MAIL_USE_TLS', 'false'))
 MAIL_USE_SSL = parse_boolean(os.environ.get('REDASH_MAIL_USE_SSL', 'false'))
 MAIL_USERNAME = os.environ.get('REDASH_MAIL_USERNAME', None)
 MAIL_PASSWORD = os.environ.get('REDASH_MAIL_PASSWORD', None)
-MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', 'john@example.com')
+MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', None)
 MAIL_MAX_EMAILS = os.environ.get('REDASH_MAIL_MAX_EMAILS', None)
 MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHMENTS', 'false'))
 

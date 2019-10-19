@@ -47,6 +47,7 @@
 @zindex-dropdown: 2050;
 @zindex-picker: 2050;
 @zindex-tooltip: 2060;
+@item-hover-bg: #e5f8ff;
 
 .@{drawer-prefix-cls} {
   &.help-drawer {
@@ -58,6 +59,11 @@
 .ant-checkbox-wrapper,
 .ant-radio-wrapper {
   font-weight: normal;
+}
+
+.ant-select-dropdown-menu-item em {
+  color: @input-color-placeholder;
+  font-size: 11px;
 }
 
 // Fix for disabled button styles inside Tooltip component.
@@ -361,5 +367,11 @@
       background: white;
       border-radius: 50%;
     }
+  }
+
+  // for form items that contain text
+  &.form-item-line-height-normal .@{form-prefix-cls}-item-control {
+    line-height: 20px;
+    margin-top: 9px;
   }
 }
