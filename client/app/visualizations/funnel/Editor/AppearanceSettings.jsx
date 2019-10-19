@@ -1,4 +1,5 @@
 import React from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import Popover from 'antd/lib/popover';
@@ -7,6 +8,8 @@ import * as Grid from 'antd/lib/grid';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function AppearanceSettings({ options, onOptionsChange }) {
+  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
+
   return (
     <React.Fragment>
       <Grid.Row type="flex" align="middle" className="m-b-15">
@@ -30,7 +33,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             id="funnel-editor-step-column-title"
             className="w-100"
             defaultValue={options.numberFormat}
-            onChange={event => onOptionsChange({ numberFormat: event.target.value })}
+            onChange={event => onOptionsChangeDebounced({ numberFormat: event.target.value })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -56,7 +59,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             id="funnel-editor-step-column-title"
             className="w-100"
             defaultValue={options.percentFormat}
-            onChange={event => onOptionsChange({ percentFormat: event.target.value })}
+            onChange={event => onOptionsChangeDebounced({ percentFormat: event.target.value })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -71,7 +74,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             className="w-100"
             min={2}
             defaultValue={options.itemsLimit}
-            onChange={itemsLimit => onOptionsChange({ itemsLimit })}
+            onChange={itemsLimit => onOptionsChangeDebounced({ itemsLimit })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -86,7 +89,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             className="w-100"
             min={0}
             defaultValue={options.percentValuesRange.min}
-            onChange={min => onOptionsChange({ percentValuesRange: { min } })}
+            onChange={min => onOptionsChangeDebounced({ percentValuesRange: { min } })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -101,7 +104,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
             className="w-100"
             min={0}
             defaultValue={options.percentValuesRange.max}
-            onChange={max => onOptionsChange({ percentValuesRange: { max } })}
+            onChange={max => onOptionsChangeDebounced({ percentValuesRange: { max } })}
           />
         </Grid.Col>
       </Grid.Row>

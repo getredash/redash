@@ -1,5 +1,6 @@
 import { map } from 'lodash';
 import React, { useMemo } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import Switch from 'antd/lib/switch';
@@ -8,6 +9,8 @@ import { EditorPropTypes } from '@/visualizations';
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);
+
+  const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
     <React.Fragment>
@@ -39,7 +42,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             id="funnel-editor-step-column-title"
             className="w-100"
             defaultValue={options.stepCol.displayAs}
-            onChange={event => onOptionsChange({ stepCol: { displayAs: event.target.value } })}
+            onChange={event => onOptionsChangeDebounced({ stepCol: { displayAs: event.target.value } })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -72,7 +75,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             id="funnel-editor-value-column-title"
             className="w-100"
             defaultValue={options.valueCol.displayAs}
-            onChange={event => onOptionsChange({ valueCol: { displayAs: event.target.value } })}
+            onChange={event => onOptionsChangeDebounced({ valueCol: { displayAs: event.target.value } })}
           />
         </Grid.Col>
       </Grid.Row>
