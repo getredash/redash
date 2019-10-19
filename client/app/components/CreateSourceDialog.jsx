@@ -11,7 +11,7 @@ import { PreviewCard } from '@/components/PreviewCard';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
-import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
+import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 const { Step } = Steps;
 const { Search } = Input;
@@ -100,7 +100,7 @@ class CreateSourceDialog extends React.Component {
     const fields = helper.getFields(selectedType);
     const helpTriggerType = `${helpTriggerPrefix}${toUpper(selectedType.type)}`;
     return (
-      <div className="p-5">
+      <div>
         <div className="d-flex justify-content-center align-items-center">
           <img
             className="p-5"

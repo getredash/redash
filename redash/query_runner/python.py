@@ -207,7 +207,7 @@ class Python(BaseQueryRunner):
         if query.latest_query_data.data is None:
             raise Exception("Query does not have results yet.")
 
-        return json_loads(query.latest_query_data.data)
+        return query.latest_query_data.data
 
     def get_current_user(self):
         return self._current_user.to_dict()

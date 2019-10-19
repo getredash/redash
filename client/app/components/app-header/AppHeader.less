@@ -1,0 +1,207 @@
+@mobileBreakpoint: ~"(max-width: 767px)";
+
+nav .app-header {
+  height: 49px;
+  padding-bottom: 1px;
+  box-sizing: content-box;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  background: white;
+  box-shadow: 0 4px 9px -3px rgba(102, 136, 153, .15);
+
+  .darker {
+    color: #333 !important;
+
+    &:hover {
+      color: #2196F3 !important;
+    }
+  }
+
+  & > * {
+    display: flex;
+    align-items: center;
+  }
+
+  &[data-platform="mobile"] {
+    display: none;
+  }
+
+  .menu-item-button {
+    padding: 0 15px;
+    font-size: 18px;
+    .darker();
+  }
+
+  .ant-menu-root {
+    margin: 0 10px;
+    line-height: 50px;
+    height: 50px;
+    border-bottom: 0;
+  }
+  
+  .ant-btn {
+    font-weight: 500;
+
+    .anticon {
+      margin-right: 0;
+    }
+  }
+
+  &[data-platform="desktop"] .ant-btn:not(.ant-btn-primary) {
+    border: 0;
+    box-shadow: none;
+    height: 40px;
+    line-height: 40px;
+    background-color: transparent; //so it doesn't interfere with click animation of adjacent buttons
+    .darker();
+  }
+
+  .ant-menu-item {
+    padding: 0;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+
+    .anticon-down {
+      font-size: 13px !important;
+      transform: none;
+      position: relative;
+      top: 2px;
+
+      svg {
+        transition: transform .2s cubic-bezier(.75,0,.25,1);
+      }
+    }
+
+    .ant-dropdown-open .anticon-down svg,
+    .anticon-down.ant-dropdown-open svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .dropdown-menu-item {
+    .ant-btn {
+      padding-right: 5px;
+      padding-left: 5px;
+      margin-right: 30px;
+      margin-left: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    // this is a trick to get the dropdown menu to be placed at the bottom left
+    // of the menu item and not the dropdown trigger
+    .ant-dropdown-trigger {
+      position: absolute;
+      top: 5px;
+      right: 0;
+      left: 10px;
+      bottom: 5px;
+      text-align: right;
+      padding-top: 14px;
+      padding-right: 10px;
+      margin-right: 0;
+      user-select: none; // or else double clicking it causes the header logo to get selected
+      .darker();
+    }
+  }
+
+  .header-logo img {
+    height: 40px;
+    width: 40px;
+  }
+
+  .searchbar {
+    width: 185px;
+  }
+
+  .profile-dropdown {
+    display: flex;
+    align-items: center;
+
+    span {
+      max-width: 130px; // arbitrary, prevents layout mess up if username long
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    img {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .ant-btn,
+    .menu-item-button {
+      padding: 0 10px;
+    }
+  
+    .ant-menu-root {
+      margin: 0 5px;
+    }
+
+    .profile-dropdown {
+      span {
+        display: none;
+      }
+
+      img {
+        margin-right: 0;
+      }
+    }
+  }
+
+  @media (max-width: 800px) {
+    .searchbar {
+      width: 140px;
+    }
+  }
+
+  @media @mobileBreakpoint {
+    &[data-platform="desktop"] {
+      display: none;
+    }
+
+    &[data-platform="mobile"] {
+      display: flex;
+      padding: 0 15px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      box-sizing: border-box;
+      z-index: 1000;
+    }
+  }
+}
+
+@media @mobileBreakpoint {
+  .app-header-wrapper {
+    margin-top: 59px !important; // compensate for app header fixed position
+  }
+}
+
+.update-available {
+  display: inline !important;
+
+  .fa {
+    color: #52c41a;
+    vertical-align: text-bottom;
+    font-size: 16px;
+  }
+}
+
+.ant-dropdown-menu-item .help-trigger {
+  display: inline;
+  color: #2196F3;
+  vertical-align: bottom;
+}
+
+.ant-dropdown-menu.favorites-dropdown {
+  margin-left: -10px;
+}

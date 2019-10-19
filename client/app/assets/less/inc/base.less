@@ -23,11 +23,18 @@ body {
     background: #F6F8F9;
     font-family: @redash-font;
     position: relative;
-    
+
+    app-view {
+      padding-bottom: 15px;
+    }
+
     &.headless {
-        padding-top: 10px;
-        
-        .nav.app-header, .navbar {
+        app-view {
+          padding-top: 10px;
+          padding-bottom: 0;
+        }
+
+        .app-header-wrapper {
             display: none;
         }
     }
@@ -51,20 +58,20 @@ strong {
     position: relative;
     padding-top: 30px;
     padding-bottom: 30px;
-    
+
     @media (min-width: (@screen-sm-min + 1)) {
         padding-right: 15px;
         padding-left: 15px;
     }
-    
+
     @media (min-width: (@screen-lg-min + 80px)) {
         margin-left: @sidebar-left-width;
     }
-    
+
     @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
         margin-left: @sidebar-left-mid-width;
     }
-    
+
     @media (max-width: (@screen-sm-min)) {
         margin-left: 0;
     }
@@ -133,11 +140,11 @@ strong {
     .ace_gutter {
         background: #fff !important;
     }
-    
+
     .ace_gutter-active-line {
         background-color: fade(@redash-gray, 20%) !important;
     }
-    
+
     .ace_marker-layer .ace_active-line {
         background: fade(@redash-gray, 9%) !important;
     }
@@ -155,7 +162,7 @@ strong {
 
 .rg-bottom {
     bottom: 15px;
-    
+
     span {
         margin: 1.5px 0 0 -10px;
     }
@@ -180,7 +187,7 @@ text.slicetext {
     color: #111;
 }
 
-.profile__image--navbar {
+.profile__image--sidebar {
     border-radius: 100%;
     margin-right: 3px;
     margin-top: -2px;
@@ -209,48 +216,52 @@ text.slicetext {
     padding: 35px;
     font-size: 14px;
     line-height: 21px;
-    
+
     .error-state__icon {
         .zmdi {
             font-size: 64px;
             color: @redash-gray;
         }
     }
-    
+
     @media (max-width: 767px) {
         margin-top: 10vh;
     }
+}
+
+.warning-icon-danger {
+    color: @red !important;
 }
 
 // page
 .page-header--new .btn-favourite, .page-header--new .btn-archive {
     font-size: 19px;
   }
-  
+
   .page-title {
     display: flex;
     align-items: center;
-  
+
     h3 {
       margin-right: 5px !important;
     }
-  
+
     .label {
       margin-top: 3px;
       display: inline-block;
     }
-  
+
     favorites-control {
       margin-right: 5px;
     }
-  
+
     @media (max-width: 767px) {
       display: block;
-  
+
       favorites-control {
         float: left;
       }
-  
+
       h3 {
         width: 100%;
         margin-bottom: 5px !important;
@@ -258,7 +269,7 @@ text.slicetext {
       }
     }
   }
-  
+
   .page-header-wrapper, .page-header--new {
     h3 {
       margin: 0.2em 0;

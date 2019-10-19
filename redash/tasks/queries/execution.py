@@ -7,12 +7,11 @@ from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from six import text_type
 
-from redash import models, redis_connection, settings, statsd_client
-from redash.models.parameterized_query import InvalidParameterError, QueryDetachedFromDataSourceError
+from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
-from redash.tasks.failure_report import notify_of_failure
-from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
+from redash.tasks.failure_report import track_failure
+from redash.utils import gen_query_hash, json_dumps, utcnow
 from redash.worker import celery
 
 logger = get_task_logger(__name__)
@@ -161,138 +160,6 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
     return job
 
 
-@celery.task(name="redash.tasks.empty_schedules")
-def empty_schedules():
-    logger.info("Deleting schedules of past scheduled queries...")
-
-    queries = models.Query.past_scheduled_queries()
-    for query in queries:
-        query.schedule = None
-    models.db.session.commit()
-
-    logger.info("Deleted %d schedules.", len(queries))
-
-
-@celery.task(name="redash.tasks.refresh_queries")
-def refresh_queries():
-    logger.info("Refreshing queries...")
-
-    outdated_queries_count = 0
-    query_ids = []
-
-    with statsd_client.timer('manager.outdated_queries_lookup'):
-        for query in models.Query.outdated_queries():
-            if settings.FEATURE_DISABLE_REFRESH_QUERIES:
-                logging.info("Disabled refresh queries.")
-            elif query.org.is_disabled:
-                logging.debug("Skipping refresh of %s because org is disabled.", query.id)
-            elif query.data_source is None:
-                logging.debug("Skipping refresh of %s because the datasource is none.", query.id)
-            elif query.data_source.paused:
-                logging.debug("Skipping refresh of %s because datasource - %s is paused (%s).",
-                              query.id, query.data_source.name, query.data_source.pause_reason)
-            else:
-                query_text = query.query_text
-
-                parameters = {p['name']: p.get('value') for p in query.parameters}
-                if any(parameters):
-                    try:
-                        query_text = query.parameterized.apply(parameters).query
-                    except InvalidParameterError as e:
-                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
-                        track_failure(query, error)
-                        continue
-                    except QueryDetachedFromDataSourceError as e:
-                        error = ("Skipping refresh of {} because a related dropdown "
-                                 "query ({}) is unattached to any datasource.").format(query.id, e.query_id)
-                        track_failure(query, error)
-                        continue
-
-                enqueue_query(query_text, query.data_source, query.user_id,
-                              scheduled_query=query,
-                              metadata={'Query ID': query.id, 'Username': 'Scheduled'})
-
-                query_ids.append(query.id)
-                outdated_queries_count += 1
-
-    statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
-
-    logger.info("Done refreshing queries. Found %d outdated queries: %s" % (outdated_queries_count, query_ids))
-
-    status = redis_connection.hgetall('redash:status')
-    now = time.time()
-
-    redis_connection.hmset('redash:status', {
-        'outdated_queries_count': outdated_queries_count,
-        'last_refresh_at': now,
-        'query_ids': json_dumps(query_ids)
-    })
-
-    statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
-
-
-@celery.task(name="redash.tasks.cleanup_query_results")
-def cleanup_query_results():
-    """
-    Job to cleanup unused query results -- such that no query links to them anymore, and older than
-    settings.QUERY_RESULTS_MAX_AGE (a week by default, so it's less likely to be open in someone's browser and be used).
-
-    Each time the job deletes only settings.QUERY_RESULTS_CLEANUP_COUNT (100 by default) query results so it won't choke
-    the database in case of many such results.
-    """
-
-    logging.info("Running query results clean up (removing maximum of %d unused results, that are %d days old or more)",
-                 settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
-
-    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
-    deleted_count = models.QueryResult.query.filter(
-        models.QueryResult.id.in_(unused_query_results.subquery())
-    ).delete(synchronize_session=False)
-    models.db.session.commit()
-    logger.info("Deleted %d unused query results.", deleted_count)
-
-
-@celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
-def refresh_schema(data_source_id):
-    ds = models.DataSource.get_by_id(data_source_id)
-    logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
-    start_time = time.time()
-    try:
-        ds.get_schema(refresh=True)
-        logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
-        statsd_client.incr('refresh_schema.success')
-    except SoftTimeLimitExceeded:
-        logger.info(u"task=refresh_schema state=timeout ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
-        statsd_client.incr('refresh_schema.timeout')
-    except Exception:
-        logger.warning(u"Failed refreshing schema for the data source: %s", ds.name, exc_info=1)
-        statsd_client.incr('refresh_schema.error')
-        logger.info(u"task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
-
-
-@celery.task(name="redash.tasks.refresh_schemas")
-def refresh_schemas():
-    """
-    Refreshes the data sources schemas.
-    """
-    blacklist = [int(ds_id) for ds_id in redis_connection.smembers('data_sources:schema:blacklist') if ds_id]
-    global_start_time = time.time()
-
-    logger.info(u"task=refresh_schemas state=start")
-
-    for ds in models.DataSource.query:
-        if ds.paused:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
-        elif ds.id in blacklist:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
-        elif ds.org.is_disabled:
-            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
-        else:
-            refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
-
-    logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
-
-
 def signal_handler(*args):
     raise InterruptException
 
@@ -315,16 +182,6 @@ def _resolve_user(user_id, is_api_key, query_id):
             return models.User.get_by_id(user_id)
     else:
         return None
-
-
-def track_failure(query, error):
-    logging.debug(error)
-
-    query.schedule_failures += 1
-    models.db.session.add(query)
-    models.db.session.commit()
-
-    notify_of_failure(error, query)
 
 
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
@@ -370,7 +227,8 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]", self.query_hash, data and len(data), error)
+        logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]",
+                    self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
 
@@ -385,10 +243,14 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures = 0
                 models.db.session.add(self.scheduled_query)
-            query_result, updated_query_ids = models.QueryResult.store_result(
+
+            query_result = models.QueryResult.store_result(
                 self.data_source.org_id, self.data_source,
                 self.query_hash, self.query, data,
                 run_time, utcnow())
+            
+            updated_query_ids = models.Query.update_latest_result(query_result)
+
             models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress('checking_alerts')
             for query_id in updated_query_ids:
@@ -404,7 +266,7 @@ class QueryExecutor(object):
         self.metadata['Query Hash'] = self.query_hash
         self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
         self.metadata['Scheduled'] = self.scheduled_query is not None
-            
+
         return query_runner.annotate_query(self.query, self.metadata)
 
     def _log_progress(self, state):

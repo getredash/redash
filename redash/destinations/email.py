@@ -21,7 +21,8 @@ class Email(BaseDestination):
                     "title": "Subject Template"
                 }
             },
-            "required": ["addresses"]
+            "required": ["addresses"],
+            "extra_options": ["subject_template"]
         }
 
     @classmethod
@@ -34,12 +35,13 @@ class Email(BaseDestination):
         if not recipients:
             logging.warning("No emails given. Skipping send.")
 
-        html = """
-        Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a> </br>.
-        """.format(host=host, alert_id=alert.id, query_id=query.id)
-        if alert.template:
-            description = alert.render_template()
-            html += "<br>" + description
+        if alert.custom_body:
+            html = alert.custom_body
+        else:
+            html = """
+            Check <a href="{host}/alerts/{alert_id}">alert</a> / check
+            <a href="{host}/queries/{query_id}">query</a> </br>.
+            """.format(host=host, alert_id=alert.id, query_id=query.id)
         logging.debug("Notifying: %s", recipients)
 
         try:

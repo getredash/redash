@@ -1,0 +1,52 @@
+.alert-criteria {
+  margin-top: 40px !important;
+
+  .input-title {
+    display: inline-block;
+    width: auto;
+    margin-right: 8px;
+    margin-bottom: 17px; // assure no collision when not enough room for horizontal layout
+    position: relative;
+    vertical-align: middle;
+
+    & > span {
+        position: absolute;
+        top: -16px;
+        left: 0;
+        line-height: normal;
+        font-size: 10px;
+
+        & + * {
+            vertical-align: top;
+        }
+    }
+  }
+
+  .ant-form-explain {
+    margin-top: -17px; // compensation for .input-title bottom margin
+  }
+
+  .alert-criteria-hint code {
+    overflow: hidden;
+    max-width: 100px;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+}
+
+.criteria-disabled-input {
+  text-align: center;
+  line-height: 35px;
+  height: 35px;
+  max-width: 200px;
+  background: #ececec;
+  border: 1px solid #d9d9d9;
+  border-radius: 2px;
+  margin-bottom: 5px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0 8px;
+}

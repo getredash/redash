@@ -145,7 +145,6 @@ export class Parameters extends React.Component {
           parameter={param}
           enumOptions={param.enumOptions}
           queryId={param.queryId}
-          allowMultipleValues={!!param.multiValuesOptions}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
         />
       </div>

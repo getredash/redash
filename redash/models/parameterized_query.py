@@ -24,7 +24,7 @@ def _load_result(query_id, org):
 
     if query.data_source:
         query_result = models.QueryResult.get_by_id_and_org(query.latest_query_data_id, org)
-        return json_loads(query_result.data)
+        return query_result.data
     else:
         raise QueryDetachedFromDataSourceError(query_id)
 

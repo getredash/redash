@@ -35,7 +35,7 @@ export default class UserEdit extends React.Component {
   componentDidMount() {
     Group.query((groups) => {
       this.setState({
-        groups: groups.map(({ id, name }) => ({ value: id, title: name })),
+        groups: groups.map(({ id, name }) => ({ value: id, name })),
         loadingGroups: false,
       });
     });
@@ -165,7 +165,7 @@ export default class UserEdit extends React.Component {
       <div data-test="Groups">
         {groups.filter(group => includes(user.groupIds, group.value)).map((group => (
           <Tag className="m-b-5 m-r-5" key={group.value}>
-            <a href={`groups/${group.value}`}>{group.title}</a>
+            <a href={`groups/${group.value}`}>{group.name}</a>
           </Tag>
         )))}
       </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { each, includes, isUndefined } from 'lodash';
+import { each, includes, isUndefined, isEmpty, map } from 'lodash';
 
 function orderedInputs(properties, order, targetOptions) {
   const inputs = new Array(order.length);
@@ -11,8 +11,14 @@ function orderedInputs(properties, order, targetOptions) {
       type: properties[key].type,
       placeholder: properties[key].default && properties[key].default.toString(),
       required: properties[key].required,
+      extra: properties[key].extra,
       initialValue: targetOptions[key],
     };
+
+    if (input.type === 'select') {
+      input.placeholder = 'Select an option';
+      input.options = properties[key].options;
+    }
 
     if (position > -1) {
       inputs[position] = input;
@@ -41,27 +47,46 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'text';
     }
 
+    if (!isEmpty(prop.enum)) {
+      prop.type = 'select';
+      prop.options = map(prop.enum, value => ({ value, name: value }));
+    }
+
+    if (!isEmpty(prop.extendedEnum)) {
+      prop.type = 'select';
+      prop.options = prop.extendedEnum;
+    }
+
     prop.required = includes(configurationSchema.required, name);
+    prop.extra = includes(configurationSchema.extra_options, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];
 }
 
-function setDefaultValueForCheckboxes(configurationSchema, options = {}) {
-  if (Object.keys(options).length === 0) {
-    const properties = configurationSchema.properties;
-    Object.keys(properties).forEach((property) => {
-      if (!isUndefined(properties[property].default) && properties[property].type === 'checkbox') {
-        options[property] = properties[property].default;
-      }
-    });
-  }
+function setDefaultValueToFields(configurationSchema, options = {}) {
+  const properties = configurationSchema.properties;
+  Object.keys(properties).forEach((key) => {
+    const property = properties[key];
+    // set default value for checkboxes
+    if (!isUndefined(property.default) && property.type === 'checkbox') {
+      options[key] = property.default;
+    }
+    // set default or first value when value has predefined options
+    if (property.type === 'select') {
+      const optionValues = map(property.options, option => option.value);
+      options[key] = includes(optionValues, property.default) ? property.default : optionValues[0];
+    }
+  });
 }
 
 function getFields(type = {}, target = { options: {} }) {
   const configurationSchema = type.configuration_schema;
   normalizeSchema(configurationSchema);
-  setDefaultValueForCheckboxes(configurationSchema, target.options);
+  const hasTargetObject = Object.keys(target.options).length > 0;
+  if (!hasTargetObject) {
+    setDefaultValueToFields(configurationSchema, target.options);
+  }
 
   const isNewTarget = !target.id;
   const inputs = [
@@ -90,10 +115,6 @@ function updateTargetWithValues(target, values) {
   });
 }
 
-function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-}
-
 function getBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -106,6 +127,5 @@ function getBase64(file) {
 export default {
   getFields,
   updateTargetWithValues,
-  toHuman,
   getBase64,
 };
