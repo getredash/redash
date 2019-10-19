@@ -1,18 +1,13 @@
-import { map, merge } from 'lodash';
+import { map } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
 import Switch from 'antd/lib/switch';
 import * as Grid from 'antd/lib/grid';
 import { EditorPropTypes } from '@/visualizations';
 
-export default function Editor({ options, data, onOptionsChange }) {
+export default function GeneralSettings({ options, data, onOptionsChange }) {
   const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);
-
-  const optionsChanged = (newOptions) => {
-    onOptionsChange(merge({}, options, newOptions));
-  };
 
   return (
     <React.Fragment>
@@ -26,7 +21,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             className="w-100"
             placeholder="Choose column..."
             defaultValue={options.stepCol.colName || undefined}
-            onChange={colName => optionsChanged({ stepCol: { colName: colName || null } })}
+            onChange={colName => onOptionsChange({ stepCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
               <Select.Option key={col}>{col}</Select.Option>
@@ -44,7 +39,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             id="funnel-editor-step-column-title"
             className="w-100"
             defaultValue={options.stepCol.displayAs}
-            onChange={event => optionsChanged({ stepCol: { displayAs: event.target.value } })}
+            onChange={event => onOptionsChange({ stepCol: { displayAs: event.target.value } })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -59,7 +54,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             className="w-100"
             placeholder="Choose column..."
             defaultValue={options.valueCol.colName || undefined}
-            onChange={colName => optionsChanged({ valueCol: { colName: colName || null } })}
+            onChange={colName => onOptionsChange({ valueCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
               <Select.Option key={col}>{col}</Select.Option>
@@ -77,7 +72,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             id="funnel-editor-value-column-title"
             className="w-100"
             defaultValue={options.valueCol.displayAs}
-            onChange={event => optionsChanged({ valueCol: { displayAs: event.target.value } })}
+            onChange={event => onOptionsChange({ valueCol: { displayAs: event.target.value } })}
           />
         </Grid.Col>
       </Grid.Row>
@@ -93,7 +88,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             allowClear
             placeholder="Choose column..."
             defaultValue={options.sortKeyCol.colName || undefined}
-            onChange={colName => optionsChanged({ sortKeyCol: { colName: colName || null } })}
+            onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
               <Select.Option key={col}>{col}</Select.Option>
@@ -110,28 +105,12 @@ export default function Editor({ options, data, onOptionsChange }) {
           <Switch
             id="funnel-editor-sort-reverse"
             defaultChecked={options.sortKeyCol.reverse}
-            onChange={reverse => optionsChanged({ sortKeyCol: { reverse } })}
+            onChange={reverse => onOptionsChange({ sortKeyCol: { reverse } })}
           />
         </Grid.Col>
       </Grid.Row>
-
-      <Grid.Row type="flex" align="middle" className="m-b-15">
-        <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-items-limit">Limit Items Count</label>
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <InputNumber
-            id="funnel-editor-items-limit"
-            className="w-100"
-            min={2}
-            defaultValue={options.itemsLimit}
-            onChange={itemsLimit => optionsChanged({ itemsLimit })}
-          />
-        </Grid.Col>
-      </Grid.Row>
-
     </React.Fragment>
   );
 }
 
-Editor.propTypes = EditorPropTypes;
+GeneralSettings.propTypes = EditorPropTypes;

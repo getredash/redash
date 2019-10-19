@@ -6,6 +6,8 @@ const DEFAULT_OPTIONS = {
   sortKeyCol: { colName: null, reverse: false },
   autoSort: true,
   itemsLimit: 100,
+  numberFormat: '0,0[.]00',
+  percentFormat: '0[.]00%',
 };
 
 export default function getOptions(options, { columns }) {

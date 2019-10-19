@@ -1,21 +1,11 @@
-import { isFinite, map, sortBy, every } from 'lodash';
+import { map, sortBy } from 'lodash';
 import d3 from 'd3';
 import React, { useMemo } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
-import { normalizeValue } from '@/visualizations/chart/plotly/utils'; // TODO: wtf??
+import { createNumberFormatter } from '@/lib/value-format';
 
 import './renderer.less';
-
-function formatPercentage(value) {
-  if (value < 0.01) {
-    return '<0.01%';
-  }
-  if (value > 1000) {
-    return '>1000%';
-  }
-  return value.toFixed(2) + '%';
-}
 
 function prepareData(rows, options) {
   if (rows.length === 0) {
@@ -31,14 +21,9 @@ function prepareData(rows, options) {
   }
 
   const data = map(rows, row => ({
-    step: normalizeValue(row[options.stepCol.colName]),
-    value: Number(row[options.valueCol.colName]),
+    step: row[options.stepCol.colName],
+    value: parseFloat(row[options.valueCol.colName]) || 0.0,
   }));
-
-  // Column validity
-  if (data[0].value === 0 || !every(data, d => isFinite(d.value))) {
-    return;
-  }
 
   const maxVal = d3.max(data, d => d.value);
   data.forEach((d, i) => {
@@ -55,6 +40,21 @@ function isValid(data, options) {
 
 export default function Renderer({ data, options }) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
+
+  const formatValue = useMemo(() => createNumberFormatter(options.numberFormat), [options.numberFormat]);
+
+  const formatPercentValue = useMemo(() => {
+    const format = createNumberFormatter(options.percentFormat);
+    return (value) => {
+      if (value < 0.01) {
+        return `<${format(0.01)}`;
+      }
+      if (value > 1000) {
+        return `>${format(1000)}`;
+      }
+      return format(value);
+    };
+  }, [options.percentFormat]);
 
   if (!isValid(data, options) || (funnelData.length === 0)) {
     return null;
@@ -83,17 +83,17 @@ export default function Renderer({ data, options }) {
                     className="bar centered"
                     style={{ background: ColorPalette.Cyan, width: d.pctMax + '%' }}
                   />
-                  <div className="value">{d.value.toLocaleString()}</div>
+                  <div className="value">{formatValue(d.value)}</div>
                 </div>
               </td>
-              <td className="col-xs-2 text-center">{formatPercentage(d.pctMax)}</td>
+              <td className="col-xs-2 text-center">{formatPercentValue(d.pctMax)}</td>
               <td className="col-xs-2">
                 <div className="container">
                   <div
                     className="bar"
                     style={{ background: ColorPalette.Gray, opacity: '0.2', width: (d.pctPrevious / maxToPrevious) * 100.0 + '%' }}
                   />
-                  <div className="value">{formatPercentage(d.pctPrevious)}</div>
+                  <div className="value">{formatPercentValue(d.pctPrevious)}</div>
                 </div>
               </td>
             </tr>
