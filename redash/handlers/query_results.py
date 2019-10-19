@@ -46,7 +46,13 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         return {'job': {'status': 4, 'error': message, 'data': {'parameters': parameters}}}, 400
 
     if query.missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
+        parameter_names = u', '.join(u'"{}"'.format(name) for name in query.missing_params)
+        if (len(query.missing_params) > 1):
+            message = u'Parameters {} are missing.'.format(parameter_names)
+        else:
+            message = u'Parameter {} is missing.'.format(parameter_names)
+        message = u'{} Save and rerun the query for a more detailed feedback message.'.format(message)
+        return error_response(message)
 
     if max_age == 0:
         query_result = None
