@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, get } from 'lodash';
+import { size, filter, forEach, extend, get, isEmpty } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
@@ -49,7 +49,11 @@ export class Parameters extends React.Component {
   constructor(props) {
     super(props);
     const { parameters } = props;
-    this.state = { parameters };
+    this.state = {
+      parameters,
+      touchedParams: {},
+    };
+
     if (!props.disableUrlUpdate) {
       updateUrl(parameters);
     }
@@ -63,6 +67,12 @@ export class Parameters extends React.Component {
         updateUrl(parameters);
       }
     }
+
+    // clear dirty flags when new error comes in
+    const { queryResultErrorData } = this.props;
+    if (isEmpty(prevProps.queryResultErrorData) && !isEmpty(queryResultErrorData)) {
+      this.setState({ touchedParams: {} });
+    }
   };
 
   handleKeyDown = (e) => {
@@ -75,6 +85,10 @@ export class Parameters extends React.Component {
 
   setPendingValue = (param, value, isDirty) => {
     const { onPendingValuesChange } = this.props;
+    this.setState(({ touchedParams }) => {
+      touchedParams[param.name] = true;
+      return touchedParams;
+    });
     this.setState(({ parameters }) => {
       if (isDirty) {
         param.setPendingValue(value);
@@ -115,6 +129,12 @@ export class Parameters extends React.Component {
     EditParameterSettingsDialog
       .showModal({ parameter })
       .result.then((updated) => {
+        if ('type' in updated) {
+          this.setState(({ touchedParams }) => {
+            touchedParams[parameter.name] = true;
+            return touchedParams;
+          });
+        }
         this.setState(({ parameters }) => {
           const updatedParameter = extend(parameter, updated);
           parameters[index] = new Parameter(updatedParameter, updatedParameter.parentQueryId);
@@ -126,7 +146,8 @@ export class Parameters extends React.Component {
 
   renderParameter(param, index) {
     const { editable, queryResultErrorData } = this.props;
-    const error = !param.hasPendingValue && get(queryResultErrorData, ['parameters', param.name]);
+    const { touchedParams } = this.state;
+    const error = get(queryResultErrorData, ['parameters', param.name], false);
 
     return (
       <div
@@ -148,7 +169,7 @@ export class Parameters extends React.Component {
           )}
         </div>
         <Form.Item
-          validateStatus={error ? 'error' : ''}
+          validateStatus={error && !touchedParams[param.name] ? 'error' : ''}
           help={error ? <Tooltip title={error}>{error}</Tooltip> : null}
         >
           <ParameterValueInput
