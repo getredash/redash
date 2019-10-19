@@ -17,14 +17,15 @@ export default function Editor({ options, data, onOptionsChange }) {
     <React.Fragment>
       <Grid.Row type="flex" align="middle" className="m-b-15">
         <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-step-column-name">Step Column Name</label>
+          <label htmlFor="funnel-editor-step-column-name">Step Column</label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Select
             id="funnel-editor-step-column-name"
             className="w-100"
-            defaultValue={options.stepCol.colName}
-            onChange={colName => optionsChanged({ stepCol: { colName } })}
+            placeholder="Choose column..."
+            defaultValue={options.stepCol.colName || undefined}
+            onChange={colName => optionsChanged({ stepCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
               <Select.Option key={col}>{col}</Select.Option>
@@ -49,14 +50,15 @@ export default function Editor({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-15">
         <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-value-column-name">Value Column Name</label>
+          <label htmlFor="funnel-editor-value-column-name">Value Column</label>
         </Grid.Col>
         <Grid.Col span={12}>
           <Select
             id="funnel-editor-value-column-name"
             className="w-100"
-            defaultValue={options.valueCol.colName}
-            onChange={colName => optionsChanged({ valueCol: { colName } })}
+            placeholder="Choose column..."
+            defaultValue={options.valueCol.colName || undefined}
+            onChange={colName => optionsChanged({ valueCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
               <Select.Option key={col}>{col}</Select.Option>
@@ -81,36 +83,36 @@ export default function Editor({ options, data, onOptionsChange }) {
 
       <Grid.Row type="flex" align="middle" className="m-b-15">
         <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-auto-sort-values">Sort Values</label>
+          <label htmlFor="funnel-editor-sort-column-name">Sort Column</label>
         </Grid.Col>
         <Grid.Col span={12}>
-          <Switch
-            id="funnel-editor-auto-sort-values"
-            defaultChecked={options.autoSort}
-            onChange={autoSort => optionsChanged({ autoSort })}
-          />
+          <Select
+            id="funnel-editor-sort-column-name"
+            className="w-100"
+            allowClear
+            placeholder="Choose column..."
+            defaultValue={options.sortKeyCol.colName || undefined}
+            onChange={colName => optionsChanged({ sortKeyCol: { colName: colName || null } })}
+          >
+            {map(columnNames, col => (
+              <Select.Option key={col}>{col}</Select.Option>
+            ))}
+          </Select>
         </Grid.Col>
       </Grid.Row>
 
-      {!options.autoSort && (
-        <Grid.Row type="flex" align="middle" className="m-b-15">
-          <Grid.Col span={12}>
-            <label htmlFor="funnel-editor-sort-column-name">Sort Column Name</label>
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Select
-              id="funnel-editor-sort-column-name"
-              className="w-100"
-              defaultValue={options.sortKeyCol.colName}
-              onChange={colName => optionsChanged({ sortKeyCol: { colName } })}
-            >
-              {map(columnNames, col => (
-                <Select.Option key={col}>{col}</Select.Option>
-              ))}
-            </Select>
-          </Grid.Col>
-        </Grid.Row>
-      )}
+      <Grid.Row type="flex" align="middle" className="m-b-15">
+        <Grid.Col span={12}>
+          <label htmlFor="funnel-editor-sort-reverse">Reverse Order</label>
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <Switch
+            id="funnel-editor-sort-reverse"
+            defaultChecked={options.sortKeyCol.reverse}
+            onChange={reverse => optionsChanged({ sortKeyCol: { reverse } })}
+          />
+        </Grid.Col>
+      </Grid.Row>
     </React.Fragment>
   );
 }

@@ -1,4 +1,4 @@
-import { isFinite, map, sortBy, every, includes } from 'lodash';
+import { isFinite, map, sortBy, every } from 'lodash';
 import d3 from 'd3';
 import React, { useMemo } from 'react';
 import { RendererPropTypes } from '@/visualizations';
@@ -21,41 +21,36 @@ function prepareData(rows, options) {
   if (rows.length === 0) {
     return [];
   }
+
+  rows = [...rows];
+  if (options.sortKeyCol.colName) {
+    rows = sortBy(rows, options.sortKeyCol.colName);
+  }
+  if (options.sortKeyCol.reverse) {
+    rows = rows.reverse();
+  }
+
   const data = map(rows, row => ({
     step: normalizeValue(row[options.stepCol.colName]),
     value: Number(row[options.valueCol.colName]),
-    sortVal: options.autoSort ? '' : row[options.sortKeyCol.colName],
   }));
-  let sortedData;
-  if (options.autoSort) {
-    sortedData = sortBy(data, 'value').reverse();
-  } else {
-    sortedData = sortBy(data, 'sortVal');
-  }
 
   // Column validity
-  if (sortedData[0].value === 0 || !every(sortedData, d => isFinite(d.value))) {
+  if (data[0].value === 0 || !every(data, d => isFinite(d.value))) {
     return;
   }
 
   const maxVal = d3.max(data, d => d.value);
-  sortedData.forEach((d, i) => {
+  data.forEach((d, i) => {
     d.pctMax = (d.value / maxVal) * 100.0;
-    d.pctPrevious = i === 0 ? 100.0 : (d.value / sortedData[i - 1].value) * 100.0;
+    d.pctPrevious = i === 0 ? 100.0 : (d.value / data[i - 1].value) * 100.0;
   });
 
-  return sortedData.slice(0, 100);
+  return data.slice(0, 100);
 }
 
 function isValid(data, options) {
-  const availableColumns = map(data.columns, col => col.name);
-
-  const isStepColValid = includes(availableColumns, options.stepCol.colName);
-  const isValueColValid = includes(availableColumns, options.valueCol.colName);
-  const isSortColValid = options.autoSort ||
-    (!options.autoSort && includes(availableColumns, options.sortKeyCol.colName));
-
-  return isStepColValid && isValueColValid && isSortColValid;
+  return options.stepCol.colName && options.valueCol.colName;
 }
 
 export default function Renderer({ data, options }) {
