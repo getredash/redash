@@ -1,5 +1,4 @@
-import { map, sortBy } from 'lodash';
-import d3 from 'd3';
+import { map, sortBy, maxBy } from 'lodash';
 import React, { useMemo } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
@@ -25,10 +24,10 @@ function prepareData(rows, options) {
     value: parseFloat(row[options.valueCol.colName]) || 0.0,
   }));
 
-  const maxVal = d3.max(data, d => d.value);
+  const maxVal = maxBy(data, d => d.value).value;
   data.forEach((d, i) => {
     d.pctMax = (d.value / maxVal) * 100.0;
-    d.pctPrevious = i === 0 ? 100.0 : (d.value / data[i - 1].value) * 100.0;
+    d.pctPrevious = (i === 0) || (d.value === data[i - 1].value) ? 100.0 : (d.value / data[i - 1].value) * 100.0;
   });
 
   return data.slice(0, options.itemsLimit);
@@ -60,7 +59,7 @@ export default function Renderer({ data, options }) {
     return null;
   }
 
-  const maxToPrevious = d3.max(funnelData, d => d.pctPrevious);
+  const maxToPrevious = maxBy(funnelData, d => d.pctPrevious).pctPrevious;
 
   return (
     <div className="funnel-visualization-container">
