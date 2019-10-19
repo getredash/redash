@@ -1,4 +1,4 @@
-import { debounce, sortBy, isFinite, every, difference, merge, map } from 'lodash';
+import { debounce, sortBy, isFinite, every, difference, map } from 'lodash';
 import d3 from 'd3';
 import angular from 'angular';
 import { angular2react } from 'angular2react';
@@ -6,15 +6,11 @@ import { registerVisualization } from '@/visualizations';
 
 import { normalizeValue } from '@/visualizations/chart/plotly/utils';
 import ColorPalette from '@/visualizations/ColorPalette';
-import editorTemplate from './funnel-editor.html';
-import './funnel.less';
 
-const DEFAULT_OPTIONS = {
-  stepCol: { colName: '', displayAs: 'Steps' },
-  valueCol: { colName: '', displayAs: 'Value' },
-  sortKeyCol: { colName: '' },
-  autoSort: true,
-};
+import getOptions from './getOptions';
+import Editor from './Editor';
+
+import './funnel.less';
 
 function normalizePercentage(num) {
   if (num < 0.01) {
@@ -203,31 +199,16 @@ const FunnelRenderer = {
   },
 };
 
-const FunnelEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('funnelRenderer', FunnelRenderer);
-  ngModule.component('funnelEditor', FunnelEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
       type: 'FUNNEL',
       name: 'Funnel',
-      getOptions: options => merge({}, DEFAULT_OPTIONS, options),
+      getOptions,
       Renderer: angular2react('funnelRenderer', FunnelRenderer, $injector),
-      Editor: angular2react('funnelEditor', FunnelEditor, $injector),
+      Editor,
 
       defaultRows: 10,
     });
