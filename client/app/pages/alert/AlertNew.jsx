@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import { Alert as AlertType } from '@/components/proptypes';
 
 import Form from 'antd/lib/form';

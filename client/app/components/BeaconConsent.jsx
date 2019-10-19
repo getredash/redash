@@ -4,7 +4,7 @@ import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
 import Typography from 'antd/lib/typography';
 import { clientConfig } from '@/services/auth';
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import DynamicComponent from '@/components/DynamicComponent';
 import OrgSettings from '@/services/organizationSettings';
 

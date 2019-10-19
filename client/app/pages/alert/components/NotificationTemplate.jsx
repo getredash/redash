@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { head, isEmpty, isNull, isUndefined } from 'lodash';
 import Mustache from 'mustache';
 
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import { Alert as AlertType, Query as QueryType } from '@/components/proptypes';
 
 import Input from 'antd/lib/input';
