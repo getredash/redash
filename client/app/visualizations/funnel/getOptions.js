@@ -6,6 +6,7 @@ const DEFAULT_OPTIONS = {
   sortKeyCol: { colName: null, reverse: false },
   autoSort: true,
   itemsLimit: 100,
+  percentValuesRange: { min: 0.01, max: 1000.0 },
   numberFormat: '0,0[.]00',
   percentFormat: '0[.]00%',
 };

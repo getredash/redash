@@ -45,15 +45,15 @@ export default function Renderer({ data, options }) {
   const formatPercentValue = useMemo(() => {
     const format = createNumberFormatter(options.percentFormat);
     return (value) => {
-      if (value < 0.01) {
-        return `<${format(0.01)}`;
+      if (value < options.percentValuesRange.min) {
+        return `<${format(options.percentValuesRange.min)}`;
       }
-      if (value > 1000) {
-        return `>${format(1000)}`;
+      if (value > options.percentValuesRange.max) {
+        return `>${format(options.percentValuesRange.max)}`;
       }
       return format(value);
     };
-  }, [options.percentFormat]);
+  }, [options.percentFormat, options.percentValuesRange]);
 
   if (!isValid(data, options) || (funnelData.length === 0)) {
     return null;

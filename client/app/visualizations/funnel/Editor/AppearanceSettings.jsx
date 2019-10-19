@@ -75,6 +75,36 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           />
         </Grid.Col>
       </Grid.Row>
+
+      <Grid.Row type="flex" align="middle" className="m-b-15">
+        <Grid.Col span={12}>
+          <label htmlFor="funnel-editor-percent-values-range-min">Min Percent Value</label>
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <InputNumber
+            id="funnel-editor-percent-values-range-min"
+            className="w-100"
+            min={0}
+            defaultValue={options.percentValuesRange.min}
+            onChange={min => onOptionsChange({ percentValuesRange: { min } })}
+          />
+        </Grid.Col>
+      </Grid.Row>
+
+      <Grid.Row type="flex" align="middle" className="m-b-15">
+        <Grid.Col span={12}>
+          <label htmlFor="funnel-editor-percent-values-range-max">Max Percent Value</label>
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <InputNumber
+            id="funnel-editor-percent-values-range-max"
+            className="w-100"
+            min={0}
+            defaultValue={options.percentValuesRange.max}
+            onChange={max => onOptionsChange({ percentValuesRange: { max } })}
+          />
+        </Grid.Col>
+      </Grid.Row>
     </React.Fragment>
   );
 }
