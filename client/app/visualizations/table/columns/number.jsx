@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
 import { createNumberFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
+  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+
   return (
     <React.Fragment>
       <div className="m-b-15">
@@ -26,7 +29,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-number-format`}
           data-test="Table.ColumnEditor.Number.Format"
           defaultValue={column.numberFormat}
-          onChange={event => onChange({ numberFormat: event.target.value })}
+          onChange={event => onChangeDebounced({ numberFormat: event.target.value })}
         />
       </div>
     </React.Fragment>

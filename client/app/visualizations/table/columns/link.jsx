@@ -1,6 +1,7 @@
 import { extend, trim } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Checkbox from 'antd/lib/checkbox';
 import Popover from 'antd/lib/popover';
@@ -8,6 +9,8 @@ import Icon from 'antd/lib/icon';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
+  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+
   return (
     <React.Fragment>
       <div className="m-b-15">
@@ -16,7 +19,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-link-url`}
           data-test="Table.ColumnEditor.Link.UrlTemplate"
           defaultValue={column.linkUrlTemplate}
-          onChange={event => onChange({ linkUrlTemplate: event.target.value })}
+          onChange={event => onChangeDebounced({ linkUrlTemplate: event.target.value })}
         />
       </div>
 
@@ -26,7 +29,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-link-text`}
           data-test="Table.ColumnEditor.Link.TextTemplate"
           defaultValue={column.linkTextTemplate}
-          onChange={event => onChange({ linkTextTemplate: event.target.value })}
+          onChange={event => onChangeDebounced({ linkTextTemplate: event.target.value })}
         />
       </div>
 
@@ -36,7 +39,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-link-title`}
           data-test="Table.ColumnEditor.Link.TitleTemplate"
           defaultValue={column.linkTitleTemplate}
-          onChange={event => onChange({ linkTitleTemplate: event.target.value })}
+          onChange={event => onChangeDebounced({ linkTitleTemplate: event.target.value })}
         />
       </div>
 

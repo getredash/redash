@@ -1,5 +1,6 @@
 import { map, keys } from 'lodash';
 import React from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 import PropTypes from 'prop-types';
 import * as Grid from 'antd/lib/grid';
 import Input from 'antd/lib/input';
@@ -16,6 +17,8 @@ export default function ColumnEditor({ column, onChange }) {
     onChange({ ...column, ...changes });
   }
 
+  const [handleChangeDebounced] = useDebouncedCallback(handleChange, 200);
+
   const AdditionalOptions = ColumnTypes[column.displayAs].Editor || null;
 
   return (
@@ -24,14 +27,14 @@ export default function ColumnEditor({ column, onChange }) {
         <Grid.Col span={16}>
           <Input
             data-test={`Table.Column.${column.name}.Title`}
-            value={column.title}
-            onChange={event => handleChange({ title: event.target.value })}
+            defaultValue={column.title}
+            onChange={event => handleChangeDebounced({ title: event.target.value })}
           />
         </Grid.Col>
         <Grid.Col span={8}>
           <Radio.Group
             className="table-visualization-editor-column-align-content"
-            value={column.alignContent}
+            defaultValue={column.alignContent}
             onChange={event => handleChange({ alignContent: event.target.value })}
           >
             <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
@@ -58,7 +61,7 @@ export default function ColumnEditor({ column, onChange }) {
           <Checkbox
             id={`table-column-editor-${column.name}-allow-search`}
             data-test={`Table.Column.${column.name}.UseForSearch`}
-            checked={column.allowSearch}
+            defaultChecked={column.allowSearch}
             onChange={event => handleChange({ allowSearch: event.target.checked })}
           />
           <span>Use for search</span>
@@ -71,7 +74,7 @@ export default function ColumnEditor({ column, onChange }) {
           id={`table-column-editor-${column.name}-display-as`}
           data-test={`Table.Column.${column.name}.DisplayAs`}
           className="w-100"
-          value={column.displayAs}
+          defaultValue={column.displayAs}
           onChange={displayAs => handleChange({ displayAs })}
         >
           {map(ColumnTypes, ({ friendlyName }, key) => (

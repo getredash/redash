@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
 import { createDateTimeFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
+  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+
   return (
     <React.Fragment>
       <div className="m-b-15">
@@ -26,7 +29,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-datetime-format`}
           data-test="Table.ColumnEditor.DateTime.Format"
           defaultValue={column.dateTimeFormat}
-          onChange={event => onChange({ dateTimeFormat: event.target.value })}
+          onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
         />
       </div>
     </React.Fragment>

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import { createBooleanFormatter } from '@/lib/value-format';
 
@@ -9,6 +10,8 @@ function Editor({ column, onChange }) {
     booleanValues.splice(index, 1, value);
     onChange({ booleanValues });
   }
+
+  const [handleChangeDebounced] = useDebouncedCallback(handleChange, 200);
 
   return (
     <React.Fragment>
@@ -21,7 +24,7 @@ function Editor({ column, onChange }) {
             id={`table-column-editor-${column.name}-boolean-false`}
             data-test="Table.ColumnEditor.Boolean.False"
             defaultValue={column.booleanValues[0]}
-            onChange={event => handleChange(0, event.target.value)}
+            onChange={event => handleChangeDebounced(0, event.target.value)}
           />
         </div>
       </div>
@@ -35,7 +38,7 @@ function Editor({ column, onChange }) {
             id={`table-column-editor-${column.name}-boolean-true`}
             data-test="Table.ColumnEditor.Boolean.True"
             defaultValue={column.booleanValues[1]}
-            onChange={event => handleChange(1, event.target.value)}
+            onChange={event => handleChangeDebounced(1, event.target.value)}
           />
         </div>
       </div>

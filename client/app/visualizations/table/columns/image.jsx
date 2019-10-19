@@ -1,12 +1,15 @@
 import { extend, trim } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
+  const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
+
   return (
     <React.Fragment>
       <div className="m-b-15">
@@ -15,7 +18,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-image-url`}
           data-test="Table.ColumnEditor.Image.UrlTemplate"
           defaultValue={column.imageUrlTemplate}
-          onChange={event => onChange({ imageUrlTemplate: event.target.value })}
+          onChange={event => onChangeDebounced({ imageUrlTemplate: event.target.value })}
         />
       </div>
 
@@ -36,7 +39,7 @@ function Editor({ column, onChange }) {
             data-test="Table.ColumnEditor.Image.Width"
             placeholder="Width"
             defaultValue={column.imageWidth}
-            onChange={event => onChange({ imageWidth: event.target.value })}
+            onChange={event => onChangeDebounced({ imageWidth: event.target.value })}
           />
           <span className="p-l-5 p-r-5">&times;</span>
           <Input
@@ -44,7 +47,7 @@ function Editor({ column, onChange }) {
             data-test="Table.ColumnEditor.Image.Height"
             placeholder="Height"
             defaultValue={column.imageHeight}
-            onChange={event => onChange({ imageHeight: event.target.value })}
+            onChange={event => onChangeDebounced({ imageHeight: event.target.value })}
           />
         </div>
       </div>
@@ -55,7 +58,7 @@ function Editor({ column, onChange }) {
           id={`table-column-editor-${column.name}-image-title`}
           data-test="Table.ColumnEditor.Image.TitleTemplate"
           defaultValue={column.imageTitleTemplate}
-          onChange={event => onChange({ imageTitleTemplate: event.target.value })}
+          onChange={event => onChangeDebounced({ imageTitleTemplate: event.target.value })}
         />
       </div>
 
