@@ -1,10 +1,11 @@
-import { map, merge, includes } from 'lodash';
+import { isFinite, map, merge, includes } from 'lodash';
 
 const DEFAULT_OPTIONS = {
   stepCol: { colName: null, displayAs: 'Steps' },
   valueCol: { colName: null, displayAs: 'Value' },
   sortKeyCol: { colName: null, reverse: false },
   autoSort: true,
+  itemsLimit: 100,
 };
 
 export default function getOptions(options, { columns }) {
@@ -20,6 +21,13 @@ export default function getOptions(options, { columns }) {
   }
   if (!includes(availableColumns, options.sortKeyCol.colName)) {
     options.sortKeyCol.colName = null;
+  }
+
+  if (!isFinite(options.itemsLimit)) {
+    options.itemsLimit = DEFAULT_OPTIONS.itemsLimit;
+  }
+  if (options.itemsLimit < 2) {
+    options.itemsLimit = 2;
   }
 
   // Backward compatibility

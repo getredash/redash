@@ -46,7 +46,7 @@ function prepareData(rows, options) {
     d.pctPrevious = i === 0 ? 100.0 : (d.value / data[i - 1].value) * 100.0;
   });
 
-  return data.slice(0, 100);
+  return data.slice(0, options.itemsLimit);
 }
 
 function isValid(data, options) {

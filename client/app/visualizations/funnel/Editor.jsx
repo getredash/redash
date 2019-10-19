@@ -2,6 +2,7 @@ import { map, merge } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
+import InputNumber from 'antd/lib/input-number';
 import Switch from 'antd/lib/switch';
 import * as Grid from 'antd/lib/grid';
 import { EditorPropTypes } from '@/visualizations';
@@ -113,6 +114,22 @@ export default function Editor({ options, data, onOptionsChange }) {
           />
         </Grid.Col>
       </Grid.Row>
+
+      <Grid.Row type="flex" align="middle" className="m-b-15">
+        <Grid.Col span={12}>
+          <label htmlFor="funnel-editor-items-limit">Limit Items Count</label>
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <InputNumber
+            id="funnel-editor-items-limit"
+            className="w-100"
+            min={2}
+            defaultValue={options.itemsLimit}
+            onChange={itemsLimit => optionsChanged({ itemsLimit })}
+          />
+        </Grid.Col>
+      </Grid.Row>
+
     </React.Fragment>
   );
 }
