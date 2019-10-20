@@ -1,10 +1,13 @@
 import { map, sortBy, maxBy } from 'lodash';
 import React, { useMemo } from 'react';
+import Table from 'antd/lib/table';
+import Tooltip from 'antd/lib/tooltip';
 import { RendererPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 import { createNumberFormatter } from '@/lib/value-format';
 
-import './renderer.less';
+import FunnelBar from './FunnelBar';
+import './index.less';
 
 function prepareData(rows, options) {
   if (rows.length === 0) {
@@ -55,50 +58,65 @@ export default function Renderer({ data, options }) {
     };
   }, [options.percentFormat, options.percentValuesRange]);
 
+  const columns = useMemo(() => {
+    if (funnelData.length === 0) {
+      return [];
+    }
+
+    const maxToPrevious = maxBy(funnelData, d => (isFinite(d.pctPrevious) ? d.pctPrevious : 0)).pctPrevious;
+    return [
+      {
+        title: options.stepCol.displayAs,
+        dataIndex: 'step',
+        width: '25%',
+        className: 'text-ellipsis',
+        render: text => <Tooltip title={text} mouseEnterDelay={0} mouseLeaveDelay={0}>{text}</Tooltip>,
+      },
+      {
+        title: options.valueCol.displayAs,
+        dataIndex: 'value',
+        width: '45%',
+        align: 'center',
+        render: (value, item) => (
+          <FunnelBar align="center" color={ColorPalette.Cyan} value={item.pctMax}>{formatValue(value)}</FunnelBar>
+        ),
+      },
+      {
+        title: '% Max',
+        dataIndex: 'pctMax',
+        width: '15%',
+        align: 'center',
+        render: value => formatPercentValue(value),
+      },
+      {
+        title: '% Previous',
+        dataIndex: 'pctPrevious',
+        width: '15%',
+        align: 'center',
+        render: value => (
+          <FunnelBar className="funnel-percent-column" value={(value / maxToPrevious) * 100.0}>
+            {formatPercentValue(value)}
+          </FunnelBar>
+        ),
+      },
+    ];
+  }, [
+    options.stepCol.displayAs, options.valueCol.displayAs,
+    funnelData, formatValue, formatPercentValue,
+  ]);
+
   if (!isValid(data, options) || (funnelData.length === 0)) {
     return null;
   }
 
-  const maxToPrevious = maxBy(funnelData, d => d.pctPrevious).pctPrevious;
-
   return (
     <div className="funnel-visualization-container">
-      <table className="table table-condensed table-hover table-borderless">
-        <thead>
-          <tr>
-            <th>{options.stepCol.displayAs}</th>
-            <th className="text-center">{options.valueCol.displayAs}</th>
-            <th className="text-center">% Max</th>
-            <th className="text-center">% Previous</th>
-          </tr>
-        </thead>
-        <tbody>
-          {map(funnelData, d => (
-            <tr key={d.step}>
-              <td className="col-xs-3 step" title={d.step}>{d.step}</td>
-              <td className="col-xs-5">
-                <div className="container">
-                  <div
-                    className="bar centered"
-                    style={{ background: ColorPalette.Cyan, width: d.pctMax + '%' }}
-                  />
-                  <div className="value">{formatValue(d.value)}</div>
-                </div>
-              </td>
-              <td className="col-xs-2 text-center">{formatPercentValue(d.pctMax)}</td>
-              <td className="col-xs-2">
-                <div className="container">
-                  <div
-                    className="bar"
-                    style={{ background: ColorPalette.Gray, opacity: '0.2', width: (d.pctPrevious / maxToPrevious) * 100.0 + '%' }}
-                  />
-                  <div className="value">{formatPercentValue(d.pctPrevious)}</div>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table
+        columns={columns}
+        dataSource={funnelData}
+        rowKey="step"
+        pagination={false}
+      />
     </div>
   );
 }
