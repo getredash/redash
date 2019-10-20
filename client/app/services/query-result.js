@@ -41,6 +41,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const JobWithApiKey = $resource('api/queries/:queryId/jobs/:id', { queryId: '@queryId', id: '@id' });
   const statuses = {
+    0: 'init',
     1: 'waiting',
     2: 'processing',
     3: 'done',
@@ -56,7 +57,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       logger('Unknown error', response);
       queryResult.update({
         job: {
-          error: get(response, 'data.message', 'unknown error occurred. Please try again later.'),
+          error: get(response, 'data.message', 'Unknown error occurred. Please try again later.'),
           status: 4,
         },
       });
@@ -68,7 +69,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       this.deferred = $q.defer();
       this.job = {};
       this.query_result = {};
-      this.status = 'waiting';
+      this.status = statuses[0];
 
       this.updatedAt = moment();
 
@@ -84,7 +85,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       extend(this, props);
 
       if ('query_result' in props) {
-        this.status = 'done';
+        this.status = statuses[3];
 
         const columnTypes = {};
 
@@ -128,8 +129,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         });
 
         this.deferred.resolve(this);
+      } else if (this.job.status === 2) {
+        this.status = statuses[1];
       } else if (this.job.status === 3) {
-        this.status = 'processing';
+        this.status = statuses[2];
       } else if (this.job.status === 4) {
         this.status = statuses[this.job.status];
         this.deferred.reject(new QueryResultError(this.job.error, this.job.data));
@@ -344,9 +347,9 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         (jobResponse) => {
           this.update(jobResponse);
 
-          if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
+          if (this.getStatus() === statuses[2] && this.job.query_result_id && this.job.query_result_id !== 'None') {
             loadResult();
-          } else if (this.getStatus() !== 'failed') {
+          } else if (this.getStatus() !== statuses[4]) {
             const waitTime = tryNumber > 10 ? 3000 : 500;
             $timeout(() => {
               this.refreshStatus(query, parameters, tryNumber + 1);
