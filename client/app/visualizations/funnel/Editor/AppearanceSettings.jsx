@@ -32,6 +32,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           <Input
             id="funnel-editor-step-column-title"
             className="w-100"
+            data-test="Funnel.NumberFormat"
             defaultValue={options.numberFormat}
             onChange={event => onOptionsChangeDebounced({ numberFormat: event.target.value })}
           />
@@ -58,6 +59,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           <Input
             id="funnel-editor-step-column-title"
             className="w-100"
+            data-test="Funnel.PercentFormat"
             defaultValue={options.percentFormat}
             onChange={event => onOptionsChangeDebounced({ percentFormat: event.target.value })}
           />
@@ -72,6 +74,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           <InputNumber
             id="funnel-editor-items-limit"
             className="w-100"
+            data-test="Funnel.ItemsLimit"
             min={2}
             defaultValue={options.itemsLimit}
             onChange={itemsLimit => onOptionsChangeDebounced({ itemsLimit })}
@@ -87,6 +90,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           <InputNumber
             id="funnel-editor-percent-values-range-min"
             className="w-100"
+            data-test="Funnel.PercentRangeMin"
             min={0}
             defaultValue={options.percentValuesRange.min}
             onChange={min => onOptionsChangeDebounced({ percentValuesRange: { min } })}
@@ -102,6 +106,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           <InputNumber
             id="funnel-editor-percent-values-range-max"
             className="w-100"
+            data-test="Funnel.PercentRangeMax"
             min={0}
             defaultValue={options.percentValuesRange.max}
             onChange={max => onOptionsChangeDebounced({ percentValuesRange: { max } })}

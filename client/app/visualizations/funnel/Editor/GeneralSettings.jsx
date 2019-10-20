@@ -22,12 +22,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Select
             id="funnel-editor-step-column-name"
             className="w-100"
+            data-test="Funnel.StepColumn"
             placeholder="Choose column..."
             defaultValue={options.stepCol.colName || undefined}
             onChange={colName => onOptionsChange({ stepCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
-              <Select.Option key={col}>{col}</Select.Option>
+              <Select.Option key={col} data-test={`Funnel.StepColumn.${col}`}>{col}</Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -41,6 +42,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Input
             id="funnel-editor-step-column-title"
             className="w-100"
+            data-test="Funnel.StepColumnTitle"
             defaultValue={options.stepCol.displayAs}
             onChange={event => onOptionsChangeDebounced({ stepCol: { displayAs: event.target.value } })}
           />
@@ -55,12 +57,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Select
             id="funnel-editor-value-column-name"
             className="w-100"
+            data-test="Funnel.ValueColumn"
             placeholder="Choose column..."
             defaultValue={options.valueCol.colName || undefined}
             onChange={colName => onOptionsChange({ valueCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
-              <Select.Option key={col}>{col}</Select.Option>
+              <Select.Option key={col} data-test={`Funnel.ValueColumn.${col}`}>{col}</Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -74,6 +77,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Input
             id="funnel-editor-value-column-title"
             className="w-100"
+            data-test="Funnel.ValueColumnTitle"
             defaultValue={options.valueCol.displayAs}
             onChange={event => onOptionsChangeDebounced({ valueCol: { displayAs: event.target.value } })}
           />
@@ -88,13 +92,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Select
             id="funnel-editor-sort-column-name"
             className="w-100"
+            data-test="Funnel.SortColumn"
             allowClear
             placeholder="Choose column..."
             defaultValue={options.sortKeyCol.colName || undefined}
             onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
           >
             {map(columnNames, col => (
-              <Select.Option key={col}>{col}</Select.Option>
+              <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>{col}</Select.Option>
             ))}
           </Select>
         </Grid.Col>
@@ -107,6 +112,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Grid.Col span={12}>
           <Switch
             id="funnel-editor-sort-reverse"
+            data-test="Funnel.SortReverse"
             defaultChecked={options.sortKeyCol.reverse}
             onChange={reverse => onOptionsChange({ sortKeyCol: { reverse } })}
           />

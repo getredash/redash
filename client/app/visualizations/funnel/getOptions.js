@@ -4,7 +4,6 @@ const DEFAULT_OPTIONS = {
   stepCol: { colName: null, displayAs: 'Steps' },
   valueCol: { colName: null, displayAs: 'Value' },
   sortKeyCol: { colName: null, reverse: false },
-  autoSort: true,
   itemsLimit: 100,
   percentValuesRange: { min: 0.01, max: 1000.0 },
   numberFormat: '0,0[.]00',
@@ -36,7 +35,7 @@ export default function getOptions(options, { columns }) {
   // Backward compatibility
   if (options.autoSort) {
     delete options.autoSort;
-    options.sortKeyCol.colName = options.valueCol;
+    options.sortKeyCol.colName = options.valueCol.colName;
     options.sortKeyCol.reverse = true;
   }
 
