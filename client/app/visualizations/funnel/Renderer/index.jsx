@@ -1,4 +1,4 @@
-import { map, sortBy, maxBy } from 'lodash';
+import { maxBy } from 'lodash';
 import React, { useMemo } from 'react';
 import Table from 'antd/lib/table';
 import Tooltip from 'antd/lib/tooltip';
@@ -6,39 +6,9 @@ import { RendererPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 import { createNumberFormatter } from '@/lib/value-format';
 
+import prepareData from './prepareData';
 import FunnelBar from './FunnelBar';
 import './index.less';
-
-function prepareData(rows, options) {
-  if (rows.length === 0) {
-    return [];
-  }
-
-  rows = [...rows];
-  if (options.sortKeyCol.colName) {
-    rows = sortBy(rows, options.sortKeyCol.colName);
-  }
-  if (options.sortKeyCol.reverse) {
-    rows = rows.reverse();
-  }
-
-  const data = map(rows, row => ({
-    step: row[options.stepCol.colName],
-    value: parseFloat(row[options.valueCol.colName]) || 0.0,
-  }));
-
-  const maxVal = maxBy(data, d => d.value).value;
-  data.forEach((d, i) => {
-    d.pctMax = (d.value / maxVal) * 100.0;
-    d.pctPrevious = (i === 0) || (d.value === data[i - 1].value) ? 100.0 : (d.value / data[i - 1].value) * 100.0;
-  });
-
-  return data.slice(0, options.itemsLimit);
-}
-
-function isValid(data, options) {
-  return options.stepCol.colName && options.valueCol.colName;
-}
 
 export default function Renderer({ data, options }) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
@@ -105,7 +75,7 @@ export default function Renderer({ data, options }) {
     funnelData, formatValue, formatPercentValue,
   ]);
 
-  if (!isValid(data, options) || (funnelData.length === 0)) {
+  if (funnelData.length === 0) {
     return null;
   }
 
