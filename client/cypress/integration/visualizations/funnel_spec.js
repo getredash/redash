@@ -53,7 +53,7 @@ describe('Funnel', () => {
     cy.fillInputs({
       'Funnel.StepColumnTitle': 'Column A',
       'Funnel.ValueColumnTitle': 'Column B',
-    });
+    }, { wait: 200 }); // inputs are debounced
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
@@ -70,7 +70,7 @@ describe('Funnel', () => {
       'Funnel.ItemsLimit': '10',
       'Funnel.PercentRangeMin': '10',
       'Funnel.PercentRangeMax': '90',
-    });
+    }, { wait: 200 }); // inputs are debounced
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
