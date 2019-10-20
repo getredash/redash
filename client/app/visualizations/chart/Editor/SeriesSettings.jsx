@@ -78,7 +78,11 @@ function getTableColumns(options, updateSeriesOption, debouncedUpdateSeriesOptio
 export default function SeriesSettings({ options, data, onOptionsChange }) {
   const series = useMemo(() => map(
     getChartData(data.rows, options), // returns sorted series
-    ({ name }, zIndex) => extend({ key: name }, options.seriesOptions[name], { zIndex }),
+    ({ name }, zIndex) => extend(
+      { key: name, type: options.globalSeriesType },
+      options.seriesOptions[name],
+      { zIndex },
+    ),
   ), [options, data]);
 
   const handleSortEnd = useCallback(({ oldIndex, newIndex }) => {
