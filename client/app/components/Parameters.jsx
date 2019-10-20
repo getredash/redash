@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, get, isEmpty } from 'lodash';
+import { size, filter, forEach, extend, get, isEmpty, includes } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
@@ -34,6 +34,7 @@ export class Parameters extends React.Component {
     queryResultErrorData: PropTypes.shape({
       parameters: PropTypes.objectOf(PropTypes.string),
     }),
+    unsavedParameters: PropTypes.arrayOf(PropTypes.string),
   };
 
   static defaultProps = {
@@ -44,6 +45,7 @@ export class Parameters extends React.Component {
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
     queryResultErrorData: {},
+    unsavedParameters: null,
   };
 
   constructor(props) {
@@ -85,18 +87,15 @@ export class Parameters extends React.Component {
 
   setPendingValue = (param, value, isDirty) => {
     const { onPendingValuesChange } = this.props;
-    this.setState(({ touchedParams }) => {
-      touchedParams[param.name] = true;
-      return touchedParams;
-    });
-    this.setState(({ parameters }) => {
+    this.setState(({ parameters, touchedParams }) => {
       if (isDirty) {
         param.setPendingValue(value);
+        touchedParams[param.name] = true;
       } else {
         param.clearPendingValue();
       }
       onPendingValuesChange();
-      return { parameters };
+      return { parameters, touchedParams };
     });
   };
 
@@ -144,10 +143,27 @@ export class Parameters extends React.Component {
       });
   };
 
-  renderParameter(param, index) {
-    const { editable, queryResultErrorData } = this.props;
-    const { touchedParams } = this.state;
+  getParameterFeedback = (param) => {
+    // error msg
+    const { queryResultErrorData } = this.props;
     const error = get(queryResultErrorData, ['parameters', param.name], false);
+    if (error) {
+      return [error, 'error'];
+    }
+
+    // unsaved
+    const { unsavedParameters } = this.props;
+    if (includes(unsavedParameters, param.name)) {
+      return ['Unsaved', 'warning'];
+    }
+
+    return [];
+  };
+
+  renderParameter(param, index) {
+    const { editable } = this.props;
+    const touched = this.state.touchedParams[param.name];
+    const [feedback, status] = this.getParameterFeedback(param);
 
     return (
       <div
@@ -169,8 +185,8 @@ export class Parameters extends React.Component {
           )}
         </div>
         <Form.Item
-          validateStatus={error && !touchedParams[param.name] ? 'error' : ''}
-          help={error ? <Tooltip title={error}>{error}</Tooltip> : null}
+          validateStatus={!touched ? status : ''}
+          help={feedback ? <Tooltip title={feedback}>{feedback}</Tooltip> : null}
         >
           <ParameterValueInput
             type={param.type}

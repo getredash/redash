@@ -2,7 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, includes, union, uniq, has, get, intersection,
+  zipObject, isEmpty, map, includes, union, uniq, has, get, intersection, reject,
   isNull, isUndefined, isArray, isObject, identity, extend, each, join, some, startsWith,
 } from 'lodash';
 
@@ -428,13 +428,14 @@ class Parameters {
     this.initFromQueryString(queryString);
   }
 
-  parseQuery() {
+  parseQuery(queryText = null) {
     const fallback = () => map(this.query.options.parameters, i => i.name);
+    queryText = queryText || this.query.query;
 
     let parameters = [];
-    if (this.query.query !== undefined) {
+    if (queryText !== undefined) {
       try {
-        const parts = Mustache.parse(this.query.query);
+        const parts = Mustache.parse(queryText);
         parameters = uniq(collectParams(parts));
       } catch (e) {
         logger('Failed parsing parameters: ', e);
@@ -515,6 +516,11 @@ class Parameters {
 
   applyPendingValues() {
     each(this.get(), p => p.applyPendingValue());
+  }
+
+  getUnsavedParameters(queryText) {
+    const savedParameters = this.parseQuery(queryText);
+    return reject(this.get(), p => includes(savedParameters, p.name)).map(p => p.name);
   }
 
   toUrlParams() {
