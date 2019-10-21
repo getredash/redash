@@ -44,8 +44,9 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         return error_response(message, {'parameters': parameters}, 400)
 
     missing_params_error = query.missing_params_error
-    if query.missing_params_error:
-        return error_response(missing_params_error)
+    if missing_params_error:
+        message, parameters = missing_params_error
+        return error_response(message, {'parameters': parameters}, 400)
 
     if max_age == 0:
         query_result = None

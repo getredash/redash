@@ -232,7 +232,9 @@ class ParameterizedQuery(object):
             message += u' Refresh this page for the missing parameter{} to appear.'.format(plural)
         else:
             message += u' Save and rerun the query for a more detailed feedback message.'
-        return message
+        stripped_parameter_names = map(lambda n: n.split('.')[0], missing_params)
+        parameter_errors = {name: 'Invalid parameter' for name in stripped_parameter_names}
+        return message, parameter_errors
 
     @property
     def unsafe_params(self):
