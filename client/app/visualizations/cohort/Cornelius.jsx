@@ -1,6 +1,12 @@
+/*!
+ * React port of Cornelius library (based on v0.1 released under the MIT license)
+ * Original library: http://restorando.github.io/cornelius
+ */
+
 import { isNil, isFinite, each, map, extend, min, max } from 'lodash';
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import Tooltip from 'antd/lib/tooltip';
 
 import './cornelius.less';
 
@@ -121,7 +127,14 @@ function CorneliusRow({ options, data, index, maxRowLength }) { // eslint-disabl
       }
     } else {
       cellProps.className = i === 0 ? 'cornelius-people' : classNameFor(options, percentageValue);
-      cellProps.children = i === 0 || options.displayAbsoluteValues ? value : percentageValue.toFixed(2);
+      cellProps.children = i === 0 || options.displayAbsoluteValues ? value : percentageValue.toFixed(2) + '%';
+      if (options.rawNumberOnHover) {
+        cellProps.children = (
+          <Tooltip title={value} mouseEnterDelay={0} mouseLeaveDelay={0}>
+            <div>{cellProps.children}</div>
+          </Tooltip>
+        );
+      }
     }
 
     cells.push(<td {...cellProps} />);
