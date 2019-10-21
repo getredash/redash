@@ -1,7 +1,8 @@
 import 'cornelius/src/cornelius';
-import 'cornelius/src/cornelius.css';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
+import './cornelius.less';
 
 const CorneliusJs = global.Cornelius;
 
