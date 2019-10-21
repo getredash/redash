@@ -154,7 +154,7 @@ class ParameterizedQuery(object):
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return 'Missing definition'
+            return 'Parameter no longer exists in query. Try refreshing this page.'
 
         enum_options = definition.get('enumOptions')
         query_id = definition.get('queryId')
@@ -213,8 +213,26 @@ class ParameterizedQuery(object):
 
     @property
     def missing_params(self):
-        query_parameters = set(_collect_query_parameters(self.template))
+        query_parameters = _collect_query_parameters(self.template)
         return set(query_parameters) - set(_parameter_names(self.parameters))
+
+    @property
+    def missing_params_error(self):
+        missing_params = self.missing_params
+        if not missing_params:
+            return None
+
+        parameter_names = u', '.join(u'"{}"'.format(name) for name in missing_params)
+        if len(missing_params) > 1:
+            message = u'Parameters {} are missing.'.format(parameter_names)
+        else:
+            message = u'Parameter {} is missing.'.format(parameter_names)
+        if self.schema:
+            plural = 's' if len(missing_params) > 1 else ''
+            message += u' Refresh this page for the missing parameter{} to appear.'.format(plural)
+        else:
+            message += u' Save and rerun the query for a more detailed feedback message.'
+        return message
 
     @property
     def unsafe_params(self):
@@ -228,7 +246,7 @@ class ParameterizedQuery(object):
 class InvalidParameterError(Exception):
     def __init__(self, parameters):
         parameter_names = u', '.join(u'"{}"'.format(name) for name in parameters.keys())
-        if (len(parameters) > 1):
+        if len(parameters) > 1:
             message = u'Parameters {} are invalid.'.format(parameter_names)
         else:
             message = u'Parameter {} is invalid.'.format(parameter_names)
