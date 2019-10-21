@@ -13,9 +13,7 @@ export default function Renderer({ data, options }) {
     initialDate,
     timeInterval: options.timeInterval,
     labels: {
-      time: 'Time',
       people: 'Users',
-      weekOf: 'Week of',
     },
   }), [options, initialDate]);
 
