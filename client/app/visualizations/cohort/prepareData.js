@@ -95,8 +95,23 @@ function prepareSimpleData(sortedData, options) {
   return data;
 }
 
+function isDataValid(rawData, options) {
+  const columnNames = _.map(rawData.columns, c => c.name);
+  return (
+    (rawData.rows.length > 0) &&
+    _.includes(columnNames, options.dateColumn) &&
+    _.includes(columnNames, options.stageColumn) &&
+    _.includes(columnNames, options.totalColumn) &&
+    _.includes(columnNames, options.valueColumn)
+  );
+}
+
 export default function prepareData(rawData, options) {
-  rawData = _.map(rawData, item => ({
+  if (!isDataValid(rawData, options)) {
+    return { data: [], initialDate: null };
+  }
+
+  rawData = _.map(rawData.rows, item => ({
     date: item[options.dateColumn],
     stage: parseInt(item[options.stageColumn], 10),
     total: parseFloat(item[options.totalColumn]),
