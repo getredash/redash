@@ -7,6 +7,7 @@ import { isNil, isFinite, each, map, extend, min, max } from 'lodash';
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
+import { createNumberFormatter } from '@/lib/value-format';
 
 import './cornelius.less';
 
@@ -36,6 +37,8 @@ const defaultOptions = {
   displayAbsoluteValues: false,
   initialIntervalNumber: 1,
   maxColumns: Number.MAX_SAFE_INTEGER,
+  numberFormat: '0,0[.]00',
+  percentFormat: '0.00%',
   formatLabel: {
     header(i) {
       return i === 0 ? this.labels.people : (this.initialIntervalNumber - 1 + i).toString();
@@ -60,11 +63,16 @@ const defaultOptions = {
 };
 
 function prepareOptions(options) {
-  return extend({}, defaultOptions, options, {
+  options = extend({}, defaultOptions, options, {
     repeatLevels: extend({}, defaultOptions.repeatLevels, options.repeatLevels),
     labels: extend({}, defaultOptions.labels, options.labels),
     formatLabel: extend({}, defaultOptions.formatLabel, options.formatLabel),
   });
+
+  options.formatNumber = createNumberFormatter(options.numberFormat);
+  options.formatPercent = createNumberFormatter(options.percentFormat);
+
+  return options;
 }
 
 function formatHeaderLabel(options, ...args) {
@@ -79,7 +87,7 @@ function formatTimeLabel(options, ...args) {
 function classNameFor(options, percentageValue) {
   let highestLevel = null;
 
-  const classNames = [options.displayAbsoluteValues ? 'absolute' : 'percentage'];
+  const classNames = [options.displayAbsoluteValues ? 'cornelius-absolute' : 'cornelius-percentage'];
 
   each(options.repeatLevels, (bounds, level) => {
     highestLevel = level;
@@ -90,16 +98,16 @@ function classNameFor(options, percentageValue) {
 
   // handle 100% case
   if (highestLevel) {
-    classNames.push(highestLevel);
+    classNames.push(`cornelius-${highestLevel}`);
   }
 
-  return map(classNames, c => `cornelius-${c}`).join(' ');
+  return classNames.join(' ');
 }
 
 function CorneliusHeader({ options, maxRowLength }) { // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
-    cells.push(<th key={`col${i}`} className="cornelius-people">{formatHeaderLabel(options, i)}</th>);
+    cells.push(<th key={`col${i}`} className="cornelius-stage">{formatHeaderLabel(options, i)}</th>);
   }
 
   return (
@@ -112,25 +120,27 @@ function CorneliusHeader({ options, maxRowLength }) { // eslint-disable-line rea
 }
 
 function CorneliusRow({ options, data, index, maxRowLength }) { // eslint-disable-line react/prop-types
-  const [baseValue] = data;
+  const baseValue = data[0] || 0;
 
   const cells = [];
-  for (let i = 0; i < maxRowLength; i += 1) {
+  for (let i = 1; i < maxRowLength; i += 1) {
     const value = data[i];
     const percentageValue = isFinite(value / baseValue) ? value / baseValue * 100 : null;
     const cellProps = { key: `col${i}` };
 
-    if (isNil(percentageValue) && (i !== 0)) {
+    if (isNil(percentageValue)) {
       if (options.drawEmptyCells) {
         cellProps.className = 'cornelius-empty';
         cellProps.children = '-';
       }
     } else {
-      cellProps.className = i === 0 ? 'cornelius-people' : classNameFor(options, percentageValue);
-      cellProps.children = i === 0 || options.displayAbsoluteValues ? value : percentageValue.toFixed(2) + '%';
-      if (options.rawNumberOnHover) {
+      cellProps.className = classNameFor(options, percentageValue);
+      cellProps.children = options.displayAbsoluteValues ?
+        options.formatNumber(value) :
+        options.formatPercent(percentageValue);
+      if (options.rawNumberOnHover && !options.displayAbsoluteValues) {
         cellProps.children = (
-          <Tooltip title={value} mouseEnterDelay={0} mouseLeaveDelay={0}>
+          <Tooltip title={options.formatNumber(value)} mouseEnterDelay={0} mouseLeaveDelay={0}>
             <div>{cellProps.children}</div>
           </Tooltip>
         );
@@ -143,6 +153,7 @@ function CorneliusRow({ options, data, index, maxRowLength }) { // eslint-disabl
   return (
     <tr>
       <td className="cornelius-label">{formatTimeLabel(options, new Date(options.initialDate.getTime()), index)}</td>
+      <td className="cornelius-people">{options.formatNumber(baseValue)}</td>
       {cells}
     </tr>
   );
@@ -165,8 +176,10 @@ export default function Cornelius({ data, options }) {
       {options.title && <div className="cornelius-title">{options.title}</div>}
 
       <table className="cornelius-table">
-        <tbody>
+        <thead>
           <CorneliusHeader options={options} maxRowLength={maxRowLength} />
+        </thead>
+        <tbody>
           {map(data, (row, index) => (
             <CorneliusRow key={`row${index}`} options={options} data={row} index={index} maxRowLength={maxRowLength} />
           ))}

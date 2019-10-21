@@ -5,87 +5,87 @@
     font-weight: bold;
     font-size: 14pt;
     color: #3A3838;
+    border-collapse: collapse;
   }
 
   .cornelius-table {
     font-size: 9pt;
     border-spacing: 0;
+    border: 1px solid #E4E4E4;
     border-collapse: collapse;
 
-    tr:first-child th:last-child {
-      border-right: none;
-    }
-
     th, td {
-      width: 42px;
       text-align: center;
       padding: 10px;
-    }
-
-    th {
-      border-bottom: 1px solid #E4E4E4;
-      border-right: 1px solid #E4E4E4;
+      border: 1px solid #E4E4E4;
       color: #3A3838;
       font-weight: bold;
     }
 
-    td.cornelius-label {
+    .cornelius-label {
       text-align: left;
-      width: 135px;
     }
 
-    tr:last-child td {
-      border-bottom: none;
+    .cornelius-empty,
+    .cornelius-percentage,
+    .cornelius-absolute {
+      font-weight: normal;
+      border: none;
     }
-  }
 
-  .cornelius-percentage {
-    border: none;
-    color: #000;
-  }
+    .cornelius-label,
+    .cornelius-people,
+    .cornelius-stage {
+      font-weight: bold;
+      color: #3A3838;
+    }
 
-  .cornelius-label, .cornelius-people {
-    border-bottom: 1px solid #E4E4E4;
-    border-right: 1px solid #E4E4E4;
-    font-weight: bold;
-    color: #3A3838;
-  }
+    .cornelius-people,
+    .cornelius-stage,
+    .cornelius-empty,
+    .cornelius-percentage,
+    .cornelius-absolute {
+      width: 70px;
+    }
 
-  .cornelius-empty {
-    background-color: #FFFFFF;
-    border: none;
-  }
+    .cornelius-empty {
+      background-color: #FFFFFF;
+    }
 
-  .cornelius-low {
-    background-color: #F4F8FD;
-  }
+    .cornelius-low {
+      background-color: #F4F8FD;
+    }
 
-  .cornelius-medium-low {
-    background-color: #D8E6FF;
-  }
+    .cornelius-medium-low {
+      background-color: #D8E6FF;
+    }
 
-  .cornelius-medium {
-    background-color: #A6CAFF;
-  }
+    .cornelius-medium {
+      background-color: #A6CAFF;
+    }
 
-  .cornelius-medium-high {
-    background-color: #8FA4F8;
-  }
+    .cornelius-medium-high {
+      background-color: #8FA4F8;
+    }
 
-  .cornelius-high {
-    background-color: #3963DD;
-  }
+    .cornelius-high {
+      background-color: #3963DD;
+    }
 
-  .cornelius-hot {
-    background-color: #163BA5;
-  }
+    .cornelius-hot {
+      background-color: #163BA5;
+    }
 
-  .cornelius-extra-hot {
-    background-color: #041D66;
-  }
+    .cornelius-extra-hot {
+      background-color: #041D66;
+    }
 
-  .cornelius-medium-high, .cornelius-high, .cornelius-hot, .cornelius-extra-hot {
-    color: #FFFFFF;
-    text-shadow: 1px 1px 1px black;
+    .cornelius-medium-high,
+    .cornelius-high,
+    .cornelius-hot,
+    .cornelius-extra-hot {
+      color: #FFFFFF;
+      text-shadow: 1px 1px 1px black;
+    }
   }
 }

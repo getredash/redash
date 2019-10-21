@@ -11,13 +11,14 @@ function groupData(sortedData) {
   const result = {};
 
   _.each(sortedData, (item) => {
-    const groupKey = item.date + 0;
+    const date = moment(item.date);
+    const groupKey = date.valueOf();
     result[groupKey] = result[groupKey] || {
-      date: moment(item.date),
-      total: parseInt(item.total, 10),
+      date,
+      total: parseInt(item.total, 10) || 0,
       values: {},
     };
-    result[groupKey].values[item.stage] = parseInt(item.value, 10);
+    result[groupKey].values[item.stage] = parseInt(item.value, 10) || null;
   });
 
   return _.values(result);
