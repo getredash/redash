@@ -6,7 +6,7 @@ import 'cornelius/src/cornelius.css';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
-import editorTemplate from './cohort-editor.html';
+import Editor from './Editor';
 
 const momentInterval = {
   weekly: 'weeks',
@@ -184,28 +184,8 @@ const CohortRenderer = {
   },
 };
 
-const CohortEditor = {
-  template: editorTemplate,
-  bindings: {
-    data: '<',
-    options: '<',
-    onOptionsChange: '<',
-  },
-  controller($scope) {
-    this.currentTab = 'columns';
-    this.setCurrentTab = (tab) => {
-      this.currentTab = tab;
-    };
-
-    $scope.$watch('$ctrl.options', (options) => {
-      this.onOptionsChange(options);
-    }, true);
-  },
-};
-
 export default function init(ngModule) {
   ngModule.component('cohortRenderer', CohortRenderer);
-  ngModule.component('cohortEditor', CohortEditor);
 
   ngModule.run(($injector) => {
     registerVisualization({
@@ -213,7 +193,7 @@ export default function init(ngModule) {
       name: 'Cohort',
       getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
       Renderer: angular2react('cohortRenderer', CohortRenderer, $injector),
-      Editor: angular2react('cohortEditor', CohortEditor, $injector),
+      Editor,
 
       autoHeight: true,
       defaultRows: 8,
