@@ -3,12 +3,13 @@
  * Original library: http://restorando.github.io/cornelius
  */
 
-import { isNil, isFinite, each, map, extend, min, max } from 'lodash';
+import { isNil, isFinite, map, extend, min, max } from 'lodash';
 import moment from 'moment';
+import chroma from 'chroma-js';
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
-import { createNumberFormatter } from '@/lib/value-format';
+import { createNumberFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
 import './cornelius.less';
 
@@ -20,26 +21,22 @@ const momentInterval = {
 };
 
 const defaultOptions = {
+  initialDate: null,
   title: null,
-  repeatLevels: {
-    'low': [0, 10], // eslint-disable-line quote-props
-    'medium-low': [10, 20],
-    'medium': [20, 30], // eslint-disable-line quote-props
-    'medium-high': [30, 40],
-    'high': [40, 60], // eslint-disable-line quote-props
-    'hot': [60, 70], // eslint-disable-line quote-props
-    'extra-hot': [70, 100],
-  },
-  labels: {
-    time: 'Time',
-    people: 'People',
+  timeColumnTitle: 'Time',
+  peopleColumnTitle: 'People',
+  stageColumnTitle: '{{ @ }}',
+  colors: {
+    min: '#ffffff',
+    max: '#041d66',
+    steps: 7,
   },
   timeInterval: 'monthly',
   drawEmptyCells: true,
   rawNumberOnHover: true,
   displayAbsoluteValues: false,
   initialIntervalNumber: 1,
-  maxColumns: Number.MAX_SAFE_INTEGER,
+  maxColumns: Infinity,
   numberFormat: '0,0[.]00',
   percentFormat: '0.00%',
   labelFormat: {
@@ -53,19 +50,30 @@ const defaultOptions = {
 function prepareOptions(options) {
   options = extend({}, defaultOptions, options, {
     initialDate: moment(options.initialDate),
-    repeatLevels: extend({}, defaultOptions.repeatLevels, options.repeatLevels),
-    labels: extend({}, defaultOptions.labels, options.labels),
+    colors: extend({}, defaultOptions.colors, options.colors),
     labelFormat: extend({}, defaultOptions.labelFormat, options.labelFormat),
   });
 
   options.formatNumber = createNumberFormatter(options.numberFormat);
   options.formatPercent = createNumberFormatter(options.percentFormat);
 
+  options.getColorForValue = chroma.scale([options.colors.min, options.colors.max])
+    .mode('hsl')
+    .domain([0, 100])
+    .classes(options.colors.steps);
+
   return options;
 }
 
-function formatHeaderLabel(options, index) {
-  return index === 0 ? options.labels.people : (options.initialIntervalNumber - 1 + index).toString();
+function isDarkColor(backgroundColor) {
+  backgroundColor = chroma(backgroundColor);
+  const white = '#ffffff';
+  const black = '#000000';
+  return chroma.contrast(backgroundColor, white) > chroma.contrast(backgroundColor, black);
+}
+
+function formatStageTitle(options, index) {
+  return formatSimpleTemplate(options.stageColumnTitle, { '@': options.initialIntervalNumber - 1 + index });
 }
 
 function formatTimeLabel(options, offset) {
@@ -74,36 +82,16 @@ function formatTimeLabel(options, offset) {
   return options.initialDate.clone().add(offset, interval).format(format);
 }
 
-function classNameFor(options, percentageValue) {
-  let highestLevel = null;
-
-  const classNames = [options.displayAbsoluteValues ? 'cornelius-absolute' : 'cornelius-percentage'];
-
-  each(options.repeatLevels, (bounds, level) => {
-    highestLevel = level;
-    if ((percentageValue >= bounds[0]) && (percentageValue < bounds[1])) {
-      return false; // break
-    }
-  });
-
-  // handle 100% case
-  if (highestLevel) {
-    classNames.push(`cornelius-${highestLevel}`);
-  }
-
-  return classNames.join(' ');
-}
-
 function CorneliusHeader({ options, maxRowLength }) { // eslint-disable-line react/prop-types
   const cells = [];
   for (let i = 1; i < maxRowLength; i += 1) {
-    cells.push(<th key={`col${i}`} className="cornelius-stage">{formatHeaderLabel(options, i)}</th>);
+    cells.push(<th key={`col${i}`} className="cornelius-stage">{formatStageTitle(options, i)}</th>);
   }
 
   return (
     <tr>
-      <th className="cornelius-time">{options.labels.time}</th>
-      <th className="cornelius-people">{formatHeaderLabel(options, 0)}</th>
+      <th className="cornelius-time">{options.timeColumnTitle}</th>
+      <th className="cornelius-people">{options.peopleColumnTitle}</th>
       {cells}
     </tr>
   );
@@ -124,10 +112,17 @@ function CorneliusRow({ options, data, index, maxRowLength }) { // eslint-disabl
         cellProps.children = '-';
       }
     } else {
-      cellProps.className = classNameFor(options, percentageValue);
+      cellProps.className = options.displayAbsoluteValues ? 'cornelius-absolute' : 'cornelius-percentage';
       cellProps.children = options.displayAbsoluteValues ?
         options.formatNumber(value) :
         options.formatPercent(percentageValue);
+
+      const backgroundColor = options.getColorForValue(percentageValue);
+      cellProps.style = { backgroundColor };
+      if (isDarkColor(backgroundColor)) {
+        cellProps.className += ' cornelius-white-text';
+      }
+
       if (options.rawNumberOnHover && !options.displayAbsoluteValues) {
         cellProps.children = (
           <Tooltip title={options.formatNumber(value)} mouseEnterDelay={0} mouseLeaveDelay={0}>
@@ -154,7 +149,7 @@ export default function Cornelius({ data, options }) {
 
   const maxRowLength = useMemo(() => min([
     max(map(data, d => d.length)) || 0,
-    options.maxColumns,
+    options.maxColumns + 1, // each row includes totals, but `maxColumns` is only for stage columns
   ]), [data]);
 
   if (data.length === 0) {
@@ -184,19 +179,23 @@ Cornelius.propTypes = {
   options: PropTypes.shape({
     initialDate: PropTypes.instanceOf(Date).isRequired,
     title: PropTypes.string,
-    repeatLevels: PropTypes.object,
-    labels: PropTypes.shape({
-      time: PropTypes.string,
-      people: PropTypes.string,
-      weekOf: PropTypes.string,
+    timeColumnTitle: PropTypes.string,
+    stageColumnTitle: PropTypes.string,
+    peopleColumnTitle: PropTypes.string,
+    colors: PropTypes.shape({
+      min: PropTypes.string,
+      max: PropTypes.string,
+      steps: PropTypes.number,
     }),
-    timeInterval: PropTypes.oneOf(['daily', 'weekly', 'monthly']),
+    timeInterval: PropTypes.oneOf(['daily', 'weekly', 'monthly', 'yearly']),
     drawEmptyCells: PropTypes.bool,
     rawNumberOnHover: PropTypes.bool,
     displayAbsoluteValues: PropTypes.bool,
     initialIntervalNumber: PropTypes.number,
+    maxColumns: PropTypes.number,
+    numberFormat: PropTypes.string,
+    percentFormat: PropTypes.string,
     labelFormat: PropTypes.shape({
-      header: PropTypes.string,
       daily: PropTypes.string,
       weekly: PropTypes.string,
       monthly: PropTypes.string,

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { RendererPropTypes } from '@/visualizations';
+import ColorPalette from '@/visualizations/ColorPalette';
 
 import prepareData from './prepareData';
 import './renderer.less';
@@ -14,6 +15,9 @@ export default function Renderer({ data, options }) {
     timeInterval: options.timeInterval,
     labels: {
       people: 'Users',
+    },
+    colors: {
+      max: ColorPalette['Dark Blue'],
     },
   }), [options, initialDate]);
 
