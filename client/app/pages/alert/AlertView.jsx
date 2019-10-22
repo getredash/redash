@@ -7,7 +7,6 @@ import { Alert as AlertType } from '@/components/proptypes';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
 
 import Title from './components/Title';
@@ -46,6 +45,7 @@ AlertState.defaultProps = {
   lastTriggered: null,
 };
 
+// eslint-disable-next-line react/prefer-stateless-function
 export default class AlertView extends React.Component {
   render() {
     const { alert, queryResult, canEdit, onEdit, menuButton } = this.props;
@@ -66,13 +66,8 @@ export default class AlertView extends React.Component {
                 <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
               </HorizontalFormItem>
               <HorizontalFormItem label="Query">
-                <Query query={query} queryResult={queryResult} onChange={this.onQuerySelected} />
+                <Query query={query} queryResult={queryResult} />
               </HorizontalFormItem>
-              {query && !queryResult && (
-                <HorizontalFormItem className="m-t-30">
-                  <Icon type="loading" className="m-r-5" /> Loading query data
-                </HorizontalFormItem>
-              )}
               {queryResult && options && (
                 <>
                   <HorizontalFormItem label="Trigger when" className="alert-criteria">
