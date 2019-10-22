@@ -26,24 +26,17 @@ def get_object_counts():
     return status
 
 
-def get_queues():
+def get_celery_queues():
     queue_names = db.session.query(DataSource.queue_name).distinct()
     scheduled_queue_names = db.session.query(DataSource.scheduled_queue_name).distinct()
     query = db.session.execute(union_all(queue_names, scheduled_queue_names))
 
-    general_rq_queues = map(lambda q: 'rq:queue:' + q, ['default', 'periodic', 'schemas'])
-    return ['celery'] + general_rq_queues + [row[0] for row in query]
+    return ['celery'] + [row[0] for row in query]
 
 
 def get_queues_status():
-    queues = {}
-
-    for queue in get_queues():
-        queues[queue] = {
-            'size': redis_connection.llen(queue)
-        }
-
-    return queues
+    return dict({queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()}.items() +
+                {queue.name: {'size': len(queue)} for queue in Queue.all(connection=redis_connection)}.items())
 
 
 def get_db_sizes():
