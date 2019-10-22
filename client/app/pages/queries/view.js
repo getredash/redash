@@ -11,7 +11,6 @@ import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
 import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import notification from '@/services/notification';
 import template from './query.html';
-import { $http } from '@/services/ng';
 
 function QueryViewCtrl(
   $scope,
@@ -533,16 +532,8 @@ function QueryViewCtrl(
     const aclUrl = `api/queries/${$routeParams.queryId}/acl`;
     PermissionsEditorDialog.showModal({
       aclUrl,
-      ownerId: $scope.query.user.id,
-    }).then(({ added, removed }) => {
-      if (!isEmpty(added) || !isEmpty(removed)) {
-        const addedPromises = map(added, userId => $http.post(aclUrl, { access_type: 'modify', user_id: userId }));
-        const removedPromises = map(removed,
-          userId => $http.delete(aclUrl, { data: { access_type: 'modify', user_id: userId } }));
-        Promise.all([...addedPromises, ...removedPromises])
-          .then(() => notification.success('Permissions updated!'))
-          .catch(() => notification.error('Could not save one or more users'));
-      }
+      context: 'query',
+      owner: $scope.query.user,
     });
   };
 }
