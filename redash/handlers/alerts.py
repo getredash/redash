@@ -52,7 +52,7 @@ class AlertMuteResource(BaseResource):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
-        alert.options['muted'] = True;
+        alert.options['muted'] = True
         models.db.session.commit()
 
         self.record_event({
@@ -65,7 +65,7 @@ class AlertMuteResource(BaseResource):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
-        alert.options['muted'] = False;
+        alert.options['muted'] = False
         models.db.session.commit()
 
         self.record_event({
