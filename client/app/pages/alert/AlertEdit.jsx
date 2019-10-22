@@ -1,14 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { HelpTrigger } from '@/components/HelpTrigger';
+import HelpTrigger from '@/components/HelpTrigger';
 import { Alert as AlertType } from '@/components/proptypes';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
 
 import Title from './components/Title';
 import Criteria from './components/Criteria';
@@ -51,7 +48,7 @@ export default class AlertEdit extends React.Component {
   };
 
   render() {
-    const { alert, queryResult, pendingRearm, onNotificationTemplateChange } = this.props;
+    const { alert, queryResult, pendingRearm, onNotificationTemplateChange, menuButton } = this.props;
     const { onQuerySelected, onNameChange, onRearmChange, onCriteriaChange } = this.props;
     const { query, name, options } = alert;
     const { saving, canceling } = this.state;
@@ -67,20 +64,7 @@ export default class AlertEdit extends React.Component {
             {saving ? spinnerIcon : <i className="fa fa-check m-r-5" />}
             Save Changes
           </Button>
-          <Dropdown
-            className="m-l-5"
-            trigger={['click']}
-            placement="bottomRight"
-            overlay={(
-              <Menu>
-                <Menu.Item>
-                  <a onClick={this.props.delete}>Delete Alert</a>
-                </Menu.Item>
-              </Menu>
-            )}
-          >
-            <Button><Icon type="ellipsis" rotate={90} /></Button>
-          </Dropdown>
+          {menuButton}
         </Title>
         <div className="row bg-white tiled p-20">
           <div className="d-flex">
@@ -131,7 +115,7 @@ AlertEdit.propTypes = {
   alert: AlertType.isRequired,
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
   pendingRearm: PropTypes.number,
-  delete: PropTypes.func.isRequired,
+  menuButton: PropTypes.node.isRequired,
   save: PropTypes.func.isRequired,
   cancel: PropTypes.func.isRequired,
   onQuerySelected: PropTypes.func.isRequired,
