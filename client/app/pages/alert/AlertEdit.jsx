@@ -15,14 +15,11 @@ import Query from './components/Query';
 
 import HorizontalFormItem from './components/HorizontalFormItem';
 
-const spinnerIcon = <i className="fa fa-spinner fa-pulse m-r-5" />;
-
 export default class AlertEdit extends React.Component {
   _isMounted = false;
 
   state = {
     saving: false,
-    canceling: false,
   }
 
   componentDidMount() {
@@ -43,7 +40,6 @@ export default class AlertEdit extends React.Component {
   }
 
   cancel = () => {
-    this.setState({ canceling: true });
     this.props.cancel();
   };
 
@@ -51,17 +47,17 @@ export default class AlertEdit extends React.Component {
     const { alert, queryResult, pendingRearm, onNotificationTemplateChange, menuButton } = this.props;
     const { onQuerySelected, onNameChange, onRearmChange, onCriteriaChange } = this.props;
     const { query, name, options } = alert;
-    const { saving, canceling } = this.state;
+    const { saving } = this.state;
 
     return (
       <>
         <Title name={name} alert={alert} onChange={onNameChange} editMode>
           <Button className="m-r-5" onClick={() => this.cancel()}>
-            {canceling ? spinnerIcon : <i className="fa fa-times m-r-5" />}
+            <i className="fa fa-times m-r-5" />
             Cancel
           </Button>
           <Button type="primary" onClick={() => this.save()}>
-            {saving ? spinnerIcon : <i className="fa fa-check m-r-5" />}
+            {saving ? <i className="fa fa-spinner fa-pulse m-r-5" /> : <i className="fa fa-check m-r-5" />}
             Save Changes
           </Button>
           {menuButton}
@@ -101,9 +97,11 @@ export default class AlertEdit extends React.Component {
                 </>
               )}
             </Form>
-            <HelpTrigger className="f-13" type="ALERT_SETUP">
-              Setup Instructions <i className="fa fa-question-circle" />
-            </HelpTrigger>
+            <div>
+              <HelpTrigger className="f-13" type="ALERT_SETUP">
+                Setup Instructions <i className="fa fa-question-circle" />
+              </HelpTrigger>
+            </div>
           </div>
         </div>
       </>
