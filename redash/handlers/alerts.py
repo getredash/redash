@@ -46,6 +46,7 @@ class AlertResource(BaseResource):
         models.db.session.delete(alert)
         models.db.session.commit()
 
+
 class AlertMuteResource(BaseResource):
     def post(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
