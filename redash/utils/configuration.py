@@ -55,7 +55,7 @@ class ConfigurationContainer(Mutable):
         return json_dumps(self._config, sort_keys=True)
 
     def iteritems(self):
-        return iter(self._config.items())
+        return self._config.items()
 
     def to_dict(self, mask_secrets=False):
         if mask_secrets is False or 'secret' not in self.schema:
