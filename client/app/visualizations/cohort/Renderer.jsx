@@ -13,9 +13,7 @@ export default function Renderer({ data, options }) {
   const corneliusOptions = useMemo(() => ({
     initialDate,
     timeInterval: options.timeInterval,
-    labels: {
-      people: 'Users',
-    },
+    peopleColumnTitle: 'Users',
     colors: {
       max: ColorPalette['Dark Blue'],
     },

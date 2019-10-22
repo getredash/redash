@@ -20,30 +20,34 @@ const momentInterval = {
   yearly: 'years',
 };
 
+const timeLabelFormats = {
+  daily: 'MMMM D, YYYY',
+  weekly: '[Week of] MMM D, YYYY',
+  monthly: 'MMMM YYYY',
+  yearly: 'YYYY',
+};
+
 const defaultOptions = {
   initialDate: null,
-  title: null,
-  timeColumnTitle: 'Time',
-  peopleColumnTitle: 'People',
-  stageColumnTitle: '{{ @ }}',
-  colors: {
-    min: '#ffffff',
-    max: '#041d66',
-    steps: 7,
-  },
   timeInterval: 'monthly',
   drawEmptyCells: true,
   rawNumberOnHover: true,
   displayAbsoluteValues: false,
   initialIntervalNumber: 1,
   maxColumns: Infinity,
+
+  title: null,
+  timeColumnTitle: 'Time',
+  peopleColumnTitle: 'People',
+  stageColumnTitle: '{{ @ }}',
   numberFormat: '0,0[.]00',
   percentFormat: '0.00%',
-  labelFormat: {
-    daily: 'MMMM D, YYYY',
-    weekly: '[Week of] MMM D, YYYY',
-    monthly: 'MMMM YYYY',
-    yearly: 'YYYY',
+  timeLabelFormat: timeLabelFormats.monthly,
+
+  colors: {
+    min: '#ffffff',
+    max: '#041d66',
+    steps: 7,
   },
 };
 
@@ -51,18 +55,17 @@ function prepareOptions(options) {
   options = extend({}, defaultOptions, options, {
     initialDate: moment(options.initialDate),
     colors: extend({}, defaultOptions.colors, options.colors),
-    labelFormat: extend({}, defaultOptions.labelFormat, options.labelFormat),
   });
 
-  options.formatNumber = createNumberFormatter(options.numberFormat);
-  options.formatPercent = createNumberFormatter(options.percentFormat);
-
-  options.getColorForValue = chroma.scale([options.colors.min, options.colors.max])
-    .mode('hsl')
-    .domain([0, 100])
-    .classes(options.colors.steps);
-
-  return options;
+  return extend(options, {
+    timeLabelFormat: timeLabelFormats[options.timeInterval],
+    formatNumber: createNumberFormatter(options.numberFormat),
+    formatPercent: createNumberFormatter(options.percentFormat),
+    getColorForValue: chroma.scale([options.colors.min, options.colors.max])
+      .mode('hsl')
+      .domain([0, 100])
+      .classes(options.colors.steps),
+  });
 }
 
 function isDarkColor(backgroundColor) {
@@ -77,9 +80,8 @@ function formatStageTitle(options, index) {
 }
 
 function formatTimeLabel(options, offset) {
-  const format = options.labelFormat[options.timeInterval];
   const interval = momentInterval[options.timeInterval];
-  return options.initialDate.clone().add(offset, interval).format(format);
+  return options.initialDate.clone().add(offset, interval).format(options.timeLabelFormat);
 }
 
 function CorneliusHeader({ options, maxRowLength }) { // eslint-disable-line react/prop-types
@@ -178,28 +180,25 @@ Cornelius.propTypes = {
   data: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
   options: PropTypes.shape({
     initialDate: PropTypes.instanceOf(Date).isRequired,
-    title: PropTypes.string,
-    timeColumnTitle: PropTypes.string,
-    stageColumnTitle: PropTypes.string,
-    peopleColumnTitle: PropTypes.string,
-    colors: PropTypes.shape({
-      min: PropTypes.string,
-      max: PropTypes.string,
-      steps: PropTypes.number,
-    }),
     timeInterval: PropTypes.oneOf(['daily', 'weekly', 'monthly', 'yearly']),
     drawEmptyCells: PropTypes.bool,
     rawNumberOnHover: PropTypes.bool,
     displayAbsoluteValues: PropTypes.bool,
     initialIntervalNumber: PropTypes.number,
     maxColumns: PropTypes.number,
+
+    title: PropTypes.string,
+    timeColumnTitle: PropTypes.string,
+    peopleColumnTitle: PropTypes.string,
+    stageColumnTitle: PropTypes.string,
     numberFormat: PropTypes.string,
     percentFormat: PropTypes.string,
-    labelFormat: PropTypes.shape({
-      daily: PropTypes.string,
-      weekly: PropTypes.string,
-      monthly: PropTypes.string,
-      yearly: PropTypes.string,
+    timeLabelFormat: PropTypes.string,
+
+    colors: PropTypes.shape({
+      min: PropTypes.string,
+      max: PropTypes.string,
+      steps: PropTypes.number,
     }),
   }),
 };
