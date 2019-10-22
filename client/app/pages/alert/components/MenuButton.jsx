@@ -12,20 +12,18 @@ import Icon from 'antd/lib/icon';
 export default function MenuButton({ doDelete, canEdit }) {
   const [loading, setLoading] = useState(false);
 
-  const executeDelete = useCallback(() => {
-    setLoading(true);
-    doDelete().catch(() => {
-      setLoading(false);
-    });
-  }, []);
-
   const confirmDelete = useCallback(() => {
     Modal.confirm({
       title: 'Delete Alert',
       content: 'Are you sure you want to delete this alert?',
       okText: 'Delete',
       okType: 'danger',
-      onOk: executeDelete,
+      onOk: () => {
+        setLoading(true);
+        doDelete().catch(() => {
+          setLoading(false);
+        });
+      },
       maskClosable: true,
       autoFocusButton: null,
     });
