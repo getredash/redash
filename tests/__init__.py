@@ -95,10 +95,6 @@ class BaseTestCase(TestCase):
             content_type=content_type,
             follow_redirects=follow_redirects,
         )
-
-        if response.data and is_json:
-            response.json = json_loads(response.data)
-
         return response
 
     def get_request(self, path, org=None, headers=None):
