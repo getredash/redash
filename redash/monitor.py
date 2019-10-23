@@ -159,6 +159,10 @@ def rq_queues():
         } for q in Queue.all(connection=redis_connection)}
 
 
+def describe_job(job):
+    return '{} ({})'.format(job.id, job.func_name.split(".").pop()) if job else None
+
+
 def rq_workers():
     return [{
         'name': w.name,
@@ -168,8 +172,9 @@ def rq_workers():
         'state': w.state,
         'last_heartbeat': w.last_heartbeat,
         'birth_date': w.birth_date,
-        'successful_job_count': w.successful_job_count,
-        'failed_job_count': w.failed_job_count,
+        'current_job': describe_job(w.get_current_job()),
+        'successful_jobs': w.successful_job_count,
+        'failed_jobs': w.failed_job_count,
         'total_working_time': w.total_working_time
     } for w in Worker.all(connection=redis_connection)]
 
