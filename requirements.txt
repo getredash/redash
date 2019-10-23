@@ -1,5 +1,4 @@
 Flask==1.1.1
-Werkzeug==0.16.0
 Jinja2==2.10.3
 itsdangerous==1.1.0
 click==6.7

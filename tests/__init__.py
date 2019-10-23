@@ -47,7 +47,6 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config['TESTING'] = True
-        self.app.config['SERVER_NAME'] = 'localhost'
         limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
