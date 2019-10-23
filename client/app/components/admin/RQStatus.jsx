@@ -24,9 +24,11 @@ const workersColumns = [Columns.custom(
     /> {value}
     </span>
   ), { title: 'State', dataIndex: 'state' },
-)].concat(map(['Hostname', 'PID', 'Name', 'Queues', 'Successful Job Count',
-  'Failed Job Count', 'Birth Date', 'Total Working Time'],
-c => ({ title: c, dataIndex: c.toLowerCase().replace(/\s/g, '_') })));
+)].concat(map(['Hostname', 'PID', 'Name', 'Queues', 'Current Job', 'Successful Jobs', 'Failed Jobs'],
+  c => ({ title: c, dataIndex: c.toLowerCase().replace(/\s/g, '_') }))).concat([
+  Columns.dateTime({ title: 'Birth Date', dataIndex: 'birth_date' }),
+  Columns.duration({ title: 'Total Working Time', dataIndex: 'total_working_time' }),
+]);
 
 const queuesColumns = map(
   ['Name', 'Started', 'Queued'],
