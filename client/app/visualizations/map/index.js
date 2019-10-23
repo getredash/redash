@@ -1,5 +1,4 @@
 import { map } from 'lodash';
-import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 
@@ -7,6 +6,7 @@ import editorTemplate from './map-editor.html';
 
 import getOptions from './getOptions';
 import Renderer from './Renderer';
+import Editor from './Editor';
 
 const MAP_TILES = [
   {
@@ -59,7 +59,8 @@ const MAP_TILES = [
   },
 ];
 
-const MapEditor = {
+// TODO: Remove
+export const MapEditor = {
   template: editorTemplate,
   bindings: {
     data: '<',
@@ -100,21 +101,17 @@ const MapEditor = {
   },
 };
 
-export default function init(ngModule) {
-  ngModule.component('mapEditor', MapEditor);
+export default function init() {
+  registerVisualization({
+    type: 'MAP',
+    name: 'Map (Markers)',
+    getOptions,
+    Renderer,
+    Editor,
 
-  ngModule.run(($injector) => {
-    registerVisualization({
-      type: 'MAP',
-      name: 'Map (Markers)',
-      getOptions,
-      Renderer,
-      Editor: angular2react('mapEditor', MapEditor, $injector),
-
-      defaultColumns: 3,
-      defaultRows: 8,
-      minColumns: 2,
-    });
+    defaultColumns: 3,
+    defaultRows: 8,
+    minColumns: 2,
   });
 }
 
