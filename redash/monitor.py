@@ -128,7 +128,7 @@ def celery_tasks():
     tasks = parse_tasks(celery.control.inspect().active(), 'active')
     tasks += parse_tasks(celery.control.inspect().reserved(), 'reserved')
 
-    for queue_name in get_queues():
+    for queue_name in get_celery_queues():
         tasks += get_waiting_in_queue(queue_name)
 
     return tasks
