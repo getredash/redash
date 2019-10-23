@@ -5,16 +5,20 @@ const DEFAULT_OPTIONS = {
   lonColName: 'lon',
   classify: null,
   groups: {},
+  mapTileUrl: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   clusterMarkers: true,
+  customizeMarkers: false,
   iconShape: 'marker',
   iconFont: 'circle',
   foregroundColor: '#ffffff',
   backgroundColor: '#356AFF',
   borderColor: '#356AFF',
+  bounds: null,
 };
 
 export default function getOptions(options) {
   options = merge({}, DEFAULT_OPTIONS, options);
+  options.mapTileUrl = options.mapTileUrl || DEFAULT_OPTIONS.mapTileUrl;
 
   // Backward compatibility
   if (options.classify === 'none') {

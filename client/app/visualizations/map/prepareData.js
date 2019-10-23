@@ -8,8 +8,6 @@ export default function prepareData(data, options) {
 
   const pointGroups = classify ? groupBy(data.rows, classify) : { All: data.rows };
 
-  const groupsOptions = extend({}, options.groups);
-
   return filter(map(pointGroups, (rows, name) => {
     const points = filter(map(rows, (row) => {
       const lat = row[latColName];
@@ -22,6 +20,6 @@ export default function prepareData(data, options) {
     if (points.length === 0) {
       return null;
     }
-    return extend({ name, color: colorScale(name), points }, groupsOptions[name]);
+    return extend({ name, color: colorScale(name), points }, options.groups[name]);
   }));
 }

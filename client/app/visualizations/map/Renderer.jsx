@@ -1,14 +1,13 @@
 import { isEqual, omit, merge } from 'lodash';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import resizeObserver from '@/services/resizeObserver';
 import { RendererPropTypes } from '@/visualizations';
 
 import prepareData from './prepareData';
 import initMap from './initMap';
 
-function useMemoWithDeepCompare(getter, dependencies) {
+function useMemoWithDeepCompare(create, inputs) {
   const valueRef = useRef();
-  const value = useMemo(getter, dependencies);
+  const value = useMemo(create, inputs);
   if (!isEqual(value, valueRef.current)) {
     valueRef.current = value;
   }
@@ -17,30 +16,30 @@ function useMemoWithDeepCompare(getter, dependencies) {
 
 export default function Renderer({ data, options, onOptionsChange }) {
   const [container, setContainer] = useState(null);
-  const [map, setMap] = useState(null);
+
   const optionsWithoutBounds = useMemoWithDeepCompare(
     () => omit(options, ['bounds']),
     [options],
   );
-  const groups = useMemo(() => prepareData(data, optionsWithoutBounds), [data, optionsWithoutBounds]);
+
+  const groups = useMemo(
+    () => prepareData(data, optionsWithoutBounds),
+    [data, optionsWithoutBounds],
+  );
+
+  const [map, setMap] = useState(null);
 
   useEffect(() => {
     if (container) {
-      const m = initMap(container);
-      setMap(m);
-      const unwatch = resizeObserver(container, () => { m.resize(); });
-      return () => {
-        unwatch();
-        m.destroy();
-      };
+      const _map = initMap(container);
+      setMap(_map);
+      return () => { _map.destroy(); };
     }
   }, [container]);
 
-  // Here we need to watch for all options except of bounds, but supply all options to `render()`;
-  // bounds will be handled by another hook
   useEffect(() => {
     if (map) {
-      map.render(groups, options);
+      map.updateLayers(groups, optionsWithoutBounds);
     }
   }, [map, groups, optionsWithoutBounds]);
 
@@ -52,8 +51,8 @@ export default function Renderer({ data, options, onOptionsChange }) {
 
   useEffect(() => {
     if (map && onOptionsChange) {
-      map.onOptionsChange = (newOptions) => {
-        onOptionsChange(merge({}, options, newOptions));
+      map.onBoundsChange = (bounds) => {
+        onOptionsChange(merge({}, options, { bounds }));
       };
     }
   }, [map, options, onOptionsChange]);

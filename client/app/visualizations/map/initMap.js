@@ -1,4 +1,4 @@
-import _, { each, flatten } from 'lodash';
+import { isFunction, each, map } from 'lodash';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
@@ -11,6 +11,7 @@ import markerIconRetina from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
+import resizeObserver from '@/services/resizeObserver';
 
 // This is a workaround for an issue with giving Leaflet load the icon on its own.
 L.Icon.Default.mergeOptions({
@@ -35,15 +36,10 @@ const popupAnchors = {
   circle: [1, -3],
 };
 
-function createHeatpointMarker(lat, lon, color) {
-  const style = {
-    fillColor: color,
-    fillOpacity: 0.9,
-    stroke: false,
-  };
-
-  return L.circleMarker([lat, lon], style);
-}
+const createHeatpointMarker = (lat, lon, color) => L.circleMarker(
+  [lat, lon],
+  { fillColor: color, fillOpacity: 0.9, stroke: false },
+);
 
 const createDefaultMarker = (lat, lon) => L.marker([lat, lon]);
 
@@ -93,17 +89,6 @@ function createMarkerClusterGroup(classify, color) {
   return L.markerClusterGroup(layerOptions);
 }
 
-function createDescription(lat, lon, row) {
-  let description = '<ul style="list-style-type: none;padding-left: 0">';
-  description += `<li><strong>${lat}, ${lon}</strong>`;
-
-  each(row, (v, k) => {
-    description += `<li>${k}: ${v}</li>`;
-  });
-
-  return description;
-}
-
 function createMarkersLayer(options, { color, points }) {
   const { classify, clusterMarkers, customizeMarkers } = options;
 
@@ -122,7 +107,12 @@ function createMarkersLayer(options, { color, points }) {
       }
     }
 
-    marker.bindPopup(createDescription(lat, lon, row));
+    marker.bindPopup(`
+      <ul style="list-style-type: none; padding-left: 0">
+        <li><strong>${lat}, ${lon}</strong>
+        ${map(row, (v, k) => `<li>${k}: ${v}</li>`).join('')}
+      </ul>
+  `);
     result.addLayer(marker);
   });
 
@@ -130,104 +120,81 @@ function createMarkersLayer(options, { color, points }) {
 }
 
 export default function initMap(container) {
-  const map = L.map(container, {
+  const _map = L.map(container, {
+    center: [0.0, 0.0],
+    zoom: 1,
     scrollWheelZoom: false,
     fullscreenControl: true,
   });
-  const mapControls = L.control.layers().addTo(map);
-  const layers = {};
-  const tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  const _tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
+  }).addTo(_map);
+  const _markerLayers = L.featureGroup().addTo(_map);
+  const _layersControls = L.control.layers().addTo(_map);
 
-  let lastBounds = null;
-  let onOptionsChange = null;
+  let onBoundsChange = () => {};
 
-  let mapMoveLock = false;
-
-  const onMapMoveStart = () => {
-    mapMoveLock = true;
-  };
-
+  let boundsChangedFromMap = false;
   const onMapMoveEnd = () => {
-    if (onOptionsChange) {
-      onOptionsChange({ bounds: map.getBounds() });
-    }
+    onBoundsChange(_map.getBounds());
   };
-
-  map.on('focus', () => {
-    map.on('movestart', onMapMoveStart);
-    map.on('moveend', onMapMoveEnd);
+  _map.on('focus', () => {
+    boundsChangedFromMap = true;
+    _map.on('moveend', onMapMoveEnd);
   });
-  map.on('blur', () => {
-    map.off('movestart', onMapMoveStart);
-    map.off('moveend', onMapMoveEnd);
+  _map.on('blur', () => {
+    _map.off('moveend', onMapMoveEnd);
+    boundsChangedFromMap = false;
   });
 
-  const updateBounds = (disableAnimation) => {
-    if (mapMoveLock) {
-      return;
-    }
+  function updateLayers(groups, options) {
+    _tileLayer.setUrl(options.mapTileUrl);
 
-    if (lastBounds) {
-      map.fitBounds([
-        [lastBounds._southWest.lat, lastBounds._southWest.lng],
-        [lastBounds._northEast.lat, lastBounds._northEast.lng],
-      ]);
-    } else if (layers) {
-      const allMarkers = flatten(_.map(layers, l => l.getLayers()));
-      if (allMarkers.length > 0) {
-        const group = L.featureGroup(allMarkers);
-        const config = disableAnimation ? {
-          animate: false,
-          duration: 0,
-        } : null;
-        map.fitBounds(group.getBounds(), config);
-      }
-    }
-  };
-
-  const render = (groups, options) => {
-    tileLayer.setUrl(options.mapTileUrl || '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
-
-    each(layers, (layer) => {
-      mapControls.removeLayer(layer);
-      map.removeLayer(layer);
+    _markerLayers.eachLayer((layer) => {
+      _markerLayers.removeLayer(layer);
+      _layersControls.removeLayer(layer);
     });
 
     each(groups, (group) => {
-      const { name } = group;
-
-      const markers = createMarkersLayer(options, group);
-      markers.addTo(map);
-
-      layers[name] = markers;
-      mapControls.addOverlay(markers, name);
+      const layer = createMarkersLayer(options, group);
+      _markerLayers.addLayer(layer);
+      _layersControls.addOverlay(layer, group.name);
     });
 
-    lastBounds = options.bounds;
-    updateBounds(true);
-  };
+    // hide layers control if it is empty
+    if (groups.length > 0) {
+      _layersControls.addTo(_map);
+    } else {
+      _layersControls.remove();
+    }
+  }
 
-  // don't use this object after calling `destroy()` - let all this stuff to die
+  function updateBounds(bounds) {
+    if (!boundsChangedFromMap) {
+      bounds = bounds ? L.latLngBounds(
+        [bounds._southWest.lat, bounds._southWest.lng],
+        [bounds._northEast.lat, bounds._northEast.lng],
+      ) : _markerLayers.getBounds();
+      if (bounds.isValid()) {
+        _map.fitBounds(bounds, { animate: false, duration: 0 });
+      }
+    }
+  }
+
+  const unwatchResize = resizeObserver(container, () => { _map.invalidateSize(false); });
+
   return {
-    render,
-    get onOptionsChange() {
-      return onOptionsChange;
+    get onBoundsChange() {
+      return onBoundsChange;
     },
-    set onOptionsChange(cb) {
-      onOptionsChange = cb;
+    set onBoundsChange(value) {
+      onBoundsChange = isFunction(value) ? value : () => {};
     },
-    resize() {
-      map.invalidateSize(false);
-      updateBounds(true);
-    },
-    updateBounds(newBounds) {
-      lastBounds = newBounds;
-      updateBounds(false);
-    },
+    updateLayers,
+    updateBounds,
     destroy() {
-      map.remove();
+      unwatchResize();
+      _map.remove();
     },
   };
 }
