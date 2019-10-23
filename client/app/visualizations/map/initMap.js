@@ -12,8 +12,6 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
-import prepareData from './prepareData';
-
 // This is a workaround for an issue with giving Leaflet load the icon on its own.
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
@@ -189,28 +187,26 @@ export default function initMap(container) {
     }
   };
 
-  const render = (data, options) => {
+  const render = (groups, options) => {
     tileLayer.setUrl(options.mapTileUrl || '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
 
-    if (data) {
-      each(layers, (layer) => {
-        mapControls.removeLayer(layer);
-        map.removeLayer(layer);
-      });
+    each(layers, (layer) => {
+      mapControls.removeLayer(layer);
+      map.removeLayer(layer);
+    });
 
-      each(prepareData(data, options), (group) => {
-        const { name } = group;
+    each(groups, (group) => {
+      const { name } = group;
 
-        const markers = createMarkersLayer(options, group);
-        markers.addTo(map);
+      const markers = createMarkersLayer(options, group);
+      markers.addTo(map);
 
-        layers[name] = markers;
-        mapControls.addOverlay(markers, name);
-      });
+      layers[name] = markers;
+      mapControls.addOverlay(markers, name);
+    });
 
-      lastBounds = options.bounds;
-      updateBounds(true);
-    }
+    lastBounds = options.bounds;
+    updateBounds(true);
   };
 
   // don't use this object after calling `destroy()` - let all this stuff to die
