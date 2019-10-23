@@ -1,11 +1,63 @@
-import React from 'react';
+import { map } from 'lodash';
+import React, { useMemo, useCallback } from 'react';
+import Table from 'antd/lib/table';
+import ColorPicker from '@/components/ColorPicker';
 import { EditorPropTypes } from '@/visualizations';
+import ColorPalette from '@/visualizations/ColorPalette';
 
-export default function GroupsSettings() {
+import prepareData from '../prepareData';
+
+export default function GroupsSettings({ options, data, onOptionsChange }) {
+  const groups = useMemo(() => map(
+    prepareData(data, options),
+    ({ name }) => ({ name, color: (options.groups[name] || {}).color || null }),
+  ), [data, options]);
+
+  const colors = useMemo(() => ({
+    Automatic: null,
+    ...ColorPalette,
+  }), []);
+
+  const updateGroupOption = useCallback((name, prop, value) => {
+    onOptionsChange({
+      groups: {
+        [name]: {
+          [prop]: value,
+        },
+      },
+    });
+  }, [onOptionsChange]);
+
+  const columns = [
+    {
+      title: 'Group',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Color',
+      dataIndex: 'color',
+      width: '1%',
+      render: (unused, item) => (
+        <ColorPicker
+          data-test={`Map.Groups.${item.key}.Color`}
+          interactive
+          presetColors={colors}
+          placement="topRight"
+          color={item.color}
+          onChange={value => updateGroupOption(item.name, 'color', value)}
+        />
+      ),
+    },
+  ];
+
   return (
-    <React.Fragment>
-      Groups
-    </React.Fragment>
+    <Table
+      columns={columns}
+      dataSource={groups}
+      rowKey="name"
+      showHeader={false}
+      pagination={false}
+    />
   );
 }
 

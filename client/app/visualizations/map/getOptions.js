@@ -4,6 +4,7 @@ const DEFAULT_OPTIONS = {
   latColName: 'lat',
   lonColName: 'lon',
   classify: null,
+  groups: {},
   clusterMarkers: true,
   iconShape: 'marker',
   iconFont: 'circle',
