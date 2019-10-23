@@ -155,7 +155,7 @@ def rq_queues():
         q.name: {
             'name': q.name,
             'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
-            'queued': fetch_jobs(q, q.job_ids)
+            'queued': len(q.job_ids)
         } for q in Queue.all(connection=redis_connection)}
 
 
