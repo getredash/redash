@@ -1,6 +1,7 @@
 import { toString } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import tinycolor from 'tinycolor2';
 import Popover from 'antd/lib/popover';
 import Card from 'antd/lib/card';
@@ -19,6 +20,7 @@ function validateColor(value, fallback = null) {
 
 export default function ColorPicker({
   color, placement, presetColors, presetColumns, triggerSize, interactive, children, onChange,
+  className, ...props
 }) {
   const [visible, setVisible] = useState(false);
   const [currentColor, setCurrentColor] = useState('');
@@ -67,6 +69,7 @@ export default function ColorPicker({
       overlayStyle={{ '--color-picker-selected-color': currentColor }}
       content={(
         <Card
+          data-test="ColorPicker"
           className="color-picker-panel"
           bordered={false}
           title={toString(currentColor).toUpperCase()}
@@ -90,7 +93,14 @@ export default function ColorPicker({
       visible={visible}
       onVisibleChange={setVisible}
     >
-      {children || (<Swatch className="color-picker-trigger" color={validateColor(color)} size={triggerSize} />)}
+      {children || (
+        <Swatch
+          className={cx('color-picker-trigger', className)}
+          color={validateColor(color)}
+          size={triggerSize}
+          {...props}
+        />
+      )}
     </Popover>
   );
 }
@@ -111,6 +121,7 @@ ColorPicker.propTypes = {
   interactive: PropTypes.bool,
   children: PropTypes.node,
   onChange: PropTypes.func,
+  className: PropTypes.string,
 };
 
 ColorPicker.defaultProps = {
@@ -122,6 +133,7 @@ ColorPicker.defaultProps = {
   interactive: false,
   children: null,
   onChange: () => {},
+  className: null,
 };
 
 ColorPicker.Input = ColorInput;

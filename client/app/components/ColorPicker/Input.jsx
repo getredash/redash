@@ -61,6 +61,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
       ))}
       <div className="color-picker-input">
         <TextInput
+          data-test="ColorPicker.CustomColor"
           addonBefore={<Typography.Text type="secondary">#</Typography.Text>}
           value={inputValue}
           onChange={e => handleInputChange(e.target.value)}

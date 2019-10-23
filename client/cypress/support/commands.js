@@ -47,7 +47,7 @@ Cypress.Commands.add('clickThrough', (...args) => {
 
 Cypress.Commands.add('fillInputs', (elements) => {
   each(elements, (value, testId) => {
-    cy.getByTestId(testId).clear().type(value);
+    cy.getByTestId(testId).filter(':visible').clear().type(value);
   });
 });
 
