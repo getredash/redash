@@ -271,4 +271,10 @@ def get_next_path(unsafe_next_path):
     parts[1] = ''  # clear netloc
     safe_next_path = urlunsplit(parts)
 
+    # If the original path was a URL, we might end up with an empty
+    # safe url, which will redirect to the login page. Changing to 
+    # relative root to redirect to the app root after login.
+    if not safe_next_path:
+        safe_next_path = './'
+
     return safe_next_path
