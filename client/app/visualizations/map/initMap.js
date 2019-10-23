@@ -1,4 +1,4 @@
-import _, { each, flatten, values } from 'lodash';
+import _, { each, flatten } from 'lodash';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
@@ -106,6 +106,31 @@ function createDescription(lat, lon, row) {
   return description;
 }
 
+function createMarkersLayer(options, { color, points }) {
+  const { classify, clusterMarkers, customizeMarkers } = options;
+
+  const result = clusterMarkers ? createMarkerClusterGroup(classify, color) : L.layerGroup();
+
+  // create markers
+  each(points, ({ lat, lon, row }) => {
+    let marker;
+    if (classify) {
+      marker = createHeatpointMarker(lat, lon, color);
+    } else {
+      if (customizeMarkers) {
+        marker = createIconMarker(lat, lon, options);
+      } else {
+        marker = createDefaultMarker(lat, lon);
+      }
+    }
+
+    marker.bindPopup(createDescription(lat, lon, row));
+    result.addLayer(marker);
+  });
+
+  return result;
+}
+
 export default function initMap(container) {
   const map = L.map(container, {
     scrollWheelZoom: false,
@@ -118,6 +143,7 @@ export default function initMap(container) {
   }).addTo(map);
 
   let lastBounds = null;
+  let onOptionsChange = null;
 
   let mapMoveLock = false;
 
@@ -126,10 +152,9 @@ export default function initMap(container) {
   };
 
   const onMapMoveEnd = () => {
-    // this.options.bounds = map.getBounds();
-    // if (this.onOptionsChange) {
-    //   this.onOptionsChange(this.options);
-    // }
+    if (onOptionsChange) {
+      onOptionsChange({ bounds: map.getBounds() });
+    }
   };
 
   map.on('focus', () => {
@@ -152,7 +177,7 @@ export default function initMap(container) {
         [lastBounds._northEast.lat, lastBounds._northEast.lng],
       ]);
     } else if (layers) {
-      const allMarkers = flatten(_.map(values(layers), l => l.getLayers()));
+      const allMarkers = flatten(_.map(layers, l => l.getLayers()));
       if (allMarkers.length > 0) {
         const group = L.featureGroup(allMarkers);
         const config = disableAnimation ? {
@@ -164,49 +189,25 @@ export default function initMap(container) {
     }
   };
 
-  const addLayer = (options, { name, color, points }) => {
-    const { classify, clusterMarkers, customizeMarkers } = options;
-
-    let markers;
-    if (clusterMarkers) {
-      markers = createMarkerClusterGroup(classify, color);
-    } else {
-      markers = L.layerGroup();
-    }
-
-    // create markers
-    each(points, ({ lat, lon, row }) => {
-      let marker;
-      if (classify) {
-        marker = createHeatpointMarker(lat, lon, color);
-      } else {
-        if (customizeMarkers) {
-          marker = createIconMarker(lat, lon, options);
-        } else {
-          marker = createDefaultMarker(lat, lon);
-        }
-      }
-
-      marker.bindPopup(createDescription(lat, lon, row));
-      markers.addLayer(marker);
-    });
-
-    markers.addTo(map);
-
-    layers[name] = markers;
-    mapControls.addOverlay(markers, name);
-  };
-
   const render = (data, options) => {
     tileLayer.setUrl(options.mapTileUrl || '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
 
     if (data) {
-      const pointGroups = prepareData(data, options);
       each(layers, (layer) => {
         mapControls.removeLayer(layer);
         map.removeLayer(layer);
       });
-      each(pointGroups, group => addLayer(options, group));
+
+      each(prepareData(data, options), (group) => {
+        const { name } = group;
+
+        const markers = createMarkersLayer(options, group);
+        markers.addTo(map);
+
+        layers[name] = markers;
+        mapControls.addOverlay(markers, name);
+      });
+
       lastBounds = options.bounds;
       updateBounds(true);
     }
@@ -215,6 +216,12 @@ export default function initMap(container) {
   // don't use this object after calling `destroy()` - let all this stuff to die
   return {
     render,
+    get onOptionsChange() {
+      return onOptionsChange;
+    },
+    set onOptionsChange(cb) {
+      onOptionsChange = cb;
+    },
     resize() {
       map.invalidateSize(false);
       updateBounds(true);
