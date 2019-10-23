@@ -65,22 +65,10 @@ function createMarkerClusterGroup(classify, color) {
   if (classify) {
     layerOptions.iconCreateFunction = (cluster) => {
       const childCount = cluster.getChildCount();
-
-      let c = ' marker-cluster-';
-      if (childCount < 10) {
-        c += 'small';
-      } else if (childCount < 100) {
-        c += 'medium';
-      } else {
-        c += 'large';
-      }
-
-      c = ''; // TODO: wtf???
-
       const style = `color: white; background-color: ${color};`;
       return L.divIcon({
         html: `<div style="${style}"><span>${childCount}</span></div>`,
-        className: `marker-cluster${c}`,
+        className: 'marker-cluster',
         iconSize: new L.Point(40, 40),
       });
     };
