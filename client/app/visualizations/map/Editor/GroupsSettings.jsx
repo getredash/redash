@@ -39,7 +39,7 @@ export default function GroupsSettings({ options, data, onOptionsChange }) {
       width: '1%',
       render: (unused, item) => (
         <ColorPicker
-          data-test={`Map.Groups.${item.key}.Color`}
+          data-test={`Map.Editor.Groups.${item.key}.Color`}
           interactive
           presetColors={colors}
           placement="topRight"
