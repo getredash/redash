@@ -67,7 +67,7 @@ class Snowflake(BaseQueryRunner):
             return TYPE_FLOAT
         return t
 
-    def run_query(self, query, user):
+    def _get_connection(self):
         region = self.configuration.get('region')
 
         # for us-west we don't need to pass a region (and if we do, it fails to connect)
@@ -81,6 +81,19 @@ class Snowflake(BaseQueryRunner):
             region=region
         )
 
+        return connection
+
+    def _parse_results(self, cursor):
+        columns = self.fetch_columns(
+            [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
+        rows = [dict(zip((column['name'] for column in columns), row))
+                for row in cursor]
+
+        data = {'columns': columns, 'rows': rows}
+        return data
+
+    def run_query(self, query, user):
+        connection = self._get_connection()
         cursor = connection.cursor()
 
         try:
@@ -90,12 +103,7 @@ class Snowflake(BaseQueryRunner):
 
             cursor.execute(query)
 
-            columns = self.fetch_columns(
-                    [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
-            rows = [dict(zip((column['name'] for column in columns), row))
-                    for row in cursor]
-
-            data = {'columns': columns, 'rows': rows}
+            data = self._parse_results(cursor)
             error = None
             json_data = json_dumps(data)
         finally:
@@ -104,20 +112,8 @@ class Snowflake(BaseQueryRunner):
 
         return json_data, error
 
-    def __run_query_without_warehouse(self, query, user):
-        region = self.configuration.get('region')
-
-        # for us-west we don't need to pass a region (and if we do, it fails to connect)
-        if region == 'us-west':
-            region = None
-
-        connection = snowflake.connector.connect(
-            user=self.configuration['user'],
-            password=self.configuration['password'],
-            account=self.configuration['account'],
-            region=region
-        )
-
+    def _run_query_without_warehouse(self, query, user):
+        connection = self._get_connection()
         cursor = connection.cursor()
 
         try:
@@ -125,33 +121,25 @@ class Snowflake(BaseQueryRunner):
 
             cursor.execute(query)
 
-            columns = self.fetch_columns(
-                [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row))
-                    for row in cursor]
-
-            data = {'columns': columns, 'rows': rows}
+            data = self._parse_results(cursor)
             error = None
-            json_data = json_dumps(data)
         finally:
             cursor.close()
             connection.close()
 
-        return json_data, error
+        return data, error
 
     def get_schema(self, get_stats=False):
         query = """
         SHOW COLUMNS IN DATABASE {database}
         """.format(database=self.configuration['database'])
 
-        results, error = self.__run_query_without_warehouse(query, None)
+        results, error = self._run_query_without_warehouse(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
 
         schema = {}
-        results = json_loads(results)
-
         for row in results['rows']:
             if row['kind'] == 'COLUMN':
                 table_name = '{}.{}'.format(row['schema_name'], row['table_name'])
