@@ -12,12 +12,12 @@ from celery.utils.log import get_logger
 from rq import get_current_job
 from rq.decorators import job as rq_job
 
-from redash import create_app, extensions, settings, redis_connection
+from redash import create_app, extensions, settings, redis_connection, rq_redis_connection
 from redash.metrics import celery as celery_metrics  # noqa
 
 logger = get_logger(__name__)
 
-job = partial(rq_job, connection=redis_connection)
+job = partial(rq_job, connection=rq_redis_connection)
 
 
 class CurrentJobFilter(logging.Filter):
