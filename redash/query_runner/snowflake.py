@@ -104,16 +104,47 @@ class Snowflake(BaseQueryRunner):
 
         return json_data, error
 
+    def __run_query_without_warehouse(self, query, user):
+        region = self.configuration.get('region')
+
+        # for us-west we don't need to pass a region (and if we do, it fails to connect)
+        if region == 'us-west':
+            region = None
+
+        connection = snowflake.connector.connect(
+            user=self.configuration['user'],
+            password=self.configuration['password'],
+            account=self.configuration['account'],
+            region=region
+        )
+
+        cursor = connection.cursor()
+
+        try:
+            cursor.execute("USE {}".format(self.configuration['database']))
+
+            cursor.execute(query)
+
+            columns = self.fetch_columns(
+                [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
+            rows = [dict(zip((c['name'] for c in columns), row))
+                    for row in cursor]
+
+            data = {'columns': columns, 'rows': rows}
+            error = None
+            json_data = json_dumps(data)
+        finally:
+            cursor.close()
+            connection.close()
+
+        return json_data, error
+
     def get_schema(self, get_stats=False):
         query = """
-        SELECT col.table_schema,
-               col.table_name,
-               col.column_name
-        FROM {database}.information_schema.columns col
-        WHERE col.table_schema <> 'INFORMATION_SCHEMA'
+        SHOW COLUMNS IN DATABASE {database}
         """.format(database=self.configuration['database'])
 
-        results, error = self.run_query(query, None)
+        results, error = self.__run_query_without_warehouse(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -122,12 +153,13 @@ class Snowflake(BaseQueryRunner):
         results = json_loads(results)
 
         for row in results['rows']:
-            table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+            if row['kind'] == 'COLUMN':
+                table_name = '{}.{}'.format(row['schema_name'], row['table_name'])
 
-            if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                if table_name not in schema:
+                    schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+                schema[table_name]['columns'].append(row['column_name'])
 
         return list(schema.values())
 
