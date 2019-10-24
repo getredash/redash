@@ -7,9 +7,6 @@ import { Alert as AlertType } from '@/components/proptypes';
 
 import Form from 'antd/lib/form';
 import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
 import Tooltip from 'antd/lib/tooltip';
 
 import Title from './components/Title';
@@ -48,9 +45,10 @@ AlertState.defaultProps = {
   lastTriggered: null,
 };
 
+// eslint-disable-next-line react/prefer-stateless-function
 export default class AlertView extends React.Component {
   render() {
-    const { alert, queryResult, canEdit, onEdit } = this.props;
+    const { alert, queryResult, canEdit, onEdit, menuButton } = this.props;
     const { query, name, options, rearm } = alert;
 
     return (
@@ -58,20 +56,7 @@ export default class AlertView extends React.Component {
         <Title name={name} alert={alert}>
           <Tooltip title={canEdit ? '' : 'You do not have sufficient permissions to edit this alert'}>
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}><i className="fa fa-edit m-r-5" />Edit</Button>
-            <Dropdown
-              className={cx('m-l-5', { disabled: !canEdit })}
-              trigger={[canEdit ? 'click' : undefined]}
-              placement="bottomRight"
-              overlay={(
-                <Menu>
-                  <Menu.Item>
-                    <a onClick={this.props.delete}>Delete Alert</a>
-                  </Menu.Item>
-                </Menu>
-              )}
-            >
-              <Button><Icon type="ellipsis" rotate={90} /></Button>
-            </Dropdown>
+            {menuButton}
           </Tooltip>
         </Title>
         <div className="row bg-white tiled p-20">
@@ -81,13 +66,8 @@ export default class AlertView extends React.Component {
                 <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
               </HorizontalFormItem>
               <HorizontalFormItem label="Query">
-                <Query query={query} queryResult={queryResult} onChange={this.onQuerySelected} />
+                <Query query={query} queryResult={queryResult} />
               </HorizontalFormItem>
-              {query && !queryResult && (
-                <HorizontalFormItem className="m-t-30">
-                  <Icon type="loading" className="m-r-5" /> Loading query data
-                </HorizontalFormItem>
-              )}
               {queryResult && options && (
                 <>
                   <HorizontalFormItem label="Trigger when" className="alert-criteria">
@@ -126,8 +106,8 @@ AlertView.propTypes = {
   alert: AlertType.isRequired,
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types,
   canEdit: PropTypes.bool.isRequired,
-  delete: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
+  menuButton: PropTypes.node.isRequired,
 };
 
 AlertView.defaultProps = {
