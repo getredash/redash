@@ -17,7 +17,7 @@ import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-import { Parameter } from '@/services/query';
+import { Parameter } from '@/services/parameters';
 import HelpTrigger from '@/components/HelpTrigger';
 
 import './ParameterMappingInput.less';
@@ -545,11 +545,11 @@ export class ParameterMappingListInput extends React.Component {
       param = param.clone().setValue(mapping.value);
     }
 
-    let value = Parameter.getValue(param);
+    let value = Parameter.getExecutionValue(param);
 
     // in case of dynamic value display the name instead of value
     if (param.hasDynamicValue) {
-      value = param.dynamicValue.name;
+      value = param.normalizedValue.name;
     }
 
     return this.getStringValue(value);

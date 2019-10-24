@@ -5,6 +5,8 @@ import Dropdown from 'antd/lib/dropdown';
 import Icon from 'antd/lib/icon';
 import Menu from 'antd/lib/menu';
 import Typography from 'antd/lib/typography';
+import { DynamicDateType } from '@/services/parameters/DateParameter';
+import { DynamicDateRangeType } from '@/services/parameters/DateRangeParameter';
 
 import './DynamicButton.less';
 
@@ -62,7 +64,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
 
 DynamicButton.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object), // eslint-disable-line react/forbid-prop-types
-  selectedDynamicValue: PropTypes.string,
+  selectedDynamicValue: PropTypes.oneOfType([DynamicDateType, DynamicDateRangeType]),
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,
 };
