@@ -112,7 +112,7 @@ class Snowflake(BaseQueryRunner):
 
         return json_data, error
 
-    def _run_query_without_warehouse(self, query, user):
+    def _run_query_without_warehouse(self, query):
         connection = self._get_connection()
         cursor = connection.cursor()
 
@@ -134,7 +134,7 @@ class Snowflake(BaseQueryRunner):
         SHOW COLUMNS IN DATABASE {database}
         """.format(database=self.configuration['database'])
 
-        results, error = self._run_query_without_warehouse(query, None)
+        results, error = self._run_query_without_warehouse(query)
 
         if error is not None:
             raise Exception("Failed getting schema.")
