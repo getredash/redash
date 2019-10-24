@@ -1,7 +1,7 @@
 import { isArray, map, mapValues, includes, some, each, difference } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
-import Switch from 'antd/lib/switch';
+import Checkbox from 'antd/lib/checkbox';
 import { EditorPropTypes } from '@/visualizations';
 
 import ChartTypeSelect from './ChartTypeSelect';
@@ -139,28 +139,28 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {!includes(['custom', 'heatmap'], options.globalSeriesType) && (
         <div className="m-b-15">
-          <label className="d-flex align-items-center" htmlFor="chart-editor-show-legend">
-            <Switch
+          <label htmlFor="chart-editor-show-legend">
+            <Checkbox
               id="chart-editor-show-legend"
               data-test="Chart.ShowLegend"
               defaultChecked={options.legend.enabled}
-              onChange={enabled => onOptionsChange({ legend: { enabled } })}
+              onChange={event => onOptionsChange({ legend: { enabled: event.target.checked } })}
             />
-            <span className="m-l-10">Show Legend</span>
+            <span>Show Legend</span>
           </label>
         </div>
       )}
 
       {includes(['box'], options.globalSeriesType) && (
         <div className="m-b-15">
-          <label className="d-flex align-items-center" htmlFor="chart-editor-show-points">
-            <Switch
+          <label htmlFor="chart-editor-show-points">
+            <Checkbox
               id="chart-editor-show-points"
               data-test="Chart.ShowPoints"
               defaultChecked={options.showpoints}
-              onChange={showpoints => onOptionsChange({ showpoints })}
+              onChange={event => onOptionsChange({ showpoints: event.target.checked })}
             />
-            <span className="m-l-10">Show All Points</span>
+            <span>Show All Points</span>
           </label>
         </div>
       )}
@@ -185,14 +185,14 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {includes(['line', 'area', 'column'], options.globalSeriesType) && (
         <div className="m-b-15">
-          <label className="d-flex align-items-center" htmlFor="chart-editor-normalize-values">
-            <Switch
+          <label htmlFor="chart-editor-normalize-values">
+            <Checkbox
               id="chart-editor-normalize-values"
               data-test="Chart.NormalizeValues"
               defaultChecked={options.series.percentValues}
-              onChange={percentValues => onOptionsChange({ series: { percentValues } })}
+              onChange={event => onOptionsChange({ series: { percentValues: event.target.checked } })}
             />
-            <span className="m-l-10">Normalize values to percentage</span>
+            <span>Normalize values to percentage</span>
           </label>
         </div>
       )}

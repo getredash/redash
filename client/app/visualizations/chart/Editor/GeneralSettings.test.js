@@ -58,7 +58,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       legend: { enabled: true },
     }, done);
 
-    findByTestID(el, 'Chart.ShowLegend').first().simulate('click');
+    findByTestID(el, 'Chart.ShowLegend').first().find('input')
+      .simulate('change', { target: { checked: false } });
   });
 
   test('Box: toggles show points', (done) => {
@@ -67,7 +68,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       showpoints: false,
     }, done);
 
-    findByTestID(el, 'Chart.ShowPoints').first().simulate('click');
+    findByTestID(el, 'Chart.ShowPoints').first().find('input')
+      .simulate('change', { target: { checked: true } });
   });
 
   test('Enables stacking', (done) => {
@@ -86,7 +88,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       series: {},
     }, done);
 
-    findByTestID(el, 'Chart.NormalizeValues').first().simulate('click');
+    findByTestID(el, 'Chart.NormalizeValues').first().find('input')
+      .simulate('change', { target: { checked: true } });
   });
 
   test('Keep missing/null values', (done) => {

@@ -1,7 +1,7 @@
 import { includes } from 'lodash';
 import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import Switch from 'antd/lib/switch';
+import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
 import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
@@ -19,14 +19,14 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
     <React.Fragment>
       { isShowDataLabelsAvailable && (
         <div className="m-b-15">
-          <label className="d-flex align-items-center" htmlFor="chart-editor-show-data-labels">
-            <Switch
+          <label htmlFor="chart-editor-show-data-labels">
+            <Checkbox
               id="chart-editor-show-data-labels"
               data-test="Chart.DataLabels.ShowDataLabels"
               defaultChecked={options.showDataLabels}
-              onChange={showDataLabels => onOptionsChange({ showDataLabels })}
+              onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}
             />
-            <span className="m-l-10">Show Data Labels</span>
+            <span>Show Data Labels</span>
           </label>
         </div>
       )}

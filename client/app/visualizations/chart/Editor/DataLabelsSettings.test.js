@@ -30,7 +30,8 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       showDataLabels: false,
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.ShowDataLabels').first().simulate('click');
+    findByTestID(el, 'Chart.DataLabels.ShowDataLabels').first().find('input')
+      .simulate('change', { target: { checked: true } });
   });
 
   test('Changes number format', (done) => {
