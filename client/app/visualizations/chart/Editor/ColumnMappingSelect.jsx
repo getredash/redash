@@ -29,8 +29,8 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         mode={multiple ? 'multiple' : 'default'}
         allowClear
         placeholder={multiple ? 'Choose columns...' : 'Choose column...'}
-        value={value}
-        onChange={column => onChange(column, type)}
+        value={value || undefined}
+        onChange={column => onChange(column || null, type)}
       >
         {map(options, c => (
           <Select.Option key={c} value={c} data-test={`Chart.ColumnMapping.${type}.${c}`}>{c}</Select.Option>

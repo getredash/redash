@@ -90,10 +90,10 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
     });
   }
 
-  function handleColumnMappingChange(value, type) {
+  function handleColumnMappingChange(column, type) {
     const columnMapping = mappedColumnsToColumnMappings({
       ...mappedColumns,
-      [type]: value,
+      [type]: column,
     });
     onOptionsChange({ columnMapping }, false);
   }
