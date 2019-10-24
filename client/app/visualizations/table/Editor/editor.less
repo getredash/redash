@@ -1,0 +1,37 @@
+.table-visualization-editor-columns {
+  .ant-collapse {
+    background: transparent;
+  }
+
+  .ant-collapse-item {
+    background: #ffffff;
+
+    .drag-handle {
+      height: 20px;
+      margin-left: -16px;
+      padding: 0 16px;
+    }
+  }
+
+  .table-editor-columns-dragged-item {
+    z-index: 1;
+  }
+}
+
+.table-visualization-editor-column {
+  padding-left: 6px;
+
+  .table-visualization-editor-column-align-content {
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+
+    .ant-radio-button-wrapper {
+      flex-grow: 1;
+      text-align: center;
+      // fit <Input> height
+      height: 35px;
+      line-height: 33px;
+    }
+  }
+}
