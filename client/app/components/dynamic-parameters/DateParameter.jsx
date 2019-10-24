@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import moment from 'moment';
 import { includes } from 'lodash';
-import { isDynamicDate, getDynamicDate } from '@/services/query';
+import { isDynamicDate, getDynamicDateFromString } from '@/services/parameters/DateParameter';
 import DateInput from '@/components/DateInput';
 import DateTimeInput from '@/components/DateTimeInput';
 import DynamicButton from '@/components/dynamic-parameters/DynamicButton';
@@ -12,11 +12,11 @@ import './DynamicParameters.less';
 
 const DYNAMIC_DATE_OPTIONS = [
   { name: 'Today/Now',
-    value: 'd_now',
-    label: () => getDynamicDate('d_now').value().format('MMM D') },
+    value: getDynamicDateFromString('d_now'),
+    label: () => getDynamicDateFromString('d_now').value().format('MMM D') },
   { name: 'Yesterday',
-    value: 'd_yesterday',
-    label: () => getDynamicDate('d_yesterday').value().format('MMM D') },
+    value: getDynamicDateFromString('d_yesterday'),
+    label: () => getDynamicDateFromString('d_yesterday').value().format('MMM D') },
 ];
 
 class DateParameter extends React.Component {
@@ -44,7 +44,7 @@ class DateParameter extends React.Component {
   onDynamicValueSelect = (dynamicValue) => {
     const { onSelect, parameter } = this.props;
     if (dynamicValue === 'static') {
-      const parameterValue = parameter.getValue();
+      const parameterValue = parameter.getExecutionValue();
       if (parameterValue) {
         onSelect(moment(parameterValue));
       } else {
@@ -77,7 +77,7 @@ class DateParameter extends React.Component {
     }
 
     if (hasDynamicValue) {
-      const dynamicDate = getDynamicDate(value);
+      const dynamicDate = value;
       additionalAttributes.placeholder = dynamicDate && dynamicDate.name;
       additionalAttributes.value = null;
     }
