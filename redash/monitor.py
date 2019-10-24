@@ -35,8 +35,8 @@ def get_celery_queues():
 
 
 def get_queues_status():
-    return dict({queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()}.items() +
-                {queue.name: {'size': len(queue)} for queue in Queue.all(connection=redis_connection)}.items())
+    return {**{queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()},
+            **{queue.name: {'size': len(queue)} for queue in Queue.all(connection=redis_connection)}}
 
 
 def get_db_sizes():

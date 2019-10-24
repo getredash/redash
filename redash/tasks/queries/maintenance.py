@@ -50,7 +50,7 @@ def refresh_queries():
                     try:
                         query_text = query.parameterized.apply(parameters).query
                     except InvalidParameterError as e:
-                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, e.message)
+                        error = u"Skipping refresh of {} because of invalid parameters: {}".format(query.id, str(e))
                         track_failure(query, error)
                         continue
                     except QueryDetachedFromDataSourceError as e:

@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import logging
 import time
-from urlparse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 
 from flask import jsonify, redirect, request, url_for
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
@@ -33,8 +33,8 @@ def sign(key, path, expires):
     if not key:
         return None
 
-    h = hmac.new(str(key), msg=path, digestmod=hashlib.sha1)
-    h.update(str(expires))
+    h = hmac.new(key.encode(), msg=path.encode(), digestmod=hashlib.sha1)
+    h.update(str(expires).encode())
 
     return h.hexdigest()
 
@@ -93,7 +93,7 @@ def hmac_load_user_from_request(request):
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
-                return models.ApiUser(query.api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
+                return models.ApiUser(query.api_key, query.org, list(query.groups.keys()), name="ApiKey: Query {}".format(query.id))
 
     return None
 
@@ -118,7 +118,7 @@ def get_user_from_api_key(api_key, query_id):
             if query_id:
                 query = models.Query.get_by_id_and_org(query_id, org)
                 if query and query.api_key == api_key:
-                    user = models.ApiUser(api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
+                    user = models.ApiUser(api_key, query.org, list(query.groups.keys()), name="ApiKey: Query {}".format(query.id))
 
     return user
 
@@ -270,5 +270,11 @@ def get_next_path(unsafe_next_path):
     parts[0] = ''  # clear scheme
     parts[1] = ''  # clear netloc
     safe_next_path = urlunsplit(parts)
+
+    # If the original path was a URL, we might end up with an empty
+    # safe url, which will redirect to the login page. Changing to 
+    # relative root to redirect to the app root after login.
+    if not safe_next_path:
+        safe_next_path = './'
 
     return safe_next_path

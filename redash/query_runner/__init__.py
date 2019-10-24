@@ -83,8 +83,8 @@ class BaseQueryRunner(object):
         if not self.should_annotate_query:
             return query
 
-        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
-        annotated_query = u"/* {} */ {}".format(annotation, query)
+        annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.items()])
+        annotated_query = "/* {} */ {}".format(annotation, query)
         return annotated_query
 
     def test_connection(self):
@@ -142,7 +142,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         self._get_tables(schema_dict)
         if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
-        return schema_dict.values()
+        return list(schema_dict.values())
 
     def _get_tables(self, schema_dict):
         return []
