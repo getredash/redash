@@ -32,7 +32,7 @@ def schedule_periodic_jobs():
         job.delete()
 
     jobs = [
-        {"func": refresh_queries, "interval": 30},
+        {"func": refresh_queries, "interval": 30, "result_ttl": 600},
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
         {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},
