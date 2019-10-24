@@ -44,7 +44,7 @@ def send_failure_report(user_id):
                     'failure_reason': v.get('message'),
                     'failure_count': occurrences[k],
                     'comment': comment_for(v)
-            } for k, v in unique_errors.iteritems()],
+            } for k, v in unique_errors.items()],
             'base_url': base_url(user.org)
         }
 

@@ -4,10 +4,6 @@ from unittest import TestCase
 from redash.utils import (build_url, collect_parameters_from_request,
                           filter_none, json_dumps, generate_token)
 
-try:
-    buffer
-except NameError:
-    buffer = bytes
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
@@ -49,10 +45,10 @@ class TestSkipNones(TestCase):
 
 class TestJsonDumps(TestCase):
     def test_handles_binary(self):
-        self.assertEqual(json_dumps(buffer("test")), '"74657374"')
+        self.assertEqual(json_dumps(memoryview(b"test")), '"74657374"')
 
 
 class TestGenerateToken(TestCase):
     def test_format(self):
         token = generate_token(40)
-        self.assertRegexpMatches(token, r"[a-zA-Z0-9]{40}")
+        self.assertRegex(token, r"[a-zA-Z0-9]{40}")

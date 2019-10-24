@@ -41,7 +41,7 @@ class Sequence(object):
 
 
 user_factory = ModelFactory(redash.models.User,
-                            name='John Doe', email=Sequence(u'test{}@example.com'),
+                            name='John Doe', email=Sequence('test{}@example.com'),
                             password_hash=pwd_context.encrypt('test1234'),
                             group_ids=[2],
                             org_id=1)
@@ -71,7 +71,7 @@ api_key_factory = ModelFactory(redash.models.ApiKey,
 query_factory = ModelFactory(redash.models.Query,
                              name='Query',
                              description='',
-                             query_text=u'SELECT 1',
+                             query_text='SELECT 1',
                              user=user_factory.create,
                              is_archived=False,
                              is_draft=False,

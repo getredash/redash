@@ -35,7 +35,7 @@ def _get_columns_and_column_names(row):
             column_name = 'column_{}'.format(xl_col_to_name(i))
 
         if column_name in column_names:
-            column_name = u"{}{}".format(column_name, duplicate_counter)
+            column_name = "{}{}".format(column_name, duplicate_counter)
             duplicate_counter += 1
 
         column_names.append(column_name)
@@ -56,7 +56,7 @@ def _value_eval_list(row_values, col_types):
             if rval is None or rval == '':
                 val = None
             elif typ == TYPE_BOOLEAN:
-                val = True if unicode(rval).lower() == 'true' else False
+                val = True if str(rval).lower() == 'true' else False
             elif typ == TYPE_DATETIME:
                 val = parser.parse(rval)
             elif typ == TYPE_FLOAT:
@@ -65,7 +65,7 @@ def _value_eval_list(row_values, col_types):
                 val = int(rval)
             else:
                 # for TYPE_STRING and default
-                val = unicode(rval)
+                val = str(rval)
             value_list.append(val)
         except (ValueError, OverflowError):
             value_list.append(rval)

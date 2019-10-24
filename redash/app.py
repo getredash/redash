@@ -10,7 +10,7 @@ class Redash(Flask):
         kwargs.update({
             'template_folder': settings.STATIC_ASSETS_PATH,
             'static_folder': settings.STATIC_ASSETS_PATH,
-            'static_path': '/static',
+            'static_url_path': '/static',
         })
         super(Redash, self).__init__(__name__, *args, **kwargs)
         # Make sure we get the right referral address even behind proxies like nginx.

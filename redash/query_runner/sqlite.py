@@ -1,8 +1,5 @@
 import logging
 import sqlite3
-import sys
-
-from six import reraise
 
 from redash.query_runner import BaseSQLQueryRunner, register
 from redash.utils import json_dumps, json_loads
@@ -57,7 +54,7 @@ class Sqlite(BaseSQLQueryRunner):
             for row_column in results_table['rows']:
                 schema[table_name]['columns'].append(row_column['name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = sqlite3.connect(self._dbpath)
@@ -69,7 +66,7 @@ class Sqlite(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], None) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                rows = [dict(zip((column['name'] for column in columns), row)) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
@@ -81,12 +78,6 @@ class Sqlite(BaseSQLQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            # handle unicode error message
-            err_class = sys.exc_info()[1].__class__
-            err_args = [arg.decode('utf-8') for arg in sys.exc_info()[1].args]
-            unicode_err = err_class(*err_args)
-            reraise(unicode_err, None, sys.exc_info()[2])
         finally:
             connection.close()
         return json_data, error

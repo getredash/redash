@@ -10,7 +10,7 @@ def get_settings_with_defaults(defaults, org):
     values = org.settings.get('settings', {})
     settings = {}
 
-    for setting, default_value in defaults.iteritems():
+    for setting, default_value in defaults.items():
         current_value = values.get(setting)
         if current_value is None and default_value is None:
             continue
@@ -42,7 +42,7 @@ class OrganizationSettings(BaseResource):
             self.current_org.settings['settings'] = {}
 
         previous_values = {}
-        for k, v in new_values.iteritems():
+        for k, v in new_values.items():
             if k == 'auth_google_apps_domains':
                 previous_values[k] = self.current_org.google_apps_domains
                 self.current_org.settings[Organization.SETTING_GOOGLE_APPS_DOMAINS] = v
