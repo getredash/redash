@@ -1,18 +1,13 @@
 version: 2.0
 
-flake8-steps: &steps
-  - checkout
-  - run: sudo pip install flake8
-  - run: ./bin/flake8_tests.sh
 jobs:
   python-flake8-tests:
     docker:
       - image: circleci/python:3.7.0
-    steps: *steps
-  legacy-python-flake8-tests:
-    docker:
-      - image: circleci/python:2.7.15
-    steps: *steps
+    steps:
+      - checkout
+      - run: sudo pip install flake8
+      - run: ./bin/flake8_tests.sh
   backend-unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
@@ -44,6 +39,7 @@ jobs:
             mkdir -p /tmp/test-results/unit-tests
             docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+          when: always
       - store_test_results:
           path: /tmp/test-results
       - store_artifacts:
@@ -63,8 +59,8 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
       - run: npm install
       - run: npm run bundle
       - run: npm test
@@ -99,8 +95,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
       - run: .circleci/update_version
       - run: npm run bundle
       - run: .circleci/docker_build
@@ -109,7 +105,6 @@ workflows:
   build:
     jobs:
       - python-flake8-tests
-      - legacy-python-flake8-tests
       - backend-unit-tests
       - frontend-lint
       - frontend-unit-tests:

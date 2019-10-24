@@ -188,8 +188,7 @@ class BigQuery(BaseQueryRunner):
 
         if self.configuration.get('userDefinedFunctionResourceUri'):
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
-            job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
-                lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
+            job_data["configuration"]["query"]["userDefinedFunctionResources"] = [{"resourceUri": resource_uri} for resource_uri in resource_uris]
 
         if "maximumBillingTier" in self.configuration:
             job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
@@ -253,7 +252,7 @@ class BigQuery(BaseQueryRunner):
         columns = []
         if column['type'] == 'RECORD':
             for field in column['fields']:
-                columns.append(u"{}.{}".format(column['name'], field['name']))
+                columns.append("{}.{}".format(column['name'], field['name']))
         else:
             columns.append(column['name'])
 

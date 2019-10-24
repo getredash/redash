@@ -1,4 +1,3 @@
-#encoding: utf8
 import calendar
 import datetime
 from unittest import TestCase
@@ -16,16 +15,16 @@ class DashboardTest(BaseTestCase):
     def test_appends_suffix_to_slug_when_duplicate(self):
         d1 = self.factory.create_dashboard()
         db.session.flush()
-        self.assertEquals(d1.slug, 'test')
+        self.assertEqual(d1.slug, 'test')
 
         d2 = self.factory.create_dashboard(user=d1.user)
         db.session.flush()
-        self.assertNotEquals(d1.slug, d2.slug)
+        self.assertNotEqual(d1.slug, d2.slug)
 
         d3 = self.factory.create_dashboard(user=d1.user)
         db.session.flush()
-        self.assertNotEquals(d1.slug, d3.slug)
-        self.assertNotEquals(d2.slug, d3.slug)
+        self.assertNotEqual(d1.slug, d3.slug)
+        self.assertNotEqual(d2.slug, d3.slug)
 
 
 class ShouldScheduleNextTest(TestCase):
@@ -158,7 +157,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.assertIn(query, queries)
 
     def test_outdated_queries_works_scheduled_queries_tracker(self):
-        two_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=2)
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
         query = self.factory.create_query(schedule={'interval':'3600', 'time': None, 'until':None, 'day_of_week':None})
         query_result = self.factory.create_query_result(query=query, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
@@ -221,8 +220,10 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query.latest_query_data = query_result
         query2.latest_query_data = query_result
 
-        self.assertEqual(list(models.Query.outdated_queries()),
-                         [query2, query])
+        outdated_queries = models.Query.outdated_queries()
+        self.assertEqual(len(outdated_queries), 2)
+        self.assertIn(query, outdated_queries)
+        self.assertIn(query2, outdated_queries)
 
     def test_enqueues_only_for_relevant_data_source(self):
         """
@@ -294,7 +295,7 @@ class QueryArchiveTest(BaseTestCase):
         db.session.flush()
         query.archive()
 
-        self.assertEquals(query.is_archived, True)
+        self.assertEqual(query.is_archived, True)
 
     def test_archived_query_doesnt_return_in_all(self):
         query = self.factory.create_query(schedule={'interval':'1', 'until':None, 'time': None, 'day_of_week':None})
