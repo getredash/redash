@@ -12,7 +12,7 @@ describe('Dashboard', () => {
     cy.visit('/dashboards');
     cy.getByTestId('CreateButton').click();
     cy.get('li[role="menuitem"]')
-      .contains('Dashboard')
+      .contains('New Dashboard')
       .click();
 
     cy.server();
