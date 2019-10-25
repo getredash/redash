@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import itertools
 from sqlalchemy import union_all
-from redash import redis_connection, __version__, settings
+from redash import redis_connection, rq_redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.utils import json_loads
 from redash.worker import celery
@@ -36,7 +36,7 @@ def get_celery_queues():
 
 def get_queues_status():
     return {**{queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()},
-            **{queue.name: {'size': len(queue)} for queue in Queue.all(connection=redis_connection)}}
+            **{queue.name: {'size': len(queue)} for queue in Queue.all(connection=rq_redis_connection)}}
 
 
 def get_db_sizes():
@@ -141,7 +141,7 @@ def fetch_jobs(queue, job_ids):
             'queue': queue.name,
             'enqueued_at': job.enqueued_at,
             'started_at': job.started_at
-        } for job in Job.fetch_many(job_ids, connection=redis_connection) if job is not None]
+        } for job in Job.fetch_many(job_ids, connection=rq_redis_connection) if job is not None]
 
 
 def rq_queues():
@@ -150,7 +150,7 @@ def rq_queues():
             'name': q.name,
             'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
             'queued': len(q.job_ids)
-        } for q in Queue.all(connection=redis_connection)}
+        } for q in Queue.all(connection=rq_redis_connection)}
 
 
 def describe_job(job):
@@ -170,7 +170,7 @@ def rq_workers():
         'successful_jobs': w.successful_job_count,
         'failed_jobs': w.failed_job_count,
         'total_working_time': w.total_working_time
-    } for w in Worker.all(connection=redis_connection)]
+    } for w in Worker.all(connection=rq_redis_connection)]
 
 
 def rq_status():
