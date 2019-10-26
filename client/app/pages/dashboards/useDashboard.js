@@ -5,7 +5,18 @@ import { $location, $rootScope } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
+import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
+import TextboxDialog from '@/components/dashboards/TextboxDialog';
+import {
+  editableMappingsToParameterMappings,
+  synchronizeWidgetTitles,
+} from '@/components/ParameterMappingInput';
 import ShareDashboardDialog from './ShareDashboardDialog';
+
+function updateUrlSearch(...params) {
+  $location.search(...params);
+  $rootScope.$applyAsync();
+}
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters) ? widgets.filter(
@@ -22,7 +33,7 @@ function getRefreshRateFromUrl() {
   return isNaN(refreshRate) ? null : Math.max(30, refreshRate);
 }
 
-function useFullscreenHandler(updateUrlSearch) {
+function useFullscreenHandler() {
   const [fullscreen, setFullscreen] = useState(has($location.search(), 'fullscreen'));
   useEffect(() => {
     document.querySelector('body').classList.toggle('headless', fullscreen);
@@ -33,7 +44,7 @@ function useFullscreenHandler(updateUrlSearch) {
   return [fullscreen, toggleFullscreen];
 }
 
-function useRefreshRateHandler(refreshDashboard, updateUrlSearch) {
+function useRefreshRateHandler(refreshDashboard) {
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
 
   useEffect(() => {
@@ -47,28 +58,32 @@ function useRefreshRateHandler(refreshDashboard, updateUrlSearch) {
   return [refreshRate, setRefreshRate];
 }
 
+function useEditModeHandler(canEditDashboard) {
+  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has($location.search(), 'edit'));
+
+  useEffect(() => {
+    updateUrlSearch('edit', editingLayout ? true : null);
+  }, [editingLayout]);
+
+  return [editingLayout, editing => setEditingLayout(canEditDashboard && editing)];
+}
+
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [widgets, setWidgets] = useState(dashboard.widgets);
-  const [editingLayout, setEditingLayout] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const canEditDashboard = useMemo(
-    () => has(dashboard, 'user.id') && (currentUser.id === dashboard.user.id || currentUser.hasPermission('admin')),
+    () => !dashboard.is_archived && has(dashboard, 'user.id') && (
+      currentUser.id === dashboard.user.id || currentUser.hasPermission('admin')
+    ),
     [dashboard],
   );
   const hasOnlySafeQueries = useMemo(
     () => every(widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
     [widgets],
   );
-
-  const openShareDialog = useCallback(() => {
-    ShareDashboardDialog.showModal({
-      dashboard,
-      hasOnlySafeQueries,
-    }).result.finally(() => setDashboard(extend({}, dashboard)));
-  }, [dashboard, hasOnlySafeQueries]);
 
   const managePermissions = useCallback(() => {
     // TODO: open PermissionsEditorDialog
@@ -140,13 +155,38 @@ function useDashboard(dashboardData) {
     dashboard.$delete().then(() => loadDashboard());
   }, [dashboard, updateDashboard]);
 
-  const updateUrlSearch = useCallback((...params) => {
-    $location.search(...params);
-    $rootScope.$applyAsync();
-  }, []);
+  const showShareDashboardDialog = useCallback(() => {
+    ShareDashboardDialog.showModal({
+      dashboard,
+      hasOnlySafeQueries,
+    }).result.finally(() => setDashboard(extend({}, dashboard)));
+  }, [dashboard, hasOnlySafeQueries]);
 
-  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard, updateUrlSearch);
-  const [fullscreen, toggleFullscreen] = useFullscreenHandler(updateUrlSearch);
+  const showAddTextboxDialog = useCallback(() => {
+    TextboxDialog.showModal({
+      dashboard,
+      onConfirm: text => dashboard.addWidget(text).then(() => setWidgets(dashboard.widgets)),
+    });
+  }, [dashboard]);
+
+  const showAddWidgetDialog = useCallback(() => {
+    AddWidgetDialog.showModal({
+      dashboard,
+      onConfirm: (visualization, parameterMappings) => dashboard.addWidget(visualization, {
+        parameterMappings: editableMappingsToParameterMappings(parameterMappings),
+      }).then((widget) => {
+        const widgetsToSave = [
+          widget,
+          ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+        ];
+        return Promise.all(widgetsToSave.map(w => w.save())).then(() => setWidgets(dashboard.widgets));
+      }),
+    });
+  }, [dashboard]);
+
+  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard);
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler();
+  const [editingLayout, setEditingLayout] = useEditModeHandler(canEditDashboard);
 
   useEffect(() => {
     setDashboard(dashboardData);
@@ -173,7 +213,9 @@ function useDashboard(dashboardData) {
     setEditingLayout,
     fullscreen,
     toggleFullscreen,
-    openShareDialog,
+    showShareDashboardDialog,
+    showAddTextboxDialog,
+    showAddWidgetDialog,
     managePermissions,
   };
 }

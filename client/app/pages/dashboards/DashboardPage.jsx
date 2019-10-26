@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { map, isEmpty } from 'lodash';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
+import Checkbox from 'antd/lib/checkbox';
 import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
 import Icon from 'antd/lib/icon';
@@ -121,7 +122,7 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard, togglePublished, archiveDashboard, managePermissions } = dashboardOptions;
+  const { dashboard, setEditingLayout, togglePublished, archiveDashboard, managePermissions } = dashboardOptions;
 
   const archive = () => {
     Modal.confirm({
@@ -141,7 +142,7 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
       placement="bottomRight"
       overlay={(
         <Menu>
-          <Menu.Item>Edit</Menu.Item>
+          <Menu.Item><a onClick={() => setEditingLayout(true)}>Edit</a></Menu.Item>
           {clientConfig.showPermissionsControl && (
             <Menu.Item><a onClick={managePermissions}>Manage Permissions</a></Menu.Item>
           )}
@@ -160,8 +161,8 @@ DashboardMoreOptionsButton.propTypes = {
 };
 
 function DashboardControl({ dashboardOptions }) {
-  const { dashboard, editingLayout, togglePublished,
-    canEditDashboard, fullscreen, toggleFullscreen, openShareDialog } = dashboardOptions;
+  const { dashboard, togglePublished, canEditDashboard,
+    fullscreen, toggleFullscreen, showShareDashboardDialog } = dashboardOptions;
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
@@ -169,7 +170,7 @@ function DashboardControl({ dashboardOptions }) {
   const showMoreOptionsButton = canEditDashboard;
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
-      {(!dashboard.is_archived && !editingLayout) && (
+      {(!dashboard.is_archived) && (
         <span className="hidden-print">
           {showPublishButton && (
             <Button className="m-r-5" onClick={togglePublished}>
@@ -190,7 +191,7 @@ function DashboardControl({ dashboardOptions }) {
                 <Button
                   className="icon-button m-l-5"
                   type={buttonType(dashboard.publicAccessEnabled)}
-                  onClick={openShareDialog}
+                  onClick={showShareDashboardDialog}
                   data-test="OpenShareForm"
                 >
                   <i className="zmdi zmdi-share" />
@@ -209,11 +210,71 @@ DashboardControl.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
+function DashboardEditControl({ dashboardOptions }) {
+  const { setEditingLayout } = dashboardOptions;
+  return (
+    <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
+      <Button type="primary" onClick={() => setEditingLayout(false)}>
+        <i className="fa fa-check m-r-5" /> Done Editing
+      </Button>
+    </div>
+  );
+}
+
+DashboardEditControl.propTypes = {
+  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
+
+function DashboardSettings({ dashboardOptions }) {
+  const { dashboard, updateDashboard, loadDashboard } = dashboardOptions;
+  return (
+    <div className="m-b-10 p-15 bg-white tiled">
+      <Checkbox
+        checked={!!dashboard.dashboard_filters_enabled}
+        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })
+          .then(() => loadDashboard())}
+      >
+        Use Dashboard Level Filters
+      </Checkbox>
+    </div>
+  );
+}
+
+DashboardSettings.propTypes = {
+  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
+
+function AddWidgetContainer({ dashboardOptions }) {
+  const { showAddTextboxDialog, showAddWidgetDialog } = dashboardOptions;
+  return (
+    <div className="add-widget-container">
+      <h2>
+        <i className="zmdi zmdi-widgets" />
+        <span className="hidden-xs hidden-sm">
+          Widgets are individual query visualizations or text boxes you can place
+          on your dashboard in various arrangements.
+        </span>
+      </h2>
+      <div>
+        <Button className="m-r-15" onClick={showAddTextboxDialog}>Add Textbox</Button>
+        <Button type="primary" onClick={showAddWidgetDialog}>Add Widget</Button>
+      </div>
+    </div>
+  );
+}
+
+AddWidgetContainer.propTypes = {
+  dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+};
+
 function DashboardHeader({ dashboardOptions }) {
+  const { editingLayout } = dashboardOptions;
+  const DashboardControlComponent = editingLayout ? DashboardEditControl : DashboardControl;
+
   return (
     <div className="row dashboard-header">
       <DashboardPageTitle dashboardOptions={dashboardOptions} />
-      <DashboardControl dashboardOptions={dashboardOptions} />
+      <DashboardControlComponent dashboardOptions={dashboardOptions} />
     </div>
   );
 }
@@ -242,6 +303,7 @@ function DashboardComponent(props) {
           <Filters filters={filters} onChange={setFilters} />
         </div>
       )}
+      {editingLayout && <DashboardSettings dashboardOptions={dashboardOptions} />}
       <div id="dashboard-container">
         <DashboardGrid
           dashboard={dashboard}
@@ -256,6 +318,7 @@ function DashboardComponent(props) {
           // on-parameter-mappings-change="$ctrl.extractGlobalParameters"
         />
       </div>
+      {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} />}
     </>
   );
 }
