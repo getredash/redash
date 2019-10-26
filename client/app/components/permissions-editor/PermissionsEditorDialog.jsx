@@ -123,8 +123,8 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
       .finally(() => setLoadingGrantees(false));
   }, []);
 
-  const userAccessType = useCallback(
-    user => (user.id === owner.id ? 'Owner' : get(find(grantees, { id: user.id }), 'accessType')),
+  const userHasPermission = useCallback(
+    user => (user.id === owner.id || !!get(find(grantees, { id: user.id }), 'accessType')),
     [grantees],
   );
 
@@ -141,8 +141,8 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
     >
       <UserSelect
         onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
-        previewCardAddon={userAccessType}
-        isUserDisabled={user => !!userAccessType(user)}
+        previewCardAddon={user => (userHasPermission(user) ? '(already has permission)' : null)}
+        isUserDisabled={user => userHasPermission(user)}
       />
       <h5>Users with permissions</h5>
       {!loadingGrantees ? (
