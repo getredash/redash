@@ -63,6 +63,38 @@ def _wait(conn, timeout=None):
             raise psycopg2.OperationalError("select.error received")
 
 
+def full_table_name(schema, name):
+    if '.' in name:
+        name = u'"{}"'.format(name)
+
+    return u'{}.{}'.format(schema, name)
+
+
+def build_schema(query_result, schema):
+    # By default we omit the public schema name from the table name. But there are
+    # edge cases, where this might cause conflicts. For example:
+    # * We have a schema named "main" with table "users".
+    # * We have a table named "main.users" in the public schema.
+    # (while this feels unlikely, this actually happened)
+    # In this case if we omit the schema name for the public table, we will have
+    # a conflict.
+    table_names = set(map(lambda r: full_table_name(r['table_schema'], r['table_name']), query_result['rows']))
+
+    for row in query_result['rows']:
+        if row['table_schema'] != 'public':
+            table_name = full_table_name(row['table_schema'], row['table_name'])
+        else:
+            if row['table_name'] in table_names:
+                table_name = full_table_name(row['table_schema'], row['table_name'])
+            else:
+                table_name = row['table_name']
+
+        if table_name not in schema:
+            schema[table_name] = {'name': table_name, 'columns': []}
+
+        schema[table_name]['columns'].append(row['column_name'])
+
+
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
@@ -112,17 +144,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        for row in results['rows']:
-            if row['table_schema'] != 'public':
-                table_name = u'{}.{}'.format(row['table_schema'],
-                                             row['table_name'])
-            else:
-                table_name = row['table_name']
-
-            if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
-
-            schema[table_name]['columns'].append(row['column_name'])
+        build_schema(results, schema)
 
     def _get_tables(self, schema):
         '''
@@ -164,7 +186,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
     def _get_connection(self):
         connection = psycopg2.connect(
@@ -192,7 +214,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in cursor.description])
                 rows = [
-                    dict(zip((c['name'] for c in columns), row))
+                    dict(zip((column['name'] for column in columns), row))
                     for row in cursor
                 ]
 
@@ -208,7 +230,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
-            error = e.message
+            error = str(e)
             json_data = None
         except (KeyboardInterrupt, InterruptException):
             connection.cancel()
@@ -282,7 +304,7 @@ class Redshift(PostgreSQL):
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
-        
+
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
 
@@ -290,11 +312,11 @@ class Redshift(PostgreSQL):
             query_group = self.configuration.get('scheduled_query_group')
         else:
             query_group = self.configuration.get('adhoc_query_group')
-        
+
         if query_group:
             set_query_group = 'set query_group to {};'.format(query_group)
             annotated = '{}\n{}'.format(set_query_group, annotated)
-        
+
         return annotated
 
     def _get_tables(self, schema):
@@ -327,7 +349,7 @@ class Redshift(PostgreSQL):
 
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
 
 class CockroachDB(PostgreSQL):

@@ -31,7 +31,8 @@ class TestDataSourceListGet(BaseTestCase):
         self.factory.create_data_source(group=self.factory.org.default_group)
         self.factory.create_data_source(group=self.factory.org.default_group)
         response = self.make_request("get", "/api/data_sources", user=self.factory.user)
-        self.assertTrue(all(left <= right for left, right in pairwise(response.json)))
+        ids = [datasource['id'] for datasource in response.json]
+        self.assertTrue(all(left <= right for left, right in pairwise(ids)))
 
 
 class DataSourceTypesTest(BaseTestCase):
@@ -45,7 +46,7 @@ class DataSourceTypesTest(BaseTestCase):
         with patch.object(PostgreSQL, 'deprecated', return_value=True):
             rv = self.make_request('get', "/api/data_sources/types", user=admin)
 
-        types = map(lambda x: x['type'], rv.json)
+        types = [datasource_type['type'] for datasource_type in rv.json]
         self.assertNotIn('pg', types)
 
     def test_returns_403_for_non_admin(self):

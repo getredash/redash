@@ -10,11 +10,10 @@ import { Alert as AlertService } from '@/services/alert';
 import { Query as QueryService } from '@/services/query';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
+import MenuButton from './components/MenuButton';
 import AlertView from './AlertView';
 import AlertEdit from './AlertEdit';
 import AlertNew from './AlertNew';
-
-import Modal from 'antd/lib/modal';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
@@ -43,7 +42,7 @@ class AlertPage extends React.Component {
     pendingRearm: null,
     canEdit: false,
     mode: null,
-  }
+  };
 
   componentDidMount() {
     this._isMounted = true;
@@ -54,7 +53,7 @@ class AlertPage extends React.Component {
       this.setState({
         alert: new AlertService({
           options: {
-            op: 'greater than',
+            op: '>',
             value: 1,
           },
         }),
@@ -129,18 +128,18 @@ class AlertPage extends React.Component {
         }
       });
     }
-  }
+  };
 
   onNameChange = (name) => {
     const { alert } = this.state;
     this.setState({
       alert: Object.assign(alert, { name }),
     });
-  }
+  };
 
   onRearmChange = (pendingRearm) => {
     this.setState({ pendingRearm });
-  }
+  };
 
   setAlertOptions = (obj) => {
     const { alert } = this.state;
@@ -148,42 +147,29 @@ class AlertPage extends React.Component {
     this.setState({
       alert: Object.assign(alert, { options }),
     });
-  }
+  };
 
   delete = () => {
     const { alert } = this.state;
-
-    const doDelete = () => {
-      alert.$delete(() => {
-        notification.success('Alert deleted successfully.');
-        navigateTo('/alerts');
-      }, () => {
-        notification.error('Failed deleting alert.');
-      });
-    };
-
-    Modal.confirm({
-      title: 'Delete Alert',
-      content: 'Are you sure you want to delete this alert?',
-      okText: 'Delete',
-      okType: 'danger',
-      onOk: doDelete,
-      maskClosable: true,
-      autoFocusButton: null,
+    return alert.$delete(() => {
+      notification.success('Alert deleted successfully.');
+      navigateTo('/alerts');
+    }, () => {
+      notification.error('Failed deleting alert.');
     });
-  }
+  };
 
   edit = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}/edit`, true, false);
     this.setState({ mode: MODES.EDIT });
-  }
+  };
 
   cancel = () => {
     const { id } = this.state.alert;
     navigateTo(`/alerts/${id}`, true, false);
     this.setState({ mode: MODES.VIEW });
-  }
+  };
 
   render() {
     const { alert } = this.state;
@@ -192,12 +178,20 @@ class AlertPage extends React.Component {
     }
 
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
+
+    const menuButton = (
+      <MenuButton
+        doDelete={this.delete}
+        canEdit={canEdit}
+      />
+    );
+
     const commonProps = {
       alert,
       queryResult,
       pendingRearm,
-      delete: this.delete,
       save: this.save,
+      menuButton,
       onQuerySelected: this.onQuerySelected,
       onRearmChange: this.onRearmChange,
       onNameChange: this.onNameChange,

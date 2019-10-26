@@ -1,18 +1,46 @@
-from __future__ import absolute_import
+
 from datetime import timedelta
-from random import randint
+from functools import partial
 
 from flask import current_app
+import logging
 
 from celery import Celery
-from celery.schedules import crontab
 from celery.signals import worker_process_init
 from celery.utils.log import get_logger
 
-from redash import create_app, extensions, settings
+from rq import get_current_job
+from rq.decorators import job as rq_job
+
+from redash import create_app, extensions, settings, redis_connection, rq_redis_connection
 from redash.metrics import celery as celery_metrics  # noqa
 
 logger = get_logger(__name__)
+
+job = partial(rq_job, connection=rq_redis_connection)
+
+
+class CurrentJobFilter(logging.Filter):
+    def filter(self, record):
+        current_job = get_current_job()
+
+        record.job_id = current_job.id if current_job else ''
+        record.job_description = current_job.description if current_job else ''
+
+        return True
+
+
+def get_job_logger(name):
+    logger = logging.getLogger('rq.job.' + name)
+
+    handler = logging.StreamHandler()
+    handler.formatter = logging.Formatter(settings.RQ_WORKER_JOB_LOG_FORMAT)
+    handler.addFilter(CurrentJobFilter())
+
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    return logger
 
 
 celery = Celery('redash',
@@ -21,48 +49,8 @@ celery = Celery('redash',
                 redis_backend_use_ssl=settings.CELERY_SSL_CONFIG,
                 include='redash.tasks')
 
-# The internal periodic Celery tasks to automatically schedule.
-celery_schedule = {
-    'refresh_queries': {
-        'task': 'redash.tasks.refresh_queries',
-        'schedule': timedelta(seconds=30)
-    },
-    'empty_schedules': {
-        'task': 'redash.tasks.empty_schedules',
-        'schedule': timedelta(minutes=60)
-    },
-    'refresh_schemas': {
-        'task': 'redash.tasks.refresh_schemas',
-        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)
-    },
-    'sync_user_details': {
-        'task': 'redash.tasks.sync_user_details',
-        'schedule': timedelta(minutes=1),
-    },
-    'send_aggregated_errors': {
-        'task': 'redash.tasks.send_aggregated_errors',
-        'schedule': timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
-    }
-}
-
-if settings.VERSION_CHECK:
-    celery_schedule['version_check'] = {
-        'task': 'redash.tasks.version_check',
-        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
-        # evenly.
-        'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
-    }
-
-if settings.QUERY_RESULTS_CLEANUP_ENABLED:
-    celery_schedule['cleanup_query_results'] = {
-        'task': 'redash.tasks.cleanup_query_results',
-        'schedule': timedelta(minutes=5)
-    }
-
-celery_schedule.update(settings.dynamic_settings.custom_tasks())
 
 celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
-                   beat_schedule=celery_schedule,
                    timezone='UTC',
                    result_expires=settings.CELERY_RESULT_EXPIRES,
                    worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,

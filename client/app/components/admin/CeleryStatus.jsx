@@ -58,10 +58,6 @@ const queryColumns = commonColumns.concat([
   { title: 'Scheduled', dataIndex: 'scheduled' },
 ]);
 
-const otherTasksColumns = commonColumns.concat([
-  { title: 'Task Name', dataIndex: 'task_name' },
-]);
-
 const queuesColumns = map(
   ['Name', 'Active', 'Reserved', 'Waiting'],
   c => ({ title: c, dataIndex: c.toLowerCase() }),
@@ -97,16 +93,3 @@ export function QueriesTable({ loading, items }) {
 }
 
 QueriesTable.propTypes = TablePropTypes;
-
-export function OtherTasksTable({ loading, items }) {
-  return (
-    <Table
-      loading={loading}
-      columns={otherTasksColumns}
-      rowKey="task_id"
-      dataSource={items}
-    />
-  );
-}
-
-OtherTasksTable.propTypes = TablePropTypes;

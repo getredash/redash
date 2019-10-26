@@ -1,9 +1,11 @@
-#encoding: utf8
 import datetime
 
+from unittest import TestCase
 from tests import BaseTestCase
+from mock import patch
 
 from redash import models
+from redash.models import DBPersistence
 from redash.utils import utcnow, json_dumps
 
 
@@ -67,3 +69,22 @@ class QueryResultTest(BaseTestCase):
         models.QueryResult.store_result(query.org_id, query.data_source, query.query_hash, query.query_text, "", 0, utcnow())
 
         self.assertEqual(original_updated_at, query.updated_at)
+
+
+class TestDBPersistence(TestCase):
+    def test_updating_data_removes_cached_result(self):
+        p = DBPersistence()
+        p.data = '{"test": 1}'
+        self.assertDictEqual(p.data, {"test": 1})
+        p.data = '{"test": 2}'
+        self.assertDictEqual(p.data, {"test": 2})
+
+    @patch('redash.models.json_loads')
+    def test_calls_json_loads_only_once(self, json_loads_patch):
+        json_loads_patch.return_value = '1'
+        p = DBPersistence()
+        json_data = '{"test": 1}'
+        p.data = json_data
+        a = p.data
+        b = p.data
+        json_loads_patch.assert_called_once_with(json_data)

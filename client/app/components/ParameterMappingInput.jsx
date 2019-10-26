@@ -1,6 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 
-import { isString, extend, each, map, includes, findIndex, find, fromPairs, clone, isEmpty } from 'lodash';
+import { isString, extend, each, has, map, includes, findIndex, find,
+  fromPairs, clone, isEmpty } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
@@ -16,8 +17,8 @@ import Form from 'antd/lib/form';
 import Tooltip from 'antd/lib/tooltip';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import { ParameterMappingType } from '@/services/widget';
-import { Parameter } from '@/services/query';
-import { HelpTrigger } from '@/components/HelpTrigger';
+import { Parameter } from '@/services/parameters';
+import HelpTrigger from '@/components/HelpTrigger';
 
 import './ParameterMappingInput.less';
 
@@ -158,6 +159,13 @@ export class ParameterMappingInput extends React.Component {
       newMapping.param = newMapping.param.clone();
       newMapping.param.setValue(newMapping.value);
     }
+    if (has(update, 'type')) {
+      if (update.type === MappingType.StaticValue) {
+        newMapping.value = newMapping.param.value;
+      } else {
+        newMapping.value = null;
+      }
+    }
     onChange(newMapping);
   };
 
@@ -168,7 +176,7 @@ export class ParameterMappingInput extends React.Component {
         value={this.props.mapping.type}
         onChange={e => this.updateSourceType(e.target.value)}
       >
-        <Radio className="radio" value={MappingType.DashboardAddNew}>
+        <Radio className="radio" value={MappingType.DashboardAddNew} data-test="NewDashboardParameterOption">
           New dashboard parameter
         </Radio>
         <Radio
@@ -183,10 +191,10 @@ export class ParameterMappingInput extends React.Component {
             </Tooltip>
           ) : null }
         </Radio>
-        <Radio className="radio" value={MappingType.WidgetLevel}>
+        <Radio className="radio" value={MappingType.WidgetLevel} data-test="WidgetParameterOption">
           Widget parameter
         </Radio>
-        <Radio className="radio" value={MappingType.StaticValue}>
+        <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
           Static value
         </Radio>
       </Radio.Group>
@@ -335,7 +343,7 @@ class MappingEditor extends React.Component {
     const { mapping, inputError } = this.state;
 
     return (
-      <div className="parameter-mapping-editor">
+      <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
         <header>
           Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
         </header>
@@ -354,15 +362,16 @@ class MappingEditor extends React.Component {
   }
 
   render() {
+    const { visible, mapping } = this.state;
     return (
       <Popover
         placement="left"
         trigger="click"
         content={this.renderContent()}
-        visible={this.state.visible}
+        visible={visible}
         onVisibleChange={this.onVisibleChange}
       >
-        <Button size="small" type="dashed">
+        <Button size="small" type="dashed" data-test={`EditParamMappingButon-${mapping.param.name}`}>
           <Icon type="edit" />
         </Button>
       </Popover>
@@ -536,11 +545,11 @@ export class ParameterMappingListInput extends React.Component {
       param = param.clone().setValue(mapping.value);
     }
 
-    let value = Parameter.getValue(param);
+    let value = Parameter.getExecutionValue(param);
 
     // in case of dynamic value display the name instead of value
     if (param.hasDynamicValue) {
-      value = param.dynamicValue.name;
+      value = param.normalizedValue.name;
     }
 
     return this.getStringValue(value);

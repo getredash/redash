@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 import logging
 import socket
@@ -29,7 +29,7 @@ def metric_name(name, tags):
     if not settings.STATSD_USE_TAGS:
         return name
 
-    tags_string = ",".join(["{}={}".format(k, v) for k, v in tags.iteritems()])
+    tags_string = ",".join(["{}={}".format(k, v) for k, v in tags.items()])
     return "{},{}".format(name, tags_string)
 
 

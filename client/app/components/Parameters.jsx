@@ -4,7 +4,7 @@ import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
-import { Parameter } from '@/services/query';
+import { Parameter } from '@/services/parameters';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
@@ -111,7 +111,7 @@ export class Parameters extends React.Component {
       .result.then((updated) => {
         this.setState(({ parameters }) => {
           const updatedParameter = extend(parameter, updated);
-          parameters[index] = new Parameter(updatedParameter, updatedParameter.parentQueryId);
+          parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
           onParametersEdit();
           return { parameters };
         });
