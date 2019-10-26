@@ -121,7 +121,7 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard, togglePublished, archiveDashboard } = dashboardOptions;
+  const { dashboard, togglePublished, archiveDashboard, managePermissions } = dashboardOptions;
 
   const archive = () => {
     Modal.confirm({
@@ -142,7 +142,9 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
       overlay={(
         <Menu>
           <Menu.Item>Edit</Menu.Item>
-          <Menu.Item>Manage Permissions</Menu.Item>
+          {clientConfig.showPermissionsControl && (
+            <Menu.Item><a onClick={managePermissions}>Manage Permissions</a></Menu.Item>
+          )}
           {!dashboard.is_draft && <Menu.Item><a onClick={togglePublished}>Unpublish</a></Menu.Item>}
           <Menu.Item><a onClick={archive}>Archive</a></Menu.Item>
         </Menu>

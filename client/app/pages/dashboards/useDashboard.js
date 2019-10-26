@@ -68,7 +68,11 @@ function useDashboard(dashboardData) {
       dashboard,
       hasOnlySafeQueries,
     }).result.finally(() => setDashboard(extend({}, dashboard)));
-  });
+  }, [dashboard, hasOnlySafeQueries]);
+
+  const managePermissions = useCallback(() => {
+    // TODO: open PermissionsEditorDialog
+  }, []);
 
   const updateDashboard = useCallback((data, includeVersion = true) => {
     setDashboard(extend({}, dashboard, data));
@@ -170,6 +174,7 @@ function useDashboard(dashboardData) {
     fullscreen,
     toggleFullscreen,
     openShareDialog,
+    managePermissions,
   };
 }
 
