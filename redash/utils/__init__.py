@@ -1,5 +1,5 @@
 import codecs
-import cStringIO
+import io
 import csv
 import datetime
 import decimal
@@ -15,16 +15,13 @@ from six import string_types
 import pystache
 import pytz
 import simplejson
+from flask import current_app
 from funcy import select_values
 from redash import settings
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 
-try:
-    buffer
-except NameError:
-    buffer = bytes
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
@@ -101,8 +98,10 @@ class JSONEncoder(simplejson.JSONEncoder):
             result = o.isoformat()
             if o.microsecond:
                 result = result[:12]
-        elif isinstance(o, buffer):
-            result = binascii.hexlify(o)
+        elif isinstance(o, memoryview):
+            result = binascii.hexlify(o).decode()
+        elif isinstance(o, bytes):
+            result = binascii.hexlify(o).decode()
         else:
             result = super(JSONEncoder, self).default(o)
         return result
@@ -118,6 +117,7 @@ def json_dumps(data, *args, **kwargs):
     """A custom JSON dumping function which passes all parameters to the
     simplejson.dumps function."""
     kwargs.setdefault('cls', JSONEncoder)
+    kwargs.setdefault('encoding', None)
     return simplejson.dumps(data, *args, **kwargs)
 
 
@@ -144,7 +144,7 @@ class UnicodeWriter:
 
     def __init__(self, f, dialect=csv.excel, encoding=WRITER_ENCODING, **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = io.StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
@@ -175,7 +175,7 @@ class UnicodeWriter:
 def collect_parameters_from_request(args):
     parameters = {}
 
-    for k, v in args.iteritems():
+    for k, v in args.items():
         if k.startswith('p_'):
             parameters[k[2:]] = v
 
@@ -205,3 +205,11 @@ def deprecated():
         return K
 
     return wrapper
+
+
+def render_template(path, context):
+    """ Render a template with context, without loading the entire app context.
+    Using Flask's `render_template` function requires the entire app context to load, which in turn triggers any
+    function decorated with the `context_processor` decorator, which is not explicitly required for rendering purposes.
+    """
+    current_app.jinja_env.get_template(path).render(**context)

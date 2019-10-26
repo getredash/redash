@@ -11,7 +11,7 @@ import { PreviewCard } from '@/components/PreviewCard';
 import EmptyState from '@/components/items-list/components/EmptyState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
-import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
+import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
 const { Step } = Steps;
 const { Search } = Input;

@@ -8,7 +8,7 @@ from redash.handlers.base import json_response, record_event
 from redash.permissions import require_super_admin
 from redash.serializers import QuerySerializer
 from redash.utils import json_loads
-from redash.monitor import celery_tasks
+from redash.monitor import celery_tasks, rq_status
 
 
 @routes.route('/api/admin/queries/outdated', methods=['GET'])
@@ -52,3 +52,15 @@ def queries_tasks():
     }
 
     return json_response(response)
+
+
+@routes.route('/api/admin/queries/rq_status', methods=['GET'])
+@require_super_admin
+@login_required
+def queries_rq_status():
+    record_event(current_org, current_user._get_current_object(), {
+        'action': 'list',
+        'object_type': 'rq_status'
+    })
+
+    return json_response(rq_status())

@@ -143,7 +143,7 @@ class Mysql(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
-                table_name = u'{}.{}'.format(row['table_schema'],
+                table_name = '{}.{}'.format(row['table_schema'],
                                              row['table_name'])
             else:
                 table_name = row['table_name']
@@ -153,7 +153,7 @@ class Mysql(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         ev = threading.Event()
@@ -197,7 +197,7 @@ class Mysql(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in desc])
                 rows = [
-                    dict(zip((c['name'] for c in columns), row))
+                    dict(zip((column['name'] for column in columns), row))
                     for row in data
                 ]
 
@@ -226,7 +226,11 @@ class Mysql(BaseSQLQueryRunner):
         ssl_params = {}
 
         if self.configuration.get('use_ssl'):
-            config_map = dict(ssl_cacert='ca', ssl_cert='cert', ssl_key='key')
+            config_map = {
+                "ssl_cacert": "ca",
+                "ssl_cert": "cert",
+                "ssl_key": "key",
+            }
             for key, cfg in config_map.items():
                 val = self.configuration.get(key)
                 if val:

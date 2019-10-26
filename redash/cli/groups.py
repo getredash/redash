@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from sys import exit
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -36,7 +36,7 @@ def create(name, permissions=None, organization='default'):
             permissions=permissions))
         models.db.session.commit()
     except Exception as e:
-        print("Failed create group: %s" % e.message)
+        print("Failed create group: %s" % e)
         exit(1)
 
 
@@ -67,7 +67,7 @@ def change_permissions(group_id, permissions=None):
         models.db.session.add(group)
         models.db.session.commit()
     except Exception as e:
-        print("Failed change permission: %s" % e.message)
+        print("Failed change permission: %s" % e)
         exit(1)
 
 
@@ -80,10 +80,10 @@ def extract_permissions_string(permissions):
     return permissions
 
 
-@manager.command()
+@manager.command(name='list')
 @option('--org', 'organization', default=None,
         help="The organization to limit to (leave blank for all).")
-def list(organization=None):
+def list_command(organization=None):
     """List all groups"""
     if organization:
         org = models.Organization.get_by_slug(organization)

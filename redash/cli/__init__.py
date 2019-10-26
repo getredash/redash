@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import click
 import simplejson
@@ -6,7 +6,7 @@ from flask import current_app
 from flask.cli import FlaskGroup, run_command
 
 from redash import __version__, create_app, settings
-from redash.cli import data_sources, database, groups, organization, queries, users
+from redash.cli import data_sources, database, groups, organization, queries, users, rq
 from redash.monitor import get_status
 
 
@@ -35,6 +35,7 @@ manager.add_command(groups.manager, "groups")
 manager.add_command(data_sources.manager, "ds")
 manager.add_command(organization.manager, "org")
 manager.add_command(queries.manager, "queries")
+manager.add_command(rq.manager, "rq")
 manager.add_command(run_command, "runserver")
 
 
@@ -52,7 +53,7 @@ def status():
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
-    for name, item in current_app.config.iteritems():
+    for name, item in current_app.config.items():
         print("{} = {}".format(name, item))
 
 

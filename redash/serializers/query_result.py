@@ -1,4 +1,4 @@
-import cStringIO
+import io
 import csv
 import xlsxwriter
 from funcy import rpartial, project
@@ -41,7 +41,7 @@ def _get_column_lists(columns):
     special_types = {
         TYPE_BOOLEAN: _convert_bool,
         TYPE_DATE: rpartial(_convert_datetime, date_format),
-        TYPE_DATETIME: rpartial(_convert_datetime, datetime_format)
+        TYPE_DATETIME: rpartial(_convert_datetime, datetime_format),
     }
 
     fieldnames = []
@@ -66,18 +66,17 @@ def serialize_query_result(query_result, is_api_user):
 
 
 def serialize_query_result_to_csv(query_result):
-    s = cStringIO.StringIO()
+    s = io.StringIO()
 
-    query_data = json_loads(query_result.data)
+    query_data = query_result.data
 
     fieldnames, special_columns = _get_column_lists(query_data['columns'] or [])
 
     writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
-    writer.writer = UnicodeWriter(s)
     writer.writeheader()
 
     for row in query_data['rows']:
-        for col_name, converter in special_columns.iteritems():
+        for col_name, converter in special_columns.items():
             if col_name in row:
                 row[col_name] = converter(row[col_name])
 
@@ -87,24 +86,24 @@ def serialize_query_result_to_csv(query_result):
 
 
 def serialize_query_result_to_xlsx(query_result):
-    s = cStringIO.StringIO()
+    output = io.BytesIO()
 
-    query_data = json_loads(query_result.data)
-    book = xlsxwriter.Workbook(s, {'constant_memory': True})
+    query_data = query_result.data
+    book = xlsxwriter.Workbook(output, {'constant_memory': True})
     sheet = book.add_worksheet("result")
 
     column_names = []
-    for (c, col) in enumerate(query_data['columns']):
+    for c, col in enumerate(query_data['columns']):
         sheet.write(0, c, col['name'])
         column_names.append(col['name'])
 
-    for (r, row) in enumerate(query_data['rows']):
-        for (c, name) in enumerate(column_names):
+    for r, row in enumerate(query_data['rows']):
+        for c, name in enumerate(column_names):
             v = row.get(name)
-            if isinstance(v, list) or isinstance(v, dict):
-                v = str(v).encode('utf-8')
+            if isinstance(v, (dict, list)):
+                v = str(v)
             sheet.write(r + 1, c, v)
 
     book.close()
 
-    return s.getvalue()
+    return output.getvalue()
