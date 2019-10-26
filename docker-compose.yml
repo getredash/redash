@@ -3,7 +3,9 @@ version: '3.2'
 # For a production example please refer to getredash/setup repository on GitHub.
 services:
   server:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: dev_server
     depends_on:
       - postgres
@@ -22,7 +24,9 @@ services:
       REDASH_MAIL_DEFAULT_SENDER: redash@example.com
       REDASH_MAIL_SERVER: email
   scheduler:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: dev_scheduler
     volumes:
       - type: bind
@@ -35,7 +39,9 @@ services:
       REDASH_MAIL_DEFAULT_SENDER: redash@example.com
       REDASH_MAIL_SERVER: email
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: dev_worker
     volumes:
       - type: bind

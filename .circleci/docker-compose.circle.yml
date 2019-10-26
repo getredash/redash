@@ -1,13 +1,17 @@
 version: '3'
 services:
   redash:
-    build: ../
+    build:
+      context: ../
+      dockerfile: Dockerfile.dev
     command: manage version
     depends_on:
       - postgres
       - redis
     ports:
       - "5000:5000"
+    volumes:
+      - "../tests:/app/tests:ro"
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
