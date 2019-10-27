@@ -115,7 +115,8 @@ workflows:
       - frontend-e2e-tests:
           requires:
             - frontend-lint
-      - build-docker-image:
+      - hold:
+          type: approval
           requires:
             - backend-unit-tests
             - frontend-unit-tests
@@ -126,3 +127,6 @@ workflows:
                 - master
                 - preview-image
                 - /release\/.*/
+      - build-docker-image:
+          requires:
+            - hold
