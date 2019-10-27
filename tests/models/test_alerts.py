@@ -1,6 +1,6 @@
 from unittest import TestCase
 from tests import BaseTestCase
-from redash.models import Alert, db
+from redash.models import Alert, db, next_state, OPERATORS
 from redash.utils import json_dumps
 
 
