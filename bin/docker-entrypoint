@@ -49,13 +49,14 @@ dev_scheduler() {
 rq_worker() {
   echo "Starting RQ worker..."
 
-  exec /app/manage.py rq worker $QUEUES
+  exec /app/manage.py rq workers $WORKERS_COUNT $QUEUES
 }
 
 dev_worker() {
-  echo "Starting dev RQ worker..."
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  echo "Starting $WORKERS_COUNT dev RQ workers for queues: $QUEUES..."
 
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq workers $WORKERS_COUNT $QUEUES
 }
 
 dev_worker() {

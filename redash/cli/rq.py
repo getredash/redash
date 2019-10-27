@@ -3,6 +3,7 @@ import socket
 import sys
 import datetime
 
+from honcho.manager import Manager
 from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
@@ -23,6 +24,19 @@ def scheduler():
 
 
 @manager.command()
+@argument('workers_count')
+@argument('queues', nargs=-1)
+def workers(workers_count=1, queues='default'):
+    m = Manager()
+    for i in range(int(workers_count)):
+        cmd = './manage.py rq worker {}'.format(" ".join(queues))
+        m.add_process('worker #{}'.format(i+1), cmd)
+         
+    m.loop()
+    sys.exit(m.returncode)
+
+
+@manager.command()
 @argument('queues', nargs=-1)
 def worker(queues='default'):
     if not queues:
@@ -38,7 +52,7 @@ def healthcheck():
     with Connection(rq_redis_connection):
         all_workers = Worker.all()
 
-        local_workers = [w for w in all_workers if w.hostname == hostname]
+        local_workers = [w for w in all_workers if w.hostname.decode() == hostname]
         row_format ="{:>10}" * (len(local_workers) + 1)
 
         print("Local worker PIDs:")
