@@ -24,13 +24,13 @@ def scheduler():
 @argument('workers_count')
 @argument('queues', nargs=-1)
 def workers(workers_count=1, queues='default'):
-    m = Manager()
-    for i in range(int(workers_count)):
-        cmd = './manage.py rq worker {}'.format(" ".join(queues))
-        m.add_process('worker #{}'.format(i+1), cmd)
+    while True:
+        m = Manager()
+        for i in range(int(workers_count)):
+            cmd = './manage.py rq worker {}'.format(" ".join(queues))
+            m.add_process('worker #{}'.format(i+1), cmd)
 
-    m.loop()
-    sys.exit(m.returncode)
+        m.loop()
 
 
 @manager.command()
