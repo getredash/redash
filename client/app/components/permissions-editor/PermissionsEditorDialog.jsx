@@ -8,7 +8,6 @@ import Select from 'antd/lib/select';
 import Tag from 'antd/lib/tag';
 import Tooltip from 'antd/lib/tooltip';
 import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import LoadingState from '@/components/items-list/components/LoadingState';
 import { $http } from '@/services/ng';
 import { toHuman } from '@/filters';
 import HelpTrigger from '@/components/HelpTrigger';
@@ -63,7 +62,7 @@ function PermissionsEditorDialogHeader({ context }) {
 PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(['query', 'dashboard']) };
 PermissionsEditorDialogHeader.defaultProps = { context: 'query' };
 
-function UserSelect({ onSelect, previewCardAddon, isUserDisabled }) {
+function UserSelect({ onSelect, shouldShowUser }) {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,11 +92,9 @@ function UserSelect({ onSelect, previewCardAddon, isUserDisabled }) {
       getPopupContainer={trigger => trigger.parentNode}
       onSelect={onSelect}
     >
-      {users.map(user => (
-        <Option key={user.id} value={user.id} disabled={isUserDisabled(user)}>
-          <UserPreviewCard user={user}>
-            {previewCardAddon(user)}
-          </UserPreviewCard>
+      {users.filter(shouldShowUser).map(user => (
+        <Option key={user.id} value={user.id}>
+          <UserPreviewCard user={user} />
         </Option>
       ))}
     </Select>
@@ -106,10 +103,9 @@ function UserSelect({ onSelect, previewCardAddon, isUserDisabled }) {
 
 UserSelect.propTypes = {
   onSelect: PropTypes.func,
-  previewCardAddon: PropTypes.func,
-  isUserDisabled: PropTypes.func,
+  shouldShowUser: PropTypes.func,
 };
-UserSelect.defaultProps = { onSelect: () => {}, previewCardAddon: () => null, isUserDisabled: () => false };
+UserSelect.defaultProps = { onSelect: () => {}, shouldShowUser: () => true };
 
 function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
   const [loadingGrantees, setLoadingGrantees] = useState(true);
@@ -141,32 +137,32 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
     >
       <UserSelect
         onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
-        previewCardAddon={user => (userHasPermission(user) ? '(already has permission)' : null)}
-        isUserDisabled={user => userHasPermission(user)}
+        shouldShowUser={user => !userHasPermission(user)}
       />
-      <h5>Users with permissions</h5>
-      {!loadingGrantees ? (
-        <div className="scrollbox p-5 m-t-10" style={{ maxHeight: '40vh' }}>
-          <List
-            size="small"
-            dataSource={[owner, ...grantees]}
-            renderItem={user => (
-              <List.Item>
-                <UserPreviewCard key={user.id} user={user}>
-                  {user.id === owner.id ? (<Tag>Owner</Tag>) : (
-                    <Tooltip title="Remove user permissions">
-                      <i
-                        className="fa fa-remove clickable"
-                        onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}
-                      />
-                    </Tooltip>
-                  )}
-                </UserPreviewCard>
-              </List.Item>
-            )}
-          />
-        </div>
-      ) : <LoadingState className="" />}
+      <div className="d-flex align-items-center">
+        <h5 className="flex-fill">Users with permissions</h5>
+        {loadingGrantees && <i className="fa fa-spinner fa-pulse" />}
+      </div>
+      <div className="scrollbox p-5 m-t-10" style={{ maxHeight: '40vh' }}>
+        <List
+          size="small"
+          dataSource={[owner, ...grantees]}
+          renderItem={user => (
+            <List.Item>
+              <UserPreviewCard key={user.id} user={user}>
+                {user.id === owner.id ? (<Tag className="m-0">Owner</Tag>) : (
+                  <Tooltip title="Remove user permissions">
+                    <i
+                      className="fa fa-remove clickable"
+                      onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}
+                    />
+                  </Tooltip>
+                )}
+              </UserPreviewCard>
+            </List.Item>
+          )}
+        />
+      </div>
     </Modal>
   );
 }
