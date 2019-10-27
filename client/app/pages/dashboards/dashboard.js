@@ -255,7 +255,7 @@ function DashboardCtrl(
     PermissionsEditorDialog.showModal({
       aclUrl,
       context: 'query',
-      owner: this.dashboard.user,
+      author: this.dashboard.user,
     });
   };
 

@@ -533,7 +533,7 @@ function QueryViewCtrl(
     PermissionsEditorDialog.showModal({
       aclUrl,
       context: 'query',
-      owner: $scope.query.user,
+      author: $scope.query.user,
     });
   };
 }

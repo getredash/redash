@@ -107,7 +107,7 @@ UserSelect.propTypes = {
 };
 UserSelect.defaultProps = { onSelect: () => {}, shouldShowUser: () => true };
 
-function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
+function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
   const [loadingGrantees, setLoadingGrantees] = useState(true);
   const [grantees, setGrantees] = useState([]);
   const { loadGrantees, addPermission, removePermission } = useGrantees(aclUrl);
@@ -120,7 +120,7 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
   }, []);
 
   const userHasPermission = useCallback(
-    user => (user.id === owner.id || !!get(find(grantees, { id: user.id }), 'accessType')),
+    user => (user.id === author.id || !!get(find(grantees, { id: user.id }), 'accessType')),
     [grantees],
   );
 
@@ -146,11 +146,11 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
       <div className="scrollbox p-5 m-t-10" style={{ maxHeight: '40vh' }}>
         <List
           size="small"
-          dataSource={[owner, ...grantees]}
+          dataSource={[author, ...grantees]}
           renderItem={user => (
             <List.Item>
               <UserPreviewCard key={user.id} user={user}>
-                {user.id === owner.id ? (<Tag className="m-0">Owner</Tag>) : (
+                {user.id === author.id ? (<Tag className="m-0">Author</Tag>) : (
                   <Tooltip title="Remove user permissions">
                     <i
                       className="fa fa-remove clickable"
@@ -169,7 +169,7 @@ function PermissionsEditorDialog({ dialog, owner, context, aclUrl }) {
 
 PermissionsEditorDialog.propTypes = {
   dialog: DialogPropType.isRequired,
-  owner: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  author: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   context: PropTypes.oneOf(['query', 'dashboard']),
   aclUrl: PropTypes.string.isRequired,
 };
