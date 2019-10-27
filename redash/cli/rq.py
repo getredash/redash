@@ -8,9 +8,6 @@ from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
 
-SECONDS = 1
-MINUTES = 60 * SECONDS
-
 from redash import rq_redis_connection
 from redash.schedule import rq_scheduler, schedule_periodic_jobs
 
@@ -31,7 +28,7 @@ def workers(workers_count=1, queues='default'):
     for i in range(int(workers_count)):
         cmd = './manage.py rq worker {}'.format(" ".join(queues))
         m.add_process('worker #{}'.format(i+1), cmd)
-         
+
     m.loop()
     sys.exit(m.returncode)
 
