@@ -105,7 +105,7 @@ workflows:
   build:
     jobs:
       - backend-lint
-      - backend-unit-tests
+      - backend-unit-tests:
           requires:
             - backend-lint
       - frontend-lint
