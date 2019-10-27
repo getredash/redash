@@ -1,5 +1,16 @@
 version: 2.0
 
+build-docker-image-job: &build-docker-image-job
+  docker:
+    - image: circleci/node:8
+  steps:
+    - setup_remote_docker
+    - checkout
+    - run: sudo apt install python3-pip
+    - run: sudo pip3 install -r requirements_bundles.txt
+    - run: .circleci/update_version
+    - run: npm run bundle
+    - run: .circleci/docker_build
 jobs:
   backend-lint:
     docker:
@@ -89,17 +100,8 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-docker-image:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run: sudo apt install python3-pip
-      - run: sudo pip3 install -r requirements_bundles.txt
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: .circleci/docker_build
+  build-docker-image: *build-docker-image-job
+  build-preview-docker-image: *build-docker-image-job
 workflows:
   version: 2
   build:
@@ -116,6 +118,15 @@ workflows:
       - frontend-e2e-tests:
           requires:
             - frontend-lint
+      - build-preview-docker-image:
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - master
       - hold:
           type: approval
           requires:
@@ -125,8 +136,6 @@ workflows:
           filters:
             branches:
               only:
-                - master
-                - preview-image
                 - /release\/.*/
       - build-docker-image:
           requires:
