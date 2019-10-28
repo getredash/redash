@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import itertools
 from sqlalchemy import union_all
-from redash import redis_connection, __version__, settings
+from redash import redis_connection, rq_redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.utils import json_loads
 from redash.worker import celery
@@ -26,7 +26,7 @@ def get_object_counts():
     return status
 
 
-def get_queues():
+def get_celery_queues():
     queue_names = db.session.query(DataSource.queue_name).distinct()
     scheduled_queue_names = db.session.query(DataSource.scheduled_queue_name).distinct()
     query = db.session.execute(union_all(queue_names, scheduled_queue_names))
@@ -35,14 +35,8 @@ def get_queues():
 
 
 def get_queues_status():
-    queues = {}
-
-    for queue in get_queues():
-        queues[queue] = {
-            'size': redis_connection.llen(queue)
-        }
-
-    return queues
+    return {**{queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()},
+            **{queue.name: {'size': len(queue)} for queue in Queue.all(connection=rq_redis_connection)}}
 
 
 def get_db_sizes():
@@ -134,7 +128,7 @@ def celery_tasks():
     tasks = parse_tasks(celery.control.inspect().active(), 'active')
     tasks += parse_tasks(celery.control.inspect().reserved(), 'reserved')
 
-    for queue_name in get_queues():
+    for queue_name in get_celery_queues():
         tasks += get_waiting_in_queue(queue_name)
 
     return tasks
@@ -147,7 +141,7 @@ def fetch_jobs(queue, job_ids):
             'queue': queue.name,
             'enqueued_at': job.enqueued_at,
             'started_at': job.started_at
-        } for job in Job.fetch_many(job_ids, connection=redis_connection) if job is not None]
+        } for job in Job.fetch_many(job_ids, connection=rq_redis_connection) if job is not None]
 
 
 def rq_queues():
@@ -155,8 +149,12 @@ def rq_queues():
         q.name: {
             'name': q.name,
             'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
-            'queued': fetch_jobs(q, q.job_ids)
-        } for q in Queue.all(connection=redis_connection)}
+            'queued': len(q.job_ids)
+        } for q in Queue.all(connection=rq_redis_connection)}
+
+
+def describe_job(job):
+    return '{} ({})'.format(job.id, job.func_name.split(".").pop()) if job else None
 
 
 def rq_workers():
@@ -168,10 +166,11 @@ def rq_workers():
         'state': w.state,
         'last_heartbeat': w.last_heartbeat,
         'birth_date': w.birth_date,
-        'successful_job_count': w.successful_job_count,
-        'failed_job_count': w.failed_job_count,
+        'current_job': describe_job(w.get_current_job()),
+        'successful_jobs': w.successful_job_count,
+        'failed_jobs': w.failed_job_count,
         'total_working_time': w.total_working_time
-    } for w in Worker.all(connection=redis_connection)]
+    } for w in Worker.all(connection=rq_redis_connection)]
 
 
 def rq_status():

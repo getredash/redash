@@ -1,11 +1,11 @@
 """Add is_draft status to queries and dashboards
 
 Revision ID: 65fc9ede4746
-Revises: 
+Revises:
 Create Date: 2016-12-07 18:08:13.395586
 
 """
-from __future__ import print_function
+
 from alembic import op
 import sqlalchemy as sa
 
@@ -26,7 +26,7 @@ def upgrade():
         op.execute("UPDATE dashboards SET is_draft = false")
     except ProgrammingError as e:
         # The columns might exist if you ran the old migrations.
-        if 'column "is_draft" of relation "queries" already exists' in e.message:
+        if 'column "is_draft" of relation "queries" already exists' in str(e):
             print("Can't run this migration as you already have is_draft columns, please run:")
             print("./manage.py db stamp {} # you might need to alter the command to match your environment.".format(revision))
             exit()

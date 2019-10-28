@@ -10,11 +10,10 @@ import { Alert as AlertService } from '@/services/alert';
 import { Query as QueryService } from '@/services/query';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
+import MenuButton from './components/MenuButton';
 import AlertView from './AlertView';
 import AlertEdit from './AlertEdit';
 import AlertNew from './AlertNew';
-
-import Modal from 'antd/lib/modal';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
@@ -152,24 +151,11 @@ class AlertPage extends React.Component {
 
   delete = () => {
     const { alert } = this.state;
-
-    const doDelete = () => {
-      alert.$delete(() => {
-        notification.success('Alert deleted successfully.');
-        navigateTo('/alerts');
-      }, () => {
-        notification.error('Failed deleting alert.');
-      });
-    };
-
-    Modal.confirm({
-      title: 'Delete Alert',
-      content: 'Are you sure you want to delete this alert?',
-      okText: 'Delete',
-      okType: 'danger',
-      onOk: doDelete,
-      maskClosable: true,
-      autoFocusButton: null,
+    return alert.$delete(() => {
+      notification.success('Alert deleted successfully.');
+      navigateTo('/alerts');
+    }, () => {
+      notification.error('Failed deleting alert.');
     });
   };
 
@@ -192,12 +178,20 @@ class AlertPage extends React.Component {
     }
 
     const { queryResult, mode, canEdit, pendingRearm } = this.state;
+
+    const menuButton = (
+      <MenuButton
+        doDelete={this.delete}
+        canEdit={canEdit}
+      />
+    );
+
     const commonProps = {
       alert,
       queryResult,
       pendingRearm,
-      delete: this.delete,
       save: this.save,
+      menuButton,
       onQuerySelected: this.onQuerySelected,
       onRearmChange: this.onRearmChange,
       onNameChange: this.onNameChange,

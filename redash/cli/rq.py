@@ -7,7 +7,7 @@ from click import argument
 from flask.cli import AppGroup
 from rq import Connection, Worker
 
-from redash import redis_connection
+from redash import rq_redis_connection
 from redash.schedule import rq_scheduler, schedule_periodic_jobs
 
 manager = AppGroup(help="RQ management commands.")
@@ -22,7 +22,9 @@ def scheduler():
 @manager.command()
 @argument('queues', nargs=-1)
 def worker(queues='default'):
-    with Connection(redis_connection):
+    if not queues:
+        queues = ('default',)
+    with Connection(rq_redis_connection):
         w = Worker(queues)
         w.work()
 
@@ -30,7 +32,7 @@ def worker(queues='default'):
 @manager.command()
 def healthcheck():
     hostname = socket.gethostname()
-    with Connection(redis_connection):
+    with Connection(rq_redis_connection):
         all_workers = Worker.all()
 
         local_workers = [w for w in all_workers if w.hostname == hostname]

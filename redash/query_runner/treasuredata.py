@@ -86,7 +86,7 @@ class TreasureData(BaseQueryRunner):
                             }
             except Exception as ex:
                 raise Exception("Failed getting schema")
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = tdclient.connect(
@@ -104,7 +104,7 @@ class TreasureData(BaseQueryRunner):
             if cursor.rowcount == 0:
                 rows = []
             else:
-                rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+                rows = [dict(zip(([column['name'] for column in columns]), r)) for r in cursor.fetchall()]
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)
             error = None

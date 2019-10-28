@@ -5,13 +5,13 @@ from random import randint
 
 from rq_scheduler import Scheduler
 
-from redash import settings, redis_connection
+from redash import settings, rq_redis_connection
 from redash.tasks import (sync_user_details, refresh_queries,
                           empty_schedules, refresh_schemas,
                           cleanup_query_results,
                           version_check, send_aggregated_errors)
 
-rq_scheduler = Scheduler(connection=redis_connection,
+rq_scheduler = Scheduler(connection=rq_redis_connection,
                          queue_name="periodic",
                          interval=5)
 
@@ -32,7 +32,7 @@ def schedule_periodic_jobs():
         job.delete()
 
     jobs = [
-        {"func": refresh_queries, "interval": 30},
+        {"func": refresh_queries, "interval": 30, "result_ttl": 600},
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
         {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},

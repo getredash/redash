@@ -150,7 +150,7 @@ class AzureKusto(BaseQueryRunner):
             for column in table['OrderedColumns']:
                 schema[table_name]['columns'].append(column['Name'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(AzureKusto)

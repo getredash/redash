@@ -6,7 +6,7 @@ class TestUnembedables(BaseTestCase):
     def test_not_embedable(self):
         query = self.factory.create_query()
         res = self.make_request('get', '/api/queries/{0}'.format(query.id))
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         self.assertIn("frame-ancestors 'none'", res.headers['Content-Security-Policy'])
         self.assertEqual(res.headers['X-Frame-Options'], 'deny')
 

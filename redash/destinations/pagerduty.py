@@ -12,7 +12,7 @@ except ImportError:
 class PagerDuty(BaseDestination):
 
     KEY_STRING = '{alert_id}_{query_id}'
-    DESCRIPTION_STR = u'Alert: {alert_name}'
+    DESCRIPTION_STR = 'Alert: {alert_name}'
 
     @classmethod
     def enabled(cls):
