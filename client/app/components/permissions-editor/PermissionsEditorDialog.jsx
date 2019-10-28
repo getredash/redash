@@ -139,11 +139,11 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
         onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
         shouldShowUser={user => !userHasPermission(user)}
       />
-      <div className="d-flex align-items-center">
+      <div className="d-flex align-items-center m-t-5">
         <h5 className="flex-fill">Users with permissions</h5>
         {loadingGrantees && <i className="fa fa-spinner fa-pulse" />}
       </div>
-      <div className="scrollbox p-5 m-t-10" style={{ maxHeight: '40vh' }}>
+      <div className="scrollbox p-5" style={{ maxHeight: '40vh' }}>
         <List
           size="small"
           dataSource={[author, ...grantees]}
