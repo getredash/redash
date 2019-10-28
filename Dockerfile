@@ -36,10 +36,10 @@ RUN apt-get update && \
   libssl-dev \
   default-libmysqlclient-dev \
   freetds-dev \
-  libsasl2-dev && \
+  libsasl2-dev \
   alien \
   gcc \
-  unixodbc-dev \
+  unixodbc-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
