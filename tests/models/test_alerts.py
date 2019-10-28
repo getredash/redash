@@ -82,3 +82,7 @@ class TestNextState(TestCase):
 
     def test_string_value(self):
         self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), "string", "string"))
+    
+    def test_boolean_value(self):
+        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('=='), False, 'false'))
+        self.assertEqual(Alert.TRIGGERED_STATE, next_state(OPERATORS.get('!='), False, 'true'))
