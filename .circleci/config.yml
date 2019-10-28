@@ -24,15 +24,11 @@ jobs:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
-    machine: true
+    docker:
+      - image: circleci/buildpack-deps:xenial
     steps:
+      - setup_remote_docker
       - checkout
-      - run:
-          name: Install Docker Compose
-          command: |
-            curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
           name: Build Docker Images
           command: |
