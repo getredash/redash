@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { isEmpty, isNaN, includes, compact, map, has, pick, keys, extend, every } from 'lodash';
+import { isEmpty, isNaN, includes, compact, map, has, pick, keys,
+  extend, every, find, debounce, isMatch, pickBy } from 'lodash';
 import notification from '@/services/notification';
 import { $location, $rootScope } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
@@ -12,6 +13,12 @@ import {
   synchronizeWidgetTitles,
 } from '@/components/ParameterMappingInput';
 import ShareDashboardDialog from './ShareDashboardDialog';
+
+export const DashboardStatusEnum = {
+  SAVED: 'saved',
+  SAVING: 'saving',
+  SAVING_FAILED: 'saving_failed',
+};
 
 function updateUrlSearch(...params) {
   $location.search(...params);
@@ -26,6 +33,14 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
       ({ mapTo }) => includes(updatedParameters.map(p => p.name), mapTo),
     ),
   ) : widgets;
+}
+
+function getChangedPositions(widgets, nextPositions = {}) {
+  return pickBy(nextPositions, (nextPos, widgetId) => {
+    const widget = find(widgets, { id: Number(widgetId) });
+    const prevPos = widget.options.position;
+    return !isMatch(prevPos, nextPos);
+  });
 }
 
 function getRefreshRateFromUrl() {
@@ -58,21 +73,91 @@ function useRefreshRateHandler(refreshDashboard) {
   return [refreshRate, setRefreshRate];
 }
 
-function useEditModeHandler(canEditDashboard) {
+function useEditModeHandler(canEditDashboard, widgets) {
   const [editingLayout, setEditingLayout] = useState(canEditDashboard && has($location.search(), 'edit'));
+  const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
+  const [recentPositions, setRecentPositions] = useState([]);
+  const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
 
   useEffect(() => {
     updateUrlSearch('edit', editingLayout ? true : null);
   }, [editingLayout]);
 
-  return [editingLayout, editing => setEditingLayout(canEditDashboard && editing)];
+  useEffect(() => {
+    if (!canEditDashboard && editingLayout) {
+      setEditingLayout(false);
+    }
+  }, [canEditDashboard, editingLayout]);
+
+  useEffect(() => {
+    if (doneBtnClickedWhileSaving && dashboardStatus === DashboardStatusEnum.SAVED) {
+      setDoneBtnClickedWhileSaving(false);
+      setEditingLayout(false);
+    }
+  }, [doneBtnClickedWhileSaving, dashboardStatus]);
+
+  const saveDashboardLayout = useCallback((positions) => {
+    if (!canEditDashboard) {
+      return;
+    }
+
+    const changedPositions = getChangedPositions(widgets, positions);
+
+    setDashboardStatus(DashboardStatusEnum.SAVING);
+    setRecentPositions(positions);
+    const saveChangedWidgets = map(changedPositions, (position, id) => {
+      // find widget
+      const widget = find(widgets, { id: Number(id) });
+
+      // skip already deleted widget
+      if (!widget) {
+        return Promise.resolve();
+      }
+
+      return widget.save('options', { position });
+    });
+
+    return Promise.all(saveChangedWidgets)
+      .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
+      .catch(() => {
+        setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
+        notification.error('Error saving changes.');
+      });
+  }, [canEditDashboard, widgets]);
+
+  const saveDashboardLayoutDebounced = useCallback((...args) => {
+    setDashboardStatus(DashboardStatusEnum.SAVING);
+    return debounce(() => saveDashboardLayout(...args), 2000)();
+  }, [saveDashboardLayout]);
+
+  const retrySaveDashboardLayout = useCallback(
+    () => saveDashboardLayout(recentPositions),
+    [recentPositions, saveDashboardLayout],
+  );
+
+  const setEditing = useCallback((editing) => {
+    if (!editing && dashboardStatus !== DashboardStatusEnum.SAVED) {
+      setDoneBtnClickedWhileSaving(true);
+      return;
+    }
+    setEditingLayout(canEditDashboard && editing);
+  }, [dashboardStatus, canEditDashboard]);
+
+  return {
+    editingLayout,
+    setEditingLayout: setEditing,
+    saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
+    retrySaveDashboardLayout,
+    doneBtnClickedWhileSaving,
+    dashboardStatus,
+  };
 }
 
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [widgets, setWidgets] = useState(dashboard.widgets);
+  const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
   const canEditDashboard = useMemo(
     () => !dashboard.is_archived && has(dashboard, 'user.id') && (
@@ -81,8 +166,8 @@ function useDashboard(dashboardData) {
     [dashboard],
   );
   const hasOnlySafeQueries = useMemo(
-    () => every(widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
-    [widgets],
+    () => every(dashboard.widgets, w => (w.getQuery() ? w.getQuery().is_safe : true)),
+    [dashboard],
   );
 
   const managePermissions = useCallback(() => {
@@ -123,24 +208,29 @@ function useDashboard(dashboardData) {
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setWidgets([...dashboard.widgets]);
-    return widget.load(forceRefresh).finally(() => setWidgets([...dashboard.widgets]));
+    setDashboard(extend({}, dashboard));
+    return widget.load(forceRefresh).finally(() => setDashboard(extend({}, dashboard)));
   }, [dashboard]);
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
+  const removeWidget = useCallback((widgetId) => {
+    dashboard.widgets = dashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId);
+    setDashboard(extend({}, dashboard));
+  }, [dashboard]);
+
   const loadDashboard = useCallback((forceRefresh = false, updatedParameters = []) => {
-    const affectedWidgets = getAffectedWidgets(widgets, updatedParameters);
+    const affectedWidgets = getAffectedWidgets(dashboard.widgets, updatedParameters);
     const loadWidgetPromises = compact(
       affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error)),
     );
 
     return Promise.all(loadWidgetPromises).then(() => {
-      const queryResults = compact(map(widgets, widget => widget.getQueryResult()));
+      const queryResults = compact(map(dashboard.widgets, widget => widget.getQueryResult()));
       const updatedFilters = collectDashboardFilters(dashboard, queryResults, $location.search());
       setFilters(updatedFilters);
     });
-  }, [dashboard, widgets, loadWidget]);
+  }, [dashboard, loadWidget]);
 
   const refreshDashboard = useCallback(
     (updatedParameters) => {
@@ -165,7 +255,7 @@ function useDashboard(dashboardData) {
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
       dashboard,
-      onConfirm: text => dashboard.addWidget(text).then(() => setWidgets(dashboard.widgets)),
+      onConfirm: text => dashboard.addWidget(text).then(() => setDashboard(extend({}, dashboard))),
     });
   }, [dashboard]);
 
@@ -179,14 +269,15 @@ function useDashboard(dashboardData) {
           widget,
           ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
         ];
-        return Promise.all(widgetsToSave.map(w => w.save())).then(() => setWidgets(dashboard.widgets));
+        return Promise.all(widgetsToSave.map(w => w.save()))
+          .then(() => setDashboard(extend({}, dashboard)));
       }),
     });
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard);
   const [fullscreen, toggleFullscreen] = useFullscreenHandler();
-  const [editingLayout, setEditingLayout] = useEditModeHandler(canEditDashboard);
+  const editModeHandler = useEditModeHandler(!gridDisabled && canEditDashboard, dashboard.widgets);
 
   useEffect(() => {
     setDashboard(dashboardData);
@@ -195,22 +286,24 @@ function useDashboard(dashboardData) {
 
   return {
     dashboard,
-    widgets,
     globalParameters,
     refreshing,
     filters,
     setFilters,
+    loadDashboard,
     refreshDashboard,
     updateDashboard,
     togglePublished,
     archiveDashboard,
     loadWidget,
     refreshWidget,
+    removeWidget,
     canEditDashboard,
     refreshRate,
     setRefreshRate,
-    editingLayout,
-    setEditingLayout,
+    ...editModeHandler,
+    gridDisabled,
+    setGridDisabled,
     fullscreen,
     toggleFullscreen,
     showShareDashboardDialog,

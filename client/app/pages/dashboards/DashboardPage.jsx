@@ -23,7 +23,7 @@ import getTags from '@/services/getTags';
 import { clientConfig } from '@/services/auth';
 import { durationHumanize } from '@/filters';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
-import useDashboard from './useDashboard';
+import useDashboard, { DashboardStatusEnum } from './useDashboard';
 
 import './DashboardPage.less';
 
@@ -211,12 +211,27 @@ DashboardControl.propTypes = {
 };
 
 function DashboardEditControl({ dashboardOptions }) {
-  const { setEditingLayout } = dashboardOptions;
+  const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } = dashboardOptions;
+  let status;
+  if (dashboardStatus === DashboardStatusEnum.SAVED) {
+    status = (<span className="save-status">Saved</span>);
+  } else if (dashboardStatus === DashboardStatusEnum.SAVING) {
+    status = (<span className="save-status" data-saving>Saving</span>);
+  } else {
+    status = (
+      <span className="save-status" data-error>Saving Failed</span>
+    );
+  }
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
-      <Button type="primary" onClick={() => setEditingLayout(false)}>
-        <i className="fa fa-check m-r-5" /> Done Editing
-      </Button>
+      {status}
+      {dashboardStatus === DashboardStatusEnum.SAVING_FAILED ? (
+        <Button type="primary" onClick={retrySaveDashboardLayout}>Retry</Button>
+      ) : (
+        <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
+          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} Done Editing
+        </Button>
+      )}
     </div>
   );
 }
@@ -285,8 +300,8 @@ DashboardHeader.propTypes = {
 
 function DashboardComponent(props) {
   const dashboardOptions = useDashboard(props.dashboard);
-  const { dashboard, widgets, filters, setFilters, loadWidget,
-    globalParameters, refreshDashboard, refreshWidget, editingLayout } = dashboardOptions;
+  const { dashboard, filters, setFilters, loadDashboard, loadWidget, removeWidget, saveDashboardLayout,
+    globalParameters, refreshDashboard, refreshWidget, editingLayout, setGridDisabled } = dashboardOptions;
 
   return (
     <>
@@ -307,15 +322,15 @@ function DashboardComponent(props) {
       <div id="dashboard-container">
         <DashboardGrid
           dashboard={dashboard}
-          widgets={widgets}
+          widgets={dashboard.widgets}
           filters={filters}
-          isEditing={editingLayout} // "$ctrl.layoutEditing && !$ctrl.isGridDisabled"
-          // on-layout-change="$ctrl.onLayoutChange"
-          // on-breakpoint-change="$ctrl.onBreakpointChanged"
+          isEditing={editingLayout}
+          onLayoutChange={saveDashboardLayout}
+          onBreakpointChange={setGridDisabled}
           onLoadWidget={loadWidget}
           onRefreshWidget={refreshWidget}
-          // on-remove-widget="$ctrl.removeWidget"
-          // on-parameter-mappings-change="$ctrl.extractGlobalParameters"
+          onRemoveWidget={removeWidget}
+          onParameterMappingsChange={loadDashboard}
         />
       </div>
       {editingLayout && <AddWidgetContainer dashboardOptions={dashboardOptions} />}
