@@ -10,8 +10,13 @@ import prepareData from './prepareData';
 import FunnelBar from './FunnelBar';
 import './index.less';
 
+function generateRowKeyPrefix() {
+  return Math.trunc(Math.random() * Number.MAX_SAFE_INTEGER).toString(36) + ':';
+}
+
 export default function Renderer({ data, options }) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
+  const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), [funnelData]);
 
   const formatValue = useMemo(() => createNumberFormatter(options.numberFormat), [options.numberFormat]);
 
@@ -84,7 +89,7 @@ export default function Renderer({ data, options }) {
       <Table
         columns={columns}
         dataSource={funnelData}
-        rowKey="step"
+        rowKey={(record, index) => rowKeyPrefix + index}
         pagination={false}
       />
     </div>
