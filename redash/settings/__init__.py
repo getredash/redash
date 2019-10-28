@@ -296,7 +296,7 @@ default_query_runners = [
     'redash.query_runner.kylin',
     'redash.query_runner.drill',
     'redash.query_runner.uptycs',
-    'redash.query_runner.snowflake'
+    'redash.query_runner.snowflake',
     'redash.query_runner.dremio',
     'redash.query_runner.phoenix',
     'redash.query_runner.json_ds',
