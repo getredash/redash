@@ -47,6 +47,11 @@ export function WorkersTable({ loading, items }) {
       columns={workersColumns}
       rowKey="name"
       dataSource={items}
+      pagination={{
+        defaultPageSize: 25,
+        pageSizeOptions: [10, 25, 50],
+        showSizeChanger: true,
+      }}
     />
   );
 }
