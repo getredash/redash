@@ -1,4 +1,4 @@
-import { map } from 'lodash';
+import { isNil, map } from 'lodash';
 import React, { useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Select from 'antd/lib/select';
@@ -6,6 +6,7 @@ import Input from 'antd/lib/input';
 import Checkbox from 'antd/lib/checkbox';
 import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
+import Typography from 'antd/lib/typography';
 import * as Grid from 'antd/lib/grid';
 import ColorPicker from '@/components/ColorPicker';
 import { EditorPropTypes } from '@/visualizations';
@@ -87,6 +88,8 @@ export default function StyleSettings({ options, onOptionsChange }) {
     [options.iconShape],
   );
 
+  const isCustomMarkersStyleAllowed = isNil(options.classify);
+
   return (
     <React.Fragment>
       <div className="m-b-15">
@@ -123,14 +126,29 @@ export default function StyleSettings({ options, onOptionsChange }) {
           <Checkbox
             id="map-editor-customize-markers"
             data-test="Map.Editor.CustomizeMarkers"
+            disabled={!isCustomMarkersStyleAllowed}
             defaultChecked={options.customizeMarkers}
             onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}
           />
-          <span>Override default style</span>
+          <Typography.Text disabled={!isCustomMarkersStyleAllowed}>Override default style</Typography.Text>
+          {!isCustomMarkersStyleAllowed && (
+            <Popover
+              placement="topLeft"
+              arrowPointAtCenter
+              content={(
+                <span>
+                  Custom marker styles are not available<br />
+                  when <b>Group By</b> column selected.
+                </span>
+              )}
+            >
+              <Icon className="m-l-5" type="question-circle" theme="filled" />
+            </Popover>
+          )}
         </label>
       </div>
 
-      {options.customizeMarkers && (
+      {isCustomMarkersStyleAllowed && options.customizeMarkers && (
         <React.Fragment>
           <Grid.Row type="flex" align="middle" className="m-b-10">
             <Grid.Col span={12}>
