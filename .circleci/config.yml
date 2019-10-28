@@ -20,7 +20,7 @@ jobs:
       - run: sudo pip install flake8 flake8-bugbear flake8-formatter-junit-xml
       - run: |
           mkdir -p /tmp/test-results/flake8
-          flake8 redash tests migrations/versions --format junit-xml --show-source --statistics > /tmp/test-results/flake8/results.xml
+          flake8 redash tests migrations/versions --format junit-xml --select=E9,F63,F7,F82,B --show-source --statistics --output-file=/tmp/test-results/flake8/results.xml
       - store_test_results:
           path: /tmp/test-results
       - run: ./bin/flake8_tests.sh
