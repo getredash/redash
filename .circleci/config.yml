@@ -118,10 +118,10 @@ workflows:
       - frontend-lint
       - frontend-unit-tests:
           requires:
-            - backend-lint
             - frontend-lint
       - frontend-e2e-tests:
           requires:
+            - backend-lint
             - frontend-lint
       - build-preview-docker-image:
           requires:
