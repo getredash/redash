@@ -254,7 +254,7 @@ function DashboardCtrl(
     const aclUrl = `api/dashboards/${this.dashboard.id}/acl`;
     PermissionsEditorDialog.showModal({
       aclUrl,
-      context: 'query',
+      context: 'dashboard',
       author: this.dashboard.user,
     });
   };
