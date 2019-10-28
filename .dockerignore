@@ -12,4 +12,3 @@ venv/
 /.github/
 /netlify.toml
 /setup/
-/tests/

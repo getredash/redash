@@ -10,8 +10,6 @@ services:
       - redis
     ports:
       - "5000:5000"
-    volumes:
-      - "../tests:/app/tests:ro"
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
