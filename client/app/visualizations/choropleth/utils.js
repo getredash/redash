@@ -1,12 +1,13 @@
 import chroma from 'chroma-js';
 import _ from 'lodash';
 import { createNumberFormatter as createFormatter } from '@/lib/value-format';
+import DefaultPalette from '@/visualizations/ColorPalette';
 
-export const AdditionalColors = {
+export const ColorPalette = _.extend({
   White: '#ffffff',
   Black: '#000000',
   'Light Gray': '#dddddd',
-};
+}, DefaultPalette);
 
 export function darkenColor(color) {
   return chroma(color).darken().hex();

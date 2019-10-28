@@ -6,10 +6,12 @@ import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
-import ColorPalette from '@/visualizations/ColorPalette';
+
+import getOptions from './getOptions';
+import { countriesDataUrl, subdivJapanDataUrl } from './maps';
 
 import {
-  AdditionalColors,
+  ColorPalette,
   darkenColor,
   createNumberFormatter,
   prepareData,
@@ -22,42 +24,6 @@ import {
 
 import template from './choropleth.html';
 import editorTemplate from './choropleth-editor.html';
-
-import countriesDataUrl from './countries.geo.json';
-import subdivJapanDataUrl from './japan.prefectures.geo.json';
-
-export const ChoroplethPalette = _.extend({}, AdditionalColors, ColorPalette);
-
-const DEFAULT_OPTIONS = {
-  mapType: 'countries',
-  countryCodeColumn: '',
-  countryCodeType: 'iso_a3',
-  valueColumn: '',
-  clusteringMode: 'e',
-  steps: 5,
-  valueFormat: '0,0.00',
-  noValuePlaceholder: 'N/A',
-  colors: {
-    min: ChoroplethPalette['Light Blue'],
-    max: ChoroplethPalette['Dark Blue'],
-    background: ChoroplethPalette.White,
-    borders: ChoroplethPalette.White,
-    noValue: ChoroplethPalette['Light Gray'],
-  },
-  legend: {
-    visible: true,
-    position: 'bottom-left',
-    alignText: 'right',
-  },
-  tooltip: {
-    enabled: true,
-    template: '<b>{{ @@name }}</b>: {{ @@value }}',
-  },
-  popup: {
-    enabled: true,
-    template: 'Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>',
-  },
-};
 
 const loadCountriesData = _.bind(function loadCountriesData($http, url) {
   if (!this[url]) {
@@ -259,7 +225,7 @@ const ChoroplethEditor = {
       this.currentTab = tab;
     };
 
-    this.colors = ChoroplethPalette;
+    this.colors = ColorPalette;
 
     this.mapTypes = {
       countries: 'Countries',
@@ -354,7 +320,7 @@ export default function init(ngModule) {
     registerVisualization({
       type: 'CHOROPLETH',
       name: 'Map (Choropleth)',
-      getOptions: options => _.merge({}, DEFAULT_OPTIONS, options),
+      getOptions,
       Renderer: angular2react('choroplethRenderer', ChoroplethRenderer, $injector),
       Editor: angular2react('choroplethEditor', ChoroplethEditor, $injector),
 
