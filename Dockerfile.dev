@@ -1,13 +1,3 @@
-FROM node:10 as frontend-builder
-
-WORKDIR /frontend
-COPY package.json package-lock.json /frontend/
-RUN npm install
-
-COPY client /frontend/client
-COPY webpack.config.js /frontend/
-RUN npm run build
-
 FROM python:3.7-slim
 
 EXPOSE 5000
@@ -48,7 +38,6 @@ RUN pip install -r requirements.txt -r requirements_dev.txt
 RUN if [ "x$skip_ds_deps" = "x" ] ; then pip install -r requirements_all_ds.txt ; else echo "Skipping pip install -r requirements_all_ds.txt" ; fi
 
 COPY . /app
-COPY --from=frontend-builder /frontend/client/dist /app/client/dist
 RUN chown -R redash /app
 USER redash
 
