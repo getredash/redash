@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from sys import exit
 
 import click
@@ -15,11 +15,11 @@ from redash.utils.configuration import ConfigurationContainer
 manager = AppGroup(help="Data sources management commands.")
 
 
-@manager.command()
+@manager.command(name='list')
 @click.option('--org', 'organization', default=None,
               help="The organization the user belongs to (leave blank for "
               "all organizations).")
-def list(organization=None):
+def list_command(organization=None):
     """List currently configured data sources."""
     if organization:
         org = models.Organization.get_by_slug(organization)
@@ -99,11 +99,11 @@ def new(name=None, type=None, options=None, organization='default'):
             print("{}. {}".format(i + 1, query_runner_name))
 
         idx = 0
-        while idx < 1 or idx > len(query_runners.keys()):
+        while idx < 1 or idx > len(list(query_runners.keys())):
             idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())),
                                type=int)
 
-        type = query_runners.keys()[idx - 1]
+        type = list(query_runners.keys())[idx - 1]
     else:
         validate_data_source_type(type)
 
@@ -119,7 +119,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
         options_obj = {}
 
-        for k, prop in schema['properties'].iteritems():
+        for k, prop in schema['properties'].items():
             required = k in schema.get('required', [])
             default_value = "<<DEFAULT_VALUE>>"
             if required:

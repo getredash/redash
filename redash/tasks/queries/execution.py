@@ -60,7 +60,7 @@ class QueryTask(object):
             error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
-            error = result.message
+            error = str(result)
             status = 4
         elif task_status == 'REVOKED':
             error = 'Query execution cancelled.'
@@ -227,7 +227,7 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        logger.info(u"task=execute_query query_hash=%s data_length=%s error=[%s]",
+        logger.info("task=execute_query query_hash=%s data_length=%s error=[%s]",
                     self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
@@ -248,7 +248,7 @@ class QueryExecutor(object):
                 self.data_source.org_id, self.data_source,
                 self.query_hash, self.query, data,
                 run_time, utcnow())
-            
+
             updated_query_ids = models.Query.update_latest_result(query_result)
 
             models.db.session.commit()  # make sure that alert sees the latest query result
@@ -271,7 +271,7 @@ class QueryExecutor(object):
 
     def _log_progress(self, state):
         logger.info(
-            u"task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
+            "task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
             "task_id=%s queue=%s query_id=%s username=%s",
             state, self.query_hash, self.data_source.type, self.data_source.id,
             self.task.request.id,

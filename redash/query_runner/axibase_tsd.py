@@ -192,7 +192,7 @@ class AxibaseTSD(BaseQueryRunner):
         for table_name in metrics_list:
             schema[table_name] = {'name': "'{}'".format(table_name),
                                   'columns': default_columns}
-        values = schema.values()
+        values = list(schema.values())
         return values
 
 

@@ -20,7 +20,7 @@ class WidgetAPITest(BaseTestCase):
         vis = self.factory.create_visualization()
 
         rv = self.create_widget(dashboard, vis)
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
 
     def test_wont_create_widget_for_visualization_you_dont_have_access_to(self):
         dashboard = self.factory.create_dashboard()
@@ -53,14 +53,14 @@ class WidgetAPITest(BaseTestCase):
 
         rv = self.make_request('post', '/api/widgets', data=data)
 
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['text'], 'Sample text.')
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['text'], 'Sample text.')
 
     def test_delete_widget(self):
         widget = self.factory.create_widget()
 
         rv = self.make_request('delete', '/api/widgets/{0}'.format(widget.id))
 
-        self.assertEquals(rv.status_code, 200)
+        self.assertEqual(rv.status_code, 200)
         dashboard = models.Dashboard.get_by_slug_and_org(widget.dashboard.slug, widget.dashboard.org)
-        self.assertEquals(dashboard.widgets.count(), 0)
+        self.assertEqual(dashboard.widgets.count(), 0)

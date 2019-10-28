@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Table -> Columns -> Boolean Editor Changes value for FALSE 1`] = `
+Object {
+  "booleanValues": Array [
+    "no",
+    "true",
+  ],
+}
+`;
+
+exports[`Visualizations -> Table -> Columns -> Boolean Editor Changes value for TRUE 1`] = `
+Object {
+  "booleanValues": Array [
+    "false",
+    "yes",
+  ],
+}
+`;

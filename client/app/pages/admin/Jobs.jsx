@@ -40,10 +40,9 @@ class Jobs extends React.Component {
   }
 
   processQueues = ({ queues, workers }) => {
-    const queueCounters = values(queues).map(({ name, started, queued }) => ({
-      name,
+    const queueCounters = values(queues).map(({ started, ...rest }) => ({
       started: started.length,
-      queued: queued.length,
+      ...rest,
     }));
 
     const overallCounters = queueCounters.reduce(

@@ -1,5 +1,6 @@
 from flask import request
-from geoip import geolite2
+import geolite2
+import maxminddb
 from user_agents import parse as parse_ua
 
 from redash.handlers.base import BaseResource, paginate
@@ -10,11 +11,12 @@ def get_location(ip):
     if ip is None:
         return "Unknown"
 
-    match = geolite2.lookup(ip)
-    if match is None:
-        return "Unknown"
-
-    return match.country
+    with maxminddb.open_database(geolite2.geolite2_database()) as reader:
+        try:
+            match = reader.get(ip)
+            return match['country']['names']['en']
+        except Exception:
+            return "Unknown"
 
 
 def event_details(event):
