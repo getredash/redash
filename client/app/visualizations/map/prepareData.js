@@ -20,6 +20,12 @@ export default function prepareData(data, options) {
     if (points.length === 0) {
       return null;
     }
-    return extend({ name, color: colorScale(name), points }, options.groups[name]);
+
+    const result = extend({}, options.groups[name], { name, points });
+    if (isNil(result.color)) {
+      result.color = colorScale(name);
+    }
+
+    return result;
   }));
 }

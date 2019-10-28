@@ -1,4 +1,5 @@
-import { isFunction, each, map } from 'lodash';
+import { isFunction, each, map, maxBy, toString } from 'lodash';
+import chroma from 'chroma-js';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
@@ -41,7 +42,29 @@ const createHeatpointMarker = (lat, lon, color) => L.circleMarker(
   { fillColor: color, fillOpacity: 0.9, stroke: false },
 );
 
-const createDefaultMarker = (lat, lon) => L.marker([lat, lon]);
+L.MarkerClusterIcon = L.DivIcon.extend({
+  options: {
+    color: null,
+    className: 'marker-cluster',
+    iconSize: new L.Point(40, 40),
+  },
+  createIcon(...args) {
+    const color = chroma(this.options.color);
+    const textColor = maxBy(['#ffffff', '#000000'], c => chroma.contrast(color, c));
+    const borderColor = color.alpha(0.4).css();
+    const backgroundColor = color.alpha(0.8).css();
+
+    const icon = L.DivIcon.prototype.createIcon.call(this, ...args);
+    icon.innerHTML = `
+      <div style="background: ${backgroundColor}">
+        <span style="color: ${textColor}">${toString(this.options.html)}</span>
+      </div>
+    `;
+    icon.style.background = borderColor;
+    return icon;
+  },
+});
+L.markerClusterIcon = (...args) => new L.MarkerClusterIcon(...args);
 
 function createIconMarker(lat, lon, { iconShape, iconFont, foregroundColor, backgroundColor, borderColor }) {
   const icon = L.BeautifyIcon.icon({
@@ -59,28 +82,18 @@ function createIconMarker(lat, lon, { iconShape, iconFont, foregroundColor, back
   return L.marker([lat, lon], { icon });
 }
 
-function createMarkerClusterGroup(classify, color) {
-  const layerOptions = {};
-
-  if (classify) {
-    layerOptions.iconCreateFunction = (cluster) => {
-      const childCount = cluster.getChildCount();
-      const style = `color: white; background-color: ${color};`;
-      return L.divIcon({
-        html: `<div style="${style}"><span>${childCount}</span></div>`,
-        className: 'marker-cluster',
-        iconSize: new L.Point(40, 40),
-      });
-    };
-  }
-
-  return L.markerClusterGroup(layerOptions);
+function createMarkerClusterGroup(color) {
+  return L.markerClusterGroup({
+    iconCreateFunction(cluster) {
+      return L.markerClusterIcon({ color, html: cluster.getChildCount() });
+    },
+  });
 }
 
 function createMarkersLayer(options, { color, points }) {
   const { classify, clusterMarkers, customizeMarkers } = options;
 
-  const result = clusterMarkers ? createMarkerClusterGroup(classify, color) : L.layerGroup();
+  const result = clusterMarkers ? createMarkerClusterGroup(color) : L.layerGroup();
 
   // create markers
   each(points, ({ lat, lon, row }) => {
@@ -91,7 +104,7 @@ function createMarkersLayer(options, { color, points }) {
       if (customizeMarkers) {
         marker = createIconMarker(lat, lon, options);
       } else {
-        marker = createDefaultMarker(lat, lon);
+        marker = L.marker([lat, lon]);
       }
     }
 
@@ -100,7 +113,7 @@ function createMarkersLayer(options, { color, points }) {
         <li><strong>${lat}, ${lon}</strong>
         ${map(row, (v, k) => `<li>${k}: ${v}</li>`).join('')}
       </ul>
-  `);
+    `);
     result.addLayer(marker);
   });
 
