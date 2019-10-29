@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isObject, bind, debounce, omit } from 'lodash';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatSimpleTemplate } from '@/lib/value-format';
@@ -8,8 +8,9 @@ import { angular2react } from 'angular2react';
 import { registerVisualization } from '@/visualizations';
 
 import getOptions from './getOptions';
-import { countriesDataUrl, subdivJapanDataUrl } from './maps';
 import Editor from './Editor';
+import countriesDataUrl from './maps/countries.geo.json';
+import subdivJapanDataUrl from './maps/japan.prefectures.geo.json';
 
 import {
   darkenColor,
@@ -23,7 +24,7 @@ import {
 
 import template from './choropleth.html';
 
-const loadCountriesData = _.bind(function loadCountriesData($http, url) {
+const loadCountriesData = bind(function loadCountriesData($http, url) {
   if (!this[url]) {
     this[url] = $http.get(url).then(response => response.data);
   }
@@ -183,7 +184,7 @@ const ChoroplethRenderer = {
 
     const load = () => {
       loadCountriesData($http, dataUrl).then((data) => {
-        if (_.isObject(data)) {
+        if (isObject(data)) {
           countriesData = data;
           render();
         }
@@ -193,7 +194,7 @@ const ChoroplethRenderer = {
     load();
 
 
-    $scope.handleResize = _.debounce(() => {
+    $scope.handleResize = debounce(() => {
       if (map) {
         map.invalidateSize(false);
         updateBounds({ disableAnimation: true });
@@ -201,7 +202,7 @@ const ChoroplethRenderer = {
     }, 50);
 
     $scope.$watch('$ctrl.data', render);
-    $scope.$watch(() => _.omit(this.options, 'bounds', 'mapType'), render, true);
+    $scope.$watch(() => omit(this.options, 'bounds', 'mapType'), render, true);
     $scope.$watch('$ctrl.options.bounds', updateBounds, true);
     $scope.$watch('$ctrl.options.mapType', () => {
       dataUrl = getDataUrl(this.options.mapType);
