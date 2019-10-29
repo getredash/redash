@@ -20,7 +20,7 @@ describe('Widget', () => {
     createQuery().then(({ id: queryId }) => {
       cy.visit(this.dashboardUrl);
       editDashboard();
-      cy.contains('a', 'Add Widget').click();
+      cy.getByTestId('AddWidgetButton').click();
       cy.getByTestId('AddWidgetDialog').within(() => {
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });

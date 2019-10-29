@@ -24,7 +24,7 @@ describe('Dashboard Sharing', () => {
     createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
-      cy.contains('a', 'Add Widget').click();
+      cy.getByTestId('AddWidgetButton').click();
       cy.getByTestId('AddWidgetDialog').within(() => {
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });
@@ -110,7 +110,6 @@ describe('Dashboard Sharing', () => {
         // then, after it is shared, add an unsafe parameterized query to it
         const secondWidgetPos = { autoHeight: false, col: 3, sizeY: 6 };
         createQueryAndAddWidget(this.dashboardId, unsafeQueryData, { position: secondWidgetPos }).then(() => {
-          cy.visit(this.dashboardUrl);
           cy.logout();
           cy.visit(secretAddress);
           cy.getByTestId('TableVisualization', { timeout: 10000 }).should('exist');
@@ -134,7 +133,7 @@ describe('Dashboard Sharing', () => {
     createQuery({ options }).then(({ id: queryId }) => {
       cy.visit(dashboardUrl);
       editDashboard();
-      cy.contains('a', 'Add Widget').click();
+      cy.getByTestId('AddWidgetButton').click();
       cy.getByTestId('AddWidgetDialog').within(() => {
         cy.get(`.query-selector-result[data-test="QueryId${queryId}"]`).click();
       });

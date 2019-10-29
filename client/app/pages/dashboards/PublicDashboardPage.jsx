@@ -17,8 +17,8 @@ import './PublicDashboardPage.less';
 
 
 function PublicDashboard({ dashboard }) {
-  const { globalParameters, filters, setFilters, refreshDashboard,
-    widgets, loadWidget, refreshWidget } = useDashboard(dashboard);
+  const { globalParameters, filters, setFilters,
+    refreshDashboard, loadWidget, refreshWidget } = useDashboard(dashboard);
 
   return (
     <div className="container p-t-10 p-b-20">
@@ -36,7 +36,7 @@ function PublicDashboard({ dashboard }) {
       <div id="dashboard-container">
         <DashboardGrid
           dashboard={dashboard}
-          widgets={widgets}
+          widgets={dashboard.widgets}
           filters={filters}
           isEditing={false}
           isPublic

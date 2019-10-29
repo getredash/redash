@@ -19,7 +19,7 @@ describe('Textbox', () => {
   it('adds textbox', function () {
     cy.visit(this.dashboardUrl);
     editDashboard();
-    cy.contains('a', 'Add Textbox').click();
+    cy.getByTestId('AddTextboxButton').click();
     cy.getByTestId('TextboxDialog').within(() => {
       cy.get('textarea').type('Hello World!');
     });
@@ -138,7 +138,7 @@ describe('Textbox', () => {
       })
       .should(($el) => {
         const { top, left } = $el.offset();
-        expect(top).to.eq(214);
+        expect(top).to.eq(218);
         expect(left).to.eq(215);
         expect($el.width()).to.eq(585);
         expect($el.height()).to.eq(185);

@@ -276,8 +276,12 @@ function AddWidgetContainer({ dashboardOptions }) {
         </span>
       </h2>
       <div>
-        <Button className="m-r-15" onClick={showAddTextboxDialog}>Add Textbox</Button>
-        <Button type="primary" onClick={showAddWidgetDialog}>Add Widget</Button>
+        <Button className="m-r-15" onClick={showAddTextboxDialog} data-test="AddTextboxButton">
+          Add Textbox
+        </Button>
+        <Button type="primary" onClick={showAddWidgetDialog} data-test="AddWidgetButton">
+          Add Widget
+        </Button>
       </div>
     </div>
   );
