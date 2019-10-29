@@ -1,9 +1,12 @@
+try:
+    import pyodbc
+    enabled = True
+except ImportError:
+    enabled = False
+
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
-import pyodbc
-
-enabled = True
 
 TYPES_MAP = {
     0: TYPE_INTEGER,
