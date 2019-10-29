@@ -8,6 +8,7 @@ import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
+import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import {
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
@@ -171,8 +172,13 @@ function useDashboard(dashboardData) {
   );
 
   const managePermissions = useCallback(() => {
-    // TODO: open PermissionsEditorDialog
-  }, []);
+    const aclUrl = `api/dashboards/${dashboard.id}/acl`;
+    PermissionsEditorDialog.showModal({
+      aclUrl,
+      context: 'dashboard',
+      author: dashboard.user,
+    });
+  }, [dashboard]);
 
   const updateDashboard = useCallback((data, includeVersion = true) => {
     setDashboard(currentDashboard => extend({}, currentDashboard, data));
@@ -285,6 +291,7 @@ function useDashboard(dashboardData) {
 
   useEffect(() => {
     setDashboard(dashboardData);
+    document.title = dashboardData.name;
     loadDashboard();
   }, [dashboardData]);
 
