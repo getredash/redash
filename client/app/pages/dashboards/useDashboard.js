@@ -175,7 +175,7 @@ function useDashboard(dashboardData) {
   }, []);
 
   const updateDashboard = useCallback((data, includeVersion = true) => {
-    setDashboard(extend({}, dashboard, data));
+    setDashboard(currentDashboard => extend({}, currentDashboard, data));
     // for some reason the request uses the id as slug
     data = { ...data, slug: dashboard.id };
     if (includeVersion) {
@@ -183,7 +183,9 @@ function useDashboard(dashboardData) {
     }
     return Dashboard.save(
       data,
-      updatedDashboard => setDashboard(extend({}, dashboard, pick(updatedDashboard, keys(data)))),
+      updatedDashboard => setDashboard(currentDashboard => extend({},
+        currentDashboard,
+        pick(updatedDashboard, keys(data)))),
       (error) => {
         if (error.status === 403) {
           notification.error('Dashboard update failed', 'Permission Denied.');
@@ -208,15 +210,16 @@ function useDashboard(dashboardData) {
 
   const loadWidget = useCallback((widget, forceRefresh = false) => {
     widget.getParametersDefs(); // Force widget to read parameters values from URL
-    setDashboard(extend({}, dashboard));
-    return widget.load(forceRefresh).finally(() => setDashboard(extend({}, dashboard)));
+    setDashboard(currentDashboard => extend({}, currentDashboard));
+    return widget.load(forceRefresh)
+      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
   }, [dashboard]);
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
   const removeWidget = useCallback((widgetId) => {
     dashboard.widgets = dashboard.widgets.filter(widget => widget.id !== undefined && widget.id !== widgetId);
-    setDashboard(extend({}, dashboard));
+    setDashboard(currentDashboard => extend({}, currentDashboard));
   }, [dashboard]);
 
   const loadDashboard = useCallback((forceRefresh = false, updatedParameters = []) => {
@@ -249,13 +252,14 @@ function useDashboard(dashboardData) {
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
-    }).result.finally(() => setDashboard(extend({}, dashboard)));
+    }).result.finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
   }, [dashboard, hasOnlySafeQueries]);
 
   const showAddTextboxDialog = useCallback(() => {
     TextboxDialog.showModal({
       dashboard,
-      onConfirm: text => dashboard.addWidget(text).then(() => setDashboard(extend({}, dashboard))),
+      onConfirm: text => dashboard.addWidget(text)
+        .then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
     });
   }, [dashboard]);
 
@@ -270,7 +274,7 @@ function useDashboard(dashboardData) {
           ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
         ];
         return Promise.all(widgetsToSave.map(w => w.save()))
-          .then(() => setDashboard(extend({}, dashboard)));
+          .then(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
       }),
     });
   }, [dashboard]);
