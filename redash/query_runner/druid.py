@@ -55,9 +55,9 @@ class Druid(BaseQueryRunner):
         connection = connect(host=self.configuration['host'],
                              port=self.configuration['port'],
                              path='/druid/v2/sql/',
-                             scheme=self.configuration['scheme'],
-                             user=self.configuration['user'],
-                             password=self.configuration['password'])
+                             scheme=(self.configuration.get('scheme') or 'http'),
+                             user=(self.configuration.get('user') or None),
+                             password=(self.configuration.get('password') or None))
 
         cursor = connection.cursor()
 
