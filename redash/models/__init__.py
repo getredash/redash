@@ -890,6 +890,10 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     def groups(self):
         return self.query_rel.groups
 
+    @property
+    def muted(self):
+        return self.options.get('muted', False)
+
 
 def generate_slug(ctx):
     slug = utils.slugify(ctx.current_parameters['name'])
