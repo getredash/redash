@@ -39,17 +39,14 @@ describe('Dashboard', () => {
     createDashboard('Foo Bar').then(({ slug }) => {
       cy.visit(`/dashboard/${slug}`);
 
-      cy.getByTestId('DashboardMoreMenu')
-        .click()
-        .within(() => {
-          cy.get('li')
-            .contains('Archive')
-            .click();
-        });
+      cy.getByTestId('DashboardMoreButton')
+        .click();
 
-      cy.get('.btn-warning')
+      cy.getByTestId('DashboardMoreButtonMenu')
         .contains('Archive')
         .click();
+
+      cy.get('.ant-modal .ant-btn').contains('Archive').click({ force: true });
       cy.get('.label-tag-archived').should('exist');
 
       cy.visit('/dashboards');
@@ -91,28 +88,29 @@ describe('Dashboard', () => {
     });
 
     it('hides edit option', () => {
-      cy.getByTestId('DashboardMoreMenu')
+      cy.getByTestId('DashboardMoreButton')
         .click()
-        .should('be.visible')
-        .within(() => {
-          cy.get('li')
-            .contains('Edit')
-            .as('editButton')
-            .should('not.be.visible');
-        });
+        .should('be.visible');
+
+      cy.getByTestId('DashboardMoreButtonMenu')
+        .contains('Edit')
+        .as('editButton')
+        .should('not.be.visible');
 
       cy.viewport(801, 800);
       cy.get('@editButton').should('be.visible');
     });
 
     it('disables edit mode', function () {
+      cy.viewport(801, 800);
       cy.visit(this.dashboardEditUrl);
       cy.contains('button', 'Done Editing')
         .as('saveButton')
-        .should('be.disabled');
+        .should('exist');
 
-      cy.viewport(801, 800);
-      cy.get('@saveButton').should('not.be.disabled');
+      cy.viewport(800, 800);
+      cy.contains('button', 'Done Editing')
+        .should('not.exist');
     });
   });
 
@@ -131,10 +129,10 @@ describe('Dashboard', () => {
 
     it('hides menu button', () => {
       cy.get('.dashboard-control').should('exist');
-      cy.getByTestId('DashboardMoreMenu').should('not.be.visible');
+      cy.getByTestId('DashboardMoreButton').should('not.be.visible');
 
       cy.viewport(768, 800);
-      cy.getByTestId('DashboardMoreMenu').should('be.visible');
+      cy.getByTestId('DashboardMoreButton').should('be.visible');
     });
   });
 });

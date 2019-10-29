@@ -122,7 +122,8 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard, setEditingLayout, togglePublished, archiveDashboard, managePermissions } = dashboardOptions;
+  const { dashboard, setEditingLayout, togglePublished,
+    archiveDashboard, managePermissions, gridDisabled } = dashboardOptions;
 
   const archive = () => {
     Modal.confirm({
@@ -141,8 +142,10 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
       trigger={['click']}
       placement="bottomRight"
       overlay={(
-        <Menu>
-          <Menu.Item><a onClick={() => setEditingLayout(true)}>Edit</a></Menu.Item>
+        <Menu data-test="DashboardMoreButtonMenu">
+          <Menu.Item className={cx({ hidden: gridDisabled })}>
+            <a onClick={() => setEditingLayout(true)}>Edit</a>
+          </Menu.Item>
           {clientConfig.showPermissionsControl && (
             <Menu.Item><a onClick={managePermissions}>Manage Permissions</a></Menu.Item>
           )}
@@ -151,7 +154,9 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
         </Menu>
       )}
     >
-      <Button className="icon-button m-l-5"><Icon type="ellipsis" rotate={90} /></Button>
+      <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
+        <Icon type="ellipsis" rotate={90} />
+      </Button>
     </Dropdown>
   );
 }
@@ -309,7 +314,7 @@ function DashboardComponent(props) {
         dashboardOptions={dashboardOptions}
       />
       {!isEmpty(globalParameters) && (
-        <div className="dashboard-parameters m-b-10 p-15 bg-white tiled">
+        <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
         </div>
       )}

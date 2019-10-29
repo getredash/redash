@@ -20,13 +20,12 @@ export function createQueryAndAddWidget(dashboardId, queryData = {}, widgetOptio
 }
 
 export function editDashboard() {
-  cy.getByTestId('DashboardMoreMenu')
-    .click()
-    .within(() => {
-      cy.get('li')
-        .contains('Edit')
-        .click();
-    });
+  cy.getByTestId('DashboardMoreButton')
+    .click();
+
+  cy.getByTestId('DashboardMoreButtonMenu')
+    .contains('Edit')
+    .click();
 }
 
 export function shareDashboard() {
