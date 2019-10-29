@@ -3,25 +3,7 @@ import React from 'react';
 import cx from 'classnames';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
-
-import initTextColumn from './columns/text';
-import initNumberColumn from './columns/number';
-import initDateTimeColumn from './columns/datetime';
-import initBooleanColumn from './columns/boolean';
-import initLinkColumn from './columns/link';
-import initImageColumn from './columns/image';
-import initJsonColumn from './columns/json';
-
-// this map should contain all possible values for `column.displayAs` property
-export const ColumnTypes = {
-  string: initTextColumn,
-  number: initNumberColumn,
-  datetime: initDateTimeColumn,
-  boolean: initBooleanColumn,
-  link: initLinkColumn,
-  image: initImageColumn,
-  json: initJsonColumn,
-};
+import ColumnTypes from './columns';
 
 function nextOrderByDirection(direction) {
   switch (direction) {

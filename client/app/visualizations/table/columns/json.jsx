@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { isString, isUndefined } from 'lodash';
 import React from 'react';
 import JsonViewInteractive from '@/components/json-view-interactive/JsonViewInteractive';
@@ -17,7 +16,7 @@ export default function initJsonColumn(column) {
     return { text, value: undefined };
   }
 
-  function JsonColumn({ row }) {
+  function JsonColumn({ row }) { // eslint-disable-line react/prop-types
     const { text, value } = prepareData(row);
     if (isUndefined(value)) {
       return <div className="json-cell-invalid">{'' + text}</div>;
