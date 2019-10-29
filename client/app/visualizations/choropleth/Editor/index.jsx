@@ -5,7 +5,10 @@ import { EditorPropTypes } from '@/visualizations';
 
 import GeneralSettings from './GeneralSettings';
 import ColorsSettings from './ColorsSettings';
+import FormatSettings from './FormatSettings';
 import BoundsSettings from './BoundsSettings';
+
+import './editor.less';
 
 export default function Editor(props) {
   const { options, onOptionsChange } = props;
@@ -21,6 +24,9 @@ export default function Editor(props) {
       </Tabs.TabPane>
       <Tabs.TabPane key="colors" tab={<span data-test="Choropleth.EditorTabs.Colors">Colors</span>}>
         <ColorsSettings {...props} onOptionsChange={optionsChanged} />
+      </Tabs.TabPane>
+      <Tabs.TabPane key="format" tab={<span data-test="Choropleth.EditorTabs.Format">Format</span>}>
+        <FormatSettings {...props} onOptionsChange={optionsChanged} />
       </Tabs.TabPane>
       <Tabs.TabPane key="bounds" tab={<span data-test="Choropleth.EditorTabs.Bounds">Bounds</span>}>
         <BoundsSettings {...props} onOptionsChange={optionsChanged} />
