@@ -12,6 +12,7 @@ import template from './dashboard.html';
 import ShareDashboardDialog from './ShareDashboardDialog';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
+import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import notification from '@/services/notification';
 
 import './dashboard.less';
@@ -250,12 +251,11 @@ function DashboardCtrl(
   };
 
   this.showManagePermissionsModal = () => {
-    $uibModal.open({
-      component: 'permissionsEditor',
-      resolve: {
-        aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
-        owner: this.dashboard.user,
-      },
+    const aclUrl = `api/dashboards/${this.dashboard.id}/acl`;
+    PermissionsEditorDialog.showModal({
+      aclUrl,
+      context: 'dashboard',
+      author: this.dashboard.user,
     });
   };
 

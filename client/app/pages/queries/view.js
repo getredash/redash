@@ -8,6 +8,7 @@ import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
+import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import notification from '@/services/notification';
 import template from './query.html';
 
@@ -528,12 +529,11 @@ function QueryViewCtrl(
   );
 
   $scope.showManagePermissionsModal = () => {
-    $uibModal.open({
-      component: 'permissionsEditor',
-      resolve: {
-        aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
-        owner: $scope.query.user,
-      },
+    const aclUrl = `api/queries/${$routeParams.queryId}/acl`;
+    PermissionsEditorDialog.showModal({
+      aclUrl,
+      context: 'query',
+      author: $scope.query.user,
     });
   };
 }

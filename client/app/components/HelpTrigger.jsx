@@ -83,6 +83,10 @@ export const TYPES = {
     '/user-guide/querying/favorites-tagging/#Favorites',
     'Guide: Favorites',
   ],
+  MANAGE_PERMISSIONS: [
+    '/user-guide/querying/writing-queries#Managing-Query-Permissions',
+    'Guide: Managing Query Permissions',
+  ],
 };
 
 export default class HelpTrigger extends React.Component {

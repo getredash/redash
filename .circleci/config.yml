@@ -1,7 +1,18 @@
 version: 2.0
 
+build-docker-image-job: &build-docker-image-job
+  docker:
+    - image: circleci/node:8
+  steps:
+    - setup_remote_docker
+    - checkout
+    - run: sudo apt install python3-pip
+    - run: sudo pip3 install -r requirements_bundles.txt
+    - run: .circleci/update_version
+    - run: npm run bundle
+    - run: .circleci/docker_build
 jobs:
-  python-flake8-tests:
+  backend-lint:
     docker:
       - image: circleci/python:3.7.0
     steps:
@@ -89,31 +100,25 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-docker-image:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run: sudo apt install python3-pip
-      - run: sudo pip3 install -r requirements_bundles.txt
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: .circleci/docker_build
+  build-docker-image: *build-docker-image-job
+  build-preview-docker-image: *build-docker-image-job
 workflows:
   version: 2
   build:
     jobs:
-      - python-flake8-tests
-      - backend-unit-tests
+      - backend-lint
+      - backend-unit-tests:
+          requires:
+            - backend-lint
       - frontend-lint
       - frontend-unit-tests:
           requires:
+            - backend-lint
             - frontend-lint
       - frontend-e2e-tests:
           requires:
             - frontend-lint
-      - build-docker-image:
+      - build-preview-docker-image:
           requires:
             - backend-unit-tests
             - frontend-unit-tests
@@ -122,5 +127,16 @@ workflows:
             branches:
               only:
                 - master
-                - preview-image
+      - hold:
+          type: approval
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
                 - /release\/.*/
+      - build-docker-image:
+          requires:
+            - hold
