@@ -9,6 +9,7 @@ import { registerVisualization } from '@/visualizations';
 
 import getOptions from './getOptions';
 import { countriesDataUrl, subdivJapanDataUrl } from './maps';
+import Editor from './Editor';
 
 import {
   ColorPalette,
@@ -322,7 +323,7 @@ export default function init(ngModule) {
       name: 'Map (Choropleth)',
       getOptions,
       Renderer: angular2react('choroplethRenderer', ChoroplethRenderer, $injector),
-      Editor: angular2react('choroplethEditor', ChoroplethEditor, $injector),
+      Editor,
 
       defaultColumns: 3,
       defaultRows: 8,
