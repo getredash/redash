@@ -8,6 +8,7 @@ from dateutil.parser import parse
 
 from six import string_types, text_type
 
+
 def _pluck_name_and_value(default_column, row):
     row = {k.lower(): v for k, v in row.items()}
     name_column = "name" if "name" in row.keys() else default_column.lower()
@@ -256,5 +257,5 @@ class QueryDetachedFromDataSourceError(Exception):
     def __init__(self, query_id):
         self.query_id = query_id
         self.message = "This query is detached from any data source. Please select a different query."
-        
+
         super().__init__(self.message)
