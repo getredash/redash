@@ -34,10 +34,17 @@ class Druid(BaseQueryRunner):
                 "scheme": {
                     "type": "string",
                     "default": "http"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             },
-            "order": ['scheme', 'host', 'port'],
-            "required": ['host']
+            "order": ['scheme', 'host', 'port', 'user', 'password'],
+            "required": ['host'],
+            "secret": ['password']
         }
 
     @classmethod
@@ -48,7 +55,9 @@ class Druid(BaseQueryRunner):
         connection = connect(host=self.configuration['host'],
                              port=self.configuration['port'],
                              path='/druid/v2/sql/',
-                             scheme=self.configuration['scheme'])
+                             scheme=self.configuration['scheme'],
+                             user=self.configuration['user'],
+                             password=self.configuration['password'])
 
         cursor = connection.cursor()
 
