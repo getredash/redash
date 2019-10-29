@@ -43,6 +43,12 @@ RUN apt-get update && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
+# Install dremio driver
+ENV DRIVER_VERSION=1.4.2.1003
+RUN wget "https://download.dremio.com/odbc-driver/${DRIVER_VERSION}/dremio-odbc-${DRIVER_VERSION}-1.x86_64.rpm" -O /dremio-odbc-${DRIVER_VERSION}-1.x86_64.rpm
+RUN alien -i --scripts /dremio-odbc-${DRIVER_VERSION}-1.x86_64.rpm
+RUN rm -f /dremio-odbc-${DRIVER_VERSION}-1.x86_64.rpm
+
 WORKDIR /app
 
 # We first copy only the requirements file, to avoid rebuilding on every file
