@@ -4,6 +4,7 @@ try:
 except ImportError:
     enabled = False
 
+import os
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
 from redash.utils import json_dumps, json_loads
@@ -64,9 +65,10 @@ class Dremio(BaseQueryRunner):
 
     def run_query(self, query, user):
 
+        driver = "{" + os.getenv("DREMIO_DRIVER", "Dremio ODBC Driver 64-bit") + "}"
         connection = pyodbc.connect(
             "Driver={};ConnectionType=Direct;HOST={};PORT={};AuthenticationType=Plain;UID={};PWD={}".format(
-                self.configuration['driver'],
+                driver,
                 self.configuration['host'],
                 self.configuration['port'],
                 self.configuration['user'],
