@@ -178,7 +178,7 @@ function DashboardControl({ dashboardOptions }) {
       {(!dashboard.is_archived) && (
         <span className="hidden-print">
           {showPublishButton && (
-            <Button className="m-r-5" onClick={togglePublished}>
+            <Button className="m-r-5 hidden-xs" onClick={togglePublished}>
               <span className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
