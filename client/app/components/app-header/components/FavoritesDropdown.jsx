@@ -15,8 +15,10 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const noItems = isEmpty(items);
   const urlCompiled = useMemo(() => template(urlTemplate), [urlTemplate]);
 
-  const fetchItems = useCallback(() => {
-    setLoading(true);
+  const fetchItems = useCallback((skipLoadingState = false) => {
+    if (!skipLoadingState) {
+      setLoading(true);
+    }
     fetch().$promise
       .then(({ results }) => {
         setItems(results);
@@ -27,7 +29,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   }, [fetch]);
 
   // fetch items on init
-  useEffect(fetchItems, []);
+  useEffect(() => fetchItems(true), []);
 
   // fetch items on click
   const onVisibleChange = visible => visible && fetchItems();
