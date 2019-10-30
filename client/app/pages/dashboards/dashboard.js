@@ -39,6 +39,7 @@ function DashboardCtrl(
   Events,
 ) {
   let recentPositions = [];
+  let currentQueryResultsErrorData;
 
   const saveDashboardLayout = (changedPositions) => {
     if (!this.dashboard.canEdit()) {
@@ -330,6 +331,38 @@ function DashboardCtrl(
     updateDashboard({
       dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
     });
+  };
+
+  this.getQueryResultsErrorData = () => {
+    const dashboardErrors = _.map(this.dashboard.widgets, (widget) => {
+      // get result
+      const result = widget.getQueryResult();
+      if (!result) {
+        return null;
+      }
+
+      // get error data
+      const errorData = result.getErrorData();
+      if (_.isEmpty(errorData)) {
+        return null;
+      }
+
+      // dashboard params only
+      const localParamNames = _.map(widget.getLocalParameters(), p => p.name);
+      const filtered = _.omit(errorData.parameters, localParamNames);
+
+      return filtered;
+    });
+
+    const merged = _.assign({}, ...dashboardErrors);
+    const errorData = _.isEmpty(merged) ? null : { parameters: merged };
+
+    // avoiding Angular infdig (ANGULAR_REMOVE_ME)
+    if (!_.isEqual(currentQueryResultsErrorData, errorData)) {
+      currentQueryResultsErrorData = errorData;
+    }
+
+    return currentQueryResultsErrorData;
   };
 
   this.showAddTextboxDialog = () => {
