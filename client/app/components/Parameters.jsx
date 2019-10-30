@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend, get } from 'lodash';
+import { size, filter, forEach, extend, get, includes } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
@@ -34,6 +34,7 @@ export class Parameters extends React.Component {
     queryResultErrorData: PropTypes.shape({
       parameters: PropTypes.objectOf(PropTypes.string),
     }),
+    unsavedParameters: PropTypes.arrayOf(PropTypes.string),
   };
 
   static defaultProps = {
@@ -44,6 +45,7 @@ export class Parameters extends React.Component {
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
     queryResultErrorData: {},
+    unsavedParameters: null,
   };
 
   constructor(props) {
@@ -140,7 +142,22 @@ export class Parameters extends React.Component {
     const { queryResultErrorData } = this.props;
     const error = get(queryResultErrorData, ['parameters', param.name], false);
     if (error) {
-      return [error, 'error'];
+      const feedback = <Tooltip title={error}>{error}</Tooltip>;
+      return [feedback, 'error'];
+    }
+
+    // unsaved
+    const { unsavedParameters } = this.props;
+    if (includes(unsavedParameters, param.name)) {
+      const feedback = (
+        <>
+          Unsaved{' '}
+          <Tooltip title='Click the "Save" button to preserve this parameter.'>
+            <i className="fa fa-question-circle" />
+          </Tooltip>
+        </>
+      );
+      return [feedback, 'warning'];
     }
 
     return [];
@@ -172,7 +189,7 @@ export class Parameters extends React.Component {
         </div>
         <Form.Item
           validateStatus={touched ? '' : status}
-          help={feedback ? <Tooltip title={feedback}>{feedback}</Tooltip> : null}
+          help={feedback || null}
         >
           <ParameterValueInput
             type={param.type}
