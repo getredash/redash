@@ -13,7 +13,7 @@
 
   <div class="col-md-12 query__vis">
     <div class="p-t-15 p-b-10" ng-if="$ctrl.query.hasParameters() && !$ctrl.hideParametersUI">
-      <parameters parameters="$ctrl.query.getParametersDefs()" on-values-change="$ctrl.refreshQueryResults"></parameters>
+      <parameters parameters="$ctrl.query.getParametersDefs()" query-result-error-data="$ctrl.errorData" on-values-change="$ctrl.refreshQueryResults"></parameters>
     </div>
 
     <div ng-if="$ctrl.error">

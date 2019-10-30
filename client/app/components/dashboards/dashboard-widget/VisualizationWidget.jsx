@@ -75,6 +75,8 @@ RefreshIndicator.defaultProps = { refreshStartedAt: null };
 
 function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onParametersUpdate }) {
   const canViewQuery = currentUser.hasPermission('view_query');
+  const queryResult = widget.getQueryResult();
+  const errorData = queryResult && queryResult.getErrorData();
 
   return (
     <>
@@ -90,8 +92,8 @@ function VisualizationWidgetHeader({ widget, refreshStartedAt, parameters, onPar
         </div>
       </div>
       {!isEmpty(parameters) && (
-        <div className="m-b-10">
-          <Parameters parameters={parameters} onValuesChange={onParametersUpdate} />
+        <div className="m-b-5">
+          <Parameters parameters={parameters} queryResultErrorData={errorData} onValuesChange={onParametersUpdate} />
         </div>
       )}
     </>
