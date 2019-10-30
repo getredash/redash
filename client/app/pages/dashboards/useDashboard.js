@@ -85,12 +85,6 @@ function useEditModeHandler(canEditDashboard, widgets) {
   }, [editingLayout]);
 
   useEffect(() => {
-    if (!canEditDashboard && editingLayout) {
-      setEditingLayout(false);
-    }
-  }, [canEditDashboard, editingLayout]);
-
-  useEffect(() => {
     if (doneBtnClickedWhileSaving && dashboardStatus === DashboardStatusEnum.SAVED) {
       setDoneBtnClickedWhileSaving(false);
       setEditingLayout(false);
@@ -99,6 +93,7 @@ function useEditModeHandler(canEditDashboard, widgets) {
 
   const saveDashboardLayout = useCallback((positions) => {
     if (!canEditDashboard) {
+      setDashboardStatus(DashboardStatusEnum.SAVED);
       return;
     }
 
@@ -145,7 +140,7 @@ function useEditModeHandler(canEditDashboard, widgets) {
   }, [dashboardStatus, canEditDashboard]);
 
   return {
-    editingLayout,
+    editingLayout: canEditDashboard && editingLayout,
     setEditingLayout: setEditing,
     saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
     retrySaveDashboardLayout,
