@@ -246,13 +246,12 @@ DashboardEditControl.propTypes = {
 };
 
 function DashboardSettings({ dashboardOptions }) {
-  const { dashboard, updateDashboard, loadDashboard } = dashboardOptions;
+  const { dashboard, updateDashboard } = dashboardOptions;
   return (
     <div className="m-b-10 p-15 bg-white tiled">
       <Checkbox
         checked={!!dashboard.dashboard_filters_enabled}
-        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })
-          .then(() => loadDashboard())}
+        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
       >
         Use Dashboard Level Filters
       </Checkbox>

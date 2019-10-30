@@ -182,12 +182,11 @@ function useDashboard(dashboardData) {
     if (includeVersion) {
       data = { ...data, version: dashboard.version };
     }
-    return Dashboard.save(
-      data,
-      updatedDashboard => setDashboard(currentDashboard => extend({},
+    return Dashboard.save(data).$promise
+      .then(updatedDashboard => setDashboard(currentDashboard => extend({},
         currentDashboard,
-        pick(updatedDashboard, keys(data)))),
-      (error) => {
+        pick(updatedDashboard, keys(data)))))
+      .catch((error) => {
         if (error.status === 403) {
           notification.error('Dashboard update failed', 'Permission Denied.');
         } else if (error.status === 409) {
@@ -197,8 +196,7 @@ function useDashboard(dashboardData) {
             { duration: null },
           );
         }
-      },
-    ).$promise;
+      });
   }, [dashboard]);
 
   const togglePublished = useCallback(
@@ -289,6 +287,11 @@ function useDashboard(dashboardData) {
     document.title = dashboardData.name;
     loadDashboard();
   }, [dashboardData]);
+
+  // reload dashboard when filter option changes
+  useEffect(() => {
+    loadDashboard();
+  }, [dashboard.dashboard_filters_enabled]);
 
   return {
     dashboard,
