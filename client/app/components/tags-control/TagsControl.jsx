@@ -94,7 +94,6 @@ export const DashboardTagsControl = modelTagsControl({
 
 export default function init(ngModule) {
   ngModule.component('queryTagsControl', react2angular(QueryTagsControl));
-  ngModule.component('dashboardTagsControl', react2angular(DashboardTagsControl));
 }
 
 init.init = true;

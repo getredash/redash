@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { chain, cloneDeep, find } from 'lodash';
-import { react2angular } from 'react2angular';
 import cx from 'classnames';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from '@/components/dashboards/dashboard-widget';
@@ -34,7 +33,7 @@ const WidgetType = PropTypes.shape({
 const SINGLE = 'single-column';
 const MULTI = 'multi-column';
 
-export class DashboardGrid extends React.Component {
+class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
     isPublic: PropTypes.bool,
@@ -231,8 +230,4 @@ export class DashboardGrid extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('dashboardGrid', react2angular(DashboardGrid));
-}
-
-init.init = true;
+export default DashboardGrid;
