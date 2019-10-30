@@ -140,8 +140,9 @@ class Parameters {
 
 function QueryResultErrorFactory($q) {
   class QueryResultError {
-    constructor(errorMessage) {
+    constructor(errorMessage, errorData = {}) {
       this.errorMessage = errorMessage;
+      this.errorData = errorData;
       this.updatedAt = moment.utc();
     }
 
@@ -151,6 +152,10 @@ function QueryResultErrorFactory($q) {
 
     getError() {
       return this.errorMessage;
+    }
+
+    getErrorData() {
+      return this.errorData || undefined;
     }
 
     toPromise() {

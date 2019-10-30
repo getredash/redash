@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { size, filter, forEach, extend } from 'lodash';
+import { size, filter, forEach, extend, get } from 'lodash';
 import { react2angular } from 'react2angular';
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/parameters';
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
+import Form from 'antd/lib/form';
+import Tooltip from 'antd/lib/tooltip';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
 import { toHuman } from '@/filters';
 
@@ -29,6 +31,9 @@ export class Parameters extends React.Component {
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
+    queryResultErrorData: PropTypes.shape({
+      parameters: PropTypes.objectOf(PropTypes.string),
+    }),
   };
 
   static defaultProps = {
@@ -38,24 +43,34 @@ export class Parameters extends React.Component {
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+    queryResultErrorData: {},
   };
 
   constructor(props) {
     super(props);
     const { parameters } = props;
-    this.state = { parameters };
+    this.state = {
+      parameters,
+      touched: {},
+    };
+
     if (!props.disableUrlUpdate) {
       updateUrl(parameters);
     }
   }
 
   componentDidUpdate = (prevProps) => {
-    const { parameters, disableUrlUpdate } = this.props;
+    const { parameters, disableUrlUpdate, queryResultErrorData } = this.props;
     if (prevProps.parameters !== parameters) {
       this.setState({ parameters });
       if (!disableUrlUpdate) {
         updateUrl(parameters);
       }
+    }
+
+    // reset touched flags on new error data
+    if (prevProps.queryResultErrorData !== queryResultErrorData) {
+      this.setState({ touched: {} });
     }
   };
 
@@ -69,14 +84,15 @@ export class Parameters extends React.Component {
 
   setPendingValue = (param, value, isDirty) => {
     const { onPendingValuesChange } = this.props;
-    this.setState(({ parameters }) => {
+    this.setState(({ parameters, touched }) => {
       if (isDirty) {
         param.setPendingValue(value);
+        touched[param.name] = true;
       } else {
         param.clearPendingValue();
       }
       onPendingValuesChange();
-      return { parameters };
+      return { parameters, touched };
     });
   };
 
@@ -109,17 +125,32 @@ export class Parameters extends React.Component {
     EditParameterSettingsDialog
       .showModal({ parameter })
       .result.then((updated) => {
-        this.setState(({ parameters }) => {
+        this.setState(({ parameters, touched }) => {
+          touched[parameter.name] = true;
           const updatedParameter = extend(parameter, updated);
           parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
           onParametersEdit();
-          return { parameters };
+          return { parameters, touched };
         });
       });
   };
 
+  getParameterFeedback = (param) => {
+    // error msg
+    const { queryResultErrorData } = this.props;
+    const error = get(queryResultErrorData, ['parameters', param.name], false);
+    if (error) {
+      return [error, 'error'];
+    }
+
+    return [];
+  };
+
   renderParameter(param, index) {
     const { editable } = this.props;
+    const touched = this.state.touched[param.name];
+    const [feedback, status] = this.getParameterFeedback(param);
+
     return (
       <div
         key={param.name}
@@ -139,14 +170,19 @@ export class Parameters extends React.Component {
             </button>
           )}
         </div>
-        <ParameterValueInput
-          type={param.type}
-          value={param.normalizedValue}
-          parameter={param}
-          enumOptions={param.enumOptions}
-          queryId={param.queryId}
-          onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
-        />
+        <Form.Item
+          validateStatus={touched ? '' : status}
+          help={feedback ? <Tooltip title={feedback}>{feedback}</Tooltip> : null}
+        >
+          <ParameterValueInput
+            type={param.type}
+            value={param.normalizedValue}
+            parameter={param}
+            enumOptions={param.enumOptions}
+            queryId={param.queryId}
+            onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          />
+        </Form.Item>
       </div>
     );
   }

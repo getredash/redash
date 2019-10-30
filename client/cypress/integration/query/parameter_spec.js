@@ -17,6 +17,14 @@ describe('Parameter', () => {
       });
   };
 
+  const expectValueValidationError = (edit, expectedInvalidString = 'Required parameter') => {
+    cy.getByTestId('ParameterName-test-parameter')
+      .find('.ant-form-item-control')
+      .should('have.class', 'has-error')
+      .find('.ant-form-explain')
+      .should('contain.text', expectedInvalidString);
+  };
+
   beforeEach(() => {
     cy.login();
   });
@@ -28,7 +36,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'text' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'text', value: 'text' },
           ],
         },
       };
@@ -56,6 +64,16 @@ describe('Parameter', () => {
           .type('Redash');
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .clear();
+
+      cy.getByTestId('ParameterApplyButton').click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Number Parameter', () => {
@@ -65,7 +83,7 @@ describe('Parameter', () => {
         query: "SELECT '{{test-parameter}}' AS parameter",
         options: {
           parameters: [
-            { name: 'test-parameter', title: 'Test Parameter', type: 'number' },
+            { name: 'test-parameter', title: 'Test Parameter', type: 'number', value: 1 },
           ],
         },
       };
@@ -102,6 +120,16 @@ describe('Parameter', () => {
           .find('input')
           .type('{selectall}42');
       });
+    });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .clear();
+
+      cy.getByTestId('ParameterApplyButton').click();
+
+      expectValueValidationError();
     });
   });
 
@@ -177,6 +205,36 @@ describe('Parameter', () => {
         cy.contains('li.ant-select-dropdown-menu-item', 'value2')
           .click();
       });
+    });
+
+    it('shows validation error when empty', () => {
+      cy.getByTestId('ParameterSettings-test-parameter').click();
+      cy.getByTestId('EnumTextArea').clear();
+      cy.clickThrough(`
+        SaveParameterSettings
+        ExecuteButton
+      `);
+
+      expectValueValidationError();
+    });
+
+    it('shows validation error when multi-selection is empty', () => {
+      cy.clickThrough(`
+        ParameterSettings-test-parameter
+        AllowMultipleValuesCheckbox
+        QuotationSelect
+        DoubleQuotationMarkOption
+        SaveParameterSettings
+      `);
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-select-remove-icon')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
     });
   });
 
@@ -306,6 +364,22 @@ describe('Parameter', () => {
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDate('15'));
     });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDate('15');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Date and Time Parameter', () => {
@@ -396,6 +470,32 @@ describe('Parameter', () => {
           .click();
       });
     });
+
+    it('shows validation error when value is empty', () => {
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('input')
+        .as('Input')
+        .click({ force: true });
+
+      cy.get('.ant-calendar-date-panel')
+        .contains('.ant-calendar-date', '15')
+        .click();
+
+      cy.get('.ant-calendar-ok-btn')
+        .click();
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
+    });
   });
 
   describe('Date Range Parameter', () => {
@@ -468,6 +568,22 @@ describe('Parameter', () => {
 
     it('sets dirty state when edited', () => {
       expectDirtyStateChange(() => selectCalendarDateRange('15', '20'));
+    });
+
+    it('shows validation error when value is empty', () => {
+      selectCalendarDateRange('15', '20');
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      cy.getByTestId('ParameterName-test-parameter')
+        .find('.ant-calendar-picker-clear')
+        .click({ force: true });
+
+      cy.getByTestId('ParameterApplyButton')
+        .click();
+
+      expectValueValidationError();
     });
   });
 

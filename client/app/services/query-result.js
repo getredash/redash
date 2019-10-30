@@ -132,7 +132,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         this.status = 'processing';
       } else if (this.job.status === 4) {
         this.status = statuses[this.job.status];
-        this.deferred.reject(new QueryResultError(this.job.error));
+        this.deferred.reject(new QueryResultError(this.job.error, this.job.error_data));
       } else {
         this.status = undefined;
       }
@@ -164,6 +164,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       }
 
       return this.job.error;
+    }
+
+    getErrorData() {
+      return this.job.error_data || undefined;
     }
 
     getLog() {
