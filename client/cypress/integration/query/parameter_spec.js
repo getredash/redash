@@ -627,7 +627,10 @@ describe('Parameter', () => {
         .find('.ant-form-explain')
         .as('Feedback');
 
-      cy.get('@Feedback').should('contain.text', 'Unsaved');
+      cy.get('@Feedback')
+        .should('contain.text', 'Unsaved')
+        .should('not.have.class', 'show-help-appear'); // assures ant animation ended for screenshot
+
       cy.percySnapshot('Unsaved feedback in query page');
 
       cy.getByTestId('SaveButton').click();
