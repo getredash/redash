@@ -119,6 +119,7 @@ function QuerySourceCtrl(
     if (isEmpty(unsavedParameters)) {
       return null;
     }
+    // avoiding Angular infdig (ANGULAR_REMOVE_ME)
     if (!isEqual(unsavedParameters, $scope.unsavedParameters)) {
       $scope.unsavedParameters = unsavedParameters;
     }
