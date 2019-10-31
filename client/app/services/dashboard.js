@@ -249,6 +249,39 @@ function DashboardService($resource, $http, $location, currentUser) {
     });
   };
 
+  let currentQueryResultsErrorData; // swap for useMemo ANGULAR_REMOVE_ME
+  resource.prototype.getQueryResultsErrorData = function getQueryResultsErrorData() {
+    const dashboardErrors = _.map(this.widgets, (widget) => {
+      // get result
+      const result = widget.getQueryResult();
+      if (!result) {
+        return null;
+      }
+
+      // get error data
+      const errorData = result.getErrorData();
+      if (_.isEmpty(errorData)) {
+        return null;
+      }
+
+      // dashboard params only
+      const localParamNames = _.map(widget.getLocalParameters(), p => p.name);
+      const filtered = _.omit(errorData.parameters, localParamNames);
+
+      return filtered;
+    });
+
+    const merged = _.assign({}, ...dashboardErrors);
+    const errorData = _.isEmpty(merged) ? null : { parameters: merged };
+
+    // avoiding Angular infdig (ANGULAR_REMOVE_ME)
+    if (!_.isEqual(currentQueryResultsErrorData, errorData)) {
+      currentQueryResultsErrorData = errorData;
+    }
+
+    return currentQueryResultsErrorData;
+  };
+
   return resource;
 }
 
