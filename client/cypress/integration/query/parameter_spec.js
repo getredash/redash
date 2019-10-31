@@ -24,7 +24,8 @@ describe('Parameter', () => {
       .find('.ant-form-item-control')
       .should('have.class', 'has-error')
       .find('.ant-form-explain')
-      .should('contain.text', expectedInvalidString);
+      .should('contain.text', expectedInvalidString)
+      .should('not.have.class', 'show-help-enter'); // assures ant animation ended for screenshot
   };
 
   beforeEach(() => {
