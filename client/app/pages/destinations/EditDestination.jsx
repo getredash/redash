@@ -11,6 +11,7 @@ import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 class EditDestination extends React.Component {
   static propTypes = {
@@ -109,11 +110,11 @@ class EditDestination extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageEditDestination', react2angular(EditDestination));
+  ngModule.component('pageEditDestination', react2angular(wrapSettingsTab(null, EditDestination)));
 
   return {
     '/destinations/:destinationId': {
-      template: '<settings-screen><page-edit-destination on-error="handleError"></page-edit-destination></settings-screen>',
+      template: '<page-edit-destination on-error="handleError"></page-edit-destination>',
       title: 'Alert Destinations',
       controller($scope, $exceptionHandler) {
         'ngInject';
