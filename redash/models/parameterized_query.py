@@ -225,7 +225,7 @@ class ParameterizedQuery(object):
         if not missing_params:
             return None
 
-        parameter_names = ', '.join('"{}"'.format(name) for name in missing_params)
+        parameter_names = ', '.join('"{}"'.format(name) for name in sorted(missing_params))
         if len(missing_params) > 1:
             message = 'Parameters {} are missing.'.format(parameter_names)
         else:
@@ -241,7 +241,7 @@ class ParameterizedQuery(object):
 
 class InvalidParameterError(Exception):
     def __init__(self, parameter_errors):
-        parameter_names = ', '.join('"{}"'.format(name) for name in parameter_errors.keys())
+        parameter_names = ', '.join('"{}"'.format(name) for name in sorted(parameter_errors.keys()))
         if len(parameter_errors) > 1:
             message = 'Parameters {} are invalid.'.format(parameter_names)
         else:
