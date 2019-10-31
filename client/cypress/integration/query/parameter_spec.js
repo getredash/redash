@@ -620,17 +620,27 @@ describe('Parameter', () => {
       cy.percySnapshot('Validation error in visualization embed');
     });
 
-    it('shows validation error in dashboard widget', function () {
+    it('shows validation error in widget-level parameter', function () {
       createDashboard('Foo')
         .then(({ slug, id }) => {
           this.dashboardUrl = `/dashboard/${slug}`;
-          return addWidget(id, this.vizId);
+          return addWidget(id, this.vizId, {
+            parameterMappings: {
+              'test-parameter': {
+                type: 'widget-level',
+                title: '',
+                name: 'test-parameter',
+                mapTo: 'test-parameter',
+                value: null,
+              },
+            },
+          });
         })
         .then(() => {
           cy.visit(this.dashboardUrl);
         });
       expectValueValidationError();
-      cy.percySnapshot('Validation error in dashboard widget');
+      cy.percySnapshot('Validation error in widget-level parameter');
     });
   });
 
