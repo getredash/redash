@@ -1,4 +1,4 @@
-import { createQuery } from '../../support/redash-api';
+import { createQuery, createDashboard, addWidget } from '../../support/redash-api';
 
 const { get } = Cypress._;
 
@@ -612,6 +612,25 @@ describe('Parameter', () => {
       cy.visit(`/queries/${this.query.id}`);
       expectValueValidationError();
       cy.percySnapshot('Validation error in query page');
+    });
+
+    it('shows validation error in visualization embed', function () {
+      cy.visit(`/embed/query/${this.query.id}/visualization/${this.vizId}?api_key=${this.query.api_key}`);
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in visualization embed');
+    });
+
+    it('shows validation error in dashboard widget', function () {
+      createDashboard('Foo')
+        .then(({ slug, id }) => {
+          this.dashboardUrl = `/dashboard/${slug}`;
+          return addWidget(id, this.vizId);
+        })
+        .then(() => {
+          cy.visit(this.dashboardUrl);
+        });
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in dashboard widget');
     });
   });
 
