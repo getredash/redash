@@ -1,5 +1,7 @@
 import { createQuery } from '../../support/redash-api';
 
+const { get } = Cypress._;
+
 describe('Parameter', () => {
   const expectDirtyStateChange = (edit) => {
     cy.getByTestId('ParameterName-test-parameter')
@@ -584,6 +586,31 @@ describe('Parameter', () => {
         .click();
 
       expectValueValidationError();
+    });
+  });
+
+  describe('Inline feedback', () => {
+    beforeEach(function () {
+      const queryData = {
+        query: 'SELECT {{ test-parameter }}',
+        options: {
+          parameters: [
+            { name: 'test-parameter', title: 'Param', type: 'number', value: null },
+          ],
+        },
+      };
+
+      createQuery(queryData, false)
+        .then((query) => {
+          this.query = query;
+          this.vizId = get(query, 'visualizations.0.id');
+        });
+    });
+
+    it('shows validation error in query page', function () {
+      cy.visit(`/queries/${this.query.id}`);
+      expectValueValidationError();
+      cy.percySnapshot('Validation error in query page');
     });
   });
 
