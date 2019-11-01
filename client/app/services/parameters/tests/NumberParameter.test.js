@@ -17,10 +17,5 @@ describe('NumberParameter', () => {
       const normalizedValue = param.normalizeValue(42);
       expect(normalizedValue).toBe(42);
     });
-
-    test('returns null when not possible to convert to number', () => {
-      const normalizedValue = param.normalizeValue('notanumber');
-      expect(normalizedValue).toBeNull();
-    });
   });
 });
