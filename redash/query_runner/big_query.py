@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 import sys
 import time
 from base64 import b64decode
@@ -12,6 +13,7 @@ from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
+EXPOSE_COST = settings.parse_boolean(os.environ.get('GBQ_EXPOSE_COST', 'false'))
 
 try:
     import apiclient.errors
@@ -92,7 +94,17 @@ class BigQuery(BaseQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        if EXPOSE_COST:
+            schema['order'].append('cost_per_tb')
+            schema['properties'].update({
+                'cost_per_tb': {
+                    'type': 'number',
+                    'title': 'Google Big Query cost per Tb scanned',
+                    'default': 1.1
+                }
+                })
+
+        schema.update({
             'type': 'object',
             'properties': {
                 'projectId': {
@@ -132,7 +144,9 @@ class BigQuery(BaseQueryRunner):
             'required': ['jsonKeyFile', 'projectId'],
             "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'location', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
-        }
+        })
+
+        return schema
 
     def _get_bigquery_service(self):
         scope = [
@@ -232,14 +246,18 @@ class BigQuery(BaseQueryRunner):
         } for f in query_reply["schema"]["fields"]]
 
         qbytes = int(query_reply['totalBytesProcessed'])
+        
         data = {
             "columns": columns,
             "rows": rows,
             'metadata': {
-                'data_scanned': qbytes,
-                'query_cost': 1.1 * qbytes * 10e-12,
+                'data_scanned': qbytes
             }
         }
+
+        if EXPOSE_COST:
+            price = self.configuration.get('cost_per_tb', 1.1)
+            data['metadata'].update({'query_cost': '${0:.2f}'.format(price * qbytes * 10e-12)})
 
         return data
 
