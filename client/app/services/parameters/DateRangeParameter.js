@@ -48,6 +48,22 @@ const DYNAMIC_DATE_RANGES = {
     name: 'Last 7 days',
     value: () => [moment().subtract(7, 'days'), moment()],
   },
+  last_14_days: {
+    name: 'Last 14 days',
+    value: () => [moment().subtract(14, 'days'), moment()],
+  },
+  last_30_days: {
+    name: 'Last 30 days',
+    value: () => [moment().subtract(30, 'days'), moment()],
+  },
+  last_60_days: {
+    name: 'Last 60 days',
+    value: () => [moment().subtract(60, 'days'), moment()],
+  },
+  last_90_days: {
+    name: 'Last 90 days',
+    value: () => [moment().subtract(90, 'days'), moment()],
+  },
 };
 
 export const DynamicDateRangeType = PropTypes.oneOf(values(DYNAMIC_DATE_RANGES));
