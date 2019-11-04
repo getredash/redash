@@ -61,12 +61,12 @@ def transform_row(row, fields):
     return row_data
 
 
-def _load_key(filename):
-    f = file(filename, "rb")
-    try:
-        return f.read()
-    finally:
-        f.close()
+# def _load_key(filename):
+#     f = file(filename, "rb")
+#     try:
+#         return f.read()
+#     finally:
+#         f.close()
 
 
 def _get_query_results(jobs, project_id, location, job_id, start_index):
@@ -146,7 +146,7 @@ class BigQuery(BaseQueryRunner):
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
         http = creds.authorize(http)
 
-        return build("bigquery", "v2", http=http)
+        return build("bigquery", "v2", http=http, cache_discovery=False)
 
     def _get_project_id(self):
         return self.configuration["projectId"]
@@ -207,7 +207,7 @@ class BigQuery(BaseQueryRunner):
 
         rows = []
 
-        while ("rows" in query_reply) and current_row < query_reply['totalRows']:
+        while ("rows" in query_reply) and int(current_row) < int(query_reply['totalRows']):
             for row in query_reply["rows"]:
                 rows.append(transform_row(row, query_reply["schema"]["fields"]))
 
@@ -231,10 +231,14 @@ class BigQuery(BaseQueryRunner):
             else types_map.get(f['type'], "string")
         } for f in query_reply["schema"]["fields"]]
 
+        qbytes = int(query_reply['totalBytesProcessed'])
         data = {
             "columns": columns,
             "rows": rows,
-            'metadata': {'data_scanned': int(query_reply['totalBytesProcessed'])}
+            'metadata': {
+                'data_scanned': qbytes,
+                'query_cost': 1.1 * qbytes * 10e-12,
+            }
         }
 
         return data
