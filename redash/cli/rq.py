@@ -29,7 +29,7 @@ def worker(queues):
     configure_mappers()
 
     if not queues:
-        queues = ['periodic', 'default', 'schemas']
+        queues = ['periodic', 'emails', 'default', 'schemas']
 
     with Connection(rq_redis_connection):
         w = Worker(queues)
