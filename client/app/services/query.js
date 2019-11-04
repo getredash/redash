@@ -2,7 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, includes, union,
+  zipObject, isEmpty, map, includes, union, isNil,
   uniq, has, identity, extend, each, some, reject,
 } from 'lodash';
 
@@ -35,12 +35,11 @@ class Parameters {
     this.initFromQueryString(queryString);
   }
 
-  parseQuery(queryText = null) {
+  parseQuery(queryText = this.query.query) {
     const fallback = () => map(this.query.options.parameters, i => i.name);
-    queryText = queryText || this.query.query;
 
     let parameters = [];
-    if (queryText !== undefined) {
+    if (!isNil(queryText)) {
       try {
         const parts = Mustache.parse(queryText);
         parameters = uniq(collectParams(parts));
