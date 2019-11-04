@@ -87,7 +87,7 @@ export class Parameters extends React.Component {
     this.setState(({ parameters, touched }) => {
       if (isDirty) {
         param.setPendingValue(value);
-        touched[param.name] = true;
+        touched = { ...touched, [param.name]: true };
       } else {
         param.clearPendingValue();
       }
@@ -126,7 +126,7 @@ export class Parameters extends React.Component {
       .showModal({ parameter })
       .result.then((updated) => {
         this.setState(({ parameters, touched }) => {
-          touched[parameter.name] = true;
+          touched = { ...touched, [parameter.name]: true };
           const updatedParameter = extend(parameter, updated);
           parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
           onParametersEdit();
