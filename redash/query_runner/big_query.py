@@ -61,12 +61,12 @@ def transform_row(row, fields):
     return row_data
 
 
-# def _load_key(filename):
-#     f = file(filename, "rb")
-#     try:
-#         return f.read()
-#     finally:
-#         f.close()
+def _load_key(filename):
+    f = file(filename, "rb")
+    try:
+        return f.read()
+    finally:
+        f.close()
 
 
 def _get_query_results(jobs, project_id, location, job_id, start_index):
