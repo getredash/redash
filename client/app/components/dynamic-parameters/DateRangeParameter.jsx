@@ -34,6 +34,18 @@ const DYNAMIC_DATE_OPTIONS = [
   { name: 'Last 7 days',
     value: getDynamicDateRangeFromString('d_last_7_days'),
     label: () => getDynamicDateRangeFromString('d_last_7_days').value()[0].format('MMM D') + ' - Today' },
+  { name: 'Last 14 days',
+    value: getDynamicDateRangeFromString('d_last_14_days'),
+    label: () => getDynamicDateRangeFromString('d_last_14_days').value()[0].format('MMM D') + ' - Today' },
+  { name: 'Last 30 days',
+    value: getDynamicDateRangeFromString('d_last_30_days'),
+    label: () => getDynamicDateRangeFromString('d_last_30_days').value()[0].format('MMM D') + ' - Today' },
+  { name: 'Last 60 days',
+    value: getDynamicDateRangeFromString('d_last_60_days'),
+    label: () => getDynamicDateRangeFromString('d_last_60_days').value()[0].format('MMM D') + ' - Today' },
+  { name: 'Last 90 days',
+    value: getDynamicDateRangeFromString('d_last_90_days'),
+    label: () => getDynamicDateRangeFromString('d_last_90_days').value()[0].format('MMM D') + ' - Today' },
 ];
 
 const DYNAMIC_DATETIME_OPTIONS = [
