@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from functools import partial
 from random import randint
 
+from rq import Connection, Queue
+from rq.registry import FailedJobRegistry
 from rq_scheduler import Scheduler
 
 from redash import settings, rq_redis_connection
@@ -30,6 +32,29 @@ def schedule(**kwargs):
     rq_scheduler.schedule(scheduled_time=datetime.utcnow(), **kwargs)
 
 
+def clean_failed_jobs():
+    jobs = rq_redis_connection.scan_iter('rq:job:*')
+
+    is_idle = lambda key: rq_redis_connection.object('idletime', key) > settings.JOB_DEFAULT_FAILURE_TTL
+    has_failed = lambda key: rq_redis_connection.hget(key, 'status') == b'failed'
+
+    def not_in_any_failed_registry(key):
+        return True # remove this line once once https://github.com/rq/rq/pull/1130 is released.
+
+        with Connection(rq_redis_connection):
+            failed_registries = [FailedJobRegistry(queue=q) for q in Queue.all()]
+
+        job_id = lambda key : key.decode().split(':').pop()
+        return all([job_id(key) not in registry for registry in failed_registries])
+
+    stale_jobs = [key for key in jobs if is_idle(key) and has_failed(key) and not_in_any_failed_registry(key)]
+
+    for key in stale_jobs:
+        rq_redis_connection.delete(key)
+
+    logging.info('Cleaned %d old failed jobs.', len(stale_jobs))
+
+
 def schedule_periodic_jobs():
     for job in rq_scheduler.get_jobs():
         job.delete()
@@ -39,6 +64,7 @@ def schedule_periodic_jobs():
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
         {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},
+        {"func": clean_failed_jobs, "interval": timedelta(days=1)},
         {"func": send_aggregated_errors, "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL)}
     ]
 
