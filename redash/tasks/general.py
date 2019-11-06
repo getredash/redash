@@ -1,7 +1,9 @@
 import requests
 
 from flask_mail import Message
-from redash import mail, models, settings
+from rq import Connection, Queue
+from rq.registry import FailedJobRegistry
+from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import job, get_job_logger
@@ -60,3 +62,26 @@ def send_mail(to, subject, html, text):
 
 def sync_user_details():
     users.sync_last_active_at()
+
+
+def purge_failed_jobs():
+    jobs = rq_redis_connection.scan_iter('rq:job:*')
+
+    is_idle = lambda key: rq_redis_connection.object('idletime', key) > settings.JOB_DEFAULT_FAILURE_TTL
+    has_failed = lambda key: rq_redis_connection.hget(key, 'status') == b'failed'
+
+    def not_in_any_failed_registry(key):
+        return True # remove this line once once https://github.com/rq/rq/pull/1130 is released.
+
+        with Connection(rq_redis_connection):
+            failed_registries = [FailedJobRegistry(queue=q) for q in Queue.all()]
+
+        job_id = lambda key : key.decode().split(':').pop()
+        return all([job_id(key) not in registry for registry in failed_registries])
+
+    stale_jobs = [key for key in jobs if is_idle(key) and has_failed(key) and not_in_any_failed_registry(key)]
+
+    for key in stale_jobs:
+        rq_redis_connection.delete(key)
+
+    logger.info('Purged %d old failed jobs.', len(stale_jobs))
