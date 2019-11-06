@@ -63,7 +63,7 @@ export class TagsList extends React.Component {
     if (allTags.length > 0) {
       return (
         <div className="m-t-10 tags-list tiled">
-          <Menu className="invert-stripe-position" mode="inline" selectedKeys={[...selectedTags]}>
+          <Menu mode="inline" selectedKeys={[...selectedTags]}>
             {map(allTags, tag => (
               <Menu.Item key={tag.name} className="m-0">
                 <a className="d-flex align-items-center justify-content-between" onClick={event => this.toggleTag(event, tag.name)}>
