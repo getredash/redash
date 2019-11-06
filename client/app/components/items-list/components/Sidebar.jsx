@@ -51,7 +51,7 @@ export function Menu({ items, selected }) {
   }
   return (
     <div className="m-b-10 tags-list tiled">
-      <AntdMenu mode="inline" selectable={false} selectedKeys={[selected]}>
+      <AntdMenu className="invert-stripe-position" mode="inline" selectable={false} selectedKeys={[selected]}>
         {map(items, item => (
           <AntdMenu.Item key={item.key} className="m-0">
             <a href={item.href}>
