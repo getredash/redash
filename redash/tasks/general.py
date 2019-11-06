@@ -1,6 +1,9 @@
 import requests
+from datetime import datetime
 
 from flask_mail import Message
+from rq import Connection, Queue
+from rq.registry import FailedJobRegistry
 from rq.job import Job
 from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
@@ -64,15 +67,15 @@ def sync_user_details():
 
 
 def purge_failed_jobs():
-    jobs = rq_redis_connection.scan_iter('{}*'.format(Job.redis_job_namespace_prefix))
+    with Connection(rq_redis_connection):
+        for queue in Queue.all():
+            failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
+            failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
+            stale_jobs = [job for job in failed_jobs if (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
 
-    is_idle = lambda key: rq_redis_connection.object('idletime', key) > settings.JOB_DEFAULT_FAILURE_TTL
-    has_failed = lambda key: rq_redis_connection.hget(key, 'status') == b'failed'
-    stale_job_keys = [key.decode().split(':').pop() for key in jobs if is_idle(key) and has_failed(key)]
-    stale_jobs = Job.fetch_many(stale_job_keys, rq_redis_connection)
+            if any(stale_jobs):
+                for job in stale_jobs:
+                    job.delete()
+                    rq_redis_connection.delete(job.key)
 
-    for job in stale_jobs:
-        job.delete()
-        rq_redis_connection.delete(job.key)
-
-    logger.info('Purged %d old failed jobs.', len(stale_jobs))
+                logger.info('Purged %d old failed jobs from the %s queue.', len(stale_jobs), queue.name)
