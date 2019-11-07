@@ -4,7 +4,6 @@ import { PageHeader } from '@/components/PageHeader';
 import { $location } from '@/services/ng';
 import settingsMenu from '@/services/settingsMenu';
 
-import './SettingsWrapper.less';
 
 function wrapSettingsTab(options, WrappedComponent) {
   if (options) {
@@ -18,7 +17,7 @@ function wrapSettingsTab(options, WrappedComponent) {
         <div className="container">
           <PageHeader title="Settings" />
           <div className="bg-white tiled">
-            <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
+            <Menu selectedKeys={[activeItem && activeItem.title]} mode="horizontal">
               {settingsMenu.items.map(item => (
                 <Menu.Item key={item.title}><a href={item.path}>{item.title}</a></Menu.Item>
               ))}
