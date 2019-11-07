@@ -1,9 +1,12 @@
 from __future__ import absolute_import
 import logging
+import hashlib
+import json
 from datetime import datetime, timedelta
 from functools import partial
 from random import randint
 
+from rq.job import Job
 from rq_scheduler import Scheduler
 
 from redash import settings, rq_redis_connection
@@ -18,8 +21,15 @@ rq_scheduler = Scheduler(connection=rq_redis_connection,
                          queue_name="periodic",
                          interval=5)
 
+def job_id(kwargs):
+    metadata = kwargs.copy()
+    if 'func' in metadata:
+        metadata['func'] = metadata['func'].__name__
 
-def schedule(**kwargs):
+    return hashlib.sha1(json.dumps(metadata, sort_keys=True).encode()).hexdigest()
+
+
+def prep(kwargs):
     interval = kwargs['interval']
     if isinstance(interval, timedelta):
         interval = interval.seconds
@@ -27,13 +37,14 @@ def schedule(**kwargs):
     kwargs['interval'] = interval
     kwargs['result_ttl'] = kwargs.get('result_ttl', interval * 2)
 
-    rq_scheduler.schedule(scheduled_time=datetime.utcnow(), **kwargs)
+    return kwargs
 
 
-def schedule_periodic_jobs():
-    for job in rq_scheduler.get_jobs():
-        job.delete()
+def schedule(kwargs):
+    rq_scheduler.schedule(scheduled_time=datetime.utcnow(), id=job_id(kwargs), **kwargs)
 
+
+def periodic_job_definitions():
     jobs = [
         {"func": refresh_queries, "interval": 30, "result_ttl": 600},
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
@@ -55,6 +66,14 @@ def schedule_periodic_jobs():
     # Add your own custom periodic jobs in your dynamic_settings module.
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
 
-    for job in jobs:
-        logger.info("Scheduling %s with interval %s.", job['func'].__name__, job.get('interval'))
-        schedule(**job)
+    return [prep(job) for job in jobs]
+
+
+def schedule_periodic_jobs():
+    job_definitions = periodic_job_definitions()
+
+    jobs_to_schedule = [job for job in job_definitions if job_id(job) not in rq_scheduler]
+
+    for job in jobs_to_schedule:
+        logger.info("Scheduling %s (%s) with interval %s.", job_id(job), job['func'].__name__, job.get('interval'))
+        schedule(job)
