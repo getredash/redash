@@ -32,7 +32,7 @@ def job_id(kwargs):
 def prep(kwargs):
     interval = kwargs['interval']
     if isinstance(interval, timedelta):
-        interval = interval.seconds
+        interval = int(interval.total_seconds())
 
     kwargs['interval'] = interval
     kwargs['result_ttl'] = kwargs.get('result_ttl', interval * 2)
