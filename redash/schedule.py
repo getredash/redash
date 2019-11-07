@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import logging
 from datetime import datetime, timedelta
 from functools import partial
 from random import randint
@@ -8,8 +9,10 @@ from rq_scheduler import Scheduler
 from redash import settings, rq_redis_connection
 from redash.tasks import (sync_user_details, refresh_queries,
                           empty_schedules, refresh_schemas,
-                          cleanup_query_results,
+                          cleanup_query_results, purge_failed_jobs,
                           version_check, send_aggregated_errors)
+
+logger = logging.getLogger(__name__)
 
 rq_scheduler = Scheduler(connection=rq_redis_connection,
                          queue_name="periodic",
@@ -36,6 +39,7 @@ def schedule_periodic_jobs():
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
         {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},
+        {"func": purge_failed_jobs, "interval": timedelta(days=1)},
         {"func": send_aggregated_errors, "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL)}
     ]
 
@@ -53,4 +57,5 @@ def schedule_periodic_jobs():
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
 
     for job in jobs:
+        logger.info("Scheduling %s with interval %s.", job['func'].__name__, job.get('interval'))
         schedule(**job)
