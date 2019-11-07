@@ -49,7 +49,7 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
-@job('default')
+@job('emails')
 def send_mail(to, subject, html, text):
     try:
         message = Message(recipients=to,

@@ -22,14 +22,15 @@ def scheduler():
 
 @manager.command()
 @argument('queues', nargs=-1)
-def worker(queues='default'):
+def worker(queues):
     # Configure any SQLAlchemy mappers loaded until now so that the mapping configuration 
     # will already be available to the forked work horses and they won't need 
     # to spend valuable time re-doing that on every fork.
     configure_mappers()
 
     if not queues:
-        queues = ('default',)
+        queues = ['periodic', 'emails', 'default', 'schemas']
+
     with Connection(rq_redis_connection):
         w = Worker(queues)
         w.work()
