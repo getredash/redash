@@ -21,6 +21,16 @@ class TestSchedule(TestCase):
         self.assertTrue(jobs[0].func_name.endswith('foo'))
         self.assertEqual(jobs[0].meta['interval'], 60)
 
+    def test_doesnt_reschedule_an_existing_job(self):
+        def foo():
+            pass
+
+        schedule_periodic_jobs([{"func": foo, "interval": 60}])
+        with patch('redash.schedule.rq_scheduler.schedule') as schedule:
+            schedule_periodic_jobs([{"func": foo, "interval": 60}])
+            schedule.assert_not_called()
+
+
     def test_reschedules_a_modified_job(self):
         def foo():
             pass
