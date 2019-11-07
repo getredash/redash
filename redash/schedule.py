@@ -68,7 +68,16 @@ def periodic_job_definitions():
 def schedule_periodic_jobs():
     job_definitions = periodic_job_definitions()
 
+    jobs_to_clean_up = Job.fetch_many(
+        set([job.id for job in rq_scheduler.get_jobs()]) - set([job_id(job) for job in job_definitions]),
+        rq_redis_connection)
+
     jobs_to_schedule = [job for job in job_definitions if job_id(job) not in rq_scheduler]
+
+    for job in jobs_to_clean_up:
+        logger.info("Removing %s (%s) from schedule.", job.id, job.func_name)
+        rq_scheduler.cancel(job)
+        job.delete()
 
     for job in jobs_to_schedule:
         logger.info("Scheduling %s (%s) with interval %s.", job_id(job), job['func'].__name__, job.get('interval'))
