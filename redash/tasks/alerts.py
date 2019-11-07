@@ -46,4 +46,8 @@ def check_alerts_for_query(query_id):
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")
                 continue
 
+            if alert.muted:
+                logger.debug("Skipping notification (alert muted).")
+                continue
+
             notify_subscriptions(alert, new_state)
