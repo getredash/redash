@@ -62,11 +62,11 @@ def periodic_job_definitions():
     # Add your own custom periodic jobs in your dynamic_settings module.
     jobs.extend(settings.dynamic_settings.periodic_jobs() or [])
 
-    return [prep(job) for job in jobs]
+    return jobs
 
 
-def schedule_periodic_jobs():
-    job_definitions = periodic_job_definitions()
+def schedule_periodic_jobs(jobs):
+    job_definitions = [prep(job) for job in jobs]
 
     jobs_to_clean_up = Job.fetch_many(
         set([job.id for job in rq_scheduler.get_jobs()]) - set([job_id(job) for job in job_definitions]),
