@@ -44,7 +44,7 @@ def create_app():
     handlers.init_app(app)
     configure_webpack(app)
     extensions.init_app(app)
-    chrome_logger.init_app(app)
+    # chrome_logger.init_app(app)
     users.init_app(app)
 
     return app
