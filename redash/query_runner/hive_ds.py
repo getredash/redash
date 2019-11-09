@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from pyhive import hive
+    from pyhive.exc import DatabaseError
     from thrift.transport import THttpClient
     enabled = True
 except ImportError:
@@ -36,6 +37,7 @@ types_map = {
 
 
 class Hive(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -61,10 +63,6 @@ class Hive(BaseSQLQueryRunner):
         }
 
     @classmethod
-    def annotate_query(cls):
-        return False
-
-    @classmethod
     def type(cls):
         return "hive"
 
@@ -79,15 +77,15 @@ class Hive(BaseSQLQueryRunner):
 
         columns_query = "show columns in %s.%s"
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
+        for schema_name in [a for a in [str(a['database_name']) for a in self._run_query_internal(schemas_query)] if len(a) > 0]:
+            for table_name in [a for a in [str(a['tab_name']) for a in self._run_query_internal(tables_query % schema_name)] if len(a) > 0]:
+                columns = [a for a in [str(a['field']) for a in self._run_query_internal(columns_query % (schema_name, table_name))] if len(a) > 0]
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
 
                 schema[table_name] = {'name': table_name, 'columns': columns}
-        return schema.values()
+        return list(schema.values())
 
     def _get_connection(self):
         host = self.configuration['host']
@@ -98,14 +96,13 @@ class Hive(BaseSQLQueryRunner):
             database=self.configuration.get('database', 'default'),
             username=self.configuration.get('username', None),
         )
-        
-        return connection
 
+        return connection
 
     def run_query(self, query, user):
         connection = None
         try:
-            connection = self._get_connection() 
+            connection = self._get_connection()
             cursor = connection.cursor()
 
             cursor.execute(query)
@@ -132,6 +129,12 @@ class Hive(BaseSQLQueryRunner):
             if connection:
                 connection.cancel()
             error = "Query cancelled by user."
+            json_data = None
+        except DatabaseError as e:
+            try:
+                error = e.args[0].status.errorMessage
+            except AttributeError:
+                error = str(e)
             json_data = None
         finally:
             if connection:
@@ -214,7 +217,7 @@ class HiveHttp(Hive):
 
         # create connection
         connection = hive.connect(thrift_transport=transport)
-        
+
         return connection
 
 

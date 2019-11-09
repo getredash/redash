@@ -1,12 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import DateParameter from '@/components/dynamic-parameters/DateParameter';
 import DateRangeParameter from '@/components/dynamic-parameters/DateRangeParameter';
-import { toString } from 'lodash';
+import { isEqual } from 'lodash';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
 
 import './ParameterValueInput.less';
@@ -19,14 +18,13 @@ const multipleValuesProps = {
   maxTagPlaceholder: num => `+${num.length} more`,
 };
 
-export class ParameterValueInput extends React.Component {
+class ParameterValueInput extends React.Component {
   static propTypes = {
     type: PropTypes.string,
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     enumOptions: PropTypes.string,
     queryId: PropTypes.number,
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-    allowMultipleValues: PropTypes.bool,
     onSelect: PropTypes.func,
     className: PropTypes.string,
   };
@@ -37,7 +35,6 @@ export class ParameterValueInput extends React.Component {
     enumOptions: '',
     queryId: null,
     parameter: null,
-    allowMultipleValues: false,
     onSelect: () => {},
     className: '',
   };
@@ -62,7 +59,7 @@ export class ParameterValueInput extends React.Component {
   }
 
   onSelect = (value) => {
-    const isDirty = toString(value) !== toString(this.props.value);
+    const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
   }
@@ -96,21 +93,23 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderEnumInput() {
-    const { enumOptions, allowMultipleValues } = this.props;
+    const { enumOptions, parameter } = this.props;
     const { value } = this.state;
     const enumOptionsArray = enumOptions.split('\n').filter(v => v !== '');
+    // Antd Select doesn't handle null in multiple mode
+    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
     return (
       <Select
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? 'multiple' : 'default'}
         optionFilterProp="children"
         disabled={enumOptionsArray.length === 0}
-        value={value}
+        value={normalize(value)}
         onChange={this.onSelect}
         dropdownMatchSelectWidth={false}
-        dropdownClassName="ant-dropdown-in-bootstrap-modal"
         showSearch
-        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        showArrow
+        style={{ minWidth: 60 }}
         notFoundContent={null}
         {...multipleValuesProps}
       >
@@ -120,18 +119,18 @@ export class ParameterValueInput extends React.Component {
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter, allowMultipleValues } = this.props;
+    const { queryId, parameter } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
         className={this.props.className}
-        mode={allowMultipleValues ? 'multiple' : 'default'}
+        mode={parameter.multiValuesOptions ? 'multiple' : 'default'}
         optionFilterProp="children"
         parameter={parameter}
         value={value}
         queryId={queryId}
         onSelect={this.onSelect}
-        style={{ minWidth: allowMultipleValues ? 195 : 60 }}
+        style={{ minWidth: 60 }}
         {...multipleValuesProps}
       />
     );
@@ -141,7 +140,7 @@ export class ParameterValueInput extends React.Component {
     const { className } = this.props;
     const { value } = this.state;
 
-    const normalize = val => !isNaN(val) && val || 0;
+    const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
@@ -186,41 +185,11 @@ export class ParameterValueInput extends React.Component {
     const { isDirty } = this.state;
 
     return (
-      <div className="parameter-input" data-dirty={isDirty || null}>
+      <div className="parameter-input" data-dirty={isDirty || null} data-test="ParameterValueInput">
         {this.renderInput()}
       </div>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component('parameterValueInput', {
-    template: `
-      <parameter-value-input-impl
-        type="$ctrl.param.type"
-        value="$ctrl.param.normalizedValue"
-        parameter="$ctrl.param"
-        enum-options="$ctrl.param.enumOptions"
-        query-id="$ctrl.param.queryId"
-        allow-multiple-values="!!$ctrl.param.multiValuesOptions"
-        on-select="$ctrl.setValue"
-      ></parameter-value-input-impl>
-    `,
-    bindings: {
-      param: '<',
-    },
-    controller($scope) {
-      this.setValue = (value, isDirty) => {
-        if (isDirty) {
-          this.param.setPendingValue(value);
-        } else {
-          this.param.clearPendingValue();
-        }
-        $scope.$apply();
-      };
-    },
-  });
-  ngModule.component('parameterValueInputImpl', react2angular(ParameterValueInput));
-}
-
-init.init = true;
+export default ParameterValueInput;

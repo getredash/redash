@@ -1,8 +1,8 @@
 import { isFunction, isString, filter, map } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import Input from 'antd/lib/input';
+import AntdMenu from 'antd/lib/menu';
 import Select from 'antd/lib/select';
 import { TagsList } from '@/components/TagsList';
 
@@ -50,21 +50,21 @@ export function Menu({ items, selected }) {
     return null;
   }
   return (
-    <div className="list-group m-b-10 tags-list tiled">
-      {map(items, item => (
-        <a
-          key={item.key}
-          href={item.href}
-          className={classNames('list-group-item', { active: selected === item.key })}
-        >
-          {
-            isString(item.icon) && (item.icon !== '') &&
-            <span className="btn-favourite m-r-5"><i className={item.icon} aria-hidden="true" /></span>
-          }
-          {isFunction(item.icon) && (item.icon(item) || null)}
-          {item.title}
-        </a>
-      ))}
+    <div className="m-b-10 tags-list tiled">
+      <AntdMenu className="invert-stripe-position" mode="inline" selectable={false} selectedKeys={[selected]}>
+        {map(items, item => (
+          <AntdMenu.Item key={item.key} className="m-0">
+            <a href={item.href}>
+              {
+                isString(item.icon) && (item.icon !== '') &&
+                <span className="btn-favourite m-r-5"><i className={item.icon} aria-hidden="true" /></span>
+              }
+              {isFunction(item.icon) && (item.icon(item) || null)}
+              {item.title}
+            </a>
+          </AntdMenu.Item>
+        ))}
+      </AntdMenu>
     </div>
   );
 }
@@ -105,7 +105,7 @@ export function ProfileImage({ user }) {
   if (!isString(user.profile_image_url) || (user.profile_image_url === '')) {
     return null;
   }
-  return <img src={user.profile_image_url} className="profile__image--navbar m-r-5" width="13" alt={user.name} />;
+  return <img src={user.profile_image_url} className="profile__image--sidebar m-r-5" width="13" alt={user.name} />;
 }
 
 ProfileImage.propTypes = {

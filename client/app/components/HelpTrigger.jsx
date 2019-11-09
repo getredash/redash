@@ -1,4 +1,3 @@
-import { react2angular } from 'react2angular';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -32,6 +31,10 @@ export const TYPES = {
     '/user-guide/users/authentication-options',
     'Guide: Authentication Options',
   ],
+  USAGE_DATA_SHARING: [
+    '/open-source/admin-guide/usage-data',
+    'Help: Anonymous Usage Data Sharing',
+  ],
   DS_ATHENA: [
     '/data-sources/amazon-athena-setup',
     'Guide: Help Setting up Amazon Athena',
@@ -64,9 +67,29 @@ export const TYPES = {
     '/user-guide/querying/query-results-data-source',
     'Guide: Help Setting up Query Results',
   ],
+  ALERT_SETUP: [
+    '/user-guide/alerts/setting-up-an-alert',
+    'Guide: Setting Up a New Alert',
+  ],
+  MAIL_CONFIG: [
+    '/open-source/setup/#Mail-Configuration',
+    'Guide: Mail Configuration',
+  ],
+  ALERT_NOTIF_TEMPLATE_GUIDE: [
+    '/user-guide/alerts/custom-alert-notifications',
+    'Guide: Custom Alerts Notifications',
+  ],
+  FAVORITES: [
+    '/user-guide/querying/favorites-tagging/#Favorites',
+    'Guide: Favorites',
+  ],
+  MANAGE_PERMISSIONS: [
+    '/user-guide/querying/writing-queries#Managing-Query-Permissions',
+    'Guide: Managing Query Permissions',
+  ],
 };
 
-export class HelpTrigger extends React.Component {
+export default class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
@@ -152,7 +175,7 @@ export class HelpTrigger extends React.Component {
     return (
       <React.Fragment>
         <Tooltip title={tooltip}>
-          <a href="javascript: void(0)" onClick={this.openDrawer} className={className}>
+          <a onClick={this.openDrawer} className={className}>
             {this.props.children}
           </a>
         </Tooltip>
@@ -220,9 +243,3 @@ export class HelpTrigger extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('helpTrigger', react2angular(HelpTrigger));
-}
-
-init.init = true;

@@ -57,7 +57,7 @@
             </button>
             <ul class="dropdown-menu pull-right" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
               <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates" ng-class="{disabled: !refreshRate.enabled}">
-                <a href="javascript:void(0)" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+                <a ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
               </li>
               <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
                 <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>
@@ -93,7 +93,7 @@
     </label>
   </div>
 
-  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0" data-test="DashboardParameters">
     <parameters parameters="$ctrl.globalParameters" on-values-change="$ctrl.refreshDashboard"></parameters>
   </div>
 
@@ -110,7 +110,10 @@
       is-editing="$ctrl.layoutEditing && !$ctrl.isGridDisabled"
       on-layout-change="$ctrl.onLayoutChange"
       on-breakpoint-change="$ctrl.onBreakpointChanged"
+      on-load-widget="$ctrl.loadWidget"
+      on-refresh-widget="$ctrl.refreshWidget"
       on-remove-widget="$ctrl.removeWidget"
+      on-parameter-mappings-change="$ctrl.extractGlobalParameters"
     />
   </div>
 

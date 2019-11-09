@@ -47,6 +47,7 @@
 @zindex-dropdown: 2050;
 @zindex-picker: 2050;
 @zindex-tooltip: 2060;
+@item-hover-bg: #e5f8ff;
 
 .@{drawer-prefix-cls} {
   &.help-drawer {
@@ -58,6 +59,11 @@
 .ant-checkbox-wrapper,
 .ant-radio-wrapper {
   font-weight: normal;
+}
+
+.ant-select-dropdown-menu-item em {
+  color: @input-color-placeholder;
+  font-size: 11px;
 }
 
 // Fix for disabled button styles inside Tooltip component.
@@ -75,12 +81,6 @@
     margin: 0 !important;
     padding: 0 !important;
   }
-}
-
-// Fix for Ant dropdowns when they are used in Boootstrap modals
-// ANGULAR_REMOVE_ME Remove when all dialogs will be migrated to React (also search and remove usages)
-.ant-dropdown-in-bootstrap-modal {
-  z-index: 1050;
 }
 
 // Button overrides
@@ -156,6 +156,10 @@
       border-color: transparent;
       color: @pagination-color;
       line-height: @pagination-item-size - 2px;
+
+      .@{pagination-prefix-cls}.mini & {
+        line-height: @pagination-item-size-sm - 2px;
+      }
     }
 
     &:focus .@{pagination-prefix-cls}-item-link,
@@ -322,7 +326,7 @@
 }
 
 .@{btn-prefix-cls} .@{iconfont-css-prefix}-ellipsis {
-  margin: 0 -7px;
+  margin: 0 -7px 0 -8px;
 }
 
 // Collapse
@@ -362,6 +366,24 @@
     & svg {
       background: white;
       border-radius: 50%;
+    }
+  }
+
+  // for form items that contain text
+  &.form-item-line-height-normal .@{form-prefix-cls}-item-control {
+    line-height: 20px;
+    margin-top: 9px;
+  }
+}
+
+.@{menu-prefix-cls} {
+  // invert stripe position with class .invert-stripe-position
+  &-inline.invert-stripe-position {
+    .@{menu-prefix-cls}-item {
+      &::after {
+        right: auto;
+        left: 0;
+      }
     }
   }
 }

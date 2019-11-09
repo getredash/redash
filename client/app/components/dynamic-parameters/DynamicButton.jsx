@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { isFunction, get, findIndex } from 'lodash';
 import Dropdown from 'antd/lib/dropdown';
 import Icon from 'antd/lib/icon';
 import Menu from 'antd/lib/menu';
 import Typography from 'antd/lib/typography';
+import { DynamicDateType } from '@/services/parameters/DateParameter';
+import { DynamicDateRangeType } from '@/services/parameters/DateRangeParameter';
 
 import './DynamicButton.less';
 
@@ -35,29 +37,34 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
     </Menu>
   );
 
+  const containerRef = useRef(null);
+
   return (
-    <a onClick={e => e.stopPropagation()}>
-      <Dropdown.Button
-        overlay={menu}
-        className="dynamic-button"
-        placement="bottomRight"
-        trigger={['click']}
-        icon={(
-          <Icon
-            type="thunderbolt"
-            theme={enabled ? 'twoTone' : 'outlined'}
-            className="dynamic-icon"
-          />
-        )}
-        data-test="DynamicButton"
-      />
-    </a>
+    <div ref={containerRef}>
+      <a onClick={e => e.stopPropagation()}>
+        <Dropdown.Button
+          overlay={menu}
+          className="dynamic-button"
+          placement="bottomRight"
+          trigger={['click']}
+          icon={(
+            <Icon
+              type="thunderbolt"
+              theme={enabled ? 'twoTone' : 'outlined'}
+              className="dynamic-icon"
+            />
+            )}
+          getPopupContainer={() => containerRef.current}
+          data-test="DynamicButton"
+        />
+      </a>
+    </div>
   );
 }
 
 DynamicButton.propTypes = {
   options: PropTypes.arrayOf(PropTypes.object), // eslint-disable-line react/forbid-prop-types
-  selectedDynamicValue: PropTypes.string,
+  selectedDynamicValue: PropTypes.oneOfType([DynamicDateType, DynamicDateRangeType]),
   onSelect: PropTypes.func,
   enabled: PropTypes.bool,
 };

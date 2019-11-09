@@ -16,7 +16,7 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 import { Alert } from '@/services/alert';
 import { routesToAngularRoutes } from '@/lib/utils';
 
-const STATE_CLASS = {
+export const STATE_CLASS = {
   unknown: 'label-warning',
   ok: 'label-success',
   triggered: 'label-danger',
@@ -28,6 +28,13 @@ class AlertsList extends React.Component {
   };
 
   listColumns = [
+    Columns.custom.sortable((text, alert) => (
+      <i className={`fa fa-bell-${alert.options.muted ? 'slash' : 'o'} p-r-0`} />
+    ), {
+      title: <i className="fa fa-bell p-r-0" />,
+      field: 'muted',
+      width: '1%',
+    }),
     Columns.custom.sortable((text, alert) => (
       <div>
         <a className="table-main-title" href={'alerts/' + alert.id}>{alert.name}</a>

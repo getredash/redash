@@ -3,8 +3,9 @@ import yaml
 import socket
 import ipaddress
 import datetime
-from urlparse import urlparse
+from urllib.parse import urlparse
 from funcy import compact, project
+from six import text_type
 from redash.utils import json_dumps
 from redash.query_runner import (BaseHTTPQueryRunner, register,
                                  TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
@@ -25,21 +26,20 @@ def parse_query(query):
         return params
     except ValueError as e:
         logging.exception(e)
-        error = unicode(e)
+        error = text_type(e)
         raise QueryParseError(error)
 
 
 def is_private_address(url):
     hostname = urlparse(url).hostname
     ip_address = socket.gethostbyname(hostname)
-    return ipaddress.ip_address(unicode(ip_address)).is_private
+    return ipaddress.ip_address(text_type(ip_address)).is_private
 
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
     datetime.datetime: TYPE_DATETIME,
@@ -114,7 +114,7 @@ def parse_json(data, path, fields):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = u'{}.{}'.format(key, inner_key)
+                    column_name = '{}.{}'.format(key, inner_key)
                     if fields and key not in fields and column_name not in fields:
                         continue
 
@@ -156,10 +156,6 @@ class JSON(BaseHTTPQueryRunner):
             'secret': ['password'],
             'order': ['username', 'password']
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(JSON, self).__init__(configuration)

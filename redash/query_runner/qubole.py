@@ -1,8 +1,8 @@
-from __future__ import absolute_import
+
 import time
 import requests
 import logging
-from cStringIO import StringIO
+from io import StringIO
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING
@@ -11,19 +11,26 @@ from redash.utils import json_dumps
 try:
     import qds_sdk
     from qds_sdk.qubole import Qubole as qbol
-    from qds_sdk.commands import Command, HiveCommand, PrestoCommand
+    from qds_sdk.commands import Command, HiveCommand
+    from qds_sdk.commands import SqlCommand, PrestoCommand
     enabled = True
 except ImportError:
     enabled = False
 
 
 class Qubole(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
+                "query_type": {
+                    "type": "string",
+                    "title": "Query Type (quantum / presto / hive)",
+                    "default": "hive"
+                },
                 "endpoint": {
                     "type": "string",
                     "title": "API Endpoint",
@@ -37,38 +44,47 @@ class Qubole(BaseQueryRunner):
                     "type": "string",
                     "title": "Cluster Label",
                     "default": "default"
-                },
-                "query_type": {
-                    "type": "string",
-                    "title": "Query Type (hive or presto)",
-                    "default": "hive"
                 }
             },
-            "order": ["endpoint", "token", "cluster"],
-            "required": ["endpoint", "token", "cluster"],
+            "order": ["query_type", "endpoint", "token", "cluster"],
+            "required": ["endpoint", "token"],
             "secret": ["token"]
         }
+
+    @classmethod
+    def type(cls):
+        return "qubole"
+
+    @classmethod
+    def name(cls):
+        return "Qubole"
 
     @classmethod
     def enabled(cls):
         return enabled
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def test_connection(self):
         headers = self._get_header()
-        r = requests.head("%s/api/latest/users" % self.configuration['endpoint'], headers=headers)
+        r = requests.head("%s/api/latest/users" % self.configuration.get('endpoint'), headers=headers)
         r.status_code == 200
 
     def run_query(self, query, user):
-        qbol.configure(api_token=self.configuration['token'],
-                       api_url='%s/api' % self.configuration['endpoint'])
+        qbol.configure(api_token=self.configuration.get('token'),
+                       api_url='%s/api' % self.configuration.get('endpoint'))
 
         try:
-            cls = PrestoCommand if(self.configuration['query_type'] == 'presto') else HiveCommand
-            cmd = cls.create(query=query, label=self.configuration['cluster'])
+            query_type = self.configuration.get('query_type', 'hive')
+
+            if query_type == 'quantum':
+                cmd = SqlCommand.create(query=query)
+            elif query_type == 'hive':
+                cmd = HiveCommand.create(query=query, label=self.configuration.get('cluster'))
+            elif query_type == 'presto':
+                cmd = PrestoCommand.create(query=query, label=self.configuration.get('cluster'))
+            else:
+                raise Exception("Invalid Query Type:%s.\
+                        It must be : hive / presto / quantum." % self.configuration.get('query_type'))
+
             logging.info("Qubole command created with Id: %s and Status: %s", cmd.id, cmd.status)
 
             while not Command.is_done(cmd.status):
@@ -90,7 +106,7 @@ class Qubole(BaseQueryRunner):
 
                 data = results.split('\r\n')
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data.pop(0).split('\t')])
-                rows = [dict(zip((c['name'] for c in columns), row.split('\t'))) for row in data]
+                rows = [dict(zip((column['name'] for column in columns), row.split('\t'))) for row in data]
 
             json_data = json_dumps({'columns': columns, 'rows': rows})
         except KeyboardInterrupt:
@@ -106,13 +122,13 @@ class Qubole(BaseQueryRunner):
         try:
             headers = self._get_header()
             content = requests.get("%s/api/latest/hive?describe=true&per_page=10000" %
-                                   self.configuration['endpoint'], headers=headers)
+                                   self.configuration.get('endpoint'), headers=headers)
             data = content.json()
 
             for schema in data['schemas']:
                 tables = data['schemas'][schema]
                 for table in tables:
-                    table_name = table.keys()[0]
+                    table_name = list(table.keys())[0]
                     columns = [f['name'] for f in table[table_name]['columns']]
 
                     if schema != 'default':
@@ -123,10 +139,11 @@ class Qubole(BaseQueryRunner):
         except Exception as e:
             logging.error("Failed to get schema information from Qubole. Error {}".format(str(e)))
 
-        return schemas.values()
+        return list(schemas.values())
 
     def _get_header(self):
         return {"Content-type": "application/json", "Accept": "application/json",
-                "X-AUTH-TOKEN": self.configuration['token']}
+                "X-AUTH-TOKEN": self.configuration.get('token')}
+
 
 register(Qubole)

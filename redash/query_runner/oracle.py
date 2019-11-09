@@ -22,12 +22,12 @@ try:
         cx_Oracle.TIMESTAMP: TYPE_DATETIME,
     }
 
-
     ENABLED = True
 except ImportError:
     ENABLED = False
 
 logger = logging.getLogger(__name__)
+
 
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
@@ -111,7 +111,7 @@ class Oracle(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
     @classmethod
     def _convert_number(cls, value):
@@ -126,7 +126,7 @@ class Oracle(BaseSQLQueryRunner):
             return cursor.var(cx_Oracle.LONG_STRING, 80000, cursor.arraysize)
 
         if default_type in (cx_Oracle.STRING, cx_Oracle.FIXED_CHAR):
-            return cursor.var(unicode, length, cursor.arraysize)
+            return cursor.var(str, length, cursor.arraysize)
 
         if default_type == cx_Oracle.NUMBER:
             if scale <= 0:
@@ -143,7 +143,7 @@ class Oracle(BaseSQLQueryRunner):
             rows_count = cursor.rowcount
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], Oracle.get_col_type(i[1], i[5])) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                rows = [dict(zip((column['name'] for column in columns), row)) for row in cursor]
                 data = {'columns': columns, 'rows': rows}
                 error = None
                 json_data = json_dumps(data)
@@ -154,7 +154,7 @@ class Oracle(BaseSQLQueryRunner):
                 json_data = json_dumps(data)
                 connection.commit()
         except cx_Oracle.DatabaseError as err:
-            error = u"Query failed. {}.".format(err.message)
+            error = "Query failed. {}.".format(err.message)
             json_data = None
         except KeyboardInterrupt:
             connection.cancel()
@@ -164,5 +164,6 @@ class Oracle(BaseSQLQueryRunner):
             connection.close()
 
         return json_data, error
+
 
 register(Oracle)

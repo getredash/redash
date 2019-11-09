@@ -336,7 +336,7 @@ class QueryResource(BaseResource):
             query_def['query_text'] = query_def.pop('query')
 
         if 'tags' in query_def:
-            query_def['tags'] = filter(None, query_def['tags'])
+            query_def['tags'] = [tag for tag in query_def['tags'] if tag]
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
@@ -451,7 +451,7 @@ class QueryRefreshResource(BaseResource):
         require_access(query, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
-        parameterized_query = ParameterizedQuery(query.query_text)
+        parameterized_query = ParameterizedQuery(query.query_text, org=self.current_org)
 
         return run_query(parameterized_query, parameter_values, query.data_source, query.id)
 

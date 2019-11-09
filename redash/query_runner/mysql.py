@@ -2,9 +2,15 @@ import logging
 import os
 import threading
 
-from redash.query_runner import *
+from redash.query_runner import TYPE_FLOAT, TYPE_INTEGER, TYPE_DATETIME, TYPE_STRING, TYPE_DATE, BaseSQLQueryRunner, InterruptException, register
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
+
+try:
+    import MySQLdb
+    enabled = True
+except ImportError:
+    enabled = False
 
 logger = logging.getLogger(__name__)
 types_map = {
@@ -37,7 +43,8 @@ class Mysql(BaseSQLQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        show_ssl_settings = parse_boolean(os.environ.get('MYSQL_SHOW_SSL_SETTINGS', 'true'))
+        show_ssl_settings = parse_boolean(
+            os.environ.get('MYSQL_SHOW_SSL_SETTINGS', 'true'))
 
         schema = {
             'type': 'object',
@@ -74,8 +81,10 @@ class Mysql(BaseSQLQueryRunner):
                     'title': 'Use SSL'
                 },
                 'ssl_cacert': {
-                    'type': 'string',
-                    'title': 'Path to CA certificate file to verify peer against (SSL)'
+                    'type':
+                    'string',
+                    'title':
+                    'Path to CA certificate file to verify peer against (SSL)'
                 },
                 'ssl_cert': {
                     'type': 'string',
@@ -95,12 +104,26 @@ class Mysql(BaseSQLQueryRunner):
 
     @classmethod
     def enabled(cls):
-        try:
-            import MySQLdb
-        except ImportError:
-            return False
+        return enabled
 
-        return True
+    def _connection(self):
+        params = dict(host=self.configuration.get('host', ''),
+                      user=self.configuration.get('user', ''),
+                      passwd=self.configuration.get('passwd', ''),
+                      db=self.configuration['db'],
+                      port=self.configuration.get('port', 3306),
+                      charset='utf8',
+                      use_unicode=True,
+                      connect_timeout=60)
+
+        ssl_options = self._get_ssl_parameters()
+
+        if ssl_options:
+            params['ssl'] = ssl_options
+
+        connection = MySQLdb.connect(**params)
+
+        return connection
 
     def _get_tables(self, schema):
         query = """
@@ -120,7 +143,8 @@ class Mysql(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
-                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
+                table_name = '{}.{}'.format(row['table_schema'],
+                                             row['table_name'])
             else:
                 table_name = row['table_name']
 
@@ -129,26 +153,18 @@ class Mysql(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
-        import MySQLdb
-
         ev = threading.Event()
         thread_id = ""
         r = Result()
         t = None
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                         user=self.configuration.get('user', ''),
-                                         passwd=self.configuration.get('passwd', ''),
-                                         db=self.configuration['db'],
-                                         port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters(),
-                                         connect_timeout=60)
+            connection = self._connection()
             thread_id = connection.thread_id()
-            t = threading.Thread(target=self._run_query, args=(query, user, connection, r, ev))
+            t = threading.Thread(target=self._run_query,
+                                 args=(query, user, connection, r, ev))
             t.start()
             while not ev.wait(1):
                 pass
@@ -163,8 +179,6 @@ class Mysql(BaseSQLQueryRunner):
         return r.json_data, r.error
 
     def _run_query(self, query, user, connection, r, ev):
-        import MySQLdb
-
         try:
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
@@ -180,8 +194,12 @@ class Mysql(BaseSQLQueryRunner):
 
             # TODO - very similar to pg.py
             if desc is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in desc])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
+                                              for i in desc])
+                rows = [
+                    dict(zip((column['name'] for column in columns), row))
+                    for row in data
+                ]
 
                 data = {'columns': columns, 'rows': rows}
                 r.json_data = json_dumps(data)
@@ -202,12 +220,17 @@ class Mysql(BaseSQLQueryRunner):
                 connection.close()
 
     def _get_ssl_parameters(self):
+        if not self.configuration.get('use_ssl'):
+            return None
+
         ssl_params = {}
 
         if self.configuration.get('use_ssl'):
-            config_map = dict(ssl_cacert='ca',
-                              ssl_cert='cert',
-                              ssl_key='key')
+            config_map = {
+                "ssl_cacert": "ca",
+                "ssl_cert": "cert",
+                "ssl_key": "key",
+            }
             for key, cfg in config_map.items():
                 val = self.configuration.get(key)
                 if val:
@@ -216,20 +239,12 @@ class Mysql(BaseSQLQueryRunner):
         return ssl_params
 
     def _cancel(self, thread_id):
-        import MySQLdb
         connection = None
         cursor = None
         error = None
 
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                         user=self.configuration.get('user', ''),
-                                         passwd=self.configuration.get('passwd', ''),
-                                         db=self.configuration['db'],
-                                         port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters(),
-                                         connect_timeout=60)
+            connection = self._connection()
             cursor = connection.cursor()
             query = "KILL %d" % (thread_id)
             logging.debug(query)
@@ -289,10 +304,11 @@ class RDSMySQL(Mysql):
 
     def _get_ssl_parameters(self):
         if self.configuration.get('use_ssl'):
-            ca_path = os.path.join(os.path.dirname(__file__), './files/rds-combined-ca-bundle.pem')
+            ca_path = os.path.join(os.path.dirname(__file__),
+                                   './files/rds-combined-ca-bundle.pem')
             return {'ca': ca_path}
 
-        return {}
+        return None
 
 
 register(Mysql)

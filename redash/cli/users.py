@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 from sys import exit
 
 from click import BOOL, argument, option, prompt
@@ -93,7 +93,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating user: %s" % e.message)
+        print("Failed creating user: %s" % e)
         exit(1)
 
 
@@ -141,7 +141,7 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         models.db.session.add(user)
         models.db.session.commit()
     except Exception as e:
-        print("Failed creating root user: %s" % e.message)
+        print("Failed creating root user: %s" % e)
         exit(1)
 
 
@@ -222,7 +222,7 @@ def invite(email, name, inviter_email, groups, is_admin=False,
             invite_user(org, user_from, user)
             print("An invitation was sent to [%s] at [%s]." % (name, email))
         except IntegrityError as e:
-            if "email" in e.message:
+            if "email" in str(e):
                 print("Cannot invite. User already exists [%s]" % email)
             else:
                 print(e)
@@ -230,11 +230,11 @@ def invite(email, name, inviter_email, groups, is_admin=False,
         print("The inviter [%s] was not found." % inviter_email)
 
 
-@manager.command()
+@manager.command(name='list')
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
         " organizations)")
-def list(organization=None):
+def list_command(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
@@ -246,7 +246,7 @@ def list(organization=None):
             print("-" * 20)
 
         print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))
+            user.id, user.name, user.email, user.org.name, not(user.is_disabled)))
 
         groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
         group_names = [group.name for group in groups]

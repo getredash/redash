@@ -1,6 +1,6 @@
 import logging
 import yaml
-from urlparse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import requests
 
@@ -23,7 +23,7 @@ COLUMN_TYPES = {
         'pageViewsInterval', 'pageViews', 'firstVisitYear', 'firstVisitMonth',
         'firstVisitDayOfMonth', 'firstVisitDayOfWeek', 'firstVisitMinute',
         'firstVisitDekaminute',
-    )
+    ),
 }
 
 for type_, elements in COLUMN_TYPES.items():
@@ -62,9 +62,7 @@ def parse_ym_response(response):
 
 
 class YandexMetrica(BaseSQLQueryRunner):
-    @classmethod
-    def annotate_query(cls):
-        return False
+    should_annotate_query = False
 
     @classmethod
     def type(cls):
@@ -108,7 +106,7 @@ class YandexMetrica(BaseSQLQueryRunner):
 
             schema[owner]['columns'].append(counter)
 
-        return schema.values()
+        return list(schema.values())
 
     def test_connection(self):
         self._send_query('management/v1/{0}'.format(self.list_path))
@@ -135,7 +133,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             params = yaml.safe_load(query)
         except ValueError as e:
             logging.exception(e)
-            error = unicode(e)
+            error = str(e)
             return data, error
 
         if isinstance(params, dict):
@@ -150,7 +148,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             error = None
         except Exception as e:
             logging.exception(e)
-            error = unicode(e)
+            error = str(e)
         return data, error
 
 

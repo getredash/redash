@@ -1,4 +1,4 @@
-import { pick, some, find, minBy, map, intersection, isArray, omit } from 'lodash';
+import { pick, some, find, minBy, map, intersection, isEmpty, isArray } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import getTags from '@/services/getTags';
 import { policy } from '@/services/policy';
@@ -8,6 +8,7 @@ import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
+import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import notification from '@/services/notification';
 import template from './query.html';
 
@@ -42,7 +43,7 @@ function QueryViewCtrl(
     }
 
     $scope.showLog = false;
-    if ($scope.isDirty) {
+    if ($scope.isDirty || !isEmpty(selectedQueryText)) {
       $scope.queryResult = $scope.query.getQueryResultByText(maxAge, selectedQueryText);
     } else {
       $scope.queryResult = $scope.query.getQueryResult(maxAge);
@@ -215,6 +216,10 @@ function QueryViewCtrl(
 
   $scope.loadTags = () => getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 
+  $scope.applyParametersChanges = () => {
+    $scope.$apply();
+  };
+
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
 
@@ -257,7 +262,7 @@ function QueryViewCtrl(
     if (request.options && request.options.parameters) {
       request.options = {
         ...request.options,
-        parameters: map(request.options.parameters, p => omit(p, 'pendingValue')),
+        parameters: map(request.options.parameters, p => p.toSaveableObject()),
       };
     }
 
@@ -524,12 +529,11 @@ function QueryViewCtrl(
   );
 
   $scope.showManagePermissionsModal = () => {
-    $uibModal.open({
-      component: 'permissionsEditor',
-      resolve: {
-        aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
-        owner: $scope.query.user,
-      },
+    const aclUrl = `api/queries/${$routeParams.queryId}/acl`;
+    PermissionsEditorDialog.showModal({
+      aclUrl,
+      context: 'query',
+      author: $scope.query.user,
     });
   };
 }

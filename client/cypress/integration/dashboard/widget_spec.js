@@ -12,6 +12,10 @@ describe('Widget', () => {
     });
   });
 
+  const confirmDeletionInModal = () => {
+    cy.get('.ant-modal .ant-btn').contains('Delete').click({ force: true });
+  };
+
   it('adds widget', function () {
     createQuery().then(({ id: queryId }) => {
       cy.visit(this.dashboardUrl);
@@ -32,9 +36,11 @@ describe('Widget', () => {
       editDashboard();
       cy.getByTestId(elTestId)
         .within(() => {
-          cy.get('.widget-menu-remove').click();
-        })
-        .should('not.exist');
+          cy.getByTestId('WidgetDeleteButton').click();
+        });
+
+      confirmDeletionInModal();
+      cy.getByTestId(elTestId).should('not.exist');
     });
   });
 
@@ -137,6 +143,38 @@ describe('Widget', () => {
         // expect height to stay unchanged (would have been 435)
         cy.get('@widget').invoke('height').should('eq', 335);
       });
+    });
+  });
+
+  it('sets the correct height of table visualization', function () {
+    const queryData = {
+      query: `select '${'loremipsum'.repeat(15)}' FROM generate_series(1,15)`,
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization')
+        .its('0.offsetHeight')
+        .should('eq', 381);
+      cy.percySnapshot('Shows correct height of table visualization');
+    });
+  });
+
+  it('shows fixed pagination for overflowing tabular content ', function () {
+    const queryData = {
+      query: 'select \'lorem ipsum\' FROM generate_series(1,50)',
+    };
+
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+
+    createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
+      cy.visit(this.dashboardUrl);
+      cy.getByTestId('TableVisualization')
+        .next('.ant-pagination.mini')
+        .should('be.visible');
+      cy.percySnapshot('Shows fixed mini pagination for overflowing tabular content');
     });
   });
 });

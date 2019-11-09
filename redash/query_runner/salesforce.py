@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import re
 import logging
 from collections import OrderedDict
@@ -50,14 +48,11 @@ TYPES_MAP = dict(
 
 
 class Salesforce(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def enabled(cls):
         return enabled
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def configuration_schema(cls):
@@ -185,6 +180,7 @@ class Salesforce(BaseQueryRunner):
                 desc = sf.__getattr__(sobject['name']).describe()
                 fields = desc['fields']
                 schema[table_name] = {'name': table_name, 'columns': [f['name'] for f in fields]}
-        return schema.values()
+        return list(schema.values())
+
 
 register(Salesforce)

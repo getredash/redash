@@ -5,13 +5,14 @@ from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, dropdown_values
+from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
+                                               QueryDetachedFromDataSourceError, dropdown_values)
 from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
 
 
@@ -38,16 +39,26 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
 
     try:
         query.apply(parameters)
-    except InvalidParameterError as e:
+    except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
         abort(400, message=e.message)
 
     if query.missing_params:
-        return error_response(u'Missing parameter value for: {}'.format(u", ".join(query.missing_params)))
+        return error_response('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
 
     if max_age == 0:
         query_result = None
     else:
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
+
+    record_event(current_user.org, current_user, {
+        'action': 'execute_query',
+        'cache': 'hit' if query_result else 'miss',
+        'object_id': data_source.id,
+        'object_type': 'data_source',
+        'query': query.text,
+        'query_id': query_id,
+        'parameters': parameters
+    })
 
     if query_result:
         return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
@@ -65,7 +76,7 @@ def get_download_filename(query_result, query, filetype):
         filename = to_filename(query.name) if query.name != '' else str(query.id)
     else:
         filename = str(query_result.id)
-    return u"{}_{}.{}".format(filename, retrieved_at, filetype)
+    return "{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):
@@ -94,7 +105,7 @@ class QueryResultListResource(BaseResource):
         query_id = params.get('query_id', 'adhoc')
         parameters = params.get('parameters', collect_parameters_from_request(request.args))
 
-        parameterized_query = ParameterizedQuery(query)
+        parameterized_query = ParameterizedQuery(query, org=self.current_org)
 
         data_source_id = params.get('data_source_id')
         if data_source_id:
@@ -105,14 +116,6 @@ class QueryResultListResource(BaseResource):
         if not has_access(data_source, self.current_user, not_view_only):
             return error_messages['no_permission']
 
-        self.record_event({
-            'action': 'execute_query',
-            'object_id': data_source.id,
-            'object_type': 'data_source',
-            'query': query,
-            'query_id': query_id,
-            'parameters': parameters
-        })
         return run_query(parameterized_query, parameters, data_source, query_id, max_age)
 
 
@@ -123,7 +126,10 @@ class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.data_source, current_user, view_only)
-        return dropdown_values(query_id)
+        try:
+            return dropdown_values(query_id, self.current_org)
+        except QueryDetachedFromDataSourceError as e:
+            abort(400, message=e.message)
 
 
 class QueryDropdownsResource(BaseResource):
@@ -136,7 +142,7 @@ class QueryDropdownsResource(BaseResource):
             dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
             require_access(dropdown_query.data_source, current_user, view_only)
 
-        return dropdown_values(dropdown_query_id)
+        return dropdown_values(dropdown_query_id, self.current_org)
 
 
 class QueryResultResource(BaseResource):
@@ -282,7 +288,7 @@ class QueryResultResource(BaseResource):
 
             response.headers.add_header(
                 "Content-Disposition",
-                'attachment; filename="{}"'.format(filename.encode("utf-8"))
+                'attachment; filename="{}"'.format(filename)
             )
 
             return response

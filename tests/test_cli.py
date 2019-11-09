@@ -12,7 +12,7 @@ from redash.models import DataSource, Group, Organization, User, db
 class DataSourceCommandTests(BaseTestCase):
     def test_interactive_new(self):
         runner = CliRunner()
-        pg_i = query_runners.keys().index('pg') + 1
+        pg_i = list(query_runners.keys()).index('pg') + 1
         result = runner.invoke(
             manager,
             ['ds', 'new'],
@@ -221,7 +221,7 @@ class GroupCommandTests(BaseTestCase):
         self.factory.create_group(name='bgroup', permissions=['list_dashboards'])
 
         self.factory.create_user(name='Fred Foobar',
-                         email=u'foobar@example.com',
+                         email='foobar@example.com',
                          org=self.factory.org,
                          group_ids=[self.factory.default_group.id])
 
@@ -331,7 +331,7 @@ class UserCommandTests(BaseTestCase):
             input="password1\npassword1\n")
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == u"foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
         self.assertEqual(u.group_ids, [u.org.default_group.id])
@@ -343,7 +343,7 @@ class UserCommandTests(BaseTestCase):
                       '--password', 'password1', '--admin'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == u"foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
         self.assertEqual(u.group_ids, [u.org.default_group.id,
@@ -355,67 +355,67 @@ class UserCommandTests(BaseTestCase):
             manager, ['users', 'create', 'foobar@example.com', 'Fred Foobar', '--google'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == u"foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
         self.assertEqual(u.group_ids, [u.org.default_group.id])
 
     def test_create_bad(self):
-        self.factory.create_user(email=u'foobar@example.com')
+        self.factory.create_user(email='foobar@example.com')
         runner = CliRunner()
         result = runner.invoke(
-            manager, ['users', 'create', u'foobar@example.com', 'Fred Foobar'],
+            manager, ['users', 'create', 'foobar@example.com', 'Fred Foobar'],
             input="password1\npassword1\n")
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('Failed', result.output)
 
     def test_delete(self):
-        self.factory.create_user(email=u'foobar@example.com')
+        self.factory.create_user(email='foobar@example.com')
         ucount = User.query.count()
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'delete', 'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(User.query.filter(User.email ==
-                                           u"foobar@example.com").count(), 0)
+                                           "foobar@example.com").count(), 0)
         self.assertEqual(User.query.count(), ucount - 1)
 
     def test_delete_bad(self):
         ucount = User.query.count()
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'delete', u'foobar@example.com'])
+        result = runner.invoke(manager, ['users', 'delete', 'foobar@example.com'])
         self.assertIn('Deleted 0 users', result.output)
         self.assertEqual(User.query.count(), ucount)
 
     def test_password(self):
-        self.factory.create_user(email=u'foobar@example.com')
+        self.factory.create_user(email='foobar@example.com')
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy'])
+        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == u"foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertTrue(u.verify_password('xyzzy'))
 
     def test_password_bad(self):
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy'])
+        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy'])
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not found', result.output)
 
     def test_password_bad_org(self):
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy', '--org', 'default'])
+        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy', '--org', 'default'])
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not found', result.output)
 
     def test_invite(self):
-        admin = self.factory.create_user(email=u'redash-admin@example.com')
+        admin = self.factory.create_user(email='redash-admin@example.com')
         runner = CliRunner()
         with mock.patch('redash.cli.users.invite_user') as iu:
-            result = runner.invoke(manager, ['users', 'invite', u'foobar@example.com', 'Fred Foobar', u'redash-admin@example.com'])
+            result = runner.invoke(manager, ['users', 'invite', 'foobar@example.com', 'Fred Foobar', 'redash-admin@example.com'])
             self.assertFalse(result.exception)
             self.assertEqual(result.exit_code, 0)
             self.assertTrue(iu.called)
@@ -427,15 +427,15 @@ class UserCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_user(name='Fred Foobar',
-                                 email=u'foobar@example.com',
+                                 email='foobar@example.com',
                                  org=self.factory.org)
 
         self.factory.create_user(name='William Foobar',
-                                 email=u'william@example.com',
+                                 email='william@example.com',
                                  org=self.factory.org)
 
         self.factory.create_user(name='Andrew Foobar',
-                                 email=u'andrew@example.com',
+                                 email='andrew@example.com',
                                  org=self.factory.org)
 
         runner = CliRunner()
@@ -469,11 +469,11 @@ class UserCommandTests(BaseTestCase):
 
     def test_grant_admin(self):
         u = self.factory.create_user(name='Fred Foobar',
-                                     email=u'foobar@example.com',
+                                     email='foobar@example.com',
                                      org=self.factory.org,
                                      group_ids=[self.factory.default_group.id])
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'grant_admin', u'foobar@example.com'])
+        result = runner.invoke(manager, ['users', 'grant_admin', 'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         db.session.add(u)

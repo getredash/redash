@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from dateutil.parser import parse
+from six import text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
@@ -17,9 +18,8 @@ except ImportError as e:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    text_type: TYPE_STRING,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
     datetime.datetime: TYPE_DATETIME,
@@ -43,7 +43,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = u'{}.{}'.format(key, inner_key)
+                    column_name = '{}.{}'.format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append({
                             "name": column_name,
@@ -68,7 +68,7 @@ def parse_results(results):
 
 
 class Couchbase(BaseQueryRunner):
-
+    should_annotate_query = False
     noop_query = 'Select 1'
 
     @classmethod
@@ -107,10 +107,6 @@ class Couchbase(BaseQueryRunner):
     def enabled(cls):
         return True
 
-    @classmethod
-    def annotate_query(cls):
-        return False
-
     def test_connection(self):
         result = self.call_service(self.noop_query, '')
 
@@ -124,7 +120,7 @@ class Couchbase(BaseQueryRunner):
             table_name = row.get(name_param)
             schema[table_name] = {'name': table_name, 'columns': defaultColumns}
 
-        return schema.values()
+        return list(schema.values())
 
     def get_schema(self, get_stats=False):
 

@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+
 
 try:
     import snowflake.connector
@@ -60,6 +60,13 @@ class Snowflake(BaseQueryRunner):
     def enabled(cls):
         return enabled
 
+    @classmethod
+    def determine_type(cls, data_type, scale):
+        t = TYPES_MAP.get(data_type, None)
+        if t == TYPE_INTEGER and scale > 0:
+            return TYPE_FLOAT
+        return t
+
     def run_query(self, query, user):
         region = self.configuration.get('region')
 
@@ -84,8 +91,8 @@ class Snowflake(BaseQueryRunner):
             cursor.execute(query)
 
             columns = self.fetch_columns(
-                [(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-            rows = [dict(zip((c['name'] for c in columns), row))
+                    [(i[0], self.determine_type(i[1], i[5])) for i in cursor.description])
+            rows = [dict(zip((column['name'] for column in columns), row))
                     for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
@@ -122,7 +129,7 @@ class Snowflake(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Snowflake)

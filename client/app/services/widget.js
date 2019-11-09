@@ -5,6 +5,12 @@ import { registeredVisualizations } from '@/visualizations';
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
+export const WidgetTypeEnum = {
+  TEXTBOX: 'textbox',
+  VISUALIZATION: 'visualization',
+  RESTRICTED: 'restricted',
+};
+
 function calculatePositionOptions(widget) {
   widget.width = 1; // Backward compatibility, user on back-end
 
@@ -91,6 +97,15 @@ function WidgetFactory($http, $location, Query) {
       if (this.options.position.sizeY < 0) {
         this.options.position.autoHeight = true;
       }
+    }
+
+    get type() {
+      if (this.visualization) {
+        return WidgetTypeEnum.VISUALIZATION;
+      } else if (this.restricted) {
+        return WidgetTypeEnum.RESTRICTED;
+      }
+      return WidgetTypeEnum.TEXTBOX;
     }
 
     getQuery() {
@@ -238,6 +253,13 @@ function WidgetFactory($http, $location, Query) {
       });
 
       return this.options.parameterMappings;
+    }
+
+    getLocalParameters() {
+      return filter(
+        this.getParametersDefs(),
+        param => !this.isStaticParam(param),
+      );
     }
   }
 

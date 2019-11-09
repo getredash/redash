@@ -4,6 +4,8 @@ import re
 
 from dateutil import parser
 
+from six import text_type
+
 from redash.query_runner import (
     BaseHTTPQueryRunner, register,
     TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN,
@@ -26,12 +28,12 @@ def convert_type(string_value, actual_type):
         return float(string_value)
 
     if actual_type == TYPE_BOOLEAN:
-        return unicode(string_value).lower() == 'true'
+        return text_type(string_value).lower() == 'true'
 
     if actual_type == TYPE_DATETIME:
         return parser.parse(string_value)
 
-    return unicode(string_value)
+    return text_type(string_value)
 
 
 # Parse Drill API response and translate it to accepted format
@@ -53,7 +55,7 @@ def parse_response(data):
         types[col['name']] = col['type']
 
     for row in rows:
-        for key, value in row.iteritems():
+        for key, value in row.items():
             row[key] = convert_type(value, types[key])
 
     return {'columns': columns, 'rows': rows}
@@ -104,21 +106,21 @@ class Drill(BaseHTTPQueryRunner):
     def get_schema(self, get_stats=False):
 
         query = """
-        SELECT DISTINCT 
-            TABLE_SCHEMA, 
-            TABLE_NAME, 
-            COLUMN_NAME 
-        FROM 
-            INFORMATION_SCHEMA.`COLUMNS` 
-        WHERE 
-                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys') 
-            and TABLE_SCHEMA not like '%.information_schema' 
-            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA' 
-            
+        SELECT DISTINCT
+            TABLE_SCHEMA,
+            TABLE_NAME,
+            COLUMN_NAME
+        FROM
+            INFORMATION_SCHEMA.`COLUMNS`
+        WHERE
+                TABLE_SCHEMA not in ('INFORMATION_SCHEMA', 'information_schema', 'sys')
+            and TABLE_SCHEMA not like '%.information_schema'
+            and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA'
+
         """
         allowed_schemas = self.configuration.get('allowed_schemas')
         if allowed_schemas:
-            query += "and TABLE_SCHEMA in ({})".format(', '.join(map(lambda x: "'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', x)), allowed_schemas.split(','))))
+            query += "and TABLE_SCHEMA in ({})".format(', '.join(["'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', allowed_schema)) for allowed_schema in allowed_schemas.split(',')]))
 
         results, error = self.run_query(query, None)
 
@@ -130,14 +132,14 @@ class Drill(BaseHTTPQueryRunner):
         schema = {}
 
         for row in results['rows']:
-            table_name = u'{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+            table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
             schema[table_name]['columns'].append(row['COLUMN_NAME'])
 
-        return schema.values()
+        return list(schema.values())
 
 
 register(Drill)

@@ -2,7 +2,8 @@
     background-color: #fff;
     margin-bottom: @grid-gutter-width;
     position: relative;
-    box-shadow: @tile-shadow;
+    border-radius: 3px;
+    box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
     
     &[class*="bg-"] {
         color: #fff;
@@ -11,6 +12,10 @@
     @media (max-width: @screen-sm-min) {
         margin-bottom: @grid-gutter-width/2;
     }
+}
+.tiled {
+    border-radius: 3px;
+    box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
 }
 
 .t-header {
@@ -73,6 +78,15 @@
         }
     }
 }
+
+.t-header:not(.th-alt) {
+    padding: 15px;
+  
+    ul {
+      margin-bottom: 0;
+      line-height: 2.2;
+    }
+  }
 
 .tb-padding {
     padding: 20px 23px 30px;

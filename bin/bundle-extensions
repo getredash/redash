@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """Copy bundle extension files to the client/app/extension directory"""
 import logging
 import os
-from pathlib2 import Path
+from pathlib import Path
 from shutil import copy
 from collections import OrderedDict as odict
 
@@ -63,7 +62,7 @@ def load_bundles():
                 └── styles.css
 
     and would then need to register the bundle with an entry point
-    under the "redash.periodic_tasks" group, e.g. in your setup.py::
+    under the "redash.bundles" group, e.g. in your setup.py::
 
         setup(
             # ...

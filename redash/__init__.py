@@ -1,8 +1,7 @@
+from __future__ import absolute_import
 import logging
 import os
 import sys
-import urllib
-import urlparse
 
 import redis
 from flask_mail import Mail
@@ -16,7 +15,7 @@ from .app import create_app  # noqa
 from .query_runner import import_query_runners
 from .destinations import import_destinations
 
-__version__ = '8.0.0-beta'
+__version__ = '9.0.0-alpha'
 
 
 if os.environ.get("REMOTE_DEBUG"):
@@ -40,6 +39,7 @@ def setup_logging():
 setup_logging()
 
 redis_connection = redis.from_url(settings.REDIS_URL)
+rq_redis_connection = redis.from_url(settings.RQ_REDIS_URL)
 mail = Mail()
 migrate = Migrate()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)

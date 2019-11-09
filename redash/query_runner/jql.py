@@ -22,16 +22,17 @@ class ResultSet(object):
             self.columns[column] = {'name': column, 'type': column_type, 'friendly_name': column}
 
     def to_json(self):
-        return json_dumps({'rows': self.rows, 'columns': self.columns.values()})
+        return json_dumps({'rows': self.rows, 'columns': list(self.columns.values())})
 
     def merge(self, set):
         self.rows = self.rows + set.rows
+
 
 def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']
 
-    for k, v in issue['fields'].iteritems():#
+    for k, v in issue['fields'].items():#
         output_name = field_mapping.get_output_field_name(k)
         member_names = field_mapping.get_dict_members(k)
 
@@ -101,7 +102,7 @@ class FieldMapping:
 
     def __init__(cls, query_field_mapping):
         cls.mapping = []
-        for k, v in query_field_mapping.iteritems():
+        for k, v in query_field_mapping.items():
             field_name = k
             member_name = None
 
@@ -117,20 +118,20 @@ class FieldMapping:
                 'output_field_name': v
                 })
 
-    def get_output_field_name(cls,field_name):
+    def get_output_field_name(cls, field_name):
         for item in cls.mapping:
             if item['field_name'] == field_name and not item['member_name']:
                 return item['output_field_name']
         return field_name
 
-    def get_dict_members(cls,field_name):
+    def get_dict_members(cls, field_name):
         member_names = []
         for item in cls.mapping:
             if item['field_name'] == field_name and item['member_name']:
                 member_names.append(item['member_name'])
         return member_names
 
-    def get_dict_output_field_name(cls,field_name, member_name):
+    def get_dict_output_field_name(cls, field_name, member_name):
         for item in cls.mapping:
             if item['field_name'] == field_name and item['member_name'] == member_name:
                 return item['output_field_name']
@@ -143,15 +144,11 @@ class JiraJQL(BaseHTTPQueryRunner):
     requires_authentication = True
     url_title = 'JIRA URL'
     username_title = 'Username'
-    password_title = 'Password'
+    password_title = 'API Token'
 
     @classmethod
     def name(cls):
         return "JIRA (JQL)"
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def __init__(self, configuration):
         super(JiraJQL, self).__init__(configuration)
@@ -198,5 +195,6 @@ class JiraJQL(BaseHTTPQueryRunner):
             return results.to_json(), None
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
+
 
 register(JiraJQL)

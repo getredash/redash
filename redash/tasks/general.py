@@ -1,16 +1,19 @@
 import requests
+from datetime import datetime
 
-from celery.utils.log import get_task_logger
 from flask_mail import Message
-from redash import mail, models, settings
+from rq import Connection, Queue
+from rq.registry import FailedJobRegistry
+from rq.job import Job
+from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
 from redash.version_check import run_version_check
-from redash.worker import celery
+from redash.worker import job, get_job_logger
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 
 
-@celery.task(name="redash.tasks.record_event")
+@job('default')
 def record_event(raw_event):
     event = models.Event.record(raw_event)
     models.db.session.commit()
@@ -29,12 +32,11 @@ def record_event(raw_event):
             logger.exception("Failed posting to %s", hook)
 
 
-@celery.task(name="redash.tasks.version_check")
 def version_check():
     run_version_check()
 
 
-@celery.task(name="redash.tasks.subscribe")
+@job('default')
 def subscribe(form):
     logger.info("Subscribing to: [security notifications=%s], [newsletter=%s]", form['security_notifications'], form['newsletter'])
     data = {
@@ -47,7 +49,7 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
-@celery.task(name="redash.tasks.send_mail")
+@job('emails')
 def send_mail(to, subject, html, text):
     try:
         message = Message(recipients=to,
@@ -60,14 +62,19 @@ def send_mail(to, subject, html, text):
         logger.exception('Failed sending message: %s', message.subject)
 
 
-@celery.task(
-    name="redash.tasks.sync_user_details",
-    ignore_result=True,
-    soft_time_limit=60,
-    time_limit=120,
-    # let the task expire after 45 seconds since there will be
-    # another task 15 seconds later anyway
-    expires=45,
-)
 def sync_user_details():
     users.sync_last_active_at()
+
+
+def purge_failed_jobs():
+    with Connection(rq_redis_connection):
+        for queue in Queue.all():
+            failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
+            failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
+            stale_jobs = [job for job in failed_jobs if (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
+
+            for job in stale_jobs:
+                job.delete()
+
+            if stale_jobs:
+                logger.info('Purged %d old failed jobs from the %s queue.', len(stale_jobs), queue.name)

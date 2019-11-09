@@ -33,6 +33,8 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    should_annotate_query = False
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -56,10 +58,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def test_connection(self):
         engine = self._connect()
         list(engine.connection.list_tables())
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     @classmethod
     def type(cls):
@@ -93,7 +91,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             try:
                 table = engine.describe(table_name, True)
                 schema[table.name] = {'name': table.name,
-                                      'columns': table.attrs.keys()}
+                                      'columns': list(table.attrs.keys())}
             except DynamoDBError:
                 pass
 
@@ -112,7 +110,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             # When running a count query it returns the value as a string, in which case
             # we transform it into a dictionary to be the same as regular queries.
-            if isinstance(result, basestring):
+            if isinstance(result, str):
                 # when count < scanned_count, dql returns a string with number of rows scanned
                 value = result.split(" (")[0]
                 if value:
@@ -121,7 +119,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             for item in result:
                 if not columns:
-                    for k, v in item.iteritems():
+                    for k, v in item.items():
                         columns.append({
                             'name': k,
                             'friendly_name': k,
@@ -133,7 +131,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             json_data = json_dumps(data)
             error = None
         except ParseException as e:
-            error = u"Error parsing query at line {} (column {}):\n{}".format(
+            error = "Error parsing query at line {} (column {}):\n{}".format(
                 e.lineno, e.column, e.line)
             json_data = None
         except (SyntaxError, RuntimeError) as e:

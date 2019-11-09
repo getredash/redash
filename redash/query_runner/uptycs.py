@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Uptycs(BaseSQLQueryRunner):
+    should_annotate_query = False
     noop_query = "SELECT 1"
 
     @classmethod
@@ -39,10 +40,6 @@ class Uptycs(BaseSQLQueryRunner):
             "required": ["url", "customer_id", "key", "secret"],
             "secret": ["secret", "key"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def generate_header(self, key, secret):
         header = {}
@@ -132,7 +129,7 @@ class Uptycs(BaseSQLQueryRunner):
             table_json = {"name": table_name, "columns": columns}
             redash_json.append(table_json)
 
-        logger.debug("%s", schema.values())
+        logger.debug("%s", list(schema.values()))
         return redash_json
 
 

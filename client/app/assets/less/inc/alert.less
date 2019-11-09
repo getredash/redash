@@ -1,45 +1,53 @@
-.alert {
-    padding-left: 30px;
-    padding-right: 30px;
+.alert-page h3 {
+    flex-grow: 1;
     
-    span {
-        cursor: pointer;
+    input {
+        margin: -0.2em 0;
+        width: 100%;
+        min-width: 170px;
     }
 }
 
-.alert-dismissable,
-.alert-dismissible {
-    padding-right: 44px;
-} 
-
-.alert-inverse {
-    .alert-variant(@alert-inverse-bg; @alert-inverse-border; @alert-inverse-text);
+.btn-create-alert[disabled] {
+    display: block;
+    margin-top: -20px;
 }
 
-.alert-link {
-    color: #fff !important;
-    font-weight: normal !important;
-    text-decoration: underline;
+.alert-state {
+    border-bottom: 1px solid @input-border;
+    padding-bottom: 30px;
+
+    .alert-state-indicator {
+        text-transform: uppercase;
+        font-size: 14px;
+        padding: 5px 8px;
+    }
+
+    .alert-last-triggered {
+        color: @headings-color;
+    }
 }
 
-.growl-animated {
-    &.alert-inverse {
-        box-shadow: 0 0 5px fade(@alert-inverse-bg, 50%);
-    }
-    
-    &.alert-info {
-        box-shadow: 0 0 5px fade(@alert-info-bg, 50%);
-    }
+.alert-query-selector {
+    min-width: 250px;
+    width: auto !important;
+}
 
-    &.alert-success {
-        box-shadow: 0 0 5px fade(@alert-success-bg, 50%);
-    }
+// allow form item labels to gracefully break line
+.alert-form-item label {
+    white-space: initial;
+    padding-right: 8px;
+    line-height: 21px;
 
-    &.alert-warning {
-        box-shadow: 0 0 5px fade(@alert-warning-bg, 50%);
+    &::after {
+        margin-right: 0 !important;
     }
+}
 
-    &.alert-danger {
-        box-shadow: 0 0 5px fade(@alert-danger-bg, 50%);
-    }
+.alert-actions {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: -15px;
 }

@@ -19,7 +19,7 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        available_query_runners = filter(lambda q: not q.deprecated, query_runners.values())
+        available_query_runners = [q for q in query_runners.values() if not q.deprecated]
         return [q.to_dict() for q in sorted(available_query_runners, key=lambda q: q.name())]
 
 
@@ -56,7 +56,7 @@ class DataSourceResource(BaseResource):
         try:
             models.db.session.commit()
         except IntegrityError as e:
-            if req['name'] in e.message:
+            if req['name'] in str(e):
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
 
             abort(400)
@@ -109,7 +109,7 @@ class DataSourceListResource(BaseResource):
             'object_type': 'datasource',
         })
 
-        return sorted(response.values(), key=lambda d: d['name'].lower())
+        return sorted(list(response.values()), key=lambda d: d['name'].lower())
 
     @require_admin
     def post(self):
@@ -121,8 +121,6 @@ class DataSourceListResource(BaseResource):
             abort(400)
 
         config = ConfigurationContainer(filter_none(req['options']), schema)
-        # from IPython import embed
-        # embed()
         if not config.is_valid():
             abort(400)
 
@@ -134,7 +132,7 @@ class DataSourceListResource(BaseResource):
 
             models.db.session.commit()
         except IntegrityError as e:
-            if req['name'] in e.message:
+            if req['name'] in str(e):
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
 
             abort(400)

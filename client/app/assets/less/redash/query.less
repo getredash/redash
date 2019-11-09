@@ -5,6 +5,7 @@ body.fixed-layout {
   app-view {
     display: flex;
     flex-direction: column;
+    padding-bottom: 0;
 
     width: 100vw;
     height: 100vh;
@@ -92,7 +93,7 @@ edit-in-place p.editable:hover {
 }
 
 .filter-container {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .ace_editor.ace_autocomplete .ace_completion-highlight {
@@ -208,16 +209,16 @@ edit-in-place p.editable:hover {
   }
 }
 
-.visualization-renderer {
-  .pagination,
-  .ant-pagination {
-    margin-top: 10px;
-  }
-}
-
 .embed__vis {
   display: flex;
   flex-flow: column;
+}
+
+.embed-heading {
+  h3 {
+    line-height: 1.75;
+    margin: 0;
+  }
 }
 
 .widget-wrapper {
@@ -343,7 +344,8 @@ a.label-tag {
       border-bottom: 1px solid #efefef;
     }
 
-    .pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+    .pivot-table-visualization-container > table,
+    .visualization-renderer > .visualization-renderer-wrapper {
       overflow: visible;
     }
 
@@ -676,8 +678,17 @@ nav .rg-bottom {
   .filter-container {
     padding-right: 0;
   }
+}
 
-  .btn-edit-visualisation {
+// Responsive fixes
+@media (max-width: 767px) {
+  .query-page-wrapper {
+    h3 {
+      font-size: 18px;
+    }
 
+    favorites-control {
+      margin-top: -3px;
+    }
   }
 }

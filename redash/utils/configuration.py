@@ -1,4 +1,5 @@
 import jsonschema
+import copy
 from jsonschema import ValidationError
 from sqlalchemy.ext.mutable import Mutable
 
@@ -24,7 +25,13 @@ class ConfigurationContainer(Mutable):
         self.set_schema(schema)
 
     def set_schema(self, schema):
-        self._schema = schema
+        configuration_schema = copy.deepcopy(schema)
+        if isinstance(configuration_schema, dict):
+            for prop in configuration_schema.get('properties', {}).values():
+                if 'extendedEnum' in prop:
+                    prop['enum'] = map(lambda v: v['value'], prop['extendedEnum'])
+                    del prop['extendedEnum']
+        self._schema = configuration_schema
 
     @property
     def schema(self):
@@ -48,7 +55,7 @@ class ConfigurationContainer(Mutable):
         return json_dumps(self._config, sort_keys=True)
 
     def iteritems(self):
-        return self._config.iteritems()
+        return self._config.items()
 
     def to_dict(self, mask_secrets=False):
         if mask_secrets is False or 'secret' not in self.schema:
@@ -65,7 +72,7 @@ class ConfigurationContainer(Mutable):
         jsonschema.validate(new_config, self.schema)
 
         config = {}
-        for k, v in new_config.iteritems():
+        for k, v in new_config.items():
             if k in self.schema.get('secret', []) and v == SECRET_PLACEHOLDER:
                 config[k] = self[k]
             else:

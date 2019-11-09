@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import os
 from .helpers import parse_boolean
 
@@ -35,6 +35,7 @@ SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
     os.environ.get('REDASH_SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES', 'false'))
 
 settings = {
+    "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
     "auth_saml_entity_id": SAML_ENTITY_ID,

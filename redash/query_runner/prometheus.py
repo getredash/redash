@@ -2,7 +2,7 @@ import requests
 import time
 from datetime import datetime
 from dateutil import parser
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
 
@@ -64,6 +64,7 @@ def convert_query_range(payload):
 
 
 class Prometheus(BaseQueryRunner):
+    should_annotate_query = False
 
     @classmethod
     def configuration_schema(cls):
@@ -77,10 +78,6 @@ class Prometheus(BaseQueryRunner):
             },
             "required": ["url"]
         }
-
-    @classmethod
-    def annotate_query(cls):
-        return False
 
     def test_connection(self):
         resp = requests.get(self.configuration.get("url", None))
@@ -96,7 +93,7 @@ class Prometheus(BaseQueryRunner):
         schema = {}
         for name in data:
             schema[name] = {'name': name, 'columns': []}
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         """

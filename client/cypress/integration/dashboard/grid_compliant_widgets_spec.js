@@ -1,7 +1,7 @@
 /* global cy */
 
 import { createDashboard, addTextbox } from '../../support/redash-api';
-import { getWidgetTestId, editDashboard, dragBy, resizeBy } from '../../support/dashboard';
+import { getWidgetTestId, editDashboard, resizeBy } from '../../support/dashboard';
 
 
 describe('Grid compliant widgets', () => {
@@ -26,19 +26,22 @@ describe('Grid compliant widgets', () => {
       });
 
       it('stays put when dragged under snap threshold', () => {
-        dragBy(cy.get('@textboxEl'), 90)
+        cy.get('@textboxEl')
+          .dragBy(90)
           .invoke('offset')
           .should('have.property', 'left', 15); // no change, 15 -> 15
       });
 
       it('moves one column when dragged over snap threshold', () => {
-        dragBy(cy.get('@textboxEl'), 110)
+        cy.get('@textboxEl')
+          .dragBy(110)
           .invoke('offset')
           .should('have.property', 'left', 215); //  moved by 200, 15 -> 215
       });
 
       it('moves two columns when dragged over snap threshold', () => {
-        dragBy(cy.get('@textboxEl'), 330)
+        cy.get('@textboxEl')
+          .dragBy(330)
           .invoke('offset')
           .should('have.property', 'left', 415); //  moved by 400, 15 -> 415
       });
@@ -49,7 +52,8 @@ describe('Grid compliant widgets', () => {
       cy.route('POST', 'api/widgets/*').as('WidgetSave');
 
       editDashboard();
-      dragBy(cy.get('@textboxEl'), 330);
+      cy.get('@textboxEl')
+        .dragBy(330);
       cy.wait('@WidgetSave');
     });
   });

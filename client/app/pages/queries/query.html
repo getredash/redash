@@ -42,7 +42,12 @@
               <a ng-show="!sourceMode" ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide">
                 <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit Source</i>
               </a>
-              <a ng-show="sourceMode" ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide">
+              <a
+                ng-show="sourceMode"
+                ng-href="{{query.getUrl(false, selectedTab)}}"
+                class="btn btn-default btn--showhide"
+                data-test="QueryPageShowDataOnly"
+              >
                 <i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
               </a>
             </span>
@@ -85,9 +90,12 @@
       <div class="editor__left__data-source">
         <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode"
           on-select="updateDataSource()" data-test="SelectDataSource">
-          <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
+          <ui-select-match placeholder="Select Data Source..." class="align-items-center">
+            <img ng-src="/static/images/db-logos/{{$select.selected.type}}.png" width="20" height="20" style="vertical-align: top">
+            {{$select.selected.name}}
+          </ui-select-match>
           <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
-            {{ds.name}}
+            <img ng-src="/static/images/db-logos/{{ds.type}}.png" width="20" height="20" class="m-r-5">{{ds.name}}
           </ui-select-choices>
         </ui-select>
       </div>
@@ -191,8 +199,8 @@
           <section class="flex-fill p-relative t-body query-visualizations-wrapper">
             <div class="d-flex flex-column p-b-15 p-absolute static-position__mobile" style="left: 0; top: 0; right: 0; bottom: 0;">
               <div class="p-t-15 p-b-5" ng-if="query.hasParameters()">
-                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"
-                  on-updated="onParametersUpdated" on-values-change="executeQuery"></parameters>
+                <parameters parameters="query.getParametersDefs()" editable="sourceMode && canEdit" disable-url-update="query.isNew()"
+                  on-values-change="executeQuery" on-pending-values-change="applyParametersChanges" on-parameters-edit="onParametersUpdated"></parameters>
               </div>
               <!-- Query Execution Status -->
 
@@ -240,7 +248,7 @@
                     </li>
                   </ul>
                   <div ng-if="selectedVisualization && queryResult" class="query__vis m-t-15 p-b-15 scrollbox" data-test="QueryPageVisualization{{ selectedVisualization.id }}">
-                    <visualization-renderer visualization="selectedVisualization" query-result="queryResult"></visualization-renderer>
+                    <visualization-renderer visualization="selectedVisualization" query-result="queryResult" context="'query'"></visualization-renderer>
                   </div>
                 </div>
               </div>
