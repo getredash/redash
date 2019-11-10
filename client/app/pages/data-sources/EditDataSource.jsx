@@ -12,6 +12,7 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 class EditDataSource extends React.Component {
   static propTypes = {
@@ -134,11 +135,11 @@ class EditDataSource extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageEditDataSource', react2angular(EditDataSource));
+  ngModule.component('pageEditDataSource', react2angular(wrapSettingsTab(null, EditDataSource)));
 
   return {
     '/data_sources/:dataSourceId': {
-      template: '<settings-screen><page-edit-data-source on-error="handleError"></page-edit-data-source></settings-screen>',
+      template: '<page-edit-data-source on-error="handleError"></page-edit-data-source>',
       title: 'Data Sources',
       controller($scope, $exceptionHandler) {
         'ngInject';

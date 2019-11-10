@@ -14,9 +14,9 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 
 import CreateGroupDialog from '@/components/groups/CreateGroupDialog';
 import DeleteGroupButton from '@/components/groups/DeleteGroupButton';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 import { Group } from '@/services/group';
-import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import navigateTo from '@/services/navigateTo';
 import { routesToAngularRoutes } from '@/lib/utils';
@@ -121,14 +121,12 @@ class GroupsList extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageGroupsList', react2angular(wrapSettingsTab({
     permission: 'list_users',
     title: 'Groups',
     path: 'groups',
     order: 3,
-  });
-
-  ngModule.component('pageGroupsList', react2angular(liveItemsList(
+  }, liveItemsList(
     GroupsList,
     new ResourceItemsSource({
       isPlainList: true,
@@ -143,7 +141,7 @@ export default function init(ngModule) {
       },
     }),
     new StateStorage({ orderByField: 'name', itemsPerPage: 10 }),
-  )));
+  ))));
 
   return routesToAngularRoutes([
     {
@@ -153,7 +151,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<settings-screen><page-groups-list on-error="handleError"></page-groups-list></settings-screen>',
+    template: '<page-groups-list on-error="handleError"></page-groups-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 
