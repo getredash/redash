@@ -25,19 +25,28 @@ class Jobs extends React.Component {
     workers: [],
   };
 
+  _refreshTimer = null;
+
   componentDidMount() {
     recordEvent('view', 'page', 'admin/rq_status');
-    $http
-      .get('/api/admin/queries/rq_status')
-      .then(({ data }) => this.processQueues(data))
-      .catch(error => this.handleError(error));
+    this.refresh();
   }
 
   componentWillUnmount() {
     // Ignore data after component unmounted
+    clearTimeout(this._refreshTimer);
     this.processQueues = () => {};
     this.handleError = () => {};
   }
+
+  refresh = () => {
+    $http
+      .get('/api/admin/queries/rq_status')
+      .then(({ data }) => this.processQueues(data))
+      .catch(error => this.handleError(error));
+
+    this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
+  };
 
   processQueues = ({ queues, workers }) => {
     const queueCounters = values(queues).map(({ started, ...rest }) => ({
