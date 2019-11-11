@@ -23,8 +23,7 @@ rq_scheduler = Scheduler(connection=rq_redis_connection,
 
 def job_id(kwargs):
     metadata = kwargs.copy()
-    if 'func' in metadata:
-        metadata['func'] = metadata['func'].__name__
+    metadata['func'] = metadata['func'].__name__
 
     return hashlib.sha1(json.dumps(metadata, sort_keys=True).encode()).hexdigest()
 
