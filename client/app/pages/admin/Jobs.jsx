@@ -16,6 +16,7 @@ import moment from 'moment';
 
 class Jobs extends React.Component {
   state = {
+    activeTab: location.hash.replace('#', '') || null,
     isLoading: true,
     error: null,
 
@@ -76,7 +77,12 @@ class Jobs extends React.Component {
   };
 
   render() {
-    const { isLoading, error, queueCounters, startedJobs, overallCounters, workers } = this.state;
+    const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
+
+    const changeTab = (newTab) => {
+      location.replace(`${location.pathname}#${newTab}`);
+      this.setState({ activeTab: newTab });
+    };
 
     return (
       <Layout activeTab="jobs">
@@ -96,7 +102,7 @@ class Jobs extends React.Component {
                 </Grid.Col>
               </Grid.Row>
 
-              <Tabs defaultActiveKey="queues" animated={false}>
+              <Tabs activeKey={activeTab || 'queues'} onTabClick={changeTab} animated={false}>
                 <Tabs.TabPane key="queues" tab="Queues">
                   <QueuesTable loading={isLoading} items={queueCounters} />
                 </Tabs.TabPane>
