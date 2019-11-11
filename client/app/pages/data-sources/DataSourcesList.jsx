@@ -2,7 +2,6 @@ import React from 'react';
 import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
 import { isEmpty, get } from 'lodash';
-import settingsMenu from '@/services/settingsMenu';
 import { DataSource, IMG_ROOT } from '@/services/data-source';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
@@ -13,6 +12,7 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
 import DynamicComponent from '@/components/DynamicComponent';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 import recordEvent from '@/services/recordEvent';
 
 class DataSourcesList extends React.Component {
@@ -115,14 +115,12 @@ class DataSourcesList extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageDataSourcesList', react2angular(wrapSettingsTab({
     permission: 'admin',
     title: 'Data Sources',
     path: 'data_sources',
     order: 1,
-  });
-
-  ngModule.component('pageDataSourcesList', react2angular(DataSourcesList));
+  }, DataSourcesList)));
 
   return routesToAngularRoutes([
     {
@@ -137,7 +135,7 @@ export default function init(ngModule) {
       isNewDataSourcePage: true,
     },
   ], {
-    template: '<settings-screen><page-data-sources-list></page-data-sources-list></settings-screen>',
+    template: '<page-data-sources-list></page-data-sources-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

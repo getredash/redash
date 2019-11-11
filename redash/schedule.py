@@ -12,7 +12,7 @@ from rq_scheduler import Scheduler
 from redash import settings, rq_redis_connection
 from redash.tasks import (sync_user_details, refresh_queries,
                           empty_schedules, refresh_schemas,
-                          cleanup_query_results,
+                          cleanup_query_results, purge_failed_jobs,
                           version_check, send_aggregated_errors)
 
 logger = logging.getLogger(__name__)
@@ -49,6 +49,7 @@ def periodic_job_definitions():
         {"func": empty_schedules, "interval": timedelta(minutes=60)},
         {"func": refresh_schemas, "interval": timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)},
         {"func": sync_user_details, "timeout": 60, "ttl": 45, "interval": timedelta(minutes=1)},
+        {"func": purge_failed_jobs, "interval": timedelta(days=1)},
         {"func": send_aggregated_errors, "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL)}
     ]
 
