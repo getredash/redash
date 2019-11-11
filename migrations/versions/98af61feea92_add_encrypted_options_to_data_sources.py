@@ -29,7 +29,7 @@ def upgrade():
     data_sources = table(
         'data_sources',
         sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(sa.Text, settings.SECRET_KEY, FernetEngine))),
+        sa.Column('encrypted_options', ConfigurationContainer.as_mutable(EncryptedConfiguration(sa.Text, settings.DATASOURCE_SECRET_KEY, FernetEngine))),
         sa.Column('options', ConfigurationContainer.as_mutable(Configuration)))
 
     conn = op.get_bind()
