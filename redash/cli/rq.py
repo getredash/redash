@@ -9,14 +9,15 @@ from rq import Connection, Worker
 from sqlalchemy.orm import configure_mappers
 
 from redash import rq_redis_connection
-from redash.schedule import rq_scheduler, schedule_periodic_jobs
+from redash.schedule import rq_scheduler, schedule_periodic_jobs, periodic_job_definitions
 
 manager = AppGroup(help="RQ management commands.")
 
 
 @manager.command()
 def scheduler():
-    schedule_periodic_jobs()
+    jobs = periodic_job_definitions()
+    schedule_periodic_jobs(jobs)
     rq_scheduler.run()
 
 
