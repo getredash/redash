@@ -102,12 +102,21 @@ def add_periodic_tasks(sender, **kwargs):
 class HardTimeLimitingWorker(Worker):
     grace_period = 15
 
+    def soft_limit_exceeded(self, job):
+        seconds_under_monitor = (utcnow() - self.monitor_started).seconds
+        return seconds_under_monitor > job.timeout + self.grace_period
+
+    def enforce_hard_limit(self, job):
+        self.log.warning('Job %s exceeded timeout of %ds (+%ds grace period) but work horse did not terminate it. '
+                         'Killing the work horse.', job.id, job.timeout, self.grace_period)
+        self.kill_horse()
+
     def monitor_work_horse(self, job):
         """The worker will monitor the work horse and make sure that it
         either executes successfully or the status of the job is set to
         failed
         """
-        monitor_started = utcnow()
+        self.monitor_started = utcnow()
         while True:
             try:
                 with UnixSignalDeathPenalty(self.job_monitoring_interval, HorseMonitorTimeoutException):
@@ -118,11 +127,8 @@ class HardTimeLimitingWorker(Worker):
                 # Send a heartbeat to keep the worker alive.
                 self.heartbeat(self.job_monitoring_interval + 5)
 
-                seconds_under_monitor = (utcnow() - monitor_started).seconds
-                if seconds_under_monitor > job.timeout + self.grace_period:
-                    self.log.warning('Job %s exceeded timeout of %ds (+%ds grace period) but work horse did not terminate it. '
-                                     'Killing the work horse.', job.id, job.timeout, self.grace_period)
-                    self.kill_horse()
+                if self.soft_limit_exceeded(job):
+                    self.enforce_hard_limit(job)
             except OSError as e:
                 # In case we encountered an OSError due to EINTR (which is
                 # caused by a SIGINT or SIGTERM signal during
