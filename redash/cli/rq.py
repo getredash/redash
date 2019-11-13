@@ -5,10 +5,11 @@ import datetime
 
 from click import argument
 from flask.cli import AppGroup
-from rq import Connection, Worker
+from rq import Connection
 from sqlalchemy.orm import configure_mappers
 
 from redash import rq_redis_connection
+from redash.worker import HardTimeLimitingWorker as Worker
 from redash.schedule import rq_scheduler, schedule_periodic_jobs, periodic_job_definitions
 
 manager = AppGroup(help="RQ management commands.")
