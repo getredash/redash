@@ -82,7 +82,6 @@ class Jobs extends React.Component {
     const changeTab = (newTab) => {
       $location.hash(newTab);
       $rootScope.$applyAsync();
-      location.replace(`${location.pathname}#${newTab}`);
       this.setState({ activeTab: newTab });
     };
 
