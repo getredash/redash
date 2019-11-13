@@ -45,9 +45,12 @@ describe('Funnel', () => {
       Funnel.StepColumn.a
       Funnel.ValueColumn
       Funnel.ValueColumn.b
+
+      Funnel.CustomSort
       Funnel.SortColumn
       Funnel.SortColumn.b
-      Funnel.SortReverse
+      Funnel.SortDirection
+      Funnel.SortDirection.Ascending
     `);
 
     cy.fillInputs({

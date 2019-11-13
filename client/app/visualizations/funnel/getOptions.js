@@ -3,6 +3,7 @@ import { isFinite, map, merge, includes } from 'lodash';
 const DEFAULT_OPTIONS = {
   stepCol: { colName: null, displayAs: 'Steps' },
   valueCol: { colName: null, displayAs: 'Value' },
+  autoSort: true,
   sortKeyCol: { colName: null, reverse: false },
   itemsLimit: 100,
   percentValuesRange: { min: 0.01, max: 1000.0 },
@@ -32,9 +33,7 @@ export default function getOptions(options, { columns }) {
     options.itemsLimit = 2;
   }
 
-  // Backward compatibility
   if (options.autoSort) {
-    delete options.autoSort;
     options.sortKeyCol.colName = options.valueCol.colName;
     options.sortKeyCol.reverse = true;
   }

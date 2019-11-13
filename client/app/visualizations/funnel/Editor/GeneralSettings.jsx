@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
-import Switch from 'antd/lib/switch';
+import Checkbox from 'antd/lib/checkbox';
 import * as Grid from 'antd/lib/grid';
 import { EditorPropTypes } from '@/visualizations';
 
@@ -84,40 +84,62 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         </Grid.Col>
       </Grid.Row>
 
-      <Grid.Row type="flex" align="middle" className="m-b-15">
-        <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-sort-column-name">Sort Column</label>
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <Select
-            id="funnel-editor-sort-column-name"
-            className="w-100"
-            data-test="Funnel.SortColumn"
-            allowClear
-            placeholder="Choose column..."
-            defaultValue={options.sortKeyCol.colName || undefined}
-            onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
-          >
-            {map(columnNames, col => (
-              <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>{col}</Select.Option>
-            ))}
-          </Select>
-        </Grid.Col>
-      </Grid.Row>
 
-      <Grid.Row type="flex" align="middle" className="m-b-15">
-        <Grid.Col span={12}>
-          <label htmlFor="funnel-editor-sort-reverse">Reverse Order</label>
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <Switch
-            id="funnel-editor-sort-reverse"
-            data-test="Funnel.SortReverse"
-            defaultChecked={options.sortKeyCol.reverse}
-            onChange={reverse => onOptionsChange({ sortKeyCol: { reverse } })}
+      <div className="m-b-15">
+        <label htmlFor="funnel-editor-custom-sort">
+          <Checkbox
+            id="funnel-editor-custom-sort"
+            data-test="Funnel.CustomSort"
+            checked={!options.autoSort}
+            onChange={event => onOptionsChange({ autoSort: !event.target.checked })}
           />
-        </Grid.Col>
-      </Grid.Row>
+          <span>Custom Sorting</span>
+        </label>
+      </div>
+
+      {!options.autoSort && (
+        <React.Fragment>
+          <Grid.Row type="flex" align="middle" className="m-b-15">
+            <Grid.Col span={12}>
+              <label htmlFor="funnel-editor-sort-column-name">Sort Column</label>
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <Select
+                id="funnel-editor-sort-column-name"
+                className="w-100"
+                data-test="Funnel.SortColumn"
+                allowClear
+                placeholder="Choose column..."
+                defaultValue={options.sortKeyCol.colName || undefined}
+                onChange={colName => onOptionsChange({ sortKeyCol: { colName: colName || null } })}
+              >
+                {map(columnNames, col => (
+                  <Select.Option key={col} data-test={`Funnel.SortColumn.${col}`}>{col}</Select.Option>
+                ))}
+              </Select>
+            </Grid.Col>
+          </Grid.Row>
+
+          <Grid.Row type="flex" align="middle" className="m-b-15">
+            <Grid.Col span={12}>
+              <label htmlFor="funnel-editor-sort-reverse">Sort Order</label>
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <Select
+                id="funnel-editor-sort-reverse"
+                className="w-100"
+                data-test="Funnel.SortDirection"
+                disabled={!options.sortKeyCol.colName}
+                defaultValue={options.sortKeyCol.reverse ? 'desc' : 'asc'}
+                onChange={order => onOptionsChange({ sortKeyCol: { reverse: order === 'desc' } })}
+              >
+                <Select.Option value="asc" data-test="Funnel.SortDirection.Ascending">ascending</Select.Option>
+                <Select.Option value="desc" data-test="Funnel.SortDirection.Descending">descending</Select.Option>
+              </Select>
+            </Grid.Col>
+          </Grid.Row>
+        </React.Fragment>
+      )}
     </React.Fragment>
   );
 }
