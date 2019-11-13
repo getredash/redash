@@ -1,5 +1,5 @@
 import { merge } from 'lodash';
-import { ColorPalette } from './utils';
+import ColorPalette from './ColorPalette';
 
 const DEFAULT_OPTIONS = {
   mapType: 'countries',

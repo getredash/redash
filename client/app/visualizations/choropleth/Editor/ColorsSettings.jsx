@@ -5,7 +5,7 @@ import InputNumber from 'antd/lib/input-number';
 import * as Grid from 'antd/lib/grid';
 import ColorPicker from '@/components/ColorPicker';
 import { EditorPropTypes } from '@/visualizations';
-import { ColorPalette } from '../utils';
+import ColorPalette from '../ColorPalette';
 
 export default function ColorsSettings({ options, onOptionsChange }) {
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);

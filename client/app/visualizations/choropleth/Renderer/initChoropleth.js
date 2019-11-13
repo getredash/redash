@@ -5,7 +5,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
-import ColorPicker from '@/components/ColorPicker';
 import { formatSimpleTemplate } from '@/lib/value-format';
 import { $sanitize } from '@/services/ng';
 import resizeObserver from '@/services/resizeObserver';
@@ -17,6 +16,7 @@ import {
   getValueForFeature,
   prepareFeatureProperties,
 } from './utils';
+import Legend from './Legend';
 
 const CustomControl = L.Control.extend({
   options: {
@@ -31,17 +31,50 @@ const CustomControl = L.Control.extend({
   },
 });
 
-function ChoroplethLegend({ items, formatValue, alignText }) { // eslint-disable-line react/prop-types
-  return (
-    <div className="choropleth-visualization-legend">
-      {map(items, (item, index) => (
-        <div key={`legend${index}`} className="d-flex align-items-center">
-          <ColorPicker.Swatch color={item.color} className="m-r-5" />
-          <div className={`flex-fill text-${alignText}`}>{formatValue(item.limit)}</div>
-        </div>
-      ))}
-    </div>
+function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
+  const value = getValueForFeature(feature, data, options.countryCodeType);
+  const valueFormatted = formatValue(value);
+  const featureData = prepareFeatureProperties(
+    feature,
+    valueFormatted,
+    data,
+    options.countryCodeType,
   );
+  const color = getColorByValue(value, limits, colors, options.colors.noValue);
+
+  layer.setStyle({
+    color: options.colors.borders,
+    weight: 1,
+    fillColor: color,
+    fillOpacity: 1,
+  });
+
+  if (options.tooltip.enabled) {
+    layer.bindTooltip($sanitize(formatSimpleTemplate(
+      options.tooltip.template,
+      featureData,
+    )), { sticky: true });
+  }
+
+  if (options.popup.enabled) {
+    layer.bindPopup($sanitize(formatSimpleTemplate(
+      options.popup.template,
+      featureData,
+    )));
+  }
+
+  layer.on('mouseover', () => {
+    layer.setStyle({
+      weight: 2,
+      fillColor: darkenColor(color),
+    });
+  });
+  layer.on('mouseout', () => {
+    layer.setStyle({
+      weight: 1,
+      fillColor: color,
+    });
+  });
 }
 
 export default function initChoropleth(container) {
@@ -89,50 +122,8 @@ export default function initChoropleth(container) {
     const formatValue = createNumberFormatter(options.valueFormat, options.noValuePlaceholder);
 
     _choropleth = L.geoJSON(geoJson, {
-      onEachFeature: (feature, layer) => {
-        const value = getValueForFeature(feature, data, options.countryCodeType);
-        const valueFormatted = formatValue(value);
-        const featureData = prepareFeatureProperties(
-          feature,
-          valueFormatted,
-          data,
-          options.countryCodeType,
-        );
-        const color = getColorByValue(value, limits, colors, options.colors.noValue);
-
-        layer.setStyle({
-          color: options.colors.borders,
-          weight: 1,
-          fillColor: color,
-          fillOpacity: 1,
-        });
-
-        if (options.tooltip.enabled) {
-          layer.bindTooltip($sanitize(formatSimpleTemplate(
-            options.tooltip.template,
-            featureData,
-          )), { sticky: true });
-        }
-
-        if (options.popup.enabled) {
-          layer.bindPopup($sanitize(formatSimpleTemplate(
-            options.popup.template,
-            featureData,
-          )));
-        }
-
-        layer.on('mouseover', () => {
-          layer.setStyle({
-            weight: 2,
-            fillColor: darkenColor(color),
-          });
-        });
-        layer.on('mouseout', () => {
-          layer.setStyle({
-            weight: 1,
-            fillColor: color,
-          });
-        });
+      onEachFeature(feature, layer) {
+        prepareLayer({ feature, layer, data, options, limits, colors, formatValue });
       },
     }).addTo(_map);
 
@@ -148,7 +139,10 @@ export default function initChoropleth(container) {
       _legend.setPosition(options.legend.position.replace('-', ''));
       _map.addControl(_legend);
       ReactDOM.render(
-        <ChoroplethLegend items={legend} formatValue={formatValue} alignText={options.legend.alignText} />,
+        <Legend
+          items={map(legend, item => ({ ...item, text: formatValue(item.limit) }))}
+          alignText={options.legend.alignText}
+        />,
         _legend.getContainer(),
       );
     }

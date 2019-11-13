@@ -2,7 +2,7 @@ import { map } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import { EditorPropTypes } from '@/visualizations';
-import { inferCountryCodeType } from '../utils';
+import { inferCountryCodeType } from './utils';
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
   const countryCodeTypes = useMemo(() => {
