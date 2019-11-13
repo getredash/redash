@@ -9,14 +9,14 @@ import Layout from '@/components/admin/Layout';
 import { CounterCard } from '@/components/admin/CeleryStatus';
 import { WorkersTable, QueuesTable, OtherJobsTable } from '@/components/admin/RQStatus';
 
-import { $http } from '@/services/ng';
+import { $http, $location, $rootScope } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
 import moment from 'moment';
 
 class Jobs extends React.Component {
   state = {
-    activeTab: location.hash.replace('#', '') || null,
+    activeTab: $location.hash(),
     isLoading: true,
     error: null,
 
@@ -80,6 +80,8 @@ class Jobs extends React.Component {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
 
     const changeTab = (newTab) => {
+      $location.hash(newTab);
+      $rootScope.$applyAsync();
       location.replace(`${location.pathname}#${newTab}`);
       this.setState({ activeTab: newTab });
     };
