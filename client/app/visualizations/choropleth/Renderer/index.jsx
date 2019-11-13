@@ -55,7 +55,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
       map.updateLayers(
         geoJson,
         prepareData(data.rows, optionsWithoutBounds.countryCodeColumn, optionsWithoutBounds.valueColumn),
-        optionsWithoutBounds,
+        options, // detect changes for all options except bounds, but pass them all!
       );
     }
   }, [map, geoJson, data, optionsWithoutBounds]);

@@ -29,6 +29,9 @@ const CustomControl = L.Control.extend({
     div.style.backgroundClip = 'padding-box';
     return div;
   },
+  onRemove() {
+    ReactDOM.unmountComponentAtNode(this.getContainer());
+  },
 });
 
 function prepareLayer({ feature, layer, data, options, limits, colors, formatValue }) {
@@ -91,14 +94,16 @@ export default function initChoropleth(container) {
   const _legend = new CustomControl();
 
   let onBoundsChange = () => {};
-  let boundsChangedFromMap = false;
-  const onMapMoveEnd = () => {
+  function handleMapBoundsChange() {
     const bounds = _map.getBounds();
     onBoundsChange([
       [bounds._southWest.lat, bounds._southWest.lng],
       [bounds._northEast.lat, bounds._northEast.lng],
     ]);
-  };
+  }
+
+  let boundsChangedFromMap = false;
+  const onMapMoveEnd = () => { handleMapBoundsChange(); };
   _map.on('focus', () => {
     boundsChangedFromMap = true;
     _map.on('moveend', onMapMoveEnd);
@@ -127,15 +132,17 @@ export default function initChoropleth(container) {
       },
     }).addTo(_map);
 
-    // prevent `setMaxBounds` animation
-    const bounds = _map.getBounds();
-    const maxBounds = _choropleth.getBounds();
-    _map.fitBounds(maxBounds, { animate: false, duration: 0 });
-    _map.setMaxBounds(maxBounds);
-    _map.fitBounds(bounds, { animate: false, duration: 0 });
+    const bounds = _choropleth.getBounds();
+    _map.fitBounds(options.bounds || bounds, { animate: false, duration: 0 });
+    _map.setMaxBounds(bounds);
+
+    // send updated bounds to editor; delay this to avoid infinite update loop
+    setTimeout(() => {
+      handleMapBoundsChange();
+    }, 10);
 
     // update legend
-    if (legend.length > 0) {
+    if (options.legend.visible && (legend.length > 0)) {
       _legend.setPosition(options.legend.position.replace('-', ''));
       _map.addControl(_legend);
       ReactDOM.render(
@@ -171,7 +178,7 @@ export default function initChoropleth(container) {
     updateBounds,
     destroy() {
       unwatchResize();
-      ReactDOM.unmountComponentAtNode(_legend.getContainer());
+      _map.removeControl(_legend); // _map.remove() does not cleanup controls - bug in Leaflet?
       _map.remove();
     },
   };
