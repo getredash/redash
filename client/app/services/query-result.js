@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from 'lodash';
+import { uniqBy, each, includes, extend, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -87,44 +87,18 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
         this.status = 'done';
 
         const columnTypes = {};
-
-        // TODO: we should stop manipulating incoming data, and switch to relaying
-        // on the column type set by the backend. This logic is prone to errors,
-        // and better be removed. Kept for now, for backward compatability.
-        each(this.query_result.data.rows, (row) => {
-          forOwn(row, (v, k) => {
-            let newType = null;
-            if (isNumber(v)) {
-              newType = 'float';
-            } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-              row[k] = moment.utc(v);
-              newType = 'datetime';
-            } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-              row[k] = moment.utc(v);
-              newType = 'date';
-            } else if (typeof v === 'object' && v !== null) {
-              row[k] = JSON.stringify(v);
-            } else {
-              newType = 'string';
-            }
-
-            if (newType !== null) {
-              if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
-                columnTypes[k] = 'string';
-              } else {
-                columnTypes[k] = newType;
-              }
-            }
-          });
-        });
-
         each(this.query_result.data.columns, (column) => {
           column.name = '' + column.name;
-          if (columnTypes[column.name]) {
-            if (column.type == null || column.type === 'string') {
-              column.type = columnTypes[column.name];
+          columnTypes[column.name] = column.type;
+        });
+
+        // Parse any dates
+        each(this.query_result.data.rows, (row) => {
+          forOwn(row, (v, k) => {
+            if ((columnTypes[k] === 'date' || columnTypes[k] === 'datetime') && v !== null) {
+              row[k] = moment.utc(v);
             }
-          }
+          });
         });
 
         this.deferred.resolve(this);
