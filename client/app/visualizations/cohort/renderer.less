@@ -1,0 +1,18 @@
+@import (reference, less) '~@/assets/less/inc/variables';
+
+.cohort-visualization-container {
+  .cornelius-table {
+    width: 100%;
+
+    &, tr, th, td {
+      border-color: @table-border-color;
+    }
+
+    .cornelius-time,
+    .cornelius-label,
+    .cornelius-stage,
+    .cornelius-people {
+      background-color: fade(@redash-gray, 3%);
+    }
+  }
+}
