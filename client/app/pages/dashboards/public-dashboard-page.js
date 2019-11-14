@@ -1,5 +1,6 @@
 import PromiseRejectionError from '@/lib/promise-rejection-error';
-import logoUrl from '@/assets/images/redash_icon_small.png';
+//import logoUrl from '@/assets/images/redash_icon_small.png';
+import logoUrl from '@/assets/images/sunnxt_logo.png';
 import template from './public-dashboard-page.html';
 import dashboardGridOptions from '@/config/dashboard-grid-options';
 import './dashboard.less';
