@@ -333,7 +333,7 @@ function DashboardComponent(props) {
           widgets={dashboard.widgets}
           filters={filters}
           isEditing={editingLayout}
-          onLayoutChange={saveDashboardLayout}
+          onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
           onBreakpointChange={setGridDisabled}
           onLoadWidget={loadWidget}
           onRefreshWidget={refreshWidget}
