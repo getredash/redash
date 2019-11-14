@@ -43,11 +43,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           id="choropleth-editor-map-type"
           className="w-100"
+          data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
           onChange={mapType => handleChangeAndInferType({ mapType })}
         >
-          <Select.Option key="countries">Countries</Select.Option>
-          <Select.Option key="subdiv_japan">Japan/Prefectures</Select.Option>
+          <Select.Option key="countries" data-test="Choropleth.Editor.MapType.Countries">Countries</Select.Option>
+          <Select.Option key="subdiv_japan" data-test="Choropleth.Editor.MapType.Japan">Japan/Prefectures</Select.Option>
         </Select>
       </div>
 
@@ -56,11 +57,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           id="choropleth-editor-key-column"
           className="w-100"
+          data-test="Choropleth.Editor.KeyColumn"
           defaultValue={options.countryCodeColumn}
           onChange={countryCodeColumn => handleChangeAndInferType({ countryCodeColumn })}
         >
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={`Choropleth.Editor.KeyColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
       </div>
@@ -70,11 +72,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           id="choropleth-editor-key-type"
           className="w-100"
+          data-test="Choropleth.Editor.KeyType"
           value={options.countryCodeType}
           onChange={countryCodeType => onOptionsChange({ countryCodeType })}
         >
           {map(countryCodeTypes, (name, type) => (
-            <Select.Option key={type}>{name}</Select.Option>
+            <Select.Option key={type} data-test={`Choropleth.Editor.KeyType.${type}`}>{name}</Select.Option>
           ))}
         </Select>
       </div>
@@ -84,11 +87,12 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         <Select
           id="choropleth-editor-value-column"
           className="w-100"
+          data-test="Choropleth.Editor.ValueColumn"
           defaultValue={options.valueColumn}
           onChange={valueColumn => onOptionsChange({ valueColumn })}
         >
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={`Choropleth.Editor.ValueColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
       </div>
