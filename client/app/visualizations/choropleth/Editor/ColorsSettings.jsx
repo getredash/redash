@@ -106,7 +106,7 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <ColorPicker
             id="choropleth-editor-color-background"
-            data-test="Choropleth.Editor.Colors.Backbround"
+            data-test="Choropleth.Editor.Colors.Background"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
