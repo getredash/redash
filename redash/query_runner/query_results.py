@@ -38,7 +38,11 @@ def _load_query(user, query_id):
     # TODO: this duplicates some of the logic we already have in the redash.handlers.query_results.
     # We should merge it so it's consistent.
     if not has_access(query.data_source, user, view_only):
+<<<<<<< HEAD
         raise PermissionError("You do not have access to query id {}.".format(
+=======
+        raise PermissionError(u"You do not have access to query id {}.".format(
+>>>>>>> tags/v8.0.0
             query.id))
 
     return query
@@ -99,8 +103,13 @@ def create_table(connection, table_name, query_results):
         logger.debug("CREATE TABLE query: %s", create_table)
         connection.execute(create_table)
     except sqlite3.OperationalError as exc:
+<<<<<<< HEAD
         raise CreateTableError("Error creating table {}: {}".format(
             table_name, str(exc)))
+=======
+        raise CreateTableError(u"Error creating table {}: {}".format(
+            table_name, exc.message))
+>>>>>>> tags/v8.0.0
 
     insert_template = "insert into {table_name} ({column_list}) values ({place_holders})".format(
         table_name=table_name,

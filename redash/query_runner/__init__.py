@@ -83,8 +83,13 @@ class BaseQueryRunner(object):
         if not self.should_annotate_query:
             return query
 
+<<<<<<< HEAD
         annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.items()])
         annotated_query = "/* {} */ {}".format(annotation, query)
+=======
+        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
+        annotated_query = u"/* {} */ {}".format(annotation, query)
+>>>>>>> tags/v8.0.0
         return annotated_query
 
     def test_connection(self):

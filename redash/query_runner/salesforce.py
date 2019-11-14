@@ -49,7 +49,11 @@ TYPES_MAP = dict(
 
 class Salesforce(BaseQueryRunner):
     should_annotate_query = False
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> tags/v8.0.0
     @classmethod
     def enabled(cls):
         return enabled

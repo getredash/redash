@@ -1,6 +1,10 @@
 {
   "name": "redash-client",
+<<<<<<< HEAD
   "version": "9.0.0-alpha",
+=======
+  "version": "8.0.0",
+>>>>>>> tags/v8.0.0
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -80,12 +84,19 @@
     "react-ace": "^6.1.0",
     "react-dom": "^16.8.3",
     "react-grid-layout": "git+https://github.com/getredash/react-grid-layout.git",
+<<<<<<< HEAD
     "react-pivottable": "^0.9.0",
     "react-sortable-hoc": "^1.10.1",
     "react2angular": "^3.2.1",
     "tinycolor2": "^1.4.1",
     "ui-select": "^0.19.8",
     "use-debounce": "^3.1.0"
+=======
+    "react-sortable-hoc": "^1.9.1",
+    "react2angular": "^3.2.1",
+    "tinycolor2": "^1.4.1",
+    "ui-select": "^0.19.8"
+>>>>>>> tags/v8.0.0
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

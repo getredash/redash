@@ -3,7 +3,10 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
+<<<<<<< HEAD
 from sentry_sdk.integrations.rq import RqIntegration
+=======
+>>>>>>> tags/v8.0.0
 from redash import settings, __version__
 
 
@@ -26,6 +29,10 @@ def init():
             release=__version__,
             before_send=before_send,
             send_default_pii=True,
+<<<<<<< HEAD
             integrations=[FlaskIntegration(), CeleryIntegration(), SqlalchemyIntegration(),
                           RedisIntegration(), RqIntegration()]
+=======
+            integrations=[FlaskIntegration(), CeleryIntegration(), SqlalchemyIntegration(), RedisIntegration()]
+>>>>>>> tags/v8.0.0
         )

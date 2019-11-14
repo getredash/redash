@@ -2,9 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { size, filter, forEach, extend } from 'lodash';
 import { react2angular } from 'react2angular';
+<<<<<<< HEAD
 import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
 import { $location } from '@/services/ng';
 import { Parameter } from '@/services/parameters';
+=======
+import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import { $location } from '@/services/ng';
+import { Parameter } from '@/services/query';
+>>>>>>> tags/v8.0.0
 import ParameterApplyButton from '@/components/ParameterApplyButton';
 import ParameterValueInput from '@/components/ParameterValueInput';
 import EditParameterSettingsDialog from './EditParameterSettingsDialog';
@@ -12,6 +18,21 @@ import { toHuman } from '@/filters';
 
 import './Parameters.less';
 
+<<<<<<< HEAD
+=======
+const DragHandle = sortableHandle(({ parameterName }) => (
+  <div className="drag-handle" data-test={`DragHandle-${parameterName}`} />
+));
+
+const SortableItem = sortableElement(({ className, parameterName, disabled, children }) => (
+  <div className={className} data-editable={!disabled || null}>
+    {!disabled && <DragHandle parameterName={parameterName} />}
+    {children}
+  </div>
+));
+const SortableContainer = sortableContainer(({ children }) => children);
+
+>>>>>>> tags/v8.0.0
 function updateUrl(parameters) {
   const params = extend({}, $location.search());
   parameters.forEach((param) => {
@@ -38,12 +59,20 @@ export class Parameters extends React.Component {
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
+<<<<<<< HEAD
   };
+=======
+  }
+>>>>>>> tags/v8.0.0
 
   constructor(props) {
     super(props);
     const { parameters } = props;
+<<<<<<< HEAD
     this.state = { parameters };
+=======
+    this.state = { parameters, dragging: false };
+>>>>>>> tags/v8.0.0
     if (!props.disableUrlUpdate) {
       updateUrl(parameters);
     }
@@ -89,6 +118,14 @@ export class Parameters extends React.Component {
         return { parameters };
       });
     }
+<<<<<<< HEAD
+=======
+    this.setState({ dragging: false });
+  };
+
+  onBeforeSortStart = () => {
+    this.setState({ dragging: true });
+>>>>>>> tags/v8.0.0
   };
 
   applyChanges = () => {
@@ -96,10 +133,17 @@ export class Parameters extends React.Component {
     this.setState(({ parameters }) => {
       const parametersWithPendingValues = parameters.filter(p => p.hasPendingValue);
       forEach(parameters, p => p.applyPendingValue());
+<<<<<<< HEAD
       if (!disableUrlUpdate) {
         updateUrl(parameters);
       }
       onValuesChange(parametersWithPendingValues);
+=======
+      onValuesChange(parametersWithPendingValues);
+      if (!disableUrlUpdate) {
+        updateUrl(parameters);
+      }
+>>>>>>> tags/v8.0.0
       return { parameters };
     });
   };
@@ -111,7 +155,11 @@ export class Parameters extends React.Component {
       .result.then((updated) => {
         this.setState(({ parameters }) => {
           const updatedParameter = extend(parameter, updated);
+<<<<<<< HEAD
           parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
+=======
+          parameters[index] = new Parameter(updatedParameter, updatedParameter.parentQueryId);
+>>>>>>> tags/v8.0.0
           onParametersEdit();
           return { parameters };
         });
@@ -145,6 +193,10 @@ export class Parameters extends React.Component {
           parameter={param}
           enumOptions={param.enumOptions}
           queryId={param.queryId}
+<<<<<<< HEAD
+=======
+          allowMultipleValues={!!param.multiValuesOptions}
+>>>>>>> tags/v8.0.0
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
         />
       </div>
@@ -152,18 +204,26 @@ export class Parameters extends React.Component {
   }
 
   render() {
+<<<<<<< HEAD
     const { parameters } = this.state;
+=======
+    const { parameters, dragging } = this.state;
+>>>>>>> tags/v8.0.0
     const { editable } = this.props;
     const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
     return (
       <SortableContainer
+<<<<<<< HEAD
         disabled={!editable}
+=======
+>>>>>>> tags/v8.0.0
         axis="xy"
         useDragHandle
         lockToContainerEdges
         helperClass="parameter-dragged"
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
+<<<<<<< HEAD
         containerProps={{
           className: 'parameter-container',
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
@@ -178,6 +238,23 @@ export class Parameters extends React.Component {
           </SortableElement>
         ))}
         <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
+=======
+      >
+        <div
+          className="parameter-container"
+          onKeyDown={dirtyParamCount ? this.handleKeyDown : null}
+          data-draggable={editable || null}
+          data-dragging={dragging || null}
+        >
+          {parameters.map((param, index) => (
+            <SortableItem className="parameter-block" key={param.name} index={index} parameterName={param.name} disabled={!editable}>
+              {this.renderParameter(param, index)}
+            </SortableItem>
+          ))}
+
+          <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
+        </div>
+>>>>>>> tags/v8.0.0
       </SortableContainer>
     );
   }

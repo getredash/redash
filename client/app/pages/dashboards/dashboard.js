@@ -157,7 +157,14 @@ function DashboardCtrl(
       ),
     ) : this.dashboard.widgets;
 
+<<<<<<< HEAD
     const queryResultPromises = _.compact(affectedWidgets.map(widget => this.loadWidget(widget, forceRefresh)));
+=======
+    const queryResultPromises = _.compact(affectedWidgets.map((widget) => {
+      widget.getParametersDefs(); // Force widget to read parameters values from URL
+      return widget.load(forceRefresh);
+    }));
+>>>>>>> tags/v8.0.0
 
     return $q.all(queryResultPromises).then((queryResults) => {
       this.filters = collectDashboardFilters(dashboard, queryResults, $location.search());

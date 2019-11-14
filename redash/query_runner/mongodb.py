@@ -7,6 +7,7 @@ from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
+from redash.utils.compat import long
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,11 @@ def parse_oids(oids):
 
 
 def datetime_parser(dct):
+<<<<<<< HEAD
     for k, v in dct.items():
+=======
+    for k, v in dct.iteritems():
+>>>>>>> tags/v8.0.0
         if isinstance(v, string_types):
             m = date_regex.findall(v)
             if len(m) > 0:

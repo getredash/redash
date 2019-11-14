@@ -23,6 +23,7 @@ body {
     background: #F6F8F9;
     font-family: @redash-font;
     position: relative;
+<<<<<<< HEAD
 
     app-view {
       padding-bottom: 15px;
@@ -35,6 +36,13 @@ body {
         }
 
         .app-header-wrapper {
+=======
+    
+    &.headless {
+        padding-top: 10px;
+        
+        .nav.app-header, .navbar {
+>>>>>>> tags/v8.0.0
             display: none;
         }
     }
@@ -58,20 +66,20 @@ strong {
     position: relative;
     padding-top: 30px;
     padding-bottom: 30px;
-
+    
     @media (min-width: (@screen-sm-min + 1)) {
         padding-right: 15px;
         padding-left: 15px;
     }
-
+    
     @media (min-width: (@screen-lg-min + 80px)) {
         margin-left: @sidebar-left-width;
     }
-
+    
     @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
         margin-left: @sidebar-left-mid-width;
     }
-
+    
     @media (max-width: (@screen-sm-min)) {
         margin-left: 0;
     }
@@ -85,7 +93,11 @@ strong {
 
 // Fixed width layout for specific pages
 @media (min-width: 768px) {
+<<<<<<< HEAD
     .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+=======
+    settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+>>>>>>> tags/v8.0.0
         .container {
             width: 750px;
         }
@@ -93,7 +105,11 @@ strong {
 }
 
 @media (min-width: 992px) {
+<<<<<<< HEAD
     .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+=======
+    settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+>>>>>>> tags/v8.0.0
         .container {
             width: 970px;
         }
@@ -101,7 +117,11 @@ strong {
 }
 
 @media (min-width: 1200px) {
+<<<<<<< HEAD
     .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+=======
+    settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
+>>>>>>> tags/v8.0.0
         .container {
             width: 1170px;
         }
@@ -140,11 +160,19 @@ strong {
     .ace_gutter {
         background: #fff !important;
     }
+<<<<<<< HEAD
 
     .ace_gutter-active-line {
         background-color: fade(@redash-gray, 20%) !important;
     }
 
+=======
+    
+    .ace_gutter-active-line {
+        background-color: fade(@redash-gray, 20%) !important;
+    }
+    
+>>>>>>> tags/v8.0.0
     .ace_marker-layer .ace_active-line {
         background: fade(@redash-gray, 9%) !important;
     }
@@ -162,7 +190,11 @@ strong {
 
 .rg-bottom {
     bottom: 15px;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> tags/v8.0.0
     span {
         margin: 1.5px 0 0 -10px;
     }
@@ -187,7 +219,11 @@ text.slicetext {
     color: #111;
 }
 
+<<<<<<< HEAD
 .profile__image--sidebar {
+=======
+.profile__image--navbar {
+>>>>>>> tags/v8.0.0
     border-radius: 100%;
     margin-right: 3px;
     margin-top: -2px;
@@ -216,27 +252,39 @@ text.slicetext {
     padding: 35px;
     font-size: 14px;
     line-height: 21px;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> tags/v8.0.0
     .error-state__icon {
         .zmdi {
             font-size: 64px;
             color: @redash-gray;
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> tags/v8.0.0
     @media (max-width: 767px) {
         margin-top: 10vh;
     }
 }
 
+<<<<<<< HEAD
 .warning-icon-danger {
     color: @red !important;
 }
 
+=======
+>>>>>>> tags/v8.0.0
 // page
 .page-header--new .btn-favourite, .page-header--new .btn-archive {
     font-size: 19px;
   }
+<<<<<<< HEAD
 
   .page-title {
     display: flex;
@@ -246,10 +294,22 @@ text.slicetext {
       margin-right: 5px !important;
     }
 
+=======
+  
+  .page-title {
+    display: flex;
+    align-items: center;
+  
+    h3 {
+      margin-right: 5px !important;
+    }
+  
+>>>>>>> tags/v8.0.0
     .label {
       margin-top: 3px;
       display: inline-block;
     }
+<<<<<<< HEAD
 
     favorites-control {
       margin-right: 5px;
@@ -262,6 +322,20 @@ text.slicetext {
         float: left;
       }
 
+=======
+  
+    favorites-control {
+      margin-right: 5px;
+    }
+  
+    @media (max-width: 767px) {
+      display: block;
+  
+      favorites-control {
+        float: left;
+      }
+  
+>>>>>>> tags/v8.0.0
       h3 {
         width: 100%;
         margin-bottom: 5px !important;
@@ -269,7 +343,11 @@ text.slicetext {
       }
     }
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> tags/v8.0.0
   .page-header-wrapper, .page-header--new {
     h3 {
       margin: 0.2em 0;
@@ -280,4 +358,8 @@ text.slicetext {
 
   .select-option-divider {
     margin: 10px 0 !important;
+<<<<<<< HEAD
   }
+=======
+  }
+>>>>>>> tags/v8.0.0

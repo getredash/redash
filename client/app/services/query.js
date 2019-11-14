@@ -28,6 +28,329 @@ function collectParams(parts) {
   return parameters;
 }
 
+<<<<<<< HEAD
+=======
+function isEmptyValue(value) {
+  return isNull(value) || isUndefined(value) || (value === '') || (isArray(value) && value.length === 0);
+}
+
+function isDateParameter(paramType) {
+  return includes(['date', 'datetime-local', 'datetime-with-seconds'], paramType);
+}
+
+function isDateRangeParameter(paramType) {
+  return includes(['date-range', 'datetime-range', 'datetime-range-with-seconds'], paramType);
+}
+
+export function isDynamicDate(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
+  }
+  return !!DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function isDynamicDateRange(value) {
+  if (!startsWith(value, DYNAMIC_PREFIX)) {
+    return false;
+  }
+  return !!DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function getDynamicDate(value) {
+  if (!isDynamicDate(value)) {
+    return null;
+  }
+  return DYNAMIC_DATES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export function getDynamicDateRange(value) {
+  if (!isDynamicDateRange(value)) {
+    return null;
+  }
+  return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
+}
+
+export class Parameter {
+  constructor(parameter, parentQueryId) {
+    this.title = parameter.title;
+    this.name = parameter.name;
+    this.type = parameter.type;
+    this.useCurrentDateTime = parameter.useCurrentDateTime;
+    this.global = parameter.global; // backward compatibility in Widget service
+    this.enumOptions = parameter.enumOptions;
+    this.multiValuesOptions = parameter.multiValuesOptions;
+    this.queryId = parameter.queryId;
+    this.parentQueryId = parentQueryId;
+
+    // Used for meta-parameters (i.e. dashboard-level params)
+    this.locals = [];
+
+    // validate value and init internal state
+    this.setValue(parameter.value);
+
+    // Used for URL serialization
+    Object.defineProperty(this, 'urlPrefix', {
+      configurable: true,
+      enumerable: false, // don't save it
+      writable: true,
+      value: 'p_',
+    });
+  }
+
+  clone() {
+    return new Parameter(this, this.parentQueryId);
+  }
+
+  get isEmpty() {
+    return isNull(this.getValue());
+  }
+
+  get hasDynamicValue() {
+    if (isDateParameter(this.type)) {
+      return isDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return isDynamicDateRange(this.value);
+    }
+    return false;
+  }
+
+  get dynamicValue() {
+    if (isDateParameter(this.type)) {
+      return getDynamicDate(this.value);
+    }
+    if (isDateRangeParameter(this.type)) {
+      return getDynamicDateRange(this.value);
+    }
+    return false;
+  }
+
+  getValue(extra = {}) {
+    return this.constructor.getValue(this, extra);
+  }
+
+  static getValue(param, extra = {}) {
+    const { value, type, useCurrentDateTime, multiValuesOptions } = param;
+    if (isDateRangeParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        const dateRange = dynamicValue.value();
+        return {
+          start: dateRange[0].format(DATETIME_FORMATS[type]),
+          end: dateRange[1].format(DATETIME_FORMATS[type]),
+        };
+      }
+      return null;
+    }
+
+    if (isDateParameter(type) && param.hasDynamicValue) {
+      const { dynamicValue } = param;
+      if (dynamicValue) {
+        return dynamicValue.value().format(DATETIME_FORMATS[type]);
+      }
+      return null;
+    }
+
+    if (isEmptyValue(value)) {
+      // keep support for existing useCurentDateTime (not available in UI)
+      if (
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], type) &&
+        useCurrentDateTime
+      ) {
+        return moment().format(DATETIME_FORMATS[type]);
+      }
+      return null; // normalize empty value
+    }
+    if (type === 'number') {
+      return normalizeNumericValue(value, null); // normalize empty value
+    }
+
+    // join array in frontend when query is executed as a text
+    const { joinListValues } = extra;
+    if (includes(['enum', 'query'], type) && multiValuesOptions && isArray(value) && joinListValues) {
+      const separator = get(multiValuesOptions, 'separator', ',');
+      const prefix = get(multiValuesOptions, 'prefix', '');
+      const suffix = get(multiValuesOptions, 'suffix', '');
+      const parameterValues = map(value, v => `${prefix}${v}${suffix}`);
+      return join(parameterValues, separator);
+    }
+    return value;
+  }
+
+  setValue(value) {
+    if (this.type === 'enum') {
+      const enumOptionsArray = this.enumOptions && this.enumOptions.split('\n') || [];
+      if (this.multiValuesOptions) {
+        if (!isArray(value)) {
+          value = [value];
+        }
+        value = intersection(value, enumOptionsArray);
+      } else if (!value || isArray(value) || !includes(enumOptionsArray, value)) {
+        value = enumOptionsArray[0];
+      }
+    }
+
+    if (isDateRangeParameter(this.type)) {
+      this.value = null;
+      this.$$value = null;
+
+      if (isObject(value) && !isArray(value)) {
+        value = [value.start, value.end];
+      }
+
+      if (isArray(value) && (value.length === 2)) {
+        value = [moment(value[0]), moment(value[1])];
+        if (value[0].isValid() && value[1].isValid()) {
+          this.value = {
+            start: value[0].format(DATETIME_FORMATS[this.type]),
+            end: value[1].format(DATETIME_FORMATS[this.type]),
+          };
+          this.$$value = value;
+        }
+      } else if (isDynamicDateRange(value)) {
+        const dynamicDateRange = getDynamicDateRange(value, this.type);
+        if (dynamicDateRange) {
+          this.value = value;
+          this.$$value = value;
+        }
+      }
+    } else if (isDateParameter(this.type)) {
+      this.value = null;
+      this.$$value = null;
+
+      if (isDynamicDate(value)) {
+        const dynamicDate = getDynamicDate(value);
+        if (dynamicDate) {
+          this.value = value;
+          this.$$value = value;
+        }
+      } else {
+        value = moment(value);
+        if (value.isValid()) {
+          this.value = value.format(DATETIME_FORMATS[this.type]);
+          this.$$value = value;
+        }
+      }
+    } else if (this.type === 'number') {
+      this.value = value;
+      this.$$value = normalizeNumericValue(value, null);
+    } else {
+      this.value = value;
+      this.$$value = value;
+    }
+
+    if (isArray(this.locals)) {
+      each(this.locals, (local) => {
+        local.setValue(this.value);
+      });
+    }
+
+    this.clearPendingValue();
+
+    return this;
+  }
+
+  setPendingValue(value) {
+    this.pendingValue = value;
+  }
+
+  applyPendingValue() {
+    if (this.hasPendingValue) {
+      this.setValue(this.pendingValue);
+    }
+  }
+
+  clearPendingValue() {
+    this.setPendingValue(undefined);
+  }
+
+  get hasPendingValue() {
+    // normalize empty values
+    const pendingValue = isEmptyValue(this.pendingValue) ? null : this.pendingValue;
+    const value = isEmptyValue(this.value) ? null : this.value;
+
+    return this.pendingValue !== undefined && pendingValue !== value;
+  }
+
+  get normalizedValue() {
+    return this.$$value;
+  }
+
+  // TODO: Remove this property when finally moved to React
+  get ngModel() {
+    return this.normalizedValue;
+  }
+
+  set ngModel(value) {
+    this.setValue(value);
+  }
+
+  toUrlParams() {
+    if (this.isEmpty) {
+      return {};
+    }
+    const prefix = this.urlPrefix;
+    if (isDateRangeParameter(this.type) && isObject(this.value)) {
+      return {
+        [`${prefix}${this.name}.start`]: this.value.start,
+        [`${prefix}${this.name}.end`]: this.value.end,
+        [`${prefix}${this.name}`]: null,
+      };
+    }
+    if (this.multiValuesOptions && isArray(this.value)) {
+      return { [`${prefix}${this.name}`]: JSON.stringify(this.value) };
+    }
+    return {
+      [`${prefix}${this.name}`]: this.value,
+      [`${prefix}${this.name}.start`]: null,
+      [`${prefix}${this.name}.end`]: null,
+    };
+  }
+
+  fromUrlParams(query) {
+    const prefix = this.urlPrefix;
+    if (isDateRangeParameter(this.type)) {
+      const key = `${prefix}${this.name}`;
+      const keyStart = `${prefix}${this.name}.start`;
+      const keyEnd = `${prefix}${this.name}.end`;
+      if (has(query, key)) {
+        this.setValue(query[key]);
+      } else if (has(query, keyStart) && has(query, keyEnd)) {
+        this.setValue([query[keyStart], query[keyEnd]]);
+      }
+    } else {
+      const key = `${prefix}${this.name}`;
+      if (has(query, key)) {
+        if (this.multiValuesOptions) {
+          try {
+            this.setValue(JSON.parse(query[key]));
+          } catch (e) {
+            this.setValue(query[key]);
+          }
+        } else {
+          this.setValue(query[key]);
+        }
+      }
+    }
+  }
+
+  toQueryTextFragment() {
+    if (isDateRangeParameter(this.type)) {
+      return `{{ ${this.name}.start }} {{ ${this.name}.end }}`;
+    }
+    return `{{ ${this.name} }}`;
+  }
+
+  loadDropdownValues() {
+    if (this.parentQueryId) {
+      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).$promise;
+    }
+
+    return Query.asDropdown({ id: this.queryId }).$promise;
+  }
+}
+
+>>>>>>> tags/v8.0.0
 class Parameters {
   constructor(query, queryString) {
     this.query = query;

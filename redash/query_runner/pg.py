@@ -144,7 +144,21 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
+<<<<<<< HEAD
         build_schema(results, schema)
+=======
+        for row in results['rows']:
+            if row['table_schema'] != 'public':
+                table_name = u'{}.{}'.format(row['table_schema'],
+                                             row['table_name'])
+            else:
+                table_name = row['table_name']
+
+            if table_name not in schema:
+                schema[table_name] = {'name': table_name, 'columns': []}
+
+            schema[table_name]['columns'].append(row['column_name'])
+>>>>>>> tags/v8.0.0
 
     def _get_tables(self, schema):
         '''
@@ -214,7 +228,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
                                               for i in cursor.description])
                 rows = [
+<<<<<<< HEAD
                     dict(zip((column['name'] for column in columns), row))
+=======
+                    dict(zip((c['name'] for c in columns), row))
+>>>>>>> tags/v8.0.0
                     for row in cursor
                 ]
 
@@ -304,6 +322,20 @@ class Redshift(PostgreSQL):
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
+        
+    def annotate_query(self, query, metadata):
+        annotated = super(Redshift, self).annotate_query(query, metadata)
+
+        if metadata.get('Scheduled', False):
+            query_group = self.configuration.get('scheduled_query_group')
+        else:
+            query_group = self.configuration.get('adhoc_query_group')
+        
+        if query_group:
+            set_query_group = 'set query_group to {};'.format(query_group)
+            annotated = '{}\n{}'.format(set_query_group, annotated)
+        
+        return annotated
 
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)

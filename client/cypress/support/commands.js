@@ -65,6 +65,7 @@ Cypress.Commands.add('dragBy', { prevSubject: true }, (subject, offsetLeft, offs
     .trigger('mousemove', offsetLeft, offsetTop, { force })
     .trigger('mouseup', { force });
 });
+<<<<<<< HEAD
 
 Cypress.Commands.add('all', (...functions) => {
   if (Cypress._.isEmpty(functions)) {
@@ -81,3 +82,5 @@ Cypress.Commands.add('all', (...functions) => {
 
   return cy.wrap(results);
 });
+=======
+>>>>>>> tags/v8.0.0

@@ -22,6 +22,13 @@ from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 
+<<<<<<< HEAD
+=======
+try:
+    buffer
+except NameError:
+    buffer = bytes
+>>>>>>> tags/v8.0.0
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')

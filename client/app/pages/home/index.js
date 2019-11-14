@@ -1,7 +1,7 @@
 import template from './home.html';
 import notification from '@/services/notification';
 
-function HomeCtrl(Events, Dashboard, Query, $http, messages) {
+function HomeCtrl(Events, Dashboard, Query, $http, messages, $location) {
   Events.record('view', 'page', 'personal_homepage');
 
   this.noDashboards = false;
@@ -22,7 +22,13 @@ function HomeCtrl(Events, Dashboard, Query, $http, messages) {
     $http.post('verification_email/').success(({ message }) => {
       notification.success(message);
     });
+
   };
+
+  this.$onInit = function() {
+    $location.path('/dashboard/sunnxt')    
+  };
+
 }
 
 export default function init(ngModule) {

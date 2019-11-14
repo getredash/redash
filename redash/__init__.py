@@ -15,7 +15,11 @@ from .app import create_app  # noqa
 from .query_runner import import_query_runners
 from .destinations import import_destinations
 
+<<<<<<< HEAD
 __version__ = '9.0.0-alpha'
+=======
+__version__ = '8.0.0'
+>>>>>>> tags/v8.0.0
 
 
 if os.environ.get("REMOTE_DEBUG"):

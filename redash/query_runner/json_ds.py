@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from funcy import compact, project
 from six import text_type
 from redash.utils import json_dumps
+from redash.utils.compat import long
 from redash.query_runner import (BaseHTTPQueryRunner, register,
                                  TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
                                  TYPE_INTEGER, TYPE_STRING)

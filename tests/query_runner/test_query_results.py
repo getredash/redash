@@ -136,12 +136,20 @@ class TestCreateTable(TestCase):
         connection = sqlite3.connect(':memory:')
         results = {
             'columns': [{
+<<<<<<< HEAD
                 'name': '\xe4'
+=======
+                'name': u'\xe4'
+>>>>>>> tags/v8.0.0
             }, {
                 'name': 'test2'
             }],
             'rows': [{
+<<<<<<< HEAD
                 '\xe4': 1,
+=======
+                u'\xe4': 1,
+>>>>>>> tags/v8.0.0
                 'test2': 2
             }]
         }
@@ -219,6 +227,15 @@ class TestGetQuery(BaseTestCase):
 
         loaded = _load_query(user, query.id)
         self.assertEqual(query, loaded)
+
+    def test_returns_query_when_user_has_view_only_access(self):
+        ds = self.factory.create_data_source(
+            group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds)
+        user = self.factory.create_user()
+
+        loaded = _load_query(user, query.id)
+        self.assertEquals(query, loaded)
 
 
 class TestExtractCachedQueryIds(TestCase):

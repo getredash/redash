@@ -15,8 +15,12 @@ import { routesToAngularRoutes } from '@/lib/utils';
 import { clientConfig } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
 import OrgSettings from '@/services/organizationSettings';
+<<<<<<< HEAD
 import HelpTrigger from '@/components/HelpTrigger';
 import wrapSettingsTab from '@/components/SettingsWrapper';
+=======
+import { HelpTrigger } from '@/components/HelpTrigger';
+>>>>>>> tags/v8.0.0
 import DynamicComponent from '@/components/DynamicComponent';
 
 const Option = Select.Option;

@@ -54,12 +54,21 @@ class Qubole(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "qubole"
+<<<<<<< HEAD
 
     @classmethod
     def name(cls):
         return "Qubole"
 
     @classmethod
+=======
+
+    @classmethod
+    def name(cls):
+        return "Qubole"
+
+    @classmethod
+>>>>>>> tags/v8.0.0
     def enabled(cls):
         return enabled
 

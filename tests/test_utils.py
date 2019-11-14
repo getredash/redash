@@ -4,6 +4,13 @@ from unittest import TestCase
 from redash.utils import (build_url, collect_parameters_from_request,
                           filter_none, json_dumps, generate_token)
 
+<<<<<<< HEAD
+=======
+try:
+    buffer
+except NameError:
+    buffer = bytes
+>>>>>>> tags/v8.0.0
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
