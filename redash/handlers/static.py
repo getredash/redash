@@ -1,6 +1,6 @@
 import logging
 
-from flask import render_template, safe_join, send_file
+from flask import current_app, render_template, safe_join, send_file
 
 from flask_login import login_required
 from redash import settings
@@ -22,7 +22,11 @@ def render_index():
             response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
     except TemplateNotFound as e:
         logger.exception("%s is not found", e.name)
-        response = render_template("error.html", error_message='Index page is not found.')
+        if current_app.debug:
+            message = "Missing template file ({}). Did you build the frontend assets with npm?".format(e.name)
+        else:
+            message = "Error Rendering Page."
+        response = render_template("error.html", error_message=message)
 
     return response
 
