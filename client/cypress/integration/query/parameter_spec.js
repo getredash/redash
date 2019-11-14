@@ -257,7 +257,7 @@ describe('Parameter', () => {
     beforeEach(() => {
       const queryData = {
         name: 'Date Parameter',
-        query: "SELECT '{{test-parameter}}' AS parameter",
+        query: "SELECT DATE('{{test-parameter}}') AS parameter",
         options: {
           parameters: [
             { name: 'test-parameter', title: 'Test Parameter', type: 'date', value: null },

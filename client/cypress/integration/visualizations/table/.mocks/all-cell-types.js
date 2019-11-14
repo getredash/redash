@@ -5,7 +5,7 @@ export const query = `
     'hello, <b>world</b>' AS html,
     'hello, <b>world</b>' AS html2,
     'Link: http://example.com' AS html3,
-    '1995-09-03T07:45' AS "date",
+    TIMESTAMP '1995-09-03T07:45' AS "date",
     true AS bool,
     '[{"a": 3.14, "b": "test", "c": [], "d": {}}, false, [null, 123], "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."]' AS json,
     'ukr' AS img,
