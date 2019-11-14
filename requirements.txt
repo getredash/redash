@@ -55,7 +55,6 @@ simplejson==3.16.0
 ua-parser==0.8.0
 user-agents==2.0
 maxminddb-geolite2==2018.703
-chromelogger==0.4.3
 pypd==1.1.0
 disposable-email-domains>=0.0.52
 gevent==1.4.0
