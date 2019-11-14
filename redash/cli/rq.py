@@ -9,7 +9,7 @@ from rq import Connection
 from sqlalchemy.orm import configure_mappers
 
 from redash import rq_redis_connection
-from redash.worker import HardTimeLimitingWorker as Worker
+from redash.tasks import HardLimitingWorker as Worker
 from redash.schedule import rq_scheduler, schedule_periodic_jobs, periodic_job_definitions
 
 manager = AppGroup(help="RQ management commands.")
