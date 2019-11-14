@@ -2,6 +2,7 @@ import datetime
 import calendar
 import logging
 import time
+import numbers
 import pytz
 
 from six import text_type
@@ -775,6 +776,43 @@ class Favorite(TimestampMixin, db.Model):
         return [fav.object_id for fav in cls.query.filter(cls.object_id.in_([o.id for o in objects]), cls.object_type == object_type, cls.user_id == user)]
 
 
+OPERATORS = {
+    '>': lambda v, t: v > t,
+    '>=': lambda v, t: v >= t,
+    '<': lambda v, t: v < t,
+    '<=': lambda v, t: v <= t,
+    '==': lambda v, t: v == t,
+    '!=': lambda v, t: v != t,
+
+    # backward compatibility
+    'greater than': lambda v, t: v > t,
+    'less than': lambda v, t: v < t,
+    'equals': lambda v, t: v == t,
+}
+
+
+def next_state(op, value, threshold):
+    if isinstance(value, numbers.Number) and not isinstance(value, bool):
+        try:
+            threshold = float(threshold)
+        except ValueError:
+            return Alert.UNKNOWN_STATE
+    # If it's a boolean cast to string and lower case, because upper cased
+    # boolean value is Python specific and most likely will be confusing to
+    # users.
+    elif isinstance(value, bool):
+        value = str(value).lower()
+    else:
+        value = str(value)
+
+    if op(value, threshold):
+        new_state = Alert.TRIGGERED_STATE
+    else:
+        new_state = Alert.OK_STATE
+    
+    return new_state
+
+
 @generic_repr('id', 'name', 'query_id', 'user_id', 'state', 'last_triggered_at', 'rearm')
 class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
     UNKNOWN_STATE = 'unknown'
@@ -819,28 +857,12 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
         data = self.query_rel.latest_query_data.data
 
         if data['rows'] and self.options['column'] in data['rows'][0]:
-            operators = {
-                '>': lambda v, t: v > t,
-                '>=': lambda v, t: v >= t,
-                '<': lambda v, t: v < t,
-                '<=': lambda v, t: v <= t,
-                '==': lambda v, t: v == t,
-                '!=': lambda v, t: v != t,
-
-                # backward compatibility
-                'greater than': lambda v, t: v > t,
-                'less than': lambda v, t: v < t,
-                'equals': lambda v, t: v == t,
-            }
-            should_trigger = operators.get(self.options['op'], lambda v, t: False)
+            op = OPERATORS.get(self.options['op'], lambda v, t: False)
 
             value = data['rows'][0][self.options['column']]
             threshold = self.options['value']
 
-            if should_trigger(value, threshold):
-                new_state = self.TRIGGERED_STATE
-            else:
-                new_state = self.OK_STATE
+            new_state = next_state(op, value, threshold)
         else:
             new_state = self.UNKNOWN_STATE
 
