@@ -9,13 +9,14 @@ import Layout from '@/components/admin/Layout';
 import { CounterCard } from '@/components/admin/CeleryStatus';
 import { WorkersTable, QueuesTable, OtherJobsTable } from '@/components/admin/RQStatus';
 
-import { $http } from '@/services/ng';
+import { $http, $location, $rootScope } from '@/services/ng';
 import recordEvent from '@/services/recordEvent';
 import { routesToAngularRoutes } from '@/lib/utils';
 import moment from 'moment';
 
 class Jobs extends React.Component {
   state = {
+    activeTab: $location.hash(),
     isLoading: true,
     error: null,
 
@@ -25,19 +26,28 @@ class Jobs extends React.Component {
     workers: [],
   };
 
+  _refreshTimer = null;
+
   componentDidMount() {
     recordEvent('view', 'page', 'admin/rq_status');
-    $http
-      .get('/api/admin/queries/rq_status')
-      .then(({ data }) => this.processQueues(data))
-      .catch(error => this.handleError(error));
+    this.refresh();
   }
 
   componentWillUnmount() {
     // Ignore data after component unmounted
+    clearTimeout(this._refreshTimer);
     this.processQueues = () => {};
     this.handleError = () => {};
   }
+
+  refresh = () => {
+    $http
+      .get('/api/admin/queries/rq_status')
+      .then(({ data }) => this.processQueues(data))
+      .catch(error => this.handleError(error));
+
+    this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
+  };
 
   processQueues = ({ queues, workers }) => {
     const queueCounters = values(queues).map(({ started, ...rest }) => ({
@@ -67,7 +77,13 @@ class Jobs extends React.Component {
   };
 
   render() {
-    const { isLoading, error, queueCounters, startedJobs, overallCounters, workers } = this.state;
+    const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
+
+    const changeTab = (newTab) => {
+      $location.hash(newTab);
+      $rootScope.$applyAsync();
+      this.setState({ activeTab: newTab });
+    };
 
     return (
       <Layout activeTab="jobs">
@@ -87,7 +103,7 @@ class Jobs extends React.Component {
                 </Grid.Col>
               </Grid.Row>
 
-              <Tabs defaultActiveKey="queues" animated={false}>
+              <Tabs activeKey={activeTab || 'queues'} onTabClick={changeTab} animated={false}>
                 <Tabs.TabPane key="queues" tab="Queues">
                   <QueuesTable loading={isLoading} items={queueCounters} />
                 </Tabs.TabPane>

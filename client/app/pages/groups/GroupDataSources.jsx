@@ -21,6 +21,7 @@ import GroupName from '@/components/groups/GroupName';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
@@ -222,7 +223,7 @@ class GroupDataSources extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageGroupDataSources', react2angular(liveItemsList(
+  ngModule.component('pageGroupDataSources', react2angular(wrapSettingsTab(null, liveItemsList(
     GroupDataSources,
     new ResourceItemsSource({
       isPlainList: true,
@@ -237,7 +238,7 @@ export default function init(ngModule) {
       },
     }),
     new StateStorage({ orderByField: 'name' }),
-  )));
+  ))));
 
   return routesToAngularRoutes([
     {
@@ -247,7 +248,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<settings-screen><page-group-data-sources on-error="handleError"></page-group-data-sources></settings-screen>',
+    template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

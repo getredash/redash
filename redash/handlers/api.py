@@ -2,7 +2,8 @@ from flask import make_response
 from flask_restful import Api
 from werkzeug.wrappers import Response
 
-from redash.handlers.alerts import (AlertListResource, AlertResource,
+from redash.handlers.alerts import (AlertListResource,
+                                    AlertResource, AlertMuteResource,
                                     AlertSubscriptionListResource,
                                     AlertSubscriptionResource)
 from redash.handlers.base import org_scoped_rule
@@ -75,6 +76,7 @@ def json_representation(data, code, headers=None):
 
 
 api.add_org_resource(AlertResource, '/api/alerts/<alert_id>', endpoint='alert')
+api.add_org_resource(AlertMuteResource, '/api/alerts/<alert_id>/mute', endpoint='alert_mute')
 api.add_org_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
 api.add_org_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
 api.add_org_resource(AlertListResource, '/api/alerts', endpoint='alerts')

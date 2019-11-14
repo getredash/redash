@@ -13,10 +13,10 @@ import LoadingState from '@/components/items-list/components/LoadingState';
 
 import { routesToAngularRoutes } from '@/lib/utils';
 import { clientConfig } from '@/services/auth';
-import settingsMenu from '@/services/settingsMenu';
 import recordEvent from '@/services/recordEvent';
 import OrgSettings from '@/services/organizationSettings';
 import HelpTrigger from '@/components/HelpTrigger';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 import DynamicComponent from '@/components/DynamicComponent';
 
 const Option = Select.Option;
@@ -255,14 +255,12 @@ class OrganizationSettings extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageOrganizationSettings', react2angular(wrapSettingsTab({
     permission: 'admin',
     title: 'Settings',
     path: 'settings/organization',
     order: 6,
-  });
-
-  ngModule.component('pageOrganizationSettings', react2angular(OrganizationSettings));
+  }, OrganizationSettings)));
 
   return routesToAngularRoutes([
     {
@@ -272,7 +270,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<settings-screen><page-organization-settings on-error="handleError"></page-organization-settings></settings-screen>',
+    template: '<page-organization-settings on-error="handleError"></page-organization-settings>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 
