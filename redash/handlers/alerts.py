@@ -47,6 +47,34 @@ class AlertResource(BaseResource):
         models.db.session.commit()
 
 
+class AlertMuteResource(BaseResource):
+    def post(self, alert_id):
+        alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
+        require_admin_or_owner(alert.user.id)
+
+        alert.options['muted'] = True
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'mute',
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
+    def delete(self, alert_id):
+        alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
+        require_admin_or_owner(alert.user.id)
+
+        alert.options['muted'] = False
+        models.db.session.commit()
+
+        self.record_event({
+            'action': 'unmute',
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
+
 class AlertListResource(BaseResource):
     def post(self):
         req = request.get_json(True)

@@ -35,6 +35,8 @@ function AlertService($resource, $http) {
         return newData;
       }].concat($http.defaults.transformRequest),
     },
+    mute: { method: 'POST', url: 'api/alerts/:id/mute' },
+    unmute: { method: 'DELETE', url: 'api/alerts/:id/mute' },
   };
   return $resource('api/alerts/:id', { id: '@id' }, actions);
 }

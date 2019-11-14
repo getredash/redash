@@ -1,5 +1,9 @@
 # Change Log
 
+## v8.0.0 - 2019-10-27
+
+There were no changes in this release since `v8.0.0-beta.2`. This is just to mark a stable release.
+
 ## v8.0.0-beta.2 - 2019-09-16
 
 This is an update to the previous beta release, which includes:

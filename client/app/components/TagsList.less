@@ -1,0 +1,15 @@
+@import '~@/assets/less/ant';
+
+.tags-list {
+  .ant-badge-count {
+    background-color: fade(@redash-gray, 10%);
+    color: fade(@redash-gray, 75%);
+  }
+
+  .ant-menu-item-selected {
+    .ant-badge-count {
+      background-color: @primary-color;
+      color: white;
+    }
+  }
+}

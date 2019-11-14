@@ -25,6 +25,15 @@ class TestCheckAlertsForQuery(BaseTestCase):
 
         self.assertFalse(redash.tasks.alerts.notify_subscriptions.called)
 
+    def test_doesnt_notify_when_muted(self):
+        redash.tasks.alerts.notify_subscriptions = MagicMock()
+        Alert.evaluate = MagicMock(return_value=Alert.TRIGGERED_STATE)
+
+        alert = self.factory.create_alert(options={"muted": True})
+        check_alerts_for_query(alert.query_id)
+
+        self.assertFalse(redash.tasks.alerts.notify_subscriptions.called)
+
 
 class TestNotifySubscriptions(BaseTestCase):
     def test_calls_notify_for_subscribers(self):

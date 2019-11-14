@@ -9,8 +9,15 @@ import Button from 'antd/lib/button';
 import Icon from 'antd/lib/icon';
 
 
-export default function MenuButton({ doDelete, canEdit }) {
+export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
   const [loading, setLoading] = useState(false);
+
+  const execute = useCallback((action) => {
+    setLoading(true);
+    action().finally(() => {
+      setLoading(false);
+    });
+  }, []);
 
   const confirmDelete = useCallback(() => {
     Modal.confirm({
@@ -37,6 +44,13 @@ export default function MenuButton({ doDelete, canEdit }) {
       overlay={(
         <Menu>
           <Menu.Item>
+            {muted ? (
+              <a onClick={() => execute(unmute)}>Unmute Notifications</a>
+            ) : (
+              <a onClick={() => execute(mute)}>Mute Notifications</a>
+            )}
+          </Menu.Item>
+          <Menu.Item>
             <a onClick={confirmDelete}>Delete Alert</a>
           </Menu.Item>
         </Menu>
@@ -52,4 +66,11 @@ export default function MenuButton({ doDelete, canEdit }) {
 MenuButton.propTypes = {
   doDelete: PropTypes.func.isRequired,
   canEdit: PropTypes.bool.isRequired,
+  mute: PropTypes.func.isRequired,
+  unmute: PropTypes.func.isRequired,
+  muted: PropTypes.bool,
+};
+
+MenuButton.defaultProps = {
+  muted: false,
 };
