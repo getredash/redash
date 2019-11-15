@@ -37,20 +37,28 @@ jobs:
             docker-compose up -d
             sleep 10
       - run:
+          name: Build Front End Assets due to some test cases # TODO: Fix test cases and remove this step
+          command: |
+            curl -sSL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt install -y nodejs
+            npm install
+            npm run build
+            docker cp ./client/dist ${COMPOSE_PROJECT_NAME}_redash_1:/app/client/
+      - run:
           name: Create Test Database
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: List Enabled Query Runners
-          command: docker-compose run --rm redash manage ds list_types
+          command: docker-compose exec redash /app/bin/docker-entrypoint manage ds list_types
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
+          command: docker-compose exec redash /app/bin/docker-entrypoint tests --junitxml=junit.xml --cov-report xml --cov=redash --cov-config .coveragerc tests/
       - run:
           name: Copy Test Results
           command: |
             mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml
-            docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+            docker cp ${COMPOSE_PROJECT_NAME}_redash_1:/app/coverage.xml ./coverage.xml
+            docker cp ${COMPOSE_PROJECT_NAME}_redash_1:/app/junit.xml /tmp/test-results/unit-tests/results.xml
           when: always
       - store_test_results:
           path: /tmp/test-results
