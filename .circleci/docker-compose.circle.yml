@@ -4,7 +4,6 @@ services:
     build:
       context: ../
       dockerfile: Dockerfile.dev
-    command: manage version
     depends_on:
       - postgres
       - redis

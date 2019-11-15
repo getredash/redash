@@ -24,9 +24,11 @@ def render_index():
         logger.exception("%s is not found", e.name)
         if current_app.debug:
             message = "Missing template file ({}). Did you build the frontend assets with npm?".format(e.name)
+            status = 404
         else:
             message = "Error Rendering Page."
-        response = render_template("error.html", error_message=message)
+            status = 500
+        response = render_template("error.html", error_message=message), status
 
     return response
 
