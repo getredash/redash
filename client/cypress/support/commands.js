@@ -14,7 +14,7 @@ Cypress.Commands.add('login', (email = 'admin@redash.io', password = 'password')
   },
 }));
 
-Cypress.Commands.add('logout', () => cy.request('/logout'));
+Cypress.Commands.add('logout', () => cy.visit('/logout'));
 Cypress.Commands.add('getByTestId', element => cy.get('[data-test="' + element + '"]'));
 
 /* Clicks a series of elements. Pass in a newline-seperated string in order to click all elements by their test id,
