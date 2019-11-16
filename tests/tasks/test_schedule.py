@@ -1,7 +1,7 @@
 from unittest import TestCase
 from mock import patch, ANY
 
-from redash.schedule import rq_scheduler, schedule_periodic_jobs
+from redash.tasks.schedule import rq_scheduler, schedule_periodic_jobs
 
 class TestSchedule(TestCase):
     def setUp(self):
@@ -26,7 +26,7 @@ class TestSchedule(TestCase):
             pass
 
         schedule_periodic_jobs([{"func": foo, "interval": 60}])
-        with patch('redash.schedule.rq_scheduler.schedule') as schedule:
+        with patch('redash.tasks.rq_scheduler.schedule') as schedule:
             schedule_periodic_jobs([{"func": foo, "interval": 60}])
             schedule.assert_not_called()
 
