@@ -5,20 +5,20 @@ from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
 from rq.job import JobStatus
 
-"""
-RQ's work horses enforce time limits by setting a timed alarm and stopping jobs 
-when they reach their time limits. However, the work horse may be entirely blocked 
-and may not respond to the alarm interrupt. Since respecting timeouts is critical 
-in Redash (if we don't respect them, workers may be infinitely stuck and as a result, 
-service may be denied for other queries), we enforce two time limits:
-1. A soft time limit, enforced by the work horse
-2. A hard time limit, enforced by the parent worker
-
-The HardLimitingWorker class changes the default monitoring behavior of the default 
-RQ Worker by checking if the work horse is still busy with the job, even after 
-it should have timed out (+ a grace period of 15s). If it does, it kills the work horse.
-"""
 class HardLimitingWorker(Worker):
+    """
+    RQ's work horses enforce time limits by setting a timed alarm and stopping jobs
+    when they reach their time limits. However, the work horse may be entirely blocked
+    and may not respond to the alarm interrupt. Since respecting timeouts is critical
+    in Redash (if we don't respect them, workers may be infinitely stuck and as a result,
+    service may be denied for other queries), we enforce two time limits:
+    1. A soft time limit, enforced by the work horse
+    2. A hard time limit, enforced by the parent worker
+    
+    The HardLimitingWorker class changes the default monitoring behavior of the default
+    RQ Worker by checking if the work horse is still busy with the job, even after
+    it should have timed out (+ a grace period of 15s). If it does, it kills the work horse.
+    """
     grace_period = 15
 
     def soft_limit_exceeded(self, job):
