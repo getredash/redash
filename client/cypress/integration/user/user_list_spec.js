@@ -5,10 +5,6 @@ describe('User List', () => {
   });
 
   it('renders the page and takes a screenshot', () => {
-    cy.getByTestId('TimeAgo').then(($timeAgo) => {
-      $timeAgo.text('an hour ago');
-    });
-
     cy.percySnapshot('Users');
   });
 });

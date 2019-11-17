@@ -84,3 +84,8 @@ Cypress.Commands.add('all', (...functions) => {
 
   return cy.wrap(results);
 });
+
+Cypress.Commands.overwrite('percySnapshot', (originalFn, ...args) => {
+  Cypress.$('*[data-test=TimeAgo]').text('just now');
+  return originalFn(...args);
+});
