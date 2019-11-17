@@ -1,5 +1,15 @@
 # Change Log
 
+## v8.0.1 - 2019-11-17
+
+* Fix the DB migration so that the correct key is used for encrypting Data Source credentials. Otherwise direct upgrades from versions older than v7 will not work properly.
+* Bump pymssql to get around pymssql/pymssql#520.
+* Specify version of pandas to allow clean install against vanilla Python 2.7.17.
+
+## v8.0.0 - 2019-10-27
+
+There were no changes in this release since v8.0.0-beta.2. This is just to mark a stable release.
+
 ## v8.0.0-beta.2 - 2019-09-16
 
 This is an update to the previous beta release, which includes:
