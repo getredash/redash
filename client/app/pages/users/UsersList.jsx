@@ -205,7 +205,7 @@ class UsersList extends React.Component {
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
+                <div className="table-responsive" data-test="UserList">
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
