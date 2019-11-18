@@ -126,19 +126,9 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
 
-                argsrepr = json_dumps({
-                    'org_id': data_source.org_id,
-                    'data_source_id': data_source.id,
-                    'enqueue_time': time.time(),
-                    'scheduled': scheduled_query_id is not None,
-                    'query_id': metadata.get('Query ID'),
-                    'user_id': user_id
-                })
-
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata['Queue'] = queue_name
 
-                # TODO - what's argsrepr?
                 queue = Queue(queue_name, connection=rq_redis_connection)
                 result = queue.enqueue(execute_query, query, data_source.id, metadata,
                                        user_id=user_id,
