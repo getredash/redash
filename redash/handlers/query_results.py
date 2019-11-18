@@ -317,12 +317,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = QueryTask(job_id=job_id)
+        job = QueryTask(job_id)
         return {'job': job.to_dict()}
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = QueryTask(job_id=job_id)
+        job = QueryTask(job_id)
         job.cancel()

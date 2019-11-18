@@ -2,19 +2,20 @@ import logging
 import signal
 import time
 import redis
-from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
-from celery.result import AsyncResult
-from celery.utils.log import get_task_logger
 from six import text_type
 
-from redash import models, redis_connection, settings
+from rq import Queue, get_current_job
+from rq.job import Job, JobStatus
+from rq.timeouts import JobTimeoutException
+
+from redash import models, rq_redis_connection, redis_connection, settings
 from redash.query_runner import InterruptException
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
-from redash.worker import celery
+from redash.worker import celery, get_job_logger
 
-logger = get_task_logger(__name__)
+logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
 
 
@@ -29,51 +30,48 @@ def _unlock(query_hash, data_source_id):
 class QueryTask(object):
     # TODO: this is mapping to the old Job class statuses. Need to update the client side and remove this
     STATUSES = {
-        'PENDING': 1,
-        'STARTED': 2,
-        'SUCCESS': 3,
-        'FAILURE': 4,
-        'REVOKED': 4
+        JobStatus.QUEUED: 1,
+        JobStatus.STARTED: 2,
+        JobStatus.FINISHED: 3,
+        JobStatus.FAILED: 4,
+        'REVOKED': 4 # TODO - find a representation for cancelled jobs in RQ
     }
 
-    def __init__(self, job_id=None, async_result=None):
-        if async_result:
-            self._async_result = async_result
-        else:
-            self._async_result = AsyncResult(job_id, app=celery)
+    def __init__(self, job):
+        self._job = job if isinstance(job, Job) else Job.fetch(job, connection=rq_redis_connection)
 
     @property
     def id(self):
-        return self._async_result.id
+        return self._job.id
 
     def to_dict(self):
-        task_info = self._async_result._get_task_meta()
-        result, task_status = task_info['result'], task_info['status']
-        if task_status == 'STARTED':
-            updated_at = result.get('start_time', 0)
+        job_status = self.rq_status
+        if job_status == JobStatus.STARTED:
+            updated_at = self._job.started_at or 0
         else:
             updated_at = 0
 
-        status = self.STATUSES[task_status]
+        status = self.STATUSES[job_status]
 
-        if isinstance(result, (TimeLimitExceeded, SoftTimeLimitExceeded)):
+        result = self._job.result
+        if isinstance(result, JobTimeoutException):
             error = TIMEOUT_MESSAGE
             status = 4
         elif isinstance(result, Exception):
             error = str(result)
             status = 4
-        elif task_status == 'REVOKED':
+        elif job_status == 'REVOKED': # TODO - find a representation for cancelled jobs in RQ
             error = 'Query execution cancelled.'
         else:
             error = ''
 
-        if task_status == 'SUCCESS' and not error:
+        if job_status == JobStatus.FINISHED and not error:
             query_result_id = result
         else:
             query_result_id = None
 
         return {
-            'id': self._async_result.id,
+            'id': self.id,
             'updated_at': updated_at,
             'status': status,
             'error': error,
@@ -82,17 +80,17 @@ class QueryTask(object):
 
     @property
     def is_cancelled(self):
-        return self._async_result.status == 'REVOKED'
+        return self.rq_status == 'REVOKED' # TODO - find a representation for cancelled jobs in RQ
 
     @property
-    def celery_status(self):
-        return self._async_result.status
+    def rq_status(self):
+        return self._job.get_status()
 
     def ready(self):
-        return self._async_result.ready()
+        return self._job.is_finished
 
     def cancel(self):
-        return self._async_result.revoke(terminate=True, signal='SIGINT')
+        self._job.cancel()
 
 
 def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
@@ -111,10 +109,10 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
             if job_id:
                 logging.info("[%s] Found existing job: %s", query_hash, job_id)
 
-                job = QueryTask(job_id=job_id)
+                job = QueryTask(job_id)
 
                 if job.ready():
-                    logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.celery_status)
+                    logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.rq_status)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
 
@@ -128,7 +126,6 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
 
-                args = (query, data_source.id, metadata, user_id, scheduled_query_id, is_api_key)
                 argsrepr = json_dumps({
                     'org_id': data_source.org_id,
                     'data_source_id': data_source.id,
@@ -139,13 +136,17 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 })
 
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
+                metadata['Queue'] = queue_name
 
-                result = execute_query.apply_async(args=args,
-                                                   argsrepr=argsrepr,
-                                                   queue=queue_name,
-                                                   soft_time_limit=time_limit)
+                # TODO - what's argsrepr?
+                queue = Queue(queue_name, connection=rq_redis_connection)
+                result = queue.enqueue(execute_query, query, data_source.id, metadata,
+                                       user_id=user_id,
+                                       scheduled_query_id=scheduled_query_id,
+                                       is_api_key=is_api_key,
+                                       job_timeout=time_limit)
 
-                job = QueryTask(async_result=result)
+                job = QueryTask(result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(_job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                 pipe.execute()
@@ -184,12 +185,10 @@ def _resolve_user(user_id, is_api_key, query_id):
         return None
 
 
-# We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
-# issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
-    def __init__(self, task, query, data_source_id, user_id, is_api_key, metadata,
+    def __init__(self, query, data_source_id, user_id, is_api_key, metadata,
                  scheduled_query):
-        self.task = task
+        self.job = get_current_job()
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
@@ -217,7 +216,7 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            if isinstance(e, SoftTimeLimitExceeded):
+            if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE
             else:
                 error = text_type(e)
@@ -262,9 +261,8 @@ class QueryExecutor(object):
             return result
 
     def _annotate_query(self, query_runner):
-        self.metadata['Task ID'] = self.task.request.id
+        self.metadata['Task ID'] = self.job.id
         self.metadata['Query Hash'] = self.query_hash
-        self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
         self.metadata['Scheduled'] = self.scheduled_query is not None
 
         return query_runner.annotate_query(self.query, self.metadata)
@@ -274,8 +272,8 @@ class QueryExecutor(object):
             "task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
             "task_id=%s queue=%s query_id=%s username=%s",
             state, self.query_hash, self.data_source.type, self.data_source.id,
-            self.task.request.id,
-            self.task.request.delivery_info['routing_key'],
+            self.job.id,
+            self.metadata.get('Queue', 'unknown'),
             self.metadata.get('Query ID', 'unknown'),
             self.metadata.get('Username', 'unknown'))
 
@@ -286,13 +284,11 @@ class QueryExecutor(object):
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
-@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
-def execute_query(self, query, data_source_id, metadata, user_id=None,
+def execute_query(query, data_source_id, metadata, user_id=None,
                   scheduled_query_id=None, is_api_key=False):
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:
         scheduled_query = None
 
-    return QueryExecutor(self, query, data_source_id, user_id, is_api_key, metadata,
-                         scheduled_query).run()
+    return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata, scheduled_query).run()
