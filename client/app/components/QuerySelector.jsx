@@ -42,8 +42,8 @@ export function QuerySelector(props) {
   let isStaleSearch = false;
   const debouncedSearch = debounce(_search, SEARCH_DEBOUNCE_DURATION);
   const placeholder = 'Search a query by name';
-  const clearIcon = <i className="fa fa-times" onClick={() => selectQuery(null)} />;
-  const spinIcon = <i className={cx('fa fa-spinner fa-pulse', { hidden: !searching })} />;
+  const clearIcon = <i className="fa fa-times hide-in-percy" onClick={() => selectQuery(null)} />;
+  const spinIcon = <i className={cx('fa fa-spinner fa-pulse hide-in-percy', { hidden: !searching })} />;
 
   // set selected from prop
   useEffect(() => {
