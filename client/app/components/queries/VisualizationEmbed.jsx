@@ -17,7 +17,7 @@ import { Moment } from '@/components/proptypes';
 import { TimeAgo } from '@/components/TimeAgo';
 import { Timer } from '@/components/Timer';
 import QueryResultsLink from '@/components/EditVisualizationButton/QueryResultsLink';
-import { VisualizationName } from '@/visualizations/VisualizationName';
+import VisualizationName from '@/visualizations/VisualizationName';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import { VisualizationType } from '@/visualizations';
 
