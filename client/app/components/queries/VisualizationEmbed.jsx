@@ -54,7 +54,7 @@ VisualizationEmbedHeader.propTypes = {
 
 VisualizationEmbedHeader.defaultProps = { queryDescription: '' };
 
-function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl, onRefresh }) {
+function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl }) {
   const downloadMenu = (
     <Menu>
       <Menu.Item>
@@ -86,7 +86,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
   return (
     <div className="tile__bottom-control">
       <span>
-        <a className="small hidden-print" onClick={onRefresh}>
+        <a className="small hidden-print">
           <i className="zmdi zmdi-time-restore" />{' '}
           {refreshStartedAt ? <Timer from={refreshStartedAt} /> : <TimeAgo date={updatedAt} />}
         </a>
@@ -126,7 +126,6 @@ VisualizationEmbedFooter.propTypes = {
   updatedAt: PropTypes.string,
   refreshStartedAt: Moment,
   queryUrl: PropTypes.string,
-  onRefresh: PropTypes.func,
 };
 
 VisualizationEmbedFooter.defaultProps = {
@@ -134,7 +133,6 @@ VisualizationEmbedFooter.defaultProps = {
   updatedAt: null,
   refreshStartedAt: null,
   queryUrl: null,
-  onRefresh: () => {},
 };
 
 function VisualizationEmbed({ query }) {
@@ -197,7 +195,6 @@ function VisualizationEmbed({ query }) {
         queryResults={queryResults}
         updatedAt={queryResults ? queryResults.getUpdatedAt() : undefined}
         refreshStartedAt={refreshStartedAt}
-        onRefresh={refreshQueryResults}
         queryUrl={!hideQueryLink ? query.getUrl() : null}
       />
     </div>
