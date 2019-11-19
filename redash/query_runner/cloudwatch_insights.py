@@ -54,6 +54,10 @@ class CloudWatchInsights(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Amazon CloudWatch Logs Insights"
+    
+    @classmethod
+    def type(cls):
+        return "cloudwatch_insights"
 
     @classmethod
     def configuration_schema(cls):
