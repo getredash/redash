@@ -60,6 +60,9 @@ class CloudWatch(BaseQueryRunner):
         super(CloudWatch, self).__init__(configuration)
         self.syntax = 'yaml'
 
+    def test_connection(self):
+        self.get_schema()
+
     def _get_client(self):
         cloudwatch = boto3.client('cloudwatch', region_name=self.configuration.get('region'), aws_access_key_id=self.configuration.get('aws_access_key'), aws_secret_access_key=self.configuration.get('aws_secret_key'))
         return cloudwatch
