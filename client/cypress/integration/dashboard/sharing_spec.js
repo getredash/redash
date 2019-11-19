@@ -111,6 +111,7 @@ describe('Dashboard Sharing', () => {
         const secondWidgetPos = { autoHeight: false, col: 3, sizeY: 6 };
         createQueryAndAddWidget(this.dashboardId, unsafeQueryData, { position: secondWidgetPos }).then(() => {
           cy.logout();
+          cy.title().should('eq', 'Login to Redash'); // Make sure it's logged out
           cy.visit(secretAddress);
           cy.getByTestId('TableVisualization', { timeout: 10000 }).should('exist');
           cy.contains('.alert', 'This query contains potentially unsafe parameters' +
