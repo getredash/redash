@@ -30,6 +30,10 @@ class CloudWatch(BaseQueryRunner):
     should_annotate_query = False
 
     @classmethod
+    def name(cls):
+        return "Amazon CloudWatch"
+
+    @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
@@ -51,6 +55,10 @@ class CloudWatch(BaseQueryRunner):
             'order': ['region', 'aws_access_key', 'aws_secret_key'],
             'secret': ['aws_secret_key']
         }
+
+    def __init__(self, configuration):
+        super(CloudWatch, self).__init__(configuration)
+        self.syntax = 'yaml'
 
     def _get_client(self):
         cloudwatch = boto3.client('cloudwatch', region_name=self.configuration.get('region'), aws_access_key_id=self.configuration.get('aws_access_key'), aws_secret_access_key=self.configuration.get('aws_secret_key'))
@@ -76,8 +84,6 @@ class CloudWatch(BaseQueryRunner):
         cloudwatch = self._get_client()
 
         query = yaml.safe_load(query)
-
-        cloud_watch_request = {}
 
         results = []
         paginator = cloudwatch.get_paginator('get_metric_data')
