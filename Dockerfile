@@ -36,7 +36,8 @@ RUN apt-get update && \
     libssl-dev \
     default-libmysqlclient-dev \
     freetds-dev \
-    libsasl2-dev && \
+    libsasl2-dev \
+    supervisor && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
