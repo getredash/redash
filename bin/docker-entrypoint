@@ -39,8 +39,8 @@ start_worker() {
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
 
+  touch /tmp/worker.log && tail -f /tmp/worker.log &
   supervisord -c worker.conf
-  touch /tmp/worker.log && tail -f /tmp/worker.log
 }
 
 dev_celery_worker() {
