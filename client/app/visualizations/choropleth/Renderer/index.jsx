@@ -10,11 +10,13 @@ import './renderer.less';
 
 import countriesDataUrl from '../maps/countries.geo.json';
 import subdivJapanDataUrl from '../maps/japan.prefectures.geo.json';
+import postcodesAustraliaDataUrl from '../maps/australia.postcodes.geo.json';
 
 function getDataUrl(type) {
   switch (type) {
     case 'countries': return countriesDataUrl;
     case 'subdiv_japan': return subdivJapanDataUrl;
+    case 'postcode_australia': return postcodesAustraliaDataUrl;
     default: return null;
   }
 }

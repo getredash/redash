@@ -37,6 +37,12 @@ function TemplateFormatHint({ mapType }) { // eslint-disable-line react/prop-typ
               <div><code>{'{{ @@iso_3166_2 }}'}</code> five-letter ISO subdivision code (JP-xx);</div>
             </React.Fragment>
           )}
+          {mapType === 'postcode_australia' && (
+            <React.Fragment>
+              <div><code>{'{{ @@name }}'}</code> Postcode or Suburb name in English;</div>
+              <div><code>{'{{ @@postcode }}'}</code> four digit post code (xxxx);</div>
+            </React.Fragment>
+          )}
         </React.Fragment>
       )}
     >

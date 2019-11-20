@@ -11,8 +11,11 @@ export function inferCountryCodeType(mapType, data, countryCodeField) {
     },
     subdiv_japan: {
       name: /^[a-z]+$/i,
-      name_local: /^[\u3400-\u9FFF\uF900-\uFAFF]|[\uD840-\uD87F][\uDC00-\uDFFF]+$/i,
       iso_3166_2: /^JP-[0-9]{2}$/i,
+    },
+    postcode_australia: {
+      name: /^[a-z]+$/i,
+      postcode: /^[0-9]{4}$/i,
     },
   };
 

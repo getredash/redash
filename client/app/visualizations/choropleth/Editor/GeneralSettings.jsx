@@ -22,6 +22,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           name_local: 'Name (local)',
           iso_3166_2: 'ISO-3166-2',
         };
+      case 'postcode_australia':
+        return {
+          name: 'Name',
+          postcode: 'Postcode',
+        };
       default:
         return {};
     }
@@ -49,6 +54,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
         >
           <Select.Option key="countries" data-test="Choropleth.Editor.MapType.Countries">Countries</Select.Option>
           <Select.Option key="subdiv_japan" data-test="Choropleth.Editor.MapType.Japan">Japan/Prefectures</Select.Option>
+          <Select.Option key="postcode_australia" data-test="Choropleth.Editor.MapType.Australia">Australia/Postcodes</Select.Option>
         </Select>
       </div>
 
