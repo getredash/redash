@@ -214,16 +214,17 @@ export default function StyleSettings({ options, onOptionsChange }) {
               <Grid.Col span={12}>
                 <label htmlFor="map-editor-marker-icon-color">Icon Color</label>
               </Grid.Col>
-              <Grid.Col span={12}>
+              <Grid.Col span={12} className="text-nowrap">
                 <ColorPicker
                   id="map-editor-marker-icon-color"
-                  data-test="Map.Editor.MarkerIconColor"
                   interactive
                   presetColors={CustomColorPalette}
                   placement="topRight"
                   color={options.foregroundColor}
+                  triggerProps={{ 'data-test': 'Map.Editor.MarkerIconColor' }}
                   onChange={foregroundColor => onOptionsChange({ foregroundColor })}
                 />
+                <ColorPicker.Label color={options.foregroundColor} presetColors={CustomColorPalette} />
               </Grid.Col>
             </Grid.Row>
           )}
@@ -233,16 +234,17 @@ export default function StyleSettings({ options, onOptionsChange }) {
               <Grid.Col span={12}>
                 <label htmlFor="map-editor-marker-background-color">Background Color</label>
               </Grid.Col>
-              <Grid.Col span={12}>
+              <Grid.Col span={12} className="text-nowrap">
                 <ColorPicker
                   id="map-editor-marker-background-color"
-                  data-test="Map.Editor.MarkerBackgroundColor"
                   interactive
                   presetColors={CustomColorPalette}
                   placement="topRight"
                   color={options.backgroundColor}
+                  triggerProps={{ 'data-test': 'Map.Editor.MarkerBackgroundColor' }}
                   onChange={backgroundColor => onOptionsChange({ backgroundColor })}
                 />
+                <ColorPicker.Label color={options.backgroundColor} presetColors={CustomColorPalette} />
               </Grid.Col>
             </Grid.Row>
           )}
@@ -252,16 +254,17 @@ export default function StyleSettings({ options, onOptionsChange }) {
               <Grid.Col span={12}>
                 <label htmlFor="map-editor-marker-border-color">Border Color</label>
               </Grid.Col>
-              <Grid.Col span={12}>
+              <Grid.Col span={12} className="text-nowrap">
                 <ColorPicker
                   id="map-editor-marker-border-color"
-                  data-test="Map.Editor.MarkerBorderColor"
                   interactive
                   presetColors={CustomColorPalette}
                   placement="topRight"
                   color={options.borderColor}
+                  triggerProps={{ 'data-test': 'Map.Editor.MarkerBorderColor' }}
                   onChange={borderColor => onOptionsChange({ borderColor })}
                 />
+                <ColorPicker.Label color={options.borderColor} presetColors={CustomColorPalette} />
               </Grid.Col>
             </Grid.Row>
           )}
