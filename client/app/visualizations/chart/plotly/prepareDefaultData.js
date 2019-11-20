@@ -1,4 +1,4 @@
-import { isNil, each, includes, isString, map, sortBy } from 'lodash';
+import { isNil, isString, extend, each, includes, map, sortBy } from 'lodash';
 import { cleanNumber, normalizeValue, getSeriesAxis } from './utils';
 import { ColorPaletteArray } from '@/visualizations/ColorPalette';
 
@@ -101,7 +101,10 @@ function prepareBoxSeries(series, options, { seriesColor }) {
 function prepareSeries(series, options, additionalOptions) {
   const { hoverInfoPattern, index } = additionalOptions;
 
-  const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
+  const seriesOptions = extend(
+    { type: options.globalSeriesType, yAxis: 0 },
+    options.seriesOptions[series.name],
+  );
   const seriesColor = getSeriesColor(seriesOptions, index);
   const seriesYAxis = getSeriesAxis(series, options);
 
