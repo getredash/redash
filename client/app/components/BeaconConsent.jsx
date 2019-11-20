@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { react2angular } from 'react2angular';
 import Card from 'antd/lib/card';
 import Button from 'antd/lib/button';
 import Typography from 'antd/lib/typography';
@@ -10,7 +9,7 @@ import OrgSettings from '@/services/organizationSettings';
 
 const Text = Typography.Text;
 
-export function BeaconConsent() {
+function BeaconConsent() {
   const [hide, setHide] = useState(false);
 
   if (!clientConfig.showBeaconConsentMessage || hide) {
@@ -76,8 +75,4 @@ export function BeaconConsent() {
   );
 }
 
-export default function init(ngModule) {
-  ngModule.component('beaconConsent', react2angular(BeaconConsent));
-}
-
-init.init = true;
+export default BeaconConsent;
