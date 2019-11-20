@@ -375,3 +375,15 @@
     margin-top: 9px;
   }
 }
+
+.@{menu-prefix-cls} {
+  // invert stripe position with class .invert-stripe-position
+  &-inline.invert-stripe-position {
+    .@{menu-prefix-cls}-item {
+      &::after {
+        right: auto;
+        left: 0;
+      }
+    }
+  }
+}

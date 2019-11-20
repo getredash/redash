@@ -1,4 +1,4 @@
-import { isFunction, extend, omit, sortBy } from 'lodash';
+import { isFunction, extend, omit, sortBy, find } from 'lodash';
 
 class SettingsMenuItem {
   constructor(menuItem) {
@@ -25,6 +25,10 @@ class SettingsMenu {
   add(item) {
     this.items.push(new SettingsMenuItem(item));
     this.items = sortBy(this.items, 'order');
+  }
+
+  getActiveItem(path) {
+    return find(this.items, item => item.isActive(path));
   }
 }
 

@@ -2,7 +2,6 @@ import React from 'react';
 import Button from 'antd/lib/button';
 import { react2angular } from 'react2angular';
 import { isEmpty, get } from 'lodash';
-import settingsMenu from '@/services/settingsMenu';
 import { Destination, IMG_ROOT } from '@/services/destination';
 import { policy } from '@/services/policy';
 import navigateTo from '@/services/navigateTo';
@@ -12,6 +11,7 @@ import CardsList from '@/components/cards-list/CardsList';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import CreateSourceDialog from '@/components/CreateSourceDialog';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 class DestinationsList extends React.Component {
   state = {
@@ -110,14 +110,12 @@ class DestinationsList extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageDestinationsList', react2angular(wrapSettingsTab({
     permission: 'admin',
     title: 'Alert Destinations',
     path: 'destinations',
     order: 4,
-  });
-
-  ngModule.component('pageDestinationsList', react2angular(DestinationsList));
+  }, DestinationsList)));
 
   return routesToAngularRoutes([
     {
@@ -132,7 +130,7 @@ export default function init(ngModule) {
       isNewDestinationPage: true,
     },
   ], {
-    template: '<settings-screen><page-destinations-list></page-destinations-list></settings-screen>',
+    template: '<page-destinations-list></page-destinations-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

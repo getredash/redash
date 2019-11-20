@@ -70,15 +70,15 @@ class Databricks(Hive):
 
         schemas = self._run_query_internal(schemas_query)
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['databaseName']), schemas)):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tableName']), self._run_query_internal(tables_query % schema_name))):
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['col_name']), self._run_query_internal(columns_query % (schema_name, table_name))))
+        for schema_name in [a for a in [str(a['databaseName']) for a in schemas] if len(a) > 0]:
+            for table_name in [a for a in [str(a['tableName']) for a in self._run_query_internal(tables_query % schema_name)] if len(a) > 0]:
+                columns = [a for a in [str(a['col_name']) for a in self._run_query_internal(columns_query % (schema_name, table_name))] if len(a) > 0]
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
 
                 schema[table_name] = {'name': table_name, 'columns': columns}
-        return schema.values()
+        return list(schema.values())
 
 
 register(Databricks)

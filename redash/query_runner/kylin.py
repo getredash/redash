@@ -132,7 +132,7 @@ class Kylin(BaseQueryRunner):
 
     def get_rows(self, columns, results):
         return [
-            dict(zip((c['name'] for c in columns), row))
+            dict(zip((column['name'] for column in columns), row))
             for row in results
         ]
 

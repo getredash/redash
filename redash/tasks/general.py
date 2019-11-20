@@ -1,7 +1,11 @@
 import requests
+from datetime import datetime
 
 from flask_mail import Message
-from redash import mail, models, settings
+from rq import Connection, Queue
+from rq.registry import FailedJobRegistry
+from rq.job import Job
+from redash import mail, models, settings, rq_redis_connection
 from redash.models import users
 from redash.version_check import run_version_check
 from redash.worker import job, get_job_logger
@@ -45,7 +49,7 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
-@job('default')
+@job('emails')
 def send_mail(to, subject, html, text):
     try:
         message = Message(recipients=to,
@@ -60,3 +64,17 @@ def send_mail(to, subject, html, text):
 
 def sync_user_details():
     users.sync_last_active_at()
+
+
+def purge_failed_jobs():
+    with Connection(rq_redis_connection):
+        for queue in Queue.all():
+            failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
+            failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
+            stale_jobs = [job for job in failed_jobs if (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
+
+            for job in stale_jobs:
+                job.delete()
+
+            if stale_jobs:
+                logger.info('Purged %d old failed jobs from the %s queue.', len(stale_jobs), queue.name)
