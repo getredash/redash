@@ -47,14 +47,17 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
       dataIndex: 'color',
       width: '1%',
       render: (unused, item) => (
-        <ColorPicker
-          data-test={`Chart.Series.${item.key}.Color`}
-          interactive
-          presetColors={colors}
-          placement="topRight"
-          color={item.color}
-          onChange={value => updateValuesOption(item.key, 'color', value)}
-        />
+        <div className="text-nowrap">
+          <ColorPicker
+            data-test={`Chart.Series.${item.key}.Color`}
+            interactive
+            presetColors={colors}
+            placement="topRight"
+            color={item.color}
+            onChange={value => updateValuesOption(item.key, 'color', value)}
+          />
+          <ColorPicker.Label color={item.color} presetColors={colors} />
+        </div>
       ),
     },
   ];

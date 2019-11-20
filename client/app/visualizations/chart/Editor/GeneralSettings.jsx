@@ -207,8 +207,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             defaultValue={options.missingValuesAsZero ? 1 : 0}
             onChange={value => onOptionsChange({ missingValuesAsZero: !!value })}
           >
-            <Select.Option value={0} data-test="Chart.MissingValues.Keep">keep</Select.Option>
-            <Select.Option value={1} data-test="Chart.MissingValues.Zero">convert to 0</Select.Option>
+            <Select.Option value={0} data-test="Chart.MissingValues.Keep">Do not display in chart</Select.Option>
+            <Select.Option value={1} data-test="Chart.MissingValues.Zero">Convert to 0 and display in chart</Select.Option>
           </Select>
         </div>
       )}
