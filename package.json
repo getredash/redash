@@ -58,7 +58,6 @@
     "font-awesome": "^4.7.0",
     "hoist-non-react-statics": "^3.3.0",
     "jquery": "^3.2.1",
-    "jquery-ui": "^1.12.1",
     "leaflet": "^1.2.0",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet.markercluster": "^1.1.0",
