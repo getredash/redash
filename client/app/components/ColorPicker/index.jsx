@@ -2,11 +2,11 @@ import { toString } from 'lodash';
 import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import tinycolor from 'tinycolor2';
 import Popover from 'antd/lib/popover';
 import Card from 'antd/lib/card';
 import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
+import chooseTextColorForBackground from '@/lib/chooseTextColorForBackground';
 
 import ColorInput from './Input';
 import Swatch from './Swatch';
@@ -74,7 +74,7 @@ export default function ColorPicker({
           title={toString(currentColor).toUpperCase()}
           headStyle={{
             backgroundColor: currentColor,
-            color: tinycolor(currentColor).isLight() ? '#000000' : '#ffffff',
+            color: chooseTextColorForBackground(currentColor),
           }}
           actions={actions}
         >
