@@ -12,15 +12,10 @@ import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
-import ngMessages from 'angular-messages';
-import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
-import 'angular-ui-ace';
 import 'angular-resizable';
 import { each, isFunction, extend } from 'lodash';
-
-import '@/lib/sortable';
 
 import DialogWrapper from '@/components/DialogWrapper';
 import organizationStatus from '@/services/organizationStatus';
@@ -65,13 +60,9 @@ const requirements = [
   ngResource,
   ngSanitize,
   uiBootstrap,
-  ngMessages,
   uiSelect,
-  'ui.ace',
-  ngUpload,
   'angularResizable',
   vsRepeat,
-  'ui.sortable',
 ];
 
 const ngModule = angular.module('app', requirements);
