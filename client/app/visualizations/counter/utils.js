@@ -72,11 +72,9 @@ function formatTooltip(value, formatString) {
 
 export function getCounterData(rows = [], options = {}, visualizationName = '') {
   const result = {};
-
   const rowsCount = rows.length;
-  if (rowsCount > 0) {
-    const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-    const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
+
+  if (rowsCount > 0 || options.countRow) {
     const counterColName = options.counterColName;
     const targetColName = options.targetColName;
 
@@ -85,12 +83,14 @@ export function getCounterData(rows = [], options = {}, visualizationName = '') 
     if (options.countRow) {
       result.counterValue = rowsCount;
     } else if (counterColName) {
+      const rowNumber = getRowNumber(options.rowNumber, rowsCount);
       result.counterValue = rows[rowNumber][counterColName];
     }
 
     result.showTrend = false;
 
     if (targetColName) {
+      const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
       result.targetValue = rows[targetRowNumber][targetColName];
 
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {

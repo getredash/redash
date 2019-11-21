@@ -115,14 +115,53 @@ describe('Visualizations -> Counter -> Utils', () => {
       });
     });
 
-    test('"Count Rows" option is enabled', () => {
-      const result = getCounterData(dummy.rows, { countRow: true });
+    describe('"Count rows" option is enabled', () => {
+      beforeEach(() => {
+        dummy.result = {
+          ...dummy.result,
+          counterValue: '3.000',
+          counterValueTooltip: '3',
+          showTrend: false,
+        };
+      });
 
-      expect(result).toEqual({
-        ...dummy.result,
-        counterValue: '3.000',
-        counterValueTooltip: '3',
-        showTrend: false,
+      test('Rows are counted correctly', () => {
+        const result = getCounterData(dummy.rows, { countRow: true });
+
+        expect(result).toEqual(dummy.result);
+      });
+
+      test('Counter value is ignored', () => {
+        const result = getCounterData(dummy.rows, {
+          countRow: true,
+          rowNumber: 3,
+          counterColName: 'population',
+        });
+        expect(result).toEqual(dummy.result);
+      });
+
+      test('Target value and trend are computed correctly', () => {
+        const result = getCounterData(dummy.rows, {
+          countRow: true,
+          targetRowNumber: 2,
+          targetColName: 'population',
+        });
+        expect(result).toEqual({
+          ...dummy.result,
+          targetValue: '24484000',
+          targetValueTooltip: '24,484,000',
+          showTrend: true,
+          trendPositive: false,
+        });
+      });
+
+      test('Empty rows return counter value 0', () => {
+        const result = getCounterData([], { countRow: true });
+        expect(result).toEqual({
+          ...dummy.result,
+          counterValue: '0.000',
+          counterValueTooltip: '0',
+        });
       });
     });
   });
