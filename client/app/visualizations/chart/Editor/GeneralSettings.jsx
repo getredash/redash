@@ -1,4 +1,4 @@
-import { isArray, map, mapValues, includes, some, each, difference } from 'lodash';
+import { isArray, map, mapValues, includes, some, each, difference, extend } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import Checkbox from 'antd/lib/checkbox';
@@ -95,7 +95,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       ...mappedColumns,
       [type]: column,
     });
-    onOptionsChange({ columnMapping }, false);
+    onOptionsChange({ columnMapping }, extend);
   }
 
   return (
