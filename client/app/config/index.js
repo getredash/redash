@@ -13,7 +13,6 @@ import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
-import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
 import 'angular-resizable';
@@ -64,7 +63,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  ngUpload,
   'angularResizable',
   vsRepeat,
 ];
