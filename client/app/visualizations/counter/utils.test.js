@@ -11,10 +11,8 @@ describe('Visualizations -> Counter -> Utils', () => {
         { city: 'Tokyo', population: 38140000 },
       ],
       result: {
-        counterLabel: undefined,
+        counterLabel: '',
         counterValue: '',
-        // TODO: consider default value for showTrend
-        // showTrend: false,
         targetValue: null,
         counterValueTooltip: '',
         targetValueTooltip: '',
@@ -23,10 +21,10 @@ describe('Visualizations -> Counter -> Utils', () => {
   });
 
   describe('getCounterData()', () => {
-    // test('no input returns empty result object', () => {
-    //   const result = getCounterData();
-    //   expect(result).toEqual({});
-    // });
+    test('no input returns empty result object', () => {
+      const result = getCounterData();
+      expect(result).toEqual({});
+    });
 
     test('empty rows returns empty result object', () => {
       const result = getCounterData([]);
