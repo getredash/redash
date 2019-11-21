@@ -5,8 +5,11 @@ import datetime
 
 from click import argument
 from flask.cli import AppGroup
-from rq import Connection, Worker
+from rq import Connection
+from rq.worker import Worker, WorkerStatus
 from sqlalchemy.orm import configure_mappers
+from supervisor_checks import check_runner
+from supervisor_checks.check_modules import base
 
 from redash import rq_redis_connection
 from redash.schedule import rq_scheduler, schedule_periodic_jobs, periodic_job_definitions
@@ -37,38 +40,35 @@ def worker(queues):
         w.work()
 
 
+class WorkerHealthcheck(base.BaseCheck):
+    NAME = 'RQ Worker Healthcheck'
+
+    def __call__(self, process_spec):
+        all_workers = Worker.all(connection=rq_redis_connection)
+        worker = [w for w in all_workers if w.hostname == socket.gethostname().encode() and 
+                                            w.pid == process_spec['pid']].pop()
+
+        is_busy = worker.get_state() == WorkerStatus.BUSY
+
+        time_since_seen = datetime.datetime.utcnow() - worker.last_heartbeat
+        seen_lately = time_since_seen.seconds < 60
+
+        total_jobs_in_watched_queues = sum([len(q.jobs) for q in worker.queues])
+        has_nothing_to_do = total_jobs_in_watched_queues == 0
+
+        is_healthy = is_busy or seen_lately or has_nothing_to_do
+
+        self._log("Worker %s healthcheck: Is busy? %s. "
+                  "Seen lately? %s (%d seconds ago). "
+                  "Has nothing to do? %s (%d jobs in watched queues). "
+                  "==> Is healthy? %s",
+                  worker.key, is_busy, seen_lately, time_since_seen.seconds,
+                  has_nothing_to_do, total_jobs_in_watched_queues, is_healthy)
+
+        return is_healthy
+
+
 @manager.command()
 def healthcheck():
-    hostname = socket.gethostname()
-    with Connection(rq_redis_connection):
-        all_workers = Worker.all()
-
-        local_workers = [w for w in all_workers if w.hostname == hostname]
-        row_format ="{:>10}" * (len(local_workers) + 1)
-
-        print("Local worker PIDs:")
-        local_worker_pids = set([w.pid for w in local_workers])
-        print(row_format.format("", *local_worker_pids))
-
-        print("Time since seen:")
-        heartbeats = [w.last_heartbeat for w in local_workers]
-        time_since_seen = [datetime.datetime.utcnow() - hb for hb in heartbeats]
-        print(row_format.format("", *[t.seconds for t in time_since_seen]))
-        seen_lately = [t.seconds < 60 for t in time_since_seen]
-
-        print("State:")
-        states = [w.state for w in local_workers]
-        print(row_format.format("", *states))
-        busy = [s == "busy" for s in states]
-
-        print("Jobs in queues:")
-        jobs_in_queues = [sum([len(q.jobs) for q in w.queues]) for w in local_workers]
-        print(row_format.format("", *jobs_in_queues))
-        has_nothing_to_do = [j == 0 for j in jobs_in_queues]
-
-        print("Healty:")
-        # a healthy worker is either busy, has been seen lately or has nothing to do
-        healthy = [any(w) for w in zip(busy, seen_lately, has_nothing_to_do)]
-        print(row_format.format("", *healthy))
-
-        sys.exit(int(not all(healthy)))
+    return check_runner.CheckRunner(
+        'worker_healthcheck', 'worker', None, [(WorkerHealthcheck, {})]).run()

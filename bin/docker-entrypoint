@@ -25,21 +25,16 @@ dev_scheduler() {
 worker() {
   echo "Starting RQ worker..."
 
-  start_worker
+  export WORKERS_COUNT=${WORKERS_COUNT:-2}
+  export QUEUES=${QUEUES:-}
+  
+  supervisord -c worker.conf
 }
 
 dev_worker() {
   echo "Starting dev RQ worker..."
 
-  start_worker "watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- "
-}
-
-start_worker() {
-  export EXECUTION_PREFIX=$1
-  export WORKERS_COUNT=${WORKERS_COUNT:-2}
-  export QUEUES=${QUEUES:-}
-
-  supervisord -c worker.conf
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
 dev_celery_worker() {
