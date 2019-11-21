@@ -16,7 +16,6 @@ import ngMessages from 'angular-messages';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
-import 'angular-ui-ace';
 import 'angular-resizable';
 import { each, isFunction, extend } from 'lodash';
 
@@ -67,7 +66,6 @@ const requirements = [
   uiBootstrap,
   ngMessages,
   uiSelect,
-  'ui.ace',
   ngUpload,
   'angularResizable',
   vsRepeat,
