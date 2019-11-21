@@ -19,8 +19,6 @@ import 'brace';
 import 'angular-resizable';
 import { each, isFunction, extend } from 'lodash';
 
-import '@/lib/sortable';
-
 import DialogWrapper from '@/components/DialogWrapper';
 import organizationStatus from '@/services/organizationStatus';
 
@@ -69,7 +67,6 @@ const requirements = [
   ngUpload,
   'angularResizable',
   vsRepeat,
-  'ui.sortable',
 ];
 
 const ngModule = angular.module('app', requirements);
