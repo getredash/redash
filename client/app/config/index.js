@@ -12,7 +12,6 @@ import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
-import ngMessages from 'angular-messages';
 import vsRepeat from 'angular-vs-repeat';
 import 'brace';
 import 'angular-resizable';
@@ -61,7 +60,6 @@ const requirements = [
   ngResource,
   ngSanitize,
   uiBootstrap,
-  ngMessages,
   uiSelect,
   'angularResizable',
   vsRepeat,
