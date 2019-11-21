@@ -1,4 +1,4 @@
-FROM node:10 as frontend-builder
+FROM node:12 as frontend-builder
 
 WORKDIR /frontend
 COPY package.json package-lock.json /frontend/
