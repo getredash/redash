@@ -48,7 +48,7 @@ describe('Choropleth', () => {
     `);
 
     cy.clickThrough(`
-      Choropleth.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Choropleth.Editor.MapType
       Choropleth.Editor.MapType.Countries
       Choropleth.Editor.KeyColumn
@@ -59,7 +59,7 @@ describe('Choropleth', () => {
       Choropleth.Editor.ValueColumn.value
     `);
 
-    cy.clickThrough('Choropleth.EditorTabs.Colors');
+    cy.clickThrough('VisualizationEditor.Tabs.Colors');
     cy.clickThrough('Choropleth.Editor.Colors.Min');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'yellow{enter}' });
     cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
@@ -71,7 +71,7 @@ describe('Choropleth', () => {
     cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.clickThrough(`
-      Choropleth.EditorTabs.Format
+      VisualizationEditor.Tabs.Format
       Choropleth.Editor.LegendPosition
       Choropleth.Editor.LegendPosition.TopRight
     `);

@@ -33,7 +33,7 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat
       Map.Editor.LongitudeColumnName
@@ -42,7 +42,7 @@ describe('Map (Markers)', () => {
       Map.Editor.GroupBy.country
     `);
 
-    cy.clickThrough('Map.EditorTabs.Groups');
+    cy.clickThrough('VisualizationEditor.Tabs.Groups');
     cy.clickThrough('Map.Editor.Groups.Israel.Color');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
     cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
@@ -67,7 +67,7 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat
       Map.Editor.LongitudeColumnName
@@ -75,7 +75,7 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.Style
+      VisualizationEditor.Tabs.Style
       Map.Editor.ClusterMarkers
       Map.Editor.CustomizeMarkers
     `);
