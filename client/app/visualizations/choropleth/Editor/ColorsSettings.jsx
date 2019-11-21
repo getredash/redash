@@ -52,16 +52,17 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-color-min">Min Color</label>
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} className="text-nowrap">
           <ColorPicker
             id="choropleth-editor-color-min"
-            data-test="Choropleth.Editor.Colors.Min"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
             color={options.colors.min}
+            triggerProps={{ 'data-test': 'Choropleth.Editor.Colors.Min' }}
             onChange={min => onOptionsChange({ colors: { min } })}
           />
+          <ColorPicker.Label color={options.colors.min} presetColors={ColorPalette} />
         </Grid.Col>
       </Grid.Row>
 
@@ -69,16 +70,17 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-color-max">Max Color</label>
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} className="text-nowrap">
           <ColorPicker
             id="choropleth-editor-color-max"
-            data-test="Choropleth.Editor.Colors.Max"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
             color={options.colors.max}
+            triggerProps={{ 'data-test': 'Choropleth.Editor.Colors.Max' }}
             onChange={max => onOptionsChange({ colors: { max } })}
           />
+          <ColorPicker.Label color={options.colors.max} presetColors={ColorPalette} />
         </Grid.Col>
       </Grid.Row>
 
@@ -86,16 +88,17 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-color-no-value">No value color</label>
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} className="text-nowrap">
           <ColorPicker
             id="choropleth-editor-color-no-value"
-            data-test="Choropleth.Editor.Colors.NoValue"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
             color={options.colors.noValue}
+            triggerProps={{ 'data-test': 'Choropleth.Editor.Colors.NoValue' }}
             onChange={noValue => onOptionsChange({ colors: { noValue } })}
           />
+          <ColorPicker.Label color={options.colors.noValue} presetColors={ColorPalette} />
         </Grid.Col>
       </Grid.Row>
 
@@ -103,16 +106,17 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-color-background">Background color</label>
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} className="text-nowrap">
           <ColorPicker
             id="choropleth-editor-color-background"
-            data-test="Choropleth.Editor.Colors.Background"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
             color={options.colors.background}
+            triggerProps={{ 'data-test': 'Choropleth.Editor.Colors.Background' }}
             onChange={background => onOptionsChange({ colors: { background } })}
           />
+          <ColorPicker.Label color={options.colors.background} presetColors={ColorPalette} />
         </Grid.Col>
       </Grid.Row>
 
@@ -120,16 +124,17 @@ export default function ColorsSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-color-borders">Borders color</label>
         </Grid.Col>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} className="text-nowrap">
           <ColorPicker
             id="choropleth-editor-color-borders"
-            data-test="Choropleth.Editor.Colors.Borders"
             interactive
             presetColors={ColorPalette}
             placement="topRight"
             color={options.colors.borders}
+            triggerProps={{ 'data-test': 'Choropleth.Editor.Colors.Borders' }}
             onChange={borders => onOptionsChange({ colors: { borders } })}
           />
+          <ColorPicker.Label color={options.colors.borders} presetColors={ColorPalette} />
         </Grid.Col>
       </Grid.Row>
     </React.Fragment>

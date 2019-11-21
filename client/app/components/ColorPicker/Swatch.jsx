@@ -1,6 +1,7 @@
 import { isString } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import Tooltip from 'antd/lib/tooltip';
 
 import './swatch.less';
@@ -8,7 +9,7 @@ import './swatch.less';
 export default function Swatch({ className, color, title, size, ...props }) {
   const result = (
     <span
-      className={`color-swatch ${className}`}
+      className={cx('color-swatch', className)}
       style={{ backgroundColor: color, width: size }}
       {...props}
     />
@@ -30,7 +31,7 @@ Swatch.propTypes = {
 };
 
 Swatch.defaultProps = {
-  className: '',
+  className: null,
   title: null,
   color: 'transparent',
   size: 12,
