@@ -1,8 +1,7 @@
 import { map } from 'lodash';
 import React, { useMemo } from 'react';
-import Select from 'antd/lib/select';
 import { EditorPropTypes } from '@/visualizations';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select } from '@/components/visualizations/editor';
 import { inferCountryCodeType } from './utils';
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
@@ -40,9 +39,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
   return (
     <React.Fragment>
       <Section>
-        <label htmlFor="choropleth-editor-map-type">Map type</label>
         <Select
-          id="choropleth-editor-map-type"
+          label="Map type"
           className="w-100"
           data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
@@ -54,9 +52,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-key-column">Key column</label>
         <Select
-          id="choropleth-editor-key-column"
+          label="Key column"
           className="w-100"
           data-test="Choropleth.Editor.KeyColumn"
           defaultValue={options.countryCodeColumn}
@@ -69,9 +66,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-key-type">Key type</label>
         <Select
-          id="choropleth-editor-key-type"
+          label="Key type"
           className="w-100"
           data-test="Choropleth.Editor.KeyType"
           value={options.countryCodeType}
@@ -84,9 +80,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-value-column">Value column</label>
         <Select
-          id="choropleth-editor-value-column"
+          label="Value column"
           className="w-100"
           data-test="Choropleth.Editor.ValueColumn"
           defaultValue={options.valueColumn}

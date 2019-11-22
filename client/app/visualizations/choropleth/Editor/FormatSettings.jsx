@@ -1,14 +1,7 @@
 import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import Checkbox from 'antd/lib/checkbox';
-import Select from 'antd/lib/select';
-import Radio from 'antd/lib/radio';
-import Tooltip from 'antd/lib/tooltip';
-import Icon from 'antd/lib/icon';
 import * as Grid from 'antd/lib/grid';
-import ContextHelp from '@/components/visualizations/editor/ContextHelp';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select, Input, Checkbox, TextArea, TextAlignmentSelect, ContextHelp } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 
 function TemplateFormatHint({ mapType }) { // eslint-disable-line react/prop-types
@@ -48,12 +41,8 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       <Section>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
-            <label htmlFor="choropleth-editor-value-format">
-              Value format
-              <ContextHelp.NumberFormatSpecs />
-            </label>
             <Input
-              id="choropleth-editor-value-format"
+              label={(<React.Fragment>Value format<ContextHelp.NumberFormatSpecs /></React.Fragment>)}
               className="w-100"
               data-test="Choropleth.Editor.ValueFormat"
               defaultValue={options.valueFormat}
@@ -61,9 +50,8 @@ export default function GeneralSettings({ options, onOptionsChange }) {
             />
           </Grid.Col>
           <Grid.Col span={12}>
-            <label htmlFor="choropleth-editor-value-placeholder">Value placeholder</label>
             <Input
-              id="choropleth-editor-value-placeholder"
+              label="Value placeholder"
               className="w-100"
               data-test="Choropleth.Editor.ValuePlaceholder"
               defaultValue={options.noValuePlaceholder}
@@ -86,9 +74,8 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       <Section>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
-            <label htmlFor="choropleth-editor-legend-position">Legend position</label>
             <Select
-              id="choropleth-editor-legend-position"
+              label="Legend position"
               className="w-100"
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
@@ -102,31 +89,12 @@ export default function GeneralSettings({ options, onOptionsChange }) {
             </Select>
           </Grid.Col>
           <Grid.Col span={12}>
-            <label htmlFor="choropleth-editor-legend-text-alignment">Legend text alignment</label>
-            <Radio.Group
-              id="choropleth-editor-legend-text-alignment"
-              className="choropleth-visualization-editor-legend-align-text"
-              data-test="Choropleth.Editor.LegendTextAlignment"
+            <TextAlignmentSelect
+              label="Legend text alignment"
               disabled={!options.legend.visible}
               defaultValue={options.legend.alignText}
               onChange={event => onOptionsChange({ legend: { alignText: event.target.value } })}
-            >
-              <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="left" data-test="Choropleth.Editor.LegendTextAlignment.Left">
-                  <Icon type="align-left" />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="center" data-test="Choropleth.Editor.LegendTextAlignment.Center">
-                  <Icon type="align-center" />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="right" data-test="Choropleth.Editor.LegendTextAlignment.Right">
-                  <Icon type="align-right" />
-                </Radio.Button>
-              </Tooltip>
-            </Radio.Group>
+            />
           </Grid.Col>
         </Grid.Row>
       </Section>
@@ -142,9 +110,8 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-tooltip-template">Tooltip template {templateFormatHint}</label>
         <Input
-          id="choropleth-editor-tooltip-template"
+          label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
           className="w-100"
           data-test="Choropleth.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
@@ -164,9 +131,8 @@ export default function GeneralSettings({ options, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-popup-template">Popup template {templateFormatHint}</label>
-        <Input.TextArea
-          id="choropleth-editor-popup-template"
+        <TextArea
+          label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}
           className="w-100"
           data-test="Choropleth.Editor.PopupTemplate"
           disabled={!options.popup.enabled}

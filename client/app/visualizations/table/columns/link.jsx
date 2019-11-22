@@ -2,10 +2,7 @@ import { extend, trim } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import Checkbox from 'antd/lib/checkbox';
-import ContextHelp from '@/components/visualizations/editor/ContextHelp';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Input, Checkbox, ContextHelp } from '@/components/visualizations/editor';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -14,9 +11,8 @@ function Editor({ column, onChange }) {
   return (
     <React.Fragment>
       <Section>
-        <label htmlFor={`table-column-editor-${column.name}-link-url`}>URL template</label>
         <Input
-          id={`table-column-editor-${column.name}-link-url`}
+          label="URL template"
           data-test="Table.ColumnEditor.Link.UrlTemplate"
           defaultValue={column.linkUrlTemplate}
           onChange={event => onChangeDebounced({ linkUrlTemplate: event.target.value })}
@@ -24,9 +20,8 @@ function Editor({ column, onChange }) {
       </Section>
 
       <Section>
-        <label htmlFor={`table-column-editor-${column.name}-link-text`}>Text template</label>
         <Input
-          id={`table-column-editor-${column.name}-link-text`}
+          label="Text template"
           data-test="Table.ColumnEditor.Link.TextTemplate"
           defaultValue={column.linkTextTemplate}
           onChange={event => onChangeDebounced({ linkTextTemplate: event.target.value })}
@@ -34,9 +29,8 @@ function Editor({ column, onChange }) {
       </Section>
 
       <Section>
-        <label htmlFor={`table-column-editor-${column.name}-link-title`}>Title template</label>
         <Input
-          id={`table-column-editor-${column.name}-link-title`}
+          label="Title template"
           data-test="Table.ColumnEditor.Link.TitleTemplate"
           defaultValue={column.linkTitleTemplate}
           onChange={event => onChangeDebounced({ linkTitleTemplate: event.target.value })}

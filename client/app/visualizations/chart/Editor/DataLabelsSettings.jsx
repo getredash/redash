@@ -1,10 +1,7 @@
 import { includes } from 'lodash';
 import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import Checkbox from 'antd/lib/checkbox';
-import Input from 'antd/lib/input';
-import ContextHelp from '@/components/visualizations/editor/ContextHelp';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Input, Checkbox, ContextHelp } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function DataLabelsSettings({ options, onOptionsChange }) {
@@ -30,12 +27,8 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       )}
 
       <Section>
-        <label htmlFor="chart-editor-number-format">
-          Number Values Format
-          <ContextHelp.NumberFormatSpecs />
-        </label>
         <Input
-          id="chart-editor-number-format"
+          label={<React.Fragment>Number Values Format<ContextHelp.NumberFormatSpecs /></React.Fragment>}
           data-test="Chart.DataLabels.NumberFormat"
           defaultValue={options.numberFormat}
           onChange={e => debouncedOnOptionsChange({ numberFormat: e.target.value })}
@@ -43,12 +36,8 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="chart-editor-percent-format">
-          Percent Values Format
-          <ContextHelp.NumberFormatSpecs />
-        </label>
         <Input
-          id="chart-editor-percent-format"
+          label={<React.Fragment>Percent Values Format<ContextHelp.NumberFormatSpecs /></React.Fragment>}
           data-test="Chart.DataLabels.PercentFormat"
           defaultValue={options.percentFormat}
           onChange={e => debouncedOnOptionsChange({ percentFormat: e.target.value })}
@@ -56,12 +45,8 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="chart-editor-datetime-format">
-          Date/Time Values Format
-          <ContextHelp.DateTimeFormatSpecs />
-        </label>
         <Input
-          id="chart-editor-datetime-format"
+          label={<React.Fragment>Date/Time Values Format<ContextHelp.DateTimeFormatSpecs /></React.Fragment>}
           data-test="Chart.DataLabels.DateTimeFormat"
           defaultValue={options.dateTimeFormat}
           onChange={e => debouncedOnOptionsChange({ dateTimeFormat: e.target.value })}
@@ -69,24 +54,25 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="chart-editor-text-format">
-          Data Labels
-          <ContextHelp placement="topRight" arrowPointAtCenter>
-            <div className="p-b-5">Use special names to access additional properties:</div>
-            <div><code>{'{{ @@name }}'}</code> series name;</div>
-            <div><code>{'{{ @@x }}'}</code> x-value;</div>
-            <div><code>{'{{ @@y }}'}</code> y-value;</div>
-            <div><code>{'{{ @@yPercent }}'}</code> relative y-value;</div>
-            <div><code>{'{{ @@yError }}'}</code> y deviation;</div>
-            <div><code>{'{{ @@size }}'}</code> bubble size;</div>
-            <div className="p-t-5">
-              Also, all query result columns can be referenced<br />using
-              <code className="text-nowrap">{'{{ column_name }}'}</code> syntax.
-            </div>
-          </ContextHelp>
-        </label>
         <Input
-          id="chart-editor-text-format"
+          label={(
+            <React.Fragment>
+              Data Labels
+              <ContextHelp placement="topRight" arrowPointAtCenter>
+                <div className="p-b-5">Use special names to access additional properties:</div>
+                <div><code>{'{{ @@name }}'}</code> series name;</div>
+                <div><code>{'{{ @@x }}'}</code> x-value;</div>
+                <div><code>{'{{ @@y }}'}</code> y-value;</div>
+                <div><code>{'{{ @@yPercent }}'}</code> relative y-value;</div>
+                <div><code>{'{{ @@yError }}'}</code> y deviation;</div>
+                <div><code>{'{{ @@size }}'}</code> bubble size;</div>
+                <div className="p-t-5">
+                  Also, all query result columns can be referenced<br />using
+                  <code className="text-nowrap">{'{{ column_name }}'}</code> syntax.
+                </div>
+              </ContextHelp>
+            </React.Fragment>
+          )}
           data-test="Chart.DataLabels.TextFormat"
           placeholder="(auto)"
           defaultValue={options.textFormat}

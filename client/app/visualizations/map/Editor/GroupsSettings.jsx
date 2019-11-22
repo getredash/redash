@@ -37,18 +37,17 @@ export default function GroupsSettings({ options, data, onOptionsChange }) {
       title: 'Color',
       dataIndex: 'color',
       width: '1%',
+      className: 'text-nowrap',
       render: (unused, item) => (
-        <div className="text-nowrap">
-          <ColorPicker
-            interactive
-            presetColors={colors}
-            placement="topRight"
-            color={item.color}
-            triggerProps={{ 'data-test': `Map.Editor.Groups.${item.name}.Color` }}
-            onChange={value => updateGroupOption(item.name, 'color', value)}
-          />
-          <ColorPicker.Label color={item.color} presetColors={colors} />
-        </div>
+        <ColorPicker
+          interactive
+          presetColors={colors}
+          placement="topRight"
+          color={item.color}
+          triggerProps={{ 'data-test': `Map.Editor.Groups.${item.name}.Color` }}
+          onChange={value => updateGroupOption(item.name, 'color', value)}
+          addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
+        />
       ),
     },
   ];

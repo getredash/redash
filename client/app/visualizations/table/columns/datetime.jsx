@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import ContextHelp from '@/components/visualizations/editor/ContextHelp';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Input, ContextHelp } from '@/components/visualizations/editor';
 import { createDateTimeFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -11,12 +9,8 @@ function Editor({ column, onChange }) {
 
   return (
     <Section>
-      <label htmlFor={`table-column-editor-${column.name}-datetime-format`}>
-        Date/Time format
-        <ContextHelp.DateTimeFormatSpecs />
-      </label>
       <Input
-        id={`table-column-editor-${column.name}-datetime-format`}
+        label={(<React.Fragment>Date/Time format<ContextHelp.DateTimeFormatSpecs /></React.Fragment>)}
         data-test="Table.ColumnEditor.DateTime.Format"
         defaultValue={column.dateTimeFormat}
         onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}

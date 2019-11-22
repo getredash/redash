@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import ContextHelp from '@/components/visualizations/editor/ContextHelp';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Input, ContextHelp } from '@/components/visualizations/editor';
 import { createNumberFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -11,12 +9,8 @@ function Editor({ column, onChange }) {
 
   return (
     <Section>
-      <label htmlFor={`table-column-editor-${column.name}-number-format`}>
-        Number format
-        <ContextHelp.NumberFormatSpecs />
-      </label>
       <Input
-        id={`table-column-editor-${column.name}-number-format`}
+        label={(<React.Fragment>Number format<ContextHelp.NumberFormatSpecs /></React.Fragment>)}
         data-test="Table.ColumnEditor.Number.Format"
         defaultValue={column.numberFormat}
         onChange={event => onChangeDebounced({ numberFormat: event.target.value })}

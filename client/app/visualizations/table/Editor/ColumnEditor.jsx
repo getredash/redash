@@ -3,13 +3,7 @@ import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import PropTypes from 'prop-types';
 import * as Grid from 'antd/lib/grid';
-import Input from 'antd/lib/input';
-import Radio from 'antd/lib/radio';
-import Checkbox from 'antd/lib/checkbox';
-import Select from 'antd/lib/select';
-import Icon from 'antd/lib/icon';
-import Tooltip from 'antd/lib/tooltip';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select, Input, Checkbox, TextAlignmentSelect } from '@/components/visualizations/editor';
 
 import ColumnTypes from '../columns';
 
@@ -34,27 +28,10 @@ export default function ColumnEditor({ column, onChange }) {
             />
           </Grid.Col>
           <Grid.Col span={8}>
-            <Radio.Group
-              className="table-visualization-editor-column-align-content"
+            <TextAlignmentSelect
               defaultValue={column.alignContent}
               onChange={event => handleChange({ alignContent: event.target.value })}
-            >
-              <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="left" data-test={`Table.Column.${column.name}.AlignLeft`}>
-                  <Icon type="align-left" />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="center" data-test={`Table.Column.${column.name}.AlignCenter`}>
-                  <Icon type="align-center" />
-                </Radio.Button>
-              </Tooltip>
-              <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
-                <Radio.Button value="right" data-test={`Table.Column.${column.name}.AlignRight`}>
-                  <Icon type="align-right" />
-                </Radio.Button>
-              </Tooltip>
-            </Radio.Group>
+            />
           </Grid.Col>
         </Grid.Row>
       </Section>
@@ -70,9 +47,8 @@ export default function ColumnEditor({ column, onChange }) {
       </Section>
 
       <Section>
-        <label htmlFor={`table-column-editor-${column.name}-display-as`}>Display as:</label>
         <Select
-          id={`table-column-editor-${column.name}-display-as`}
+          label="Display as:"
           data-test={`Table.Column.${column.name}.DisplayAs`}
           className="w-100"
           defaultValue={column.displayAs}

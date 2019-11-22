@@ -1,17 +1,15 @@
 import { map } from 'lodash';
 import React from 'react';
-import Select from 'antd/lib/select';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function ColumnsSettings({ options, data, onOptionsChange }) {
   return (
     <React.Fragment>
       <Section>
-        <label htmlFor="cohort-date-column">Date (Bucket)</label>
         <Select
+          label="Date (Bucket)"
           data-test="Cohort.DateColumn"
-          id="cohort-date-column"
           className="w-100"
           value={options.dateColumn}
           onChange={dateColumn => onOptionsChange({ dateColumn })}
@@ -23,10 +21,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="cohort-stage-column">Stage</label>
         <Select
+          label="Stage"
           data-test="Cohort.StageColumn"
-          id="cohort-stage-column"
           className="w-100"
           value={options.stageColumn}
           onChange={stageColumn => onOptionsChange({ stageColumn })}
@@ -38,10 +35,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="cohort-total-column">Bucket Population Size</label>
         <Select
+          label="Bucket Population Size"
           data-test="Cohort.TotalColumn"
-          id="cohort-total-column"
           className="w-100"
           value={options.totalColumn}
           onChange={totalColumn => onOptionsChange({ totalColumn })}
@@ -53,10 +49,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
       </Section>
 
       <Section>
-        <label htmlFor="cohort-value-column">Stage Value</label>
         <Select
+          label="Stage Value"
           data-test="Cohort.ValueColumn"
-          id="cohort-value-column"
           className="w-100"
           value={options.valueColumn}
           onChange={valueColumn => onOptionsChange({ valueColumn })}

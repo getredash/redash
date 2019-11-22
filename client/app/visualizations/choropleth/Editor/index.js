@@ -5,8 +5,6 @@ import ColorsSettings from './ColorsSettings';
 import FormatSettings from './FormatSettings';
 import BoundsSettings from './BoundsSettings';
 
-import './editor.less';
-
 export default createTabbedEditor([
   { key: 'General', title: 'General', component: GeneralSettings },
   { key: 'Colors', title: 'Colors', component: ColorsSettings },

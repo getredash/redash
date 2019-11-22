@@ -1,8 +1,6 @@
 import { isArray, map, mapValues, includes, some, each, difference, extend } from 'lodash';
 import React, { useMemo } from 'react';
-import Select from 'antd/lib/select';
-import Checkbox from 'antd/lib/checkbox';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select, Checkbox } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 
 import ChartTypeSelect from './ChartTypeSelect';
@@ -102,9 +100,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
   return (
     <React.Fragment>
       <Section>
-        <label htmlFor="chart-editor-global-series-type">Chart Type</label>
         <ChartTypeSelect
-          id="chart-editor-global-series-type"
+          label="Chart Type"
           className="w-100"
           data-test="Chart.GlobalSeriesType"
           defaultValue={options.globalSeriesType}
@@ -124,9 +121,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {includes(['pie'], options.globalSeriesType) && (
         <Section>
-          <label htmlFor="chart-editor-pie-direction">Direction</label>
           <Select
-            id="chart-editor-pie-direction"
+            label="Direction"
             className="w-100"
             data-test="Chart.PieDirection"
             defaultValue={options.direction.type}
@@ -164,10 +160,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {!includes(['custom', 'heatmap'], options.globalSeriesType) && (
         <Section>
-          <label htmlFor="chart-editor-stacking">Stacking</label>
-
           <Select
-            id="chart-editor-stacking"
+            label="Stacking"
             className="w-100"
             data-test="Chart.Stacking"
             defaultValue={options.series.stacking}
@@ -194,9 +188,8 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {!includes(['custom', 'heatmap', 'bubble', 'scatter'], options.globalSeriesType) && (
         <Section>
-          <label className="d-flex align-items-center" htmlFor="chart-editor-missing-values">Missing and NULL values</label>
           <Select
-            id="chart-editor-missing-values"
+            label="Missing and NULL values"
             className="w-100"
             data-test="Chart.MissingValues"
             defaultValue={options.missingValuesAsZero ? 1 : 0}

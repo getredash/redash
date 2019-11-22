@@ -1,9 +1,8 @@
 import { isFinite, cloneDeep } from 'lodash';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import InputNumber from 'antd/lib/input-number';
 import * as Grid from 'antd/lib/grid';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, InputNumber, ControlLabel } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function BoundsSettings({ options, onOptionsChange }) {
@@ -34,45 +33,45 @@ export default function BoundsSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
       <Section>
-        <label htmlFor="choropleth-editor-bounds-ne">North-East latitude and longitude</label>
-        <Grid.Row gutter={15}>
-          <Grid.Col span={12}>
-            <InputNumber
-              id="choropleth-editor-bounds-ne"
-              className="w-100"
-              value={bounds[1][0]}
-              onChange={value => updateBounds(1, 0, value)}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <InputNumber
-              className="w-100"
-              value={bounds[1][1]}
-              onChange={value => updateBounds(1, 1, value)}
-            />
-          </Grid.Col>
-        </Grid.Row>
+        <ControlLabel label="North-East latitude and longitude">
+          <Grid.Row gutter={15}>
+            <Grid.Col span={12}>
+              <InputNumber
+                className="w-100"
+                value={bounds[1][0]}
+                onChange={value => updateBounds(1, 0, value)}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <InputNumber
+                className="w-100"
+                value={bounds[1][1]}
+                onChange={value => updateBounds(1, 1, value)}
+              />
+            </Grid.Col>
+          </Grid.Row>
+        </ControlLabel>
       </Section>
 
       <Section>
-        <label htmlFor="choropleth-editor-bounds-sw">South-West latitude and longitude</label>
-        <Grid.Row gutter={15}>
-          <Grid.Col span={12}>
-            <InputNumber
-              id="choropleth-editor-bounds-sw"
-              className="w-100"
-              value={bounds[0][0]}
-              onChange={value => updateBounds(0, 0, value)}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <InputNumber
-              className="w-100"
-              value={bounds[0][1]}
-              onChange={value => updateBounds(0, 1, value)}
-            />
-          </Grid.Col>
-        </Grid.Row>
+        <ControlLabel label="South-West latitude and longitude">
+          <Grid.Row gutter={15}>
+            <Grid.Col span={12}>
+              <InputNumber
+                className="w-100"
+                value={bounds[0][0]}
+                onChange={value => updateBounds(0, 0, value)}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <InputNumber
+                className="w-100"
+                value={bounds[0][1]}
+                onChange={value => updateBounds(0, 1, value)}
+              />
+            </Grid.Col>
+          </Grid.Row>
+        </ControlLabel>
       </Section>
     </React.Fragment>
   );

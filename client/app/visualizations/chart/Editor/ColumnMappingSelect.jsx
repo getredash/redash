@@ -1,8 +1,7 @@
 import { isString, map, uniq, flatten, filter, sortBy, keys } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'antd/lib/select';
-import Section from '@/components/visualizations/editor/Section';
+import { Section, Select } from '@/components/visualizations/editor';
 
 const MappingTypes = {
   x: { label: 'X Column' },
@@ -22,9 +21,8 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
 
   return (
     <Section>
-      <label htmlFor={`chart-editor-column-mapping-${type}`}>{label}</label>
       <Select
-        id={`chart-editor-column-mapping-${type}`}
+        label={label}
         className="w-100"
         data-test={`Chart.ColumnMapping.${type}`}
         mode={multiple ? 'multiple' : 'default'}
