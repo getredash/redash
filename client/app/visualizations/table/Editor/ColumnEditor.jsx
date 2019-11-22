@@ -29,6 +29,7 @@ export default function ColumnEditor({ column, onChange }) {
           </Grid.Col>
           <Grid.Col span={8}>
             <TextAlignmentSelect
+              data-test={`Table.Column.${column.name}.TextAlignment`}
               defaultValue={column.alignContent}
               onChange={event => handleChange({ alignContent: event.target.value })}
             />

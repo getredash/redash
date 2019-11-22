@@ -90,6 +90,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           </Grid.Col>
           <Grid.Col span={12}>
             <TextAlignmentSelect
+              data-test="Choropleth.Editor.LegendTextAlignment"
               label="Legend text alignment"
               disabled={!options.legend.visible}
               defaultValue={options.legend.alignText}

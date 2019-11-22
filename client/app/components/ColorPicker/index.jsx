@@ -66,7 +66,6 @@ export default function ColorPicker({
       {addonBefore}
       <Popover
         arrowPointAtCenter
-        destroyTooltipOnHide
         overlayClassName={`color-picker ${interactive ? 'color-picker-interactive' : 'color-picker-with-actions'}`}
         overlayStyle={{ '--color-picker-selected-color': currentColor }}
         content={(

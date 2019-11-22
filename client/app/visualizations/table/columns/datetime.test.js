@@ -28,7 +28,7 @@ describe('Visualizations -> Table -> Columns -> Date/Time', () => {
         dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.DateTime.Format').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.DateTime.Format').last().find('input')
         .simulate('change', { target: { value: 'YYYY/MM/DD HH:ss' } });
     });
   });

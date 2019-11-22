@@ -76,7 +76,9 @@ describe('Choropleth', () => {
       Choropleth.Editor.LegendPosition.TopRight
     `);
 
-    cy.getByTestId('Choropleth.Editor.LegendTextAlignment.Left').check({ force: true });
+    cy.getByTestId('Choropleth.Editor.LegendTextAlignment')
+      .find('[data-test="TextAlignmentSelect.Left"]')
+      .check({ force: true });
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
