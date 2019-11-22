@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { createDateTimeFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -14,16 +13,7 @@ function Editor({ column, onChange }) {
       <div className="m-b-15">
         <label htmlFor={`table-column-editor-${column.name}-datetime-format`}>
           Date/Time format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp.DateTimeFormatSpecs />
         </label>
         <Input
           id={`table-column-editor-${column.name}-datetime-format`}

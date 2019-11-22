@@ -3,8 +3,7 @@ import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function DataLabelsSettings({ options, onOptionsChange }) {
@@ -34,16 +33,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       <div className="m-b-15">
         <label htmlFor="chart-editor-number-format">
           Number Values Format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp.NumberFormatSpecs />
         </label>
         <Input
           id="chart-editor-number-format"
@@ -56,16 +46,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       <div className="m-b-15">
         <label htmlFor="chart-editor-percent-format">
           Percent Values Format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp.NumberFormatSpecs />
         </label>
         <Input
           id="chart-editor-percent-format"
@@ -78,16 +59,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       <div className="m-b-15">
         <label htmlFor="chart-editor-datetime-format">
           Date/Time Values Format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp.DateTimeFormatSpecs />
         </label>
         <Input
           id="chart-editor-datetime-format"
@@ -100,27 +72,19 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
       <div className="m-b-15">
         <label htmlFor="chart-editor-text-format">
           Data Labels
-          <Popover
-            placement="topRight"
-            arrowPointAtCenter
-            content={(
-              <React.Fragment>
-                <div className="p-b-5">Use special names to access additional properties:</div>
-                <div><code>{'{{ @@name }}'}</code> series name;</div>
-                <div><code>{'{{ @@x }}'}</code> x-value;</div>
-                <div><code>{'{{ @@y }}'}</code> y-value;</div>
-                <div><code>{'{{ @@yPercent }}'}</code> relative y-value;</div>
-                <div><code>{'{{ @@yError }}'}</code> y deviation;</div>
-                <div><code>{'{{ @@size }}'}</code> bubble size;</div>
-                <div className="p-t-5">
-                  Also, all query result columns can be referenced<br />using
-                  <code className="text-nowrap">{'{{ column_name }}'}</code> syntax.
-                </div>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp placement="topRight" arrowPointAtCenter>
+            <div className="p-b-5">Use special names to access additional properties:</div>
+            <div><code>{'{{ @@name }}'}</code> series name;</div>
+            <div><code>{'{{ @@x }}'}</code> x-value;</div>
+            <div><code>{'{{ @@y }}'}</code> y-value;</div>
+            <div><code>{'{{ @@yPercent }}'}</code> relative y-value;</div>
+            <div><code>{'{{ @@yError }}'}</code> y deviation;</div>
+            <div><code>{'{{ @@size }}'}</code> bubble size;</div>
+            <div className="p-t-5">
+              Also, all query result columns can be referenced<br />using
+              <code className="text-nowrap">{'{{ column_name }}'}</code> syntax.
+            </div>
+          </ContextHelp>
         </label>
         <Input
           id="chart-editor-text-format"

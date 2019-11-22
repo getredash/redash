@@ -5,43 +5,35 @@ import Checkbox from 'antd/lib/checkbox';
 import Select from 'antd/lib/select';
 import Radio from 'antd/lib/radio';
 import Tooltip from 'antd/lib/tooltip';
-import Popover from 'antd/lib/popover';
 import Icon from 'antd/lib/icon';
 import * as Grid from 'antd/lib/grid';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { EditorPropTypes } from '@/visualizations';
 
 function TemplateFormatHint({ mapType }) { // eslint-disable-line react/prop-types
   return (
-    <Popover
-      placement="topLeft"
-      arrowPointAtCenter
-      content={(
+    <ContextHelp placement="topLeft" arrowPointAtCenter>
+      <div className="p-b-5">All query result columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
+      <div className="p-b-5">Use special names to access additional properties:</div>
+      <div><code>{'{{ @@value }}'}</code> formatted value;</div>
+      {mapType === 'countries' && (
         <React.Fragment>
-          <div className="p-b-5">All query result columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
-          <div className="p-b-5">Use special names to access additional properties:</div>
-          <div><code>{'{{ @@value }}'}</code> formatted value;</div>
-          {mapType === 'countries' && (
-            <React.Fragment>
-              <div><code>{'{{ @@name }}'}</code> short country name;</div>
-              <div><code>{'{{ @@name_long }}'}</code> full country name;</div>
-              <div><code>{'{{ @@abbrev }}'}</code> abbreviated country name;</div>
-              <div><code>{'{{ @@iso_a2 }}'}</code> two-letter ISO country code;</div>
-              <div><code>{'{{ @@iso_a3 }}'}</code> three-letter ISO country code;</div>
-              <div><code>{'{{ @@iso_n3 }}'}</code> three-digit ISO country code.</div>
-            </React.Fragment>
-          )}
-          {mapType === 'subdiv_japan' && (
-            <React.Fragment>
-              <div><code>{'{{ @@name }}'}</code> Prefecture name in English;</div>
-              <div><code>{'{{ @@name_local }}'}</code> Prefecture name in Kanji;</div>
-              <div><code>{'{{ @@iso_3166_2 }}'}</code> five-letter ISO subdivision code (JP-xx);</div>
-            </React.Fragment>
-          )}
+          <div><code>{'{{ @@name }}'}</code> short country name;</div>
+          <div><code>{'{{ @@name_long }}'}</code> full country name;</div>
+          <div><code>{'{{ @@abbrev }}'}</code> abbreviated country name;</div>
+          <div><code>{'{{ @@iso_a2 }}'}</code> two-letter ISO country code;</div>
+          <div><code>{'{{ @@iso_a3 }}'}</code> three-letter ISO country code;</div>
+          <div><code>{'{{ @@iso_n3 }}'}</code> three-digit ISO country code.</div>
         </React.Fragment>
       )}
-    >
-      <Icon className="m-l-5" type="question-circle" theme="filled" />
-    </Popover>
+      {mapType === 'subdiv_japan' && (
+        <React.Fragment>
+          <div><code>{'{{ @@name }}'}</code> Prefecture name in English;</div>
+          <div><code>{'{{ @@name_local }}'}</code> Prefecture name in Kanji;</div>
+          <div><code>{'{{ @@iso_3166_2 }}'}</code> five-letter ISO subdivision code (JP-xx);</div>
+        </React.Fragment>
+      )}
+    </ContextHelp>
   );
 }
 
@@ -56,16 +48,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="choropleth-editor-value-format">
             Value format
-            <Popover
-              content={(
-                <React.Fragment>
-                  Format&nbsp;
-                  <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-                </React.Fragment>
-              )}
-            >
-              <Icon className="m-l-5" type="question-circle" theme="filled" />
-            </Popover>
+            <ContextHelp.NumberFormatSpecs />
           </label>
           <Input
             id="choropleth-editor-value-format"

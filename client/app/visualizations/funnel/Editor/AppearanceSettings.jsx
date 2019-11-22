@@ -2,9 +2,8 @@ import React from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
 import * as Grid from 'antd/lib/grid';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function AppearanceSettings({ options, onOptionsChange }) {
@@ -16,16 +15,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="funnel-editor-number-format">
             Number Values Format
-            <Popover
-              content={(
-                <React.Fragment>
-                  Format&nbsp;
-                  <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-                </React.Fragment>
-              )}
-            >
-              <Icon className="m-l-5" type="question-circle" theme="filled" />
-            </Popover>
+            <ContextHelp.NumberFormatSpecs />
           </label>
         </Grid.Col>
         <Grid.Col span={12}>
@@ -43,16 +33,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <Grid.Col span={12}>
           <label htmlFor="funnel-editor-number-format">
             Percent Values Format
-            <Popover
-              content={(
-                <React.Fragment>
-                  Format&nbsp;
-                  <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-                </React.Fragment>
-              )}
-            >
-              <Icon className="m-l-5" type="question-circle" theme="filled" />
-            </Popover>
+            <ContextHelp.NumberFormatSpecs />
           </label>
         </Grid.Col>
         <Grid.Col span={12}>

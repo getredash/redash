@@ -4,11 +4,10 @@ import { useDebouncedCallback } from 'use-debounce';
 import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import Checkbox from 'antd/lib/checkbox';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
 import Typography from 'antd/lib/typography';
 import * as Grid from 'antd/lib/grid';
 import ColorPicker from '@/components/ColorPicker';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { EditorPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 
@@ -132,18 +131,12 @@ export default function StyleSettings({ options, onOptionsChange }) {
           />
           <Typography.Text disabled={!isCustomMarkersStyleAllowed}>Override default style</Typography.Text>
           {!isCustomMarkersStyleAllowed && (
-            <Popover
-              placement="topLeft"
-              arrowPointAtCenter
-              content={(
-                <span>
-                  Custom marker styles are not available<br />
-                  when <b>Group By</b> column selected.
-                </span>
-              )}
-            >
-              <Icon className="m-l-5" type="question-circle" theme="filled" />
-            </Popover>
+            <ContextHelp placement="topLeft" arrowPointAtCenter>
+              <span>
+                Custom marker styles are not available<br />
+                when <b>Group By</b> column selected.
+              </span>
+            </ContextHelp>
           )}
         </label>
       </div>
@@ -177,24 +170,16 @@ export default function StyleSettings({ options, onOptionsChange }) {
               <Grid.Col span={12}>
                 <label htmlFor="map-editor-marker-icon">
                   Icon
-                  <Popover
-                    placement="topLeft"
-                    arrowPointAtCenter
-                    content={(
-                      <React.Fragment>
-                        <div className="m-b-5">
-                          Enter an icon name from{' '}
-                          <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">Font-Awesome 4.7</a>
-                        </div>
-                        <div className="m-b-5">
-                          Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
-                        </div>
-                        <div>Leave blank to remove.</div>
-                      </React.Fragment>
-                    )}
-                  >
-                    <Icon className="m-l-5" type="question-circle" theme="filled" />
-                  </Popover>
+                  <ContextHelp placement="topLeft" arrowPointAtCenter>
+                    <div className="m-b-5">
+                      Enter an icon name from{' '}
+                      <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">Font-Awesome 4.7</a>
+                    </div>
+                    <div className="m-b-5">
+                      Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
+                    </div>
+                    <div>Leave blank to remove.</div>
+                  </ContextHelp>
                 </label>
               </Grid.Col>
               <Grid.Col span={12}>

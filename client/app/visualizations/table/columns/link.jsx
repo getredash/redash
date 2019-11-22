@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Checkbox from 'antd/lib/checkbox';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -56,21 +55,19 @@ function Editor({ column, onChange }) {
       </div>
 
       <div className="m-b-15">
-        <Popover
-          content={(
-            <React.Fragment>
-              <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
-              <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
-              <div>This syntax is applicable to URL, Text and Title options.</div>
-            </React.Fragment>
-          )}
+        <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
+          icon={(
+            <span style={{ cursor: 'default' }}>
+              Format specs {ContextHelp.defaultIcon}
+            </span>
+          )}
         >
-          <span style={{ cursor: 'default' }}>
-            Format specs <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </span>
-        </Popover>
+          <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
+          <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
+          <div>This syntax is applicable to URL, Text and Title options.</div>
+        </ContextHelp>
       </div>
     </React.Fragment>
   );

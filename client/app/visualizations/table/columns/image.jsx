@@ -3,8 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import ContextHelp from '@/components/visualizations/editor/ContextHelp';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -25,13 +24,9 @@ function Editor({ column, onChange }) {
       <div className="m-b-15">
         <label htmlFor={`table-column-editor-${column.name}-image-width`}>
           Size
-          <Popover
-            content="Any positive integer value that specifies size in pixels. Leave empty to use default value."
-            placement="topLeft"
-            arrowPointAtCenter
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
+          <ContextHelp placement="topLeft" arrowPointAtCenter>
+            Any positive integer value that specifies size in pixels. Leave empty to use default value.
+          </ContextHelp>
         </label>
         <div className="d-flex align-items-center">
           <Input
@@ -63,21 +58,19 @@ function Editor({ column, onChange }) {
       </div>
 
       <div className="m-b-15">
-        <Popover
-          content={(
-            <React.Fragment>
-              <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
-              <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
-              <div>This syntax is applicable to URL, Title and Size options.</div>
-            </React.Fragment>
-          )}
+        <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
+          icon={(
+            <span style={{ cursor: 'default' }}>
+              Format specs {ContextHelp.defaultIcon}
+            </span>
+          )}
         >
-          <span style={{ cursor: 'default' }}>
-            Format specs <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </span>
-        </Popover>
+          <div>All columns can be referenced using <code>{'{{ column_name }}'}</code> syntax.</div>
+          <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
+          <div>This syntax is applicable to URL, Title and Size options.</div>
+        </ContextHelp>
       </div>
     </React.Fragment>
   );
