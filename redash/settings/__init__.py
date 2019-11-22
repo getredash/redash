@@ -345,6 +345,7 @@ default_query_runners = [
     "redash.query_runner.url",
     "redash.query_runner.influx_db",
     "redash.query_runner.elasticsearch",
+    "redash.query_runner.elasticsearch2",
     "redash.query_runner.amazon_elasticsearch",
     "redash.query_runner.trino",
     "redash.query_runner.presto",
