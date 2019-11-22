@@ -1,6 +1,7 @@
 import { isNil, map, filter, difference } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 function getColumns(column, unusedColumns) {
@@ -18,7 +19,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="map-editor-latitude-column-name">Latitude Column Name</label>
         <Select
           data-test="Map.Editor.LatitudeColumnName"
@@ -31,9 +32,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={col} data-test={'Map.Editor.LatitudeColumnName.' + col}>{col}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="map-editor-longitude-column-name">Longitude Column Name</label>
         <Select
           data-test="Map.Editor.LongitudeColumnName"
@@ -46,9 +47,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={col} data-test={'Map.Editor.LongitudeColumnName.' + col}>{col}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label className="control-label" htmlFor="map-editor-group-by">Group By</label>
         <Select
           data-test="Map.Editor.GroupBy"
@@ -63,7 +64,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={col} data-test={'Map.Editor.GroupBy.' + col}>{col}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

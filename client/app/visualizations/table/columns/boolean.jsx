@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
+import Section from '@/components/visualizations/editor/Section';
 import { createBooleanFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -15,33 +16,29 @@ function Editor({ column, onChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
-        <div className="m-b-15">
-          <label htmlFor={`table-column-editor-${column.name}-boolean-false`}>
-            Value for <code>false</code>
-          </label>
-          <Input
-            id={`table-column-editor-${column.name}-boolean-false`}
-            data-test="Table.ColumnEditor.Boolean.False"
-            defaultValue={column.booleanValues[0]}
-            onChange={event => handleChangeDebounced(0, event.target.value)}
-          />
-        </div>
-      </div>
+      <Section>
+        <label htmlFor={`table-column-editor-${column.name}-boolean-false`}>
+          Value for <code>false</code>
+        </label>
+        <Input
+          id={`table-column-editor-${column.name}-boolean-false`}
+          data-test="Table.ColumnEditor.Boolean.False"
+          defaultValue={column.booleanValues[0]}
+          onChange={event => handleChangeDebounced(0, event.target.value)}
+        />
+      </Section>
 
-      <div className="m-b-15">
-        <div className="m-b-15">
-          <label htmlFor={`table-column-editor-${column.name}-boolean-true`}>
-            Value for <code>true</code>
-          </label>
-          <Input
-            id={`table-column-editor-${column.name}-boolean-true`}
-            data-test="Table.ColumnEditor.Boolean.True"
-            defaultValue={column.booleanValues[1]}
-            onChange={event => handleChangeDebounced(1, event.target.value)}
-          />
-        </div>
-      </div>
+      <Section>
+        <label htmlFor={`table-column-editor-${column.name}-boolean-true`}>
+          Value for <code>true</code>
+        </label>
+        <Input
+          id={`table-column-editor-${column.name}-boolean-true`}
+          data-test="Table.ColumnEditor.Boolean.True"
+          defaultValue={column.booleanValues[1]}
+          onChange={event => handleChangeDebounced(1, event.target.value)}
+        />
+      </Section>
     </React.Fragment>
   );
 }

@@ -3,26 +3,25 @@ import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import ContextHelp from '@/components/visualizations/editor/ContextHelp';
+import Section from '@/components/visualizations/editor/Section';
 import { createDateTimeFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
-    <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor={`table-column-editor-${column.name}-datetime-format`}>
-          Date/Time format
-          <ContextHelp.DateTimeFormatSpecs />
-        </label>
-        <Input
-          id={`table-column-editor-${column.name}-datetime-format`}
-          data-test="Table.ColumnEditor.DateTime.Format"
-          defaultValue={column.dateTimeFormat}
-          onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
-        />
-      </div>
-    </React.Fragment>
+    <Section>
+      <label htmlFor={`table-column-editor-${column.name}-datetime-format`}>
+        Date/Time format
+        <ContextHelp.DateTimeFormatSpecs />
+      </label>
+      <Input
+        id={`table-column-editor-${column.name}-datetime-format`}
+        data-test="Table.ColumnEditor.DateTime.Format"
+        defaultValue={column.dateTimeFormat}
+        onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
+      />
+    </Section>
   );
 }
 

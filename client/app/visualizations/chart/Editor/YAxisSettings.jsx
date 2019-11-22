@@ -1,5 +1,6 @@
 import React from 'react';
 import Switch from 'antd/lib/switch';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 import AxisSettings from './AxisSettings';
@@ -9,7 +10,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <h4>Left Y Axis</h4>
         <AxisSettings
           id="LeftYAxis"
@@ -17,10 +18,10 @@ export default function YAxisSettings({ options, onOptionsChange }) {
           options={leftYAxis}
           onChange={axis => onOptionsChange({ yAxis: [axis, rightYAxis] })}
         />
-      </div>
+      </Section>
 
       {(options.globalSeriesType !== 'heatmap') && (
-        <div className="m-b-15">
+        <Section>
           <h4>Right Y Axis</h4>
           <AxisSettings
             id="RightYAxis"
@@ -28,12 +29,12 @@ export default function YAxisSettings({ options, onOptionsChange }) {
             options={rightYAxis}
             onChange={axis => onOptionsChange({ yAxis: [leftYAxis, axis] })}
           />
-        </div>
+        </Section>
       )}
 
       {(options.globalSeriesType === 'heatmap') && (
         <React.Fragment>
-          <div className="m-b-15">
+          <Section>
             <label className="d-flex align-items-center" htmlFor="chart-editor-y-axis-sort">
               <Switch
                 id="chart-editor-y-axis-sort"
@@ -43,9 +44,9 @@ export default function YAxisSettings({ options, onOptionsChange }) {
               />
               <span className="m-l-10">Sort Values</span>
             </label>
-          </div>
+          </Section>
 
-          <div className="m-b-15">
+          <Section>
             <label className="d-flex align-items-center" htmlFor="chart-editor-y-axis-reverse">
               <Switch
                 id="chart-editor-y-axis-reverse"
@@ -55,7 +56,7 @@ export default function YAxisSettings({ options, onOptionsChange }) {
               />
               <span className="m-l-10">Reverse Order</span>
             </label>
-          </div>
+          </Section>
         </React.Fragment>
       )}
     </React.Fragment>

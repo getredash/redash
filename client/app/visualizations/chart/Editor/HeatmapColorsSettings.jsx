@@ -3,6 +3,7 @@ import React from 'react';
 import Select from 'antd/lib/select';
 import * as Grid from 'antd/lib/grid';
 import ColorPicker from '@/components/ColorPicker';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 
@@ -16,7 +17,7 @@ const ColorSchemes = [
 export default function HeatmapColorsSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-colors-heatmap-scheme">Color Scheme</label>
         <Select
           id="chart-editor-colors-heatmap-scheme"
@@ -33,35 +34,37 @@ export default function HeatmapColorsSettings({ options, onOptionsChange }) {
             </Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
       {(options.colorScheme === 'Custom...') && (
-        <Grid.Row type="flex" align="middle" className="m-b-15">
-          <Grid.Col span={12}>
-            <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-min-color">Min Color:</label>
-            <ColorPicker
-              data-test="Chart.Colors.Heatmap.MinColor"
-              id="chart-editor-colors-heatmap-min-color"
-              interactive
-              placement="topLeft"
-              presetColors={ColorPalette}
-              color={options.heatMinColor}
-              onChange={heatMinColor => onOptionsChange({ heatMinColor })}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-max-color">Max Color:</label>
-            <ColorPicker
-              data-test="Chart.Colors.Heatmap.MaxColor"
-              id="chart-editor-colors-heatmap-max-color"
-              interactive
-              placement="topRight"
-              presetColors={ColorPalette}
-              color={options.heatMaxColor}
-              onChange={heatMaxColor => onOptionsChange({ heatMaxColor })}
-            />
-          </Grid.Col>
-        </Grid.Row>
+        <Section>
+          <Grid.Row type="flex" align="middle">
+            <Grid.Col span={12}>
+              <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-min-color">Min Color:</label>
+              <ColorPicker
+                data-test="Chart.Colors.Heatmap.MinColor"
+                id="chart-editor-colors-heatmap-min-color"
+                interactive
+                placement="topLeft"
+                presetColors={ColorPalette}
+                color={options.heatMinColor}
+                onChange={heatMinColor => onOptionsChange({ heatMinColor })}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <label className="m-r-10" htmlFor="chart-editor-colors-heatmap-max-color">Max Color:</label>
+              <ColorPicker
+                data-test="Chart.Colors.Heatmap.MaxColor"
+                id="chart-editor-colors-heatmap-max-color"
+                interactive
+                placement="topRight"
+                presetColors={ColorPalette}
+                color={options.heatMaxColor}
+                onChange={heatMaxColor => onOptionsChange({ heatMaxColor })}
+              />
+            </Grid.Col>
+          </Grid.Row>
+        </Section>
       )}
     </React.Fragment>
   );

@@ -5,6 +5,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import Checkbox from 'antd/lib/checkbox';
 import ContextHelp from '@/components/visualizations/editor/ContextHelp';
+import Section from '@/components/visualizations/editor/Section';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -12,7 +13,7 @@ function Editor({ column, onChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-link-url`}>URL template</label>
         <Input
           id={`table-column-editor-${column.name}-link-url`}
@@ -20,9 +21,9 @@ function Editor({ column, onChange }) {
           defaultValue={column.linkUrlTemplate}
           onChange={event => onChangeDebounced({ linkUrlTemplate: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-link-text`}>Text template</label>
         <Input
           id={`table-column-editor-${column.name}-link-text`}
@@ -30,9 +31,9 @@ function Editor({ column, onChange }) {
           defaultValue={column.linkTextTemplate}
           onChange={event => onChangeDebounced({ linkTextTemplate: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-link-title`}>Title template</label>
         <Input
           id={`table-column-editor-${column.name}-link-title`}
@@ -40,21 +41,19 @@ function Editor({ column, onChange }) {
           defaultValue={column.linkTitleTemplate}
           onChange={event => onChangeDebounced({ linkTitleTemplate: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor={`table-column-editor-${column.name}-link-open-in-new-tab`}>
-          <Checkbox
-            id={`table-column-editor-${column.name}-link-open-in-new-tab`}
-            data-test="Table.ColumnEditor.Link.OpenInNewTab"
-            checked={column.linkOpenInNewTab}
-            onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}
-          />
-          <span>Open in new tab</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Table.ColumnEditor.Link.OpenInNewTab"
+          checked={column.linkOpenInNewTab}
+          onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}
+        >
+          Open in new tab
+        </Checkbox>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
@@ -68,7 +67,7 @@ function Editor({ column, onChange }) {
           <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
           <div>This syntax is applicable to URL, Text and Title options.</div>
         </ContextHelp>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

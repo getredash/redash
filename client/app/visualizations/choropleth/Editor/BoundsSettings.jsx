@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import InputNumber from 'antd/lib/input-number';
 import * as Grid from 'antd/lib/grid';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function BoundsSettings({ options, onOptionsChange }) {
@@ -32,7 +33,7 @@ export default function BoundsSettings({ options, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-bounds-ne">North-East latitude and longitude</label>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
@@ -51,9 +52,9 @@ export default function BoundsSettings({ options, onOptionsChange }) {
             />
           </Grid.Col>
         </Grid.Row>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-bounds-sw">South-West latitude and longitude</label>
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
@@ -72,7 +73,7 @@ export default function BoundsSettings({ options, onOptionsChange }) {
             />
           </Grid.Col>
         </Grid.Row>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

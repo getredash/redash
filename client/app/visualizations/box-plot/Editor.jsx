@@ -1,5 +1,6 @@
 import React from 'react';
 import Input from 'antd/lib/input';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function Editor({ options, onOptionsChange }) {
@@ -14,8 +15,8 @@ export default function Editor({ options, onOptionsChange }) {
   };
 
   return (
-    <div>
-      <div className="form-group">
+    <React.Fragment>
+      <Section>
         <label className="control-label" htmlFor="box-plot-x-axis-label">X Axis Label</label>
         <Input
           data-test="BoxPlot.XAxisLabel"
@@ -23,9 +24,9 @@ export default function Editor({ options, onOptionsChange }) {
           value={options.xAxisLabel}
           onChange={event => onXAxisLabelChanged(event.target.value)}
         />
-      </div>
+      </Section>
 
-      <div className="form-group">
+      <Section>
         <label className="control-label" htmlFor="box-plot-y-axis-label">Y Axis Label</label>
         <Input
           data-test="BoxPlot.YAxisLabel"
@@ -33,8 +34,8 @@ export default function Editor({ options, onOptionsChange }) {
           value={options.yAxisLabel}
           onChange={event => onYAxisLabelChanged(event.target.value)}
         />
-      </div>
-    </div>
+      </Section>
+    </React.Fragment>
   );
 }
 

@@ -3,6 +3,7 @@ import React from 'react';
 import Select from 'antd/lib/select';
 import InputNumber from 'antd/lib/input-number';
 import * as Grid from 'antd/lib/grid';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function Editor({ options, data, onOptionsChange }) {
@@ -12,7 +13,7 @@ export default function Editor({ options, data, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="form-group">
+      <Section>
         <label className="control-label" htmlFor="word-cloud-words-column">Words Column</label>
         <Select
           data-test="WordCloud.WordsColumn"
@@ -25,8 +26,8 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={'WordCloud.WordsColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
-      <div className="form-group">
+      </Section>
+      <Section>
         <label className="control-label" htmlFor="word-cloud-frequencies-column">Frequencies Column</label>
         <Select
           data-test="WordCloud.FrequenciesColumn"
@@ -40,8 +41,8 @@ export default function Editor({ options, data, onOptionsChange }) {
             <Select.Option key={'column-' + name} value={name} data-test={'WordCloud.FrequenciesColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
-      <div className="form-group">
+      </Section>
+      <Section>
         <label className="control-label" htmlFor="word-cloud-word-length-limit">
           Words Length Limit
         </label>
@@ -67,8 +68,8 @@ export default function Editor({ options, data, onOptionsChange }) {
             />
           </Grid.Col>
         </Grid.Row>
-      </div>
-      <div className="form-group">
+      </Section>
+      <Section>
         <label className="control-label" htmlFor="word-cloud-word-length-limit">
           Frequencies Limit
         </label>
@@ -94,7 +95,7 @@ export default function Editor({ options, data, onOptionsChange }) {
             />
           </Grid.Col>
         </Grid.Row>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

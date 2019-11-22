@@ -4,6 +4,7 @@ import { useDebouncedCallback } from 'use-debounce';
 import Checkbox from 'antd/lib/checkbox';
 import Input from 'antd/lib/input';
 import ContextHelp from '@/components/visualizations/editor/ContextHelp';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function DataLabelsSettings({ options, onOptionsChange }) {
@@ -17,20 +18,18 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
       { isShowDataLabelsAvailable && (
-        <div className="m-b-15">
-          <label htmlFor="chart-editor-show-data-labels">
-            <Checkbox
-              id="chart-editor-show-data-labels"
-              data-test="Chart.DataLabels.ShowDataLabels"
-              defaultChecked={options.showDataLabels}
-              onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}
-            />
-            <span>Show Data Labels</span>
-          </label>
-        </div>
+        <Section>
+          <Checkbox
+            data-test="Chart.DataLabels.ShowDataLabels"
+            defaultChecked={options.showDataLabels}
+            onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}
+          >
+            Show Data Labels
+          </Checkbox>
+        </Section>
       )}
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-number-format">
           Number Values Format
           <ContextHelp.NumberFormatSpecs />
@@ -41,9 +40,9 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           defaultValue={options.numberFormat}
           onChange={e => debouncedOnOptionsChange({ numberFormat: e.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-percent-format">
           Percent Values Format
           <ContextHelp.NumberFormatSpecs />
@@ -54,9 +53,9 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           defaultValue={options.percentFormat}
           onChange={e => debouncedOnOptionsChange({ percentFormat: e.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-datetime-format">
           Date/Time Values Format
           <ContextHelp.DateTimeFormatSpecs />
@@ -67,9 +66,9 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           defaultValue={options.dateTimeFormat}
           onChange={e => debouncedOnOptionsChange({ dateTimeFormat: e.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-text-format">
           Data Labels
           <ContextHelp placement="topRight" arrowPointAtCenter>
@@ -93,7 +92,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }) {
           defaultValue={options.textFormat}
           onChange={e => debouncedOnOptionsChange({ textFormat: e.target.value })}
         />
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

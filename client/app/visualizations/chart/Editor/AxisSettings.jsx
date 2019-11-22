@@ -6,6 +6,7 @@ import Select from 'antd/lib/select';
 import Input from 'antd/lib/input';
 import InputNumber from 'antd/lib/input-number';
 import * as Grid from 'antd/lib/grid';
+import Section from '@/components/visualizations/editor/Section';
 
 function toNumber(value) {
   value = isNumber(value) ? value : parseFloat(value);
@@ -26,7 +27,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`chart-editor-${id}-type`}>Scale</label>
         <Select
           id={`chart-editor-${id}-type`}
@@ -41,9 +42,9 @@ export default function AxisSettings({ id, options, features, onChange }) {
           <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>Logarithmic</Select.Option>
           <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>Category</Select.Option>
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`chart-editor-${id}-name`}>Name</label>
         <Input
           id={`chart-editor-${id}-name`}
@@ -51,33 +52,35 @@ export default function AxisSettings({ id, options, features, onChange }) {
           defaultValue={isObject(options.title) ? options.title.text : null}
           onChange={event => handleNameChange(event.target.value)}
         />
-      </div>
+      </Section>
 
       {features.range && (
-        <Grid.Row gutter={15} type="flex" align="middle" className="m-b-15">
-          <Grid.Col span={12}>
-            <label htmlFor={`chart-editor-${id}-range-min`}>Min Value</label>
-            <InputNumber
-              id={`chart-editor-${id}-range-min`}
-              className="w-100"
-              placeholder="Auto"
-              data-test={`Chart.${id}.RangeMin`}
-              defaultValue={toNumber(options.rangeMin)}
-              onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <label htmlFor={`chart-editor-${id}-range-max`}>Max Value</label>
-            <InputNumber
-              id={`chart-editor-${id}-range-max`}
-              className="w-100"
-              placeholder="Auto"
-              data-test={`Chart.${id}.RangeMax`}
-              defaultValue={toNumber(options.rangeMax)}
-              onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
-            />
-          </Grid.Col>
-        </Grid.Row>
+        <Section>
+          <Grid.Row gutter={15} type="flex" align="middle">
+            <Grid.Col span={12}>
+              <label htmlFor={`chart-editor-${id}-range-min`}>Min Value</label>
+              <InputNumber
+                id={`chart-editor-${id}-range-min`}
+                className="w-100"
+                placeholder="Auto"
+                data-test={`Chart.${id}.RangeMin`}
+                defaultValue={toNumber(options.rangeMin)}
+                onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <label htmlFor={`chart-editor-${id}-range-max`}>Max Value</label>
+              <InputNumber
+                id={`chart-editor-${id}-range-max`}
+                className="w-100"
+                placeholder="Auto"
+                data-test={`Chart.${id}.RangeMax`}
+                defaultValue={toNumber(options.rangeMax)}
+                onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
+              />
+            </Grid.Col>
+          </Grid.Row>
+        </Section>
       )}
     </React.Fragment>
   );

@@ -1,6 +1,7 @@
 import { map } from 'lodash';
 import React from 'react';
 import Select from 'antd/lib/select';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 const CohortTimeIntervals = {
@@ -17,7 +18,7 @@ const CohortModes = {
 export default function OptionsSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-time-interval">Time Interval</label>
         <Select
           data-test="Cohort.TimeInterval"
@@ -30,9 +31,9 @@ export default function OptionsSettings({ options, onOptionsChange }) {
             <Select.Option key={value} data-test={'Cohort.TimeInterval.' + value}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-time-mode">Mode</label>
         <Select
           data-test="Cohort.Mode"
@@ -45,7 +46,7 @@ export default function OptionsSettings({ options, onOptionsChange }) {
             <Select.Option key={value} data-test={'Cohort.Mode.' + value}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

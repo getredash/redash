@@ -1,12 +1,13 @@
 import { map } from 'lodash';
 import React from 'react';
 import Select from 'antd/lib/select';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 export default function ColumnsSettings({ options, data, onOptionsChange }) {
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-date-column">Date (Bucket)</label>
         <Select
           data-test="Cohort.DateColumn"
@@ -19,9 +20,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={'Cohort.DateColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-stage-column">Stage</label>
         <Select
           data-test="Cohort.StageColumn"
@@ -34,9 +35,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={'Cohort.StageColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-total-column">Bucket Population Size</label>
         <Select
           data-test="Cohort.TotalColumn"
@@ -49,9 +50,9 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={'Cohort.TotalColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="cohort-value-column">Stage Value</label>
         <Select
           data-test="Cohort.ValueColumn"
@@ -64,7 +65,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={'Cohort.ValueColumn.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

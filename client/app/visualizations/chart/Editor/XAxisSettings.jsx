@@ -1,5 +1,6 @@
 import React from 'react';
 import Switch from 'antd/lib/switch';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 import AxisSettings from './AxisSettings';
@@ -14,7 +15,7 @@ export default function XAxisSettings({ options, onOptionsChange }) {
         onChange={xAxis => onOptionsChange({ xAxis })}
       />
 
-      <div className="m-b-15">
+      <Section>
         <label className="d-flex align-items-center" htmlFor="chart-editor-x-axis-sort">
           <Switch
             id="chart-editor-x-axis-sort"
@@ -24,9 +25,9 @@ export default function XAxisSettings({ options, onOptionsChange }) {
           />
           <span className="m-l-10">Sort Values</span>
         </label>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label className="d-flex align-items-center" htmlFor="chart-editor-x-axis-reverse">
           <Switch
             id="chart-editor-x-axis-reverse"
@@ -36,9 +37,9 @@ export default function XAxisSettings({ options, onOptionsChange }) {
           />
           <span className="m-l-10">Reverse Order</span>
         </label>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label className="d-flex align-items-center" htmlFor="chart-editor-x-axis-show-labels">
           <Switch
             id="chart-editor-x-axis-show-labels"
@@ -48,7 +49,7 @@ export default function XAxisSettings({ options, onOptionsChange }) {
           />
           <span className="m-l-10">Show Labels</span>
         </label>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

@@ -8,6 +8,7 @@ import Tooltip from 'antd/lib/tooltip';
 import Icon from 'antd/lib/icon';
 import * as Grid from 'antd/lib/grid';
 import ContextHelp from '@/components/visualizations/editor/ContextHelp';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 function TemplateFormatHint({ mapType }) { // eslint-disable-line react/prop-types
@@ -44,103 +45,103 @@ export default function GeneralSettings({ options, onOptionsChange }) {
 
   return (
     <div className="choropleth-visualization-editor-format-settings">
-      <Grid.Row gutter={15} className="m-b-15">
-        <Grid.Col span={12}>
-          <label htmlFor="choropleth-editor-value-format">
-            Value format
-            <ContextHelp.NumberFormatSpecs />
-          </label>
-          <Input
-            id="choropleth-editor-value-format"
-            className="w-100"
-            data-test="Choropleth.Editor.ValueFormat"
-            defaultValue={options.valueFormat}
-            onChange={event => onOptionsChangeDebounced({ valueFormat: event.target.value })}
-          />
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <label htmlFor="choropleth-editor-value-placeholder">Value placeholder</label>
-          <Input
-            id="choropleth-editor-value-placeholder"
-            className="w-100"
-            data-test="Choropleth.Editor.ValuePlaceholder"
-            defaultValue={options.noValuePlaceholder}
-            onChange={event => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
-          />
-        </Grid.Col>
-      </Grid.Row>
+      <Section>
+        <Grid.Row gutter={15}>
+          <Grid.Col span={12}>
+            <label htmlFor="choropleth-editor-value-format">
+              Value format
+              <ContextHelp.NumberFormatSpecs />
+            </label>
+            <Input
+              id="choropleth-editor-value-format"
+              className="w-100"
+              data-test="Choropleth.Editor.ValueFormat"
+              defaultValue={options.valueFormat}
+              onChange={event => onOptionsChangeDebounced({ valueFormat: event.target.value })}
+            />
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <label htmlFor="choropleth-editor-value-placeholder">Value placeholder</label>
+            <Input
+              id="choropleth-editor-value-placeholder"
+              className="w-100"
+              data-test="Choropleth.Editor.ValuePlaceholder"
+              defaultValue={options.noValuePlaceholder}
+              onChange={event => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
+            />
+          </Grid.Col>
+        </Grid.Row>
+      </Section>
 
-      <div className="m-b-5">
-        <label htmlFor="choropleth-editor-show-legend">
-          <Checkbox
-            id="choropleth-editor-show-legend"
-            data-test="Choropleth.Editor.LegendVisibility"
-            checked={options.legend.visible}
-            onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}
-          />
-          <span>Show legend</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Choropleth.Editor.LegendVisibility"
+          checked={options.legend.visible}
+          onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}
+        >
+          Show legend
+        </Checkbox>
+      </Section>
 
-      <Grid.Row gutter={15} className="m-b-15">
-        <Grid.Col span={12}>
-          <label htmlFor="choropleth-editor-legend-position">Legend position</label>
-          <Select
-            id="choropleth-editor-legend-position"
-            className="w-100"
-            data-test="Choropleth.Editor.LegendPosition"
-            disabled={!options.legend.visible}
-            defaultValue={options.legend.position}
-            onChange={position => onOptionsChange({ legend: { position } })}
-          >
-            <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">top / left</Select.Option>
-            <Select.Option value="top-right" data-test="Choropleth.Editor.LegendPosition.TopRight">top / right</Select.Option>
-            <Select.Option value="bottom-left" data-test="Choropleth.Editor.LegendPosition.BottomLeft">bottom / left</Select.Option>
-            <Select.Option value="bottom-right" data-test="Choropleth.Editor.LegendPosition.BottomRight">bottom / right</Select.Option>
-          </Select>
-        </Grid.Col>
-        <Grid.Col span={12}>
-          <label htmlFor="choropleth-editor-legend-text-alignment">Legend text alignment</label>
-          <Radio.Group
-            id="choropleth-editor-legend-text-alignment"
-            className="choropleth-visualization-editor-legend-align-text"
-            data-test="Choropleth.Editor.LegendTextAlignment"
-            disabled={!options.legend.visible}
-            defaultValue={options.legend.alignText}
-            onChange={event => onOptionsChange({ legend: { alignText: event.target.value } })}
-          >
-            <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="left" data-test="Choropleth.Editor.LegendTextAlignment.Left">
-                <Icon type="align-left" />
-              </Radio.Button>
-            </Tooltip>
-            <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="center" data-test="Choropleth.Editor.LegendTextAlignment.Center">
-                <Icon type="align-center" />
-              </Radio.Button>
-            </Tooltip>
-            <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="right" data-test="Choropleth.Editor.LegendTextAlignment.Right">
-                <Icon type="align-right" />
-              </Radio.Button>
-            </Tooltip>
-          </Radio.Group>
-        </Grid.Col>
-      </Grid.Row>
+      <Section>
+        <Grid.Row gutter={15}>
+          <Grid.Col span={12}>
+            <label htmlFor="choropleth-editor-legend-position">Legend position</label>
+            <Select
+              id="choropleth-editor-legend-position"
+              className="w-100"
+              data-test="Choropleth.Editor.LegendPosition"
+              disabled={!options.legend.visible}
+              defaultValue={options.legend.position}
+              onChange={position => onOptionsChange({ legend: { position } })}
+            >
+              <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">top / left</Select.Option>
+              <Select.Option value="top-right" data-test="Choropleth.Editor.LegendPosition.TopRight">top / right</Select.Option>
+              <Select.Option value="bottom-left" data-test="Choropleth.Editor.LegendPosition.BottomLeft">bottom / left</Select.Option>
+              <Select.Option value="bottom-right" data-test="Choropleth.Editor.LegendPosition.BottomRight">bottom / right</Select.Option>
+            </Select>
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <label htmlFor="choropleth-editor-legend-text-alignment">Legend text alignment</label>
+            <Radio.Group
+              id="choropleth-editor-legend-text-alignment"
+              className="choropleth-visualization-editor-legend-align-text"
+              data-test="Choropleth.Editor.LegendTextAlignment"
+              disabled={!options.legend.visible}
+              defaultValue={options.legend.alignText}
+              onChange={event => onOptionsChange({ legend: { alignText: event.target.value } })}
+            >
+              <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="left" data-test="Choropleth.Editor.LegendTextAlignment.Left">
+                  <Icon type="align-left" />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="center" data-test="Choropleth.Editor.LegendTextAlignment.Center">
+                  <Icon type="align-center" />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="right" data-test="Choropleth.Editor.LegendTextAlignment.Right">
+                  <Icon type="align-right" />
+                </Radio.Button>
+              </Tooltip>
+            </Radio.Group>
+          </Grid.Col>
+        </Grid.Row>
+      </Section>
 
-      <div className="m-b-5">
-        <label htmlFor="choropleth-editor-show-tooltip">
-          <Checkbox
-            id="choropleth-editor-show-tooltip"
-            data-test="Choropleth.Editor.TooltipEnabled"
-            checked={options.tooltip.enabled}
-            onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}
-          />
-          <span>Show tooltip</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Choropleth.Editor.TooltipEnabled"
+          checked={options.tooltip.enabled}
+          onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}
+        >
+          Show tooltip
+        </Checkbox>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-tooltip-template">Tooltip template {templateFormatHint}</label>
         <Input
           id="choropleth-editor-tooltip-template"
@@ -150,21 +151,19 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           defaultValue={options.tooltip.template}
           onChange={event => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-5">
-        <label htmlFor="choropleth-editor-show-popup">
-          <Checkbox
-            id="choropleth-editor-show-popup"
-            data-test="Choropleth.Editor.PopupEnabled"
-            checked={options.popup.enabled}
-            onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}
-          />
-          <span>Show popup</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Choropleth.Editor.PopupEnabled"
+          checked={options.popup.enabled}
+          onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}
+        >
+          Show popup
+        </Checkbox>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-popup-template">Popup template {templateFormatHint}</label>
         <Input.TextArea
           id="choropleth-editor-popup-template"
@@ -175,7 +174,7 @@ export default function GeneralSettings({ options, onOptionsChange }) {
           defaultValue={options.popup.template}
           onChange={event => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
         />
-      </div>
+      </Section>
     </div>
   );
 }

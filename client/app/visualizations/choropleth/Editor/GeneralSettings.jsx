@@ -2,6 +2,7 @@ import { map } from 'lodash';
 import React, { useMemo } from 'react';
 import Select from 'antd/lib/select';
 import { EditorPropTypes } from '@/visualizations';
+import Section from '@/components/visualizations/editor/Section';
 import { inferCountryCodeType } from './utils';
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
@@ -38,7 +39,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-map-type">Map type</label>
         <Select
           id="choropleth-editor-map-type"
@@ -50,9 +51,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Select.Option key="countries" data-test="Choropleth.Editor.MapType.Countries">Countries</Select.Option>
           <Select.Option key="subdiv_japan" data-test="Choropleth.Editor.MapType.Japan">Japan/Prefectures</Select.Option>
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-key-column">Key column</label>
         <Select
           id="choropleth-editor-key-column"
@@ -65,9 +66,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={`Choropleth.Editor.KeyColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-key-type">Key type</label>
         <Select
           id="choropleth-editor-key-type"
@@ -80,9 +81,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={type} data-test={`Choropleth.Editor.KeyType.${type}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="choropleth-editor-value-column">Value column</label>
         <Select
           id="choropleth-editor-value-column"
@@ -95,7 +96,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={`Choropleth.Editor.ValueColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

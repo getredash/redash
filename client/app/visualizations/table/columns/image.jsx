@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
 import Input from 'antd/lib/input';
 import ContextHelp from '@/components/visualizations/editor/ContextHelp';
+import Section from '@/components/visualizations/editor/Section';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
@@ -11,7 +12,7 @@ function Editor({ column, onChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-image-url`}>URL template</label>
         <Input
           id={`table-column-editor-${column.name}-image-url`}
@@ -19,9 +20,9 @@ function Editor({ column, onChange }) {
           defaultValue={column.imageUrlTemplate}
           onChange={event => onChangeDebounced({ imageUrlTemplate: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-image-width`}>
           Size
           <ContextHelp placement="topLeft" arrowPointAtCenter>
@@ -45,9 +46,9 @@ function Editor({ column, onChange }) {
             onChange={event => onChangeDebounced({ imageHeight: event.target.value })}
           />
         </div>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-image-title`}>Title template</label>
         <Input
           id={`table-column-editor-${column.name}-image-title`}
@@ -55,9 +56,9 @@ function Editor({ column, onChange }) {
           defaultValue={column.imageTitleTemplate}
           onChange={event => onChangeDebounced({ imageTitleTemplate: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <ContextHelp
           placement="topLeft"
           arrowPointAtCenter
@@ -71,7 +72,7 @@ function Editor({ column, onChange }) {
           <div>Use <code>{'{{ @ }}'}</code> to reference current (this) column.</div>
           <div>This syntax is applicable to URL, Title and Size options.</div>
         </ContextHelp>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }

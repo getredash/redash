@@ -9,6 +9,7 @@ import Checkbox from 'antd/lib/checkbox';
 import Select from 'antd/lib/select';
 import Icon from 'antd/lib/icon';
 import Tooltip from 'antd/lib/tooltip';
+import Section from '@/components/visualizations/editor/Section';
 
 import ColumnTypes from '../columns';
 
@@ -23,52 +24,52 @@ export default function ColumnEditor({ column, onChange }) {
 
   return (
     <div className="table-visualization-editor-column">
-      <Grid.Row gutter={15} type="flex" align="middle" className="m-b-15">
-        <Grid.Col span={16}>
-          <Input
-            data-test={`Table.Column.${column.name}.Title`}
-            defaultValue={column.title}
-            onChange={event => handleChangeDebounced({ title: event.target.value })}
-          />
-        </Grid.Col>
-        <Grid.Col span={8}>
-          <Radio.Group
-            className="table-visualization-editor-column-align-content"
-            defaultValue={column.alignContent}
-            onChange={event => handleChange({ alignContent: event.target.value })}
-          >
-            <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="left" data-test={`Table.Column.${column.name}.AlignLeft`}>
-                <Icon type="align-left" />
-              </Radio.Button>
-            </Tooltip>
-            <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="center" data-test={`Table.Column.${column.name}.AlignCenter`}>
-                <Icon type="align-center" />
-              </Radio.Button>
-            </Tooltip>
-            <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
-              <Radio.Button value="right" data-test={`Table.Column.${column.name}.AlignRight`}>
-                <Icon type="align-right" />
-              </Radio.Button>
-            </Tooltip>
-          </Radio.Group>
-        </Grid.Col>
-      </Grid.Row>
+      <Section>
+        <Grid.Row gutter={15} type="flex" align="middle">
+          <Grid.Col span={16}>
+            <Input
+              data-test={`Table.Column.${column.name}.Title`}
+              defaultValue={column.title}
+              onChange={event => handleChangeDebounced({ title: event.target.value })}
+            />
+          </Grid.Col>
+          <Grid.Col span={8}>
+            <Radio.Group
+              className="table-visualization-editor-column-align-content"
+              defaultValue={column.alignContent}
+              onChange={event => handleChange({ alignContent: event.target.value })}
+            >
+              <Tooltip title="Align left" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="left" data-test={`Table.Column.${column.name}.AlignLeft`}>
+                  <Icon type="align-left" />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip title="Align center" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="center" data-test={`Table.Column.${column.name}.AlignCenter`}>
+                  <Icon type="align-center" />
+                </Radio.Button>
+              </Tooltip>
+              <Tooltip title="Align right" mouseEnterDelay={0} mouseLeaveDelay={0}>
+                <Radio.Button value="right" data-test={`Table.Column.${column.name}.AlignRight`}>
+                  <Icon type="align-right" />
+                </Radio.Button>
+              </Tooltip>
+            </Radio.Group>
+          </Grid.Col>
+        </Grid.Row>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor={`table-column-editor-${column.name}-allow-search`}>
-          <Checkbox
-            id={`table-column-editor-${column.name}-allow-search`}
-            data-test={`Table.Column.${column.name}.UseForSearch`}
-            defaultChecked={column.allowSearch}
-            onChange={event => handleChange({ allowSearch: event.target.checked })}
-          />
-          <span>Use for search</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test={`Table.Column.${column.name}.UseForSearch`}
+          defaultChecked={column.allowSearch}
+          onChange={event => handleChange({ allowSearch: event.target.checked })}
+        >
+          Use for search
+        </Checkbox>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label htmlFor={`table-column-editor-${column.name}-display-as`}>Display as:</label>
         <Select
           id={`table-column-editor-${column.name}-display-as`}
@@ -81,7 +82,7 @@ export default function ColumnEditor({ column, onChange }) {
             <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>{friendlyName}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
       {AdditionalOptions && <AdditionalOptions column={column} onChange={handleChange} />}
     </div>

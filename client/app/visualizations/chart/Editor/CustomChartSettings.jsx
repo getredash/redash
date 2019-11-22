@@ -2,6 +2,7 @@ import { isNil, trimStart } from 'lodash';
 import React from 'react';
 import Switch from 'antd/lib/switch';
 import Input from 'antd/lib/input';
+import Section from '@/components/visualizations/editor/Section';
 import { EditorPropTypes } from '@/visualizations';
 
 const { TextArea } = Input;
@@ -16,7 +17,7 @@ const defaultCustomCode = trimStart(`
 export default function CustomChartSettings({ options, onOptionsChange }) {
   return (
     <React.Fragment>
-      <div className="m-b-15">
+      <Section>
         <label htmlFor="chart-editor-custom-code">Custom code</label>
         <TextArea
           id="chart-editor-custom-code"
@@ -26,9 +27,9 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
           onChange={event => onOptionsChange({ customCode: event.target.value })}
         />
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label className="d-flex align-items-center" htmlFor="chart-editor-enable-console-logs">
           <Switch
             id="chart-editor-enable-console-logs"
@@ -38,9 +39,9 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           />
           <span className="m-l-10">Show errors in the console</span>
         </label>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
+      <Section>
         <label className="d-flex align-items-center" htmlFor="chart-editor-auto-update-custom-chart">
           <Switch
             id="chart-editor-auto-update-custom-chart"
@@ -50,7 +51,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           />
           <span className="m-l-10">Auto update graph</span>
         </label>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }
