@@ -4,6 +4,7 @@ import Renderer from './Renderer';
 import Editor from './Editor';
 
 const DEFAULT_OPTIONS = {
+  counterType: 'rowValue',
   counterLabel: '',
   counterColName: 'counter',
   rowNumber: 1,

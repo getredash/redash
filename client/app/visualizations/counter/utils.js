@@ -1,6 +1,34 @@
 import { isNumber, isFinite, toString } from 'lodash';
 import numeral from 'numeral';
 
+export const COUNTER_TYPES = {
+  rowValue: {
+    name: 'Row Value',
+    getValue: () => 0,
+    options: ['counterColName', 'rowNumber', 'targetColName', 'targetRowNumber'],
+  },
+  countRows: {
+    name: 'Count Rows',
+    getValue: () => 0,
+    options: ['targetColName', 'targetRowNumber'],
+  },
+  sumRows: {
+    name: 'Sum Values',
+    getValue: () => 0,
+    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+  },
+  minValue: {
+    name: 'Min Value',
+    getValue: () => 0,
+    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+  },
+  maxValue: {
+    name: 'Max Value',
+    getValue: () => 0,
+    options: ['counterColName', 'targetColName', 'targetRowNumber'],
+  },
+};
+
 // TODO: allow user to specify number format string instead of delimiters only
 // It will allow to remove this function (move all that weird formatting logic to a migration
 // that will set number format for all existing counter visualization)
