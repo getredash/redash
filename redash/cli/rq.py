@@ -42,11 +42,31 @@ def worker(queues):
 
 class WorkerHealthcheck(base.BaseCheck):
     NAME = 'RQ Worker Healthcheck'
+    INTERVAL = datetime.timedelta(minutes=5)
+    _last_check_time = {}
+
+
+    def time_to_check(self, pid):
+        now = datetime.datetime.utcnow()
+
+        if pid not in self._last_check_time:
+            self._last_check_time[pid] = now
+
+        if now - self._last_check_time[pid] >= self.INTERVAL:
+            self._last_check_time[pid] = now
+            return True
+
+        return False
+
 
     def __call__(self, process_spec):
+        pid = process_spec['pid']
+        if not self.time_to_check(pid):
+            return True
+
         all_workers = Worker.all(connection=rq_redis_connection)
         worker = [w for w in all_workers if w.hostname == socket.gethostname().encode() and 
-                                            w.pid == process_spec['pid']].pop()
+                                            w.pid == pid].pop()
 
         is_busy = worker.get_state() == WorkerStatus.BUSY
 
