@@ -65,6 +65,7 @@ export default function Renderer({ options, data, context }) {
         data-test="TableVisualization"
         columns={tableColumns}
         dataSource={preparedRows}
+        childrenColumnName={null}
         rowKey={(record, index) => rowKeyPrefix + index}
         pagination={{
           size: context === 'widget' ? 'small' : '',
