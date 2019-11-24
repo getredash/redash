@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery, createVisualization } from '../../support/redash-api';
 
 const SQL = `
   SELECT 12 AS mn, 4967 AS mx UNION ALL
@@ -42,17 +42,17 @@ describe('Box Plot', () => {
 
   beforeEach(() => {
     cy.login();
-    createQuery({ query: SQL }).then(({ id }) => {
-      cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
-    });
+    createQuery({ query: SQL })
+      .then(({ id }) => createVisualization(id, 'BOXPLOT', 'Boxplot (Deprecated)', {}))
+      .then(({ id: visualizationId, query_id: queryId }) => {
+        cy.visit(`queries/${queryId}/source#${visualizationId}`);
+        cy.getByTestId('ExecuteButton').click();
+      });
   });
 
   it('creates visualization', () => {
     cy.clickThrough(`
-      NewVisualization
-      VisualizationType
-      VisualizationType.BOXPLOT
+      EditVisualization
     `);
 
     cy.fillInputs({

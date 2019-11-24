@@ -1,4 +1,4 @@
-import { extend, map, sortBy, findIndex, isEqual } from 'lodash';
+import { isEqual, extend, map, sortBy, findIndex, filter, pick } from 'lodash';
 import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Modal from 'antd/lib/modal';
@@ -131,6 +131,11 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const { Renderer, Editor } = registeredVisualizations[type];
 
+  // When editing existing visualization chart type selector is disabled, so add only existing visualization's
+  // descriptor there (to properly render the component). For new visualizations show all types except of deprecated
+  const availableVisualizations = isNew ? filter(sortBy(registeredVisualizations, ['name']), vis => !vis.isDeprecated) :
+    pick(registeredVisualizations, [type]);
+
   return (
     <Modal
       {...dialog.props}
@@ -157,10 +162,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
               value={type}
               onChange={onTypeChanged}
             >
-              {map(
-                sortBy(registeredVisualizations, ['type']),
-                vis => <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>,
-              )}
+              {map(availableVisualizations, vis => (
+                <Select.Option key={vis.type} data-test={'VisualizationType.' + vis.type}>{vis.name}</Select.Option>
+              ))}
             </Select>
           </div>
           <div className="m-b-15">
