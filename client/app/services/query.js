@@ -2,7 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import {
-  zipObject, isEmpty, map, filter, includes, union,
+  zipObject, isEmpty, map, includes, union,
   uniq, has, identity, extend, each, some,
 } from 'lodash';
 
@@ -105,10 +105,6 @@ class Parameters {
     const param = Parameter.create(parameterDef);
     this.query.options.parameters.push(param);
     return param;
-  }
-
-  getMissing() {
-    return map(filter(this.get(), p => p.isEmpty), i => i.title);
   }
 
   isRequired() {
@@ -313,23 +309,6 @@ function QueryResource(
 
   QueryService.prototype.prepareQueryResultExecution = function prepareQueryResultExecution(execute, maxAge) {
     const parameters = this.getParameters();
-    const missingParams = parameters.getMissing();
-
-    if (missingParams.length > 0) {
-      let paramsWord = 'parameter';
-      let valuesWord = 'value';
-      if (missingParams.length > 1) {
-        paramsWord = 'parameters';
-        valuesWord = 'values';
-      }
-
-      return new QueryResult({
-        job: {
-          error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`,
-          status: 4,
-        },
-      });
-    }
 
     if (parameters.isRequired()) {
       // Need to clear latest results, to make sure we don't use results for different params.

@@ -3,7 +3,7 @@ from functools import partial
 from numbers import Number
 from redash.utils import mustache_render, json_loads
 from redash.permissions import require_access, view_only
-from funcy import distinct
+from funcy import distinct, lpluck, compact
 from dateutil.parser import parse
 
 from six import string_types, text_type
@@ -107,6 +107,15 @@ def _is_date_range(obj):
         return False
 
 
+def _is_date_range_type(type):
+    return type in ["date-range", "datetime-range", "datetime-range-with-seconds"]
+
+
+def _is_tag_in_template(name, template):
+    tags = _collect_query_parameters(template)
+    return name in tags
+
+
 def _is_value_within_options(value, dropdown_options, allow_list=False):
     if isinstance(value, list):
         return allow_list and set(map(text_type, value)).issubset(set(dropdown_options))
@@ -122,23 +131,32 @@ class ParameterizedQuery(object):
         self.parameters = {}
 
     def apply(self, parameters):
-        invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
-        if invalid_parameter_names:
-            raise InvalidParameterError(invalid_parameter_names)
+        # filter out params not defined in schema
+        if self.schema:
+            names_with_definition = lpluck("name", self.schema)
+            parameters = {k: v for (k, v) in parameters.items() if k in names_with_definition}
+
+        invalid_parameters = compact({k: self._invalid_message(k, v) for (k, v) in parameters.items()})
+        if invalid_parameters:
+            raise InvalidParameterError(invalid_parameters)
         else:
             self.parameters.update(parameters)
             self.query = mustache_render(self.template, join_parameter_list_values(parameters, self.schema))
 
         return self
 
-    def _valid(self, name, value):
+    def _invalid_message(self, name, value):
+        if value is None:
+            return 'Required parameter'
+
+        # skip if no schema
         if not self.schema:
-            return True
+            return None
 
         definition = next((definition for definition in self.schema if definition["name"] == name), None)
 
         if not definition:
-            return False
+            return 'Parameter no longer exists in query.'
 
         enum_options = definition.get('enumOptions')
         query_id = definition.get('queryId')
@@ -147,7 +165,7 @@ class ParameterizedQuery(object):
         if isinstance(enum_options, string_types):
             enum_options = enum_options.split('\n')
 
-        validators = {
+        value_validators = {
             "text": lambda value: isinstance(value, string_types),
             "number": _is_number,
             "enum": lambda value: _is_value_within_options(value,
@@ -164,9 +182,32 @@ class ParameterizedQuery(object):
             "datetime-range-with-seconds": _is_date_range,
         }
 
-        validate = validators.get(definition["type"], lambda x: False)
+        validate_value = value_validators.get(definition["type"], lambda x: False)
 
-        return validate(value)
+        if not validate_value(value):
+            return 'Invalid value'
+
+        tag_error_msg = self._validate_tag(name, definition["type"])
+        if tag_error_msg is not None:
+            return tag_error_msg
+
+        return None
+
+    def _validate_tag(self, name, type):
+        error_msg = '{{{{ {0} }}}} not found in query'
+        if _is_date_range_type(type):
+            start_tag = '{}.start'.format(name)
+            if not _is_tag_in_template(start_tag, self.template):
+                return error_msg.format(start_tag)
+
+            end_tag = '{}.end'.format(name)
+            if not _is_tag_in_template(end_tag, self.template):
+                return error_msg.format(end_tag)
+
+        elif not _is_tag_in_template(name, self.template):
+            return error_msg.format(name)
+
+        return None
 
     @property
     def is_safe(self):
@@ -175,8 +216,23 @@ class ParameterizedQuery(object):
 
     @property
     def missing_params(self):
-        query_parameters = set(_collect_query_parameters(self.template))
+        query_parameters = _collect_query_parameters(self.template)
         return set(query_parameters) - set(_parameter_names(self.parameters))
+
+    @property
+    def missing_params_error(self):
+        missing_params = self.missing_params
+        if not missing_params:
+            return None
+
+        parameter_names = ', '.join('"{}"'.format(name) for name in sorted(missing_params))
+        if len(missing_params) > 1:
+            message = 'Parameters {} are missing.'.format(parameter_names)
+        else:
+            message = 'Parameter {} is missing.'.format(parameter_names)
+
+        parameter_errors = {name: 'Missing parameter' for name in missing_params}
+        return message, parameter_errors
 
     @property
     def text(self):
@@ -184,14 +240,22 @@ class ParameterizedQuery(object):
 
 
 class InvalidParameterError(Exception):
-    def __init__(self, parameters):
-        parameter_names = ", ".join(parameters)
-        message = "The following parameter values are incompatible with their definitions: {}".format(parameter_names)
-        super(InvalidParameterError, self).__init__(message)
+    def __init__(self, parameter_errors):
+        parameter_names = ', '.join('"{}"'.format(name) for name in sorted(parameter_errors.keys()))
+        if len(parameter_errors) > 1:
+            message = 'Parameters {} are invalid.'.format(parameter_names)
+        else:
+            message = 'Parameter {} is invalid.'.format(parameter_names)
+
+        self.message = message
+        self.parameter_errors = parameter_errors
+
+        super().__init__(message, parameter_errors)
 
 
 class QueryDetachedFromDataSourceError(Exception):
     def __init__(self, query_id):
         self.query_id = query_id
-        super(QueryDetachedFromDataSourceError, self).__init__(
-            "This query is detached from any data source. Please select a different query.")
+        self.message = "This query is detached from any data source. Please select a different query."
+
+        super().__init__(self.message)

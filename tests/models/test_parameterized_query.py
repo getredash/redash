@@ -45,12 +45,94 @@ class TestParameterizedQuery(TestCase):
         })
         self.assertEqual(set([]), query.missing_params)
 
-    def test_raises_on_parameters_not_in_schema(self):
+    def test_single_invalid_parameter_exception(self):
+        query = ParameterizedQuery("foo")
+        with pytest.raises(InvalidParameterError) as excinfo:
+            query.apply({"bar": None})
+        
+        message, parameter_errors = excinfo.value.args
+        self.assertEquals(message, 'Parameter "bar" is invalid.')
+        self.assertEquals(len(parameter_errors), 1)
+
+    def test_multiple_invalid_parameter_exception(self):
+        query = ParameterizedQuery("foo")
+        with pytest.raises(InvalidParameterError) as excinfo:
+            query.apply({"bar": None, "baz": None})
+        
+        message, parameter_errors = excinfo.value.args
+        self.assertEquals(message, 'Parameters "bar", "baz" are invalid.')
+        self.assertEquals(len(parameter_errors), 2)
+
+    def test_invalid_parameter_error_messages(self):
+        schema = [
+            {"name": "bar", "type": "text"},
+            {"name": "baz", "type": "text"},
+            {"name": "foo", "type": "text"},
+            {"name": "spam", "type": "date-range"},
+            {"name": "ham", "type": "date-range"},
+            {"name": "eggs", "type": "number"},
+        ]
+        parameters = {
+            "bar": None,
+            "baz": 7,
+            "foo": "text",
+            "spam": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"},
+            "ham": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"},
+            "eggs": 42,
+        }
+        query = ParameterizedQuery("foo {{ spam }} {{ ham.start}} {{ eggs.start }}", schema)
+        with pytest.raises(InvalidParameterError) as excinfo:
+            query.apply(parameters)
+        
+        _, parameter_errors = excinfo.value.args
+        self.assertEquals(parameter_errors, {
+            "bar": "Required parameter",
+            "baz": "Invalid value",
+            "foo": "{{ foo }} not found in query",
+            "spam": "{{ spam.start }} not found in query",
+            "ham": "{{ ham.end }} not found in query",
+            "eggs": "{{ eggs }} not found in query",
+        })
+
+    def test_single_missing_parameter_error(self):
+        query = ParameterizedQuery("foo {{ bar }}")
+        
+        message, parameter_errors = query.missing_params_error
+        self.assertEquals(message, 'Parameter "bar" is missing.')
+        self.assertEquals(len(parameter_errors), 1)
+
+    def test_multiple_missing_parameter_error(self):
+        query = ParameterizedQuery("foo {{ bar }} {{ baz }}")
+        
+        message, parameter_errors = query.missing_params_error
+        self.assertEquals(message, 'Parameters "bar", "baz" are missing.')
+        self.assertEquals(len(parameter_errors), 2)
+
+    def test_missing_parameter_error_message(self):
+        query = ParameterizedQuery("foo {{ bar }}")
+        
+        _, parameter_errors = query.missing_params_error
+        self.assertEquals(parameter_errors, { "bar": "Missing parameter" })
+
+    def test_ignores_parameters_not_in_schema(self):
+        schema = [{"name": "bar", "type": "text"}]
+        query = ParameterizedQuery("foo {{ bar }}", schema)
+
+        with pytest.raises(InvalidParameterError) as excinfo:
+            query.apply({"qux": 7, "bar": 7})
+
+        _, parameter_errors = excinfo.value.args
+        self.assertTrue('bar' in parameter_errors)
+        self.assertFalse('qux' in parameter_errors)
+
+    def test_passes_on_parameters_not_in_schema(self):
         schema = [{"name": "bar", "type": "text"}]
         query = ParameterizedQuery("foo", schema)
 
-        with pytest.raises(InvalidParameterError):
-            query.apply({"qux": 7})
+        try:
+            query.apply({"qux": None})
+        except InvalidParameterError:
+            pytest.fail("Unexpected InvalidParameterError")
 
     def test_raises_on_invalid_text_parameters(self):
         schema = [{"name": "bar", "type": "text"}]
