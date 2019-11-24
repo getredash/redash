@@ -114,7 +114,7 @@ function DashboardAndQueryFavoritesList() {
               itemUrl={dashboard => `dashboard/${dashboard.slug}`}
               emptyState={(
                 <p>
-                  <span className="btn-favourite">
+                  <span className="btn-favourite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
                   Favorite <a href="dashboards">Dashboards</a> will appear here
