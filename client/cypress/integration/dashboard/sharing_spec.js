@@ -108,7 +108,7 @@ describe('Dashboard Sharing', () => {
         };
 
         // then, after it is shared, add an unsafe parameterized query to it
-        const secondWidgetPos = { autoHeight: false, col: 3, sizeY: 6 };
+        const secondWidgetPos = { autoHeight: false, col: 6, sizeY: 6 };
         createQueryAndAddWidget(this.dashboardId, unsafeQueryData, { position: secondWidgetPos }).then(() => {
           cy.visit(this.dashboardUrl);
           cy.logout();

@@ -40,7 +40,7 @@ export function createVisualization(queryId, type, name, options) {
 
 export function addTextbox(dashboardId, text = 'text', options = {}) {
   const defaultOptions = {
-    position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
+    position: { col: 0, row: 0, sizeX: 6, sizeY: 3 },
   };
 
   const data = {
@@ -61,7 +61,7 @@ export function addTextbox(dashboardId, text = 'text', options = {}) {
 
 export function addWidget(dashboardId, visualizationId, options = {}) {
   const defaultOptions = {
-    position: { col: 0, row: 0, sizeX: 3, sizeY: 3 },
+    position: { col: 0, row: 0, sizeX: 6, sizeY: 3 },
   };
 
   const data = {

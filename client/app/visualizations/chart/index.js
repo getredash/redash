@@ -13,7 +13,7 @@ export default function init() {
     Renderer,
     Editor,
 
-    defaultColumns: 3,
+    defaultColumns: 6,
     defaultRows: 8,
     minColumns: 1,
     minRows: 5,

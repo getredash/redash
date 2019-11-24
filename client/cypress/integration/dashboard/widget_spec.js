@@ -151,7 +151,7 @@ describe('Widget', () => {
       query: `select '${'loremipsum'.repeat(15)}' FROM generate_series(1,15)`,
     };
 
-    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 6, sizeY: 10, autoHeight: false } };
 
     createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);
@@ -167,7 +167,7 @@ describe('Widget', () => {
       query: 'select \'lorem ipsum\' FROM generate_series(1,50)',
     };
 
-    const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+    const widgetOptions = { position: { col: 0, row: 0, sizeX: 6, sizeY: 10, autoHeight: false } };
 
     createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then(() => {
       cy.visit(this.dashboardUrl);

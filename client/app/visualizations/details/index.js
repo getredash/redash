@@ -12,7 +12,7 @@ export default function init() {
     Renderer: DetailsRenderer,
     Editor: DetailsEditor,
 
-    defaultColumns: 2,
+    defaultColumns: 4,
     defaultRows: 2,
   });
 }

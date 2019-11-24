@@ -17,7 +17,7 @@ describe('Parameter Mapping', () => {
           ],
         },
       };
-      const widgetOptions = { position: { col: 0, row: 0, sizeX: 3, sizeY: 10, autoHeight: false } };
+      const widgetOptions = { position: { col: 0, row: 0, sizeX: 6, sizeY: 10, autoHeight: false } };
       createQueryAndAddWidget(this.dashboardId, queryData, widgetOptions).then((widgetTestId) => {
         cy.visit(this.dashboardUrl);
         this.widgetTestId = widgetTestId;
