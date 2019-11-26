@@ -56,12 +56,8 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const sortColumnIndex = isMultiColumnSort && orderByInfo[column.name] ? orderByInfo[column.name].index : null;
 
     const result = {
-      key: column.name, // set this because we don't use `dataIndex`
-      // Column name may contain any characters (or be empty at all), therefore
-      // we cannot use `dataIndex` because it has special syntax and will not work
-      // for all possible column names. Instead, we'll generate row key dynamically
-      // based on row index
-      dataIndex: null,
+      key: column.name,
+      dataIndex: `record[${JSON.stringify(column.name)}]`,
       align: column.alignContent,
       title: (
         <React.Fragment>
@@ -96,7 +92,7 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const initColumn = ColumnTypes[column.displayAs];
     const Component = initColumn(column);
     result.render = (unused, row) => ({
-      children: <Component row={row} />,
+      children: <Component row={row.record} />,
       props: { className: `display-as-${column.displayAs}` },
     });
 
@@ -135,6 +131,10 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   return tableColumns;
 }
 
+export function initRows(rows) {
+  return map(rows, (record, index) => ({ key: `record${index}`, record }));
+}
+
 export function filterRows(rows, searchTerm, searchColumns) {
   if ((searchTerm !== '') && (searchColumns.length > 0)) {
     searchTerm = searchTerm.toUpperCase();
@@ -147,7 +147,7 @@ export function filterRows(rows, searchTerm, searchColumns) {
       };
     });
 
-    return filter(rows, row => some(matchFields, match => match(row)));
+    return filter(rows, row => some(matchFields, match => match(row.record)));
   }
   return rows;
 }
@@ -164,8 +164,8 @@ export function sortRows(rows, orderBy) {
     let va;
     let vb;
     for (let i = 0; i < orderBy.length; i += 1) {
-      va = a[orderBy[i].name];
-      vb = b[orderBy[i].name];
+      va = a.record[orderBy[i].name];
+      vb = b.record[orderBy[i].name];
       if (isNil(va) || va < vb) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];
