@@ -126,7 +126,7 @@ describe('Textbox', () => {
   it('renders textbox according to position configuration', function () {
     const id = this.dashboardId;
     const txb1Pos = { col: 0, row: 0, sizeX: 6, sizeY: 2 };
-    const txb2Pos = { col: 1, row: 1, sizeX: 6, sizeY: 4 };
+    const txb2Pos = { col: 2, row: 1, sizeX: 6, sizeY: 4 };
 
     cy.viewport(1215, 800);
     addTextbox(id, 'x', { position: txb1Pos })

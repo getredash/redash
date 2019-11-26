@@ -27,23 +27,23 @@ describe('Grid compliant widgets', () => {
 
       it('stays put when dragged under snap threshold', () => {
         cy.get('@textboxEl')
-          .dragBy(90)
+          .dragBy(40)
           .invoke('offset')
           .should('have.property', 'left', 15); // no change, 15 -> 15
       });
 
       it('moves one column when dragged over snap threshold', () => {
         cy.get('@textboxEl')
-          .dragBy(110)
+          .dragBy(50)
           .invoke('offset')
-          .should('have.property', 'left', 215); //  moved by 200, 15 -> 215
+          .should('have.property', 'left', 115); //  moved by 100, 15 -> 115
       });
 
       it('moves two columns when dragged over snap threshold', () => {
         cy.get('@textboxEl')
-          .dragBy(330)
+          .dragBy(150)
           .invoke('offset')
-          .should('have.property', 'left', 415); //  moved by 400, 15 -> 415
+          .should('have.property', 'left', 215); //  moved by 200, 15 -> 215
       });
     });
 
@@ -65,24 +65,24 @@ describe('Grid compliant widgets', () => {
       });
 
       it('stays put when dragged under snap threshold', () => {
-        resizeBy(cy.get('@textboxEl'), 90)
+        resizeBy(cy.get('@textboxEl'), 40)
           .then(() => cy.get('@textboxEl'))
           .invoke('width')
           .should('eq', 585); // no change, 585 -> 585
       });
 
       it('moves one column when dragged over snap threshold', () => {
-        resizeBy(cy.get('@textboxEl'), 110)
+        resizeBy(cy.get('@textboxEl'), 50)
           .then(() => cy.get('@textboxEl'))
           .invoke('width')
-          .should('eq', 785); // resized by 200, 585 -> 785
+          .should('eq', 685); // resized by 100, 585 -> 685
       });
 
       it('moves two columns when dragged over snap threshold', () => {
-        resizeBy(cy.get('@textboxEl'), 400)
+        resizeBy(cy.get('@textboxEl'), 200)
           .then(() => cy.get('@textboxEl'))
           .invoke('width')
-          .should('eq', 985); // resized by 400, 585 -> 985
+          .should('eq', 785); // resized by 200, 585 -> 785
       });
     });
 
