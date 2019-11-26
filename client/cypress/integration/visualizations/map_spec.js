@@ -56,7 +56,7 @@ describe('Map (Markers)', () => {
     cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Map (Markers) with groups', { widths: [viewportWidth] });
   });
 
@@ -93,7 +93,7 @@ describe('Map (Markers)', () => {
     cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Map (Markers) with custom markers', { widths: [viewportWidth] });
   });
 });
