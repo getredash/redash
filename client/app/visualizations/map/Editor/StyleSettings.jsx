@@ -1,7 +1,6 @@
 import { isNil, map } from 'lodash';
 import React, { useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import Typography from 'antd/lib/typography';
 import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
@@ -119,16 +118,14 @@ export default function StyleSettings({ options, onOptionsChange }) {
           defaultChecked={options.customizeMarkers}
           onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}
         >
-          <Typography.Text disabled={!isCustomMarkersStyleAllowed}>Override default style</Typography.Text>
-          {!isCustomMarkersStyleAllowed && (
-            <ContextHelp placement="topLeft" arrowPointAtCenter>
-              <span>
-                Custom marker styles are not available<br />
-                when <b>Group By</b> column selected.
-              </span>
-            </ContextHelp>
-          )}
+          Override default style
         </Checkbox>
+        {!isCustomMarkersStyleAllowed && (
+          <ContextHelp placement="topLeft" arrowPointAtCenter>
+            Custom marker styles are not available<br />
+            when <b>Group By</b> column selected.
+          </ContextHelp>
+        )}
       </Section>
 
       {isCustomMarkersStyleAllowed && options.customizeMarkers && (
