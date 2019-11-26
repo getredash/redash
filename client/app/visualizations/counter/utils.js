@@ -1,30 +1,30 @@
-import { isNumber, isFinite, toString } from 'lodash';
+import { isNumber, isFinite, toString, invoke, nth, get, sumBy, map, min, max } from 'lodash';
 import numeral from 'numeral';
 
 export const COUNTER_TYPES = {
   rowValue: {
     name: 'Row Value',
-    getValue: () => 0,
+    getValue: (rows, { rowNumber, counterColName }) => get(nth(rows, rowNumber), counterColName),
     options: ['counterColName', 'rowNumber', 'targetColName', 'targetRowNumber'],
   },
   countRows: {
     name: 'Count Rows',
-    getValue: () => 0,
+    getValue: rows => rows.length,
     options: ['targetColName', 'targetRowNumber'],
   },
   sumRows: {
     name: 'Sum Values',
-    getValue: () => 0,
+    getValue: (rows, { counterColName }) => sumBy(rows, counterColName),
     options: ['counterColName', 'targetColName', 'targetRowNumber'],
   },
   minValue: {
     name: 'Min Value',
-    getValue: () => 0,
+    getValue: (rows, { counterColName }) => min(map(rows, row => get(row, counterColName))),
     options: ['counterColName', 'targetColName', 'targetRowNumber'],
   },
   maxValue: {
     name: 'Max Value',
-    getValue: () => 0,
+    getValue: (rows, { counterColName }) => max(map(rows, row => get(row, counterColName))),
     options: ['counterColName', 'targetColName', 'targetRowNumber'],
   },
 };
@@ -71,18 +71,6 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   return result;
 }
 
-// 0 - special case, use first record
-// 1..N - 1-based record number from beginning (wraps if greater than dataset size)
-// -1..-N - 1-based record number from end (wraps if greater than dataset size)
-function getRowNumber(index, rowsCount) {
-  index = parseInt(index, 10) || 0;
-  if (index === 0) {
-    return index;
-  }
-  const wrappedIndex = (Math.abs(index) - 1) % rowsCount;
-  return index > 0 ? wrappedIndex : rowsCount - wrappedIndex - 1;
-}
-
 function formatValue(value, { stringPrefix, stringSuffix, stringDecimal, stringDecChar, stringThouSep }) {
   if (isNumber(value)) {
     value = numberFormat(value, stringDecimal, stringDecChar, stringThouSep);
@@ -103,11 +91,7 @@ export function getCounterData(rows, options, visualizationName) {
 
   const rowsCount = rows.length;
   if (rowsCount > 0) {
-    const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-    const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
-    const counterColName = options.counterColName;
-    const targetColName = options.targetColName;
-    const counterLabel = options.counterLabel;
+    const { counterType, counterLabel, targetRowNumber, targetColName } = options;
 
     if (counterLabel) {
       result.counterLabel = counterLabel;
@@ -115,15 +99,14 @@ export function getCounterData(rows, options, visualizationName) {
       result.counterLabel = visualizationName;
     }
 
-    if (options.countRow) {
-      result.counterValue = rowsCount;
-    } else if (counterColName) {
-      result.counterValue = rows[rowNumber][counterColName];
+    const counterValue = invoke(COUNTER_TYPES[counterType], 'getValue', rows, options);
+    if (counterValue !== null && counterValue !== undefined) {
+      result.counterValue = counterValue;
     }
 
     result.showTrend = false;
     if (targetColName) {
-      result.targetValue = rows[targetRowNumber][targetColName];
+      result.targetValue = get(nth(rows, targetRowNumber), targetColName);
 
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
         const delta = result.counterValue - result.targetValue;
@@ -158,10 +141,9 @@ export function isValueNumber(rows, options) {
 
   const rowsCount = rows.length;
   if (rowsCount > 0) {
-    const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-    const counterColName = options.counterColName;
+    const { rowNumber, counterColName } = options;
     if (counterColName) {
-      return isNumber(rows[rowNumber][counterColName]);
+      return isNumber(get(nth(rows, rowNumber), counterColName));
     }
   }
 
