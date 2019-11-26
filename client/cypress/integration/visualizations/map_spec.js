@@ -45,17 +45,18 @@ describe('Map (Markers)', () => {
     cy.clickThrough('Map.EditorTabs.Groups');
     cy.clickThrough('Map.Editor.Groups.Israel.Color');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
     cy.clickThrough('Map.Editor.Groups.Ukraine.Color');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'green{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
     cy.clickThrough('Map.Editor.Groups.Hungary.Color');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'blue{enter}' });
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
 
     cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Map (Markers) with groups', { widths: [viewportWidth] });
   });
 
@@ -84,14 +85,15 @@ describe('Map (Markers)', () => {
 
     cy.clickThrough('Map.Editor.MarkerBackgroundColor');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
     cy.clickThrough('Map.Editor.MarkerBorderColor');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'maroon{enter}' });
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
 
     cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Visualizations - Map (Markers) with custom markers', { widths: [viewportWidth] });
   });
 });
