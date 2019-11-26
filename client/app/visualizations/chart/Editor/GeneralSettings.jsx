@@ -1,6 +1,7 @@
-import { isArray, map, mapValues, includes, some, each, difference, extend } from 'lodash';
+import { isArray, map, mapValues, includes, some, each, difference } from 'lodash';
 import React, { useMemo } from 'react';
 import { Section, Select, Checkbox } from '@/components/visualizations/editor';
+import { UpdateOptionsStrategy } from '@/components/visualizations/editor/createTabbedEditor';
 import { EditorPropTypes } from '@/visualizations';
 
 import ChartTypeSelect from './ChartTypeSelect';
@@ -94,7 +95,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
       ...mappedColumns,
       [type]: column,
     });
-    onOptionsChange({ columnMapping }, extend);
+    onOptionsChange({ columnMapping }, UpdateOptionsStrategy.shallowMerge);
   }
 
   return (

@@ -1,12 +1,18 @@
-import { isFunction, map, filter, merge } from 'lodash';
+import { isFunction, map, filter, extend, merge } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import Tabs from 'antd/lib/tabs';
 import { EditorPropTypes } from '@/visualizations';
 
+export const UpdateOptionsStrategy = {
+  replace: (existingOptions, newOptions) => merge({}, newOptions),
+  shallowMerge: (existingOptions, newOptions) => extend({}, existingOptions, newOptions),
+  deepMerge: (existingOptions, newOptions) => merge({}, existingOptions, newOptions),
+};
+
 export function TabbedEditor({ tabs, options, data, onOptionsChange, ...restProps }) {
-  const optionsChanged = (newOptions, updateFunction = merge) => {
-    onOptionsChange(updateFunction({}, options, newOptions));
+  const optionsChanged = (newOptions, updateStrategy = UpdateOptionsStrategy.deepMerge) => {
+    onOptionsChange(updateStrategy(options, newOptions));
   };
 
   tabs = filter(tabs, tab => (isFunction(tab.isAvailable) ? tab.isAvailable(options, data) : true));
