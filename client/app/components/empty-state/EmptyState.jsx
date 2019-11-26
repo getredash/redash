@@ -1,7 +1,6 @@
 import { keys, some } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
 import classNames from 'classnames';
 import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
 import { currentUser } from '@/services/auth';
@@ -38,7 +37,7 @@ Step.defaultProps = {
   onClick: null,
 };
 
-export function EmptyState({
+function EmptyState({
   icon,
   header,
   description,
@@ -169,8 +168,4 @@ EmptyState.defaultProps = {
   showInviteStep: false,
 };
 
-export default function init(ngModule) {
-  ngModule.component('emptyState', react2angular(EmptyState));
-}
-
-init.init = true;
+export default EmptyState;

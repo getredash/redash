@@ -62,13 +62,13 @@ describe('Choropleth', () => {
     cy.clickThrough('Choropleth.EditorTabs.Colors');
     cy.clickThrough('Choropleth.Editor.Colors.Min');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'yellow{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
     cy.clickThrough('Choropleth.Editor.Colors.Max');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
     cy.clickThrough('Choropleth.Editor.Colors.Borders');
     cy.fillInputs({ 'ColorPicker.CustomColor': 'black{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.getByTestId('ColorPicker.CustomColor').should('not.be.visible');
 
     cy.clickThrough(`
       Choropleth.EditorTabs.Format
