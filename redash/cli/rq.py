@@ -33,7 +33,7 @@ def worker(queues):
         queues = ['periodic', 'emails', 'default', 'schemas']
 
     with Connection(rq_redis_connection):
-        w = Worker(queues)
+        w = Worker(queues, log_job_description=False)
         w.work()
 
 

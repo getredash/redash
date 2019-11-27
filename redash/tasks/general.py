@@ -71,7 +71,7 @@ def purge_failed_jobs():
         for queue in Queue.all():
             failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
             failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
-            stale_jobs = [job for job in failed_jobs if (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
+            stale_jobs = [job for job in failed_jobs if job and (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
 
             for job in stale_jobs:
                 job.delete()
