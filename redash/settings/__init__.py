@@ -303,6 +303,7 @@ default_query_runners = [
     'redash.query_runner.cass',
     'redash.query_runner.dgraph',
     'redash.query_runner.azure_kusto',
+    'redash.query_runner.exasol',
     'redash.query_runner.cloudwatch',
     'redash.query_runner.cloudwatch_insights',
 ]
