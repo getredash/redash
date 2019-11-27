@@ -32,10 +32,19 @@ function AddToDashboardDialog({ dialog, visualization }) {
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
     Dashboard.get({ slug: selectedDashboard.slug }).$promise
-      .then(dashboard => dashboard.addWidget(visualization))
-      .then(() => {
+      .then((dashboard) => {
+        dashboard.addWidget(visualization);
+        return dashboard;
+      })
+      .then((dashboard) => {
         dialog.close();
-        notification.success('Widget added to dashboard.');
+        const key = `notification-${Math.random().toString(36).substr(2, 10)}`;
+        notification.success('Widget added to dashboard', (
+          <React.Fragment>
+            <a href={`dashboard/${dashboard.slug}`} onClick={() => notification.close(key)}>{dashboard.name}</a>
+            <QueryTagsControl isDraft={dashboard.is_draft} tags={dashboard.tags} />
+          </React.Fragment>
+        ), { key });
       })
       .catch(() => { notification.error('Widget not added.'); })
       .finally(() => { setSaveInProgress(false); });
