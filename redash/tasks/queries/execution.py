@@ -281,4 +281,7 @@ def execute_query(query, data_source_id, metadata, user_id=None,
     else:
         scheduled_query = None
 
-    return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata, scheduled_query).run()
+    try:
+        return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata, scheduled_query).run()
+    except QueryExecutionError as e:
+        return e
