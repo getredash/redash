@@ -21,6 +21,7 @@ rq_scheduler = Scheduler(connection=rq_redis_connection,
                          queue_name="periodic",
                          interval=5)
 
+
 def job_id(kwargs):
     metadata = kwargs.copy()
     metadata['func'] = metadata['func'].__name__
