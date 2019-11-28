@@ -1,9 +1,29 @@
 import errno
 import os
-from rq import Worker, get_current_job
+import signal
+import time
+from rq import Worker, Queue, get_current_job
 from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
-from rq.job import JobStatus
+from rq.job import Job, JobStatus
+
+
+class CancellableJob(Job):
+    def cancel(self, pipeline=None):
+        # TODO - add tests that verify that queued jobs are removed from queue and running jobs are actively cancelled
+        if self.is_started:
+            self.meta['cancelled'] = True
+            self.save_meta()
+
+        super().cancel(pipeline=pipeline)
+        
+    @property
+    def is_cancelled(self):
+        return self.meta.get('cancelled', False)
+
+
+class CancellableQueue(Queue):
+    job_class = CancellableJob
 
 
 class HardLimitingWorker(Worker):
@@ -21,6 +41,12 @@ class HardLimitingWorker(Worker):
     it should have timed out (+ a grace period of 15s). If it does, it kills the work horse.
     """
     grace_period = 15
+    queue_class = CancellableQueue
+    job_class = CancellableJob
+
+    def stop_executing_job(self, job):
+        os.kill(self.horse_pid, signal.SIGINT)
+        self.log.warning('Job %s has been cancelled.', job.id)
 
     def soft_limit_exceeded(self, job):
         seconds_under_monitor = (utcnow() - self.monitor_started).seconds
@@ -46,6 +72,11 @@ class HardLimitingWorker(Worker):
                 # Horse has not exited yet and is still running.
                 # Send a heartbeat to keep the worker alive.
                 self.heartbeat(self.job_monitoring_interval + 5)
+
+                job.refresh()
+
+                if job.is_cancelled:
+                    self.stop_executing_job(job)
 
                 if self.soft_limit_exceeded(job):
                     self.enforce_hard_limit(job)

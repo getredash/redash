@@ -30,10 +30,10 @@ def worker(queues):
     configure_mappers()
 
     if not queues:
-        queues = ['periodic', 'emails', 'default', 'schemas']
+        queues = ['queries', 'periodic', 'emails', 'default', 'schemas']
 
     with Connection(rq_redis_connection):
-        w = Worker(queues, log_job_description=False)
+        w = Worker(queues, log_job_description=False, job_monitoring_interval=5)
         w.work()
 
 

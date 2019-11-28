@@ -4,12 +4,13 @@ import time
 import redis
 from six import text_type
 
-from rq import Queue, get_current_job
+from rq import get_current_job
 from rq.job import Job, JobStatus
 from rq.timeouts import JobTimeoutException
 
 from redash import models, rq_redis_connection, redis_connection, settings
 from redash.query_runner import InterruptException
+from redash.tasks.hard_limiting_worker import CancellableQueue, CancellableJob
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
@@ -33,12 +34,11 @@ class QueryTask(object):
         JobStatus.QUEUED: 1,
         JobStatus.STARTED: 2,
         JobStatus.FINISHED: 3,
-        JobStatus.FAILED: 4,
-        'REVOKED': 4 # TODO - find a representation for cancelled jobs in RQ
+        JobStatus.FAILED: 4
     }
 
     def __init__(self, job):
-        self._job = job if isinstance(job, Job) else Job.fetch(job, connection=rq_redis_connection)
+        self._job = job if isinstance(job, Job) else CancellableJob.fetch(job, connection=rq_redis_connection)
 
     @property
     def id(self):
@@ -57,10 +57,10 @@ class QueryTask(object):
         if isinstance(result, JobTimeoutException):
             error = TIMEOUT_MESSAGE
             status = 4
-        elif isinstance(result, Exception):
+        elif isinstance(result, Exception): # TODO - verify exception messages are returned
             error = str(result)
             status = 4
-        elif job_status == 'REVOKED': # TODO - find a representation for cancelled jobs in RQ
+        elif self.is_cancelled:
             error = 'Query execution cancelled.'
         else:
             error = ''
@@ -80,7 +80,7 @@ class QueryTask(object):
 
     @property
     def is_cancelled(self):
-        return self.rq_status == 'REVOKED' # TODO - find a representation for cancelled jobs in RQ
+        return self._job.is_cancelled
 
     @property
     def rq_status(self):
@@ -129,7 +129,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata['Queue'] = queue_name
 
-                queue = Queue(queue_name, connection=rq_redis_connection)
+                queue = CancellableQueue(queue_name, connection=rq_redis_connection)
                 result = queue.enqueue(execute_query, query, data_source.id, metadata,
                                        user_id=user_id,
                                        scheduled_query_id=scheduled_query_id,
