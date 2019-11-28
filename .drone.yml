@@ -1,0 +1,29 @@
+---
+
+kind: pipeline
+type: docker
+name: Trufflehog
+    
+steps:
+- name : Truffle-hog clone  
+  image: docker:git
+  commands:    
+     - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
+  when:
+    trigger:
+    - pull_request
+    
+- name: Run truffle-hog
+  image: python:2.7-alpine
+  commands:
+      - apk add --no-cache git
+      - echo $DRONE_SOURCE_BRANCH
+      - echo $DRONE_REPO
+      - cd moe-truffleHog
+      - git branch
+      -	pip install -r requirements.txt
+      - python truffleHog/truffleHog.py --regex --rules rules.json --max_depth 1 --branch $DRONE_SOURCE_BRANCH "https://github.com/$DRONE_REPO.git" --entropy true 
+      - echo "No tokens Found"
+  when:
+    trigger:
+    - pull_request
