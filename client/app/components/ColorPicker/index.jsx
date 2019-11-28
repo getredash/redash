@@ -1,5 +1,5 @@
 import { toString } from 'lodash';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import tinycolor from 'tinycolor2';
@@ -10,19 +10,16 @@ import Icon from 'antd/lib/icon';
 
 import ColorInput from './Input';
 import Swatch from './Swatch';
+import Label from './Label';
+import { validateColor } from './utils';
 
 import './index.less';
 
-function validateColor(value, fallback = null) {
-  value = tinycolor(value);
-  return value.isValid() ? '#' + value.toHex().toUpperCase() : fallback;
-}
-
 export default function ColorPicker({
-  color, placement, presetColors, presetColumns, triggerSize, interactive, children, onChange,
-  className, ...props
+  color, placement, presetColors, presetColumns, interactive, children, onChange, triggerProps,
 }) {
   const [visible, setVisible] = useState(false);
+  const validatedColor = useMemo(() => validateColor(color), [color]);
   const [currentColor, setCurrentColor] = useState('');
 
   function handleApply() {
@@ -59,12 +56,13 @@ export default function ColorPicker({
 
   useEffect(() => {
     if (visible) {
-      setCurrentColor(validateColor(color));
+      setCurrentColor(validatedColor);
     }
-  }, [color, visible]);
+  }, [validatedColor, visible]);
 
   return (
     <Popover
+      arrowPointAtCenter
       overlayClassName={`color-picker ${interactive ? 'color-picker-interactive' : 'color-picker-with-actions'}`}
       overlayStyle={{ '--color-picker-selected-color': currentColor }}
       content={(
@@ -95,10 +93,10 @@ export default function ColorPicker({
     >
       {children || (
         <Swatch
-          className={cx('color-picker-trigger', className)}
-          color={validateColor(color)}
-          size={triggerSize}
-          {...props}
+          color={validatedColor}
+          size={30}
+          {...triggerProps}
+          className={cx('color-picker-trigger', triggerProps.className)}
         />
       )}
     </Popover>
@@ -117,11 +115,10 @@ ColorPicker.propTypes = {
     PropTypes.objectOf(PropTypes.string), // color name => color value
   ]),
   presetColumns: PropTypes.number,
-  triggerSize: PropTypes.number,
   interactive: PropTypes.bool,
+  triggerProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   children: PropTypes.node,
   onChange: PropTypes.func,
-  className: PropTypes.string,
 };
 
 ColorPicker.defaultProps = {
@@ -129,12 +126,12 @@ ColorPicker.defaultProps = {
   placement: 'top',
   presetColors: null,
   presetColumns: 8,
-  triggerSize: 30,
   interactive: false,
+  triggerProps: {},
   children: null,
   onChange: () => {},
-  className: null,
 };
 
 ColorPicker.Input = ColorInput;
 ColorPicker.Swatch = Swatch;
+ColorPicker.Label = Label;

@@ -1,0 +1,33 @@
+.chart-editor-series {
+  .drag-handle {
+    height: 28px;
+    padding: 0 5px;
+    margin-left: -5px;
+  }
+
+  &.sortable-container {
+    table {
+      background: transparent;
+    }
+
+    thead th {
+      // TODO: replace with @table-header-bg
+      // Cannot do it not because of conflict between Antd and Bootstrap variables
+       background: mix(#ffffff, rgb(102, 136, 153), 97%) !important;
+    }
+
+    &.sortable-container-dragging tbody {
+      td {
+        background: transparent !important;
+      }
+
+      .chart-editor-series-dragged-item {
+        td {
+          // TODO: replace with @table-row-hover-bg
+          // Cannot do it not because of conflict between Antd and Bootstrap variables
+          background: mix(#ffffff, rgb(102, 136, 153), 95%) !important;
+        }
+      }
+    }
+  }
+}
