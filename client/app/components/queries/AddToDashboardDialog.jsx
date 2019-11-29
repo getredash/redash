@@ -16,7 +16,7 @@ import './add-to-dashboard-dialog.less';
 function AddToDashboardDialog({ dialog, visualization }) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [doSearch, dashboards] = useSearchResults((term) => {
+  const [doSearch, dashboards, isLoading] = useSearchResults((term) => {
     if (isString(term) && (term.length >= 3)) {
       return Dashboard.get({ q: term }).$promise.then(results => results.results);
     }
@@ -77,11 +77,12 @@ function AddToDashboardDialog({ dialog, visualization }) {
         />
       )}
 
-      {(items.length > 0) && (
+      {((items.length > 0) || isLoading) && (
         <List
           className={selectedDashboard ? 'add-to-dashboard-dialog-selection' : 'add-to-dashboard-dialog-search-results'}
           bordered
           itemLayout="horizontal"
+          loading={isLoading}
           dataSource={items}
           renderItem={d => (
             <List.Item
