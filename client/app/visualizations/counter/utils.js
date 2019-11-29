@@ -70,7 +70,7 @@ function formatTooltip(value, formatString) {
   return toString(value);
 }
 
-export function getCounterData(rows = [], options = {}, visualizationName = '') {
+export function getCounterData(rows, options, visualizationName) {
   const result = {};
   const rowsCount = rows.length;
 
