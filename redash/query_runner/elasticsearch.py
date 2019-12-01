@@ -65,9 +65,14 @@ class BaseElasticSearch(BaseQueryRunner):
                 'basic_auth_password': {
                     'type': 'string',
                     'title': 'Basic Auth Password'
+                },
+                'skip_tls_verification': {
+                    'type': 'boolean',
+                    'title': 'Skip TLS verification',
+                    'default': False
                 }
             },
-            "order": ['server', 'basic_auth_user', 'basic_auth_password'],
+            "order": ['server', 'basic_auth_user', 'basic_auth_password', 'skip_tls_verification'],
             "secret": ["basic_auth_password"],
             "required": ["server"]
         }
@@ -102,11 +107,13 @@ class BaseElasticSearch(BaseQueryRunner):
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
 
+        self.tls_verification = not self.configuration.get("skip_tls_verification", True)
+
     def _get_mappings(self, url):
         mappings = {}
         error = None
         try:
-            r = requests.get(url, auth=self.auth)
+            r = requests.get(url, auth=self.auth, verify=self.tls_verification)
             r.raise_for_status()
 
             mappings = r.json()
@@ -278,7 +285,8 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def test_connection(self):
         try:
-            r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
+            url = "{0}/_cluster/health".format(self.server_url)
+            r = requests.get(url, auth=self.auth, verify=self.tls_verification)
             r.raise_for_status()
         except requests.HTTPError as e:
             logger.exception(e)
@@ -295,7 +303,7 @@ class Kibana(BaseElasticSearch):
 
     def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
-        r = requests.get(url, auth=self.auth)
+        r = requests.get(url, auth=self.auth, verify=self.tls_verification)
         r.raise_for_status()
 
         raw_result = r.json()
@@ -406,7 +414,7 @@ class ElasticSearch(BaseElasticSearch):
 
             logger.debug("Using URL: %s", url)
             logger.debug("Using query: %s", query_dict)
-            r = requests.get(url, json=query_dict, auth=self.auth)
+            r = requests.get(url, json=query_dict, auth=self.auth, verify=self.tls_verification)
             r.raise_for_status()
             logger.debug("Result: %s", r.json())
 
