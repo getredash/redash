@@ -60,7 +60,7 @@ class QueryTask(object):
         elif isinstance(result, Exception): # TODO - verify exception messages are returned
             error = str(result)
             status = 4
-        elif self.is_cancelled:
+        elif self.cancelled:
             error = 'Query execution cancelled.'
         else:
             error = ''
@@ -79,15 +79,16 @@ class QueryTask(object):
         }
 
     @property
-    def is_cancelled(self):
-        return self._job.is_cancelled
-
-    @property
     def rq_status(self):
         return self._job.get_status()
 
+    @property
     def ready(self):
         return self._job.is_finished
+
+    @property
+    def cancelled(self):
+        return self._job.is_cancelled
 
     def cancel(self):
         self._job.cancel()
@@ -111,7 +112,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
                 job = QueryTask(job_id)
 
-                if job.ready():
+                if job.ready:
                     logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.rq_status)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
@@ -284,4 +285,5 @@ def execute_query(query, data_source_id, metadata, user_id=None,
     try:
         return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata, scheduled_query).run()
     except QueryExecutionError as e:
+        models.db.session.rollback()
         return e
