@@ -21,8 +21,8 @@ import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTab
 
 import Layout from '@/components/layouts/ContentWithSidebar';
 import CreateUserDialog from '@/components/users/CreateUserDialog';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
-import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import { User } from '@/services/user';
@@ -205,7 +205,7 @@ class UsersList extends React.Component {
             {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
             {
               controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
+                <div className="table-responsive" data-test="UserList">
                   <ItemsTable
                     items={controller.pageItems}
                     columns={this.listColumns}
@@ -231,15 +231,13 @@ class UsersList extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageUsersList', react2angular(wrapSettingsTab({
     permission: 'list_users',
     title: 'Users',
     path: 'users',
     isActive: path => path.startsWith('/users') && (path !== '/users/me'),
     order: 2,
-  });
-
-  ngModule.component('pageUsersList', react2angular(itemsList(
+  }, itemsList(
     UsersList,
     new ResourceItemsSource({
       getRequest(request, { params: { currentPage } }) {
@@ -265,7 +263,7 @@ export default function init(ngModule) {
       },
     }),
     new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
-  )));
+  ))));
 }
 
 init.init = true;

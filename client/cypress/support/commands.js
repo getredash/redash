@@ -14,7 +14,7 @@ Cypress.Commands.add('login', (email = 'admin@redash.io', password = 'password')
   },
 }));
 
-Cypress.Commands.add('logout', () => cy.request('/logout'));
+Cypress.Commands.add('logout', () => cy.visit('/logout'));
 Cypress.Commands.add('getByTestId', element => cy.get('[data-test="' + element + '"]'));
 
 /* Clicks a series of elements. Pass in a newline-seperated string in order to click all elements by their test id,
@@ -45,9 +45,12 @@ Cypress.Commands.add('clickThrough', (...args) => {
   return undefined;
 });
 
-Cypress.Commands.add('fillInputs', (elements) => {
+Cypress.Commands.add('fillInputs', (elements, { wait = 0 } = {}) => {
   each(elements, (value, testId) => {
-    cy.getByTestId(testId).clear().type(value);
+    cy.getByTestId(testId).filter(':visible').clear().type(value);
+    if (wait > 0) {
+      cy.wait(wait); // eslint-disable-line cypress/no-unnecessary-waiting
+    }
   });
 });
 
@@ -80,4 +83,9 @@ Cypress.Commands.add('all', (...functions) => {
   }, results);
 
   return cy.wrap(results);
+});
+
+Cypress.Commands.overwrite('percySnapshot', (originalFn, ...args) => {
+  Cypress.$('*[data-test=TimeAgo]').text('just now');
+  return originalFn(...args);
 });

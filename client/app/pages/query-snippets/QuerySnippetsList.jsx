@@ -14,10 +14,10 @@ import { StateStorage } from '@/components/items-list/classes/StateStorage';
 
 import LoadingState from '@/components/items-list/components/LoadingState';
 import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 import { QuerySnippet } from '@/services/query-snippet';
 import navigateTo from '@/services/navigateTo';
-import settingsMenu from '@/services/settingsMenu';
 import { currentUser } from '@/services/auth';
 import { policy } from '@/services/policy';
 import notification from '@/services/notification';
@@ -183,14 +183,12 @@ class QuerySnippetsList extends React.Component {
 }
 
 export default function init(ngModule) {
-  settingsMenu.add({
+  ngModule.component('pageQuerySnippetsList', react2angular(wrapSettingsTab({
     permission: 'create_query',
     title: 'Query Snippets',
     path: 'query_snippets',
     order: 5,
-  });
-
-  ngModule.component('pageQuerySnippetsList', react2angular(liveItemsList(
+  }, liveItemsList(
     QuerySnippetsList,
     new ResourceItemsSource({
       isPlainList: true,
@@ -205,7 +203,7 @@ export default function init(ngModule) {
       },
     }),
     new StateStorage({ orderByField: 'trigger', itemsPerPage: 10 }),
-  )));
+  ))));
 
   return routesToAngularRoutes([
     {
@@ -221,7 +219,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<settings-screen><page-query-snippets-list on-error="handleError"></page-query-snippets-list></settings-screen>',
+    template: '<page-query-snippets-list on-error="handleError"></page-query-snippets-list>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 

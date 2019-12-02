@@ -18,6 +18,7 @@ import GroupName from '@/components/groups/GroupName';
 import ListItemAddon from '@/components/groups/ListItemAddon';
 import Sidebar from '@/components/groups/DetailsPageSidebar';
 import Layout from '@/components/layouts/ContentWithSidebar';
+import wrapSettingsTab from '@/components/SettingsWrapper';
 
 import notification from '@/services/notification';
 import { currentUser } from '@/services/auth';
@@ -187,7 +188,7 @@ class GroupMembers extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageGroupMembers', react2angular(liveItemsList(
+  ngModule.component('pageGroupMembers', react2angular(wrapSettingsTab(null, liveItemsList(
     GroupMembers,
     new ResourceItemsSource({
       isPlainList: true,
@@ -202,7 +203,7 @@ export default function init(ngModule) {
       },
     }),
     new StateStorage({ orderByField: 'name' }),
-  )));
+  ))));
 
   return routesToAngularRoutes([
     {
@@ -212,7 +213,7 @@ export default function init(ngModule) {
     },
   ], {
     reloadOnSearch: false,
-    template: '<settings-screen><page-group-members on-error="handleError"></page-group-members></settings-screen>',
+    template: '<page-group-members on-error="handleError"></page-group-members>',
     controller($scope, $exceptionHandler) {
       'ngInject';
 
