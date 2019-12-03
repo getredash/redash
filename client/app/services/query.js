@@ -259,6 +259,7 @@ function QueryResource(
       schedule: null,
       user: currentUser,
       options: {},
+      tags: [],
     });
   };
 
