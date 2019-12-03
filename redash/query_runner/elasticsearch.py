@@ -107,7 +107,7 @@ class BaseElasticSearch(BaseQueryRunner):
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
 
-        self.tls_verification = not self.configuration.get("skip_tls_verification", True)
+        self.tls_verification = not self.configuration.get("skip_tls_verification", False)
 
     def _get_mappings(self, url):
         mappings = {}
