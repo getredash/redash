@@ -49,7 +49,7 @@
         "error_y": { "array": [0, 0, 0, 0], "color": "red" },
         "hover": [],
         "text": ["10 ± 0", "20 ± 0", "30 ± 0", "40 ± 0"],
-        "insidetextfont": { "color": "#333333" },
+        "insidetextfont": { "color": "#ffffff" },
         "yaxis": "y"
       }
     ]

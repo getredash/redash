@@ -38,13 +38,13 @@ describe('Cohort', () => {
     `);
 
     cy.clickThrough(`
-      Cohort.EditorTabs.Options
+      VisualizationEditor.Tabs.Options
       Cohort.TimeInterval
       Cohort.TimeInterval.monthly
       Cohort.Mode
       Cohort.Mode.simple
 
-      Cohort.EditorTabs.Columns
+      VisualizationEditor.Tabs.Columns
       Cohort.DateColumn
       Cohort.DateColumn.date
       Cohort.StageColumn
@@ -61,7 +61,7 @@ describe('Cohort', () => {
     cy.percySnapshot('Visualizations - Cohort (simple)', { widths: [viewportWidth] });
 
     cy.clickThrough(`
-      Cohort.EditorTabs.Options
+      VisualizationEditor.Tabs.Options
       Cohort.Mode
       Cohort.Mode.diagonal
     `);

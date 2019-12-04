@@ -36,18 +36,17 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
       title: 'Color',
       dataIndex: 'color',
       width: '1%',
+      className: 'text-nowrap',
       render: (unused, item) => (
-        <div className="text-nowrap">
-          <ColorPicker
-            data-test={`Chart.Series.${item.key}.Color`}
-            interactive
-            presetColors={colors}
-            placement="topRight"
-            color={item.color}
-            onChange={value => updateSeriesOption(item.key, 'color', value)}
-          />
-          <ColorPicker.Label color={item.color} presetColors={colors} />
-        </div>
+        <ColorPicker
+          data-test={`Chart.Series.${item.key}.Color`}
+          interactive
+          presetColors={colors}
+          placement="topRight"
+          color={item.color}
+          onChange={value => updateSeriesOption(item.key, 'color', value)}
+          addonAfter={<ColorPicker.Label color={item.color} presetColors={colors} />}
+        />
       ),
     },
   ];

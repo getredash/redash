@@ -33,8 +33,8 @@ describe('Visualizations -> Chart -> Editor -> Series Settings', () => {
       },
     }, done);
 
-    findByTestID(el, 'Chart.Series.a.Type').first().simulate('click');
-    findByTestID(el, 'Chart.ChartType.area').first().simulate('click');
+    findByTestID(el, 'Chart.Series.a.Type').last().simulate('click');
+    findByTestID(el, 'Chart.ChartType.area').last().simulate('click');
   });
 
   test('Changes series label', (done) => {
@@ -46,7 +46,7 @@ describe('Visualizations -> Chart -> Editor -> Series Settings', () => {
       },
     }, done);
 
-    findByTestID(el, 'Chart.Series.a.Label').first().simulate('change', { target: { value: 'test' } });
+    findByTestID(el, 'Chart.Series.a.Label').last().simulate('change', { target: { value: 'test' } });
   });
 
   test('Changes series axis', (done) => {
@@ -58,7 +58,7 @@ describe('Visualizations -> Chart -> Editor -> Series Settings', () => {
       },
     }, done);
 
-    findByTestID(el, 'Chart.Series.a.UseRightAxis').first().find('input')
+    findByTestID(el, 'Chart.Series.a.UseRightAxis').last().find('input')
       .simulate('change', { target: { checked: true } });
   });
 });

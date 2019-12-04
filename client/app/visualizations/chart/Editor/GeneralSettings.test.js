@@ -38,8 +38,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       },
     }, done);
 
-    findByTestID(el, 'Chart.GlobalSeriesType').first().simulate('click');
-    findByTestID(el, 'Chart.ChartType.pie').first().simulate('click');
+    findByTestID(el, 'Chart.GlobalSeriesType').last().simulate('click');
+    findByTestID(el, 'Chart.ChartType.pie').last().simulate('click');
   });
 
   test('Pie: changes direction', (done) => {
@@ -48,8 +48,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       direction: { type: 'counterclockwise' },
     }, done);
 
-    findByTestID(el, 'Chart.PieDirection').first().simulate('click');
-    findByTestID(el, 'Chart.PieDirection.Clockwise').first().simulate('click');
+    findByTestID(el, 'Chart.PieDirection').last().simulate('click');
+    findByTestID(el, 'Chart.PieDirection.Clockwise').last().simulate('click');
   });
 
   test('Toggles legend', (done) => {
@@ -58,7 +58,7 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       legend: { enabled: true },
     }, done);
 
-    findByTestID(el, 'Chart.ShowLegend').first().find('input')
+    findByTestID(el, 'Chart.ShowLegend').last().find('input')
       .simulate('change', { target: { checked: false } });
   });
 
@@ -68,7 +68,7 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       showpoints: false,
     }, done);
 
-    findByTestID(el, 'Chart.ShowPoints').first().find('input')
+    findByTestID(el, 'Chart.ShowPoints').last().find('input')
       .simulate('change', { target: { checked: true } });
   });
 
@@ -78,8 +78,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       series: {},
     }, done);
 
-    findByTestID(el, 'Chart.Stacking').first().simulate('click');
-    findByTestID(el, 'Chart.Stacking.Stack').first().simulate('click');
+    findByTestID(el, 'Chart.Stacking').last().simulate('click');
+    findByTestID(el, 'Chart.Stacking.Stack').last().simulate('click');
   });
 
   test('Toggles normalize values to percentage', (done) => {
@@ -88,7 +88,7 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       series: {},
     }, done);
 
-    findByTestID(el, 'Chart.NormalizeValues').first().find('input')
+    findByTestID(el, 'Chart.NormalizeValues').last().find('input')
       .simulate('change', { target: { checked: true } });
   });
 
@@ -98,8 +98,8 @@ describe('Visualizations -> Chart -> Editor -> General Settings', () => {
       missingValuesAsZero: true,
     }, done);
 
-    findByTestID(el, 'Chart.MissingValues').first().simulate('click');
-    findByTestID(el, 'Chart.MissingValues.Keep').first().simulate('click');
+    findByTestID(el, 'Chart.MissingValues').last().simulate('click');
+    findByTestID(el, 'Chart.MissingValues.Keep').last().simulate('click');
   });
 
   describe('Column mappings should be available', () => {

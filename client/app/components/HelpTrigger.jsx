@@ -1,3 +1,4 @@
+import { startsWith } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
@@ -87,28 +88,29 @@ export const TYPES = {
     '/user-guide/querying/writing-queries#Managing-Query-Permissions',
     'Guide: Managing Query Permissions',
   ],
+  NUMBER_FORMAT_SPECS: [
+    '/user-guide/visualizations/formatting-numbers',
+    'Formatting Numbers',
+  ],
 };
 
 export default class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
+    showTooltip: PropTypes.bool,
     children: PropTypes.node,
   };
 
   static defaultProps = {
     className: null,
+    showTooltip: true,
     children: <i className="fa fa-question-circle" />,
   };
 
-  iframeRef = null;
+  iframeRef = React.createRef();
 
   iframeLoadingTimeout = null;
-
-  constructor(props) {
-    super(props);
-    this.iframeRef = React.createRef();
-  }
 
   state = {
     visible: false,
@@ -118,7 +120,7 @@ export default class HelpTrigger extends React.Component {
   };
 
   componentDidMount() {
-    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+    window.addEventListener('message', this.onPostMessageReceived, false);
   }
 
   componentWillUnmount() {
@@ -142,13 +144,17 @@ export default class HelpTrigger extends React.Component {
   };
 
   onPostMessageReceived = (event) => {
+    if (!startsWith(event.origin, DOMAIN)) {
+      return;
+    }
+
     const { type, message: currentUrl } = event.data || {};
     if (type !== IFRAME_URL_UPDATE_MESSAGE) {
       return;
     }
 
     this.setState({ currentUrl });
-  }
+  };
 
   openDrawer = () => {
     this.setState({ visible: true });
@@ -174,7 +180,7 @@ export default class HelpTrigger extends React.Component {
 
     return (
       <React.Fragment>
-        <Tooltip title={tooltip}>
+        <Tooltip title={this.props.showTooltip ? tooltip : null}>
           <a onClick={this.openDrawer} className={className}>
             {this.props.children}
           </a>

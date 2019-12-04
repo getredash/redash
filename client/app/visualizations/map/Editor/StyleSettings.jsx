@@ -1,14 +1,7 @@
 import { isNil, map } from 'lodash';
 import React, { useMemo } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import Checkbox from 'antd/lib/checkbox';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
-import Typography from 'antd/lib/typography';
-import * as Grid from 'antd/lib/grid';
-import ColorPicker from '@/components/ColorPicker';
+import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from '@/components/visualizations/editor';
 import { EditorPropTypes } from '@/visualizations';
 import ColorPalette from '@/visualizations/ColorPalette';
 
@@ -92,11 +85,10 @@ export default function StyleSettings({ options, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor="map-editor-tiles">Map Tiles</label>
+      <Section>
         <Select
+          label="Map Tiles"
           data-test="Map.Editor.Tiles"
-          id="map-editor-tiles"
           className="w-100"
           value={options.mapTileUrl}
           onChange={mapTileUrl => onOptionsChange({ mapTileUrl })}
@@ -105,168 +97,130 @@ export default function StyleSettings({ options, onOptionsChange }) {
             <Select.Option key={url} data-test={'Map.Editor.Tiles.' + name}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <h4 className="m-t-15 m-b-15">Markers</h4>
+      <Section.Title>Markers</Section.Title>
 
-      <div className="m-b-15">
-        <label htmlFor="map-editor-cluster-markers">
-          <Checkbox
-            id="map-editor-cluster-markers"
-            data-test="Map.Editor.ClusterMarkers"
-            defaultChecked={options.clusterMarkers}
-            onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}
-          />
-          <span>Cluster Markers</span>
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Map.Editor.ClusterMarkers"
+          defaultChecked={options.clusterMarkers}
+          onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}
+        >
+          Cluster Markers
+        </Checkbox>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor="map-editor-customize-markers">
-          <Checkbox
-            id="map-editor-customize-markers"
-            data-test="Map.Editor.CustomizeMarkers"
-            disabled={!isCustomMarkersStyleAllowed}
-            defaultChecked={options.customizeMarkers}
-            onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}
-          />
-          <Typography.Text disabled={!isCustomMarkersStyleAllowed}>Override default style</Typography.Text>
-          {!isCustomMarkersStyleAllowed && (
-            <Popover
-              placement="topLeft"
-              arrowPointAtCenter
-              content={(
-                <span>
-                  Custom marker styles are not available<br />
-                  when <b>Group By</b> column selected.
-                </span>
-              )}
-            >
-              <Icon className="m-l-5" type="question-circle" theme="filled" />
-            </Popover>
-          )}
-        </label>
-      </div>
+      <Section>
+        <Checkbox
+          data-test="Map.Editor.CustomizeMarkers"
+          disabled={!isCustomMarkersStyleAllowed}
+          defaultChecked={options.customizeMarkers}
+          onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}
+        >
+          Override default style
+        </Checkbox>
+        {!isCustomMarkersStyleAllowed && (
+          <ContextHelp placement="topLeft" arrowPointAtCenter>
+            Custom marker styles are not available<br />
+            when <b>Group By</b> column selected.
+          </ContextHelp>
+        )}
+      </Section>
 
       {isCustomMarkersStyleAllowed && options.customizeMarkers && (
         <React.Fragment>
-          <Grid.Row type="flex" align="middle" className="m-b-10">
-            <Grid.Col span={12}>
-              <label htmlFor="map-editor-marker-shape">Shape</label>
-            </Grid.Col>
-            <Grid.Col span={12}>
-              <Select
-                id="map-editor-marker-shape"
-                className="w-100"
-                data-test="Map.Editor.MarkerShape"
-                value={options.iconShape}
-                onChange={iconShape => onOptionsChange({ iconShape })}
-              >
-                <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">Marker + Icon</Select.Option>
-                <Select.Option key="doughnut" data-test="Map.Editor.MarkerShape.doughnut">Circle</Select.Option>
-                <Select.Option key="circle-dot" data-test="Map.Editor.MarkerShape.circle-dot">Circle Dot</Select.Option>
-                <Select.Option key="circle" data-test="Map.Editor.MarkerShape.circle">Circle + Icon</Select.Option>
-                <Select.Option key="rectangle-dot" data-test="Map.Editor.MarkerShape.rectangle-dot">Square Dot</Select.Option>
-                <Select.Option key="rectangle" data-test="Map.Editor.MarkerShape.rectangle">Square + Icon</Select.Option>
-              </Select>
-            </Grid.Col>
-          </Grid.Row>
+          <Section>
+            <Select
+              layout="horizontal"
+              label="Shape"
+              className="w-100"
+              data-test="Map.Editor.MarkerShape"
+              value={options.iconShape}
+              onChange={iconShape => onOptionsChange({ iconShape })}
+            >
+              <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">Marker + Icon</Select.Option>
+              <Select.Option key="doughnut" data-test="Map.Editor.MarkerShape.doughnut">Circle</Select.Option>
+              <Select.Option key="circle-dot" data-test="Map.Editor.MarkerShape.circle-dot">Circle Dot</Select.Option>
+              <Select.Option key="circle" data-test="Map.Editor.MarkerShape.circle">Circle + Icon</Select.Option>
+              <Select.Option key="rectangle-dot" data-test="Map.Editor.MarkerShape.rectangle-dot">Square Dot</Select.Option>
+              <Select.Option key="rectangle" data-test="Map.Editor.MarkerShape.rectangle">Square + Icon</Select.Option>
+            </Select>
+          </Section>
 
           {showIcon && (
-            <Grid.Row type="flex" align="middle" className="m-b-10">
-              <Grid.Col span={12}>
-                <label htmlFor="map-editor-marker-icon">
-                  Icon
-                  <Popover
-                    placement="topLeft"
-                    arrowPointAtCenter
-                    content={(
-                      <React.Fragment>
-                        <div className="m-b-5">
-                          Enter an icon name from{' '}
-                          <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">Font-Awesome 4.7</a>
-                        </div>
-                        <div className="m-b-5">
-                          Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
-                        </div>
-                        <div>Leave blank to remove.</div>
-                      </React.Fragment>
-                    )}
-                  >
-                    <Icon className="m-l-5" type="question-circle" theme="filled" />
-                  </Popover>
-                </label>
-              </Grid.Col>
-              <Grid.Col span={12}>
-                <Input
-                  id="map-editor-marker-icon"
-                  className="w-100"
-                  data-test="Map.Editor.MarkerIcon"
-                  defaultValue={options.iconFont}
-                  onChange={event => debouncedOnOptionsChange({ iconFont: event.target.value })}
-                />
-              </Grid.Col>
-            </Grid.Row>
+            <Section>
+              <Input
+                layout="horizontal"
+                label={(
+                  <React.Fragment>
+                    Icon
+                    <ContextHelp placement="topLeft" arrowPointAtCenter>
+                      <div className="m-b-5">
+                        Enter an icon name from{' '}
+                        <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">Font-Awesome 4.7</a>
+                      </div>
+                      <div className="m-b-5">
+                        Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
+                      </div>
+                      <div>Leave blank to remove.</div>
+                    </ContextHelp>
+                  </React.Fragment>
+                )}
+                className="w-100"
+                data-test="Map.Editor.MarkerIcon"
+                defaultValue={options.iconFont}
+                onChange={event => debouncedOnOptionsChange({ iconFont: event.target.value })}
+              />
+            </Section>
           )}
 
           {showIcon && (
-            <Grid.Row type="flex" align="middle" className="m-b-10">
-              <Grid.Col span={12}>
-                <label htmlFor="map-editor-marker-icon-color">Icon Color</label>
-              </Grid.Col>
-              <Grid.Col span={12} className="text-nowrap">
-                <ColorPicker
-                  id="map-editor-marker-icon-color"
-                  interactive
-                  presetColors={CustomColorPalette}
-                  placement="topRight"
-                  color={options.foregroundColor}
-                  triggerProps={{ 'data-test': 'Map.Editor.MarkerIconColor' }}
-                  onChange={foregroundColor => onOptionsChange({ foregroundColor })}
-                />
-                <ColorPicker.Label color={options.foregroundColor} presetColors={CustomColorPalette} />
-              </Grid.Col>
-            </Grid.Row>
+            <Section>
+              <ColorPicker
+                layout="horizontal"
+                label="Icon Color"
+                interactive
+                presetColors={CustomColorPalette}
+                placement="topRight"
+                color={options.foregroundColor}
+                triggerProps={{ 'data-test': 'Map.Editor.MarkerIconColor' }}
+                onChange={foregroundColor => onOptionsChange({ foregroundColor })}
+                addonAfter={<ColorPicker.Label color={options.foregroundColor} presetColors={CustomColorPalette} />}
+              />
+            </Section>
           )}
 
           {showBackgroundColor && (
-            <Grid.Row type="flex" align="middle" className="m-b-10">
-              <Grid.Col span={12}>
-                <label htmlFor="map-editor-marker-background-color">Background Color</label>
-              </Grid.Col>
-              <Grid.Col span={12} className="text-nowrap">
-                <ColorPicker
-                  id="map-editor-marker-background-color"
-                  interactive
-                  presetColors={CustomColorPalette}
-                  placement="topRight"
-                  color={options.backgroundColor}
-                  triggerProps={{ 'data-test': 'Map.Editor.MarkerBackgroundColor' }}
-                  onChange={backgroundColor => onOptionsChange({ backgroundColor })}
-                />
-                <ColorPicker.Label color={options.backgroundColor} presetColors={CustomColorPalette} />
-              </Grid.Col>
-            </Grid.Row>
+            <Section>
+              <ColorPicker
+                layout="horizontal"
+                label="Background Color"
+                interactive
+                presetColors={CustomColorPalette}
+                placement="topRight"
+                color={options.backgroundColor}
+                triggerProps={{ 'data-test': 'Map.Editor.MarkerBackgroundColor' }}
+                onChange={backgroundColor => onOptionsChange({ backgroundColor })}
+                addonAfter={<ColorPicker.Label color={options.backgroundColor} presetColors={CustomColorPalette} />}
+              />
+            </Section>
           )}
 
           {showBorderColor && (
-            <Grid.Row type="flex" align="middle" className="m-b-10">
-              <Grid.Col span={12}>
-                <label htmlFor="map-editor-marker-border-color">Border Color</label>
-              </Grid.Col>
-              <Grid.Col span={12} className="text-nowrap">
-                <ColorPicker
-                  id="map-editor-marker-border-color"
-                  interactive
-                  presetColors={CustomColorPalette}
-                  placement="topRight"
-                  color={options.borderColor}
-                  triggerProps={{ 'data-test': 'Map.Editor.MarkerBorderColor' }}
-                  onChange={borderColor => onOptionsChange({ borderColor })}
-                />
-                <ColorPicker.Label color={options.borderColor} presetColors={CustomColorPalette} />
-              </Grid.Col>
-            </Grid.Row>
+            <Section>
+              <ColorPicker
+                layout="horizontal"
+                label="Border Color"
+                interactive
+                presetColors={CustomColorPalette}
+                placement="topRight"
+                color={options.borderColor}
+                triggerProps={{ 'data-test': 'Map.Editor.MarkerBorderColor' }}
+                onChange={borderColor => onOptionsChange({ borderColor })}
+                addonAfter={<ColorPicker.Label color={options.borderColor} presetColors={CustomColorPalette} />}
+              />
+            </Section>
           )}
         </React.Fragment>
       )}

@@ -1,7 +1,6 @@
-import { merge, extend } from 'lodash';
+/* eslint-disable react/prop-types */
 import React from 'react';
-import Tabs from 'antd/lib/tabs';
-import { EditorPropTypes } from '@/visualizations';
+import createTabbedEditor from '@/components/visualizations/editor/createTabbedEditor';
 
 import GeneralSettings from './GeneralSettings';
 import XAxisSettings from './XAxisSettings';
@@ -13,53 +12,48 @@ import CustomChartSettings from './CustomChartSettings';
 
 import './editor.less';
 
-export default function Editor(props) {
-  const { options, onOptionsChange } = props;
+const isCustomChart = options => options.globalSeriesType === 'custom';
+const isPieChart = options => options.globalSeriesType === 'pie';
 
-  const optionsChanged = (newOptions, deepUpdate = true) => {
-    if (deepUpdate) {
-      onOptionsChange(merge({}, options, newOptions));
-    } else {
-      onOptionsChange(extend({}, options, newOptions));
-    }
-  };
-
-  const isCustomChart = options.globalSeriesType === 'custom';
-  const isPieChart = options.globalSeriesType === 'pie';
-
-  return (
-    <Tabs animated={false} tabBarGutter={0}>
-      <Tabs.TabPane key="general" tab={<span data-test="Chart.EditorTabs.General">General</span>}>
-        <GeneralSettings {...props} onOptionsChange={optionsChanged} />
-        {isCustomChart && <CustomChartSettings {...props} onOptionsChange={optionsChanged} />}
-      </Tabs.TabPane>
-      {!isCustomChart && !isPieChart && (
-        <Tabs.TabPane key="x-axis" tab={<span data-test="Chart.EditorTabs.XAxis">X Axis</span>}>
-          <XAxisSettings {...props} onOptionsChange={optionsChanged} />
-        </Tabs.TabPane>
-      )}
-      {!isCustomChart && !isPieChart && (
-        <Tabs.TabPane key="y-axis" tab={<span data-test="Chart.EditorTabs.YAxis">Y Axis</span>}>
-          <YAxisSettings {...props} onOptionsChange={optionsChanged} />
-        </Tabs.TabPane>
-      )}
-      {!isCustomChart && (
-        <Tabs.TabPane key="series" tab={<span data-test="Chart.EditorTabs.Series">Series</span>}>
-          <SeriesSettings {...props} onOptionsChange={optionsChanged} />
-        </Tabs.TabPane>
-      )}
-      {!isCustomChart && (
-        <Tabs.TabPane key="colors" tab={<span data-test="Chart.EditorTabs.Colors">Colors</span>}>
-          <ColorsSettings {...props} onOptionsChange={optionsChanged} />
-        </Tabs.TabPane>
-      )}
-      {!isCustomChart && (
-        <Tabs.TabPane key="data labels" tab={<span data-test="Chart.EditorTabs.DataLabels">Data Labels</span>}>
-          <DataLabelsSettings {...props} onOptionsChange={optionsChanged} />
-        </Tabs.TabPane>
-      )}
-    </Tabs>
-  );
-}
-
-Editor.propTypes = EditorPropTypes;
+export default createTabbedEditor([
+  {
+    key: 'General',
+    title: 'General',
+    component: props => (
+      <React.Fragment>
+        <GeneralSettings {...props} />
+        {isCustomChart(props.options) && <CustomChartSettings {...props} />}
+      </React.Fragment>
+    ),
+  },
+  {
+    key: 'XAxis',
+    title: 'X Axis',
+    component: XAxisSettings,
+    isAvailable: options => !isCustomChart(options) && !isPieChart(options),
+  },
+  {
+    key: 'YAxis',
+    title: 'Y Axis',
+    component: YAxisSettings,
+    isAvailable: options => !isCustomChart(options) && !isPieChart(options),
+  },
+  {
+    key: 'Series',
+    title: 'Series',
+    component: SeriesSettings,
+    isAvailable: options => !isCustomChart(options),
+  },
+  {
+    key: 'Colors',
+    title: 'Colors',
+    component: ColorsSettings,
+    isAvailable: options => !isCustomChart(options),
+  },
+  {
+    key: 'DataLabels',
+    title: 'Data Labels',
+    component: DataLabelsSettings,
+    isAvailable: options => !isCustomChart(options),
+  },
+]);

@@ -1,4 +1,4 @@
-import { isFunction, each, map, maxBy, toString } from 'lodash';
+import { isFunction, each, map, toString } from 'lodash';
 import chroma from 'chroma-js';
 import L from 'leaflet';
 import 'leaflet.markercluster';
@@ -13,6 +13,7 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import resizeObserver from '@/services/resizeObserver';
+import chooseTextColorForBackground from '@/lib/chooseTextColorForBackground';
 
 // This is a workaround for an issue with giving Leaflet load the icon on its own.
 L.Icon.Default.mergeOptions({
@@ -50,7 +51,7 @@ L.MarkerClusterIcon = L.DivIcon.extend({
   },
   createIcon(...args) {
     const color = chroma(this.options.color);
-    const textColor = maxBy(['#ffffff', '#000000'], c => chroma.contrast(color, c));
+    const textColor = chooseTextColorForBackground(color);
     const borderColor = color.alpha(0.4).css();
     const backgroundColor = color.alpha(0.8).css();
 

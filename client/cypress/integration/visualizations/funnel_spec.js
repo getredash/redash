@@ -39,7 +39,7 @@ describe('Funnel', () => {
     `);
 
     cy.clickThrough(`
-      Funnel.EditorTabs.General
+      VisualizationEditor.Tabs.General
 
       Funnel.StepColumn
       Funnel.StepColumn.a
@@ -64,7 +64,7 @@ describe('Funnel', () => {
     cy.percySnapshot('Visualizations - Funnel (basic)', { widths: [viewportWidth] });
 
     cy.clickThrough(`
-      Funnel.EditorTabs.Appearance
+      VisualizationEditor.Tabs.Appearance
     `);
 
     cy.fillInputs({
