@@ -28,7 +28,7 @@ describe('Visualizations -> Table -> Columns -> Link', () => {
         linkUrlTemplate: '{{ @ }}',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Link.UrlTemplate').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Link.UrlTemplate').last().find('input')
         .simulate('change', { target: { value: 'http://{{ @ }}/index.html' } });
     });
 
@@ -38,7 +38,7 @@ describe('Visualizations -> Table -> Columns -> Link', () => {
         linkTextTemplate: '{{ @ }}',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Link.TextTemplate').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Link.TextTemplate').last().find('input')
         .simulate('change', { target: { value: 'Text of {{ @ }}' } });
     });
 
@@ -48,7 +48,7 @@ describe('Visualizations -> Table -> Columns -> Link', () => {
         linkTitleTemplate: '{{ @ }}',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Link.TitleTemplate').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Link.TitleTemplate').last().find('input')
         .simulate('change', { target: { value: 'Title of {{ @ }}' } });
     });
 
@@ -58,7 +58,7 @@ describe('Visualizations -> Table -> Columns -> Link', () => {
         linkOpenInNewTab: false,
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Link.OpenInNewTab').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Link.OpenInNewTab').last().find('input')
         .simulate('change', { target: { checked: true } });
     });
   });

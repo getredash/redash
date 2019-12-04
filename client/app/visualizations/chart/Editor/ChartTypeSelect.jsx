@@ -1,6 +1,6 @@
 import { map } from 'lodash';
 import React, { useMemo } from 'react';
-import Select from 'antd/lib/select';
+import { Select } from '@/components/visualizations/editor';
 import { clientConfig } from '@/services/auth';
 
 export default function ChartTypeSelect(props) {

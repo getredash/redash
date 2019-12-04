@@ -1,38 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import { Section, Input, ContextHelp } from '@/components/visualizations/editor';
 import { createNumberFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
-    <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor={`table-column-editor-${column.name}-number-format`}>
-          Number format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://redash.io/help/user-guide/visualizations/formatting-numbers" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
-        </label>
-        <Input
-          id={`table-column-editor-${column.name}-number-format`}
-          data-test="Table.ColumnEditor.Number.Format"
-          defaultValue={column.numberFormat}
-          onChange={event => onChangeDebounced({ numberFormat: event.target.value })}
-        />
-      </div>
-    </React.Fragment>
+    <Section>
+      <Input
+        label={(<React.Fragment>Number format<ContextHelp.NumberFormatSpecs /></React.Fragment>)}
+        data-test="Table.ColumnEditor.Number.Format"
+        defaultValue={column.numberFormat}
+        onChange={event => onChangeDebounced({ numberFormat: event.target.value })}
+      />
+    </Section>
   );
 }
 

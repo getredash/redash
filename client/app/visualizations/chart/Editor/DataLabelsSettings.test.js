@@ -30,7 +30,7 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       showDataLabels: false,
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.ShowDataLabels').first().find('input')
+    findByTestID(el, 'Chart.DataLabels.ShowDataLabels').last().find('input')
       .simulate('change', { target: { checked: true } });
   });
 
@@ -40,7 +40,7 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       numberFormat: '0[.]0000',
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.NumberFormat').first()
+    findByTestID(el, 'Chart.DataLabels.NumberFormat').last()
       .simulate('change', { target: { value: '0.00' } });
   });
 
@@ -50,7 +50,7 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       percentFormat: '0[.]00%',
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.PercentFormat').first()
+    findByTestID(el, 'Chart.DataLabels.PercentFormat').last()
       .simulate('change', { target: { value: '0.0%' } });
   });
 
@@ -60,7 +60,7 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       dateTimeFormat: 'YYYY-MM-DD HH:mm:ss',
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.DateTimeFormat').first()
+    findByTestID(el, 'Chart.DataLabels.DateTimeFormat').last()
       .simulate('change', { target: { value: 'YYYY MMM DD' } });
   });
 
@@ -70,7 +70,7 @@ describe('Visualizations -> Chart -> Editor -> Data Labels Settings', () => {
       textFormat: null,
     }, done);
 
-    findByTestID(el, 'Chart.DataLabels.TextFormat').first()
+    findByTestID(el, 'Chart.DataLabels.TextFormat').last()
       .simulate('change', { target: { value: '{{ @@x }} :: {{ @@y }} / {{ @@yPercent }}' } });
   });
 });

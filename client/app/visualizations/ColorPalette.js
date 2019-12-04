@@ -23,7 +23,7 @@ export const AdditionalColors = {
   'Indian Red': '#981717',
   'Green 2': '#17BF51',
   'Green 3': '#049235',
-  DarkTurquoise: '#00B6EB',
+  'Dark Turquoise': '#00B6EB',
   'Dark Violet': '#A58AFF',
   'Pink 2': '#C63FA9',
 };
