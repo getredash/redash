@@ -10,7 +10,7 @@ from redash import redis_connection, rq_redis_connection, models
 from redash.utils import json_dumps
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks.queries.execution import QueryExecutionError, enqueue_query, execute_query
-from redash.tasks import CancellableJob
+from redash.tasks import Job
 
 
 FakeResult = namedtuple('FakeResult', 'id is_finished')
@@ -26,11 +26,11 @@ def fetch_job(*args, **kwargs):
 
 
 def create_job(*args, **kwargs):
-    return CancellableJob(connection=rq_redis_connection)
+    return Job(connection=rq_redis_connection)
 
 
-@patch('redash.tasks.queries.execution.CancellableJob.fetch', side_effect=fetch_job)
-@patch('redash.tasks.queries.execution.CancellableQueue.enqueue', side_effect=create_job)
+@patch('redash.tasks.queries.execution.Job.fetch', side_effect=fetch_job)
+@patch('redash.tasks.queries.execution.Queue.enqueue', side_effect=create_job)
 class TestEnqueueTask(BaseTestCase):
     def test_multiple_enqueue_of_same_query(self, enqueue, _):
         query = self.factory.create_query()

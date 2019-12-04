@@ -243,7 +243,7 @@ def serialize_job(job):
     }
 
     job_status = job.get_status()
-    if job_status == JobStatus.STARTED:
+    if job.is_started:
         updated_at = job.started_at or 0
     else:
         updated_at = 0
@@ -258,14 +258,12 @@ def serialize_job(job):
     else:
         error = ''
 
-    successfully_finished = job_status == JobStatus.FINISHED and not error
-
     return {
         'job': {
             'id': job.id,
             'updated_at': updated_at,
             'status': status,
             'error': error,
-            'query_result_id': result if successfully_finished else None
+            'query_result_id': result if job.is_finished and not error else None
         }
     }

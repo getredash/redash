@@ -5,12 +5,11 @@ import redis
 from six import text_type
 
 from rq import get_current_job
-from rq.job import Job
 from rq.timeouts import JobTimeoutException
 
 from redash import models, rq_redis_connection, redis_connection, settings
 from redash.query_runner import InterruptException
-from redash.tasks.hard_limiting_worker import CancellableQueue, CancellableJob
+from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
@@ -44,7 +43,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
             if job_id:
                 logging.info("[%s] Found existing job: %s", query_hash, job_id)
 
-                job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
+                job = Job.fetch(job_id, connection=rq_redis_connection)
 
                 if job.is_finished:
                     logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.rq_status)
@@ -64,7 +63,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata['Queue'] = queue_name
 
-                queue = CancellableQueue(queue_name, connection=rq_redis_connection)
+                queue = Queue(queue_name, connection=rq_redis_connection)
                 job = queue.enqueue(execute_query, query, data_source.id, metadata,
                                     user_id=user_id,
                                     scheduled_query_id=scheduled_query_id,

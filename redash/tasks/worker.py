@@ -2,13 +2,13 @@ import errno
 import os
 import signal
 import time
-from rq import Worker, Queue, get_current_job
+from rq import Worker as BaseWorker, Queue as BaseQueue, get_current_job
 from rq.utils import utcnow
 from rq.timeouts import UnixSignalDeathPenalty, HorseMonitorTimeoutException
-from rq.job import Job, JobStatus
+from rq.job import Job as BaseJob, JobStatus
 
 
-class CancellableJob(Job):
+class CancellableJob(BaseJob):
     def cancel(self, pipeline=None):
         # TODO - add tests that verify that queued jobs are removed from queue and running jobs are actively cancelled
         if self.is_started:
@@ -22,11 +22,11 @@ class CancellableJob(Job):
         return self.meta.get('cancelled', False)
 
 
-class CancellableQueue(Queue):
+class CancellableQueue(BaseQueue):
     job_class = CancellableJob
 
 
-class HardLimitingWorker(Worker):
+class HardLimitingWorker(BaseWorker):
     """
     RQ's work horses enforce time limits by setting a timed alarm and stopping jobs
     when they reach their time limits. However, the work horse may be entirely blocked
@@ -113,3 +113,7 @@ class HardLimitingWorker(Worker):
                 exc_string="Work-horse process was terminated unexpectedly "
                            "(waitpid returned %s)" % ret_val
             )
+
+Job = CancellableJob
+Queue = CancellableQueue
+Worker = HardLimitingWorker

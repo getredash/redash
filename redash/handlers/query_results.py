@@ -8,6 +8,7 @@ from redash import models, settings, rq_redis_connection
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
+from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
@@ -317,12 +318,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
+        job = Job.fetch(job_id, connection=rq_redis_connection)
         return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
+        job = Job.fetch(job_id, connection=rq_redis_connection)
         job.cancel()
