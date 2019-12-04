@@ -28,7 +28,7 @@ describe('Visualizations -> Table -> Columns -> Image', () => {
         imageUrlTemplate: '{{ @ }}',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Image.UrlTemplate').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Image.UrlTemplate').last().find('input')
         .simulate('change', { target: { value: 'http://{{ @ }}.jpeg' } });
     });
 
@@ -38,7 +38,7 @@ describe('Visualizations -> Table -> Columns -> Image', () => {
         imageWidth: null,
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Image.Width').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Image.Width').last().find('input')
         .simulate('change', { target: { value: '400' } });
     });
 
@@ -48,7 +48,7 @@ describe('Visualizations -> Table -> Columns -> Image', () => {
         imageHeight: null,
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Image.Height').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Image.Height').last().find('input')
         .simulate('change', { target: { value: '300' } });
     });
 
@@ -58,7 +58,7 @@ describe('Visualizations -> Table -> Columns -> Image', () => {
         imageUrlTemplate: '{{ @ }}',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Image.TitleTemplate').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Image.TitleTemplate').last().find('input')
         .simulate('change', { target: { value: 'Image {{ @ }}' } });
     });
   });

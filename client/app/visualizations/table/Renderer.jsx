@@ -4,12 +4,11 @@ import Table from 'antd/lib/table';
 import Input from 'antd/lib/input';
 import { RendererPropTypes } from '@/visualizations';
 
-import { prepareColumns, filterRows, sortRows } from './utils';
+import { prepareColumns, initRows, filterRows, sortRows } from './utils';
 
 import './renderer.less';
 
 export default function Renderer({ options, data, context }) {
-  const [rowKeyPrefix, setRowKeyPrefix] = useState(`row:1:${options.itemsPerPage}:`);
   const [searchTerm, setSearchTerm] = useState('');
   const [orderBy, setOrderBy] = useState([]);
 
@@ -37,7 +36,7 @@ export default function Renderer({ options, data, context }) {
   );
 
   const preparedRows = useMemo(
-    () => sortRows(filterRows(data.rows, searchTerm, searchColumns), orderBy),
+    () => sortRows(filterRows(initRows(data.rows), searchTerm, searchColumns), orderBy),
     [data.rows, searchTerm, searchColumns, orderBy],
   );
 
@@ -65,13 +64,11 @@ export default function Renderer({ options, data, context }) {
         data-test="TableVisualization"
         columns={tableColumns}
         dataSource={preparedRows}
-        rowKey={(record, index) => rowKeyPrefix + index}
         pagination={{
           size: context === 'widget' ? 'small' : '',
           position: 'bottom',
           pageSize: options.itemsPerPage,
           hideOnSinglePage: true,
-          onChange: (page, pageSize) => setRowKeyPrefix(`row:${page}:${pageSize}:`),
         }}
       />
     </div>

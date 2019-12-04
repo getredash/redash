@@ -1,38 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import Popover from 'antd/lib/popover';
-import Icon from 'antd/lib/icon';
+import { Section, Input, ContextHelp } from '@/components/visualizations/editor';
 import { createDateTimeFormatter } from '@/lib/value-format';
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
-    <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor={`table-column-editor-${column.name}-datetime-format`}>
-          Date/Time format
-          <Popover
-            content={(
-              <React.Fragment>
-                Format&nbsp;
-                <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank" rel="noopener noreferrer">specs.</a>
-              </React.Fragment>
-            )}
-          >
-            <Icon className="m-l-5" type="question-circle" theme="filled" />
-          </Popover>
-        </label>
-        <Input
-          id={`table-column-editor-${column.name}-datetime-format`}
-          data-test="Table.ColumnEditor.DateTime.Format"
-          defaultValue={column.dateTimeFormat}
-          onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
-        />
-      </div>
-    </React.Fragment>
+    <Section>
+      <Input
+        label={(<React.Fragment>Date/Time format<ContextHelp.DateTimeFormatSpecs /></React.Fragment>)}
+        data-test="Table.ColumnEditor.DateTime.Format"
+        defaultValue={column.dateTimeFormat}
+        onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
+      />
+    </Section>
   );
 }
 

@@ -215,7 +215,7 @@ CELERYD_WORKER_TASK_LOG_FORMAT = os.environ.get(
                     'task_id=%(task_id)s %(message)s')))
 RQ_WORKER_JOB_LOG_FORMAT = os.environ.get("REDASH_RQ_WORKER_JOB_LOG_FORMAT",
                                           (LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] '
-                                           'job.description=%(job_description)s '
+                                           'job.func_name=%(job_func_name)s '
                                            'job.id=%(job_id)s %(message)s'))
 
 # Mail settings:
@@ -303,6 +303,9 @@ default_query_runners = [
     'redash.query_runner.cass',
     'redash.query_runner.dgraph',
     'redash.query_runner.azure_kusto',
+    'redash.query_runner.exasol',
+    'redash.query_runner.cloudwatch',
+    'redash.query_runner.cloudwatch_insights',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))

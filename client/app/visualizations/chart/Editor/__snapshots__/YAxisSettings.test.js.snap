@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis max value 1`] = `
+Object {
+  "yAxis": Array [
+    Object {
+      "rangeMax": 200,
+      "type": "linear",
+    },
+    Object {
+      "opposite": true,
+      "type": "linear",
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis min value 1`] = `
+Object {
+  "yAxis": Array [
+    Object {
+      "rangeMin": 50,
+      "type": "linear",
+    },
+    Object {
+      "opposite": true,
+      "type": "linear",
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis name 1`] = `
+Object {
+  "yAxis": Array [
+    Object {
+      "title": Object {
+        "text": "test",
+      },
+      "type": "linear",
+    },
+    Object {
+      "opposite": true,
+      "type": "linear",
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings Changes axis type 1`] = `
+Object {
+  "yAxis": Array [
+    Object {
+      "type": "category",
+    },
+    Object {
+      "opposite": true,
+      "type": "linear",
+    },
+  ],
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings for heatmap Sets Reverse Y Values option 1`] = `
+Object {
+  "reverseY": true,
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> Y-Axis Settings for heatmap Sets Sort X Values option 1`] = `
+Object {
+  "sortY": true,
+}
+`;

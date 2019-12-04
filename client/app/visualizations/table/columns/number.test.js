@@ -28,7 +28,7 @@ describe('Visualizations -> Table -> Columns -> Number', () => {
         numberFormat: '0[.]0000',
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Number.Format').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Number.Format').last().find('input')
         .simulate('change', { target: { value: '0.00%' } });
     });
   });
