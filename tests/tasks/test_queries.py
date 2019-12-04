@@ -13,10 +13,10 @@ from redash.tasks.queries.execution import QueryExecutionError, enqueue_query, e
 from redash.tasks import CancellableJob
 
 
-FakeResult = namedtuple('FakeResult', 'id ready')
+FakeResult = namedtuple('FakeResult', 'id is_finished')
 
 
-def generate_query_task(*args, **kwargs):
+def fetch_job(*args, **kwargs):
     if any(args):
         job_id = args[0] if isinstance(args[0], str) else args[0].id
     else:
@@ -29,7 +29,7 @@ def create_job(*args, **kwargs):
     return CancellableJob(connection=rq_redis_connection)
 
 
-@patch('redash.tasks.queries.execution.QueryTask', side_effect=generate_query_task)
+@patch('redash.tasks.queries.execution.CancellableJob.fetch', side_effect=fetch_job)
 @patch('redash.tasks.queries.execution.CancellableQueue.enqueue', side_effect=create_job)
 class TestEnqueueTask(BaseTestCase):
     def test_multiple_enqueue_of_same_query(self, enqueue, _):
@@ -60,7 +60,7 @@ class TestEnqueueTask(BaseTestCase):
         self.assertEqual(3, enqueue.call_count)
 
 
-@patch('redash.tasks.queries.execution.get_current_job', side_effect=generate_query_task)
+@patch('redash.tasks.queries.execution.get_current_job', side_effect=fetch_job)
 class QueryExecutorTests(BaseTestCase):
     def test_success(self, _):
         """

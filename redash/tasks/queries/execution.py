@@ -5,7 +5,7 @@ import redis
 from six import text_type
 
 from rq import get_current_job
-from rq.job import Job, JobStatus
+from rq.job import Job
 from rq.timeouts import JobTimeoutException
 
 from redash import models, rq_redis_connection, redis_connection, settings
@@ -28,72 +28,6 @@ def _unlock(query_hash, data_source_id):
     redis_connection.delete(_job_lock_id(query_hash, data_source_id))
 
 
-class QueryTask(object):
-    # TODO: this is mapping to the old Job class statuses. Need to update the client side and remove this
-    STATUSES = {
-        JobStatus.QUEUED: 1,
-        JobStatus.STARTED: 2,
-        JobStatus.FINISHED: 3,
-        JobStatus.FAILED: 4
-    }
-
-    def __init__(self, job):
-        self._job = job if isinstance(job, Job) else CancellableJob.fetch(job, connection=rq_redis_connection)
-
-    @property
-    def id(self):
-        return self._job.id
-
-    def to_dict(self):
-        job_status = self.rq_status
-        if job_status == JobStatus.STARTED:
-            updated_at = self._job.started_at or 0
-        else:
-            updated_at = 0
-
-        status = self.STATUSES[job_status]
-
-        result = self._job.result
-        if isinstance(result, JobTimeoutException):
-            error = TIMEOUT_MESSAGE
-            status = 4
-        elif isinstance(result, Exception): # TODO - verify exception messages are returned
-            error = str(result)
-            status = 4
-        elif self.cancelled:
-            error = 'Query execution cancelled.'
-        else:
-            error = ''
-
-        if job_status == JobStatus.FINISHED and not error:
-            query_result_id = result
-        else:
-            query_result_id = None
-
-        return {
-            'id': self.id,
-            'updated_at': updated_at,
-            'status': status,
-            'error': error,
-            'query_result_id': query_result_id,
-        }
-
-    @property
-    def rq_status(self):
-        return self._job.get_status()
-
-    @property
-    def ready(self):
-        return self._job.is_finished
-
-    @property
-    def cancelled(self):
-        return self._job.is_cancelled
-
-    def cancel(self):
-        self._job.cancel()
-
-
 def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
@@ -110,9 +44,9 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
             if job_id:
                 logging.info("[%s] Found existing job: %s", query_hash, job_id)
 
-                job = QueryTask(job_id)
+                job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
 
-                if job.ready:
+                if job.is_finished:
                     logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.rq_status)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
@@ -131,13 +65,12 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 metadata['Queue'] = queue_name
 
                 queue = CancellableQueue(queue_name, connection=rq_redis_connection)
-                result = queue.enqueue(execute_query, query, data_source.id, metadata,
-                                       user_id=user_id,
-                                       scheduled_query_id=scheduled_query_id,
-                                       is_api_key=is_api_key,
-                                       job_timeout=time_limit)
+                job = queue.enqueue(execute_query, query, data_source.id, metadata,
+                                    user_id=user_id,
+                                    scheduled_query_id=scheduled_query_id,
+                                    is_api_key=is_api_key,
+                                    job_timeout=time_limit)
 
-                job = QueryTask(result)
                 logging.info("[%s] Created new job: %s", query_hash, job.id)
                 pipe.set(_job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                 pipe.execute()

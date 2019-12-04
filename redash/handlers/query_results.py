@@ -4,16 +4,16 @@ import time
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from redash import models, settings
+from redash import models, settings, rq_redis_connection
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
-from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
 from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
 from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
                                                QueryDetachedFromDataSourceError, dropdown_values)
-from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
+from redash.serializers import (serialize_query_result, serialize_query_result_to_csv,
+                                serialize_query_result_to_xlsx, serialize_job)
 
 
 def error_response(message, http_status=400):
@@ -67,7 +67,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
             "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
             "Query ID": query_id
         })
-        return {'job': job.to_dict()}
+        return serialize_job(job)
 
 
 def get_download_filename(query_result, query, filetype):
@@ -317,12 +317,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = QueryTask(job_id)
-        return {'job': job.to_dict()}
+        job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
+        return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = QueryTask(job_id)
+        job = CancellableJob.fetch(job_id, connection=rq_redis_connection)
         job.cancel()
