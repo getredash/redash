@@ -17,7 +17,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const [doSearch, dashboards, isLoading] = useSearchResults((term) => {
-    if (isString(term) && (term.length >= 3)) {
+    if (isString(term) && (term !== '')) {
       return Dashboard.get({ q: term }).$promise.then(results => results.results);
     }
     return Promise.resolve([]);
