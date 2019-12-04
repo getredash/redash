@@ -150,7 +150,7 @@ class QueryExecutor(object):
 
         run_time = time.time() - started_at
 
-        logger.info("task=execute_query query_hash=%s data_length=%s error=[%s]",
+        logger.info("job=execute_query query_hash=%s data_length=%s error=[%s]",
                     self.query_hash, data and len(data), error)
 
         _unlock(self.query_hash, self.data_source.id)
@@ -185,7 +185,7 @@ class QueryExecutor(object):
             return result
 
     def _annotate_query(self, query_runner):
-        self.metadata['Task ID'] = self.job.id
+        self.metadata['Job ID'] = self.job.id
         self.metadata['Query Hash'] = self.query_hash
         self.metadata['Scheduled'] = self.scheduled_query is not None
 
@@ -193,8 +193,8 @@ class QueryExecutor(object):
 
     def _log_progress(self, state):
         logger.info(
-            "task=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
-            "task_id=%s queue=%s query_id=%s username=%s",
+            "job=execute_query state=%s query_hash=%s type=%s ds_id=%d  "
+            "job_id=%s queue=%s query_id=%s username=%s",
             state, self.query_hash, self.data_source.type, self.data_source.id,
             self.job.id,
             self.metadata.get('Queue', 'unknown'),
@@ -202,7 +202,7 @@ class QueryExecutor(object):
             self.metadata.get('Username', 'unknown'))
 
     def _load_data_source(self):
-        logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
+        logger.info("job=execute_query state=load_ds ds_id=%d", self.data_source_id)
         return models.DataSource.query.get(self.data_source_id)
 
 
