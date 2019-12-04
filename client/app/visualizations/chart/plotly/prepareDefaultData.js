@@ -1,40 +1,10 @@
-import { isNil, each, includes, isString, map, sortBy } from 'lodash';
-import { cleanNumber, normalizeValue, getSeriesAxis } from './utils';
+import { isNil, extend, each, includes, map, sortBy } from 'lodash';
+import chooseTextColorForBackground from '@/lib/chooseTextColorForBackground';
 import { ColorPaletteArray } from '@/visualizations/ColorPalette';
+import { cleanNumber, normalizeValue, getSeriesAxis } from './utils';
 
 function getSeriesColor(seriesOptions, seriesIndex) {
   return seriesOptions.color || ColorPaletteArray[seriesIndex % ColorPaletteArray.length];
-}
-
-function getFontColor(backgroundColor) {
-  let result = '#333333';
-  if (isString(backgroundColor)) {
-    let matches = /#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(backgroundColor);
-    let r;
-    let g;
-    let b;
-    if (matches) {
-      r = parseInt(matches[1], 16);
-      g = parseInt(matches[2], 16);
-      b = parseInt(matches[3], 16);
-    } else {
-      matches = /#?([0-9a-f])([0-9a-f])([0-9a-f])/i.exec(backgroundColor);
-      if (matches) {
-        r = parseInt(matches[1] + matches[1], 16);
-        g = parseInt(matches[2] + matches[2], 16);
-        b = parseInt(matches[3] + matches[3], 16);
-      } else {
-        return result;
-      }
-    }
-
-    const lightness = r * 0.299 + g * 0.587 + b * 0.114;
-    if (lightness < 170) {
-      result = '#ffffff';
-    }
-  }
-
-  return result;
 }
 
 function getHoverInfoPattern(options) {
@@ -101,7 +71,10 @@ function prepareBoxSeries(series, options, { seriesColor }) {
 function prepareSeries(series, options, additionalOptions) {
   const { hoverInfoPattern, index } = additionalOptions;
 
-  const seriesOptions = options.seriesOptions[series.name] || { type: options.globalSeriesType };
+  const seriesOptions = extend(
+    { type: options.globalSeriesType, yAxis: 0 },
+    options.seriesOptions[series.name],
+  );
   const seriesColor = getSeriesColor(seriesOptions, index);
   const seriesYAxis = getSeriesAxis(series, options);
 
@@ -149,7 +122,7 @@ function prepareSeries(series, options, additionalOptions) {
     name: seriesOptions.name || series.name,
     marker: { color: seriesColor },
     insidetextfont: {
-      color: getFontColor(seriesColor),
+      color: chooseTextColorForBackground(seriesColor),
     },
     yaxis: seriesYAxis,
     sourceData,

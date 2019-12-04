@@ -39,10 +39,10 @@ class Python(BaseQueryRunner):
     should_annotate_query = False
 
     safe_builtins = (
-        'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
+        'sorted', 'reversed', 'map', 'any', 'all',
         'slice', 'filter', 'len', 'next', 'enumerate',
-        'sum', 'abs', 'min', 'max', 'round', 'cmp', 'divmod',
-        'str', 'unicode', 'int', 'float', 'complex',
+        'sum', 'abs', 'min', 'max', 'round', 'divmod',
+        'str', 'int', 'float', 'complex',
         'tuple', 'set', 'list', 'dict', 'bool',
     )
 
@@ -261,7 +261,7 @@ class Python(BaseQueryRunner):
             #       One option is to use ETA with Celery + timeouts on workers
             #       And replacement of worker process every X requests handled.
 
-            exec((code), restricted_globals, self._script_locals)
+            exec(code, restricted_globals, self._script_locals)
 
             result = self._script_locals['result']
             result['log'] = self._custom_print.lines

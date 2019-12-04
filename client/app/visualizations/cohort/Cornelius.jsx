@@ -10,6 +10,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from 'antd/lib/tooltip';
 import { createNumberFormatter, formatSimpleTemplate } from '@/lib/value-format';
+import chooseTextColorForBackground from '@/lib/chooseTextColorForBackground';
 
 import './cornelius.less';
 
@@ -68,11 +69,11 @@ function prepareOptions(options) {
   });
 }
 
-function isDarkColor(backgroundColor) {
+function isLightColor(backgroundColor) {
   backgroundColor = chroma(backgroundColor);
   const white = '#ffffff';
   const black = '#000000';
-  return chroma.contrast(backgroundColor, white) > chroma.contrast(backgroundColor, black);
+  return chroma.contrast(backgroundColor, white) < chroma.contrast(backgroundColor, black);
 }
 
 function formatStageTitle(options, index) {
@@ -120,8 +121,11 @@ function CorneliusRow({ options, data, index, maxRowLength }) { // eslint-disabl
         options.formatPercent(percentageValue);
 
       const backgroundColor = options.getColorForValue(percentageValue);
-      cellProps.style = { backgroundColor };
-      if (isDarkColor(backgroundColor)) {
+      cellProps.style = {
+        backgroundColor,
+        color: chooseTextColorForBackground(backgroundColor),
+      };
+      if (isLightColor(cellProps.style.color)) {
         cellProps.className += ' cornelius-white-text';
       }
 

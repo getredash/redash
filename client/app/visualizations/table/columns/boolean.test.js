@@ -28,7 +28,7 @@ describe('Visualizations -> Table -> Columns -> Boolean', () => {
         booleanValues: ['false', 'true'],
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Boolean.False').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Boolean.False').last().find('input')
         .simulate('change', { target: { value: 'no' } });
     });
 
@@ -38,7 +38,7 @@ describe('Visualizations -> Table -> Columns -> Boolean', () => {
         booleanValues: ['false', 'true'],
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Boolean.True').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Boolean.True').last().find('input')
         .simulate('change', { target: { value: 'yes' } });
     });
   });

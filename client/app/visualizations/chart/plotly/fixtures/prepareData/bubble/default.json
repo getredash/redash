@@ -47,7 +47,7 @@
         "hoverinfo": "text+x+name",
         "hover": [],
         "text": ["10 ± 0: 51", "20 ± 0: 52", "30 ± 0: 53", "40 ± 0: 54"],
-        "insidetextfont": { "color": "#333333" },
+        "insidetextfont": { "color": "#ffffff" },
         "yaxis": "y"
       }
     ]

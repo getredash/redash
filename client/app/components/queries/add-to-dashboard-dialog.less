@@ -1,0 +1,37 @@
+@import (reference, less) '~@/assets/less/main.less';
+
+.ant-list {
+  &.add-to-dashboard-dialog-search-results {
+    margin-top: 15px;
+
+    .ant-list-items {
+      max-height: 300px;
+      overflow: auto;
+    }
+
+    .ant-list-item {
+      padding: 12px;
+      cursor: pointer;
+
+      &:hover, &:active {
+        @table-row-hover-bg: fade(@redash-gray, 5%);
+        background-color: @table-row-hover-bg;
+      }
+    }
+  }
+
+  &.add-to-dashboard-dialog-selection {
+    .ant-list-item {
+      padding: 12px;
+
+      .add-to-dashboard-dialog-item-content {
+        flex: 1 1 auto;
+      }
+
+      .ant-list-item-action li {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}

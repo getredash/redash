@@ -1,7 +1,7 @@
 import { map } from 'lodash';
 import React, { useMemo } from 'react';
-import Select from 'antd/lib/select';
 import { EditorPropTypes } from '@/visualizations';
+import { Section, Select } from '@/components/visualizations/editor';
 import { inferCountryCodeType } from './utils';
 
 export default function GeneralSettings({ options, data, onOptionsChange }) {
@@ -38,10 +38,9 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor="choropleth-editor-map-type">Map type</label>
+      <Section>
         <Select
-          id="choropleth-editor-map-type"
+          label="Map type"
           className="w-100"
           data-test="Choropleth.Editor.MapType"
           defaultValue={options.mapType}
@@ -50,12 +49,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           <Select.Option key="countries" data-test="Choropleth.Editor.MapType.Countries">Countries</Select.Option>
           <Select.Option key="subdiv_japan" data-test="Choropleth.Editor.MapType.Japan">Japan/Prefectures</Select.Option>
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor="choropleth-editor-key-column">Key column</label>
+      <Section>
         <Select
-          id="choropleth-editor-key-column"
+          label="Key column"
           className="w-100"
           data-test="Choropleth.Editor.KeyColumn"
           defaultValue={options.countryCodeColumn}
@@ -65,12 +63,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={`Choropleth.Editor.KeyColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor="choropleth-editor-key-type">Key type</label>
+      <Section>
         <Select
-          id="choropleth-editor-key-type"
+          label="Key type"
           className="w-100"
           data-test="Choropleth.Editor.KeyType"
           value={options.countryCodeType}
@@ -80,12 +77,11 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={type} data-test={`Choropleth.Editor.KeyType.${type}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor="choropleth-editor-value-column">Value column</label>
+      <Section>
         <Select
-          id="choropleth-editor-value-column"
+          label="Value column"
           className="w-100"
           data-test="Choropleth.Editor.ValueColumn"
           defaultValue={options.valueColumn}
@@ -95,7 +91,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             <Select.Option key={name} data-test={`Choropleth.Editor.ValueColumn.${name}`}>{name}</Select.Option>
           ))}
         </Select>
-      </div>
+      </Section>
     </React.Fragment>
   );
 }
