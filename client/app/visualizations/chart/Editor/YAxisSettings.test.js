@@ -34,8 +34,8 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
     }, done);
 
-    findByTestID(el, 'Chart.LeftYAxis.Type').first().simulate('click');
-    findByTestID(el, 'Chart.LeftYAxis.Type.Category').first().simulate('click');
+    findByTestID(el, 'Chart.LeftYAxis.Type').last().simulate('click');
+    findByTestID(el, 'Chart.LeftYAxis.Type.Category').last().simulate('click');
   });
 
   test('Changes axis name', (done) => {
@@ -44,7 +44,7 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
     }, done);
 
-    findByTestID(el, 'Chart.LeftYAxis.Name').first().simulate('change', { target: { value: 'test' } });
+    findByTestID(el, 'Chart.LeftYAxis.Name').last().simulate('change', { target: { value: 'test' } });
   });
 
   test('Changes axis min value', (done) => {
@@ -53,7 +53,7 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
     }, done);
 
-    findByTestID(el, 'Chart.LeftYAxis.RangeMin').find('input').first().simulate('change', { target: { value: '50' } });
+    findByTestID(el, 'Chart.LeftYAxis.RangeMin').find('input').last().simulate('change', { target: { value: '50' } });
   });
 
   test('Changes axis max value', (done) => {
@@ -62,7 +62,7 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
     }, done);
 
-    findByTestID(el, 'Chart.LeftYAxis.RangeMax').find('input').first().simulate('change', { target: { value: '200' } });
+    findByTestID(el, 'Chart.LeftYAxis.RangeMax').find('input').last().simulate('change', { target: { value: '200' } });
   });
 
   describe('for non-heatmap', () => {
@@ -92,7 +92,7 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
         sortY: false,
       }, done);
 
-      findByTestID(el, 'Chart.LeftYAxis.Sort').first().simulate('click');
+      findByTestID(el, 'Chart.LeftYAxis.Sort').last().simulate('click');
     });
 
     test('Sets Reverse Y Values option', (done) => {
@@ -101,7 +101,7 @@ describe('Visualizations -> Chart -> Editor -> Y-Axis Settings', () => {
         reverseY: false,
       }, done);
 
-      findByTestID(el, 'Chart.LeftYAxis.Reverse').first().simulate('click');
+      findByTestID(el, 'Chart.LeftYAxis.Reverse').last().simulate('click');
     });
   });
 });

@@ -64,7 +64,11 @@ function prepareSeries(series, options, additionalOptions) {
     text: [],
     textinfo: options.showDataLabels ? 'percent' : 'none',
     textposition: 'inside',
-    textfont: { color: '#ffffff' },
+    textfont: {
+      // In Plotly@1.42.0 and upper this options can be set to array of colors (similar to `marker.colors`):
+      // `colors: map(markerColors, c => chooseTextColorForBackground(c))`
+      color: '#ffffff',
+    },
     name: series.name,
     direction: options.direction.type,
     domain: {

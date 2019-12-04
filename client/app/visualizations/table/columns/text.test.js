@@ -29,7 +29,7 @@ describe('Visualizations -> Table -> Columns -> Text', () => {
         highlightLinks: false,
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Text.AllowHTML').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Text.AllowHTML').last().find('input')
         .simulate('change', { target: { checked: true } });
     });
 
@@ -40,7 +40,7 @@ describe('Visualizations -> Table -> Columns -> Text', () => {
         highlightLinks: false,
       }, done);
 
-      findByTestID(el, 'Table.ColumnEditor.Text.HighlightLinks').first().find('input')
+      findByTestID(el, 'Table.ColumnEditor.Text.HighlightLinks').last().find('input')
         .simulate('change', { target: { checked: true } });
     });
   });

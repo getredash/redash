@@ -35,8 +35,10 @@ describe('Visualizations -> Chart -> Editor -> Colors Settings', () => {
         columnMapping: { a: 'x', b: 'y' },
       }, done);
 
-      findByTestID(el, 'Chart.Series.v.Color').first().simulate('click');
-      findByTestID(el, 'ColorPicker').first().find('input')
+      findByTestID(el, 'Chart.Series.v.Color')
+        .find('.color-picker-trigger').last()
+        .simulate('click');
+      findByTestID(el, 'ColorPicker').last().find('input')
         .simulate('change', { target: { value: 'red' } });
     });
   });
@@ -48,8 +50,8 @@ describe('Visualizations -> Chart -> Editor -> Colors Settings', () => {
         columnMapping: { a: 'x', b: 'y' },
       }, done);
 
-      findByTestID(el, 'Chart.Colors.Heatmap.ColorScheme').first().simulate('click');
-      findByTestID(el, 'Chart.Colors.Heatmap.ColorScheme.RdBu').first().simulate('click');
+      findByTestID(el, 'Chart.Colors.Heatmap.ColorScheme').last().simulate('click');
+      findByTestID(el, 'Chart.Colors.Heatmap.ColorScheme.RdBu').last().simulate('click');
     });
 
     test('Sets custom color scheme', async (done) => {
@@ -59,12 +61,16 @@ describe('Visualizations -> Chart -> Editor -> Colors Settings', () => {
         colorScheme: 'Custom...',
       }, after(2, done)); // we will perform 2 actions, so call `done` after all of them completed
 
-      findByTestID(el, 'Chart.Colors.Heatmap.MinColor').first().simulate('click');
-      findByTestID(el, 'ColorPicker').first().find('input')
+      findByTestID(el, 'Chart.Colors.Heatmap.MinColor')
+        .find('.color-picker-trigger').last()
+        .simulate('click');
+      findByTestID(el, 'ColorPicker').last().find('input')
         .simulate('change', { target: { value: 'yellow' } });
 
-      findByTestID(el, 'Chart.Colors.Heatmap.MaxColor').first().simulate('click');
-      findByTestID(el, 'ColorPicker').first().find('input')
+      findByTestID(el, 'Chart.Colors.Heatmap.MaxColor')
+        .find('.color-picker-trigger').last()
+        .simulate('click');
+      findByTestID(el, 'ColorPicker').last().find('input')
         .simulate('change', { target: { value: 'red' } });
     });
   });
@@ -76,8 +82,11 @@ describe('Visualizations -> Chart -> Editor -> Colors Settings', () => {
         columnMapping: { a: 'x', b: 'y' },
       }, done);
 
-      findByTestID(el, 'Chart.Series.b.Color').first().simulate('click');
-      findByTestID(el, 'ColorPicker').first().find('input')
+      findByTestID(el, 'Chart.Series.b.Color')
+        .find('.color-picker-trigger').last()
+        .simulate('click');
+
+      findByTestID(el, 'ColorPicker').last().find('input')
         .simulate('change', { target: { value: 'red' } });
     });
   });

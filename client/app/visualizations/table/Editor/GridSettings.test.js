@@ -30,7 +30,7 @@ describe('Visualizations -> Table -> Editor -> Grid Settings', () => {
       itemsPerPage: 25,
     }, done);
 
-    findByTestID(el, 'Table.ItemsPerPage').first().simulate('click');
-    findByTestID(el, 'Table.ItemsPerPage.100').first().simulate('click');
+    findByTestID(el, 'Table.ItemsPerPage').last().simulate('click');
+    findByTestID(el, 'Table.ItemsPerPage.100').last().simulate('click');
   });
 });

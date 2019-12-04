@@ -31,37 +31,38 @@ describe('Visualizations -> Table -> Editor -> Columns Settings', () => {
   test('Toggles column visibility', (done) => {
     const el = mount({}, done);
 
-    findByTestID(el, 'Table.Column.a.Visibility').first().simulate('click');
+    findByTestID(el, 'Table.Column.a.Visibility').last().simulate('click');
   });
 
   test('Changes column title', (done) => {
     const el = mount({}, done);
-    findByTestID(el, 'Table.Column.a.Name').first().simulate('click'); // expand settings
+    findByTestID(el, 'Table.Column.a.Name').last().simulate('click'); // expand settings
 
-    findByTestID(el, 'Table.Column.a.Title').first().simulate('change', { target: { value: 'test' } });
+    findByTestID(el, 'Table.Column.a.Title').last().simulate('change', { target: { value: 'test' } });
   });
 
   test('Changes column alignment', (done) => {
     const el = mount({}, done);
-    findByTestID(el, 'Table.Column.a.Name').first().simulate('click'); // expand settings
+    findByTestID(el, 'Table.Column.a.Name').last().simulate('click'); // expand settings
 
-    findByTestID(el, 'Table.Column.a.AlignRight').first().find('input')
+    findByTestID(el, 'Table.Column.a.TextAlignment').last()
+      .find('[data-test="TextAlignmentSelect.Right"] input')
       .simulate('change', { target: { checked: true } });
   });
 
   test('Enables search by column data', (done) => {
     const el = mount({}, done);
-    findByTestID(el, 'Table.Column.a.Name').first().simulate('click'); // expand settings
+    findByTestID(el, 'Table.Column.a.Name').last().simulate('click'); // expand settings
 
-    findByTestID(el, 'Table.Column.a.UseForSearch').first().find('input')
+    findByTestID(el, 'Table.Column.a.UseForSearch').last().find('input')
       .simulate('change', { target: { checked: true } });
   });
 
   test('Changes column display type', (done) => {
     const el = mount({}, done);
-    findByTestID(el, 'Table.Column.a.Name').first().simulate('click'); // expand settings
+    findByTestID(el, 'Table.Column.a.Name').last().simulate('click'); // expand settings
 
-    findByTestID(el, 'Table.Column.a.DisplayAs').first().simulate('click');
-    findByTestID(el, 'Table.Column.a.DisplayAs.number').first().simulate('click');
+    findByTestID(el, 'Table.Column.a.DisplayAs').last().simulate('click');
+    findByTestID(el, 'Table.Column.a.DisplayAs.number').last().simulate('click');
   });
 });
