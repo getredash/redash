@@ -5,6 +5,7 @@ import redis
 from six import text_type
 
 from rq import get_current_job
+from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
 from redash import models, rq_redis_connection, redis_connection, settings
@@ -45,8 +46,9 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
 
                 job = Job.fetch(job_id, connection=rq_redis_connection)
 
-                if job.is_finished:
-                    logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.rq_status)
+                status = job.get_status()
+                if status in [JobStatus.FINISHED, JobStatus.FAILED]
+                    logging.info("[%s] job found is ready (%s), removing lock", query_hash, status)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
 
