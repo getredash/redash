@@ -34,7 +34,7 @@ function useGrantees(url) {
 
   const addPermission = useCallback((userId, accessType = 'modify') => $http.post(
     url, { access_type: accessType, user_id: userId },
-  ).catch(() => notification.error('Could not grant permission to the user'), [url]));
+  ).catch(() => notification.error('Could not grant permission to the user')), [url]);
 
   const removePermission = useCallback((userId, accessType = 'modify') => $http.delete(
     url, { data: { access_type: accessType, user_id: userId } },
