@@ -47,7 +47,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 job = Job.fetch(job_id, connection=rq_redis_connection)
 
                 status = job.get_status()
-                if status in [JobStatus.FINISHED, JobStatus.FAILED]
+                if status in [JobStatus.FINISHED, JobStatus.FAILED]:
                     logging.info("[%s] job found is ready (%s), removing lock", query_hash, status)
                     redis_connection.delete(_job_lock_id(query_hash, data_source.id))
                     job = None
