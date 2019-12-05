@@ -1,17 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { RendererPropTypes } from '@/visualizations';
 
-import { clientConfig } from '@/services/auth';
 import resizeObserver from '@/services/resizeObserver';
 
 import getChartData from '../getChartData';
 import { Plotly, prepareCustomChartData, createCustomChartRenderer } from '../plotly';
 
 export default function CustomPlotlyChart({ options, data }) {
-  if (!clientConfig.allowCustomJSVisualizations) {
-    return null;
-  }
-
   const [container, setContainer] = useState(null);
 
   const renderCustomChart = useMemo(
