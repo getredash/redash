@@ -83,10 +83,10 @@ def idp_initiated(org_slug=None):
     try:
         name = "%s %s" % (authn_response.ava['FirstName'][0], authn_response.ava['LastName'][0])
     except Exception as e:
-        #logger.exception(e)
+        # logger.exception(e)
         logger.warning("could not fetch FirstName or LastName from SAML response: falling back to email user")
         name = email.split('@')[0]
-    
+
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
