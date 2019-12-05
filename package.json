@@ -102,6 +102,7 @@
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-to-json": "^3.3.5",
     "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
     "eslint-config-react-app": "^5.1.0",
     "eslint-plugin-chai-friendly": "^0.5.0",
     "eslint-plugin-compat": "^3.3.0",

@@ -1,6 +1,6 @@
 module.exports = {
   root: true,
-  extends: ["react-app", "plugin:compat/recommended"],
+  extends: ["react-app", "plugin:compat/recommended", "prettier"],
   plugins: ["jest", "compat", "no-only-tests"],
   settings: {
     "import/resolver": "webpack"
@@ -11,7 +11,7 @@ module.exports = {
   },
   rules: {
     // allow debugger during development
-    // "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
+    "no-debugger": process.env.NODE_ENV === "production" ? 2 : 0,
     "jsx-a11y/anchor-is-valid": "off",
   }
 };
