@@ -33,7 +33,7 @@ export default function CustomPlotlyChart({ options, data }) {
       });
       return unwatch;
     }
-  }, [container, plotlyData]);
+  }, [container, plotlyData, renderCustomChart]);
 
   // Cleanup when component destroyed
   useEffect(() => {

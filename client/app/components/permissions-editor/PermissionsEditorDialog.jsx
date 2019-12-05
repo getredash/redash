@@ -77,7 +77,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
   useEffect(() => {
     setLoadingUsers(true);
     debouncedSearchUsers(searchTerm);
-  }, [searchTerm]);
+  }, [debouncedSearchUsers, searchTerm]);
 
   return (
     <Select
@@ -117,16 +117,16 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
       .then(setGrantees)
       .catch(() => notification.error('Failed to load grantees list'))
       .finally(() => setLoadingGrantees(false));
-  }, []);
+  }, [loadGrantees]);
 
   const userHasPermission = useCallback(
     user => (user.id === author.id || !!get(find(grantees, { id: user.id }), 'accessType')),
-    [grantees],
+    [author.id, grantees],
   );
 
   useEffect(() => {
     loadUsersWithPermissions();
-  }, [aclUrl]);
+  }, [aclUrl, loadUsersWithPermissions]);
 
   return (
     <Modal

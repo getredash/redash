@@ -16,7 +16,7 @@ function generateRowKeyPrefix() {
 
 export default function Renderer({ data, options }) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
-  const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), [funnelData]);
+  const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), []);
 
   const formatValue = useMemo(() => createNumberFormatter(options.numberFormat), [options.numberFormat]);
 

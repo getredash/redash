@@ -89,7 +89,7 @@ export default function SeriesSettings({ options, data, onOptionsChange }) {
     const seriesOptions = [...series];
     seriesOptions.splice(newIndex, 0, ...seriesOptions.splice(oldIndex, 1));
     onOptionsChange({ seriesOptions: fromPairs(map(seriesOptions, ({ key }, zIndex) => ([key, { zIndex }]))) });
-  }, [series]);
+  }, [onOptionsChange, series]);
 
   const updateSeriesOption = useCallback((key, prop, value) => {
     onOptionsChange({

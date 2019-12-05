@@ -92,7 +92,7 @@ function EditParameterSettingsDialog(props) {
         setInitialQuery(query);
       });
     }
-  }, []);
+  }, [props.parameter]);
 
   function isFulfilled() {
     // name

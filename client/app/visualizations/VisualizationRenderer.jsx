@@ -32,12 +32,12 @@ export function VisualizationRenderer(props) {
   // Reset local filters when query results updated
   useEffect(() => {
     setFilters(combineFilters(data.filters, props.filters));
-  }, [data]);
+  }, [data, props.filters]);
 
   // Update local filters when global filters changed
   useEffect(() => {
     setFilters(combineFilters(filters, props.filters));
-  }, [props.filters]);
+  }, [filters, props.filters]);
 
   const filteredData = useMemo(() => ({
     columns: data.columns,

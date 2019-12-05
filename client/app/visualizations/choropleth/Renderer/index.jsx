@@ -58,7 +58,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
         options, // detect changes for all options except bounds, but pass them all!
       );
     }
-  }, [map, geoJson, data, optionsWithoutBounds]);
+  }, [map, geoJson, data, optionsWithoutBounds, options]);
 
   useEffect(() => {
     if (map) {

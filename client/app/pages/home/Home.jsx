@@ -68,7 +68,7 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
     resource.favorites().$promise
       .then(({ results }) => setItems(results))
       .finally(() => setLoading(false));
-  }, []);
+  }, [resource]);
 
   return (
     <>
