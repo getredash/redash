@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { map, isEmpty } from 'lodash';
+import { map, isEmpty, includes } from 'lodash';
 import { react2angular } from 'react2angular';
 import Button from 'antd/lib/button';
 import Checkbox from 'antd/lib/checkbox';
@@ -21,6 +21,7 @@ import recordEvent from '@/services/recordEvent';
 import { $route } from '@/services/ng';
 import getTags from '@/services/getTags';
 import { clientConfig } from '@/services/auth';
+import { policy } from '@/services/policy';
 import { durationHumanize } from '@/filters';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import useDashboard, { DashboardStatusEnum } from './useDashboard';
@@ -68,7 +69,8 @@ DashboardPageTitle.propTypes = {
 };
 
 function RefreshButton({ dashboardOptions }) {
-  const { refreshRate, setRefreshRate, refreshing, refreshDashboard } = dashboardOptions;
+  const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardOptions;
+  const allowedIntervals = policy.getDashboardRefreshIntervals();
   const refreshRateOptions = clientConfig.dashboardRefreshIntervals;
   const onRefreshRateSelected = ({ key }) => {
     const parsedRefreshRate = parseFloat(key);
@@ -76,7 +78,7 @@ function RefreshButton({ dashboardOptions }) {
       setRefreshRate(parsedRefreshRate);
       refreshDashboard();
     } else {
-      setRefreshRate(null);
+      disableRefreshRate();
     }
   };
   return (
@@ -96,7 +98,7 @@ function RefreshButton({ dashboardOptions }) {
         overlay={(
           <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
             {refreshRateOptions.map(option => (
-              <Menu.Item key={`${option}`}>
+              <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
                 {durationHumanize(option)}
               </Menu.Item>
             ))}

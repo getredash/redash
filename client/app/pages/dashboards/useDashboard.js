@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { isEmpty, isNaN, includes, compact, map, has, pick, keys,
-  extend, every, find, debounce, isMatch, pickBy } from 'lodash';
+  extend, every, find, debounce, isMatch, pickBy, max, min } from 'lodash';
 import notification from '@/services/notification';
 import { $location, $rootScope } from '@/services/ng';
 import { Dashboard, collectDashboardFilters } from '@/services/dashboard';
 import { currentUser } from '@/services/auth';
 import recordEvent from '@/services/recordEvent';
+import { policy } from '@/services/policy';
 import AddWidgetDialog from '@/components/dashboards/AddWidgetDialog';
 import TextboxDialog from '@/components/dashboards/TextboxDialog';
 import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
@@ -44,9 +45,14 @@ function getChangedPositions(widgets, nextPositions = {}) {
   });
 }
 
+function getLimitedRefreshRate(refreshRate) {
+  const allowedIntervals = policy.getDashboardRefreshIntervals();
+  return max([30, min(allowedIntervals), refreshRate]);
+}
+
 function getRefreshRateFromUrl() {
   const refreshRate = parseFloat($location.search().refresh);
-  return isNaN(refreshRate) ? null : Math.max(30, refreshRate);
+  return isNaN(refreshRate) ? null : getLimitedRefreshRate(refreshRate);
 }
 
 function useFullscreenHandler() {
@@ -71,7 +77,11 @@ function useRefreshRateHandler(refreshDashboard) {
     }
   }, [refreshRate]);
 
-  return [refreshRate, setRefreshRate];
+  return [
+    refreshRate,
+    rate => setRefreshRate(getLimitedRefreshRate(rate)),
+    () => setRefreshRate(null),
+  ];
 }
 
 function useEditModeHandler(canEditDashboard, widgets) {
@@ -278,7 +288,7 @@ function useDashboard(dashboardData) {
     });
   }, [dashboard]);
 
-  const [refreshRate, setRefreshRate] = useRefreshRateHandler(refreshDashboard);
+  const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);
   const [fullscreen, toggleFullscreen] = useFullscreenHandler();
   const editModeHandler = useEditModeHandler(!gridDisabled && canEditDashboard, dashboard.widgets);
 
@@ -310,6 +320,7 @@ function useDashboard(dashboardData) {
     canEditDashboard,
     refreshRate,
     setRefreshRate,
+    disableRefreshRate,
     ...editModeHandler,
     gridDisabled,
     setGridDisabled,
