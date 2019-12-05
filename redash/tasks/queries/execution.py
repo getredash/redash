@@ -8,7 +8,7 @@ from rq import get_current_job
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
-from redash import models, rq_redis_connection, redis_connection, settings
+from redash import models, redis_connection, settings
 from redash.query_runner import InterruptException
 from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
@@ -44,7 +44,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
             if job_id:
                 logging.info("[%s] Found existing job: %s", query_hash, job_id)
 
-                job = Job.fetch(job_id, connection=rq_redis_connection)
+                job = Job.fetch(job_id)
 
                 status = job.get_status()
                 if status in [JobStatus.FINISHED, JobStatus.FAILED]:
@@ -65,7 +65,7 @@ def enqueue_query(query, data_source, user_id, is_api_key=False, scheduled_query
                 time_limit = settings.dynamic_settings.query_time_limit(scheduled_query, user_id, data_source.org_id)
                 metadata['Queue'] = queue_name
 
-                queue = Queue(queue_name, connection=rq_redis_connection)
+                queue = Queue(queue_name)
                 job = queue.enqueue(execute_query, query, data_source.id, metadata,
                                     user_id=user_id,
                                     scheduled_query_id=scheduled_query_id,

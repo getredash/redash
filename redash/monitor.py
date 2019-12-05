@@ -36,7 +36,7 @@ def get_celery_queues():
 
 def get_queues_status():
     return {**{queue: {'size': redis_connection.llen(queue)} for queue in get_celery_queues()},
-            **{queue.name: {'size': len(queue)} for queue in Queue.all(connection=rq_redis_connection)}}
+            **{queue.name: {'size': len(queue)} for queue in Queue.all()}}
 
 
 def get_db_sizes():
@@ -150,7 +150,7 @@ def rq_queues():
             'name': q.name,
             'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
             'queued': len(q.job_ids)
-        } for q in Queue.all(connection=rq_redis_connection)}
+        } for q in Queue.all()}
 
 
 def describe_job(job):
@@ -170,7 +170,7 @@ def rq_workers():
         'successful_jobs': w.successful_job_count,
         'failed_jobs': w.failed_job_count,
         'total_working_time': w.total_working_time
-    } for w in Worker.all(connection=rq_redis_connection)]
+    } for w in Worker.all()]
 
 
 def rq_status():

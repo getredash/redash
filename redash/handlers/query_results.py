@@ -4,7 +4,7 @@ import time
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from redash import models, settings, rq_redis_connection
+from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (has_access, not_view_only, require_access,
                                 require_permission, view_only)
@@ -318,12 +318,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = Job.fetch(job_id, connection=rq_redis_connection)
+        job = Job.fetch(job_id)
         return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = Job.fetch(job_id, connection=rq_redis_connection)
+        job = Job.fetch(job_id)
         job.cancel()

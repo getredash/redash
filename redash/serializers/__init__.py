@@ -264,6 +264,6 @@ def serialize_job(job):
             'updated_at': updated_at,
             'status': status,
             'error': error,
-            'query_result_id': result if job.is_finished and not error else None
+            'query_result_id': job.result if job.is_finished and not error else None
         }
     }
