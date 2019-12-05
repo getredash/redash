@@ -109,7 +109,7 @@ export default class AlertDestinations extends React.Component {
         return {
           content: (
             <div className="destination-wrapper">
-              <img src={`${IMG_ROOT}/${item.type}.png`} className="destination-icon" alt={name} />
+              <img src={`${IMG_ROOT}/${item.type}.png`} className="destination-icon" alt={item.name} />
               <span className="flex-fill">{item.name}</span>
               <ListItemAddon isSelected={isSelected} alreadyInGroup={alreadyInGroup} deselectedIcon="fa-plus" />
             </div>
