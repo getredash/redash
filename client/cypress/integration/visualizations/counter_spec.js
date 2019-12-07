@@ -156,7 +156,7 @@ describe('Counter', () => {
       Counter.General.TargetValueColumn
       Counter.General.TargetValueColumn.b
 
-      Counter.EditorTabs.Formatting
+      VisualizationEditor.Tabs.Format
     `);
 
     cy.fillInputs({
@@ -186,7 +186,7 @@ describe('Counter', () => {
       Counter.General.TargetValueColumn
       Counter.General.TargetValueColumn.b
 
-      Counter.EditorTabs.Formatting
+      VisualizationEditor.Tabs.Format
       Counter.Formatting.FormatTargetValue
     `);
 

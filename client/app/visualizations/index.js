@@ -70,6 +70,7 @@ function validateVisualizationConfig(config) {
 export function registerVisualization(config) {
   validateVisualizationConfig(config);
   config = {
+    Editor: () => null,
     ...config,
     isDefault: config.isDefault && !config.isDeprecated,
   };

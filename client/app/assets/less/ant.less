@@ -387,3 +387,11 @@
     }
   }
 }
+
+// overrides for checkbox
+@checkbox-prefix-cls: ~'@{ant-prefix}-checkbox';
+
+.@{checkbox-prefix-cls}-wrapper + span,
+.@{checkbox-prefix-cls} + span {
+  padding-right: 0;
+}

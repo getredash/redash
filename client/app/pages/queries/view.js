@@ -8,6 +8,7 @@ import ScheduleDialog from '@/components/queries/ScheduleDialog';
 import { newVisualization } from '@/visualizations';
 import EditVisualizationDialog from '@/visualizations/EditVisualizationDialog';
 import EmbedQueryDialog from '@/components/queries/EmbedQueryDialog';
+import AddToDashboardDialog from '@/components/queries/AddToDashboardDialog';
 import PermissionsEditorDialog from '@/components/permissions-editor/PermissionsEditorDialog';
 import notification from '@/services/notification';
 import template from './query.html';
@@ -499,14 +500,8 @@ function QueryViewCtrl(
   };
 
   $scope.openAddToDashboardForm = (visId) => {
-    const visualization = getVisualization(visId);
-    $uibModal.open({
-      component: 'addToDashboardDialog',
-      size: 'sm',
-      resolve: {
-        query: $scope.query,
-        vis: visualization,
-      },
+    AddToDashboardDialog.showModal({
+      visualization: getVisualization(visId),
     });
   };
 

@@ -605,8 +605,13 @@ describe('Parameter', () => {
     };
 
     it('is possible to rearrange parameters', function () {
+      cy.server();
+      cy.route('POST', 'api/queries/*').as('QuerySave');
+
       dragParam('param1', this.paramWidth, 1);
+      cy.wait('@QuerySave');
       dragParam('param4', -this.paramWidth, 1);
+      cy.wait('@QuerySave');
 
       cy.reload();
 

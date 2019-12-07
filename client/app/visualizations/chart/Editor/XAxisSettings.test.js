@@ -30,8 +30,8 @@ describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
       xAxis: { type: '-', labels: { enabled: true } },
     }, done);
 
-    findByTestID(el, 'Chart.XAxis.Type').first().simulate('click');
-    findByTestID(el, 'Chart.XAxis.Type.Linear').first().simulate('click');
+    findByTestID(el, 'Chart.XAxis.Type').last().simulate('click');
+    findByTestID(el, 'Chart.XAxis.Type.Linear').last().simulate('click');
   });
 
   test('Changes axis name', (done) => {
@@ -40,7 +40,7 @@ describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
       xAxis: { type: '-', labels: { enabled: true } },
     }, done);
 
-    findByTestID(el, 'Chart.XAxis.Name').first().simulate('change', { target: { value: 'test' } });
+    findByTestID(el, 'Chart.XAxis.Name').last().simulate('change', { target: { value: 'test' } });
   });
 
   test('Sets Show Labels option', (done) => {
@@ -49,7 +49,7 @@ describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
       xAxis: { type: '-', labels: { enabled: false } },
     }, done);
 
-    findByTestID(el, 'Chart.XAxis.ShowLabels').first().simulate('click');
+    findByTestID(el, 'Chart.XAxis.ShowLabels').last().simulate('click');
   });
 
   test('Sets Sort X Values option', (done) => {
@@ -58,7 +58,7 @@ describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
       sortX: false,
     }, done);
 
-    findByTestID(el, 'Chart.XAxis.Sort').first().simulate('click');
+    findByTestID(el, 'Chart.XAxis.Sort').last().simulate('click');
   });
 
   test('Sets Reverse X Values option', (done) => {
@@ -67,6 +67,6 @@ describe('Visualizations -> Chart -> Editor -> X-Axis Settings', () => {
       reverseX: false,
     }, done);
 
-    findByTestID(el, 'Chart.XAxis.Reverse').first().simulate('click');
+    findByTestID(el, 'Chart.XAxis.Reverse').last().simulate('click');
   });
 });
