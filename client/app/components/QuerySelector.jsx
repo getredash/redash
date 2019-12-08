@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { react2angular } from 'react2angular';
@@ -39,7 +39,7 @@ export function QuerySelector(props) {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedQuery, setSelectedQuery] = useState();
 
-  let isStaleSearch = false;
+  const isStaleSearch = useRef(false);
   const debouncedSearch = debounce(_search, SEARCH_DEBOUNCE_DURATION);
   const placeholder = 'Search a query by name';
   const clearIcon = <i className="fa fa-times hide-in-percy" onClick={() => selectQuery(null)} />;
@@ -64,9 +64,9 @@ export function QuerySelector(props) {
     debouncedSearch(searchTerm);
     return () => {
       debouncedSearch.cancel();
-      isStaleSearch = true;
+      isStaleSearch.current = true;
     };
-  }, [searchTerm]);
+  }, [debouncedSearch, searchTerm]);
 
   function _search(term) {
     setSearching(true);
@@ -84,7 +84,7 @@ export function QuerySelector(props) {
   }
 
   function rejectStale(results) {
-    return isStaleSearch
+    return isStaleSearch.current
       ? Promise.reject(new StaleSearchError())
       : Promise.resolve(results);
   }
