@@ -11,8 +11,8 @@ function getQueryResultData(queryResult) {
 
 export default function useQueryResult(queryResult) {
   const [data, setData] = useState(getQueryResultData(queryResult));
-  let isCancelled = false;
   useEffect(() => {
+    let isCancelled = false;
     if (queryResult) {
       queryResult.toPromise()
         .then(() => {

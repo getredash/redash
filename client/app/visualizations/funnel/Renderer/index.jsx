@@ -16,7 +16,8 @@ function generateRowKeyPrefix() {
 
 export default function Renderer({ data, options }) {
   const funnelData = useMemo(() => prepareData(data.rows, options), [data, options]);
-  const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const rowKeyPrefix = useMemo(() => generateRowKeyPrefix(), [funnelData]);
 
   const formatValue = useMemo(() => createNumberFormatter(options.numberFormat), [options.numberFormat]);
 

@@ -86,13 +86,13 @@ function EditParameterSettingsDialog(props) {
 
   // fetch query by id
   useEffect(() => {
-    const { queryId } = props.parameter;
+    const queryId = props.parameter.queryId;
     if (queryId) {
       Query.get({ id: queryId }, (query) => {
         setInitialQuery(query);
       });
     }
-  }, [props.parameter]);
+  }, [props.parameter.queryId]);
 
   function isFulfilled() {
     // name
