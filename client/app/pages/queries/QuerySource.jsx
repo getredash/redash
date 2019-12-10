@@ -1,5 +1,5 @@
 import { find, map, clone } from 'lodash';
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Select from 'antd/lib/select';
@@ -39,6 +39,7 @@ function QuerySource(props) {
   const [dataSources, setDataSources] = useState([]);
   const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
   const [schema, setSchema] = useState([]);
+  const refreshSchemaTokenRef = useRef(null);
 
   useEffect(() => {
     recordEvent('view_source', 'query', query.id);
@@ -53,16 +54,24 @@ function QuerySource(props) {
     return () => { isCancelled = true; };
   }, []);
 
-  useEffect(() => {
-    let isCancelled = false;
-    getSchema(dataSource).then((data) => {
-      if (!isCancelled) {
+  const reloadSchema = useCallback((refresh = undefined) => {
+    const refreshToken = Math.random().toString(36).substr(2);
+    refreshSchemaTokenRef.current = refreshToken;
+    getSchema(dataSource, refresh).then((data) => {
+      if (refreshSchemaTokenRef.current === refreshToken) {
         setSchema(data);
       }
     });
-
-    return () => { isCancelled = true; };
   }, [dataSource]);
+
+  useEffect(() => {
+    reloadSchema();
+  }, [reloadSchema]);
+
+  useEffect(() => (() => {
+    // cancel pending operations
+    refreshSchemaTokenRef.current = null;
+  }), []);
 
   const handleDataSourceChange = useCallback((dataSourceId) => {
     const newQuery = clone(query);
@@ -93,7 +102,7 @@ function QuerySource(props) {
             </Select>
           </div>
           <div className="editor__left__schema">
-            <SchemaBrowser schema={schema} onRefresh={() => console.log('Should refresh schema')} />
+            <SchemaBrowser schema={schema} onRefresh={() => reloadSchema(true)} />
           </div>
         </nav>
 
