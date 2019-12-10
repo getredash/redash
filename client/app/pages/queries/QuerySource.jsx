@@ -69,8 +69,8 @@ function QuerySource({ query }) {
       </div>
       <main className="query-fullscreen">
         <nav>
-          <div className="editor__left__schema" ng-if="sourceMode">
-            <SchemaBrowser schema={schema} />
+          <div className="editor__left__schema">
+            <SchemaBrowser schema={schema} onRefresh={() => console.log('Should refresh schema')} />
           </div>
         </nav>
 
