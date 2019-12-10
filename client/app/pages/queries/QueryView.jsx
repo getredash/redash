@@ -50,7 +50,7 @@ function QueryView({ query }) {
               <TimeAgo date={query.created_at} />
             </div>
             <div className="m-r-20 m-b-10">
-              <img src={query.user.profile_image_url} className="profile__image_thumb" alt={query.last_modified_by.name} />
+              <img src={query.last_modified_by.profile_image_url} className="profile__image_thumb" alt={query.last_modified_by.name} />
               <strong>{query.last_modified_by.name}</strong>
               {' updated '}
               <TimeAgo date={query.updated_at} />
@@ -92,7 +92,6 @@ export default function init(ngModule) {
   return {
     '/queries-react/:queryId': {
       template: '<page-query-view query="$resolve.query"></page-query-view>',
-      layout: 'fixed',
       reloadOnSearch: false,
       resolve: {
         query: (Query, $route) => {

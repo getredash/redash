@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { orderBy } from 'lodash';
 import Tabs from 'antd/lib/tabs';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import Button from 'antd/lib/button';
@@ -12,9 +13,11 @@ export default function QueryVisualizationTabs({ visualizations, queryResult, cu
     tabsProps.activeKey = `${currentVisualizationId}`;
   }
 
+  const orderedVisualizations = orderBy(visualizations, ['id']);
+
   return (
     <Tabs {...tabsProps} tabBarExtraContent={(<Button><i className="fa fa-plus m-r-5" />New Visualization</Button>)}>
-      {visualizations.map(visualization => (
+      {orderedVisualizations.map(visualization => (
         <TabPane key={`${visualization.id}`} tab={visualization.name}>
           <VisualizationRenderer
             visualization={visualization}
