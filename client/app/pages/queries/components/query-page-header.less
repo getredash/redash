@@ -1,0 +1,25 @@
+.query-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 10px;
+
+  .favorites-control {
+    font-size: 19px;
+    margin-right: 5px;
+  }
+
+  .page-title {
+    flex: 1 1 auto;
+  }
+
+  .tags-control a {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  &:hover {
+    .tags-control a {
+      opacity: 1;
+    }
+  }
+}
