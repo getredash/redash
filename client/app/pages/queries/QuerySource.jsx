@@ -1,19 +1,91 @@
-import React from 'react';
+import { find } from 'lodash';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { routesToAngularRoutes } from '@/lib/utils';
 import { Query } from '@/services/query';
+import { DataSource, SCHEMA_NOT_SUPPORTED } from '@/services/data-source';
+import notification from '@/services/notification';
+import recordEvent from '@/services/recordEvent';
 
 import QueryPageHeader from './components/QueryPageHeader';
+import SchemaBrowser from './components/SchemaBrowser';
+
+import './query-source.less';
+
+function getSchema(dataSource, refresh = undefined) {
+  if (!dataSource) {
+    return Promise.resolve([]);
+  }
+
+  return dataSource.getSchema(refresh)
+    .then((data) => {
+      if (data.schema) {
+        return data.schema;
+      } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
+        return [];
+      }
+      throw new Error('Schema refresh failed.');
+    })
+    .catch(() => {
+      notification.error('Schema refresh failed.', 'Please try again later.');
+      return [];
+    });
+}
 
 function QuerySource({ query }) {
+  const [dataSources, setDataSources] = useState([]);
+  const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
+  const [schema, setSchema] = useState([]);
+
+  useEffect(() => {
+    recordEvent('view_source', 'query', query.id);
+
+    let isCancelled = false;
+    DataSource.query().$promise.then((data) => {
+      if (!isCancelled) {
+        setDataSources(data);
+      }
+    });
+
+    return () => { isCancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+    getSchema(dataSource).then((data) => {
+      if (!isCancelled) {
+        setSchema(data);
+      }
+    });
+
+    return () => { isCancelled = true; };
+  }, [dataSource]);
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
         <QueryPageHeader query={query} sourceMode />
       </div>
       <main className="query-fullscreen">
-        Content
+        <nav>
+          <div className="editor__left__schema" ng-if="sourceMode">
+            <SchemaBrowser schema={schema} />
+          </div>
+        </nav>
+
+        <div className="content">
+          <div className="flex-fill p-relative">
+            <div className="p-absolute d-flex flex-column p-l-15 p-r-15" style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: 'auto' }}>
+              <div className="row editor" style={{ minHeight: '11px', maxHeight: '70vh' }}>
+                Editor
+              </div>
+              <section className="flex-fill p-relative t-body query-visualizations-wrapper">
+                Visualizations
+              </section>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -30,6 +102,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes([{
       path: '/queries/new2',
     }], {
+      layout: 'fixed',
       reloadOnSearch: false,
       template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
       resolve: {
@@ -39,6 +112,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes([{
       path: '/queries/:queryId/source2',
     }], {
+      layout: 'fixed',
       reloadOnSearch: false,
       template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
       resolve: {
