@@ -1,7 +1,8 @@
-import { find } from 'lodash';
-import React, { useState, useEffect, useMemo } from 'react';
+import { find, map, clone } from 'lodash';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
+import Select from 'antd/lib/select';
 import { routesToAngularRoutes } from '@/lib/utils';
 import { Query } from '@/services/query';
 import { DataSource, SCHEMA_NOT_SUPPORTED } from '@/services/data-source';
@@ -25,15 +26,16 @@ function getSchema(dataSource, refresh = undefined) {
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         return [];
       }
-      throw new Error('Schema refresh failed.');
+      return Promise.reject(new Error('Schema refresh failed.'));
     })
     .catch(() => {
       notification.error('Schema refresh failed.', 'Please try again later.');
-      return [];
+      return Promise.resolve([]);
     });
 }
 
-function QuerySource({ query }) {
+function QuerySource(props) {
+  const [query, setQuery] = useState(props.query);
   const [dataSources, setDataSources] = useState([]);
   const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
   const [schema, setSchema] = useState([]);
@@ -62,6 +64,12 @@ function QuerySource({ query }) {
     return () => { isCancelled = true; };
   }, [dataSource]);
 
+  const handleDataSourceChange = useCallback((dataSourceId) => {
+    const newQuery = clone(query);
+    newQuery.data_source_id = dataSourceId;
+    setQuery(newQuery);
+  }, [query]);
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
@@ -69,6 +77,21 @@ function QuerySource({ query }) {
       </div>
       <main className="query-fullscreen">
         <nav>
+          <div className="editor__left__data-source">
+            <Select
+              className="w-100"
+              value={query.data_source_id}
+              disabled={!query.can_edit}
+              onChange={handleDataSourceChange}
+            >
+              {map(dataSources, ds => (
+                <Select.Option key={`ds-${ds.id}`} value={ds.id}>
+                  <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                  <span>{ds.name}</span>
+                </Select.Option>
+              ))}
+            </Select>
+          </div>
           <div className="editor__left__schema">
             <SchemaBrowser schema={schema} onRefresh={() => console.log('Should refresh schema')} />
           </div>
