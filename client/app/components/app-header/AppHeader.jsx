@@ -151,7 +151,7 @@ function DesktopNavbar() {
                     {clientConfig.newVersionAvailable && currentUser.hasPermission("super_admin") && (
                       <Tooltip title="Update Available" placement="rightTop">
                         {" "}
-                        {/* eslint-disable-next-line react/jsx-no-target-blank */}
+                        {/* eslint-disable react/jsx-no-target-blank */}
                         <a
                           href="https://version.redash.io/"
                           className="update-available"
