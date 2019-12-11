@@ -1,5 +1,5 @@
-import { isString } from 'lodash';
-import { $location, $rootScope, $route } from '@/services/ng';
+import { isString } from "lodash";
+import { $location, $rootScope, $route } from "@/services/ng";
 
 export default function navigateTo(url, replace = false, reload = true) {
   if (isString(url)) {
@@ -7,7 +7,7 @@ export default function navigateTo(url, replace = false, reload = true) {
     // ANGULAR_REMOVE_ME Revisit when some React router will be used
     if (!reload) {
       const lastRoute = $route.current;
-      const un = $rootScope.$on('$locationChangeSuccess', () => {
+      const un = $rootScope.$on("$locationChangeSuccess", () => {
         $route.current = lastRoute;
         un();
       });

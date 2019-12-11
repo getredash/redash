@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import * as Grid from 'antd/lib/grid';
-import Typography from 'antd/lib/typography';
+import React, { useMemo } from "react";
+import PropTypes from "prop-types";
+import hoistNonReactStatics from "hoist-non-react-statics";
+import * as Grid from "antd/lib/grid";
+import Typography from "antd/lib/typography";
 
-import './control-label.less';
+import "./control-label.less";
 
 export function ControlLabel({ layout, label, labelProps, disabled, children }) {
-  if ((layout === 'vertical') && label) {
+  if (layout === "vertical" && label) {
     return (
       <div className="visualization-editor-control-label visualization-editor-control-label-vertical">
         <label {...labelProps}>
@@ -18,22 +18,19 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }) 
     );
   }
 
-  if ((layout === 'horizontal') && label) {
+  if (layout === "horizontal" && label) {
     return (
       <Grid.Row
         className="visualization-editor-control-label visualization-editor-control-label-horizontal"
         type="flex"
         align="middle"
-        gutter={15}
-      >
+        gutter={15}>
         <Grid.Col span={12}>
           <label {...labelProps}>
             <Typography.Text disabled={disabled}>{label}</Typography.Text>
           </label>
         </Grid.Col>
-        <Grid.Col span={12}>
-          {children}
-        </Grid.Col>
+        <Grid.Col span={12}>{children}</Grid.Col>
       </Grid.Row>
     );
   }
@@ -42,7 +39,7 @@ export function ControlLabel({ layout, label, labelProps, disabled, children }) 
 }
 
 ControlLabel.propTypes = {
-  layout: PropTypes.oneOf(['vertical', 'horizontal']),
+  layout: PropTypes.oneOf(["vertical", "horizontal"]),
   label: PropTypes.node,
   labelProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   disabled: PropTypes.bool,
@@ -50,7 +47,7 @@ ControlLabel.propTypes = {
 };
 
 ControlLabel.defaultProps = {
-  layout: 'vertical',
+  layout: "vertical",
   label: null,
   disabled: false,
   children: null,
@@ -59,7 +56,13 @@ ControlLabel.defaultProps = {
 export default function withControlLabel(WrappedControl) {
   // eslint-disable-next-line react/prop-types
   function ControlWrapper({ id, layout, label, labelProps, disabled, ...props }) {
-    const fallbackId = useMemo(() => `visualization-editor-control-${Math.random().toString(36).substr(2, 10)}`, []);
+    const fallbackId = useMemo(
+      () =>
+        `visualization-editor-control-${Math.random()
+          .toString(36)
+          .substr(2, 10)}`,
+      []
+    );
     labelProps = {
       ...labelProps,
       htmlFor: id || fallbackId,

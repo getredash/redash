@@ -1,19 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import DatePicker from 'antd/lib/date-picker';
-import { clientConfig } from '@/services/auth';
-import { Moment } from '@/components/proptypes';
+import React from "react";
+import PropTypes from "prop-types";
+import DatePicker from "antd/lib/date-picker";
+import { clientConfig } from "@/services/auth";
+import { Moment } from "@/components/proptypes";
 
-const DateTimeInput = React.forwardRef(({
-  defaultValue,
-  value,
-  withSeconds,
-  onSelect,
-  className,
-  ...props
-}, ref) => {
-  const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
-    (withSeconds ? ' HH:mm:ss' : ' HH:mm');
+const DateTimeInput = React.forwardRef(({ defaultValue, value, withSeconds, onSelect, className, ...props }, ref) => {
+  const format = (clientConfig.dateFormat || "YYYY-MM-DD") + (withSeconds ? " HH:mm:ss" : " HH:mm");
   const additionalAttributes = {};
   if (defaultValue && defaultValue.isValid()) {
     additionalAttributes.defaultValue = defaultValue;
@@ -48,7 +40,7 @@ DateTimeInput.defaultProps = {
   value: undefined,
   withSeconds: false,
   onSelect: () => {},
-  className: '',
+  className: "",
 };
 
 export default DateTimeInput;

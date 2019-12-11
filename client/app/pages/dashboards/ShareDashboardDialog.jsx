@@ -1,17 +1,17 @@
-import { replace } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Switch from 'antd/lib/switch';
-import Modal from 'antd/lib/modal';
-import Form from 'antd/lib/form';
-import Alert from 'antd/lib/alert';
-import { $http } from '@/services/ng';
-import notification from '@/services/notification';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import InputWithCopy from '@/components/InputWithCopy';
-import HelpTrigger from '@/components/HelpTrigger';
+import { replace } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Switch from "antd/lib/switch";
+import Modal from "antd/lib/modal";
+import Form from "antd/lib/form";
+import Alert from "antd/lib/alert";
+import { $http } from "@/services/ng";
+import notification from "@/services/notification";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import InputWithCopy from "@/components/InputWithCopy";
+import HelpTrigger from "@/components/HelpTrigger";
 
-const API_SHARE_URL = 'api/dashboards/{id}/share';
+const API_SHARE_URL = "api/dashboards/{id}/share";
 
 class ShareDashboardDialog extends React.Component {
   static propTypes = {
@@ -34,7 +34,7 @@ class ShareDashboardDialog extends React.Component {
       saving: false,
     };
 
-    this.apiUrl = replace(API_SHARE_URL, '{id}', dashboard.id);
+    this.apiUrl = replace(API_SHARE_URL, "{id}", dashboard.id);
     this.enabled = this.props.hasOnlySafeQueries || dashboard.publicAccessEnabled;
   }
 
@@ -43,8 +43,7 @@ class ShareDashboardDialog extends React.Component {
       <React.Fragment>
         Share Dashboard
         <div className="modal-header-desc">
-          Allow public access to this dashboard with a secret address.{' '}
-          <HelpTrigger type="SHARE_DASHBOARD" />
+          Allow public access to this dashboard with a secret address. <HelpTrigger type="SHARE_DASHBOARD" />
         </div>
       </React.Fragment>
     );
@@ -56,12 +55,12 @@ class ShareDashboardDialog extends React.Component {
 
     $http
       .post(this.apiUrl)
-      .success((data) => {
+      .success(data => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
       })
       .error(() => {
-        notification.error('Failed to turn on sharing for this dashboard');
+        notification.error("Failed to turn on sharing for this dashboard");
       })
       .finally(() => {
         this.setState({ saving: false });
@@ -79,14 +78,14 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .error(() => {
-        notification.error('Failed to turn off sharing for this dashboard');
+        notification.error("Failed to turn off sharing for this dashboard");
       })
       .finally(() => {
         this.setState({ saving: false });
       });
   };
 
-  onChange = (checked) => {
+  onChange = checked => {
     if (checked) {
       this.enableAccess();
     } else {
@@ -98,11 +97,7 @@ class ShareDashboardDialog extends React.Component {
     const { dialog, dashboard } = this.props;
 
     return (
-      <Modal
-        {...dialog.props}
-        title={this.constructor.headerContent}
-        footer={null}
-      >
+      <Modal {...dialog.props} title={this.constructor.headerContent} footer={null}>
         <Form layout="horizontal">
           {!this.props.hasOnlySafeQueries && (
             <Form.Item>

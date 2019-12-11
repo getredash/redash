@@ -1,15 +1,15 @@
-import { find } from 'lodash';
-import moment from 'moment';
-import logoUrl from '@/assets/images/redash_icon_small.png';
-import template from './visualization-embed.html';
+import { find } from "lodash";
+import moment from "moment";
+import logoUrl from "@/assets/images/redash_icon_small.png";
+import template from "./visualization-embed.html";
 
 const VisualizationEmbed = {
   template,
   bindings: {
-    query: '<',
+    query: "<",
   },
   controller($routeParams) {
-    'ngInject';
+    "ngInject";
 
     this.refreshQueryResults = () => {
       this.loading = true;
@@ -17,11 +17,11 @@ const VisualizationEmbed = {
       this.refreshStartedAt = moment();
       this.query
         .getQueryResultPromise()
-        .then((result) => {
+        .then(result => {
           this.loading = false;
           this.queryResult = result;
         })
-        .catch((error) => {
+        .catch(error => {
           this.loading = false;
           this.error = error.getError();
         });
@@ -37,14 +37,14 @@ const VisualizationEmbed = {
     this.hideHeader = $routeParams.hide_header !== undefined;
     this.hideQueryLink = $routeParams.hide_link !== undefined;
 
-    document.querySelector('body').classList.add('headless');
+    document.querySelector("body").classList.add("headless");
 
     this.refreshQueryResults();
   },
 };
 
 export default function init(ngModule) {
-  ngModule.component('visualizationEmbed', VisualizationEmbed);
+  ngModule.component("visualizationEmbed", VisualizationEmbed);
 
   function loadSession($route, Auth) {
     const apiKey = $route.current.params.api_key;
@@ -53,13 +53,13 @@ export default function init(ngModule) {
   }
 
   function loadQuery($route, Auth, Query) {
-    'ngInject';
+    "ngInject";
 
     return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
   }
 
-  ngModule.config(($routeProvider) => {
-    $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
+  ngModule.config($routeProvider => {
+    $routeProvider.when("/embed/query/:queryId/visualization/:visualizationId", {
       resolve: {
         query: loadQuery,
       },

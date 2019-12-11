@@ -1,10 +1,10 @@
-import { omit, debounce } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import hoistNonReactStatics from 'hoist-non-react-statics';
-import { $route, $routeParams } from '@/services/ng';
-import { clientConfig } from '@/services/auth';
-import { StateStorage } from './classes/StateStorage';
+import { omit, debounce } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import hoistNonReactStatics from "hoist-non-react-statics";
+import { $route, $routeParams } from "@/services/ng";
+import { clientConfig } from "@/services/auth";
+import { StateStorage } from "./classes/StateStorage";
 
 export const ControllerType = PropTypes.shape({
   // values of props declared by wrapped component, current route's locals (`resolve: { ... }`) and title
@@ -40,16 +40,18 @@ export const ControllerType = PropTypes.shape({
 export function wrap(WrappedComponent, itemsSource, stateStorage) {
   class ItemsListWrapper extends React.Component {
     static propTypes = {
-      ...omit(WrappedComponent.propTypes, ['controller']),
+      ...omit(WrappedComponent.propTypes, ["controller"]),
       onError: PropTypes.func,
       children: PropTypes.node,
     };
 
     static defaultProps = {
-      ...omit(WrappedComponent.defaultProps, ['controller']),
-      onError: (error) => {
+      ...omit(WrappedComponent.defaultProps, ["controller"]),
+      onError: error => {
         // Allow calling chain to roll up, and then throw the error in global context
-        setTimeout(() => { throw error; });
+        setTimeout(() => {
+          throw error;
+        });
       },
       children: null,
     };
@@ -107,10 +109,10 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
         // ANGULAR_REMOVE_ME Revisit when some React router will be used
         title: $route.current.title,
         ...$routeParams,
-        ...omit($route.current.locals, ['$scope', '$template']),
+        ...omit($route.current.locals, ["$scope", "$template"]),
 
         // Add to params all props except of own ones
-        ...omit(this.props, ['onError', 'children']),
+        ...omit(this.props, ["onError", "children"]),
       };
       return {
         ...rest,
@@ -118,7 +120,7 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
         params,
 
         isLoaded,
-        isEmpty: !isLoaded || (totalCount === 0),
+        isEmpty: !isLoaded || totalCount === 0,
         totalItemsCount: isLoaded ? totalCount : 0,
         pageSizeOptions: clientConfig.pageSizeOptions,
         pageItems: isLoaded ? pageItems : [],
@@ -129,7 +131,7 @@ export function wrap(WrappedComponent, itemsSource, stateStorage) {
       // don't pass own props to wrapped component
       const { children, onError, ...props } = this.props;
       props.controller = this.state;
-      return <WrappedComponent {...props}>{ children }</WrappedComponent>;
+      return <WrappedComponent {...props}>{children}</WrappedComponent>;
     }
   }
 

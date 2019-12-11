@@ -1,5 +1,5 @@
-import { each } from 'lodash';
-import { normalizeValue } from './utils';
+import { each } from "lodash";
+import { normalizeValue } from "./utils";
 
 export function prepareCustomChartData(series) {
   const x = [];
@@ -7,7 +7,7 @@ export function prepareCustomChartData(series) {
 
   each(series, ({ name, data }) => {
     ys[name] = [];
-    each(data, (point) => {
+    each(data, point => {
       x.push(normalizeValue(point.x));
       ys[name].push(normalizeValue(point.y));
     });
@@ -20,7 +20,7 @@ export function createCustomChartRenderer(code, logErrorsToConsole = false) {
   // Create a function from custom code; catch syntax errors
   let render = () => {};
   try {
-    render = new Function('x, ys, element, Plotly', code); // eslint-disable-line no-new-func
+    render = new Function("x, ys, element, Plotly", code); // eslint-disable-line no-new-func
   } catch (err) {
     if (logErrorsToConsole) {
       console.log(`Error while executing custom graph: ${err}`); // eslint-disable-line no-console

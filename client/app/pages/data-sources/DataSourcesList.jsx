@@ -1,19 +1,19 @@
-import React from 'react';
-import Button from 'antd/lib/button';
-import { react2angular } from 'react2angular';
-import { isEmpty, get } from 'lodash';
-import { DataSource, IMG_ROOT } from '@/services/data-source';
-import { policy } from '@/services/policy';
-import navigateTo from '@/services/navigateTo';
-import { $route } from '@/services/ng';
-import { routesToAngularRoutes } from '@/lib/utils';
-import CardsList from '@/components/cards-list/CardsList';
-import LoadingState from '@/components/items-list/components/LoadingState';
-import CreateSourceDialog from '@/components/CreateSourceDialog';
-import DynamicComponent from '@/components/DynamicComponent';
-import helper from '@/components/dynamic-form/dynamicFormHelper';
-import wrapSettingsTab from '@/components/SettingsWrapper';
-import recordEvent from '@/services/recordEvent';
+import React from "react";
+import Button from "antd/lib/button";
+import { react2angular } from "react2angular";
+import { isEmpty, get } from "lodash";
+import { DataSource, IMG_ROOT } from "@/services/data-source";
+import { policy } from "@/services/policy";
+import navigateTo from "@/services/navigateTo";
+import { $route } from "@/services/ng";
+import { routesToAngularRoutes } from "@/lib/utils";
+import CardsList from "@/components/cards-list/CardsList";
+import LoadingState from "@/components/items-list/components/LoadingState";
+import CreateSourceDialog from "@/components/CreateSourceDialog";
+import DynamicComponent from "@/components/DynamicComponent";
+import helper from "@/components/dynamic-form/dynamicFormHelper";
+import wrapSettingsTab from "@/components/SettingsWrapper";
+import recordEvent from "@/services/recordEvent";
 
 class DataSourcesList extends React.Component {
   state = {
@@ -23,47 +23,52 @@ class DataSourcesList extends React.Component {
   };
 
   componentDidMount() {
-    Promise.all([
-      DataSource.query().$promise,
-      DataSource.types().$promise,
-    ]).then(values => this.setState({
-      dataSources: values[0],
-      dataSourceTypes: values[1],
-      loading: false,
-    }, () => { // all resources are loaded in state
-      if ($route.current.locals.isNewDataSourcePage) {
-        if (policy.canCreateDataSource()) {
-          this.showCreateSourceDialog();
-        } else {
-          navigateTo('/data_sources');
+    Promise.all([DataSource.query().$promise, DataSource.types().$promise]).then(values =>
+      this.setState(
+        {
+          dataSources: values[0],
+          dataSourceTypes: values[1],
+          loading: false,
+        },
+        () => {
+          // all resources are loaded in state
+          if ($route.current.locals.isNewDataSourcePage) {
+            if (policy.canCreateDataSource()) {
+              this.showCreateSourceDialog();
+            } else {
+              navigateTo("/data_sources");
+            }
+          }
         }
-      }
-    }));
+      )
+    );
   }
 
   createDataSource = (selectedType, values) => {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.save(target).$promise.then((dataSource) => {
-      this.setState({ loading: true });
-      DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
-      return dataSource;
-    }).catch((error) => {
-      if (!(error instanceof Error)) {
-        error = new Error(get(error, 'data.message', 'Failed saving.'));
-      }
-      return Promise.reject(error);
-    });
+    return DataSource.save(target)
+      .$promise.then(dataSource => {
+        this.setState({ loading: true });
+        DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
+        return dataSource;
+      })
+      .catch(error => {
+        if (!(error instanceof Error)) {
+          error = new Error(get(error, "data.message", "Failed saving."));
+        }
+        return Promise.reject(error);
+      });
   };
 
   showCreateSourceDialog = () => {
-    recordEvent('view', 'page', 'data_sources/new');
+    recordEvent("view", "page", "data_sources/new");
     CreateSourceDialog.showModal({
       types: this.state.dataSourceTypes,
-      sourceType: 'Data Source',
+      sourceType: "Data Source",
       imageFolder: IMG_ROOT,
-      helpTriggerPrefix: 'DS_',
+      helpTriggerPrefix: "DS_",
       onCreate: this.createDataSource,
     }).result.then((result = {}) => {
       if (result.success) {
@@ -85,16 +90,21 @@ class DataSourcesList extends React.Component {
         There are no data sources yet.
         {policy.isCreateDataSourceEnabled() && (
           <div className="m-t-5">
-            <a className="clickable" onClick={this.showCreateSourceDialog}>Click here</a> to add one.
+            <a className="clickable" onClick={this.showCreateSourceDialog}>
+              Click here
+            </a>{" "}
+            to add one.
           </div>
         )}
       </div>
-    ) : (<CardsList items={items} />);
+    ) : (
+      <CardsList items={items} />
+    );
   }
 
   render() {
     const newDataSourceProps = {
-      type: 'primary',
+      type: "primary",
       onClick: policy.isCreateDataSourceEnabled() ? this.showCreateSourceDialog : null,
       disabled: !policy.isCreateDataSourceEnabled(),
     };
@@ -115,33 +125,44 @@ class DataSourcesList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageDataSourcesList', react2angular(wrapSettingsTab({
-    permission: 'admin',
-    title: 'Data Sources',
-    path: 'data_sources',
-    order: 1,
-  }, DataSourcesList)));
+  ngModule.component(
+    "pageDataSourcesList",
+    react2angular(
+      wrapSettingsTab(
+        {
+          permission: "admin",
+          title: "Data Sources",
+          path: "data_sources",
+          order: 1,
+        },
+        DataSourcesList
+      )
+    )
+  );
 
-  return routesToAngularRoutes([
+  return routesToAngularRoutes(
+    [
+      {
+        path: "/data_sources",
+        title: "Data Sources",
+        key: "data_sources",
+      },
+      {
+        path: "/data_sources/new",
+        title: "Data Sources",
+        key: "data_sources",
+        isNewDataSourcePage: true,
+      },
+    ],
     {
-      path: '/data_sources',
-      title: 'Data Sources',
-      key: 'data_sources',
-    },
-    {
-      path: '/data_sources/new',
-      title: 'Data Sources',
-      key: 'data_sources',
-      isNewDataSourcePage: true,
-    },
-  ], {
-    template: '<page-data-sources-list></page-data-sources-list>',
-    controller($scope, $exceptionHandler) {
-      'ngInject';
+      template: "<page-data-sources-list></page-data-sources-list>",
+      controller($scope, $exceptionHandler) {
+        "ngInject";
 
-      $scope.handleError = $exceptionHandler;
-    },
-  });
+        $scope.handleError = $exceptionHandler;
+      },
+    }
+  );
 }
 
 init.init = true;

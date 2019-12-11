@@ -1,24 +1,24 @@
-import moment from 'moment';
-import { capitalize as _capitalize, isEmpty } from 'lodash';
-import { formatDate, formatDateTime } from './datetime';
+import moment from "moment";
+import { capitalize as _capitalize, isEmpty } from "lodash";
+import { formatDate, formatDateTime } from "./datetime";
 
 export const IntervalEnum = {
-  NEVER: 'Never',
-  SECONDS: 'second',
-  MINUTES: 'minute',
-  HOURS: 'hour',
-  DAYS: 'day',
-  WEEKS: 'week',
+  NEVER: "Never",
+  SECONDS: "second",
+  MINUTES: "minute",
+  HOURS: "hour",
+  DAYS: "day",
+  WEEKS: "week",
 };
 
 export function localizeTime(time) {
-  const [hrs, mins] = time.split(':');
+  const [hrs, mins] = time.split(":");
   return moment
     .utc()
     .hour(hrs)
     .minute(mins)
     .local()
-    .format('HH:mm');
+    .format("HH:mm");
 }
 
 export function secondsToInterval(count) {
@@ -69,14 +69,14 @@ export function intervalToSeconds(count, interval) {
 
 export function pluralize(text, count) {
   const should = count !== 1;
-  return text + (should ? 's' : '');
+  return text + (should ? "s" : "");
 }
 
 export function durationHumanize(duration, options = {}) {
   if (!duration) {
-    return '-';
+    return "-";
   }
-  let ret = '';
+  let ret = "";
   const { interval, count } = secondsToInterval(duration);
   const rounded = Math.round(count);
   if (rounded !== 1 || !options.omitSingleValueNumber) {
@@ -87,7 +87,7 @@ export function durationHumanize(duration, options = {}) {
 }
 
 export function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
+  return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
 export function colWidth(widgetWidth) {
@@ -145,11 +145,11 @@ export function showError(field) {
   return field.$touched && field.$invalid;
 }
 
-const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
+const units = ["bytes", "KB", "MB", "GB", "TB", "PB"];
 
 export function prettySize(bytes) {
   if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
-    return '?';
+    return "?";
   }
 
   let unit = 0;
@@ -159,26 +159,26 @@ export function prettySize(bytes) {
     unit += 1;
   }
 
-  return bytes.toFixed(3) + ' ' + units[unit];
+  return bytes.toFixed(3) + " " + units[unit];
 }
 
 export function join(arr) {
   if (arr === undefined || arr === null) {
-    return '';
+    return "";
   }
 
-  return arr.join(' / ');
+  return arr.join(" / ");
 }
 
 export function formatColumnValue(value, columnType = null) {
   if (moment.isMoment(value)) {
-    if (columnType === 'date') {
+    if (columnType === "date") {
       return formatDate(value);
     }
     return formatDateTime(value);
   }
 
-  if (typeof value === 'boolean') {
+  if (typeof value === "boolean") {
     return value.toString();
   }
 

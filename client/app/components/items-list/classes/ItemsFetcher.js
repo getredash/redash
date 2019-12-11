@@ -1,4 +1,4 @@
-import { identity, isFunction, isNil, isString } from 'lodash';
+import { identity, isFunction, isNil, isString } from "lodash";
 
 class ItemsFetcher {
   _getRequest(state, context) {
@@ -20,8 +20,7 @@ class ItemsFetcher {
 
   fetch(changes, state, context) {
     const request = this._getRequest(state, context);
-    return this._originalDoRequest(request, context)
-      .then(data => this._processResults(data, state, context));
+    return this._originalDoRequest(request, context).then(data => this._processResults(data, state, context));
   }
 }
 
@@ -31,10 +30,13 @@ export class PlainListFetcher extends ItemsFetcher {
   _allItems = [];
 
   _getRequest({ searchTerm, selectedTags }, context) {
-    return this._originalGetRequest({
-      q: isString(searchTerm) && (searchTerm !== '') ? searchTerm : undefined,
-      tags: selectedTags,
-    }, context);
+    return this._originalGetRequest(
+      {
+        q: isString(searchTerm) && searchTerm !== "" ? searchTerm : undefined,
+        tags: selectedTags,
+      },
+      context
+    );
   }
 
   _processResults(data, { paginator, sorter }, context) {
@@ -69,12 +71,15 @@ export class PlainListFetcher extends ItemsFetcher {
 // items for current page and total items count)
 export class PaginatedListFetcher extends ItemsFetcher {
   _getRequest({ paginator, sorter, searchTerm, selectedTags }, context) {
-    return this._originalGetRequest({
-      page: paginator.page,
-      page_size: paginator.itemsPerPage,
-      order: sorter.compiled,
-      q: isString(searchTerm) && (searchTerm !== '') ? searchTerm : undefined,
-      tags: selectedTags,
-    }, context);
+    return this._originalGetRequest(
+      {
+        page: paginator.page,
+        page_size: paginator.itemsPerPage,
+        order: sorter.compiled,
+        q: isString(searchTerm) && searchTerm !== "" ? searchTerm : undefined,
+        tags: selectedTags,
+      },
+      context
+    );
   }
 }

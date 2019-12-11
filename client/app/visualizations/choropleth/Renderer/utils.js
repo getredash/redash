@@ -1,14 +1,16 @@
-import { isString, isObject, isFinite, each, map, extend, uniq, filter, first } from 'lodash';
-import chroma from 'chroma-js';
-import { createNumberFormatter as createFormatter } from '@/lib/value-format';
+import { isString, isObject, isFinite, each, map, extend, uniq, filter, first } from "lodash";
+import chroma from "chroma-js";
+import { createNumberFormatter as createFormatter } from "@/lib/value-format";
 
 export function darkenColor(color) {
-  return chroma(color).darken().hex();
+  return chroma(color)
+    .darken()
+    .hex();
 }
 
 export function createNumberFormatter(format, placeholder) {
   const formatter = createFormatter(format);
-  return (value) => {
+  return value => {
     if (isFinite(value)) {
       return formatter(value);
     }
@@ -22,7 +24,7 @@ export function prepareData(data, countryCodeField, valueField) {
   }
 
   const result = {};
-  each(data, (item) => {
+  each(data, item => {
     if (item[countryCodeField]) {
       const value = parseFloat(item[valueField]);
       result[item[countryCodeField]] = {
@@ -38,9 +40,9 @@ export function prepareData(data, countryCodeField, valueField) {
 export function prepareFeatureProperties(feature, valueFormatted, data, countryCodeType) {
   const result = {};
   each(feature.properties, (value, key) => {
-    result['@@' + key] = value;
+    result["@@" + key] = value;
   });
-  result['@@value'] = valueFormatted;
+  result["@@value"] = valueFormatted;
   const datum = data[feature.properties[countryCodeType]] || {};
   return extend(result, datum.item);
 }
@@ -66,10 +68,12 @@ export function getColorByValue(value, limits, colors, defaultColor) {
 
 export function createScale(features, data, options) {
   // Calculate limits
-  const values = uniq(filter(
-    map(features, feature => getValueForFeature(feature, data, options.countryCodeType)),
-    isFinite,
-  ));
+  const values = uniq(
+    filter(
+      map(features, feature => getValueForFeature(feature, data, options.countryCodeType)),
+      isFinite
+    )
+  );
   if (values.length === 0) {
     return {
       limits: [],
@@ -82,17 +86,18 @@ export function createScale(features, data, options) {
     return {
       limits: values,
       colors: [options.colors.max],
-      legend: [{
-        color: options.colors.max,
-        limit: first(values),
-      }],
+      legend: [
+        {
+          color: options.colors.max,
+          limit: first(values),
+        },
+      ],
     };
   }
   const limits = chroma.limits(values, options.clusteringMode, steps - 1);
 
   // Create color buckets
-  const colors = chroma.scale([options.colors.min, options.colors.max])
-    .colors(limits.length);
+  const colors = chroma.scale([options.colors.min, options.colors.max]).colors(limits.length);
 
   // Group values for legend
   const legend = map(colors, (color, index) => ({
