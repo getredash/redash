@@ -260,6 +260,7 @@ function QueryResource(
       user: currentUser,
       options: {},
       tags: [],
+      can_edit: true,
     });
   };
 

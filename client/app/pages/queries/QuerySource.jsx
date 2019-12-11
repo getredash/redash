@@ -1,4 +1,4 @@
-import { find, map, clone } from 'lodash';
+import { find, map, clone, includes } from 'lodash';
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -32,6 +32,12 @@ function getSchema(dataSource, refresh = undefined) {
       notification.error('Schema refresh failed.', 'Please try again later.');
       return Promise.resolve([]);
     });
+}
+
+function chooseDataSourceId(dataSourceIds, availableDataSources) {
+  dataSourceIds = map(dataSourceIds, v => parseInt(v, 10));
+  availableDataSources = map(availableDataSources, ds => ds.id);
+  return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
 }
 
 function QuerySource(props) {
@@ -76,10 +82,24 @@ function QuerySource(props) {
   }), []);
 
   const handleDataSourceChange = useCallback((dataSourceId) => {
-    const newQuery = clone(query);
-    newQuery.data_source_id = dataSourceId;
-    setQuery(newQuery);
+    localStorage.lastSelectedDataSourceId = dataSourceId;
+    if (query.data_source_id !== dataSourceId) {
+      const newQuery = clone(query);
+      newQuery.data_source_id = dataSourceId;
+      setQuery(newQuery);
+    }
   }, [query]);
+
+  useEffect(() => {
+    // choose data source id for new queries
+    if (dataSourcesLoaded && query.isNew()) {
+      const firstDataSourceId = dataSources.length > 0 ? dataSources[0].id : null;
+      handleDataSourceChange(chooseDataSourceId(
+        [query.data_source_id, localStorage.lastSelectedDataSourceId, firstDataSourceId],
+        dataSources,
+      ));
+    }
+  }, [query, dataSourcesLoaded, dataSources]);
 
   return (
     <div className="query-page-wrapper">
@@ -91,6 +111,7 @@ function QuerySource(props) {
           <div className="editor__left__data-source">
             <Select
               className="w-100"
+              placeholder="Choose data source..."
               value={dataSource ? dataSource.id : undefined}
               disabled={!query.can_edit || !dataSourcesLoaded || (dataSources.length === 0)}
               loading={!dataSourcesLoaded}
