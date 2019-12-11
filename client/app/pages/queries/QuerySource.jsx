@@ -37,6 +37,7 @@ function getSchema(dataSource, refresh = undefined) {
 function QuerySource(props) {
   const [query, setQuery] = useState(props.query);
   const [dataSources, setDataSources] = useState([]);
+  const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
   const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
   const [schema, setSchema] = useState([]);
   const refreshSchemaTokenRef = useRef(null);
@@ -48,6 +49,7 @@ function QuerySource(props) {
     DataSource.query().$promise.then((data) => {
       if (!isCancelled) {
         setDataSources(data);
+        setDataSourcesLoaded(true);
       }
     });
 
@@ -89,12 +91,15 @@ function QuerySource(props) {
           <div className="editor__left__data-source">
             <Select
               className="w-100"
-              value={query.data_source_id}
-              disabled={!query.can_edit}
+              value={dataSource ? dataSource.id : undefined}
+              disabled={!query.can_edit || !dataSourcesLoaded || (dataSources.length === 0)}
+              loading={!dataSourcesLoaded}
+              optionFilterProp="data-name"
+              showSearch
               onChange={handleDataSourceChange}
             >
               {map(dataSources, ds => (
-                <Select.Option key={`ds-${ds.id}`} value={ds.id}>
+                <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
                   <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
                   <span>{ds.name}</span>
                 </Select.Option>
