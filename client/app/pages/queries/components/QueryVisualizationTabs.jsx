@@ -9,7 +9,7 @@ const { TabPane } = Tabs;
 
 export default function QueryVisualizationTabs({ visualizations, queryResult, currentVisualizationId }) {
   const tabsProps = {};
-  if (find(visualizations, { id: +currentVisualizationId })) {
+  if (find(visualizations, { id: currentVisualizationId })) {
     tabsProps.activeKey = `${currentVisualizationId}`;
   }
 
@@ -33,6 +33,6 @@ export default function QueryVisualizationTabs({ visualizations, queryResult, cu
 QueryVisualizationTabs.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   visualizations: PropTypes.arrayOf(PropTypes.object),
-  currentVisualizationId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  currentVisualizationId: PropTypes.number,
 };
 QueryVisualizationTabs.defaultProps = { queryResult: null, visualizations: [], currentVisualizationId: null };
