@@ -25,7 +25,7 @@ types_map = {
     1015: TYPE_STRING,
     1008: TYPE_STRING,
     1009: TYPE_STRING,
-    2951: TYPE_STRING
+    2951: TYPE_STRING,
 }
 
 
@@ -34,15 +34,11 @@ class PostgreSQLJSONEncoder(JSONEncoder):
         if isinstance(o, Range):
             # From: https://github.com/psycopg/psycopg2/pull/779
             if o._bounds is None:
-                return ''
+                return ""
 
-            items = [
-                o._bounds[0],
-                str(o._lower), ', ',
-                str(o._upper), o._bounds[1]
-            ]
+            items = [o._bounds[0], str(o._lower), ", ", str(o._upper), o._bounds[1]]
 
-            return ''.join(items)
+            return "".join(items)
 
         return super(PostgreSQLJSONEncoder, self).default(o)
 
@@ -64,10 +60,10 @@ def _wait(conn, timeout=None):
 
 
 def full_table_name(schema, name):
-    if '.' in name:
+    if "." in name:
         name = u'"{}"'.format(name)
 
-    return u'{}.{}'.format(schema, name)
+    return u"{}.{}".format(schema, name)
 
 
 def build_schema(query_result, schema):
@@ -78,21 +74,26 @@ def build_schema(query_result, schema):
     # (while this feels unlikely, this actually happened)
     # In this case if we omit the schema name for the public table, we will have
     # a conflict.
-    table_names = set(map(lambda r: full_table_name(r['table_schema'], r['table_name']), query_result['rows']))
+    table_names = set(
+        map(
+            lambda r: full_table_name(r["table_schema"], r["table_name"]),
+            query_result["rows"],
+        )
+    )
 
-    for row in query_result['rows']:
-        if row['table_schema'] != 'public':
-            table_name = full_table_name(row['table_schema'], row['table_name'])
+    for row in query_result["rows"]:
+        if row["table_schema"] != "public":
+            table_name = full_table_name(row["table_schema"], row["table_name"])
         else:
-            if row['table_name'] in table_names:
-                table_name = full_table_name(row['table_schema'], row['table_name'])
+            if row["table_name"] in table_names:
+                table_name = full_table_name(row["table_schema"], row["table_name"])
             else:
-                table_name = row['table_name']
+                table_name = row["table_name"]
 
         if table_name not in schema:
-            schema[table_name] = {'name': table_name, 'columns': []}
+            schema[table_name] = {"name": table_name, "columns": []}
 
-        schema[table_name]['columns'].append(row['column_name'])
+        schema[table_name]["columns"].append(row["column_name"])
 
 
 class PostgreSQL(BaseSQLQueryRunner):
@@ -103,33 +104,16 @@ class PostgreSQL(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 5432
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
-                "sslmode": {
-                    "type": "string",
-                    "title": "SSL Mode",
-                    "default": "prefer"
-                }
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "host": {"type": "string", "default": "127.0.0.1"},
+                "port": {"type": "number", "default": 5432},
+                "dbname": {"type": "string", "title": "Database Name"},
+                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
             },
-            "order": ['host', 'port', 'user', 'password'],
+            "order": ["host", "port", "user", "password"],
             "required": ["dbname"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -147,7 +131,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         build_schema(results, schema)
 
     def _get_tables(self, schema):
-        '''
+        """
         relkind constants per https://www.postgresql.org/docs/10/static/catalog-pg-class.html
         r = regular table
         v = view
@@ -159,7 +143,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         S = sequence
         t = TOAST table
         c = composite type
-        '''
+        """
 
         query = """
         SELECT s.nspname as table_schema,
@@ -190,13 +174,14 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def _get_connection(self):
         connection = psycopg2.connect(
-            user=self.configuration.get('user'),
-            password=self.configuration.get('password'),
-            host=self.configuration.get('host'),
-            port=self.configuration.get('port'),
-            dbname=self.configuration.get('dbname'),
-            sslmode=self.configuration.get('sslmode'),
-            async_=True)
+            user=self.configuration.get("user"),
+            password=self.configuration.get("password"),
+            host=self.configuration.get("host"),
+            port=self.configuration.get("port"),
+            dbname=self.configuration.get("dbname"),
+            sslmode=self.configuration.get("sslmode"),
+            async_=True,
+        )
 
         return connection
 
@@ -211,20 +196,19 @@ class PostgreSQL(BaseSQLQueryRunner):
             _wait(connection)
 
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
-                                              for i in cursor.description])
+                columns = self.fetch_columns(
+                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
+                )
                 rows = [
-                    dict(zip((column['name'] for column in columns), row))
+                    dict(zip((column["name"] for column in columns), row))
                     for row in cursor
                 ]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {"columns": columns, "rows": rows}
                 error = None
-                json_data = json_dumps(data,
-                                       ignore_nan=True,
-                                       cls=PostgreSQLJSONEncoder)
+                json_data = json_dumps(data, ignore_nan=True, cls=PostgreSQLJSONEncoder)
             else:
-                error = 'Query completed but it returned no data.'
+                error = "Query completed but it returned no data."
                 json_data = None
         except (select.error, OSError) as e:
             error = "Query interrupted. Please retry."
@@ -248,18 +232,20 @@ class Redshift(PostgreSQL):
         return "redshift"
 
     def _get_connection(self):
-        sslrootcert_path = os.path.join(os.path.dirname(__file__),
-                                        './files/redshift-ca-bundle.crt')
+        sslrootcert_path = os.path.join(
+            os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
+        )
 
         connection = psycopg2.connect(
-            user=self.configuration.get('user'),
-            password=self.configuration.get('password'),
-            host=self.configuration.get('host'),
-            port=self.configuration.get('port'),
-            dbname=self.configuration.get('dbname'),
-            sslmode=self.configuration.get('sslmode', 'prefer'),
+            user=self.configuration.get("user"),
+            password=self.configuration.get("password"),
+            host=self.configuration.get("host"),
+            port=self.configuration.get("port"),
+            dbname=self.configuration.get("dbname"),
+            sslmode=self.configuration.get("sslmode", "prefer"),
             sslrootcert=sslrootcert_path,
-            async_=True)
+            async_=True,
+        )
 
         return connection
 
@@ -268,54 +254,48 @@ class Redshift(PostgreSQL):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
-                "sslmode": {
-                    "type": "string",
-                    "title": "SSL Mode",
-                    "default": "prefer"
-                },
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "host": {"type": "string"},
+                "port": {"type": "number"},
+                "dbname": {"type": "string", "title": "Database Name"},
+                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
                 "adhoc_query_group": {
                     "type": "string",
                     "title": "Query Group for Adhoc Queries",
-                    "default": "default"
+                    "default": "default",
                 },
                 "scheduled_query_group": {
                     "type": "string",
                     "title": "Query Group for Scheduled Queries",
-                    "default": "default"
+                    "default": "default",
                 },
             },
-            "order": ['host', 'port', 'user', 'password', 'dbname', 'sslmode', 'adhoc_query_group', 'scheduled_query_group'],
+            "order": [
+                "host",
+                "port",
+                "user",
+                "password",
+                "dbname",
+                "sslmode",
+                "adhoc_query_group",
+                "scheduled_query_group",
+            ],
             "required": ["dbname", "user", "password", "host", "port"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
 
-        if metadata.get('Scheduled', False):
-            query_group = self.configuration.get('scheduled_query_group')
+        if metadata.get("Scheduled", False):
+            query_group = self.configuration.get("scheduled_query_group")
         else:
-            query_group = self.configuration.get('adhoc_query_group')
+            query_group = self.configuration.get("adhoc_query_group")
 
         if query_group:
-            set_query_group = 'set query_group to {};'.format(query_group)
-            annotated = '{}\n{}'.format(set_query_group, annotated)
+            set_query_group = "set query_group to {};".format(query_group)
+            annotated = "{}\n{}".format(set_query_group, annotated)
 
         return annotated
 
