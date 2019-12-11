@@ -50,17 +50,19 @@ function QuerySource(props) {
   const refreshSchemaTokenRef = useRef(null);
 
   useEffect(() => {
-    recordEvent('view_source', 'query', query.id);
-
-    let isCancelled = false;
+    let cancelDataSourceLoading = false;
     DataSource.query().$promise.then((data) => {
-      if (!isCancelled) {
+      if (!cancelDataSourceLoading) {
         setDataSourcesLoaded(true);
         setAllDataSources(data);
       }
     });
 
-    return () => { isCancelled = true; };
+    return () => {
+      // cancel pending operations
+      cancelDataSourceLoading = true;
+      refreshSchemaTokenRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -82,10 +84,9 @@ function QuerySource(props) {
     reloadSchema();
   }, [reloadSchema]);
 
-  useEffect(() => (() => {
-    // cancel pending operations
-    refreshSchemaTokenRef.current = null;
-  }), []);
+  useEffect(() => {
+    recordEvent('view_source', 'query', query.id);
+  }, [query.id]);
 
   const handleDataSourceChange = useCallback((dataSourceId) => {
     localStorage.lastSelectedDataSourceId = dataSourceId;
@@ -109,7 +110,7 @@ function QuerySource(props) {
         dataSources,
       ));
     }
-  }, [query, dataSourcesLoaded, dataSources]);
+  }, [query, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
   return (
     <div className="query-page-wrapper">
