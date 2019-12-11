@@ -8,7 +8,7 @@
     "bundle": "bin/bundle-extensions",
     "clean": "rm -rf ./client/dist/",
     "build": "npm run clean && NODE_ENV=production webpack",
-    "build:old-node-version": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",    
+    "build:old-node-version": "npm run clean && NODE_ENV=production node --max-old-space-size=4096 node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
     "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
@@ -119,13 +119,11 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "file-loader": "^2.0.0",
     "html-webpack-plugin": "^3.2.0",
-    "husky": "^1.3.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.1.0",
     "less": "^3.9.0",
     "less-loader": "^4.1.0",
     "less-plugin-autoprefix": "^1.5.1",
-    "lint-staged": "^8.1.3",
     "mini-css-extract-plugin": "^0.4.4",
     "mockdate": "^2.0.2",
     "prettier": "^1.19.1",
@@ -158,19 +156,6 @@
     "testPathIgnorePatterns": [
       "<rootDir>/client/app/__tests__/"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "linters": {
-      "client/**/*.{js,jsx}": [
-        "npm run lint:base",
-        "npm run test -- --bail --findRelatedTests"
-      ]
-    }
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
