@@ -1,7 +1,7 @@
-import React, { forwardRef } from 'react';
-import AceEditor from 'react-ace';
+import React, { forwardRef } from "react";
+import AceEditor from "react-ace";
 
-import './AceEditorInput.less';
+import "./AceEditorInput.less";
 
 function AceEditorInput(props, ref) {
   return (
