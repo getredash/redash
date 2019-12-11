@@ -1,15 +1,6 @@
 #!/bin/bash
 set -e
 
-celery_worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries}
-  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
-
-  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
-}
-
 scheduler() {
   echo "Starting RQ scheduler..."
 
@@ -34,15 +25,6 @@ dev_worker() {
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
-dev_celery_worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries}
-
-  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
-}
-
 server() {
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
@@ -52,10 +34,6 @@ server() {
 
 create_db() {
   exec /app/manage.py database create_tables
-}
-
-celery_healthcheck() {
-  exec /usr/local/bin/celery inspect ping --app=redash.worker -d celery@$HOSTNAME
 }
 
 rq_healthcheck() {
@@ -69,13 +47,10 @@ help() {
   echo ""
 
   echo "server -- start Redash server (with gunicorn)"
-  echo "celery_worker -- start Celery worker"
-  echo "dev_celery_worker -- start Celery worker process which picks up code changes and reloads"
   echo "worker -- start a single RQ worker"
   echo "dev_worker -- start a single RQ worker with code reloading"
   echo "scheduler -- start an rq-scheduler instance"
   echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
-  echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
   echo "rq_healthcheck -- runs a RQ healthcheck that verifies that all local workers are active. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
@@ -114,14 +89,6 @@ case "$1" in
     shift
     dev_scheduler
     ;;
-  celery_worker)
-    shift
-    celery_worker
-    ;;
-  dev_celery_worker)
-    shift
-    dev_celery_worker
-    ;;
   dev_worker)
     shift
     dev_worker
@@ -129,10 +96,6 @@ case "$1" in
   rq_healthcheck)
     shift
     rq_healthcheck
-    ;;
-  celery_healthcheck)
-    shift
-    celery_healthcheck
     ;;
   dev_server)
     export FLASK_DEBUG=1

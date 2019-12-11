@@ -14,7 +14,7 @@ from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
-from redash.worker import celery, get_job_logger
+from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
