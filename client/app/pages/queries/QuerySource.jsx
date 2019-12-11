@@ -1,4 +1,4 @@
-import { find, map, clone, includes } from 'lodash';
+import { filter, find, map, clone, includes } from 'lodash';
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
@@ -42,6 +42,7 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 
 function QuerySource(props) {
   const [query, setQuery] = useState(props.query);
+  const [allDataSources, setAllDataSources] = useState([]);
   const [dataSources, setDataSources] = useState([]);
   const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
   const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
@@ -54,13 +55,18 @@ function QuerySource(props) {
     let isCancelled = false;
     DataSource.query().$promise.then((data) => {
       if (!isCancelled) {
-        setDataSources(data);
         setDataSourcesLoaded(true);
+        setAllDataSources(data);
       }
     });
 
     return () => { isCancelled = true; };
   }, []);
+
+  useEffect(() => {
+    const newDataSources = filter(allDataSources, ds => !ds.view_only || (ds.id === query.data_source_id));
+    setDataSources(newDataSources);
+  }, [allDataSources, query.data_source_id]);
 
   const reloadSchema = useCallback((refresh = undefined) => {
     const refreshToken = Math.random().toString(36).substr(2);
@@ -84,9 +90,13 @@ function QuerySource(props) {
   const handleDataSourceChange = useCallback((dataSourceId) => {
     localStorage.lastSelectedDataSourceId = dataSourceId;
     if (query.data_source_id !== dataSourceId) {
+      recordEvent('update_data_source', 'query', query.id, { dataSourceId });
       const newQuery = clone(query);
       newQuery.data_source_id = dataSourceId;
+      newQuery.latest_query_data = null;
+      newQuery.latest_query_data_id = null;
       setQuery(newQuery);
+      // TODO: Save if not new
     }
   }, [query]);
 
