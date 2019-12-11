@@ -1,0 +1,31 @@
+name: Python Code Formatting (Black)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    container:
+      image: python:3.7.4-alpine
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Black
+      run: apk add gcc musl-dev && pip install black
+    - name: Run Black
+      run: black redash tests migrations/versions
+    - name: Commit formatted code
+      uses: EndBug/add-and-commit@v2.1.0
+      with:
+        author_name: Black
+        author_email: team@redash.io
+        message: "Autoformatted Python code with Black"
+        path: "."
+        pattern: "*.py"
+        force: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

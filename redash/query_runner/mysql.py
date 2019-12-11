@@ -2,12 +2,22 @@ import logging
 import os
 import threading
 
-from redash.query_runner import TYPE_FLOAT, TYPE_INTEGER, TYPE_DATETIME, TYPE_STRING, TYPE_DATE, BaseSQLQueryRunner, InterruptException, register
+from redash.query_runner import (
+    TYPE_FLOAT,
+    TYPE_INTEGER,
+    TYPE_DATETIME,
+    TYPE_STRING,
+    TYPE_DATE,
+    BaseSQLQueryRunner,
+    InterruptException,
+    register,
+)
 from redash.settings import parse_boolean
 from redash.utils import json_dumps, json_loads
 
 try:
     import MySQLdb
+
     enabled = True
 except ImportError:
     enabled = False
@@ -44,57 +54,41 @@ class Mysql(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         show_ssl_settings = parse_boolean(
-            os.environ.get('MYSQL_SHOW_SSL_SETTINGS', 'true'))
+            os.environ.get("MYSQL_SHOW_SSL_SETTINGS", "true")
+        )
 
         schema = {
-            'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                    'default': '127.0.0.1'
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'passwd': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 3306,
-                }
+            "type": "object",
+            "properties": {
+                "host": {"type": "string", "default": "127.0.0.1"},
+                "user": {"type": "string"},
+                "passwd": {"type": "string", "title": "Password"},
+                "db": {"type": "string", "title": "Database name"},
+                "port": {"type": "number", "default": 3306},
             },
-            "order": ['host', 'port', 'user', 'passwd', 'db'],
-            'required': ['db'],
-            'secret': ['passwd']
+            "order": ["host", "port", "user", "passwd", "db"],
+            "required": ["db"],
+            "secret": ["passwd"],
         }
 
         if show_ssl_settings:
-            schema['properties'].update({
-                'use_ssl': {
-                    'type': 'boolean',
-                    'title': 'Use SSL'
-                },
-                'ssl_cacert': {
-                    'type':
-                    'string',
-                    'title':
-                    'Path to CA certificate file to verify peer against (SSL)'
-                },
-                'ssl_cert': {
-                    'type': 'string',
-                    'title': 'Path to client certificate file (SSL)'
-                },
-                'ssl_key': {
-                    'type': 'string',
-                    'title': 'Path to private key file (SSL)'
+            schema["properties"].update(
+                {
+                    "use_ssl": {"type": "boolean", "title": "Use SSL"},
+                    "ssl_cacert": {
+                        "type": "string",
+                        "title": "Path to CA certificate file to verify peer against (SSL)",
+                    },
+                    "ssl_cert": {
+                        "type": "string",
+                        "title": "Path to client certificate file (SSL)",
+                    },
+                    "ssl_key": {
+                        "type": "string",
+                        "title": "Path to private key file (SSL)",
+                    },
                 }
-            })
+            )
 
         return schema
 
@@ -107,19 +101,21 @@ class Mysql(BaseSQLQueryRunner):
         return enabled
 
     def _connection(self):
-        params = dict(host=self.configuration.get('host', ''),
-                      user=self.configuration.get('user', ''),
-                      passwd=self.configuration.get('passwd', ''),
-                      db=self.configuration['db'],
-                      port=self.configuration.get('port', 3306),
-                      charset='utf8',
-                      use_unicode=True,
-                      connect_timeout=60)
+        params = dict(
+            host=self.configuration.get("host", ""),
+            user=self.configuration.get("user", ""),
+            passwd=self.configuration.get("passwd", ""),
+            db=self.configuration["db"],
+            port=self.configuration.get("port", 3306),
+            charset="utf8",
+            use_unicode=True,
+            connect_timeout=60,
+        )
 
         ssl_options = self._get_ssl_parameters()
 
         if ssl_options:
-            params['ssl'] = ssl_options
+            params["ssl"] = ssl_options
 
         connection = MySQLdb.connect(**params)
 
@@ -141,17 +137,16 @@ class Mysql(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        for row in results['rows']:
-            if row['table_schema'] != self.configuration['db']:
-                table_name = '{}.{}'.format(row['table_schema'],
-                                             row['table_name'])
+        for row in results["rows"]:
+            if row["table_schema"] != self.configuration["db"]:
+                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
             else:
-                table_name = row['table_name']
+                table_name = row["table_name"]
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]["columns"].append(row["column_name"])
 
         return list(schema.values())
 
@@ -163,8 +158,9 @@ class Mysql(BaseSQLQueryRunner):
         try:
             connection = self._connection()
             thread_id = connection.thread_id()
-            t = threading.Thread(target=self._run_query,
-                                 args=(query, user, connection, r, ev))
+            t = threading.Thread(
+                target=self._run_query, args=(query, user, connection, r, ev)
+            )
             t.start()
             while not ev.wait(1):
                 pass
@@ -194,14 +190,15 @@ class Mysql(BaseSQLQueryRunner):
 
             # TODO - very similar to pg.py
             if desc is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None))
-                                              for i in desc])
+                columns = self.fetch_columns(
+                    [(i[0], types_map.get(i[1], None)) for i in desc]
+                )
                 rows = [
-                    dict(zip((column['name'] for column in columns), row))
+                    dict(zip((column["name"] for column in columns), row))
                     for row in data
                 ]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {"columns": columns, "rows": rows}
                 r.json_data = json_dumps(data)
                 r.error = None
             else:
@@ -220,17 +217,13 @@ class Mysql(BaseSQLQueryRunner):
                 connection.close()
 
     def _get_ssl_parameters(self):
-        if not self.configuration.get('use_ssl'):
+        if not self.configuration.get("use_ssl"):
             return None
 
         ssl_params = {}
 
-        if self.configuration.get('use_ssl'):
-            config_map = {
-                "ssl_cacert": "ca",
-                "ssl_cert": "cert",
-                "ssl_key": "key",
-            }
+        if self.configuration.get("use_ssl"):
+            config_map = {"ssl_cacert": "ca", "ssl_cert": "cert", "ssl_key": "key"}
             for key, cfg in config_map.items():
                 val = self.configuration.get(key)
                 if val:
@@ -267,46 +260,31 @@ class RDSMySQL(Mysql):
 
     @classmethod
     def type(cls):
-        return 'rds_mysql'
+        return "rds_mysql"
 
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'passwd': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 3306,
-                },
-                'use_ssl': {
-                    'type': 'boolean',
-                    'title': 'Use SSL'
-                }
+            "type": "object",
+            "properties": {
+                "host": {"type": "string"},
+                "user": {"type": "string"},
+                "passwd": {"type": "string", "title": "Password"},
+                "db": {"type": "string", "title": "Database name"},
+                "port": {"type": "number", "default": 3306},
+                "use_ssl": {"type": "boolean", "title": "Use SSL"},
             },
-            "order": ['host', 'port', 'user', 'passwd', 'db'],
-            'required': ['db', 'user', 'passwd', 'host'],
-            'secret': ['passwd']
+            "order": ["host", "port", "user", "passwd", "db"],
+            "required": ["db", "user", "passwd", "host"],
+            "secret": ["passwd"],
         }
 
     def _get_ssl_parameters(self):
-        if self.configuration.get('use_ssl'):
-            ca_path = os.path.join(os.path.dirname(__file__),
-                                   './files/rds-combined-ca-bundle.pem')
-            return {'ca': ca_path}
+        if self.configuration.get("use_ssl"):
+            ca_path = os.path.join(
+                os.path.dirname(__file__), "./files/rds-combined-ca-bundle.pem"
+            )
+            return {"ca": ca_path}
 
         return None
 
