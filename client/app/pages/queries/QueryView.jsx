@@ -66,17 +66,21 @@ function QueryView({ query }) {
         <div className="query-content tiled bg-white p-15 m-t-15">
           {query.hasParameters() && <Parameters parameters={parameters} />}
           <QueryVisualizationTabs queryResult={queryResult} visualizations={query.visualizations} />
+          <Divider />
           <div className="d-flex align-items-center">
             <EditVisualizationButton />
             <Button className="icon-button hidden-xs">
               <Icon type="ellipsis" rotate={90} />
             </Button>
-            {queryResultData && (
-              <div className="flex-fill m-l-5">
-                <strong>{queryResultData.rows.length}</strong>{' '}
-                {pluralize('row', queryResultData.rows.length)}
-              </div>
-            )}
+            <div className="flex-fill m-l-10">
+              {queryResultData && (
+                <span>
+                  <strong>{queryResultData.rows.length}</strong>{' '}
+                  {pluralize('row', queryResultData.rows.length)}
+                </span>
+              )}
+            </div>
+            <Button type="primary">Execute</Button>
           </div>
         </div>
       </div>
