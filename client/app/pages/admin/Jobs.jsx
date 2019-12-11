@@ -1,18 +1,18 @@
-import { flatMap, values } from 'lodash';
-import React from 'react';
-import { react2angular } from 'react2angular';
+import { flatMap, values } from "lodash";
+import React from "react";
+import { react2angular } from "react2angular";
 
-import Alert from 'antd/lib/alert';
-import Tabs from 'antd/lib/tabs';
-import * as Grid from 'antd/lib/grid';
-import Layout from '@/components/admin/Layout';
-import { CounterCard } from '@/components/admin/CeleryStatus';
-import { WorkersTable, QueuesTable, OtherJobsTable } from '@/components/admin/RQStatus';
+import Alert from "antd/lib/alert";
+import Tabs from "antd/lib/tabs";
+import * as Grid from "antd/lib/grid";
+import Layout from "@/components/admin/Layout";
+import { CounterCard } from "@/components/admin/CeleryStatus";
+import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
-import { $http, $location, $rootScope } from '@/services/ng';
-import recordEvent from '@/services/recordEvent';
-import { routesToAngularRoutes } from '@/lib/utils';
-import moment from 'moment';
+import { $http, $location, $rootScope } from "@/services/ng";
+import recordEvent from "@/services/recordEvent";
+import { routesToAngularRoutes } from "@/lib/utils";
+import moment from "moment";
 
 class Jobs extends React.Component {
   state = {
@@ -29,7 +29,7 @@ class Jobs extends React.Component {
   _refreshTimer = null;
 
   componentDidMount() {
-    recordEvent('view', 'page', 'admin/rq_status');
+    recordEvent("view", "page", "admin/rq_status");
     this.refresh();
   }
 
@@ -42,7 +42,7 @@ class Jobs extends React.Component {
 
   refresh = () => {
     $http
-      .get('/api/admin/queries/rq_status')
+      .get("/api/admin/queries/rq_status")
       .then(({ data }) => this.processQueues(data))
       .catch(error => this.handleError(error));
 
@@ -60,26 +60,28 @@ class Jobs extends React.Component {
         started: c.started + q.started,
         queued: c.queued + q.queued,
       }),
-      { started: 0, queued: 0 },
+      { started: 0, queued: 0 }
     );
 
-    const startedJobs = flatMap(values(queues), queue => queue.started.map(job => ({
-      ...job,
-      enqueued_at: moment.utc(job.enqueued_at),
-      started_at: moment.utc(job.started_at),
-    })));
+    const startedJobs = flatMap(values(queues), queue =>
+      queue.started.map(job => ({
+        ...job,
+        enqueued_at: moment.utc(job.enqueued_at),
+        started_at: moment.utc(job.started_at),
+      }))
+    );
 
     this.setState({ isLoading: false, queueCounters, startedJobs, overallCounters, workers });
   };
 
-  handleError = (error) => {
+  handleError = error => {
     this.setState({ isLoading: false, error });
   };
 
   render() {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
 
-    const changeTab = (newTab) => {
+    const changeTab = newTab => {
       $location.hash(newTab);
       $rootScope.$applyAsync();
       this.setState({ activeTab: newTab });
@@ -88,9 +90,7 @@ class Jobs extends React.Component {
     return (
       <Layout activeTab="jobs">
         <div className="p-15">
-          {error && (
-            <Alert type="error" message="Failed loading status. Please refresh." />
-          )}
+          {error && <Alert type="error" message="Failed loading status. Please refresh." />}
 
           {!error && (
             <React.Fragment>
@@ -103,7 +103,7 @@ class Jobs extends React.Component {
                 </Grid.Col>
               </Grid.Row>
 
-              <Tabs activeKey={activeTab || 'queues'} onTabClick={changeTab} animated={false}>
+              <Tabs activeKey={activeTab || "queues"} onTabClick={changeTab} animated={false}>
                 <Tabs.TabPane key="queues" tab="Queues">
                   <QueuesTable loading={isLoading} items={queueCounters} />
                 </Tabs.TabPane>
@@ -123,17 +123,20 @@ class Jobs extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageJobs', react2angular(Jobs));
+  ngModule.component("pageJobs", react2angular(Jobs));
 
-  return routesToAngularRoutes([
+  return routesToAngularRoutes(
+    [
+      {
+        path: "/admin/queries/jobs",
+        title: "RQ Status",
+        key: "jobs",
+      },
+    ],
     {
-      path: '/admin/queries/jobs',
-      title: 'RQ Status',
-      key: 'jobs',
-    },
-  ], {
-    template: '<page-jobs></page-jobs>',
-  });
+      template: "<page-jobs></page-jobs>",
+    }
+  );
 }
 
 init.init = true;

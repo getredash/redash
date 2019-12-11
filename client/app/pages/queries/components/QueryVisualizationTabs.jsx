@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { orderBy } from 'lodash';
+import { find, orderBy } from 'lodash';
 import Tabs from 'antd/lib/tabs';
 import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
 import Button from 'antd/lib/button';

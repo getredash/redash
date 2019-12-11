@@ -1,26 +1,26 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
-import HelpTrigger from '@/components/HelpTrigger';
-import { Alert as AlertType } from '@/components/proptypes';
+import HelpTrigger from "@/components/HelpTrigger";
+import { Alert as AlertType } from "@/components/proptypes";
 
-import Form from 'antd/lib/form';
-import Button from 'antd/lib/button';
+import Form from "antd/lib/form";
+import Button from "antd/lib/button";
 
-import Title from './components/Title';
-import Criteria from './components/Criteria';
-import NotificationTemplate from './components/NotificationTemplate';
-import Rearm from './components/Rearm';
-import Query from './components/Query';
+import Title from "./components/Title";
+import Criteria from "./components/Criteria";
+import NotificationTemplate from "./components/NotificationTemplate";
+import Rearm from "./components/Rearm";
+import Query from "./components/Query";
 
-import HorizontalFormItem from './components/HorizontalFormItem';
+import HorizontalFormItem from "./components/HorizontalFormItem";
 
 export default class AlertEdit extends React.Component {
   _isMounted = false;
 
   state = {
     saving: false,
-  }
+  };
 
   componentDidMount() {
     this._isMounted = true;
@@ -37,7 +37,7 @@ export default class AlertEdit extends React.Component {
         this.setState({ saving: false });
       }
     });
-  }
+  };
 
   cancel = () => {
     this.props.cancel();

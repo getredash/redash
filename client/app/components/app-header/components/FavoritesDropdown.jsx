@@ -1,12 +1,12 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { isEmpty, template } from 'lodash';
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import PropTypes from "prop-types";
+import { isEmpty, template } from "lodash";
 
-import Dropdown from 'antd/lib/dropdown';
-import Icon from 'antd/lib/icon';
-import Menu from 'antd/lib/menu';
+import Dropdown from "antd/lib/dropdown";
+import Icon from "antd/lib/icon";
+import Menu from "antd/lib/menu";
 
-import HelpTrigger from '@/components/HelpTrigger';
+import HelpTrigger from "@/components/HelpTrigger";
 
 export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const [items, setItems] = useState();
@@ -15,19 +15,24 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const noItems = isEmpty(items);
   const urlCompiled = useMemo(() => template(urlTemplate), [urlTemplate]);
 
-  const fetchItems = useCallback((showLoadingState = true) => {
-    setLoading(showLoadingState);
-    fetch().$promise
-      .then(({ results }) => {
-        setItems(results);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [fetch]);
+  const fetchItems = useCallback(
+    (showLoadingState = true) => {
+      setLoading(showLoadingState);
+      fetch()
+        .$promise.then(({ results }) => {
+          setItems(results);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [fetch]
+  );
 
   // fetch items on init
-  useEffect(() => fetchItems(false), []);
+  useEffect(() => {
+    fetchItems(false);
+  }, [fetchItems]);
 
   // fetch items on click
   const onVisibleChange = visible => visible && fetchItems();
@@ -57,7 +62,12 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   );
 
   return (
-    <Dropdown disabled={loading} trigger={['click']} placement="bottomLeft" onVisibleChange={onVisibleChange} overlay={menu}>
+    <Dropdown
+      disabled={loading}
+      trigger={["click"]}
+      placement="bottomLeft"
+      onVisibleChange={onVisibleChange}
+      overlay={menu}>
       {loading ? <Icon type="loading" spin /> : <Icon type="down" />}
     </Dropdown>
   );

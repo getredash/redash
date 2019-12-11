@@ -1,12 +1,8 @@
-import { isFunction, extend, omit, sortBy, find } from 'lodash';
+import { isFunction, extend, omit, sortBy, find } from "lodash";
 
 class SettingsMenuItem {
   constructor(menuItem) {
-    extend(
-      this,
-      { pathPrefix: `/${menuItem.path}` },
-      omit(menuItem, ['isActive']),
-    );
+    extend(this, { pathPrefix: `/${menuItem.path}` }, omit(menuItem, ["isActive"]));
     if (isFunction(menuItem.isActive)) {
       this.isActive = menuItem.isActive;
     }
@@ -24,7 +20,7 @@ class SettingsMenu {
 
   add(item) {
     this.items.push(new SettingsMenuItem(item));
-    this.items = sortBy(this.items, 'order');
+    this.items = sortBy(this.items, "order");
   }
 
   getActiveItem(path) {

@@ -1,5 +1,5 @@
-import { find } from 'lodash';
-import PropTypes from 'prop-types';
+import { find } from "lodash";
+import PropTypes from "prop-types";
 
 /* --------------------------------------------------------
   Types
@@ -25,7 +25,7 @@ export const RendererPropTypes = {
   data: Data.isRequired,
   options: VisualizationOptions.isRequired,
   onOptionsChange: PropTypes.func, // (newOptions) => void
-  context: PropTypes.oneOf(['query', 'widget']).isRequired,
+  context: PropTypes.oneOf(["query", "widget"]).isRequired,
 };
 
 // For each visualization's editor
@@ -64,12 +64,13 @@ const VisualizationConfig = PropTypes.shape({
 function validateVisualizationConfig(config) {
   const typeSpecs = { config: VisualizationConfig };
   const values = { config };
-  PropTypes.checkPropTypes(typeSpecs, values, 'prop', 'registerVisualization');
+  PropTypes.checkPropTypes(typeSpecs, values, "prop", "registerVisualization");
 }
 
 export function registerVisualization(config) {
   validateVisualizationConfig(config);
   config = {
+    Editor: () => null,
     ...config,
     isDefault: config.isDefault && !config.isDeprecated,
   };
@@ -87,8 +88,10 @@ export function registerVisualization(config) {
 
 export function getDefaultVisualization() {
   // return any visualization explicitly marked as default, or any non-deprecated otherwise
-  return find(registeredVisualizations, visualization => visualization.isDefault) ||
-    find(registeredVisualizations, visualization => !visualization.isDeprecated);
+  return (
+    find(registeredVisualizations, visualization => visualization.isDefault) ||
+    find(registeredVisualizations, visualization => !visualization.isDeprecated)
+  );
 }
 
 export function newVisualization(type = null, options = {}) {
@@ -96,7 +99,7 @@ export function newVisualization(type = null, options = {}) {
   return {
     type: visualization.type,
     name: visualization.name,
-    description: '',
+    description: "",
     options,
   };
 }

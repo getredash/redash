@@ -20,7 +20,7 @@ function QueryView({ query }) {
   const canEdit = useMemo(() => (currentUser.canEdit(query) || query.can_edit), [query]);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dataSource, setDataSource] = useState();
-  const queryResult = useMemo(() => query.getQueryResult(), [query.getQueryResult()]);
+  const queryResult = useMemo(() => query.getQueryResult(), [query]);
   const queryResultData = useQueryResult(queryResult);
 
   useEffect(() => {

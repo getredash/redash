@@ -1,8 +1,8 @@
-import { isFunction, identity, map, extend } from 'lodash';
-import Paginator from './Paginator';
-import Sorter from './Sorter';
-import PromiseRejectionError from '@/lib/promise-rejection-error';
-import { PlainListFetcher, PaginatedListFetcher } from './ItemsFetcher';
+import { isFunction, identity, map, extend } from "lodash";
+import Paginator from "./Paginator";
+import Sorter from "./Sorter";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
+import { PlainListFetcher, PaginatedListFetcher } from "./ItemsFetcher";
 
 export class ItemsSource {
   onBeforeUpdate = null;
@@ -38,12 +38,13 @@ export class ItemsSource {
     const customParams = {};
     const context = {
       ...this.getCallbackContext(),
-      setCustomParams: (params) => {
+      setCustomParams: params => {
         extend(customParams, params);
       },
     };
-    return this._beforeUpdate().then(() => (
-      this._fetcher.fetch(changes, state, context)
+    return this._beforeUpdate().then(() =>
+      this._fetcher
+        .fetch(changes, state, context)
         .then(({ results, count, allResults }) => {
           this._pageItems = results;
           this._allItems = allResults || null;
@@ -51,10 +52,10 @@ export class ItemsSource {
           this._params = { ...this._params, ...customParams };
           return this._afterUpdate();
         })
-        .catch((error) => {
+        .catch(error => {
           this.handleError(error);
         })
-    ));
+    );
   }
 
   constructor({ getRequest, doRequest, processResults, isPlainList = false, ...defaultState }) {
@@ -62,9 +63,9 @@ export class ItemsSource {
       getRequest = identity;
     }
 
-    this._fetcher = isPlainList ?
-      new PlainListFetcher({ getRequest, doRequest, processResults }) :
-      new PaginatedListFetcher({ getRequest, doRequest, processResults });
+    this._fetcher = isPlainList
+      ? new PlainListFetcher({ getRequest, doRequest, processResults })
+      : new PaginatedListFetcher({ getRequest, doRequest, processResults });
 
     this.setState(defaultState);
     this._pageItems = [];
@@ -91,7 +92,7 @@ export class ItemsSource {
     this._paginator = new Paginator(state);
     this._sorter = new Sorter(state);
 
-    this._searchTerm = state.searchTerm || '';
+    this._searchTerm = state.searchTerm || "";
     this._selectedTags = state.selectedTags || [];
 
     this._savedOrderByField = this._sorter.field;
@@ -109,19 +110,19 @@ export class ItemsSource {
     });
   };
 
-  toggleSorting = (orderByField) => {
+  toggleSorting = orderByField => {
     this._sorter.toggleField(orderByField);
     this._savedOrderByField = this._sorter.field;
     this._changed({ sorting: true });
   };
 
-  updateSearch = (searchTerm) => {
+  updateSearch = searchTerm => {
     // here we update state directly, but later `fetchData` will update it properly
     this._searchTerm = searchTerm;
     // in search mode ignore the ordering and use the ranking order
     // provided by the server-side FTS backend instead, unless it was
     // requested by the user by actively ordering in search mode
-    if (searchTerm === '') {
+    if (searchTerm === "") {
       this._sorter.setField(this._savedOrderByField); // restore ordering
     } else {
       this._sorter.setField(null);
@@ -130,7 +131,7 @@ export class ItemsSource {
     this._changed({ search: true, pagination: { page: true } });
   };
 
-  updateSelectedTags = (selectedTags) => {
+  updateSelectedTags = selectedTags => {
     this._selectedTags = selectedTags;
     this._paginator.setPage(1);
     this._changed({ tags: true, pagination: { page: true } });
@@ -138,7 +139,7 @@ export class ItemsSource {
 
   update = () => this._changed();
 
-  handleError = (error) => {
+  handleError = error => {
     if (isFunction(this.onError)) {
       // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
       if (error.status && error.data) {

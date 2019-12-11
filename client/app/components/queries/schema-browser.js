@@ -1,14 +1,14 @@
-import template from './schema-browser.html';
+import template from "./schema-browser.html";
 
 function SchemaBrowserCtrl($rootScope, $scope) {
-  'ngInject';
+  "ngInject";
 
-  this.showTable = (table) => {
+  this.showTable = table => {
     table.collapsed = !table.collapsed;
-    $scope.$broadcast('vsRepeatTrigger');
+    $scope.$broadcast("vsRepeatTrigger");
   };
 
-  this.getSize = (table) => {
+  this.getSize = table => {
     let size = 22;
 
     if (!table.collapsed) {
@@ -23,35 +23,35 @@ function SchemaBrowserCtrl($rootScope, $scope) {
   };
 
   this.itemSelected = ($event, hierarchy) => {
-    $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));
+    $rootScope.$broadcast("query-editor.command", "paste", hierarchy.join("."));
     $event.preventDefault();
     $event.stopPropagation();
   };
 
-  this.splitFilter = (filter) => {
-    filter = filter.replace(/ {2}/g, ' ');
-    if (filter.includes(' ')) {
-      const splitTheFilter = filter.split(' ');
+  this.splitFilter = filter => {
+    filter = filter.replace(/ {2}/g, " ");
+    if (filter.includes(" ")) {
+      const splitTheFilter = filter.split(" ");
       this.schemaFilterObject = { name: splitTheFilter[0], columns: splitTheFilter[1] };
       this.schemaFilterColumn = splitTheFilter[1];
     } else {
       this.schemaFilterObject = filter;
-      this.schemaFilterColumn = '';
+      this.schemaFilterColumn = "";
     }
   };
 }
 
 const SchemaBrowser = {
   bindings: {
-    schema: '<',
-    onRefresh: '&',
+    schema: "<",
+    onRefresh: "&",
   },
   controller: SchemaBrowserCtrl,
   template,
 };
 
 export default function init(ngModule) {
-  ngModule.component('schemaBrowser', SchemaBrowser);
+  ngModule.component("schemaBrowser", SchemaBrowser);
 }
 
 init.init = true;

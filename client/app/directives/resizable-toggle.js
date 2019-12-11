@@ -1,20 +1,19 @@
-import { find } from 'lodash';
+import { find } from "lodash";
 
 function sameNumber(a, b) {
-  return (isNaN(a) && isNaN(b)) || (a === b);
+  return (isNaN(a) && isNaN(b)) || a === b;
 }
 
-const flexBasis = find(
-  ['flexBasis', 'webkitFlexBasis', 'msFlexPreferredSize'],
-  prop => prop in document.documentElement.style,
-) || 'flexBasis';
+const flexBasis =
+  find(["flexBasis", "webkitFlexBasis", "msFlexPreferredSize"], prop => prop in document.documentElement.style) ||
+  "flexBasis";
 
 const threshold = 5;
 
 function resizableToggle(KeyboardShortcuts) {
   return {
     link($scope, $element, $attrs) {
-      if ($attrs.resizable === 'false') return;
+      if ($attrs.resizable === "false") return;
 
       let ignoreResizeEvents = false;
 
@@ -33,22 +32,22 @@ function resizableToggle(KeyboardShortcuts) {
           // in mind that this component is a hook to another 3dr-party one).
           // So let's just find any available handle and "click" it, and let
           // `angular-resizable` does it's job
-          $element.find('.rg-left, .rg-right, .rg-top, .rg-bottom').click();
+          $element.find(".rg-left, .rg-right, .rg-top, .rg-bottom").click();
         },
       };
 
       KeyboardShortcuts.bind(shortcuts);
-      $scope.$on('$destroy', () => {
+      $scope.$on("$destroy", () => {
         KeyboardShortcuts.unbind(shortcuts);
       });
 
-      $scope.$on('angular-resizable.resizeStart', ($event, info) => {
+      $scope.$on("angular-resizable.resizeStart", ($event, info) => {
         if (!ignoreResizeEvents) {
           resizeStartInfo = Object.assign({}, info);
         }
       });
 
-      $scope.$on('angular-resizable.resizeEnd', ($event, info) => {
+      $scope.$on("angular-resizable.resizeEnd", ($event, info) => {
         if (!ignoreResizeEvents) {
           allowHClick = true;
           if (info.width !== false) {
@@ -66,53 +65,49 @@ function resizableToggle(KeyboardShortcuts) {
         const info = {
           width,
           height,
-          id: $element.attr('id'),
+          id: $element.attr("id"),
           evt: null,
         };
-        $scope.$emit('angular-resizable.resizeStart', info);
-        $scope.$emit('angular-resizable.resizing', info);
-        $scope.$emit('angular-resizable.resizeEnd', info);
+        $scope.$emit("angular-resizable.resizeStart", info);
+        $scope.$emit("angular-resizable.resizing", info);
+        $scope.$emit("angular-resizable.resizeEnd", info);
         ignoreResizeEvents = false;
       }
 
-      $element.on('click', '.rg-left, .rg-right', () => {
+      $element.on("click", ".rg-left, .rg-right", () => {
         if (allowHClick) {
-          const minSize = parseFloat($element.css('min-width')) + threshold;
+          const minSize = parseFloat($element.css("min-width")) + threshold;
           const currentSize = $element.width();
           const isCollapsed = currentSize <= minSize;
-          const animateProp = isFlex ? flexBasis : 'width';
+          const animateProp = isFlex ? flexBasis : "width";
           if (isCollapsed) {
-            $element.animate({ [animateProp]: lastWidth + 'px' }, 300, () => {
+            $element.animate({ [animateProp]: lastWidth + "px" }, 300, () => {
               emulateAngularResizableEvents(lastWidth, false);
             });
           } else {
             lastWidth = currentSize;
-            $element
-              .css({ [animateProp]: currentSize + 'px' })
-              .animate({ [animateProp]: 0 }, 300, () => {
-                emulateAngularResizableEvents(0, false);
-              });
+            $element.css({ [animateProp]: currentSize + "px" }).animate({ [animateProp]: 0 }, 300, () => {
+              emulateAngularResizableEvents(0, false);
+            });
           }
         }
       });
 
-      $element.on('click', '.rg-top, .rg-bottom', () => {
+      $element.on("click", ".rg-top, .rg-bottom", () => {
         if (allowVClick) {
-          const minSize = parseFloat($element.css('min-height')) + threshold;
+          const minSize = parseFloat($element.css("min-height")) + threshold;
           const currentSize = $element.height();
           const isCollapsed = currentSize <= minSize;
-          const animateProp = isFlex ? flexBasis : 'height';
+          const animateProp = isFlex ? flexBasis : "height";
           if (isCollapsed) {
-            $element.animate({ [animateProp]: lastHeight + 'px' }, 300, () => {
+            $element.animate({ [animateProp]: lastHeight + "px" }, 300, () => {
               emulateAngularResizableEvents(false, lastHeight);
             });
           } else {
             lastHeight = currentSize;
-            $element
-              .css({ [animateProp]: currentSize + 'px' })
-              .animate({ [animateProp]: 0 }, 300, () => {
-                emulateAngularResizableEvents(false, 0);
-              });
+            $element.css({ [animateProp]: currentSize + "px" }).animate({ [animateProp]: 0 }, 300, () => {
+              emulateAngularResizableEvents(false, 0);
+            });
           }
         }
       });
@@ -121,7 +116,7 @@ function resizableToggle(KeyboardShortcuts) {
 }
 
 export default function init(ngModule) {
-  ngModule.directive('resizableToggle', resizableToggle);
+  ngModule.directive("resizableToggle", resizableToggle);
 }
 
 init.init = true;
