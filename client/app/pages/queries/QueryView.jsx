@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { find } from 'lodash';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import Divider from 'antd/lib/divider';
@@ -25,8 +24,8 @@ function QueryView({ query }) {
   const queryResultData = useQueryResult(queryResult);
 
   useEffect(() => {
-    Promise.all([DataSource.types().$promise, DataSource.get({ id: query.data_source_id }).$promise])
-      .then(values => setDataSource({ ...values[1], typeInfo: find(values[0], { type: values[1].type }) }));
+    DataSource.get({ id: query.data_source_id }).$promise
+      .then(setDataSource);
   }, [query]);
   return (
     <div className="query-page-wrapper">
@@ -57,7 +56,7 @@ function QueryView({ query }) {
             </div>
             {dataSource && (
               <div className="m-r-20 m-b-10">
-                <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.typeInfo.name} />
+                <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.type} />
                 {dataSource.name}
               </div>
             )}
