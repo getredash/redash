@@ -1,6 +1,6 @@
-import { isString, sortBy } from 'lodash';
+import { isString, sortBy } from "lodash";
 
-const ORDER_BY_REVERSE = '-';
+const ORDER_BY_REVERSE = "-";
 
 export function compile(field, reverse) {
   if (!field) {
@@ -10,12 +10,12 @@ export function compile(field, reverse) {
 }
 
 export function parse(compiled) {
-  compiled = isString(compiled) ? compiled : '';
+  compiled = isString(compiled) ? compiled : "";
   const reverse = compiled.startsWith(ORDER_BY_REVERSE);
   if (reverse) {
     compiled = compiled.substring(1);
   }
-  const field = compiled !== '' ? compiled : null;
+  const field = compiled !== "" ? compiled : null;
   return { field, reverse };
 }
 
@@ -35,7 +35,7 @@ export default class Sorter {
   }
 
   setField(value) {
-    this.field = isString(value) && (value !== '') ? value : null;
+    this.field = isString(value) && value !== "" ? value : null;
   }
 
   setReverse(value) {
@@ -48,7 +48,7 @@ export default class Sorter {
   }
 
   toggleField(field) {
-    if (!isString(field) || (field === '')) {
+    if (!isString(field) || field === "") {
       return;
     }
     if (field === this.field) {

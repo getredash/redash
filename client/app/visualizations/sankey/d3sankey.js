@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import d3 from 'd3';
+import d3 from "d3";
 
 function center(node) {
   return node.y + node.dy / 2;
@@ -28,8 +28,8 @@ function Sankey() {
     links.forEach(link => {
       let source = link.source;
       let target = link.target;
-      if (typeof source === 'number') source = link.source = nodes[link.source];
-      if (typeof target === 'number') target = link.target = nodes[link.target];
+      if (typeof source === "number") source = link.source = nodes[link.source];
+      if (typeof target === "number") target = link.target = nodes[link.target];
       source.sourceLinks.push(link);
       target.targetLinks.push(link);
     });
@@ -104,10 +104,7 @@ function Sankey() {
       .map(d => d.values);
 
     function initializeNodeDepth() {
-      const ky = d3.min(
-        nodesByBreadth,
-        n => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value),
-      );
+      const ky = d3.min(nodesByBreadth, n => (size[1] - (n.length - 1) * nodePadding) / d3.sum(n, value));
 
       nodesByBreadth.forEach(n => {
         n.forEach((node, i) => {

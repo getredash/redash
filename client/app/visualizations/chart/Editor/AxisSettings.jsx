@@ -1,11 +1,9 @@
-import { isString, isObject, isFinite, isNumber, merge } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useDebouncedCallback } from 'use-debounce';
-import Select from 'antd/lib/select';
-import Input from 'antd/lib/input';
-import InputNumber from 'antd/lib/input-number';
-import * as Grid from 'antd/lib/grid';
+import { isString, isObject, isFinite, isNumber, merge } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import { useDebouncedCallback } from "use-debounce";
+import * as Grid from "antd/lib/grid";
+import { Section, Select, Input, InputNumber } from "@/components/visualizations/editor";
 
 function toNumber(value) {
   value = isNumber(value) ? value : parseFloat(value);
@@ -17,8 +15,8 @@ export default function AxisSettings({ id, options, features, onChange }) {
     onChange(merge({}, options, newOptions));
   }
 
-  const [handleNameChange] = useDebouncedCallback((text) => {
-    const title = isString(text) && (text !== '') ? { text } : null;
+  const [handleNameChange] = useDebouncedCallback(text => {
+    const title = isString(text) && text !== "" ? { text } : null;
     optionsChanged({ title });
   }, 200);
 
@@ -26,58 +24,67 @@ export default function AxisSettings({ id, options, features, onChange }) {
 
   return (
     <React.Fragment>
-      <div className="m-b-15">
-        <label htmlFor={`chart-editor-${id}-type`}>Scale</label>
+      <Section>
         <Select
-          id={`chart-editor-${id}-type`}
+          label="Scale"
           className="w-100"
           data-test={`Chart.${id}.Type`}
           defaultValue={options.type}
-          onChange={type => optionsChanged({ type })}
-        >
-          {features.autoDetectType && <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>Auto Detect</Select.Option>}
-          <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>Datetime</Select.Option>
-          <Select.Option value="linear" data-test={`Chart.${id}.Type.Linear`}>Linear</Select.Option>
-          <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>Logarithmic</Select.Option>
-          <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>Category</Select.Option>
+          onChange={type => optionsChanged({ type })}>
+          {features.autoDetectType && (
+            <Select.Option value="-" data-test={`Chart.${id}.Type.Auto`}>
+              Auto Detect
+            </Select.Option>
+          )}
+          <Select.Option value="datetime" data-test={`Chart.${id}.Type.DateTime`}>
+            Datetime
+          </Select.Option>
+          <Select.Option value="linear" data-test={`Chart.${id}.Type.Linear`}>
+            Linear
+          </Select.Option>
+          <Select.Option value="logarithmic" data-test={`Chart.${id}.Type.Logarithmic`}>
+            Logarithmic
+          </Select.Option>
+          <Select.Option value="category" data-test={`Chart.${id}.Type.Category`}>
+            Category
+          </Select.Option>
         </Select>
-      </div>
+      </Section>
 
-      <div className="m-b-15">
-        <label htmlFor={`chart-editor-${id}-name`}>Name</label>
+      <Section>
         <Input
-          id={`chart-editor-${id}-name`}
+          label="Name"
           data-test={`Chart.${id}.Name`}
           defaultValue={isObject(options.title) ? options.title.text : null}
           onChange={event => handleNameChange(event.target.value)}
         />
-      </div>
+      </Section>
 
       {features.range && (
-        <Grid.Row gutter={15} type="flex" align="middle" className="m-b-15">
-          <Grid.Col span={12}>
-            <label htmlFor={`chart-editor-${id}-range-min`}>Min Value</label>
-            <InputNumber
-              id={`chart-editor-${id}-range-min`}
-              className="w-100"
-              placeholder="Auto"
-              data-test={`Chart.${id}.RangeMin`}
-              defaultValue={toNumber(options.rangeMin)}
-              onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
-            />
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <label htmlFor={`chart-editor-${id}-range-max`}>Max Value</label>
-            <InputNumber
-              id={`chart-editor-${id}-range-max`}
-              className="w-100"
-              placeholder="Auto"
-              data-test={`Chart.${id}.RangeMax`}
-              defaultValue={toNumber(options.rangeMax)}
-              onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
-            />
-          </Grid.Col>
-        </Grid.Row>
+        <Section>
+          <Grid.Row gutter={15} type="flex" align="middle">
+            <Grid.Col span={12}>
+              <InputNumber
+                label="Min Value"
+                className="w-100"
+                placeholder="Auto"
+                data-test={`Chart.${id}.RangeMin`}
+                defaultValue={toNumber(options.rangeMin)}
+                onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
+              />
+            </Grid.Col>
+            <Grid.Col span={12}>
+              <InputNumber
+                label="Max Value"
+                className="w-100"
+                placeholder="Auto"
+                data-test={`Chart.${id}.RangeMax`}
+                defaultValue={toNumber(options.rangeMax)}
+                onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}
+              />
+            </Grid.Col>
+          </Grid.Row>
+        </Section>
       )}
     </React.Fragment>
   );

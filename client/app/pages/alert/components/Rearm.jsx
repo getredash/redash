@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { toLower, isNumber } from 'lodash';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { toLower, isNumber } from "lodash";
 
-import InputNumber from 'antd/lib/input-number';
-import Select from 'antd/lib/select';
+import InputNumber from "antd/lib/input-number";
+import Select from "antd/lib/select";
 
-import './Rearm.less';
+import "./Rearm.less";
 
 const DURATIONS = [
-  ['Second', 1],
-  ['Minute', 60],
-  ['Hour', 3600],
-  ['Day', 86400],
-  ['Week', 604800],
+  ["Second", 1],
+  ["Minute", 60],
+  ["Hour", 3600],
+  ["Day", 86400],
+  ["Week", 604800],
 ];
 
 function RearmByDuration({ value, onChange, editMode }) {
@@ -28,23 +28,23 @@ function RearmByDuration({ value, onChange, editMode }) {
         break;
       }
     }
-  }, []);
+  }, [value]);
 
   if (!isNumber(count) || !isNumber(durationIdx)) {
     return null;
   }
 
-  const onChangeCount = (newCount) => {
+  const onChangeCount = newCount => {
     setCount(newCount);
     onChange(newCount * DURATIONS[durationIdx][1]);
   };
 
-  const onChangeIdx = (newIdx) => {
+  const onChangeIdx = newIdx => {
     setDurationIdx(newIdx);
     onChange(count * DURATIONS[newIdx][1]);
   };
 
-  const plural = count !== 1 ? 's' : '';
+  const plural = count !== 1 ? "s" : "";
 
   if (editMode) {
     return (
@@ -52,7 +52,10 @@ function RearmByDuration({ value, onChange, editMode }) {
         <InputNumber value={count} onChange={onChangeCount} min={1} precision={0} />
         <Select value={durationIdx} onChange={onChangeIdx}>
           {DURATIONS.map(([name], idx) => (
-            <Select.Option value={idx} key={name}>{name}{plural}</Select.Option>
+            <Select.Option value={idx} key={name}>
+              {name}
+              {plural}
+            </Select.Option>
           ))}
         </Select>
       </>
@@ -60,7 +63,7 @@ function RearmByDuration({ value, onChange, editMode }) {
   }
 
   const [name] = DURATIONS[durationIdx];
-  return count + ' ' + toLower(name) + plural;
+  return count + " " + toLower(name) + plural;
 }
 
 RearmByDuration.propTypes = {
@@ -76,19 +79,27 @@ RearmByDuration.defaultProps = {
 function RearmEditor({ value, onChange }) {
   const [selected, setSelected] = useState(value < 2 ? value : 2);
 
-  const _onChange = (newSelected) => {
+  const _onChange = newSelected => {
     setSelected(newSelected);
     onChange(newSelected < 2 ? newSelected : 3600);
   };
 
   return (
     <div className="alert-rearm">
-      <Select optionLabelProp="label" defaultValue={selected || 0} dropdownMatchSelectWidth={false} onChange={_onChange}>
-        <Select.Option value={0} label="Just once">Just once <em>until back to normal</em></Select.Option>
+      <Select
+        optionLabelProp="label"
+        defaultValue={selected || 0}
+        dropdownMatchSelectWidth={false}
+        onChange={_onChange}>
+        <Select.Option value={0} label="Just once">
+          Just once <em>until back to normal</em>
+        </Select.Option>
         <Select.Option value={1} label="Each time alert is evaluated">
           Each time alert is evaluated <em>until back to normal</em>
         </Select.Option>
-        <Select.Option value={2} label="At most every">At most every ... <em>when alert is evaluated</em></Select.Option>
+        <Select.Option value={2} label="At most every">
+          At most every ... <em>when alert is evaluated</em>
+        </Select.Option>
       </Select>
       {selected === 2 && value && <RearmByDuration value={value} onChange={onChange} editMode />}
     </div>
@@ -101,17 +112,19 @@ RearmEditor.propTypes = {
 };
 
 function RearmViewer({ value }) {
-  let phrase = '';
+  let phrase = "";
   switch (value) {
     case 0:
-      phrase = 'just once, until back to normal';
+      phrase = "just once, until back to normal";
       break;
     case 1:
-      phrase = 'each time alert is evaluated, until back to normal';
+      phrase = "each time alert is evaluated, until back to normal";
       break;
     default:
       phrase = (
-        <>at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated</>
+        <>
+          at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated
+        </>
       );
   }
 

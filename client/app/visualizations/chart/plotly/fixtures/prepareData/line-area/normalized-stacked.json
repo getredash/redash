@@ -57,7 +57,7 @@
         "hover": [],
         "text": ["20% (10 ± 0)", "40% (20 ± 0)", "60% (30 ± 0)", "80% (40 ± 0)"],
         "marker": { "color": "red" },
-        "insidetextfont": { "color": "#333333" },
+        "insidetextfont": { "color": "#ffffff" },
         "yaxis": "y"
       },
       {
@@ -71,7 +71,7 @@
         "hover": [],
         "text": ["80% (40 ± 0)", "60% (30 ± 0)", "40% (20 ± 0)", "20% (10 ± 0)"],
         "marker": { "color": "blue" },
-        "insidetextfont": { "color": "#333333" },
+        "insidetextfont": { "color": "#ffffff" },
         "yaxis": "y"
       }
     ]

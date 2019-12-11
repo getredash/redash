@@ -1,19 +1,19 @@
 function compareTo() {
   return {
-    require: 'ngModel',
+    require: "ngModel",
     scope: {
-      otherModelValue: '=compareTo',
+      otherModelValue: "=compareTo",
     },
     link(scope, element, attributes, ngModel) {
-      const validate = (value) => {
-        ngModel.$setValidity('compareTo', value === scope.otherModelValue);
+      const validate = value => {
+        ngModel.$setValidity("compareTo", value === scope.otherModelValue);
       };
 
-      scope.$watch('otherModelValue', () => {
+      scope.$watch("otherModelValue", () => {
         validate(ngModel.$modelValue);
       });
 
-      ngModel.$parsers.push((value) => {
+      ngModel.$parsers.push(value => {
         validate(value);
         return value;
       });
@@ -22,7 +22,7 @@ function compareTo() {
 }
 
 export default function init(ngModule) {
-  ngModule.directive('compareTo', compareTo);
+  ngModule.directive("compareTo", compareTo);
 }
 
 init.init = true;

@@ -15,93 +15,110 @@ from redash.models import MutableDict, PseudoJSON
 
 
 # revision identifiers, used by Alembic.
-revision = '640888ce445d'
-down_revision = '71477dadd6ef'
+revision = "640888ce445d"
+down_revision = "71477dadd6ef"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     # Copy "schedule" column into "old_schedule" column
-    op.add_column('queries', sa.Column('old_schedule', sa.String(length=10), nullable=True))
+    op.add_column(
+        "queries", sa.Column("old_schedule", sa.String(length=10), nullable=True)
+    )
 
     queries = table(
-        'queries',
-        sa.Column('schedule', sa.String(length=10)),
-        sa.Column('old_schedule', sa.String(length=10)))
+        "queries",
+        sa.Column("schedule", sa.String(length=10)),
+        sa.Column("old_schedule", sa.String(length=10)),
+    )
 
-    op.execute(
-        queries
-            .update()
-            .values({'old_schedule': queries.c.schedule}))
+    op.execute(queries.update().values({"old_schedule": queries.c.schedule}))
 
     # Recreate "schedule" column as a dict type
-    op.drop_column('queries', 'schedule')
-    op.add_column('queries', sa.Column('schedule', MutableDict.as_mutable(PseudoJSON), nullable=False, server_default=json.dumps({})))
+    op.drop_column("queries", "schedule")
+    op.add_column(
+        "queries",
+        sa.Column(
+            "schedule",
+            MutableDict.as_mutable(PseudoJSON),
+            nullable=False,
+            server_default=json.dumps({}),
+        ),
+    )
 
     # Move over values from old_schedule
     queries = table(
-        'queries',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('schedule', MutableDict.as_mutable(PseudoJSON)),
-        sa.Column('old_schedule', sa.String(length=10)))
+        "queries",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("schedule", MutableDict.as_mutable(PseudoJSON)),
+        sa.Column("old_schedule", sa.String(length=10)),
+    )
 
     conn = op.get_bind()
     for query in conn.execute(queries.select()):
         schedule_json = {
-            'interval': None,
-            'until': None,
-            'day_of_week': None,
-            'time': None
+            "interval": None,
+            "until": None,
+            "day_of_week": None,
+            "time": None,
         }
 
         if query.old_schedule is not None:
             if ":" in query.old_schedule:
-                schedule_json['interval'] = 86400
-                schedule_json['time'] = query.old_schedule
+                schedule_json["interval"] = 86400
+                schedule_json["time"] = query.old_schedule
             else:
-                schedule_json['interval'] = query.old_schedule
+                schedule_json["interval"] = query.old_schedule
 
         conn.execute(
-            queries
-                .update()
-                .where(queries.c.id == query.id)
-                .values(schedule=MutableDict(schedule_json)))
+            queries.update()
+            .where(queries.c.id == query.id)
+            .values(schedule=MutableDict(schedule_json))
+        )
 
-    op.drop_column('queries', 'old_schedule')
+    op.drop_column("queries", "old_schedule")
+
 
 def downgrade():
-    op.add_column('queries', sa.Column('old_schedule', MutableDict.as_mutable(PseudoJSON), nullable=False, server_default=json.dumps({})))
+    op.add_column(
+        "queries",
+        sa.Column(
+            "old_schedule",
+            MutableDict.as_mutable(PseudoJSON),
+            nullable=False,
+            server_default=json.dumps({}),
+        ),
+    )
 
     queries = table(
-        'queries',
-        sa.Column('schedule', MutableDict.as_mutable(PseudoJSON)),
-        sa.Column('old_schedule', MutableDict.as_mutable(PseudoJSON)))
+        "queries",
+        sa.Column("schedule", MutableDict.as_mutable(PseudoJSON)),
+        sa.Column("old_schedule", MutableDict.as_mutable(PseudoJSON)),
+    )
 
-    op.execute(
-        queries
-            .update()
-            .values({'old_schedule': queries.c.schedule}))
+    op.execute(queries.update().values({"old_schedule": queries.c.schedule}))
 
-    op.drop_column('queries', 'schedule')
-    op.add_column('queries', sa.Column('schedule', sa.String(length=10), nullable=True))
+    op.drop_column("queries", "schedule")
+    op.add_column("queries", sa.Column("schedule", sa.String(length=10), nullable=True))
 
     queries = table(
-        'queries',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('schedule', sa.String(length=10)),
-        sa.Column('old_schedule', MutableDict.as_mutable(PseudoJSON)))
+        "queries",
+        sa.Column("id", sa.Integer, primary_key=True),
+        sa.Column("schedule", sa.String(length=10)),
+        sa.Column("old_schedule", MutableDict.as_mutable(PseudoJSON)),
+    )
 
     conn = op.get_bind()
     for query in conn.execute(queries.select()):
-        scheduleValue = query.old_schedule['interval']
+        scheduleValue = query.old_schedule["interval"]
         if scheduleValue <= 86400:
-            scheduleValue = query.old_schedule['time']
+            scheduleValue = query.old_schedule["time"]
 
         conn.execute(
-            queries
-                .update()
-                .where(queries.c.id == query.id)
-                .values(schedule=scheduleValue))
+            queries.update()
+            .where(queries.c.id == query.id)
+            .values(schedule=scheduleValue)
+        )
 
-    op.drop_column('queries', 'old_schedule')
+    op.drop_column("queries", "old_schedule")

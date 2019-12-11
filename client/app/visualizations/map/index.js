@@ -1,13 +1,13 @@
-import { registerVisualization } from '@/visualizations';
+import { registerVisualization } from "@/visualizations";
 
-import getOptions from './getOptions';
-import Renderer from './Renderer';
-import Editor from './Editor';
+import getOptions from "./getOptions";
+import Renderer from "./Renderer";
+import Editor from "./Editor";
 
 export default function init() {
   registerVisualization({
-    type: 'MAP',
-    name: 'Map (Markers)',
+    type: "MAP",
+    name: "Map (Markers)",
     getOptions,
     Renderer,
     Editor,

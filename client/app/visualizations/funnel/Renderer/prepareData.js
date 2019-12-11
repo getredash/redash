@@ -1,7 +1,7 @@
-import { map, maxBy, sortBy } from 'lodash';
+import { map, maxBy, sortBy } from "lodash";
 
 export default function prepareData(rows, options) {
-  if ((rows.length === 0) || !options.stepCol.colName || !options.valueCol.colName) {
+  if (rows.length === 0 || !options.stepCol.colName || !options.valueCol.colName) {
     return [];
   }
 
@@ -21,7 +21,7 @@ export default function prepareData(rows, options) {
   const maxVal = maxBy(data, d => d.value).value;
   data.forEach((d, i) => {
     d.pctMax = (d.value / maxVal) * 100.0;
-    d.pctPrevious = (i === 0) || (d.value === data[i - 1].value) ? 100.0 : (d.value / data[i - 1].value) * 100.0;
+    d.pctPrevious = i === 0 || d.value === data[i - 1].value ? 100.0 : (d.value / data[i - 1].value) * 100.0;
   });
 
   return data.slice(0, options.itemsLimit);

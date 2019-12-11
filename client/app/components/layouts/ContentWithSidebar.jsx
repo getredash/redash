@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+import React from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
 
-import './content-with-sidebar.less';
+import "./content-with-sidebar.less";
 
 const propTypes = {
   className: PropTypes.string,
@@ -18,7 +18,7 @@ const defaultProps = {
 
 function Sidebar({ className, children, ...props }) {
   return (
-    <div className={classNames('layout-sidebar', className)} {...props}>
+    <div className={classNames("layout-sidebar", className)} {...props}>
       <div>{children}</div>
     </div>
   );
@@ -31,7 +31,7 @@ Sidebar.defaultProps = defaultProps;
 
 function Content({ className, children, ...props }) {
   return (
-    <div className={classNames('layout-content', className)} {...props}>
+    <div className={classNames("layout-content", className)} {...props}>
       <div>{children}</div>
     </div>
   );
@@ -43,7 +43,11 @@ Content.defaultProps = defaultProps;
 // Layout
 
 export default function Layout({ className, children, ...props }) {
-  return <div className={classNames('layout-with-sidebar', className)} {...props}>{children}</div>;
+  return (
+    <div className={classNames("layout-with-sidebar", className)} {...props}>
+      {children}
+    </div>
+  );
 }
 
 Layout.propTypes = propTypes;
