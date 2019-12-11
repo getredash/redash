@@ -1,15 +1,15 @@
-import { trim } from 'lodash';
-import React, { useRef, useState, useEffect } from 'react';
-import Modal from 'antd/lib/modal';
-import Input from 'antd/lib/input';
-import DynamicComponent from '@/components/DynamicComponent';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { $location, $http } from '@/services/ng';
-import recordEvent from '@/services/recordEvent';
-import { policy } from '@/services/policy';
+import { trim } from "lodash";
+import React, { useRef, useState, useEffect } from "react";
+import Modal from "antd/lib/modal";
+import Input from "antd/lib/input";
+import DynamicComponent from "@/components/DynamicComponent";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { $location, $http } from "@/services/ng";
+import recordEvent from "@/services/recordEvent";
+import { policy } from "@/services/policy";
 
 function CreateDashboardDialog({ dialog }) {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
   const inputRef = useRef();
@@ -29,19 +29,21 @@ function CreateDashboardDialog({ dialog }) {
   function handleNameChange(event) {
     const value = trim(event.target.value);
     setName(value);
-    setIsValid(value !== '');
+    setIsValid(value !== "");
   }
 
   function save() {
-    if (name !== '') {
+    if (name !== "") {
       setSaveInProgress(true);
 
-      $http.post('api/dashboards', { name })
-        .then(({ data }) => {
-          dialog.close();
-          $location.path(`/dashboard/${data.slug}`).search('edit').replace();
-        });
-      recordEvent('create', 'dashboard');
+      $http.post("api/dashboards", { name }).then(({ data }) => {
+        dialog.close();
+        $location
+          .path(`/dashboard/${data.slug}`)
+          .search("edit")
+          .replace();
+      });
+      recordEvent("create", "dashboard");
     }
   }
 
@@ -55,7 +57,7 @@ function CreateDashboardDialog({ dialog }) {
       okButtonProps={{
         disabled: !isValid || saveInProgress,
         loading: saveInProgress,
-        'data-test': 'DashboardSaveButton',
+        "data-test": "DashboardSaveButton",
       }}
       cancelButtonProps={{
         disabled: saveInProgress,
@@ -64,9 +66,8 @@ function CreateDashboardDialog({ dialog }) {
       closable={!saveInProgress}
       maskClosable={!saveInProgress}
       wrapProps={{
-        'data-test': 'CreateDashboardDialog',
-      }}
-    >
+        "data-test": "CreateDashboardDialog",
+      }}>
       <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
         <Input
           ref={inputRef}

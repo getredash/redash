@@ -1,7 +1,7 @@
-import { map } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import ColorPicker from '@/components/ColorPicker';
+import { map } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import ColorPicker from "@/components/ColorPicker";
 
 export default function Legend({ items, alignText }) {
   return (
@@ -17,14 +17,16 @@ export default function Legend({ items, alignText }) {
 }
 
 Legend.propTypes = {
-  items: PropTypes.arrayOf(PropTypes.shape({
-    color: PropTypes.string.isRequired,
-    text: PropTypes.string.isRequired,
-  })),
-  alignText: PropTypes.oneOf(['left', 'center', 'right']),
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      color: PropTypes.string.isRequired,
+      text: PropTypes.string.isRequired,
+    })
+  ),
+  alignText: PropTypes.oneOf(["left", "center", "right"]),
 };
 
 Legend.defaultProps = {
   items: [],
-  alignText: 'left',
+  alignText: "left",
 };

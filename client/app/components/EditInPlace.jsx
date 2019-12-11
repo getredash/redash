@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import { trim } from 'lodash';
+import React from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
+import { trim } from "lodash";
 
 export class EditInPlace extends React.Component {
   static propTypes = {
@@ -16,8 +16,8 @@ export class EditInPlace extends React.Component {
   static defaultProps = {
     ignoreBlanks: false,
     isEditable: true,
-    placeholder: '',
-    value: '',
+    placeholder: "",
+    value: "",
   };
 
   constructor(props) {
@@ -42,14 +42,14 @@ export class EditInPlace extends React.Component {
 
   stopEditing = () => {
     const newValue = trim(this.inputRef.current.value);
-    const ignorableBlank = this.props.ignoreBlanks && newValue === '';
+    const ignorableBlank = this.props.ignoreBlanks && newValue === "";
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
     }
     this.setState({ editing: false });
   };
 
-  keyDown = (event) => {
+  keyDown = event => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
       this.stopEditing();
@@ -63,23 +63,23 @@ export class EditInPlace extends React.Component {
       role="presentation"
       onFocus={this.startEditing}
       onClick={this.startEditing}
-      className={this.props.isEditable ? 'editable' : ''}
-    >
+      className={this.props.isEditable ? "editable" : ""}>
       {this.props.value || this.props.placeholder}
     </span>
   );
 
-  renderEdit = () => React.createElement(this.props.editor, {
-    ref: this.inputRef,
-    className: 'rd-form-control',
-    defaultValue: this.props.value,
-    onBlur: this.stopEditing,
-    onKeyDown: this.keyDown,
-  });
+  renderEdit = () =>
+    React.createElement(this.props.editor, {
+      ref: this.inputRef,
+      className: "rd-form-control",
+      defaultValue: this.props.value,
+      onBlur: this.stopEditing,
+      onKeyDown: this.keyDown,
+    });
 
   render() {
     return (
-      <span className={'edit-in-place' + (this.state.editing ? ' active' : '')}>
+      <span className={"edit-in-place" + (this.state.editing ? " active" : "")}>
         {this.state.editing ? this.renderEdit() : this.renderNormal()}
       </span>
     );
@@ -87,7 +87,7 @@ export class EditInPlace extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('editInPlace', react2angular(EditInPlace));
+  ngModule.component("editInPlace", react2angular(EditInPlace));
 }
 
 init.init = true;

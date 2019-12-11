@@ -1,6 +1,6 @@
-import { map, debounce } from 'lodash';
-import template from './query.html';
-import EditParameterSettingsDialog from '@/components/EditParameterSettingsDialog';
+import { map, debounce } from "lodash";
+import template from "./query.html";
+import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 
 function QuerySourceCtrl(
   Events,
@@ -10,12 +10,12 @@ function QuerySourceCtrl(
   $uibModal,
   currentUser,
   KeyboardShortcuts,
-  $rootScope,
+  $rootScope
 ) {
   // extends QueryViewCtrl
-  $controller('QueryViewCtrl', { $scope });
+  $controller("QueryViewCtrl", { $scope });
 
-  Events.record('view_source', 'query', $scope.query.id);
+  Events.record("view_source", "query", $scope.query.id);
 
   const isNewQuery = !$scope.query.id;
   let queryText = $scope.query.query;
@@ -27,42 +27,42 @@ function QuerySourceCtrl(
   $scope.modKey = KeyboardShortcuts.modKey;
 
   // @override
-  Object.defineProperty($scope, 'showDataset', {
+  Object.defineProperty($scope, "showDataset", {
     get() {
-      return $scope.queryResult && $scope.queryResult.getStatus() === 'done';
+      return $scope.queryResult && $scope.queryResult.getStatus() === "done";
     },
   });
 
   const shortcuts = {
-    'mod+s': function save() {
+    "mod+s": function save() {
       if ($scope.canEdit) {
         $scope.saveQuery();
       }
     },
-    'mod+p': () => {
+    "mod+p": () => {
       $scope.addNewParameter();
     },
   };
 
   KeyboardShortcuts.bind(shortcuts);
 
-  $scope.$on('$destroy', () => {
+  $scope.$on("$destroy", () => {
     KeyboardShortcuts.unbind(shortcuts);
   });
 
-  $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+  $scope.canForkQuery = () => currentUser.hasPermission("edit_query") && !$scope.dataSource.view_only;
 
-  $scope.updateQuery = debounce(
-    newQueryText => $scope.$apply(() => {
+  $scope.updateQuery = debounce(newQueryText =>
+    $scope.$apply(() => {
       $scope.query.query = newQueryText;
-    }),
+    })
   );
 
   // @override
   $scope.saveQuery = (options, data) => {
     const savePromise = saveQuery(options, data);
 
-    savePromise.then((savedQuery) => {
+    savePromise.then(savedQuery => {
       queryText = savedQuery.query;
       $scope.isDirty = $scope.query.query !== queryText;
       // update to latest version number
@@ -78,21 +78,19 @@ function QuerySourceCtrl(
   };
 
   $scope.addNewParameter = () => {
-    EditParameterSettingsDialog
-      .showModal({
-        parameter: {
-          title: null,
-          name: '',
-          type: 'text',
-          value: null,
-        },
-        existingParams: map($scope.query.getParameters().get(), p => p.name),
-      })
-      .result.then((param) => {
-        param = $scope.query.getParameters().add(param);
-        $rootScope.$broadcast('query-editor.command', 'paste', param.toQueryTextFragment());
-        $rootScope.$broadcast('query-editor.command', 'focus');
-      });
+    EditParameterSettingsDialog.showModal({
+      parameter: {
+        title: null,
+        name: "",
+        type: "text",
+        value: null,
+      },
+      existingParams: map($scope.query.getParameters().get(), p => p.name),
+    }).result.then(param => {
+      param = $scope.query.getParameters().add(param);
+      $rootScope.$broadcast("query-editor.command", "paste", param.toQueryTextFragment());
+      $rootScope.$broadcast("query-editor.command", "focus");
+    });
   };
 
   $scope.onParametersUpdated = () => {
@@ -103,44 +101,44 @@ function QuerySourceCtrl(
     }
   };
 
-  $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
-  $scope.listenForResize = f => $scope.$parent.$on('angular-resizable.resizing', f);
+  $scope.listenForEditorCommand = f => $scope.$on("query-editor.command", f);
+  $scope.listenForResize = f => $scope.$parent.$on("angular-resizable.resizing", f);
 
-  $scope.$watch('query.query', (newQueryText) => {
+  $scope.$watch("query.query", newQueryText => {
     $scope.isDirty = newQueryText !== queryText;
   });
 }
 
 export default function init(ngModule) {
-  ngModule.controller('QuerySourceCtrl', QuerySourceCtrl);
+  ngModule.controller("QuerySourceCtrl", QuerySourceCtrl);
 
   return {
-    '/queries/new': {
+    "/queries/new": {
       template,
-      layout: 'fixed',
-      controller: 'QuerySourceCtrl',
+      layout: "fixed",
+      controller: "QuerySourceCtrl",
       reloadOnSearch: false,
       resolve: {
         query: function newQuery(Query) {
-          'ngInject';
+          "ngInject";
 
           return Query.newQuery();
         },
         dataSources(DataSource) {
-          'ngInject';
+          "ngInject";
 
           return DataSource.query().$promise;
         },
       },
     },
-    '/queries/:queryId/source': {
+    "/queries/:queryId/source": {
       template,
-      layout: 'fixed',
-      controller: 'QuerySourceCtrl',
+      layout: "fixed",
+      controller: "QuerySourceCtrl",
       reloadOnSearch: false,
       resolve: {
         query: (Query, $route) => {
-          'ngInject';
+          "ngInject";
 
           return Query.get({ id: $route.current.params.queryId }).$promise;
         },

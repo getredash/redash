@@ -1,15 +1,15 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Alert from 'antd/lib/alert';
-import Button from 'antd/lib/button';
-import Checkbox from 'antd/lib/checkbox';
-import Form from 'antd/lib/form';
-import InputNumber from 'antd/lib/input-number';
-import Modal from 'antd/lib/modal';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { clientConfig } from '@/services/auth';
-import CodeBlock from '@/components/CodeBlock';
-import './EmbedQueryDialog.less';
+import React from "react";
+import PropTypes from "prop-types";
+import Alert from "antd/lib/alert";
+import Button from "antd/lib/button";
+import Checkbox from "antd/lib/checkbox";
+import Form from "antd/lib/form";
+import InputNumber from "antd/lib/input-number";
+import Modal from "antd/lib/modal";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { clientConfig } from "@/services/auth";
+import CodeBlock from "@/components/CodeBlock";
+import "./EmbedQueryDialog.less";
 
 class EmbedQueryDialog extends React.Component {
   static propTypes = {
@@ -27,8 +27,9 @@ class EmbedQueryDialog extends React.Component {
   constructor(props) {
     super(props);
     const { query, visualization } = props;
-    this.embedUrl = `${clientConfig.basePath}embed/query/${query.id}/visualization/${
-      visualization.id}?api_key=${query.api_key}&${query.getParameters().toUrlParams()}`;
+    this.embedUrl = `${clientConfig.basePath}embed/query/${query.id}/visualization/${visualization.id}?api_key=${
+      query.api_key
+    }&${query.getParameters().toUrlParams()}`;
 
     if (window.snapshotUrlBuilder) {
       this.snapshotUrl = window.snapshotUrlBuilder(query, visualization);
@@ -44,8 +45,7 @@ class EmbedQueryDialog extends React.Component {
         {...dialog.props}
         className="embed-query-dialog"
         title="Embed Query"
-        footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
-      >
+        footer={<Button onClick={dialog.dismiss}>Close</Button>}>
         {query.is_safe ? (
           <React.Fragment>
             <h5 className="m-t-0">Public URL</h5>

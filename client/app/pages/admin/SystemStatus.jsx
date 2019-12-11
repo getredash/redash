@@ -1,17 +1,17 @@
-import { omit } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import { omit } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
 
-import Layout from '@/components/admin/Layout';
-import * as StatusBlock from '@/components/admin/StatusBlock';
+import Layout from "@/components/admin/Layout";
+import * as StatusBlock from "@/components/admin/StatusBlock";
 
-import { $http } from '@/services/ng';
-import recordEvent from '@/services/recordEvent';
-import PromiseRejectionError from '@/lib/promise-rejection-error';
-import { routesToAngularRoutes } from '@/lib/utils';
+import { $http } from "@/services/ng";
+import recordEvent from "@/services/recordEvent";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
+import { routesToAngularRoutes } from "@/lib/utils";
 
-import './system-status.less';
+import "./system-status.less";
 
 class SystemStatus extends React.Component {
   static propTypes = {
@@ -32,7 +32,7 @@ class SystemStatus extends React.Component {
   _refreshTimer = null;
 
   componentDidMount() {
-    recordEvent('view', 'page', 'admin/status');
+    recordEvent("view", "page", "admin/status");
     this.refresh();
   }
 
@@ -41,7 +41,8 @@ class SystemStatus extends React.Component {
   }
 
   refresh = () => {
-    $http.get('/status.json')
+    $http
+      .get("/status.json")
       .then(({ data }) => {
         this.setState({
           queues: data.manager.queues,
@@ -51,10 +52,10 @@ class SystemStatus extends React.Component {
             outdatedQueriesCount: data.manager.outdated_queries_count,
           },
           databaseMetrics: data.database_metrics.metrics || [],
-          status: omit(data, ['workers', 'manager', 'database_metrics']),
+          status: omit(data, ["workers", "manager", "database_metrics"]),
         });
       })
-      .catch((error) => {
+      .catch(error => {
         // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
         if (error.status && error.data) {
           error = new PromiseRejectionError(error);
@@ -89,22 +90,25 @@ class SystemStatus extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageSystemStatus', react2angular(SystemStatus));
+  ngModule.component("pageSystemStatus", react2angular(SystemStatus));
 
-  return routesToAngularRoutes([
+  return routesToAngularRoutes(
+    [
+      {
+        path: "/admin/status",
+        title: "System Status",
+        key: "system_status",
+      },
+    ],
     {
-      path: '/admin/status',
-      title: 'System Status',
-      key: 'system_status',
-    },
-  ], {
-    template: '<page-system-status on-error="handleError"></page-system-status>',
-    controller($scope, $exceptionHandler) {
-      'ngInject';
+      template: '<page-system-status on-error="handleError"></page-system-status>',
+      controller($scope, $exceptionHandler) {
+        "ngInject";
 
-      $scope.handleError = $exceptionHandler;
-    },
-  });
+        $scope.handleError = $exceptionHandler;
+      },
+    }
+  );
 }
 
 init.init = true;

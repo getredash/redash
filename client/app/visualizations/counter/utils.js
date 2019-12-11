@@ -1,5 +1,5 @@
-import { isNumber, isFinite, toString } from 'lodash';
-import numeral from 'numeral';
+import { isNumber, isFinite, toString } from "lodash";
+import numeral from "numeral";
 
 // TODO: allow user to specify number format string instead of delimiters only
 // It will allow to remove this function (move all that weird formatting logic to a migration
@@ -14,25 +14,21 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   // - `.` as decimal delimiter
   // - three decimal points
   locale.delimiters = {
-    thousands: ',',
-    decimal: '.',
+    thousands: ",",
+    decimal: ".",
   };
-  let formatString = '0,0.000';
-  if (
-    (Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
-    decimalDelimiter ||
-    thousandsDelimiter
-  ) {
+  let formatString = "0,0.000";
+  if ((Number.isFinite(decimalPoints) && decimalPoints >= 0) || decimalDelimiter || thousandsDelimiter) {
     locale.delimiters = {
       thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || '.',
+      decimal: decimalDelimiter || ".",
     };
 
-    formatString = '0,0';
+    formatString = "0,0";
     if (decimalPoints > 0) {
-      formatString += '.';
+      formatString += ".";
       while (decimalPoints > 0) {
-        formatString += '0';
+        formatString += "0";
         decimalPoints -= 1;
       }
     }
@@ -111,7 +107,7 @@ export function getCounterData(rows, options, visualizationName) {
       result.targetValue = formatValue(result.targetValue, options);
     } else {
       if (isFinite(result.targetValue)) {
-        result.targetValue = numeral(result.targetValue).format('0[.]00[0]');
+        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
       }
     }
   }

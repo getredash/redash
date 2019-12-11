@@ -1,13 +1,13 @@
-import { registerVisualization } from '@/visualizations';
+import { registerVisualization } from "@/visualizations";
 
-import getOptions from './getOptions';
-import Renderer from './Renderer';
-import Editor from './Editor';
+import getOptions from "./getOptions";
+import Renderer from "./Renderer";
+import Editor from "./Editor";
 
 export default function init() {
   registerVisualization({
-    type: 'CHOROPLETH',
-    name: 'Map (Choropleth)',
+    type: "CHOROPLETH",
+    name: "Map (Choropleth)",
     getOptions,
     Renderer,
     Editor,

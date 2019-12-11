@@ -1,7 +1,7 @@
-import { isString, get } from 'lodash';
-import { $http, $sanitize } from '@/services/ng';
-import notification from '@/services/notification';
-import { clientConfig } from '@/services/auth';
+import { isString, get } from "lodash";
+import { $http, $sanitize } from "@/services/ng";
+import notification from "@/services/notification";
+import { clientConfig } from "@/services/auth";
 
 export let User = null; // eslint-disable-line import/no-mutable-exports
 
@@ -14,18 +14,18 @@ function enableUser(user) {
 
   return $http
     .delete(disableResource(user))
-    .then((data) => {
+    .then(data => {
       notification.success(`User ${userName} is now enabled.`);
       user.is_disabled = false;
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
-    .catch((response) => {
-      let message = get(response, 'data.message', response.statusText);
+    .catch(response => {
+      let message = get(response, "data.message", response.statusText);
       if (!isString(message)) {
-        message = 'Unknown error';
+        message = "Unknown error";
       }
-      notification.error('Cannot enable user', message);
+      notification.error("Cannot enable user", message);
     });
 }
 
@@ -33,15 +33,15 @@ function disableUser(user) {
   const userName = $sanitize(user.name);
   return $http
     .post(disableResource(user))
-    .then((data) => {
+    .then(data => {
       notification.warning(`User ${userName} is now disabled.`);
       user.is_disabled = true;
       user.profile_image_url = data.data.profile_image_url;
       return data;
     })
     .catch((response = {}) => {
-      const message = get(response, 'data.message', response.statusText);
-      notification.error('Cannot disable user', message);
+      const message = get(response, "data.message", response.statusText);
+      notification.error("Cannot disable user", message);
     });
 }
 
@@ -49,13 +49,13 @@ function deleteUser(user) {
   const userName = $sanitize(user.name);
   return $http
     .delete(`api/users/${user.id}`)
-    .then((data) => {
+    .then(data => {
       notification.warning(`User ${userName} has been deleted.`);
       return data;
     })
     .catch((response = {}) => {
-      const message = get(response, 'data.message', response.statusText);
-      notification.error('Cannot delete user', message);
+      const message = get(response, "data.message", response.statusText);
+      notification.error("Cannot delete user", message);
     });
 }
 
@@ -76,12 +76,12 @@ function regenerateApiKey(user) {
   return $http
     .post(`api/users/${user.id}/regenerate_api_key`)
     .then(({ data }) => {
-      notification.success('The API Key has been updated.');
+      notification.success("The API Key has been updated.");
       return data.api_key;
     })
     .catch((response = {}) => {
-      const message = get(response, 'data.message', response.statusText);
-      notification.error('Failed regenerating API Key', message);
+      const message = get(response, "data.message", response.statusText);
+      notification.error("Failed regenerating API Key", message);
     });
 }
 
@@ -90,14 +90,14 @@ function sendPasswordReset(user) {
     .post(`api/users/${user.id}/reset_password`)
     .then(({ data }) => {
       if (clientConfig.mailSettingsMissing) {
-        notification.warning('The mail server is not configured.');
+        notification.warning("The mail server is not configured.");
         return data.reset_link;
       }
-      notification.success('Password reset email sent.');
+      notification.success("Password reset email sent.");
     })
     .catch((response = {}) => {
-      const message = get(response, 'data.message', response.statusText);
-      notification.error('Failed to send password reset email', message);
+      const message = get(response, "data.message", response.statusText);
+      notification.error("Failed to send password reset email", message);
     });
 }
 
@@ -106,30 +106,30 @@ function resendInvitation(user) {
     .post(`api/users/${user.id}/invite`)
     .then(({ data }) => {
       if (clientConfig.mailSettingsMissing) {
-        notification.warning('The mail server is not configured.');
+        notification.warning("The mail server is not configured.");
         return data.invite_link;
       }
-      notification.success('Invitation sent.');
+      notification.success("Invitation sent.");
     })
     .catch((response = {}) => {
-      const message = get(response, 'data.message', response.statusText);
+      const message = get(response, "data.message", response.statusText);
 
-      notification.error('Failed to resend invitation', message);
+      notification.error("Failed to resend invitation", message);
     });
 }
 
 function UserService($resource) {
   const actions = {
-    get: { method: 'GET' },
-    create: { method: 'POST' },
-    save: { method: 'POST' },
-    query: { method: 'GET', isArray: false },
-    delete: { method: 'DELETE' },
-    disable: { method: 'POST', url: 'api/users/:id/disable' },
-    enable: { method: 'DELETE', url: 'api/users/:id/disable' },
+    get: { method: "GET" },
+    create: { method: "POST" },
+    save: { method: "POST" },
+    query: { method: "GET", isArray: false },
+    delete: { method: "DELETE" },
+    disable: { method: "POST", url: "api/users/:id/disable" },
+    enable: { method: "DELETE", url: "api/users/:id/disable" },
   };
 
-  const UserResource = $resource('api/users/:id', { id: '@id' }, actions);
+  const UserResource = $resource("api/users/:id", { id: "@id" }, actions);
 
   UserResource.enableUser = enableUser;
   UserResource.disableUser = disableUser;
@@ -143,10 +143,10 @@ function UserService($resource) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('User', UserService);
+  ngModule.factory("User", UserService);
 
-  ngModule.run(($injector) => {
-    User = $injector.get('User');
+  ngModule.run($injector => {
+    User = $injector.get("User");
   });
 }
 

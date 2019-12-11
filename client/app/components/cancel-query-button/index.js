@@ -1,9 +1,9 @@
 function cancelQueryButton() {
   return {
-    restrict: 'E',
+    restrict: "E",
     scope: {
-      queryId: '=',
-      taskId: '=',
+      queryId: "=",
+      taskId: "=",
     },
     transclude: true,
     template:
@@ -16,11 +16,11 @@ function cancelQueryButton() {
         $http.delete(`api/jobs/${$scope.taskId}`).success(() => {});
 
         let queryId = $scope.queryId;
-        if ($scope.queryId === 'adhoc') {
+        if ($scope.queryId === "adhoc") {
           queryId = null;
         }
 
-        Events.record('cancel_execute', 'query', queryId, { admin: true });
+        Events.record("cancel_execute", "query", queryId, { admin: true });
         $scope.inProgress = true;
       };
     },
@@ -28,7 +28,7 @@ function cancelQueryButton() {
 }
 
 export default function init(ngModule) {
-  ngModule.directive('cancelQueryButton', cancelQueryButton);
+  ngModule.directive("cancelQueryButton", cancelQueryButton);
 }
 
 init.init = true;

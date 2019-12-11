@@ -24,9 +24,9 @@ const ApiKeyDialog = {
     </div>
 </div>`,
   controller($http, clientConfig, currentUser) {
-    'ngInject';
+    "ngInject";
 
-    this.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission('admin');
+    this.canEdit = currentUser.id === this.resolve.query.user.id || currentUser.hasPermission("admin");
     this.disableRegenerateApiKeyButton = false;
     this.query = this.resolve.query;
     this.csvUrlBase = `${clientConfig.basePath}api/queries/${this.resolve.query.id}/results.csv?api_key=`;
@@ -36,7 +36,7 @@ const ApiKeyDialog = {
       this.disableRegenerateApiKeyButton = true;
       $http
         .post(`api/queries/${this.resolve.query.id}/regenerate_api_key`)
-        .success((data) => {
+        .success(data => {
           this.query.api_key = data.api_key;
           this.disableRegenerateApiKeyButton = false;
         })
@@ -46,14 +46,14 @@ const ApiKeyDialog = {
     };
   },
   bindings: {
-    resolve: '<',
-    close: '&',
-    dismiss: '&',
+    resolve: "<",
+    close: "&",
+    dismiss: "&",
   },
 };
 
 export default function init(ngModule) {
-  ngModule.component('apiKeyDialog', ApiKeyDialog);
+  ngModule.component("apiKeyDialog", ApiKeyDialog);
 }
 
 init.init = true;

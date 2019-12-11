@@ -1,9 +1,9 @@
-import { isArray, findKey } from 'lodash';
-import tinycolor from 'tinycolor2';
+import { isArray, findKey } from "lodash";
+import tinycolor from "tinycolor2";
 
 export function validateColor(value, fallback = null) {
   value = tinycolor(value);
-  return value.isValid() ? '#' + value.toHex().toUpperCase() : fallback;
+  return value.isValid() ? "#" + value.toHex().toUpperCase() : fallback;
 }
 
 export function getColorName(color, presetColors) {
