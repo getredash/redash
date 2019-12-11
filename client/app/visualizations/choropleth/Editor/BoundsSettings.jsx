@@ -28,7 +28,7 @@ export default function BoundsSettings({ options, onOptionsChange }) {
       setBounds(newBounds);
       onOptionsChangeDebounced({ bounds: newBounds });
     }
-  }, [bounds]);
+  }, [bounds, onOptionsChangeDebounced]);
 
   return (
     <React.Fragment>

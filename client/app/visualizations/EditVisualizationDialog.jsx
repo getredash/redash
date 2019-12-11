@@ -84,7 +84,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
         originalOptions: options,
       };
     },
-    [visualization],
+    [data, isNew, visualization],
   );
 
   const [type, setType] = useState(defaultState.type);

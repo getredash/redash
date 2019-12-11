@@ -66,7 +66,7 @@ function prepareSeries(series, options, additionalOptions) {
         { x: plotlySeries.x[j], y: plotlySeries.y[i] },
       );
 
-      const zValue = datum && datum.zVal || 0;
+      const zValue = (datum && datum.zVal) || 0;
       item.push(zValue);
 
       if (isFinite(zMax) && options.showDataLabels) {

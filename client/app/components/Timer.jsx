@@ -12,7 +12,7 @@ export function Timer({ from }) {
   useEffect(() => {
     const timer = setInterval(forceUpdate, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [forceUpdate]);
 
   const diff = moment.now() - startTime;
   const format = diff > 1000 * 60 * 60 ? 'HH:mm:ss' : 'mm:ss'; // no HH under an hour

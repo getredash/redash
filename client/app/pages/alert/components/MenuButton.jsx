@@ -34,7 +34,7 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
       maskClosable: true,
       autoFocusButton: null,
     });
-  }, []);
+  }, [doDelete]);
 
   return (
     <Dropdown

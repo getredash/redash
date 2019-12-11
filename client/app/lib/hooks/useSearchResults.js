@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 export default function useSearchResults(
@@ -7,17 +7,16 @@ export default function useSearchResults(
 ) {
   const [result, setResult] = useState(initialResults);
   const [isLoading, setIsLoading] = useState(false);
-
-  let currentSearchTerm = null;
-  let isDestroyed = false;
+  const currentSearchTerm = useRef(null);
+  const isDestroyed = useRef(false);
 
   const [doSearch] = useDebouncedCallback((searchTerm) => {
     setIsLoading(true);
-    currentSearchTerm = searchTerm;
+    currentSearchTerm.current = searchTerm;
     fetch(searchTerm)
       .catch(() => null)
       .then((data) => {
-        if ((searchTerm === currentSearchTerm) && !isDestroyed) {
+        if ((searchTerm === currentSearchTerm.current) && !isDestroyed.current) {
           setResult(data);
           setIsLoading(false);
         }
@@ -26,7 +25,7 @@ export default function useSearchResults(
 
   useEffect(() => (
     // ignore all requests after component destruction
-    () => { isDestroyed = true; }
+    () => { isDestroyed.current = true; }
   ), []);
 
   return [doSearch, result, isLoading];

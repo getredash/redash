@@ -26,7 +26,7 @@ export function TimeAgo({ date, placeholder, autoUpdate }) {
       const timer = setInterval(forceUpdate, 30 * 1000);
       return () => clearInterval(timer);
     }
-  }, [autoUpdate]);
+  }, [autoUpdate, forceUpdate]);
 
   return (
     <Tooltip title={title}>
