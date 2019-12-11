@@ -112,7 +112,7 @@ export default class UserEdit extends React.Component {
       successCallback('Saved.');
       this.setState({ user: User.convertUserInfo(user) });
     }, (error = {}) => {
-      errorCallback(error.data && error.data.message || 'Failed saving.');
+      errorCallback((error.data && error.data.message) || 'Failed saving.');
     });
   };
 

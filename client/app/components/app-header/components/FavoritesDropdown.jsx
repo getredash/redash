@@ -27,7 +27,9 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   }, [fetch]);
 
   // fetch items on init
-  useEffect(() => fetchItems(false), []);
+  useEffect(() => {
+    fetchItems(false);
+  }, [fetchItems]);
 
   // fetch items on click
   const onVisibleChange = visible => visible && fetchItems();

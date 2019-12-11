@@ -28,7 +28,7 @@ function RearmByDuration({ value, onChange, editMode }) {
         break;
       }
     }
-  }, []);
+  }, [value]);
 
   if (!isNumber(count) || !isNumber(durationIdx)) {
     return null;

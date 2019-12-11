@@ -156,7 +156,7 @@ export default function Cornelius({ data, options }) {
   const maxRowLength = useMemo(() => min([
     max(map(data, d => d.length)) || 0,
     options.maxColumns + 1, // each row includes totals, but `maxColumns` is only for stage columns
-  ]), [data]);
+  ]), [data, options.maxColumns]);
 
   if (data.length === 0) {
     return null;

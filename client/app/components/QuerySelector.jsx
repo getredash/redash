@@ -2,22 +2,15 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { react2angular } from 'react2angular';
-import { debounce, find } from 'lodash';
+import { find } from 'lodash';
 import Input from 'antd/lib/input';
 import Select from 'antd/lib/select';
 import { Query } from '@/services/query';
 import notification from '@/services/notification';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
+import useSearchResults from '@/lib/hooks/useSearchResults';
 
-const SEARCH_DEBOUNCE_DURATION = 200;
 const { Option } = Select;
-
-class StaleSearchError extends Error {
-  constructor() {
-    super('stale search');
-  }
-}
-
 function search(term) {
   // get recent
   if (!term) {
@@ -34,16 +27,15 @@ function search(term) {
 }
 
 export function QuerySelector(props) {
-  const [searchTerm, setSearchTerm] = useState();
-  const [searching, setSearching] = useState();
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedQuery, setSelectedQuery] = useState();
+  const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
 
-  let isStaleSearch = false;
-  const debouncedSearch = debounce(_search, SEARCH_DEBOUNCE_DURATION);
   const placeholder = 'Search a query by name';
   const clearIcon = <i className="fa fa-times hide-in-percy" onClick={() => selectQuery(null)} />;
   const spinIcon = <i className={cx('fa fa-spinner fa-pulse hide-in-percy', { hidden: !searching })} />;
+
+  useEffect(() => { doSearch(searchTerm); }, [doSearch, searchTerm]);
 
   // set selected from prop
   useEffect(() => {
@@ -51,43 +43,6 @@ export function QuerySelector(props) {
       setSelectedQuery(props.selectedQuery);
     }
   }, [props.selectedQuery]);
-
-  // on search term changed, debounced
-  useEffect(() => {
-    // clear results, no search
-    if (searchTerm === null) {
-      setSearchResults(null);
-      return () => {};
-    }
-
-    // search
-    debouncedSearch(searchTerm);
-    return () => {
-      debouncedSearch.cancel();
-      isStaleSearch = true;
-    };
-  }, [searchTerm]);
-
-  function _search(term) {
-    setSearching(true);
-    search(term)
-      .then(rejectStale)
-      .then((results) => {
-        setSearchResults(results);
-        setSearching(false);
-      })
-      .catch((err) => {
-        if (!(err instanceof StaleSearchError)) {
-          setSearching(false);
-        }
-      });
-  }
-
-  function rejectStale(results) {
-    return isStaleSearch
-      ? Promise.reject(new StaleSearchError())
-      : Promise.resolve(results);
-  }
 
   function selectQuery(queryId) {
     let query = null;

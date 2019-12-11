@@ -58,22 +58,22 @@ class DynamicForm extends React.Component {
 
     const hasFilledExtraField = some(props.fields, (field) => {
       const { extra, initialValue } = field;
-      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || isBoolean(initialValue) && initialValue);
+      return extra && (!isEmpty(initialValue) || isNumber(initialValue) || (isBoolean(initialValue) && initialValue));
     });
+
+    const inProgressActions = {};
+    props.actions.forEach(action => inProgressActions[action.name] = false);
+
     this.state = {
       isSubmitting: false,
-      inProgressActions: [],
       showExtraFields: hasFilledExtraField,
+      inProgressActions
     };
 
     this.actionCallbacks = this.props.actions.reduce((acc, cur) => ({
       ...acc,
       [cur.name]: cur.callback,
     }), null);
-
-    props.actions.forEach((action) => {
-      this.state.inProgressActions[action.name] = false;
-    });
   }
 
   setActionInProgress = (actionName, inProgress) => {
