@@ -23,6 +23,7 @@ def init():
     if settings.SENTRY_DSN:
         sentry_sdk.init(
             dsn=settings.SENTRY_DSN,
+            environment=settings.SENTRY_ENVIRONMENT,
             release=__version__,
             before_send=before_send,
             send_default_pii=True,
