@@ -1,17 +1,17 @@
-import { map } from 'lodash';
-import React from 'react';
-import { Section, Select } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React from "react";
+import { Section, Select } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations";
 
 const CohortTimeIntervals = {
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
+  daily: "Daily",
+  weekly: "Weekly",
+  monthly: "Monthly",
 };
 
 const CohortModes = {
-  diagonal: 'Fill gaps with zeros',
-  simple: 'Show data as is',
+  diagonal: "Fill gaps with zeros",
+  simple: "Show data as is",
 };
 
 export default function OptionsSettings({ options, onOptionsChange }) {
@@ -23,10 +23,11 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           data-test="Cohort.TimeInterval"
           className="w-100"
           value={options.timeInterval}
-          onChange={timeInterval => onOptionsChange({ timeInterval })}
-        >
+          onChange={timeInterval => onOptionsChange({ timeInterval })}>
           {map(CohortTimeIntervals, (name, value) => (
-            <Select.Option key={value} data-test={'Cohort.TimeInterval.' + value}>{name}</Select.Option>
+            <Select.Option key={value} data-test={"Cohort.TimeInterval." + value}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -37,10 +38,11 @@ export default function OptionsSettings({ options, onOptionsChange }) {
           data-test="Cohort.Mode"
           className="w-100"
           value={options.mode}
-          onChange={mode => onOptionsChange({ mode })}
-        >
+          onChange={mode => onOptionsChange({ mode })}>
           {map(CohortModes, (name, value) => (
-            <Select.Option key={value} data-test={'Cohort.Mode.' + value}>{name}</Select.Option>
+            <Select.Option key={value} data-test={"Cohort.Mode." + value}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
