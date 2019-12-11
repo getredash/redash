@@ -49,12 +49,12 @@ labels: ["Skip CI"]
 
 # Restylers to run, and how
 restylers:
-  - black:
+  - name: black
     include:
       - redash
       - tests
       - migrations/versions
-  - prettier:
+  - name: prettier
     include:
       - client/app/**/*.js
       - client/app/**/*.jsx
