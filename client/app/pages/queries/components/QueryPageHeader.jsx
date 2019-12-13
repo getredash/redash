@@ -11,8 +11,6 @@ import { FavoritesControl } from '@/components/FavoritesControl';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 import getTags from '@/services/getTags';
 
-import './query-page-header.less';
-
 function getQueryTags() {
   return getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 }
@@ -94,10 +92,14 @@ export default function QueryPageHeader({ query, sourceMode }) {
   ];
 
   return (
-    <div className="query-header page-header--new page-header--query">
+    <div className="p-b-10 page-header--new page-header--query">
       <div className="page-title">
         <div className="d-flex flex-nowrap align-items-center">
-          {!query.isNew() && <FavoritesControl item={query} />}
+          {!query.isNew() && (
+            <span className="m-r-5">
+              <FavoritesControl item={query} />
+            </span>
+          )}
           <h3>
             <EditInPlace
               isEditable={query.can_edit}
