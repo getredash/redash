@@ -5,10 +5,15 @@ import cx from 'classnames';
 import Button from 'antd/lib/button';
 import Dropdown from 'antd/lib/dropdown';
 import Menu from 'antd/lib/menu';
+import Icon from 'antd/lib/icon';
 import { EditInPlace } from '@/components/EditInPlace';
 import { FavoritesControl } from '@/components/FavoritesControl';
 import { QueryTagsControl } from '@/components/tags-control/TagsControl';
 import getTags from '@/services/getTags';
+
+function getQueryTags() {
+  return getTags('api/queries/tags').then(tags => map(tags, t => t.name));
+}
 
 function createMenu(menu) {
   const handlers = {};
@@ -38,8 +43,6 @@ export default function QueryPageHeader({ query, sourceMode }) {
   function saveName(name) {
     console.log('saveName', name);
   }
-
-  const loadTags = () => getTags('api/queries/tags').then(tags => map(tags, t => t.name));
 
   function saveTags(tags) {
     console.log('saveTags', tags);
@@ -89,8 +92,8 @@ export default function QueryPageHeader({ query, sourceMode }) {
   ];
 
   return (
-    <div className="p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
-      <div className="page-title p-0">
+    <div className="p-b-10 page-header--new page-header--query">
+      <div className="page-title">
         <div className="d-flex flex-nowrap align-items-center">
           {!query.isNew() && (
             <span className="m-r-5">
@@ -111,42 +114,38 @@ export default function QueryPageHeader({ query, sourceMode }) {
                 isDraft={query.is_draft}
                 isArchived={query.is_archived}
                 canEdit={query.can_edit}
-                getAvailableTags={loadTags}
+                getAvailableTags={getQueryTags}
                 onEdit={saveTags}
               />
             </span>
           </h3>
+          <span className="flex-fill" />
+          {query.is_draft && !query.isNew() && query.can_edit && (
+            <Button className="hidden-xs m-r-5" onClick={togglePublished}>
+              <i className="fa fa-paper-plane m-r-5" /> Publish
+            </Button>
+          )}
 
-          <span className="flex-fill">&nbsp;</span>
+          {!query.isNew() && canViewSource && (
+            <span>
+              {!sourceMode && (
+                <Button className="m-r-5" href={query.getUrl(true, selectedTab)}>
+                  <i className="fa fa-pencil-square-o m-r-5" aria-hidden="true" /> Edit Source
+                </Button>
+              )}
+              {sourceMode && (
+                <Button className="m-r-5" href={query.getUrl(false, selectedTab)} data-test="QueryPageShowDataOnly">
+                  <i className="fa fa-table m-r-5" aria-hidden="true" /> Show Data Only
+                </Button>
+              )}
+            </span>
+          )}
 
-          <Button.Group className="p-0 text-right text-nowrap align-self-start d-flex m-t-5">
-            {query.is_draft && !query.isNew() && query.can_edit && (
-              <Button onClick={togglePublished}>
-                <i className="fa fa-paper-plane m-r-5" /> Publish
-              </Button>
-            )}
-
-            {!query.isNew() && canViewSource && (
-              <span>
-                {!sourceMode && (
-                  <Button href={query.getUrl(true, selectedTab)}>
-                    <i className="fa fa-pencil-square-o m-r-5" aria-hidden="true" /> Edit Source
-                  </Button>
-                )}
-                {sourceMode && (
-                  <Button href={query.getUrl(false, selectedTab)} data-test="QueryPageShowDataOnly">
-                    <i className="fa fa-table m-r-5" aria-hidden="true" /> Show Data Only
-                  </Button>
-                )}
-              </span>
-            )}
-
-            {!query.isNew() && (
-              <Dropdown overlay={createMenu(moreActionsMenu)} trigger={['click']}>
-                <Button><i className="zmdi zmdi-more" /></Button>
-              </Dropdown>
-            )}
-          </Button.Group>
+          {!query.isNew() && (
+            <Dropdown overlay={createMenu(moreActionsMenu)} trigger={['click']}>
+              <Button><Icon type="ellipsis" rotate={90} /></Button>
+            </Dropdown>
+          )}
         </div>
         <span className={cx('query-tags__mobile', { 'query-tags__empty': query.tags.length === 0 })}>
           <QueryTagsControl
@@ -154,7 +153,7 @@ export default function QueryPageHeader({ query, sourceMode }) {
             isDraft={query.is_draft}
             isArchived={query.is_archived}
             canEdit={query.can_edit}
-            getAvailableTags={loadTags}
+            getAvailableTags={getQueryTags}
             onEdit={saveTags}
           />
         </span>
