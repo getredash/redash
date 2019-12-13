@@ -11,7 +11,7 @@ from redash.utils import json_dumps, json_loads
 
 
 try:
-    from azure.kusto.data.request import KustoClient, KustoConnectionStringBuilder
+    from azure.kusto.data.request import KustoClient, KustoConnectionStringBuilder, ClientRequestProperites
     from azure.kusto.data.exceptions import KustoServiceError
 
     enabled = True
@@ -36,10 +36,12 @@ TYPES_MAP = {
 class AzureKusto(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "let noop = datatable (Noop:string)[1]; noop"
-
+    
     def __init__(self, configuration):
         super(AzureKusto, self).__init__(configuration)
         self.syntax = "custom"
+        self.client_request_properties = ClientRequestProperites()
+        self.client_request_properties.application = "redash"
 
     @classmethod
     def configuration_schema(cls):
@@ -97,7 +99,7 @@ class AzureKusto(BaseQueryRunner):
 
         db = self.configuration["database"]
         try:
-            response = client.execute(db, query)
+            response = client.execute(db, query, self.client_request_properties)
 
             result_cols = response.primary_results[0].columns
             result_rows = response.primary_results[0].rows
