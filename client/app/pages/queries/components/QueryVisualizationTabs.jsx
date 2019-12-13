@@ -1,9 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { find, orderBy } from 'lodash';
-import Tabs from 'antd/lib/tabs';
-import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
-import Button from 'antd/lib/button';
+import React from "react";
+import PropTypes from "prop-types";
+import { find, orderBy } from "lodash";
+import Tabs from "antd/lib/tabs";
+import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
+import Button from "antd/lib/button";
 
 const { TabPane } = Tabs;
 
@@ -13,17 +13,20 @@ export default function QueryVisualizationTabs({ visualizations, queryResult, cu
     tabsProps.activeKey = `${currentVisualizationId}`;
   }
 
-  const orderedVisualizations = orderBy(visualizations, ['id']);
+  const orderedVisualizations = orderBy(visualizations, ["id"]);
 
   return (
-    <Tabs {...tabsProps} tabBarExtraContent={(<Button><i className="fa fa-plus m-r-5" />New Visualization</Button>)}>
+    <Tabs
+      {...tabsProps}
+      tabBarExtraContent={
+        <Button>
+          <i className="fa fa-plus m-r-5" />
+          New Visualization
+        </Button>
+      }>
       {orderedVisualizations.map(visualization => (
         <TabPane key={`${visualization.id}`} tab={visualization.name}>
-          <VisualizationRenderer
-            visualization={visualization}
-            queryResult={queryResult}
-            context="query"
-          />
+          <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
         </TabPane>
       ))}
     </Tabs>

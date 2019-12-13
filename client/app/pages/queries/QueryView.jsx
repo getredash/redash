@@ -1,31 +1,30 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import Divider from 'antd/lib/divider';
-import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import { EditInPlace } from '@/components/EditInPlace';
-import { Parameters } from '@/components/Parameters';
-import { TimeAgo } from '@/components/TimeAgo';
-import { currentUser } from '@/services/auth';
-import QueryPageHeader from './components/QueryPageHeader';
+import React, { useMemo, useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
+import Divider from "antd/lib/divider";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
+import { EditInPlace } from "@/components/EditInPlace";
+import { Parameters } from "@/components/Parameters";
+import { TimeAgo } from "@/components/TimeAgo";
+import { currentUser } from "@/services/auth";
+import QueryPageHeader from "./components/QueryPageHeader";
 
-import { IMG_ROOT, DataSource } from '@/services/data-source';
-import QueryVisualizationTabs from './components/QueryVisualizationTabs';
-import { EditVisualizationButton } from '@/components/EditVisualizationButton';
-import useQueryResult from '@/lib/hooks/useQueryResult';
-import { pluralize } from '@/filters';
+import { IMG_ROOT, DataSource } from "@/services/data-source";
+import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
+import { EditVisualizationButton } from "@/components/EditVisualizationButton";
+import useQueryResult from "@/lib/hooks/useQueryResult";
+import { pluralize } from "@/filters";
 
 function QueryView({ query }) {
-  const canEdit = useMemo(() => (currentUser.canEdit(query) || query.can_edit), [query]);
+  const canEdit = useMemo(() => currentUser.canEdit(query) || query.can_edit, [query]);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dataSource, setDataSource] = useState();
   const queryResult = useMemo(() => query.getQueryResult(), [query]);
   const queryResultData = useQueryResult(queryResult);
 
   useEffect(() => {
-    DataSource.get({ id: query.data_source_id }).$promise
-      .then(setDataSource);
+    DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
   }, [query]);
   return (
     <div className="query-page-wrapper">
@@ -45,13 +44,17 @@ function QueryView({ query }) {
             <div className="m-r-20 m-b-10">
               <img src={query.user.profile_image_url} className="profile__image_thumb" alt={query.user.name} />
               <strong>{query.user.name}</strong>
-              {' created '}
+              {" created "}
               <TimeAgo date={query.created_at} />
             </div>
             <div className="m-r-20 m-b-10">
-              <img src={query.last_modified_by.profile_image_url} className="profile__image_thumb" alt={query.last_modified_by.name} />
+              <img
+                src={query.last_modified_by.profile_image_url}
+                className="profile__image_thumb"
+                alt={query.last_modified_by.name}
+              />
               <strong>{query.last_modified_by.name}</strong>
-              {' updated '}
+              {" updated "}
               <TimeAgo date={query.updated_at} />
             </div>
             {dataSource && (
@@ -74,8 +77,7 @@ function QueryView({ query }) {
             <div className="flex-fill m-l-10">
               {queryResultData && (
                 <span>
-                  <strong>{queryResultData.rows.length}</strong>{' '}
-                  {pluralize('row', queryResultData.rows.length)}
+                  <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
                 </span>
               )}
             </div>
@@ -90,15 +92,15 @@ function QueryView({ query }) {
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
 export default function init(ngModule) {
-  ngModule.component('pageQueryView', react2angular(QueryView));
+  ngModule.component("pageQueryView", react2angular(QueryView));
 
   return {
-    '/queries-react/:queryId': {
+    "/queries-react/:queryId": {
       template: '<page-query-view query="$resolve.query"></page-query-view>',
       reloadOnSearch: false,
       resolve: {
         query: (Query, $route) => {
-          'ngInject';
+          "ngInject";
 
           return Query.get({ id: $route.current.params.queryId }).$promise;
         },
