@@ -147,7 +147,7 @@ export default function QueryPageHeader({ query, sourceMode }) {
             </Dropdown>
           )}
         </div>
-        <span className={cx('m-t-5 query-tags__mobile', { 'query-tags__empty': query.tags.length === 0 })}>
+        <span className={cx('query-tags__mobile', { 'query-tags__empty': query.tags.length === 0 })}>
           <QueryTagsControl
             tags={query.tags}
             isDraft={query.is_draft}
