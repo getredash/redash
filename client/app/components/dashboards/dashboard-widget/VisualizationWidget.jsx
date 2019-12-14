@@ -37,6 +37,15 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
         "Download as CSV File"
       )}
     </Menu.Item>,
+    <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
+      {!isQueryResultEmpty ? (
+        <a href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
+          Download as TSV File
+        </a>
+      ) : (
+        "Download as TSV File"
+      )}
+    </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
         <a href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">

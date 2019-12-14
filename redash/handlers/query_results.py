@@ -368,6 +368,8 @@ class QueryResultResource(BaseResource):
                 response = self.make_json_response(query_result)
             elif filetype == "xlsx":
                 response = self.make_excel_response(query_result)
+            elif filetype == "tsv":
+                response = self.make_tsv_response(query_result)
             else:
                 response = self.make_csv_response(query_result)
 
@@ -399,6 +401,11 @@ class QueryResultResource(BaseResource):
     def make_csv_response(query_result):
         headers = {"Content-Type": "text/csv; charset=UTF-8"}
         return make_response(serialize_query_result_to_csv(query_result), 200, headers)
+
+    @staticmethod
+    def make_tsv_response(query_result):
+        headers = {"Content-Type": "text/tab-separated-values; charset=UTF-8"}
+        return make_response(serialize_query_result_to_csv(query_result, "\t"), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):

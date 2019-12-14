@@ -52,12 +52,24 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
     <Menu>
       <Menu.Item>
         <QueryResultsLink
+          fileType="csv"
           query={query}
           queryResult={queryResults}
           apiKey={$routeParams.api_key}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file" /> Download as CSV File
+        </QueryResultsLink>
+      </Menu.Item>
+      <Menu.Item>
+        <QueryResultsLink
+          fileType="tsv"
+          query={query}
+          queryResult={queryResults}
+          apiKey={$routeParams.api_key}
+          disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
+          embed>
+          <Icon type="file" /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
