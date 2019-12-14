@@ -110,7 +110,7 @@ function createMarkersLayer(options, { color, points }) {
     }
 
     if (options.tooltip.enabled) {
-      if (options.tooltip.template !== '') {
+      if (options.tooltip.template !== "") {
         marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, row)));
       } else {
         marker.bindTooltip(`
@@ -120,7 +120,7 @@ function createMarkersLayer(options, { color, points }) {
     }
 
     if (options.popup.enabled) {
-      if (options.popup.template !== '') {
+      if (options.popup.template !== "") {
         marker.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, row)));
       } else {
         marker.bindPopup(`
