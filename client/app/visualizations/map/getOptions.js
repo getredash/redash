@@ -14,6 +14,14 @@ const DEFAULT_OPTIONS = {
   backgroundColor: "#356AFF",
   borderColor: "#356AFF",
   bounds: null,
+  tooltip: {
+    enabled: false,
+    template: "",
+  },
+  popup: {
+    enabled: true,
+    template: "",
+  },
 };
 
 export default function getOptions(options) {
