@@ -1,4 +1,4 @@
-import { isFunction, each, map, toString } from "lodash";
+import { isFunction, each, map, toString, clone } from "lodash";
 import chroma from "chroma-js";
 import L from "leaflet";
 import "leaflet.markercluster";
@@ -98,6 +98,10 @@ function createMarkersLayer(options, { color, points }) {
 
   // create markers
   each(points, ({ lat, lon, row }) => {
+    const rowCopy = clone(row);
+    rowCopy[options.latColName] = lat;
+    rowCopy[options.lonColName] = lon;
+
     let marker;
     if (classify) {
       marker = createHeatpointMarker(lat, lon, color);
@@ -111,7 +115,8 @@ function createMarkersLayer(options, { color, points }) {
 
     if (options.tooltip.enabled) {
       if (options.tooltip.template !== "") {
-        marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, row)));
+
+        marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, rowCopy)));
       } else {
         marker.bindTooltip(`
           <strong>${lat}, ${lon}</strong>
@@ -121,7 +126,7 @@ function createMarkersLayer(options, { color, points }) {
 
     if (options.popup.enabled) {
       if (options.popup.template !== "") {
-        marker.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, row)));
+        marker.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, rowCopy)));
       } else {
         marker.bindPopup(`
           <ul style="list-style-type: none; padding-left: 0">

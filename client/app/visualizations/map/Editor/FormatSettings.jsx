@@ -10,6 +10,7 @@ function TemplateFormatHint() {
       <div className="p-b-5">
         All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
       </div>
+      <div className="p-b-5">Leave this field empty to use default template.</div>
     </ContextHelp>
   );
 }
@@ -36,6 +37,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
           className="w-100"
           data-test="Map.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
+          placeholder="default template"
           defaultValue={options.tooltip.template}
           onChange={event => onOptionsChangeDebounced({ tooltip: { template: event.target.value } })}
         />
@@ -57,6 +59,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
           data-test="Map.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}
+          placeholder="default template"
           defaultValue={options.popup.template}
           onChange={event => onOptionsChangeDebounced({ popup: { template: event.target.value } })}
         />
