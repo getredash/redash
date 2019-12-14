@@ -1,12 +1,12 @@
-import { isNil, map, filter, some, includes } from 'lodash';
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { useDebouncedCallback } from 'use-debounce';
-import Input from 'antd/lib/input';
-import Button from 'antd/lib/button';
-import Tooltip from 'antd/lib/tooltip';
-import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
-import List from 'react-virtualized/dist/commonjs/List';
+import { isNil, map, filter, some, includes } from "lodash";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import PropTypes from "prop-types";
+import { useDebouncedCallback } from "use-debounce";
+import Input from "antd/lib/input";
+import Button from "antd/lib/button";
+import Tooltip from "antd/lib/tooltip";
+import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
+import List from "react-virtualized/dist/commonjs/List";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -18,11 +18,14 @@ const schemaTableHeight = 22;
 const schemaColumnHeight = 18;
 
 function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
-  const handleSelect = useCallback((event, ...args) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onSelect(...args);
-  }, [onSelect]);
+  const handleSelect = useCallback(
+    (event, ...args) => {
+      event.preventDefault();
+      event.stopPropagation();
+      onSelect(...args);
+    },
+    [onSelect]
+  );
 
   if (!item) {
     return null;
@@ -34,16 +37,24 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
         <i className="fa fa-table m-r-5" />
         <strong>
           <span title="{{table.name}}">{item.name}</span>
-          {!isNil(item.size) && (<span> ({item.size})</span>)}
+          {!isNil(item.size) && <span> ({item.size})</span>}
         </strong>
-        <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" onClick={e => handleSelect(e, item.name)} />
+        <i
+          className="fa fa-angle-double-right copy-to-editor"
+          aria-hidden="true"
+          onClick={e => handleSelect(e, item.name)}
+        />
       </div>
       {expanded && (
         <div>
           {map(item.columns, column => (
             <div key={column} className="table-open">
               {column}
-              <i className="fa fa-angle-double-right copy-to-editor" aria-hidden="true" onClick={e => handleSelect(e, column)} />
+              <i
+                className="fa fa-angle-double-right copy-to-editor"
+                aria-hidden="true"
+                onClick={e => handleSelect(e, column)}
+              />
             </div>
           ))}
         </div>
@@ -78,31 +89,37 @@ function applyFilter(schema, filterString) {
   if (filters.length === 1) {
     const nameFilter = filters[0];
     const columnFilter = filters[0];
-    return filter(schema, item => (
-      includes(item.name.toLowerCase(), nameFilter) ||
-      some(item.columns, column => includes(column.toLowerCase(), columnFilter))
-    ));
+    return filter(
+      schema,
+      item =>
+        includes(item.name.toLowerCase(), nameFilter) ||
+        some(item.columns, column => includes(column.toLowerCase(), columnFilter))
+    );
   }
 
   // Two (or more) words: first matches table, seconds matches column
   const nameFilter = filters[0];
   const columnFilter = filters[1];
-  return filter(map(schema, (item) => {
-    if (includes(item.name.toLowerCase(), nameFilter)) {
-      item = { ...item, columns: filter(item.columns, column => includes(column.toLowerCase(), columnFilter)) };
-      return item.columns.length > 0 ? item : null;
-    }
-  }));
+  return filter(
+    map(schema, item => {
+      if (includes(item.name.toLowerCase(), nameFilter)) {
+        item = { ...item, columns: filter(item.columns, column => includes(column.toLowerCase(), columnFilter)) };
+        return item.columns.length > 0 ? item : null;
+      }
+    })
+  );
 }
 
 export default function SchemaBrowser({ schema, onRefresh, ...props }) {
-  const [filterString, setFilterString] = useState('');
+  const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
   const [listRef, setListRef] = useState(null);
 
-  useEffect(() => { setExpandedFlags({}); }, [schema]);
+  useEffect(() => {
+    setExpandedFlags({});
+  }, [schema]);
 
   useEffect(() => {
     if (listRef) {
@@ -147,23 +164,21 @@ export default function SchemaBrowser({ schema, onRefresh, ...props }) {
               rowCount={filteredSchema.length}
               rowHeight={({ index }) => {
                 const item = filteredSchema[index];
-                const columnCount = (expandedFlags[item.name] ? item.columns.length : 0);
+                const columnCount = expandedFlags[item.name] ? item.columns.length : 0;
                 return schemaTableHeight + schemaColumnHeight * columnCount;
               }}
-              rowRenderer={
-                ({ key, index, style }) => {
-                  const item = filteredSchema[index];
-                  return (
-                    <SchemaItem
-                      key={key}
-                      style={style}
-                      item={item}
-                      expanded={expandedFlags[item.name]}
-                      onToggle={() => toggleTable(item.name)}
-                    />
-                  );
-                }
-              }
+              rowRenderer={({ key, index, style }) => {
+                const item = filteredSchema[index];
+                return (
+                  <SchemaItem
+                    key={key}
+                    style={style}
+                    item={item}
+                    expanded={expandedFlags[item.name]}
+                    onToggle={() => toggleTable(item.name)}
+                  />
+                );
+              }}
             />
           )}
         </AutoSizer>
