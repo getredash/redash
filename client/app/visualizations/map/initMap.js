@@ -115,7 +115,6 @@ function createMarkersLayer(options, { color, points }) {
 
     if (options.tooltip.enabled) {
       if (options.tooltip.template !== "") {
-
         marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, rowCopy)));
       } else {
         marker.bindTooltip(`
