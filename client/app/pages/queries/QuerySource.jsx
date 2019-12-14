@@ -43,8 +43,11 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 function QuerySource(props) {
   const [query, setQuery] = useState(props.query);
   const [allDataSources, setAllDataSources] = useState([]);
-  const [dataSources, setDataSources] = useState([]);
   const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
+  const dataSources = useMemo(
+    () => filter(allDataSources, ds => !ds.view_only || (ds.id === query.data_source_id)),
+    [allDataSources, query.data_source_id],
+  );
   const dataSource = useMemo(() => (find(dataSources, { id: query.data_source_id }) || null), [query, dataSources]);
   const [schema, setSchema] = useState([]);
   const refreshSchemaTokenRef = useRef(null);
@@ -65,11 +68,6 @@ function QuerySource(props) {
     };
   }, []);
 
-  useEffect(() => {
-    const newDataSources = filter(allDataSources, ds => !ds.view_only || (ds.id === query.data_source_id));
-    setDataSources(newDataSources);
-  }, [allDataSources, query.data_source_id]);
-
   const reloadSchema = useCallback((refresh = undefined) => {
     const refreshToken = Math.random().toString(36).substr(2);
     refreshSchemaTokenRef.current = refreshToken;
@@ -89,7 +87,13 @@ function QuerySource(props) {
   }, [query.id]);
 
   const handleDataSourceChange = useCallback((dataSourceId) => {
-    localStorage.lastSelectedDataSourceId = dataSourceId;
+    if (dataSourceId) {
+      try {
+        localStorage.setItem('lastSelectedDataSourceId', dataSourceId);
+      } catch (e) {
+        // `localStorage.setItem` may throw exception if there are no enough space - in this case it could be ignored
+      }
+    }
     if (query.data_source_id !== dataSourceId) {
       recordEvent('update_data_source', 'query', query.id, { dataSourceId });
       const newQuery = clone(query);
@@ -106,7 +110,7 @@ function QuerySource(props) {
     if (dataSourcesLoaded && query.isNew()) {
       const firstDataSourceId = dataSources.length > 0 ? dataSources[0].id : null;
       handleDataSourceChange(chooseDataSourceId(
-        [query.data_source_id, localStorage.lastSelectedDataSourceId, firstDataSourceId],
+        [query.data_source_id, localStorage.getItem('lastSelectedDataSourceId'), firstDataSourceId],
         dataSources,
       ));
     }
