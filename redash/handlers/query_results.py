@@ -364,14 +364,13 @@ class QueryResultResource(BaseResource):
 
                 self.record_event(event)
 
-            if filetype == "json":
-                response = self.make_json_response(query_result)
-            elif filetype == "xlsx":
-                response = self.make_excel_response(query_result)
-            elif filetype == "tsv":
-                response = self.make_tsv_response(query_result)
-            else:
-                response = self.make_csv_response(query_result)
+            response_builders = {
+                'json': self.make_json_response,
+                'xlsx': self.make_excel_response,
+                'csv': self.make_csv_response,
+                'tsv': self.make_tsv_response
+            }
+            response = response_builders[filetype](query_result)
 
             if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
                 self.add_cors_headers(response.headers)
@@ -392,7 +391,8 @@ class QueryResultResource(BaseResource):
         else:
             abort(404, message="No cached result found for this query.")
 
-    def make_json_response(self, query_result):
+    @staticmethod
+    def make_json_response(query_result):
         data = json_dumps({"query_result": query_result.to_dict()})
         headers = {"Content-Type": "application/json"}
         return make_response(data, 200, headers)
