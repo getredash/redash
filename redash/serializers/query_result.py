@@ -78,7 +78,7 @@ def serialize_query_result(query_result, is_api_user):
         return query_result.to_dict()
 
 
-def serialize_query_result_to_csv(query_result, delimiter = ","):
+def serialize_query_result_to_dsv(query_result, delimiter):
     s = io.StringIO()
 
     query_data = query_result.data

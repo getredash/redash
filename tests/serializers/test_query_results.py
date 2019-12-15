@@ -6,7 +6,7 @@ from tests import BaseTestCase
 
 from redash import models
 from redash.utils import utcnow, json_dumps
-from redash.serializers import serialize_query_result, serialize_query_result_to_csv
+from redash.serializers import serialize_query_result, serialize_query_result_to_dsv
 
 
 data = {
@@ -37,10 +37,10 @@ class QueryResultSerializationTest(BaseTestCase):
         self.assertSetEqual(set(["data", "retrieved_at"]), set(serialized.keys()))
 
 
-class CsvSerializationTest(BaseTestCase):
+class DsvSerializationTest(BaseTestCase):
     def get_csv_content(self):
         query_result = self.factory.create_query_result(data=json_dumps(data))
-        return serialize_query_result_to_csv(query_result)
+        return serialize_query_result_to_dsv(query_result, ",")
 
     def test_serializes_booleans_correctly(self):
         with self.app.test_request_context("/"):

@@ -30,7 +30,7 @@ from redash.models.parameterized_query import (
 )
 from redash.serializers import (
     serialize_query_result,
-    serialize_query_result_to_csv,
+    serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
 
@@ -400,12 +400,12 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        return make_response(serialize_query_result_to_csv(query_result), 200, headers)
+        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
 
     @staticmethod
     def make_tsv_response(query_result):
         headers = {"Content-Type": "text/tab-separated-values; charset=UTF-8"}
-        return make_response(serialize_query_result_to_csv(query_result, "\t"), 200, headers)
+        return make_response(serialize_query_result_to_dsv(query_result, "\t"), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
