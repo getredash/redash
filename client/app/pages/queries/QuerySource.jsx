@@ -11,7 +11,6 @@ import recordEvent from "@/services/recordEvent";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import SchemaBrowser from "./components/SchemaBrowser";
-import saveQuery from "./saveQuery";
 
 import "./query-source.less";
 
@@ -128,17 +127,10 @@ function QuerySource(props) {
     }
   }, [query, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
-  const handleQueryChange = useCallback(
-    (changes = null, options = {}) => {
-      saveQuery(query, changes, options).then(setQuery);
-    },
-    [query]
-  );
-
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} sourceMode onChange={handleQueryChange} />
+        <QueryPageHeader query={query} sourceMode onChange={setQuery} />
       </div>
       <main className="query-fullscreen">
         <nav>
