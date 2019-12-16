@@ -1,8 +1,9 @@
-import { filter, find, map, clone, includes } from "lodash";
+import { isObject, filter, find, map, clone, includes, pick, omit, extend } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
+import Modal from "antd/lib/modal";
 import { routesToAngularRoutes } from "@/lib/utils";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
@@ -39,6 +40,98 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
   dataSourceIds = map(dataSourceIds, v => parseInt(v, 10));
   availableDataSources = map(availableDataSources, ds => ds.id);
   return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
+}
+
+function confirmOverwrite() {
+  return new Promise((resolve, reject) => {
+    Modal.confirm({
+      title: "Overwrite Query",
+      content: (
+        <React.Fragment>
+          <div className="m-b-5">It seems like the query has been modified by another user.</div>
+          <div>Are you sure you want to overwrite the query with your version?</div>
+        </React.Fragment>
+      ),
+      okText: "Overwrite",
+      okType: "danger",
+      onOk: () => {
+        resolve();
+      },
+      onCancel: () => {
+        reject();
+      },
+      maskClosable: true,
+      autoFocusButton: null,
+    });
+  });
+}
+
+function saveQuery(query, data, options) {
+  query = clone(query);
+  options = {
+    successMessage: "Query saved",
+    errorMessage: "Query could not be saved",
+    ...options,
+  };
+
+  if (isObject(data)) {
+    extend(query, data);
+    // Don't save new query with partial data
+    if (query.isNew()) {
+      return Promise.resolve(query);
+    }
+    data = { ...data, id: query.id, version: query.version };
+  } else {
+    data = pick(query, [
+      "id",
+      "version",
+      "schedule",
+      "query",
+      "description",
+      "name",
+      "data_source_id",
+      "options",
+      "latest_query_data_id",
+      "is_draft",
+    ]);
+  }
+
+  // omit pendingValue before saving
+  if (isObject(data.options) && data.options.parameters) {
+    data.options = {
+      ...data.options,
+      parameters: map(data.options.parameters, p => p.toSaveableObject()),
+    };
+  }
+
+  const promise = Query.save(data).$promise;
+
+  return promise
+    .catch(error => {
+      if (error.status === 409) {
+        const errorMessage = "It seems like the query has been modified by another user.";
+
+        if (query.can_edit) {
+          return confirmOverwrite().then(() => Query.save(omit(data, ["version"])).$promise);
+        } else {
+          notification.error(
+            "Changes not saved",
+            `${errorMessage} Please copy/backup your changes and reload this page.`,
+            { duration: null }
+          );
+        }
+      } else {
+        notification.error(options.errorMessage);
+      }
+      return Promise.reject(new Error("Changes not saved"));
+    })
+    .then(updatedQuery => {
+      notification.success(options.successMessage);
+      // Here we mutate query that might be already used as state. But we change only `version` field
+      // which is not needed to update DOM, so it's safe
+      query.version = updatedQuery.version;
+      return query;
+    });
 }
 
 function QuerySource(props) {
@@ -127,10 +220,17 @@ function QuerySource(props) {
     }
   }, [query, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
+  const handleQueryChange = useCallback(
+    (changes = null, options = {}) => {
+      saveQuery(query, changes, options).then(setQuery);
+    },
+    [query]
+  );
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} sourceMode />
+        <QueryPageHeader query={query} sourceMode onChange={handleQueryChange} />
       </div>
       <main className="query-fullscreen">
         <nav>

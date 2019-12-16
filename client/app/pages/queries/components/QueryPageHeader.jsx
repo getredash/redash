@@ -10,6 +10,7 @@ import { EditInPlace } from "@/components/EditInPlace";
 import { FavoritesControl } from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
+import recordEvent from "@/services/recordEvent";
 
 function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
@@ -49,7 +50,7 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({ query, sourceMode }) {
+export default function QueryPageHeader({ query, sourceMode, onChange }) {
   function saveName(name) {
     console.log("saveName", name);
   }
@@ -59,7 +60,8 @@ export default function QueryPageHeader({ query, sourceMode }) {
   }
 
   function togglePublished() {
-    console.log("togglePublished");
+    recordEvent("toggle_published", "query", query.id);
+    onChange({ is_draft: !query.is_draft });
   }
 
   const selectedTab = null; // TODO: replace with actual value
@@ -100,9 +102,7 @@ export default function QueryPageHeader({ query, sourceMode }) {
       unpublish: {
         isAvailable: !query.isNew() && query.can_edit && !query.is_draft,
         title: "Unpublish",
-        onClick: () => {
-          console.log("togglePublished");
-        },
+        onClick: togglePublished,
       },
     },
     {
@@ -194,8 +194,10 @@ QueryPageHeader.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   sourceMode: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 QueryPageHeader.defaultProps = {
   sourceMode: false,
+  onChange: () => {},
 };
