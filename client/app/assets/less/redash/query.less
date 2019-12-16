@@ -291,9 +291,6 @@ a.label-tag {
     min-width: 10px;
     overflow-x: hidden;
 
-    .schema-container {
-    }
-
     .editor__left__data-source,
     .schema-control,
     .query-metadata--history,
@@ -309,6 +306,16 @@ a.label-tag {
       padding: 15px;
     }
 
+    .editor__left__data-source {
+      .ant-select {
+        .ant-select-selection-selected-value {
+          img, span {
+            vertical-align: middle;
+          }
+        }
+      }
+    }
+
     .editor__left__schema {
       flex-grow: 1;
       display: flex;
@@ -317,7 +324,7 @@ a.label-tag {
       padding-top: 0 !important;
       position: relative;
 
-      schema-browser {
+      .schema-container {
         position: absolute;
         left: 15px;
         top: 0;
