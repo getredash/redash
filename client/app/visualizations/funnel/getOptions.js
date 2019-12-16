@@ -1,14 +1,14 @@
-import { isFinite, map, merge, includes } from 'lodash';
+import { isFinite, map, merge, includes } from "lodash";
 
 const DEFAULT_OPTIONS = {
-  stepCol: { colName: null, displayAs: 'Steps' },
-  valueCol: { colName: null, displayAs: 'Value' },
+  stepCol: { colName: null, displayAs: "Steps" },
+  valueCol: { colName: null, displayAs: "Value" },
   autoSort: true,
   sortKeyCol: { colName: null, reverse: false },
   itemsLimit: 100,
   percentValuesRange: { min: 0.01, max: 1000.0 },
-  numberFormat: '0,0[.]00',
-  percentFormat: '0[.]00%',
+  numberFormat: "0,0[.]00",
+  percentFormat: "0[.]00%",
 };
 
 export default function getOptions(options, { columns }) {

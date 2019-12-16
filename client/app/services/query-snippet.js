@@ -1,10 +1,10 @@
 export let QuerySnippet = null; // eslint-disable-line import/no-mutable-exports
 
 function QuerySnippetService($resource) {
-  const resource = $resource('api/query_snippets/:id', { id: '@id' });
+  const resource = $resource("api/query_snippets/:id", { id: "@id" });
   resource.prototype.getSnippet = function getSnippet() {
     let name = this.trigger;
-    if (this.description !== '') {
+    if (this.description !== "") {
       name = `${this.trigger}: ${this.description}`;
     }
 
@@ -19,10 +19,10 @@ function QuerySnippetService($resource) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('QuerySnippet', QuerySnippetService);
+  ngModule.factory("QuerySnippet", QuerySnippetService);
 
-  ngModule.run(($injector) => {
-    QuerySnippet = $injector.get('QuerySnippet');
+  ngModule.run($injector => {
+    QuerySnippet = $injector.get("QuerySnippet");
   });
 }
 

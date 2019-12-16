@@ -1,11 +1,11 @@
-import { map, keys } from 'lodash';
-import React from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import PropTypes from 'prop-types';
-import * as Grid from 'antd/lib/grid';
-import { Section, Select, Input, Checkbox, TextAlignmentSelect } from '@/components/visualizations/editor';
+import { map, keys } from "lodash";
+import React from "react";
+import { useDebouncedCallback } from "use-debounce";
+import PropTypes from "prop-types";
+import * as Grid from "antd/lib/grid";
+import { Section, Select, Input, Checkbox, TextAlignmentSelect } from "@/components/visualizations/editor";
 
-import ColumnTypes from '../columns';
+import ColumnTypes from "../columns";
 
 export default function ColumnEditor({ column, onChange }) {
   function handleChange(changes) {
@@ -41,8 +41,7 @@ export default function ColumnEditor({ column, onChange }) {
         <Checkbox
           data-test={`Table.Column.${column.name}.UseForSearch`}
           defaultChecked={column.allowSearch}
-          onChange={event => handleChange({ allowSearch: event.target.checked })}
-        >
+          onChange={event => handleChange({ allowSearch: event.target.checked })}>
           Use for search
         </Checkbox>
       </Section>
@@ -53,10 +52,11 @@ export default function ColumnEditor({ column, onChange }) {
           data-test={`Table.Column.${column.name}.DisplayAs`}
           className="w-100"
           defaultValue={column.displayAs}
-          onChange={displayAs => handleChange({ displayAs })}
-        >
+          onChange={displayAs => handleChange({ displayAs })}>
           {map(ColumnTypes, ({ friendlyName }, key) => (
-            <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>{friendlyName}</Select.Option>
+            <Select.Option key={key} data-test={`Table.Column.${column.name}.DisplayAs.${key}`}>
+              {friendlyName}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -71,7 +71,7 @@ ColumnEditor.propTypes = {
     name: PropTypes.string.isRequired,
     title: PropTypes.string,
     visible: PropTypes.bool,
-    alignContent: PropTypes.oneOf(['left', 'center', 'right']),
+    alignContent: PropTypes.oneOf(["left", "center", "right"]),
     displayAs: PropTypes.oneOf(keys(ColumnTypes)),
   }).isRequired,
   onChange: PropTypes.func,

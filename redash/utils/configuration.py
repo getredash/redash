@@ -5,7 +5,7 @@ from sqlalchemy.ext.mutable import Mutable
 
 from redash.utils import json_dumps, json_loads
 
-SECRET_PLACEHOLDER = '--------'
+SECRET_PLACEHOLDER = "--------"
 
 
 class ConfigurationContainer(Mutable):
@@ -27,10 +27,10 @@ class ConfigurationContainer(Mutable):
     def set_schema(self, schema):
         configuration_schema = copy.deepcopy(schema)
         if isinstance(configuration_schema, dict):
-            for prop in configuration_schema.get('properties', {}).values():
-                if 'extendedEnum' in prop:
-                    prop['enum'] = map(lambda v: v['value'], prop['extendedEnum'])
-                    del prop['extendedEnum']
+            for prop in configuration_schema.get("properties", {}).values():
+                if "extendedEnum" in prop:
+                    prop["enum"] = map(lambda v: v["value"], prop["extendedEnum"])
+                    del prop["extendedEnum"]
         self._schema = configuration_schema
 
     @property
@@ -58,12 +58,12 @@ class ConfigurationContainer(Mutable):
         return self._config.items()
 
     def to_dict(self, mask_secrets=False):
-        if mask_secrets is False or 'secret' not in self.schema:
+        if mask_secrets is False or "secret" not in self.schema:
             return self._config
 
         config = self._config.copy()
         for key in config:
-            if key in self.schema['secret']:
+            if key in self.schema["secret"]:
                 config[key] = SECRET_PLACEHOLDER
 
         return config
@@ -73,7 +73,7 @@ class ConfigurationContainer(Mutable):
 
         config = {}
         for k, v in new_config.items():
-            if k in self.schema.get('secret', []) and v == SECRET_PLACEHOLDER:
+            if k in self.schema.get("secret", []) and v == SECRET_PLACEHOLDER:
                 config[k] = self[k]
             else:
                 config[k] = v
