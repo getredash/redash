@@ -14,11 +14,11 @@ function getAvailableColumnMappingTypes(options) {
     result.push("series");
   }
 
-  if (some(options.seriesOptions, { type: "bubble" })) {
+  if (options.globalSeriesType === "bubble" || some(options.seriesOptions, { type: "bubble" })) {
     result.push("size");
   }
 
-  if (some(options.seriesOptions, { type: "heatmap" })) {
+  if (options.globalSeriesType === "heatmap") {
     result.push("zVal");
   }
 

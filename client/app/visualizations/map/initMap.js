@@ -1,4 +1,4 @@
-import { isFunction, each, map, toString } from "lodash";
+import { isFunction, each, map, toString, clone } from "lodash";
 import chroma from "chroma-js";
 import L from "leaflet";
 import "leaflet.markercluster";
@@ -12,6 +12,8 @@ import markerIconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
+import { formatSimpleTemplate } from "@/lib/value-format";
+import { $sanitize } from "@/services/ng";
 import resizeObserver from "@/services/resizeObserver";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
@@ -96,6 +98,10 @@ function createMarkersLayer(options, { color, points }) {
 
   // create markers
   each(points, ({ lat, lon, row }) => {
+    const rowCopy = clone(row);
+    rowCopy[options.latColName] = lat;
+    rowCopy[options.lonColName] = lon;
+
     let marker;
     if (classify) {
       marker = createHeatpointMarker(lat, lon, color);
@@ -107,12 +113,28 @@ function createMarkersLayer(options, { color, points }) {
       }
     }
 
-    marker.bindPopup(`
-      <ul style="list-style-type: none; padding-left: 0">
-        <li><strong>${lat}, ${lon}</strong>
-        ${map(row, (v, k) => `<li>${k}: ${v}</li>`).join("")}
-      </ul>
-    `);
+    if (options.tooltip.enabled) {
+      if (options.tooltip.template !== "") {
+        marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, rowCopy)));
+      } else {
+        marker.bindTooltip(`
+          <strong>${lat}, ${lon}</strong>
+        `);
+      }
+    }
+
+    if (options.popup.enabled) {
+      if (options.popup.template !== "") {
+        marker.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, rowCopy)));
+      } else {
+        marker.bindPopup(`
+          <ul style="list-style-type: none; padding-left: 0">
+            <li><strong>${lat}, ${lon}</strong>
+            ${map(row, (v, k) => `<li>${k}: ${v}</li>`).join("")}
+          </ul>
+        `);
+      }
+    }
     result.addLayer(marker);
   });
 

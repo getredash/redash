@@ -163,7 +163,7 @@ describe("Visualizations -> Chart -> Editor -> General Settings", () => {
 
     test("for heatmap", () => {
       const el = mount({
-        globalSeriesType: "column",
+        globalSeriesType: "heatmap",
         seriesOptions: {
           a: { type: "column" },
           b: { type: "bubble" },
