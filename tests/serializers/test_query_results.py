@@ -42,6 +42,10 @@ class DsvSerializationTest(BaseTestCase):
         query_result = self.factory.create_query_result(data=json_dumps(data))
         return serialize_query_result_to_dsv(query_result, ",")
 
+    def get_tsv_content(self):
+        query_result = self.factory.create_query_result(data=json_dumps(data))
+        return serialize_query_result_to_dsv(query_result, "\t")
+
     def test_serializes_booleans_correctly(self):
         with self.app.test_request_context("/"):
             parsed = csv.DictReader(io.StringIO(self.get_csv_content()))
@@ -70,3 +74,13 @@ class DsvSerializationTest(BaseTestCase):
 
         self.assertEqual(rows[3]["datetime"], "459")
         self.assertEqual(rows[3]["date"], "123")
+
+    def test_serializes_tsv_format(self):
+        with self.app.test_request_context("/"):
+            parsed = csv.DictReader(io.StringIO(self.get_tsv_content()), delimiter="\t")
+        rows = list(parsed)
+
+        self.assertEqual(rows[0]["datetime"], "26/05/19 12:39")
+        self.assertEqual(rows[1]["bool"], "false")
+        self.assertEqual(rows[2]["date"], "")
+        self.assertEqual(rows[3]["datetime"], "459")
