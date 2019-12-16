@@ -1,5 +1,5 @@
 import { extend, map, filter, reduce } from "lodash";
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Button from "antd/lib/button";
@@ -10,6 +10,10 @@ import { EditInPlace } from "@/components/EditInPlace";
 import { FavoritesControl } from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import getTags from "@/services/getTags";
+import { clientConfig } from "@/services/auth";
+import recordEvent from "@/services/recordEvent";
+
+import { saveQuery, archiveQuery, duplicateQuery } from "../utils";
 
 function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
@@ -38,7 +42,7 @@ function createMenu(menu) {
   return (
     <Menu onClick={({ key }) => handlers[key]()}>
       {reduce(
-        groups,
+        filter(groups, group => group.length > 0),
         (result, items, key) => {
           const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
           return [...result, divider, ...items];
@@ -49,72 +53,90 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({ query, sourceMode }) {
-  function saveName(name) {
-    console.log("saveName", name);
-  }
+export default function QueryPageHeader({ query, sourceMode, onChange }) {
+  const saveName = useCallback(
+    name => {
+      recordEvent("edit_name", "query", query.id);
+      const changes = { name };
+      const options = {};
 
-  function saveTags(tags) {
-    console.log("saveTags", tags);
-  }
+      if (query.is_draft && clientConfig.autoPublishNamedQueries && query.name !== "New Query") {
+        changes.is_draft = false;
+        options.successMessage = "Query saved and published";
+      }
 
-  function togglePublished() {
-    console.log("togglePublished");
-  }
+      saveQuery(query, changes, options).then(onChange);
+    },
+    [query, onChange]
+  );
+
+  const saveTags = useCallback(
+    tags => {
+      saveQuery(query, { tags }).then(onChange);
+    },
+    [query, onChange]
+  );
+
+  const togglePublished = useCallback(() => {
+    recordEvent("toggle_published", "query", query.id);
+    saveQuery(query, { is_draft: !query.is_draft }).then(onChange);
+  }, [query, onChange]);
 
   const selectedTab = null; // TODO: replace with actual value
   const canViewSource = true; // TODO: replace with actual value
   const canForkQuery = () => true; // TODO: replace with actual value
   const showPermissionsControl = true; // TODO: replace with actual value
 
-  const moreActionsMenu = [
-    {
-      fork: {
-        isEnabled: !query.isNew() && canForkQuery(),
-        title: (
-          <React.Fragment>
-            Fork
-            <i className="fa fa-external-link m-l-5" />
-          </React.Fragment>
-        ),
-        onClick: () => {
-          console.log("duplicateQuery");
+  const moreActionsMenu = useMemo(
+    () =>
+      createMenu([
+        {
+          fork: {
+            isEnabled: !query.isNew() && canForkQuery(),
+            title: (
+              <React.Fragment>
+                Fork
+                <i className="fa fa-external-link m-l-5" />
+              </React.Fragment>
+            ),
+            onClick: () => {
+              duplicateQuery(query);
+            },
+          },
         },
-      },
-    },
-    {
-      archive: {
-        isAvailable: !query.isNew() && query.can_edit && !query.is_archived,
-        title: "Archive",
-        onClick: () => {
-          console.log("archiveQuery");
+        {
+          archive: {
+            isAvailable: !query.isNew() && query.can_edit && !query.is_archived,
+            title: "Archive",
+            onClick: () => {
+              archiveQuery(query).then(onChange);
+            },
+          },
+          managePermissions: {
+            isAvailable: !query.isNew() && query.can_edit && !query.is_archived && showPermissionsControl,
+            title: "Manage Permissions",
+            onClick: () => {
+              console.log("showManagePermissionsModal");
+            },
+          },
+          unpublish: {
+            isAvailable: !query.isNew() && query.can_edit && !query.is_draft,
+            title: "Unpublish",
+            onClick: togglePublished,
+          },
         },
-      },
-      managePermissions: {
-        isAvailable: !query.isNew() && query.can_edit && !query.is_archived && showPermissionsControl,
-        title: "Manage Permissions",
-        onClick: () => {
-          console.log("showManagePermissionsModal");
+        {
+          showAPIKey: {
+            isAvailable: !query.isNew(),
+            title: "Show API Key",
+            onClick: () => {
+              console.log("showApiKey");
+            },
+          },
         },
-      },
-      unpublish: {
-        isAvailable: !query.isNew() && query.can_edit && !query.is_draft,
-        title: "Unpublish",
-        onClick: () => {
-          console.log("togglePublished");
-        },
-      },
-    },
-    {
-      showAPIKey: {
-        isAvailable: !query.isNew(),
-        title: "Show API Key",
-        onClick: () => {
-          console.log("showApiKey");
-        },
-      },
-    },
-  ];
+      ]),
+    [showPermissionsControl, query, togglePublished, onChange]
+  );
 
   return (
     <div className="p-b-10 page-header--new page-header--query">
@@ -139,7 +161,7 @@ export default function QueryPageHeader({ query, sourceMode }) {
             </span>
           </h3>
           <span className="flex-fill" />
-          {query.is_draft && !query.isNew() && query.can_edit && (
+          {query.is_draft && !query.is_archived && !query.isNew() && query.can_edit && (
             <Button className="hidden-xs m-r-5" onClick={togglePublished}>
               <i className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
@@ -161,7 +183,7 @@ export default function QueryPageHeader({ query, sourceMode }) {
           )}
 
           {!query.isNew() && (
-            <Dropdown overlay={createMenu(moreActionsMenu)} trigger={["click"]}>
+            <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
               <Button>
                 <Icon type="ellipsis" rotate={90} />
               </Button>
@@ -194,8 +216,10 @@ QueryPageHeader.propTypes = {
     tags: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   sourceMode: PropTypes.bool,
+  onChange: PropTypes.func,
 };
 
 QueryPageHeader.defaultProps = {
   sourceMode: false,
+  onChange: () => {},
 };

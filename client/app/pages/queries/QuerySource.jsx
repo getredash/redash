@@ -130,7 +130,7 @@ function QuerySource(props) {
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} sourceMode />
+        <QueryPageHeader query={query} sourceMode onChange={setQuery} />
       </div>
       <main className="query-fullscreen">
         <nav>
