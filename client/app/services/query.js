@@ -107,7 +107,10 @@ class Parameters {
   }
 
   getMissing() {
-    return map(filter(this.get(), p => p.isEmpty), i => i.title);
+    return map(
+      filter(this.get(), p => p.isEmpty),
+      i => i.title
+    );
   }
 
   isRequired() {
@@ -116,7 +119,10 @@ class Parameters {
 
   getExecutionValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getExecutionValue(extra)));
+    return zipObject(
+      map(params, i => i.name),
+      map(params, i => i.getExecutionValue(extra))
+    );
   }
 
   hasPendingValues() {

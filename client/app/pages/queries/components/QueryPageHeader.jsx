@@ -1,55 +1,65 @@
-import { extend, map, filter, reduce } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Button from 'antd/lib/button';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
-import Icon from 'antd/lib/icon';
-import { EditInPlace } from '@/components/EditInPlace';
-import { FavoritesControl } from '@/components/FavoritesControl';
-import { QueryTagsControl } from '@/components/tags-control/TagsControl';
-import getTags from '@/services/getTags';
+import { extend, map, filter, reduce } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Button from "antd/lib/button";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import Icon from "antd/lib/icon";
+import { EditInPlace } from "@/components/EditInPlace";
+import { FavoritesControl } from "@/components/FavoritesControl";
+import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import getTags from "@/services/getTags";
 
 function getQueryTags() {
-  return getTags('api/queries/tags').then(tags => map(tags, t => t.name));
+  return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
 }
 
 function createMenu(menu) {
   const handlers = {};
 
-  const groups = map(menu, group => (
-    filter(map(group, (props, key) => {
-      props = extend({ isAvailable: true, isEnabled: true, onClick: () => {} }, props);
-      if (props.isAvailable) {
-        handlers[key] = props.onClick;
-        return <Menu.Item key={key} disabled={!props.isEnabled}>{props.title}</Menu.Item>;
-      }
-      return null;
-    }))
-  ));
+  const groups = map(menu, group =>
+    filter(
+      map(group, (props, key) => {
+        props = extend({ isAvailable: true, isEnabled: true, onClick: () => {} }, props);
+        if (props.isAvailable) {
+          handlers[key] = props.onClick;
+          return (
+            <Menu.Item key={key} disabled={!props.isEnabled}>
+              {props.title}
+            </Menu.Item>
+          );
+        }
+        return null;
+      })
+    )
+  );
 
   return (
     <Menu onClick={({ key }) => handlers[key]()}>
-      {reduce(groups, (result, items, key) => {
-        const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
-        return [...result, divider, ...items];
-      }, [])}
+      {reduce(
+        groups,
+        (result, items, key) => {
+          const divider = result.length > 0 ? <Menu.Divider key={`divider${key}`} /> : null;
+          return [...result, divider, ...items];
+        },
+        []
+      )}
     </Menu>
   );
 }
 
 export default function QueryPageHeader({ query, sourceMode }) {
   function saveName(name) {
-    console.log('saveName', name);
+    console.log("saveName", name);
   }
 
   function saveTags(tags) {
-    console.log('saveTags', tags);
+    console.log("saveTags", tags);
   }
 
   function togglePublished() {
-    console.log('togglePublished');
+    console.log("togglePublished");
   }
 
   const selectedTab = null; // TODO: replace with actual value
@@ -61,32 +71,47 @@ export default function QueryPageHeader({ query, sourceMode }) {
     {
       fork: {
         isEnabled: !query.isNew() && canForkQuery(),
-        title: <React.Fragment>Fork<i className="fa fa-external-link m-l-5" /></React.Fragment>,
-        onClick: () => { console.log('duplicateQuery'); },
+        title: (
+          <React.Fragment>
+            Fork
+            <i className="fa fa-external-link m-l-5" />
+          </React.Fragment>
+        ),
+        onClick: () => {
+          console.log("duplicateQuery");
+        },
       },
     },
     {
       archive: {
         isAvailable: !query.isNew() && query.can_edit && !query.is_archived,
-        title: 'Archive',
-        onClick: () => { console.log('archiveQuery'); },
+        title: "Archive",
+        onClick: () => {
+          console.log("archiveQuery");
+        },
       },
       managePermissions: {
         isAvailable: !query.isNew() && query.can_edit && !query.is_archived && showPermissionsControl,
-        title: 'Manage Permissions',
-        onClick: () => { console.log('showManagePermissionsModal'); },
+        title: "Manage Permissions",
+        onClick: () => {
+          console.log("showManagePermissionsModal");
+        },
       },
       unpublish: {
         isAvailable: !query.isNew() && query.can_edit && !query.is_draft,
-        title: 'Unpublish',
-        onClick: () => { console.log('togglePublished'); },
+        title: "Unpublish",
+        onClick: () => {
+          console.log("togglePublished");
+        },
       },
     },
     {
       showAPIKey: {
         isAvailable: !query.isNew(),
-        title: 'Show API Key',
-        onClick: () => { console.log('showApiKey'); },
+        title: "Show API Key",
+        onClick: () => {
+          console.log("showApiKey");
+        },
       },
     },
   ];
@@ -101,14 +126,8 @@ export default function QueryPageHeader({ query, sourceMode }) {
             </span>
           )}
           <h3>
-            <EditInPlace
-              isEditable={query.can_edit}
-              onDone={saveName}
-              ignoreBlanks
-              value={query.name}
-              editor="input"
-            />
-            <span className={cx('m-l-10', 'query-tags', { 'query-tags__empty': query.tags.length === 0 })}>
+            <EditInPlace isEditable={query.can_edit} onDone={saveName} ignoreBlanks value={query.name} editor="input" />
+            <span className={cx("m-l-10", "query-tags", { "query-tags__empty": query.tags.length === 0 })}>
               <QueryTagsControl
                 tags={query.tags}
                 isDraft={query.is_draft}
@@ -142,12 +161,14 @@ export default function QueryPageHeader({ query, sourceMode }) {
           )}
 
           {!query.isNew() && (
-            <Dropdown overlay={createMenu(moreActionsMenu)} trigger={['click']}>
-              <Button><Icon type="ellipsis" rotate={90} /></Button>
+            <Dropdown overlay={createMenu(moreActionsMenu)} trigger={["click"]}>
+              <Button>
+                <Icon type="ellipsis" rotate={90} />
+              </Button>
             </Dropdown>
           )}
         </div>
-        <span className={cx('query-tags__mobile', { 'query-tags__empty': query.tags.length === 0 })}>
+        <span className={cx("query-tags__mobile", { "query-tags__empty": query.tags.length === 0 })}>
           <QueryTagsControl
             tags={query.tags}
             isDraft={query.is_draft}
