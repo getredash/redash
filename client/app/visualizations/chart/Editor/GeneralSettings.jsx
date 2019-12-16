@@ -14,7 +14,7 @@ function getAvailableColumnMappingTypes(options) {
     result.push("series");
   }
 
-  if ((options.globalSeriesType === "bubble") || some(options.seriesOptions, { type: "bubble" })) {
+  if (options.globalSeriesType === "bubble" || some(options.seriesOptions, { type: "bubble" })) {
     result.push("size");
   }
 
