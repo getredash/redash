@@ -5,6 +5,7 @@ import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import CodeBlock from "@/components/CodeBlock";
 import { $http } from "@/services/ng";
 import { clientConfig } from "@/services/auth";
 import notification from "@/services/notification";
@@ -41,7 +42,7 @@ function ApiKeyDialog({ dialog, ...props }) {
     <Modal {...dialog.props} width={600} footer={<Button onClick={() => dialog.close(query)}>Close</Button>}>
       <div className="query-api-key-dialog-wrapper">
         <h5>API Key</h5>
-        <div className="m-b-15">
+        <div className="m-b-20">
           <Input.Group compact>
             <Input readOnly value={query.api_key} />
             {query.can_edit && (
@@ -53,11 +54,13 @@ function ApiKeyDialog({ dialog, ...props }) {
         </div>
 
         <h5>Example API Calls:</h5>
+        <div className="m-b-10">
+          <label>Results in CSV format:</label>
+          <CodeBlock copyable>{csvUrl}</CodeBlock>
+        </div>
         <div>
-          Results in CSV format:
-          <pre>{csvUrl}</pre>
-          Results in JSON format:
-          <pre>{jsonUrl}</pre>
+          <label>Results in JSON format:</label>
+          <CodeBlock copyable>{jsonUrl}</CodeBlock>
         </div>
       </div>
     </Modal>
