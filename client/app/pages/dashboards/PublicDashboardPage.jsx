@@ -1,24 +1,24 @@
-import React from 'react';
-import { isEmpty } from 'lodash';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import BigMessage from '@/components/BigMessage';
-import { PageHeader } from '@/components/PageHeader';
-import { Parameters } from '@/components/Parameters';
-import DashboardGrid from '@/components/dashboards/DashboardGrid';
-import Filters from '@/components/Filters';
-import { Dashboard } from '@/services/dashboard';
-import { $route as ngRoute } from '@/services/ng';
-import PromiseRejectionError from '@/lib/promise-rejection-error';
-import logoUrl from '@/assets/images/redash_icon_small.png';
-import useDashboard from './useDashboard';
+import React from "react";
+import { isEmpty } from "lodash";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
+import BigMessage from "@/components/BigMessage";
+import { PageHeader } from "@/components/PageHeader";
+import { Parameters } from "@/components/Parameters";
+import DashboardGrid from "@/components/dashboards/DashboardGrid";
+import Filters from "@/components/Filters";
+import { Dashboard } from "@/services/dashboard";
+import { $route as ngRoute } from "@/services/ng";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
+import logoUrl from "@/assets/images/redash_icon_small.png";
+import useDashboard from "./useDashboard";
 
-import './PublicDashboardPage.less';
-
+import "./PublicDashboardPage.less";
 
 function PublicDashboard({ dashboard }) {
-  const { globalParameters, filters, setFilters,
-    refreshDashboard, loadWidget, refreshWidget } = useDashboard(dashboard);
+  const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
+    dashboard
+  );
 
   return (
     <div className="container p-t-10 p-b-20">
@@ -59,9 +59,11 @@ class PublicDashboardPage extends React.Component {
   };
 
   componentDidMount() {
-    Dashboard.getByToken({ token: ngRoute.current.params.token }).$promise
-      .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch((error) => { throw new PromiseRejectionError(error); });
+    Dashboard.getByToken({ token: ngRoute.current.params.token })
+      .$promise.then(dashboard => this.setState({ dashboard, loading: false }))
+      .catch(error => {
+        throw new PromiseRejectionError(error);
+      });
   }
 
   render() {
@@ -70,18 +72,16 @@ class PublicDashboardPage extends React.Component {
       <div className="public-dashboard-page">
         {loading ? (
           <div className="container loading-message">
-            <BigMessage
-              className=""
-              icon="fa-spinner fa-2x fa-pulse"
-              message="Loading..."
-            />
+            <BigMessage className="" icon="fa-spinner fa-2x fa-pulse" message="Loading..." />
           </div>
         ) : (
           <PublicDashboard dashboard={dashboard} />
         )}
         <div id="footer">
           <div className="text-center">
-            <a href="https://redash.io"><img alt="Redash Logo" src={logoUrl} width="38" /></a>
+            <a href="https://redash.io">
+              <img alt="Redash Logo" src={logoUrl} width="38" />
+            </a>
           </div>
           Powered by <a href="https://redash.io/?ref=public-dashboard">Redash</a>
         </div>
@@ -91,7 +91,7 @@ class PublicDashboardPage extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('publicDashboardPage', react2angular(PublicDashboardPage));
+  ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
 
   function session($route, Auth) {
     const token = $route.current.params.token;
@@ -99,9 +99,9 @@ export default function init(ngModule) {
     return Auth.loadConfig();
   }
 
-  ngModule.config(($routeProvider) => {
-    $routeProvider.when('/public/dashboards/:token', {
-      template: '<public-dashboard-page></public-dashboard-page>',
+  ngModule.config($routeProvider => {
+    $routeProvider.when("/public/dashboards/:token", {
+      template: "<public-dashboard-page></public-dashboard-page>",
       reloadOnSearch: false,
       resolve: {
         session,
