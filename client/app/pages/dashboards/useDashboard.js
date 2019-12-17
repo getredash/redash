@@ -294,9 +294,12 @@ function useDashboard(dashboardData) {
 
   useEffect(() => {
     setDashboard(dashboardData);
-    document.title = dashboardData.name;
     loadDashboard();
   }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    document.title = dashboard.name;
+  }, [dashboard.name]);
 
   // reload dashboard when filter option changes
   useEffect(() => {
