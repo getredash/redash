@@ -28,33 +28,33 @@ import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
   const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
-  const currentVisualization = useMemo(() => find(query.visualizations, { id: selectedTab }), [query.visualizations, selectedTab])
+  const currentVisualization = useMemo(() => find(query.visualizations, { id: selectedTab }), [
+    query.visualizations,
+    selectedTab,
+  ]);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dataSource, setDataSource] = useState();
   const queryResult = useMemo(() => query.getQueryResult(), [query]);
   const queryResultData = useQueryResult(queryResult);
 
   const saveDescription = useCallback(
-    (description) => {
+    description => {
       recordEvent("edit_description", "query", query.id);
       updateQuery(query, { description }).then(setQuery);
     },
-    [query],
+    [query]
   );
 
-  const openVisualizationEditor = useCallback(
-    () => {
-      EditVisualizationDialog.showModal({
-        query,
-        visualization: currentVisualization,
-        queryResult,
-      }).result.then(visualization => {
-        setSelectedTab(visualization.id);
-        // TODO: Properly update state
-      });
-    },
-    [currentVisualization, query, queryResult, setSelectedTab],
-  );
+  const openVisualizationEditor = useCallback(() => {
+    EditVisualizationDialog.showModal({
+      query,
+      visualization: currentVisualization,
+      queryResult,
+    }).result.then(visualization => {
+      setSelectedTab(visualization.id);
+      // TODO: Properly update state
+    });
+  }, [currentVisualization, query, queryResult, setSelectedTab]);
 
   useEffect(() => {
     document.title = query.name;
@@ -103,7 +103,8 @@ function QueryView(props) {
             )}
             <span className="flex-fill" />
             <div className="query-property">
-              <i className="zmdi zmdi-refresh m-r-5" />Refresh Schedule
+              <i className="zmdi zmdi-refresh m-r-5" />
+              Refresh Schedule
               <a className="clickable m-l-5">
                 <SchedulePhrase schedule={query.schedule} isNew={false} />
               </a>
@@ -128,11 +129,13 @@ function QueryView(props) {
               queryResult={queryResult}
               queryExecuting={false} /* TODO: Replace with executing state */
               showEmbedDialog={() => EmbedQueryDialog.showEmbedDialog({ query, visualization: currentVisualization })}
-              openAddToDashboardForm={() => AddToDashboardDialog.showModal({
-                visualization: currentVisualization,
-              })}
+              openAddToDashboardForm={() =>
+                AddToDashboardDialog.showModal({
+                  visualization: currentVisualization,
+                })
+              }
             />
-            {(queryResult && queryResultData) && (
+            {queryResult && queryResultData && (
               <>
                 <span className="m-l-10">
                   <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
@@ -146,8 +149,7 @@ function QueryView(props) {
             <span className="flex-fill" />
             {queryResult && (
               <span className="m-r-10 hidden-xs">
-                Updated{" "}
-                <TimeAgo date={queryResult.query_result.retrieved_at} />
+                Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
               </span>
             )}
             <Button type="primary">Execute</Button>
