@@ -62,6 +62,9 @@ class AppViewComponent {
     $rootScope.$on("$routeChangeSuccess", (event, route) => {
       const $$route = route.$$route || { authenticated: true };
       this.applyLayout($$route);
+      if (route.title) {
+        document.title = route.title;
+      }
     });
 
     $rootScope.$on("$routeChangeError", (event, current, previous, rejection) => {

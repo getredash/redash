@@ -92,6 +92,10 @@ function QuerySource(props) {
     recordEvent("view_source", "query", query.id);
   }, [query.id]);
 
+  useEffect(() => {
+    document.title = query.name;
+  }, [query.name]);
+
   const handleDataSourceChange = useCallback(
     dataSourceId => {
       if (dataSourceId) {
@@ -185,7 +189,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries/new2",
+          path: "/queries-react/new",
         },
       ],
       {
@@ -200,7 +204,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries/:queryId/source2",
+          path: "/queries-react/:queryId/source",
         },
       ],
       {

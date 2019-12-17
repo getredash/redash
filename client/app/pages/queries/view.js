@@ -9,7 +9,7 @@ import { newVisualization } from "@/visualizations";
 import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
-import PermissionsEditorDialog from "@/components/permissions-editor/PermissionsEditorDialog";
+import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import notification from "@/services/notification";
 import template from "./query.html";
 
@@ -22,7 +22,6 @@ function QueryViewCtrl(
   $window,
   $q,
   KeyboardShortcuts,
-  Title,
   AlertDialog,
   clientConfig,
   $uibModal,
@@ -414,7 +413,7 @@ function QueryViewCtrl(
   };
 
   $scope.$watch("query.name", () => {
-    Title.set($scope.query.name);
+    document.title = $scope.query.name;
   });
 
   $scope.$watch("queryResult && queryResult.getStatus()", status => {
