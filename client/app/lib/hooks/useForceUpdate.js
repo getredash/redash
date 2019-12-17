@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function useForceUpdate() {
   const [, setValue] = useState(false);

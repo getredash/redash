@@ -1,9 +1,8 @@
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;
-export const IMG_ROOT = '/static/images/db-logos';
+export const IMG_ROOT = "/static/images/db-logos";
 
 export let DataSource = null; // eslint-disable-line import/no-mutable-exports
-
 
 function DataSourceService($q, $resource, $http) {
   function fetchSchema(dataSourceId, refresh = false) {
@@ -17,28 +16,28 @@ function DataSourceService($q, $resource, $http) {
   }
 
   const actions = {
-    get: { method: 'GET', cache: false, isArray: false },
-    query: { method: 'GET', cache: false, isArray: true },
-    save: { method: 'POST' },
+    get: { method: "GET", cache: false, isArray: false },
+    query: { method: "GET", cache: false, isArray: true },
+    save: { method: "POST" },
     types: {
-      method: 'GET',
+      method: "GET",
       cache: false,
       isArray: true,
-      url: 'api/data_sources/types',
+      url: "api/data_sources/types",
     },
     test: {
-      method: 'POST',
+      method: "POST",
       cache: false,
       isArray: false,
-      url: 'api/data_sources/:id/test',
+      url: "api/data_sources/:id/test",
     },
   };
 
-  const DataSourceResource = $resource('api/data_sources/:id', { id: '@id' }, actions);
+  const DataSourceResource = $resource("api/data_sources/:id", { id: "@id" }, actions);
 
   DataSourceResource.prototype.getSchema = function getSchema(refresh = false) {
     if (this._schema === undefined || refresh) {
-      return fetchSchema(this.id, refresh).then((response) => {
+      return fetchSchema(this.id, refresh).then(response => {
         const data = response.data;
 
         this._schema = data;
@@ -54,10 +53,10 @@ function DataSourceService($q, $resource, $http) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('DataSource', DataSourceService);
+  ngModule.factory("DataSource", DataSourceService);
 
-  ngModule.run(($injector) => {
-    DataSource = $injector.get('DataSource');
+  ngModule.run($injector => {
+    DataSource = $injector.get("DataSource");
   });
 }
 

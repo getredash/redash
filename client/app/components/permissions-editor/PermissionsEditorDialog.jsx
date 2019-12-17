@@ -1,51 +1,64 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { each, debounce, get, find } from 'lodash';
-import Button from 'antd/lib/button';
-import List from 'antd/lib/list';
-import Modal from 'antd/lib/modal';
-import Select from 'antd/lib/select';
-import Tag from 'antd/lib/tag';
-import Tooltip from 'antd/lib/tooltip';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import { $http } from '@/services/ng';
-import { toHuman } from '@/filters';
-import HelpTrigger from '@/components/HelpTrigger';
-import { UserPreviewCard } from '@/components/PreviewCard';
-import notification from '@/services/notification';
-import { User } from '@/services/user';
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { each, debounce, get, find } from "lodash";
+import Button from "antd/lib/button";
+import List from "antd/lib/list";
+import Modal from "antd/lib/modal";
+import Select from "antd/lib/select";
+import Tag from "antd/lib/tag";
+import Tooltip from "antd/lib/tooltip";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import { $http } from "@/services/ng";
+import { toHuman } from "@/filters";
+import HelpTrigger from "@/components/HelpTrigger";
+import { UserPreviewCard } from "@/components/PreviewCard";
+import notification from "@/services/notification";
+import { User } from "@/services/user";
 
-import './PermissionsEditorDialog.less';
+import "./PermissionsEditorDialog.less";
 
 const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;
 
 function useGrantees(url) {
-  const loadGrantees = useCallback(() => $http.get(url).then(({ data }) => {
-    const resultGrantees = [];
-    each(data, (grantees, accessType) => {
-      grantees.forEach((grantee) => {
-        grantee.accessType = toHuman(accessType);
-        resultGrantees.push(grantee);
-      });
-    });
-    return resultGrantees;
-  }), [url]);
+  const loadGrantees = useCallback(
+    () =>
+      $http.get(url).then(({ data }) => {
+        const resultGrantees = [];
+        each(data, (grantees, accessType) => {
+          grantees.forEach(grantee => {
+            grantee.accessType = toHuman(accessType);
+            resultGrantees.push(grantee);
+          });
+        });
+        return resultGrantees;
+      }),
+    [url]
+  );
 
-  const addPermission = useCallback((userId, accessType = 'modify') => $http.post(
-    url, { access_type: accessType, user_id: userId },
-  ).catch(() => notification.error('Could not grant permission to the user'), [url]));
+  const addPermission = useCallback(
+    (userId, accessType = "modify") =>
+      $http
+        .post(url, { access_type: accessType, user_id: userId })
+        .catch(() => notification.error("Could not grant permission to the user")),
+    [url]
+  );
 
-  const removePermission = useCallback((userId, accessType = 'modify') => $http.delete(
-    url, { data: { access_type: accessType, user_id: userId } },
-  ).catch(() => notification.error('Could not remove permission from the user')), [url]);
+  const removePermission = useCallback(
+    (userId, accessType = "modify") =>
+      $http
+        .delete(url, { data: { access_type: accessType, user_id: userId } })
+        .catch(() => notification.error("Could not remove permission from the user")),
+    [url]
+  );
 
   return { loadGrantees, addPermission, removePermission };
 }
 
-const searchUsers = searchTerm => User.query({ q: searchTerm }).$promise
-  .then(({ results }) => results)
-  .catch(() => []);
+const searchUsers = searchTerm =>
+  User.query({ q: searchTerm })
+    .$promise.then(({ results }) => results)
+    .catch(() => []);
 
 function PermissionsEditorDialogHeader({ context }) {
   return (
@@ -59,25 +72,29 @@ function PermissionsEditorDialogHeader({ context }) {
   );
 }
 
-PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(['query', 'dashboard']) };
-PermissionsEditorDialogHeader.defaultProps = { context: 'query' };
+PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(["query", "dashboard"]) };
+PermissionsEditorDialogHeader.defaultProps = { context: "query" };
 
 function UserSelect({ onSelect, shouldShowUser }) {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const debouncedSearchUsers = useCallback(debounce(
-    search => searchUsers(search)
-      .then(setUsers)
-      .finally(() => setLoadingUsers(false)),
-    DEBOUNCE_SEARCH_DURATION,
-  ), []);
+  const debouncedSearchUsers = useCallback(
+    debounce(
+      search =>
+        searchUsers(search)
+          .then(setUsers)
+          .finally(() => setLoadingUsers(false)),
+      DEBOUNCE_SEARCH_DURATION
+    ),
+    []
+  );
 
   useEffect(() => {
     setLoadingUsers(true);
     debouncedSearchUsers(searchTerm);
-  }, [searchTerm]);
+  }, [debouncedSearchUsers, searchTerm]);
 
   return (
     <Select
@@ -90,8 +107,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
       notFoundContent={null}
       value={undefined}
       getPopupContainer={trigger => trigger.parentNode}
-      onSelect={onSelect}
-    >
+      onSelect={onSelect}>
       {users.filter(shouldShowUser).map(user => (
         <Option key={user.id} value={user.id}>
           <UserPreviewCard user={user} />
@@ -115,26 +131,25 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
     setLoadingGrantees(true);
     loadGrantees()
       .then(setGrantees)
-      .catch(() => notification.error('Failed to load grantees list'))
+      .catch(() => notification.error("Failed to load grantees list"))
       .finally(() => setLoadingGrantees(false));
-  }, []);
+  }, [loadGrantees]);
 
   const userHasPermission = useCallback(
-    user => (user.id === author.id || !!get(find(grantees, { id: user.id }), 'accessType')),
-    [grantees],
+    user => user.id === author.id || !!get(find(grantees, { id: user.id }), "accessType"),
+    [author.id, grantees]
   );
 
   useEffect(() => {
     loadUsersWithPermissions();
-  }, [aclUrl]);
+  }, [aclUrl, loadUsersWithPermissions]);
 
   return (
     <Modal
       {...dialog.props}
       className="permissions-editor-dialog"
       title={<PermissionsEditorDialogHeader context={context} />}
-      footer={(<Button onClick={dialog.dismiss}>Close</Button>)}
-    >
+      footer={<Button onClick={dialog.dismiss}>Close</Button>}>
       <UserSelect
         onSelect={userId => addPermission(userId).then(loadUsersWithPermissions)}
         shouldShowUser={user => !userHasPermission(user)}
@@ -143,14 +158,16 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
         <h5 className="flex-fill">Users with permissions</h5>
         {loadingGrantees && <i className="fa fa-spinner fa-pulse" />}
       </div>
-      <div className="scrollbox p-5" style={{ maxHeight: '40vh' }}>
+      <div className="scrollbox p-5" style={{ maxHeight: "40vh" }}>
         <List
           size="small"
           dataSource={[author, ...grantees]}
           renderItem={user => (
             <List.Item>
               <UserPreviewCard key={user.id} user={user}>
-                {user.id === author.id ? (<Tag className="m-0">Author</Tag>) : (
+                {user.id === author.id ? (
+                  <Tag className="m-0">Author</Tag>
+                ) : (
                   <Tooltip title="Remove user permissions">
                     <i
                       className="fa fa-remove clickable"
@@ -170,10 +187,10 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
 PermissionsEditorDialog.propTypes = {
   dialog: DialogPropType.isRequired,
   author: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-  context: PropTypes.oneOf(['query', 'dashboard']),
+  context: PropTypes.oneOf(["query", "dashboard"]),
   aclUrl: PropTypes.string.isRequired,
 };
 
-PermissionsEditorDialog.defaultProps = { context: 'query' };
+PermissionsEditorDialog.defaultProps = { context: "query" };
 
 export default wrapDialog(PermissionsEditorDialog);

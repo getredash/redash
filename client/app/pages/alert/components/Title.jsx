@@ -1,10 +1,9 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Input from 'antd/lib/input';
-import { getDefaultName } from '../Alert';
+import React from "react";
+import PropTypes from "prop-types";
+import Input from "antd/lib/input";
+import { getDefaultName } from "../Alert";
 
-import { Alert as AlertType } from '@/components/proptypes';
-
+import { Alert as AlertType } from "@/components/proptypes";
 
 export default function Title({ alert, editMode, name, onChange, children }) {
   const defaultName = getDefaultName(alert);
@@ -13,10 +12,17 @@ export default function Title({ alert, editMode, name, onChange, children }) {
       <div className="d-flex">
         <h3>
           {editMode && alert.query ? (
-            <Input className="f-inherit" placeholder={defaultName} value={name} onChange={e => onChange(e.target.value)} />
-          ) : name || defaultName }
+            <Input
+              className="f-inherit"
+              placeholder={defaultName}
+              value={name}
+              onChange={e => onChange(e.target.value)}
+            />
+          ) : (
+            name || defaultName
+          )}
         </h3>
-        <span className="alert-actions">{ children }</span>
+        <span className="alert-actions">{children}</span>
       </div>
     </div>
   );

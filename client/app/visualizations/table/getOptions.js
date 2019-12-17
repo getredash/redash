@@ -1,28 +1,28 @@
-import _ from 'lodash';
-import { getColumnCleanName } from '@/services/query-result';
-import { clientConfig } from '@/services/auth';
+import _ from "lodash";
+import { getColumnCleanName } from "@/services/query-result";
+import { clientConfig } from "@/services/auth";
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 25,
 };
 
 function getColumnContentAlignment(type) {
-  return ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(type) >= 0 ? 'right' : 'left';
+  return ["integer", "float", "boolean", "date", "datetime"].indexOf(type) >= 0 ? "right" : "left";
 }
 
 function getDefaultColumnsOptions(columns) {
   const displayAs = {
-    integer: 'number',
-    float: 'number',
-    boolean: 'boolean',
-    date: 'datetime',
-    datetime: 'datetime',
+    integer: "number",
+    float: "number",
+    boolean: "boolean",
+    date: "datetime",
+    datetime: "datetime",
   };
 
   return _.map(columns, (col, index) => ({
     name: col.name,
     type: col.type,
-    displayAs: displayAs[col.type] || 'string',
+    displayAs: displayAs[col.type] || "string",
     visible: true,
     order: 100000 + index,
     title: getColumnCleanName(col.name),
@@ -36,26 +36,26 @@ function getDefaultColumnsOptions(columns) {
 
 function getDefaultFormatOptions(column) {
   const dateTimeFormat = {
-    date: clientConfig.dateFormat || 'DD/MM/YYYY',
-    datetime: clientConfig.dateTimeFormat || 'DD/MM/YYYY HH:mm',
+    date: clientConfig.dateFormat || "DD/MM/YYYY",
+    datetime: clientConfig.dateTimeFormat || "DD/MM/YYYY HH:mm",
   };
   const numberFormat = {
-    integer: clientConfig.integerFormat || '0,0',
-    float: clientConfig.floatFormat || '0,0.00',
+    integer: clientConfig.integerFormat || "0,0",
+    float: clientConfig.floatFormat || "0,0.00",
   };
   return {
     dateTimeFormat: dateTimeFormat[column.type],
     numberFormat: numberFormat[column.type],
-    booleanValues: clientConfig.booleanValues || ['false', 'true'],
+    booleanValues: clientConfig.booleanValues || ["false", "true"],
     // `image` cell options
-    imageUrlTemplate: '{{ @ }}',
-    imageTitleTemplate: '{{ @ }}',
-    imageWidth: '',
-    imageHeight: '',
+    imageUrlTemplate: "{{ @ }}",
+    imageTitleTemplate: "{{ @ }}",
+    imageWidth: "",
+    imageHeight: "",
     // `link` cell options
-    linkUrlTemplate: '{{ @ }}',
-    linkTextTemplate: '{{ @ }}',
-    linkTitleTemplate: '{{ @ }}',
+    linkUrlTemplate: "{{ @ }}",
+    linkTextTemplate: "{{ @ }}",
+    linkTitleTemplate: "{{ @ }}",
     linkOpenInNewTab: true,
   };
 }
@@ -84,28 +84,24 @@ function wereColumnsReordered(queryColumns, visualizationColumns) {
 function getColumnsOptions(columns, visualizationColumns) {
   const options = getDefaultColumnsOptions(columns);
 
-  if ((wereColumnsReordered(columns, visualizationColumns))) {
-    visualizationColumns = _.fromPairs(_.map(
-      visualizationColumns,
-      (col, index) => [col.name, _.extend({}, col, { order: index })],
-    ));
+  if (wereColumnsReordered(columns, visualizationColumns)) {
+    visualizationColumns = _.fromPairs(
+      _.map(visualizationColumns, (col, index) => [col.name, _.extend({}, col, { order: index })])
+    );
   } else {
-    visualizationColumns = _.fromPairs(_.map(
-      visualizationColumns,
-      col => [col.name, _.omit(col, 'order')],
-    ));
+    visualizationColumns = _.fromPairs(_.map(visualizationColumns, col => [col.name, _.omit(col, "order")]));
   }
 
   _.each(options, col => _.extend(col, visualizationColumns[col.name]));
 
-  return _.sortBy(options, 'order');
+  return _.sortBy(options, "order");
 }
 
 export default function getOptions(options, { columns }) {
   options = { ...DEFAULT_OPTIONS, ...options };
-  options.columns = _.map(
-    getColumnsOptions(columns, options.columns),
-    col => ({ ...getDefaultFormatOptions(col), ...col }),
-  );
+  options.columns = _.map(getColumnsOptions(columns, options.columns), col => ({
+    ...getDefaultFormatOptions(col),
+    ...col,
+  }));
   return options;
 }

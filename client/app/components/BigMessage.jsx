@@ -1,11 +1,11 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 function BigMessage({ message, icon, children, className }) {
   return (
-    <div className={'p-15 text-center ' + className}>
+    <div className={"p-15 text-center " + className}>
       <h3 className="m-t-0 m-b-0">
-        <i className={'fa ' + icon} />
+        <i className={"fa " + icon} />
       </h3>
       <br />
       {message}
@@ -22,9 +22,9 @@ BigMessage.propTypes = {
 };
 
 BigMessage.defaultProps = {
-  message: '',
+  message: "",
   children: null,
-  className: 'tiled bg-white',
+  className: "tiled bg-white",
 };
 
 export default BigMessage;

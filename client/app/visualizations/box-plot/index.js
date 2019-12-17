@@ -1,12 +1,12 @@
-import { registerVisualization } from '@/visualizations';
+import { registerVisualization } from "@/visualizations";
 
-import Renderer from './Renderer';
-import Editor from './Editor';
+import Renderer from "./Renderer";
+import Editor from "./Editor";
 
 export default function init() {
   registerVisualization({
-    type: 'BOXPLOT',
-    name: 'Boxplot (Deprecated)',
+    type: "BOXPLOT",
+    name: "Boxplot (Deprecated)",
     isDeprecated: true,
     getOptions: options => ({ ...options }),
     Renderer,

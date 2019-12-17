@@ -1,14 +1,14 @@
-import moment from 'moment';
-import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from 'lodash';
-import dashboardGridOptions from '@/config/dashboard-grid-options';
-import { registeredVisualizations } from '@/visualizations';
+import moment from "moment";
+import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
+import dashboardGridOptions from "@/config/dashboard-grid-options";
+import { registeredVisualizations } from "@/visualizations";
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
 export const WidgetTypeEnum = {
-  TEXTBOX: 'textbox',
-  VISUALIZATION: 'visualization',
-  RESTRICTED: 'restricted',
+  TEXTBOX: "textbox",
+  VISUALIZATION: "visualization",
+  RESTRICTED: "restricted",
 };
 
 function calculatePositionOptions(widget) {
@@ -26,7 +26,7 @@ function calculatePositionOptions(widget) {
 
   const config = widget.visualization ? registeredVisualizations[widget.visualization.type] : null;
   if (isObject(config)) {
-    if (Object.prototype.hasOwnProperty.call(config, 'autoHeight')) {
+    if (Object.prototype.hasOwnProperty.call(config, "autoHeight")) {
       visualizationOptions.autoHeight = config.autoHeight;
     }
 
@@ -70,9 +70,9 @@ function calculatePositionOptions(widget) {
 }
 
 export const ParameterMappingType = {
-  DashboardLevel: 'dashboard-level',
-  WidgetLevel: 'widget-level',
-  StaticValue: 'static-value',
+  DashboardLevel: "dashboard-level",
+  WidgetLevel: "widget-level",
+  StaticValue: "static-value",
 };
 
 function WidgetFactory($http, $location, Query) {
@@ -91,7 +91,7 @@ function WidgetFactory($http, $location, Query) {
       this.options.position = extend(
         {},
         visualizationOptions,
-        pick(this.options.position, ['col', 'row', 'sizeX', 'sizeY', 'autoHeight']),
+        pick(this.options.position, ["col", "row", "sizeX", "sizeY", "autoHeight"])
       );
 
       if (this.options.position.sizeY < 0) {
@@ -137,7 +137,7 @@ function WidgetFactory($http, $location, Query) {
       // `this.queryResult` is currently loading query result;
       // while widget is refreshing, `this.data` !== `this.queryResult`
 
-      if (force || (this.queryResult === undefined)) {
+      if (force || this.queryResult === undefined) {
         this.loading = true;
         this.refreshStartedAt = moment();
 
@@ -146,13 +146,14 @@ function WidgetFactory($http, $location, Query) {
         }
         this.queryResult = this.getQuery().getQueryResult(maxAge);
 
-        return this.queryResult.toPromise()
-          .then((result) => {
+        this.queryResult
+          .toPromise()
+          .then(result => {
             this.loading = false;
             this.data = result;
             return result;
           })
-          .catch((error) => {
+          .catch(error => {
             this.loading = false;
             this.data = error;
             return error;
@@ -163,17 +164,17 @@ function WidgetFactory($http, $location, Query) {
     }
 
     save(key, value) {
-      const data = pick(this, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
+      const data = pick(this, "options", "text", "id", "width", "dashboard_id", "visualization_id");
       if (key && value) {
         data[key] = merge({}, data[key], value); // done like this so `this.options` doesn't get updated by side-effect
       }
 
-      let url = 'api/widgets';
+      let url = "api/widgets";
       if (this.id) {
         url = `${url}/${this.id}`;
       }
 
-      return $http.post(url, data).then((response) => {
+      return $http.post(url, data).then(response => {
         each(response.data, (v, k) => {
           this[k] = v;
         });
@@ -200,13 +201,10 @@ function WidgetFactory($http, $location, Query) {
 
       const queryParams = $location.search();
 
-      const localTypes = [
-        WidgetService.MappingType.WidgetLevel,
-        WidgetService.MappingType.StaticValue,
-      ];
+      const localTypes = [WidgetService.MappingType.WidgetLevel, WidgetService.MappingType.StaticValue];
       return map(
         filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
-        (param) => {
+        param => {
           const mapping = mappings[param.name];
           const result = param.clone();
           result.title = mapping.title || param.title;
@@ -218,7 +216,7 @@ function WidgetFactory($http, $location, Query) {
             result.fromUrlParams(queryParams);
           }
           return result;
-        },
+        }
       );
     }
 
@@ -230,7 +228,7 @@ function WidgetFactory($http, $location, Query) {
       const existingParams = {};
       // textboxes does not have query
       const params = this.getQuery() ? this.getQuery().getParametersDefs(false) : [];
-      each(params, (param) => {
+      each(params, param => {
         existingParams[param.name] = true;
         if (!isObject(this.options.parameterMappings[param.name])) {
           // "migration" for old dashboards: parameters with `global` flag
@@ -240,17 +238,14 @@ function WidgetFactory($http, $location, Query) {
             type: param.global ? WidgetService.MappingType.DashboardLevel : WidgetService.MappingType.WidgetLevel,
             mapTo: param.name, // map to param with the same name
             value: null, // for StaticValue
-            title: '', // Use parameter's title
+            title: "", // Use parameter's title
           };
         }
       });
 
       // Remove mappings for parameters that do not exists anymore
-      const removedParams = difference(
-        keys(this.options.parameterMappings),
-        keys(existingParams),
-      );
-      each(removedParams, (name) => {
+      const removedParams = difference(keys(this.options.parameterMappings), keys(existingParams));
+      each(removedParams, name => {
         delete this.options.parameterMappings[name];
       });
 
@@ -258,10 +253,7 @@ function WidgetFactory($http, $location, Query) {
     }
 
     getLocalParameters() {
-      return filter(
-        this.getParametersDefs(),
-        param => !this.isStaticParam(param),
-      );
+      return filter(this.getParametersDefs(), param => !this.isStaticParam(param));
     }
   }
 
@@ -269,10 +261,10 @@ function WidgetFactory($http, $location, Query) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Widget', WidgetFactory);
+  ngModule.factory("Widget", WidgetFactory);
 
-  ngModule.run(($injector) => {
-    Widget = $injector.get('Widget');
+  ngModule.run($injector => {
+    Widget = $injector.get("Widget");
   });
 }
 

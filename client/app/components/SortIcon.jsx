@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
+import React from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
 
 export function SortIcon({ column, sortColumn, reverse }) {
   if (column !== sortColumn) {
@@ -8,7 +8,9 @@ export function SortIcon({ column, sortColumn, reverse }) {
   }
 
   return (
-    <span><i className={'fa fa-sort-' + (reverse ? 'desc' : 'asc')} /></span>
+    <span>
+      <i className={"fa fa-sort-" + (reverse ? "desc" : "asc")} />
+    </span>
   );
 }
 
@@ -25,7 +27,7 @@ SortIcon.defaultProps = {
 };
 
 export default function init(ngModule) {
-  ngModule.component('sortIcon', react2angular(SortIcon));
+  ngModule.component("sortIcon", react2angular(SortIcon));
 }
 
 init.init = true;

@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useDebouncedCallback } from 'use-debounce';
-import { Section, Input } from '@/components/visualizations/editor';
-import { createBooleanFormatter } from '@/lib/value-format';
+import React from "react";
+import PropTypes from "prop-types";
+import { useDebouncedCallback } from "use-debounce";
+import { Section, Input } from "@/components/visualizations/editor";
+import { createBooleanFormatter } from "@/lib/value-format";
 
 function Editor({ column, onChange }) {
   function handleChange(index, value) {
@@ -17,7 +17,11 @@ function Editor({ column, onChange }) {
     <React.Fragment>
       <Section>
         <Input
-          label={(<React.Fragment>Value for <code>false</code></React.Fragment>)}
+          label={
+            <React.Fragment>
+              Value for <code>false</code>
+            </React.Fragment>
+          }
           data-test="Table.ColumnEditor.Boolean.False"
           defaultValue={column.booleanValues[0]}
           onChange={event => handleChangeDebounced(0, event.target.value)}
@@ -26,7 +30,11 @@ function Editor({ column, onChange }) {
 
       <Section>
         <Input
-          label={(<React.Fragment>Value for <code>true</code></React.Fragment>)}
+          label={
+            <React.Fragment>
+              Value for <code>true</code>
+            </React.Fragment>
+          }
           data-test="Table.ColumnEditor.Boolean.True"
           defaultValue={column.booleanValues[1]}
           onChange={event => handleChangeDebounced(1, event.target.value)}
@@ -53,7 +61,8 @@ export default function initBooleanColumn(column) {
     };
   }
 
-  function BooleanColumn({ row }) { // eslint-disable-line react/prop-types
+  function BooleanColumn({ row }) {
+    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }
@@ -63,5 +72,5 @@ export default function initBooleanColumn(column) {
   return BooleanColumn;
 }
 
-initBooleanColumn.friendlyName = 'Boolean';
+initBooleanColumn.friendlyName = "Boolean";
 initBooleanColumn.Editor = Editor;
