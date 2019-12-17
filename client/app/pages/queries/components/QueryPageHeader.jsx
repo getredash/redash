@@ -9,6 +9,7 @@ import Icon from "antd/lib/icon";
 import { EditInPlace } from "@/components/EditInPlace";
 import { FavoritesControl } from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
+import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -116,7 +117,12 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
             isAvailable: !query.isNew() && query.can_edit && !query.is_archived && showPermissionsControl,
             title: "Manage Permissions",
             onClick: () => {
-              console.log("showManagePermissionsModal");
+              const aclUrl = `api/queries/${query.id}/acl`;
+              PermissionsEditorDialog.showModal({
+                aclUrl,
+                context: "query",
+                author: query.user,
+              });
             },
           },
           unpublish: {

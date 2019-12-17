@@ -189,7 +189,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries/new2",
+          path: "/queries-react/new",
         },
       ],
       {
@@ -204,7 +204,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries/:queryId/source2",
+          path: "/queries-react/:queryId/source",
         },
       ],
       {
