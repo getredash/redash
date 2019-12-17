@@ -74,6 +74,7 @@ function QueryView({ query }) {
             queryResult={queryResult}
             visualizations={query.visualizations}
             showNewVisualizationButton={query.can_edit}
+            canDeleteVisualizations={query.can_edit}
             selectedTab={selectedTab}
             onChangeTab={setSelectedTab}
           />
