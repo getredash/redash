@@ -12,10 +12,8 @@ import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import ApiKeyDialog from "@/components/queries/ApiKeyDialog";
 import getTags from "@/services/getTags";
-import { clientConfig } from "@/services/auth";
-import recordEvent from "@/services/recordEvent";
 
-import { saveQuery, archiveQuery, duplicateQuery } from "../utils";
+import { updateQuery, publishQuery, unpublishQuery, renameQuery, archiveQuery, duplicateQuery } from "../utils";
 
 function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
@@ -58,31 +56,17 @@ function createMenu(menu) {
 export default function QueryPageHeader({ query, sourceMode, onChange }) {
   const saveName = useCallback(
     name => {
-      recordEvent("edit_name", "query", query.id);
-      const changes = { name };
-      const options = {};
-
-      if (query.is_draft && clientConfig.autoPublishNamedQueries && query.name !== "New Query") {
-        changes.is_draft = false;
-        options.successMessage = "Query saved and published";
-      }
-
-      saveQuery(query, changes, options).then(onChange);
+      renameQuery(query, name).then(onChange);
     },
     [query, onChange]
   );
 
   const saveTags = useCallback(
     tags => {
-      saveQuery(query, { tags }).then(onChange);
+      updateQuery(query, { tags }).then(onChange);
     },
     [query, onChange]
   );
-
-  const togglePublished = useCallback(() => {
-    recordEvent("toggle_published", "query", query.id);
-    saveQuery(query, { is_draft: !query.is_draft }).then(onChange);
-  }, [query, onChange]);
 
   const selectedTab = null; // TODO: replace with actual value
   const canViewSource = true; // TODO: replace with actual value
@@ -129,7 +113,9 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
           unpublish: {
             isAvailable: !query.isNew() && query.can_edit && !query.is_draft,
             title: "Unpublish",
-            onClick: togglePublished,
+            onClick: () => {
+              unpublishQuery(query).then(onChange);
+            },
           },
         },
         {
@@ -142,7 +128,7 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
           },
         },
       ]),
-    [showPermissionsControl, query, togglePublished, onChange]
+    [showPermissionsControl, query, onChange]
   );
 
   return (
@@ -169,7 +155,11 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
           </h3>
           <span className="flex-fill" />
           {query.is_draft && !query.is_archived && !query.isNew() && query.can_edit && (
-            <Button className="hidden-xs m-r-5" onClick={togglePublished}>
+            <Button
+              className="hidden-xs m-r-5"
+              onClick={() => {
+                publishQuery(query).then(onChange);
+              }}>
               <i className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
