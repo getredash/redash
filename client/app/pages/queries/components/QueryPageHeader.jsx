@@ -10,6 +10,7 @@ import { EditInPlace } from "@/components/EditInPlace";
 import { FavoritesControl } from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
+import ApiKeyDialog from "@/components/queries/ApiKeyDialog";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -136,7 +137,7 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
             isAvailable: !query.isNew(),
             title: "Show API Key",
             onClick: () => {
-              console.log("showApiKey");
+              ApiKeyDialog.showModal({ query }).result.then(onChange);
             },
           },
         },
