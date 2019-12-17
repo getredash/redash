@@ -43,17 +43,17 @@ function QueryView(props) {
   );
 
   const openVisualizationEditor = useCallback(
-    () => {
+    (visId) => {
       EditVisualizationDialog.showModal({
         query,
-        visualization: currentVisualization,
+        visualization: find(query.visualizations, { id: visId }),
         queryResult,
       }).result.then(visualization => {
         setSelectedTab(visualization.id);
         // TODO: Properly update state
       });
     },
-    [currentVisualization, query, queryResult, setSelectedTab],
+    [query, queryResult, setSelectedTab],
   );
 
   useEffect(() => {
