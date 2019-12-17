@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { find, orderBy } from "lodash";
+import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
 import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
 import Button from "antd/lib/button";
@@ -28,7 +29,7 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete }) {
     <>
       {visualizationName}
       {canDelete && (
-        <a className="hidden-xs delete-visualization-button" onClick={handleDelete}>
+        <a className="delete-visualization-button" onClick={handleDelete}>
           <i className="zmdi zmdi-close" />
         </a>
       )}
@@ -69,6 +70,7 @@ export default function QueryVisualizationTabs({
 
   const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
   const isFirstVisualization = useCallback(visId => visId === orderedVisualizations[0].id, [orderedVisualizations]);
+  const isMobile = useMedia({ maxWidth: 768 });
 
   return (
     <Tabs
@@ -84,7 +86,7 @@ export default function QueryVisualizationTabs({
           key={`${visualization.id}`}
           tab={(
             <TabWithDeleteButton
-              canDelete={canDeleteVisualizations && !isFirstVisualization(visualization.id)}
+              canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization)}
             />
