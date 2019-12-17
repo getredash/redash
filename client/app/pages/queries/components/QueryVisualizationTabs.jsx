@@ -7,8 +7,14 @@ import Button from "antd/lib/button";
 
 const { TabPane } = Tabs;
 
-export default function QueryVisualizationTabs({ visualizations, queryResult, selectedTab,
-  showNewVisualizationButton, onChangeTab, onClickNewVisualization }) {
+export default function QueryVisualizationTabs({
+  visualizations,
+  queryResult,
+  selectedTab,
+  showNewVisualizationButton,
+  onChangeTab,
+  onClickNewVisualization,
+}) {
   const tabsProps = {};
   if (find(visualizations, { id: selectedTab })) {
     tabsProps.activeKey = `${selectedTab}`;
@@ -26,7 +32,7 @@ export default function QueryVisualizationTabs({ visualizations, queryResult, se
   const orderedVisualizations = orderBy(visualizations, ["id"]);
 
   return (
-    <Tabs {...tabsProps} onChange={activeKey => onChangeTab(+activeKey)}>
+    <Tabs {...tabsProps} animated={false} tabBarGutter={0} onChange={activeKey => onChangeTab(+activeKey)}>
       {orderedVisualizations.map(visualization => (
         <TabPane key={`${visualization.id}`} tab={visualization.name}>
           <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />

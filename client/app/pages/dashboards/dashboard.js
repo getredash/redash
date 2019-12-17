@@ -9,7 +9,7 @@ import template from "./dashboard.html";
 import ShareDashboardDialog from "./ShareDashboardDialog";
 import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
-import PermissionsEditorDialog from "@/components/permissions-editor/PermissionsEditorDialog";
+import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import notification from "@/services/notification";
 
 import "./dashboard.less";
@@ -29,7 +29,6 @@ function DashboardCtrl(
   $q,
   $uibModal,
   $scope,
-  Title,
   AlertDialog,
   Dashboard,
   currentUser,
@@ -151,12 +150,7 @@ function DashboardCtrl(
         ? this.dashboard.widgets.filter(widget =>
             Object.values(widget.getParameterMappings())
               .filter(({ type }) => type === "dashboard-level")
-              .some(({ mapTo }) =>
-                _.includes(
-                  updatedParameters.map(p => p.name),
-                  mapTo
-                )
-              )
+              .some(({ mapTo }) => _.includes(updatedParameters.map(p => p.name), mapTo))
           )
         : this.dashboard.widgets;
 
@@ -172,7 +166,8 @@ function DashboardCtrl(
   };
 
   const renderDashboard = (dashboard, force) => {
-    Title.set(dashboard.name);
+    // TODO: Title should be updated after editing as well
+    document.title = dashboard.name;
     this.extractGlobalParameters();
     collectFilters(dashboard, force);
   };

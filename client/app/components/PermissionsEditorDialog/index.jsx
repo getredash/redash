@@ -15,7 +15,7 @@ import { UserPreviewCard } from "@/components/PreviewCard";
 import notification from "@/services/notification";
 import { User } from "@/services/user";
 
-import "./PermissionsEditorDialog.less";
+import "./index.less";
 
 const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;

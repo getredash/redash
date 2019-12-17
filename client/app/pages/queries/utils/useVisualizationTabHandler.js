@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { first, orderBy, isFunction } from "lodash";
+import { first, orderBy } from "lodash";
 import { $location, $rootScope } from "@/services/ng";
 
 function updateUrlHash(...args) {
@@ -7,24 +7,26 @@ function updateUrlHash(...args) {
   $rootScope.$applyAsync();
 }
 
-export default function useVisualizationTabHandler(visualizations, onAddVisualizationInUrl) {
+export default function useVisualizationTabHandler(visualizations) {
   const firstVisualization = useMemo(() => first(orderBy(visualizations, ["id"])), [visualizations]);
   const [selectedTab, setSelectedTab] = useState(+$location.hash() || firstVisualization.id);
 
   useEffect(() => {
-    if ($location.hash() !== "add") {
-      updateUrlHash(selectedTab !== firstVisualization.id ? selectedTab : null);
+    const hashValue = selectedTab !== firstVisualization.id ? `${selectedTab}` : null;
+    if ($location.hash() !== hashValue) {
+      updateUrlHash(hashValue);
     }
-  }, [firstVisualization.id, selectedTab]);
 
-  useEffect(() => {
-    if ($location.hash() === "add") {
-      updateUrlHash(null);
-      if (isFunction(onAddVisualizationInUrl)) {
-        onAddVisualizationInUrl();
+    const unwatch = $rootScope.$watch(
+      () => $location.hash(),
+      () => {
+        if ($location.hash() !== hashValue) {
+          setSelectedTab(+$location.hash() || firstVisualization.id);
+        }
       }
-    }
-  }, [onAddVisualizationInUrl]);
+    );
+    return unwatch;
+  }, [firstVisualization.id, selectedTab]);
 
   return [selectedTab, setSelectedTab];
 }

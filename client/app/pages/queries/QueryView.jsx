@@ -20,7 +20,7 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import { pluralize, durationHumanize } from "@/filters";
-import { saveQuery } from "./utils";
+import { updateQuery } from "./utils";
 
 import "./query-view.less";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
@@ -37,7 +37,7 @@ function QueryView(props) {
   const saveDescription = useCallback(
     (description) => {
       recordEvent("edit_description", "query", query.id);
-      saveQuery(query, { description }).then(setQuery);
+      updateQuery(query, { description }).then(setQuery);
     },
     [query],
   );
