@@ -7,8 +7,12 @@ import { Parameters } from "@/components/Parameters";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
 import { TimeAgo } from "@/components/TimeAgo";
+import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
+import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
+import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
+import useForceUpdate from "@/lib/hooks/useForceUpdate";
 import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
@@ -51,6 +55,8 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
+  const forceUpdate = useForceUpdate();
+
   const [query, setQuery] = useState(props.query);
   const [allDataSources, setAllDataSources] = useState([]);
   const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
@@ -154,6 +160,29 @@ function QuerySource(props) {
 
   const queryExecuting = false; // TODO: Replace with real value
 
+  const openAddToDashboardDialog = useCallback(visualizationId => {
+    const visualization = find(query.visualizations, { id: visualizationId });
+    AddToDashboardDialog.showModal({ visualization });
+  }, [query]);
+
+  const openEmbedDialog = useCallback((unused, visualizationId) => {
+    const visualization = find(query.visualizations, { id: visualizationId });
+    EmbedQueryDialog.showModal({ query, visualization });
+  }, [query]);
+
+  const openEditVisualizationDialog = useCallback(visualizationId => {
+    // TODO: New queries should be saved (and URL updated), and only then this dialog should appear
+    const visualization = find(query.visualizations, { id: visualizationId });
+    EditVisualizationDialog.showModal({
+      query,
+      visualization,
+      queryResult,
+    }).result.then(visualization => {
+      setSelectedTab(visualization.id);
+      forceUpdate();
+    });
+  }, [query, queryResult, setSelectedTab, forceUpdate]);
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
@@ -238,7 +267,7 @@ function QuerySource(props) {
               <div className="bottom-controller">
                 {!query.isNew() && query.can_edit && (
                   <EditVisualizationButton
-                    openVisualizationEditor={() => console.log('edit visualization')}
+                    openVisualizationEditor={openEditVisualizationDialog}
                     selectedTab={selectedTab}
                   />
                 )}
@@ -246,11 +275,11 @@ function QuerySource(props) {
                   query={query}
                   queryResult={queryResult}
                   queryExecuting={false}
-                  showEmbedDialog={() => console.log("show embed dialog")}
+                  showEmbedDialog={openEmbedDialog}
                   embed={false}
                   apiKey={query.api_key}
                   selectedTab={selectedTab}
-                  openAddToDashboardForm={() => console.log("show add to dashboard dialog")}
+                  openAddToDashboardForm={openAddToDashboardDialog}
                 />
 
                 <span className="query-metadata__bottom">
