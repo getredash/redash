@@ -23,7 +23,7 @@ export default function useVisualizationTabHandler(visualizations) {
         if ($location.hash() !== hashValue) {
           setSelectedTab(+$location.hash() || firstVisualization.id);
         }
-      },
+      }
     );
     return unwatch;
   }, [firstVisualization.id, selectedTab]);
