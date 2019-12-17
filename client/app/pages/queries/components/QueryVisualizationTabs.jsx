@@ -10,7 +10,7 @@ import "./query-visualization-tabs.less";
 
 const { TabPane } = Tabs;
 
-function TabWithDeleteButton({ visualizationName, onDelete }) {
+function TabWithDeleteButton({ visualizationName, canDelete, onDelete }) {
   const handleDelete = useCallback((e) => {
     e.stopPropagation();
     Modal.confirm({
@@ -27,15 +27,21 @@ function TabWithDeleteButton({ visualizationName, onDelete }) {
   return (
     <>
       {visualizationName}
-      <a className="hidden-xs delete-visualization-button" onClick={handleDelete}>
-        <i className="zmdi zmdi-close" />
-      </a>
+      {canDelete && (
+        <a className="hidden-xs delete-visualization-button" onClick={handleDelete}>
+          <i className="zmdi zmdi-close" />
+        </a>
+      )}
     </>
   );
 }
 
-TabWithDeleteButton.propTypes = { visualizationName: PropTypes.string.isRequired, onDelete: PropTypes.func };
-TabWithDeleteButton.defaultProps = { onDelete: () => {} };
+TabWithDeleteButton.propTypes = {
+  visualizationName: PropTypes.string.isRequired,
+  canDelete: PropTypes.bool,
+  onDelete: PropTypes.func,
+};
+TabWithDeleteButton.defaultProps = { canDelete: false, onDelete: () => {} };
 
 export default function QueryVisualizationTabs({
   visualizations,
@@ -76,12 +82,13 @@ export default function QueryVisualizationTabs({
       {orderedVisualizations.map(visualization => (
         <TabPane
           key={`${visualization.id}`}
-          tab={(canDeleteVisualizations && !isFirstVisualization(visualization.id)) ? (
+          tab={(
             <TabWithDeleteButton
+              canDelete={canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization)}
             />
-          ) : visualization.name}
+          )}
         >
           <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
         </TabPane>
