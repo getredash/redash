@@ -1,4 +1,4 @@
-import { includes, invoke } from "lodash";
+import { includes, get, invoke } from "lodash";
 import { useState, useEffect, useRef } from "react";
 
 function getQueryResultStatus(queryResult) {
@@ -16,8 +16,11 @@ function getQueryResultData(queryResult) {
     rows: invoke(queryResult, "getData") || [],
     filters: invoke(queryResult, "getFilters") || [],
     updatedAt: invoke(queryResult, "getUpdatedAt") || null,
+    retrievedAt: get(queryResult, "query_result.retrieved_at", null),
     log: invoke(queryResult, "getLog") || [],
     error: invoke(queryResult, "getError") || null,
+    runtime: invoke(queryResult, "getRuntime") || null,
+    metadata: get(queryResult, "query_result.data.metadata", {}),
   };
 }
 

@@ -4,8 +4,12 @@ import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
 import { Parameters } from "@/components/Parameters";
+import { EditVisualizationButton } from "@/components/EditVisualizationButton";
+import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
+import { TimeAgo } from "@/components/TimeAgo";
 import { routesToAngularRoutes } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
+import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
@@ -148,6 +152,8 @@ function QuerySource(props) {
     }
   }, [query, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
+  const queryExecuting = false; // TODO: Replace with real value
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
@@ -227,6 +233,57 @@ function QuerySource(props) {
               </section>
             </div>
           </div>
+          {queryResultData.status === "done" && (
+            <div className="bottom-controller-container">
+              <div className="bottom-controller">
+                {!query.isNew() && query.can_edit && (
+                  <EditVisualizationButton
+                    openVisualizationEditor={() => console.log('edit visualization')}
+                    selectedTab={selectedTab}
+                  />
+                )}
+                <QueryControlDropdown
+                  query={query}
+                  queryResult={queryResult}
+                  queryExecuting={false}
+                  showEmbedDialog={() => console.log("show embed dialog")}
+                  embed={false}
+                  apiKey={query.api_key}
+                  selectedTab={selectedTab}
+                  openAddToDashboardForm={() => console.log("show add to dashboard dialog")}
+                />
+
+                <span className="query-metadata__bottom">
+                  <span className="query-metadata__property">
+                    <strong>{queryResultData.rows.length}</strong>
+                    {queryResultData.rows.length === 1 ? " row" : " rows"}
+                  </span>
+                  <span className="query-metadata__property">
+                    {!queryExecuting && (
+                      <React.Fragment>
+                        <strong>{durationHumanize(queryResultData.runtime)}</strong>
+                        <span className="hidden-xs">{" "}runtime</span>
+                      </React.Fragment>
+                    )}
+                    {queryExecuting && <span>Running&hellip;</span>}
+                  </span>
+                  {queryResultData.metadata.data_scanned && (
+                    <span className="query-metadata__property">
+                      Data Scanned
+                      <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
+                    </span>
+                  )}
+                </span>
+
+                <div>
+                  <span className="query-metadata__property hidden-xs">
+                    <span className="hidden-xs">Updated </span>
+                    <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
