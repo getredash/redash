@@ -3,14 +3,19 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
+import { Parameters } from "@/components/Parameters";
 import { routesToAngularRoutes } from "@/lib/utils";
+import useQueryResult from "@/lib/hooks/useQueryResult";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
 
 import QueryPageHeader from "./components/QueryPageHeader";
+import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import SchemaBrowser from "./components/SchemaBrowser";
+import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
+import { updateQuery } from "./utils";
 
 import "./query-source.less";
 
@@ -52,6 +57,11 @@ function QuerySource(props) {
   const dataSource = useMemo(() => find(dataSources, { id: query.data_source_id }) || null, [query, dataSources]);
   const [schema, setSchema] = useState([]);
   const refreshSchemaTokenRef = useRef(null);
+  const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
+  const parameters = useMemo(() => query.getParametersDefs(), [query]);
+
+  const queryResult = useMemo(() => query.getQueryResult(), [query]);
+  const queryResultData = useQueryResult(queryResult);
 
   useEffect(() => {
     let cancelDataSourceLoading = false;
@@ -109,10 +119,17 @@ function QuerySource(props) {
         recordEvent("update_data_source", "query", query.id, { dataSourceId });
         const newQuery = clone(query);
         newQuery.data_source_id = dataSourceId;
-        newQuery.latest_query_data = null;
         newQuery.latest_query_data_id = null;
+        newQuery.latest_query_data = null;
         setQuery(newQuery);
-        // TODO: Save if not new
+        updateQuery(
+          newQuery,
+          {
+            data_source_id: newQuery.data_source_id,
+            latest_query_data_id: newQuery.latest_query_data_id,
+          },
+          { successMessage: null } // show message only on error
+        ).then(setQuery);
       }
     },
     [query]
@@ -169,7 +186,45 @@ function QuerySource(props) {
               <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
                 Editor
               </div>
-              <section className="flex-fill p-relative t-body query-visualizations-wrapper">Visualizations</section>
+
+              <section className="flex-fill p-relative t-body query-visualizations-wrapper">
+                <div
+                  className="d-flex flex-column p-b-15 p-absolute static-position__mobile"
+                  style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
+                  {query.hasParameters() && (
+                    <div className="p-t-15 p-b-5">
+                      <Parameters parameters={parameters} />
+                    </div>
+                  )}
+                  <div className="query-alerts">{/* Query Execution Status */}</div>
+
+                  {queryResultData.status === "done" && (
+                    <div className="flex-fill p-relative">
+                      <div
+                        className="d-flex flex-column p-absolute static-position__mobile"
+                        style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
+                        {queryResultData.log.length > 0 && (
+                          <div className="p-10">
+                            <p>Log Information:</p>
+                            {map(queryResultData.log, (line, index) => (
+                              <p key={`log-line-${index}`} className="query-log-line">
+                                {line}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                        <QueryVisualizationTabs
+                          queryResult={queryResult}
+                          visualizations={query.visualizations}
+                          showNewVisualizationButton={query.can_edit}
+                          selectedTab={selectedTab}
+                          onChangeTab={setSelectedTab}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
             </div>
           </div>
         </div>

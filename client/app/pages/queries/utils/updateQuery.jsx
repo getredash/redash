@@ -1,4 +1,4 @@
-import { isObject, clone, extend, keys, map, omit, pick } from "lodash";
+import { isNil, isObject, clone, extend, keys, map, omit, pick } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
@@ -96,7 +96,9 @@ export default function saveQuery(query, data, { successMessage = "Query saved" 
 
   return doSaveQuery(data, { canOverwrite: query.can_edit })
     .then(updatedQuery => {
-      notification.success(successMessage);
+      if (!isNil(successMessage)) {
+        notification.success(successMessage);
+      }
       return extend(clone(query), pick(updatedQuery, keys(data)));
     })
     .catch(error => {
