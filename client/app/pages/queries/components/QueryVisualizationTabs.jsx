@@ -5,7 +5,6 @@ import Tabs from "antd/lib/tabs";
 import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import { useMediaBreakpoint } from "@/lib/hooks/useMedia";
 
 import "./query-visualization-tabs.less";
 
@@ -70,7 +69,7 @@ export default function QueryVisualizationTabs({
 
   const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
   const isFirstVisualization = useCallback(visId => visId === orderedVisualizations[0].id, [orderedVisualizations]);
-  const breakpoint = useMediaBreakpoint();
+
   return (
     <Tabs
       {...tabsProps}
@@ -85,7 +84,7 @@ export default function QueryVisualizationTabs({
           key={`${visualization.id}`}
           tab={(
             <TabWithDeleteButton
-              canDelete={breakpoint !== 'xs' && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
+              canDelete={canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization)}
             />
