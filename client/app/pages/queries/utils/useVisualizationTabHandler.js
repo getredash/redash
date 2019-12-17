@@ -12,9 +12,9 @@ export default function useVisualizationTabHandler(visualizations) {
   const [selectedTab, setSelectedTab] = useState(+$location.hash() || firstVisualization.id);
 
   useEffect(() => {
-    const hashValue = selectedTab !== firstVisualization.id ? `${selectedTab}` : null;
-    if ($location.hash() !== hashValue) {
-      updateUrlHash(hashValue);
+    const newHashValue = selectedTab !== firstVisualization.id ? `${selectedTab}` : null;
+    if ($location.hash() !== newHashValue) {
+      updateUrlHash(newHashValue);
     }
   }, [firstVisualization.id, selectedTab]);
 
@@ -22,8 +22,8 @@ export default function useVisualizationTabHandler(visualizations) {
     const unwatch = $rootScope.$watch(
       () => $location.hash(),
       () => {
-        const hashValue = selectedTab !== firstVisualization.id ? `${selectedTab}` : null;
-        if ($location.hash() !== hashValue) {
+        const expectedHashValue = selectedTab !== firstVisualization.id ? `${selectedTab}` : null;
+        if ($location.hash() !== expectedHashValue) {
           setSelectedTab(+$location.hash() || firstVisualization.id);
         }
       },
