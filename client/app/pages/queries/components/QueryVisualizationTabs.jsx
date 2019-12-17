@@ -7,8 +7,14 @@ import Button from "antd/lib/button";
 
 const { TabPane } = Tabs;
 
-export default function QueryVisualizationTabs({ visualizations, queryResult, selectedTab,
-  showNewVisualizationButton, onChangeTab, onClickNewVisualization }) {
+export default function QueryVisualizationTabs({
+  visualizations,
+  queryResult,
+  selectedTab,
+  showNewVisualizationButton,
+  onChangeTab,
+  onClickNewVisualization,
+}) {
   const tabsProps = {};
   if (find(visualizations, { id: selectedTab })) {
     tabsProps.activeKey = `${selectedTab}`;
