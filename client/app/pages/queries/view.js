@@ -22,7 +22,6 @@ function QueryViewCtrl(
   $window,
   $q,
   KeyboardShortcuts,
-  Title,
   AlertDialog,
   clientConfig,
   $uibModal,
@@ -414,7 +413,7 @@ function QueryViewCtrl(
   };
 
   $scope.$watch("query.name", () => {
-    Title.set($scope.query.name);
+    document.title = $scope.query.name;
   });
 
   $scope.$watch("queryResult && queryResult.getStatus()", status => {

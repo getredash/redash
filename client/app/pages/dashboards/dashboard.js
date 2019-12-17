@@ -29,7 +29,6 @@ function DashboardCtrl(
   $q,
   $uibModal,
   $scope,
-  Title,
   AlertDialog,
   Dashboard,
   currentUser,
@@ -172,7 +171,8 @@ function DashboardCtrl(
   };
 
   const renderDashboard = (dashboard, force) => {
-    Title.set(dashboard.name);
+    // TODO: Title should be updated after editing as well
+    document.title = dashboard.name;
     this.extractGlobalParameters();
     collectFilters(dashboard, force);
   };
