@@ -57,6 +57,10 @@ function QueryView(props) {
   );
 
   useEffect(() => {
+    document.title = query.name;
+  }, [query.name]);
+
+  useEffect(() => {
     DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
   }, [query.data_source_id]);
   return (
