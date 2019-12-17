@@ -150,12 +150,7 @@ function DashboardCtrl(
         ? this.dashboard.widgets.filter(widget =>
             Object.values(widget.getParameterMappings())
               .filter(({ type }) => type === "dashboard-level")
-              .some(({ mapTo }) =>
-                _.includes(
-                  updatedParameters.map(p => p.name),
-                  mapTo
-                )
-              )
+              .some(({ mapTo }) => _.includes(updatedParameters.map(p => p.name), mapTo))
           )
         : this.dashboard.widgets;
 
