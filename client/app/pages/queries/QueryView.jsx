@@ -16,8 +16,11 @@ import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import { pluralize } from "@/filters";
 
+import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
+
 function QueryView({ query }) {
   const canEdit = useMemo(() => currentUser.canEdit(query) || query.can_edit, [query]);
+  const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dataSource, setDataSource] = useState();
   const queryResult = useMemo(() => query.getQueryResult(), [query]);
@@ -67,7 +70,13 @@ function QueryView({ query }) {
         </div>
         <div className="query-content tiled bg-white p-15 m-t-15">
           {query.hasParameters() && <Parameters parameters={parameters} />}
-          <QueryVisualizationTabs queryResult={queryResult} visualizations={query.visualizations} />
+          <QueryVisualizationTabs
+            queryResult={queryResult}
+            visualizations={query.visualizations}
+            showNewVisualizationButton={query.can_edit}
+            selectedTab={selectedTab}
+            onChangeTab={setSelectedTab}
+          />
           <Divider />
           <div className="d-flex align-items-center">
             <EditVisualizationButton />

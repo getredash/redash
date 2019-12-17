@@ -7,23 +7,32 @@ import Button from "antd/lib/button";
 
 const { TabPane } = Tabs;
 
-export default function QueryVisualizationTabs({ visualizations, queryResult, currentVisualizationId }) {
+export default function QueryVisualizationTabs({
+  visualizations,
+  queryResult,
+  selectedTab,
+  showNewVisualizationButton,
+  onChangeTab,
+  onClickNewVisualization,
+}) {
   const tabsProps = {};
-  if (find(visualizations, { id: currentVisualizationId })) {
-    tabsProps.activeKey = `${currentVisualizationId}`;
+  if (find(visualizations, { id: selectedTab })) {
+    tabsProps.activeKey = `${selectedTab}`;
+  }
+
+  if (showNewVisualizationButton) {
+    tabsProps.tabBarExtraContent = (
+      <Button onClick={onClickNewVisualization}>
+        <i className="fa fa-plus" />
+        <span className="m-l-5 hidden-xs">New Visualization</span>
+      </Button>
+    );
   }
 
   const orderedVisualizations = orderBy(visualizations, ["id"]);
 
   return (
-    <Tabs
-      {...tabsProps}
-      tabBarExtraContent={
-        <Button>
-          <i className="fa fa-plus m-r-5" />
-          New Visualization
-        </Button>
-      }>
+    <Tabs {...tabsProps} animated={false} tabBarGutter={0} onChange={activeKey => onChangeTab(+activeKey)}>
       {orderedVisualizations.map(visualization => (
         <TabPane key={`${visualization.id}`} tab={visualization.name}>
           <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
@@ -36,6 +45,17 @@ export default function QueryVisualizationTabs({ visualizations, queryResult, cu
 QueryVisualizationTabs.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   visualizations: PropTypes.arrayOf(PropTypes.object),
-  currentVisualizationId: PropTypes.number,
+  selectedTab: PropTypes.number,
+  showNewVisualizationButton: PropTypes.bool,
+  onChangeTab: PropTypes.func,
+  onClickNewVisualization: PropTypes.func,
 };
-QueryVisualizationTabs.defaultProps = { queryResult: null, visualizations: [], currentVisualizationId: null };
+
+QueryVisualizationTabs.defaultProps = {
+  queryResult: null,
+  visualizations: [],
+  selectedTab: null,
+  showNewVisualizationButton: false,
+  onChangeTab: () => {},
+  onClickNewVisualization: () => {},
+};
