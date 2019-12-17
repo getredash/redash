@@ -75,7 +75,7 @@ function useRefreshRateHandler(refreshDashboard) {
       const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
       return () => clearInterval(refreshTimer);
     }
-  }, [refreshRate]);
+  }, [refreshDashboard, refreshRate]);
 
   return [
     refreshRate,
@@ -222,7 +222,7 @@ function useDashboard(dashboardData) {
     setDashboard(currentDashboard => extend({}, currentDashboard));
     return widget.load(forceRefresh)
       .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
-  }, [dashboard]);
+  }, []);
 
   const refreshWidget = useCallback(widget => loadWidget(widget, true), [loadWidget]);
 
@@ -255,7 +255,7 @@ function useDashboard(dashboardData) {
   const archiveDashboard = useCallback(() => {
     recordEvent('archive', 'dashboard', dashboard.id);
     dashboard.$delete().then(() => loadDashboard());
-  }, [dashboard, updateDashboard]);
+  }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
     ShareDashboardDialog.showModal({
@@ -296,12 +296,12 @@ function useDashboard(dashboardData) {
     setDashboard(dashboardData);
     document.title = dashboardData.name;
     loadDashboard();
-  }, [dashboardData]);
+  }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // reload dashboard when filter option changes
   useEffect(() => {
     loadDashboard();
-  }, [dashboard.dashboard_filters_enabled]);
+  }, [dashboard.dashboard_filters_enabled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     dashboard,
