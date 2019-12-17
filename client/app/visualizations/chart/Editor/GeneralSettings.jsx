@@ -1,6 +1,6 @@
-import { isArray, map, mapValues, includes, some, each, difference } from "lodash";
+import { isArray, map, mapValues, includes, some, each, difference, toNumber } from "lodash";
 import React, { useMemo } from "react";
-import { Section, Select, Checkbox } from "@/components/visualizations/editor";
+import { Section, Select, Checkbox, InputNumber } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations";
 
@@ -22,7 +22,7 @@ function getAvailableColumnMappingTypes(options) {
     result.push("zVal");
   }
 
-  if (!includes(["custom", "heatmap"], options.globalSeriesType)) {
+  if (!includes(["custom", "bubble", "heatmap"], options.globalSeriesType)) {
     result.push("yError");
   }
 
@@ -119,6 +119,18 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           onChange={handleColumnMappingChange}
         />
       ))}
+
+      {includes(["bubble"], options.globalSeriesType) && (
+        <Section>
+          <InputNumber
+            label="Bubble Size Coefficient"
+            className="w-100"
+            data-test="Chart.BubbleCoefficient"
+            defaultValue="1"
+            onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
+          />
+        </Section>
+      )}
 
       {includes(["pie"], options.globalSeriesType) && (
         <Section>
