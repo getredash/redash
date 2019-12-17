@@ -202,22 +202,19 @@ function WidgetFactory($http, $location, Query) {
       const queryParams = $location.search();
 
       const localTypes = [WidgetService.MappingType.WidgetLevel, WidgetService.MappingType.StaticValue];
-      return map(
-        filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
-        param => {
-          const mapping = mappings[param.name];
-          const result = param.clone();
-          result.title = mapping.title || param.title;
-          result.locals = [param];
-          result.urlPrefix = `p_w${this.id}_`;
-          if (mapping.type === WidgetService.MappingType.StaticValue) {
-            result.setValue(mapping.value);
-          } else {
-            result.fromUrlParams(queryParams);
-          }
-          return result;
+      return map(filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0), param => {
+        const mapping = mappings[param.name];
+        const result = param.clone();
+        result.title = mapping.title || param.title;
+        result.locals = [param];
+        result.urlPrefix = `p_w${this.id}_`;
+        if (mapping.type === WidgetService.MappingType.StaticValue) {
+          result.setValue(mapping.value);
+        } else {
+          result.fromUrlParams(queryParams);
         }
-      );
+        return result;
+      });
     }
 
     getParameterMappings() {

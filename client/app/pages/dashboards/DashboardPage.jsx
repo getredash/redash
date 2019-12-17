@@ -1,39 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import { map, isEmpty, includes } from 'lodash';
-import { react2angular } from 'react2angular';
-import Button from 'antd/lib/button';
-import Checkbox from 'antd/lib/checkbox';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
-import Icon from 'antd/lib/icon';
-import Modal from 'antd/lib/modal';
-import Tooltip from 'antd/lib/tooltip';
-import DashboardGrid from '@/components/dashboards/DashboardGrid';
-import { FavoritesControl } from '@/components/FavoritesControl';
-import { EditInPlace } from '@/components/EditInPlace';
-import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
-import { Parameters } from '@/components/Parameters';
-import Filters from '@/components/Filters';
-import { Dashboard } from '@/services/dashboard';
-import recordEvent from '@/services/recordEvent';
-import { $route } from '@/services/ng';
-import getTags from '@/services/getTags';
-import { clientConfig } from '@/services/auth';
-import { policy } from '@/services/policy';
-import { durationHumanize } from '@/filters';
-import PromiseRejectionError from '@/lib/promise-rejection-error';
-import useDashboard, { DashboardStatusEnum } from './useDashboard';
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import { map, isEmpty, includes } from "lodash";
+import { react2angular } from "react2angular";
+import Button from "antd/lib/button";
+import Checkbox from "antd/lib/checkbox";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import Icon from "antd/lib/icon";
+import Modal from "antd/lib/modal";
+import Tooltip from "antd/lib/tooltip";
+import DashboardGrid from "@/components/dashboards/DashboardGrid";
+import { FavoritesControl } from "@/components/FavoritesControl";
+import { EditInPlace } from "@/components/EditInPlace";
+import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
+import { Parameters } from "@/components/Parameters";
+import Filters from "@/components/Filters";
+import { Dashboard } from "@/services/dashboard";
+import recordEvent from "@/services/recordEvent";
+import { $route } from "@/services/ng";
+import getTags from "@/services/getTags";
+import { clientConfig } from "@/services/auth";
+import { policy } from "@/services/policy";
+import { durationHumanize } from "@/filters";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
+import useDashboard, { DashboardStatusEnum } from "./useDashboard";
 
-import './DashboardPage.less';
+import "./DashboardPage.less";
 
 function getDashboardTags() {
-  return getTags('api/dashboards/tags').then(tags => map(tags, t => t.name));
+  return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
 }
 
 function buttonType(value) {
-  return value ? 'primary' : 'default';
+  return value ? "primary" : "default";
 }
 
 function DashboardPageTitle({ dashboardOptions }) {
@@ -84,32 +84,24 @@ function RefreshButton({ dashboardOptions }) {
   return (
     <Button.Group>
       <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
-        <Button
-          type={buttonType(refreshRate)}
-          onClick={() => refreshDashboard()}
-        >
-          <i className={cx('zmdi zmdi-refresh m-r-5', { 'zmdi-hc-spin': refreshing })} />
-          {refreshRate ? durationHumanize(refreshRate) : 'Refresh'}
+        <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
+          <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} />
+          {refreshRate ? durationHumanize(refreshRate) : "Refresh"}
         </Button>
       </Tooltip>
       <Dropdown
-        trigger={['click']}
+        trigger={["click"]}
         placement="bottomRight"
-        overlay={(
+        overlay={
           <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
             {refreshRateOptions.map(option => (
               <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
                 {durationHumanize(option)}
               </Menu.Item>
             ))}
-            {refreshRate && (
-              <Menu.Item key={null}>
-                Disable auto refresh
-              </Menu.Item>
-            )}
+            {refreshRate && <Menu.Item key={null}>Disable auto refresh</Menu.Item>}
           </Menu>
-        )}
-      >
+        }>
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" />
           <span className="sr-only">Split button!</span>
@@ -124,15 +116,21 @@ RefreshButton.propTypes = {
 };
 
 function DashboardMoreOptionsButton({ dashboardOptions }) {
-  const { dashboard, setEditingLayout, togglePublished,
-    archiveDashboard, managePermissions, gridDisabled } = dashboardOptions;
+  const {
+    dashboard,
+    setEditingLayout,
+    togglePublished,
+    archiveDashboard,
+    managePermissions,
+    gridDisabled,
+  } = dashboardOptions;
 
   const archive = () => {
     Modal.confirm({
-      title: 'Archive Dashboard',
+      title: "Archive Dashboard",
       content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
-      okText: 'Archive',
-      okType: 'danger',
+      okText: "Archive",
+      okType: "danger",
       onOk: archiveDashboard,
       maskClosable: true,
       autoFocusButton: null,
@@ -141,21 +139,28 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
 
   return (
     <Dropdown
-      trigger={['click']}
+      trigger={["click"]}
       placement="bottomRight"
-      overlay={(
+      overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
             <a onClick={() => setEditingLayout(true)}>Edit</a>
           </Menu.Item>
           {clientConfig.showPermissionsControl && (
-            <Menu.Item><a onClick={managePermissions}>Manage Permissions</a></Menu.Item>
+            <Menu.Item>
+              <a onClick={managePermissions}>Manage Permissions</a>
+            </Menu.Item>
           )}
-          {!dashboard.is_draft && <Menu.Item><a onClick={togglePublished}>Unpublish</a></Menu.Item>}
-          <Menu.Item><a onClick={archive}>Archive</a></Menu.Item>
+          {!dashboard.is_draft && (
+            <Menu.Item>
+              <a onClick={togglePublished}>Unpublish</a>
+            </Menu.Item>
+          )}
+          <Menu.Item>
+            <a onClick={archive}>Archive</a>
+          </Menu.Item>
         </Menu>
-      )}
-    >
+      }>
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton">
         <Icon type="ellipsis" rotate={90} />
       </Button>
@@ -168,16 +173,22 @@ DashboardMoreOptionsButton.propTypes = {
 };
 
 function DashboardControl({ dashboardOptions }) {
-  const { dashboard, togglePublished, canEditDashboard,
-    fullscreen, toggleFullscreen, showShareDashboardDialog } = dashboardOptions;
+  const {
+    dashboard,
+    togglePublished,
+    canEditDashboard,
+    fullscreen,
+    toggleFullscreen,
+    showShareDashboardDialog,
+  } = dashboardOptions;
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
-  const showShareButton = dashboard.publicAccessEnabled || canEditDashboard && !dashboard.is_draft;
+  const showShareButton = dashboard.publicAccessEnabled || (canEditDashboard && !dashboard.is_draft);
   const showMoreOptionsButton = canEditDashboard;
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
-      {(!dashboard.is_archived) && (
+      {!dashboard.is_archived && (
         <span className="hidden-print">
           {showPublishButton && (
             <Button className="m-r-5 hidden-xs" onClick={togglePublished}>
@@ -199,8 +210,7 @@ function DashboardControl({ dashboardOptions }) {
                   className="icon-button m-l-5"
                   type={buttonType(dashboard.publicAccessEnabled)}
                   onClick={showShareDashboardDialog}
-                  data-test="OpenShareForm"
-                >
+                  data-test="OpenShareForm">
                   <i className="zmdi zmdi-share" />
                 </Button>
               </Tooltip>
@@ -221,19 +231,27 @@ function DashboardEditControl({ dashboardOptions }) {
   const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } = dashboardOptions;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
-    status = (<span className="save-status">Saved</span>);
+    status = <span className="save-status">Saved</span>;
   } else if (dashboardStatus === DashboardStatusEnum.SAVING) {
-    status = (<span className="save-status" data-saving>Saving</span>);
+    status = (
+      <span className="save-status" data-saving>
+        Saving
+      </span>
+    );
   } else {
     status = (
-      <span className="save-status" data-error>Saving Failed</span>
+      <span className="save-status" data-error>
+        Saving Failed
+      </span>
     );
   }
   return (
     <div className="col-xs-4 col-sm-5 col-lg-5 text-right dashboard-control p-r-0">
       {status}
       {dashboardStatus === DashboardStatusEnum.SAVING_FAILED ? (
-        <Button type="primary" onClick={retrySaveDashboardLayout}>Retry</Button>
+        <Button type="primary" onClick={retrySaveDashboardLayout}>
+          Retry
+        </Button>
       ) : (
         <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
           {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} Done Editing
@@ -253,8 +271,7 @@ function DashboardSettings({ dashboardOptions }) {
     <div className="m-b-10 p-15 bg-white tiled">
       <Checkbox
         checked={!!dashboard.dashboard_filters_enabled}
-        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
-      >
+        onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}>
         Use Dashboard Level Filters
       </Checkbox>
     </div>
@@ -272,8 +289,8 @@ function AddWidgetContainer({ dashboardOptions }) {
       <h2>
         <i className="zmdi zmdi-widgets" />
         <span className="hidden-xs hidden-sm">
-          Widgets are individual query visualizations or text boxes you can place
-          on your dashboard in various arrangements.
+          Widgets are individual query visualizations or text boxes you can place on your dashboard in various
+          arrangements.
         </span>
       </h2>
       <div>
@@ -310,14 +327,24 @@ DashboardHeader.propTypes = {
 
 function DashboardComponent(props) {
   const dashboardOptions = useDashboard(props.dashboard);
-  const { dashboard, filters, setFilters, loadDashboard, loadWidget, removeWidget, saveDashboardLayout,
-    globalParameters, refreshDashboard, refreshWidget, editingLayout, setGridDisabled } = dashboardOptions;
+  const {
+    dashboard,
+    filters,
+    setFilters,
+    loadDashboard,
+    loadWidget,
+    removeWidget,
+    saveDashboardLayout,
+    globalParameters,
+    refreshDashboard,
+    refreshWidget,
+    editingLayout,
+    setGridDisabled,
+  } = dashboardOptions;
 
   return (
     <>
-      <DashboardHeader
-        dashboardOptions={dashboardOptions}
-      />
+      <DashboardHeader dashboardOptions={dashboardOptions} />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
@@ -356,27 +383,25 @@ function DashboardPage() {
   const [dashboard, setDashboard] = useState(null);
 
   useEffect(() => {
-    Dashboard.get({ slug: $route.current.params.dashboardSlug }).$promise
-      .then((dashboardData) => {
-        recordEvent('view', 'dashboard', dashboardData.id);
+    Dashboard.get({ slug: $route.current.params.dashboardSlug })
+      .$promise.then(dashboardData => {
+        recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })
-      .catch((error) => { throw new PromiseRejectionError(error); });
+      .catch(error => {
+        throw new PromiseRejectionError(error);
+      });
   }, []);
 
-  return (
-    <div className="container">
-      {dashboard && <DashboardComponent dashboard={dashboard} />}
-    </div>
-  );
+  return <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }
 
 export default function init(ngModule) {
-  ngModule.component('dashboardPage', react2angular(DashboardPage));
+  ngModule.component("dashboardPage", react2angular(DashboardPage));
 
   return {
-    '/dashboard/:dashboardSlug': {
-      template: '<dashboard-page></dashboard-page>',
+    "/dashboard/:dashboardSlug": {
+      template: "<dashboard-page></dashboard-page>",
       reloadOnSearch: false,
     },
   };
