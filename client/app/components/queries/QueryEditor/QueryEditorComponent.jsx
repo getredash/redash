@@ -48,13 +48,16 @@ const QueryEditorComponent = React.forwardRef(function(
   }, [schema]);
 
   useEffect(() => {
+    function resize() {
+      if (editorRef.current) {
+        const { editor } = editorRef.current;
+        editor.resize();
+      }
+    }
+
     if (container) {
-      const unwatch = resizeObserver(container, () => {
-        if (editorRef.current) {
-          const { editor } = editorRef.current;
-          editor.resize();
-        }
-      });
+      resize();
+      const unwatch = resizeObserver(container, resize);
       return unwatch;
     }
   }, [container]);
