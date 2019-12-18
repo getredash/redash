@@ -12,18 +12,21 @@ import "./query-visualization-tabs.less";
 const { TabPane } = Tabs;
 
 function TabWithDeleteButton({ visualizationName, canDelete, onDelete }) {
-  const handleDelete = useCallback((e) => {
-    e.stopPropagation();
-    Modal.confirm({
-      title: "Delete Visualization",
-      content: "Are you sure you want to delete this visualization?",
-      okText: "Delete",
-      okType: "danger",
-      onOk: onDelete,
-      maskClosable: true,
-      autoFocusButton: null,
-    });
-  }, [onDelete]);
+  const handleDelete = useCallback(
+    e => {
+      e.stopPropagation();
+      Modal.confirm({
+        title: "Delete Visualization",
+        content: "Are you sure you want to delete this visualization?",
+        okText: "Delete",
+        okType: "danger",
+        onOk: onDelete,
+        maskClosable: true,
+        autoFocusButton: null,
+      });
+    },
+    [onDelete]
+  );
 
   return (
     <>
@@ -79,19 +82,17 @@ export default function QueryVisualizationTabs({
       animated={false}
       tabBarGutter={0}
       onChange={activeKey => onChangeTab(+activeKey)}
-      destroyInactiveTabPane
-    >
+      destroyInactiveTabPane>
       {orderedVisualizations.map(visualization => (
         <TabPane
           key={`${visualization.id}`}
-          tab={(
+          tab={
             <TabWithDeleteButton
               canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization)}
             />
-          )}
-        >
+          }>
           <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
         </TabPane>
       ))}
