@@ -1,42 +1,39 @@
-import React from "react";
+import React, { useCallback } from "react";
 import Tooltip from "antd/lib/tooltip";
+import Button from "antd/lib/button";
 import PropTypes from "prop-types";
 import "@/redash-font/style.less";
 import recordEvent from "@/services/recordEvent";
 
-export default function AutocompleteToggle({ state, disabled, onToggle }) {
+export default function AutocompleteToggle({ available, enabled, onToggle }) {
   let tooltipMessage = "Live Autocomplete Enabled";
   let icon = "icon-flash";
-  if (!state) {
+  if (!enabled) {
     tooltipMessage = "Live Autocomplete Disabled";
     icon = "icon-flash-off";
   }
 
-  if (disabled) {
+  if (!available) {
     tooltipMessage = "Live Autocomplete Not Available (Use Ctrl+Space to Trigger)";
     icon = "icon-flash-off";
   }
 
-  const toggle = newState => {
-    recordEvent("toggle_autocomplete", "screen", "query_editor", { state: newState });
-    onToggle(newState);
-  };
+  const handleClick = useCallback(() => {
+    recordEvent("toggle_autocomplete", "screen", "query_editor", { state: !enabled });
+    onToggle(!enabled);
+  }, [enabled, onToggle]);
 
   return (
     <Tooltip placement="top" title={tooltipMessage}>
-      <button
-        type="button"
-        className={"btn btn-default m-r-5" + (disabled ? " disabled" : "")}
-        onClick={() => toggle(!state)}
-        disabled={disabled}>
+      <Button className="m-r-5" disabled={!available} onClick={handleClick}>
         <i className={"icon " + icon} />
-      </button>
+      </Button>
     </Tooltip>
   );
 }
 
 AutocompleteToggle.propTypes = {
-  state: PropTypes.bool.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  available: PropTypes.bool.isRequired,
+  enabled: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
 };

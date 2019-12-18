@@ -1,8 +1,7 @@
+import { map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
-import Tooltip from "antd/lib/tooltip";
-import AutocompleteToggle from "@/components/AutocompleteToggle";
 import { DataSource, Schema } from "@/components/proptypes";
 import { Query } from "@/services/query";
 import { QuerySnippet } from "@/services/query-snippet";
@@ -10,6 +9,7 @@ import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import notification from "@/services/notification";
 import localOptions from "@/lib/localOptions";
 
+import EditorControl from "./EditorControl";
 import { AceEditor, langTools, snippetsModule } from "./ace";
 import { buildKeywordsFromSchema } from "./utils";
 import "./index.less";
@@ -226,81 +226,55 @@ class QueryEditor extends React.Component {
           />
         </div>
 
-        <div className="editor__control">
-          <div className="form-inline d-flex">
-            <Tooltip
-              placement="top"
-              title={
-                <span>
-                  Add New Parameter (<i>{modKey} + P</i>)
-                </span>
-              }>
-              <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>
-                {"{{"}&nbsp;{"}}"}
-              </button>
-            </Tooltip>
-            <Tooltip
-              placement="top"
-              title={
-                <>
-                  Format Query (<i>{modKey} + Shift + F</i>)
-                </>
-              }>
-              <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
-                <span className="zmdi zmdi-format-indent-increase" />
-              </button>
-            </Tooltip>
-            <AutocompleteToggle
-              state={this.state.autocompleteQuery}
-              onToggle={this.toggleAutocomplete}
-              disabled={this.state.liveAutocompleteDisabled}
-            />
-            <select
-              className="form-control datasource-small flex-fill w-100"
-              onChange={this.props.updateDataSource}
-              disabled={!this.props.isQueryOwner}>
-              {this.props.dataSources.map(ds => (
-                <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>
-                  {ds.name}
-                </option>
-              ))}
-            </select>
-            {this.props.canEdit ? (
-              <Tooltip placement="top" title={modKey + " + S"}>
-                <button
-                  type="button"
-                  className="btn btn-default m-l-5"
-                  onClick={this.props.saveQuery}
-                  data-test="SaveButton"
-                  title="Save">
-                  <span className="fa fa-floppy-o" />
-                  <span className="hidden-xs m-l-5">Save</span>
+        <EditorControl
+          addParameterButtonProps={{
+            title: (
+              <React.Fragment>
+                Add New Parameter (<i>{modKey} + P</i>)
+              </React.Fragment>
+            ),
+            onClick: this.props.addNewParameter,
+          }}
+          formatButtonProps={{
+            title: (
+              <React.Fragment>
+                Format Query (<i>{modKey} + Shift + F</i>)
+              </React.Fragment>
+            ),
+            onClick: this.formatQuery,
+          }}
+          saveButtonProps={
+            this.props.canEdit && {
+              title: `${modKey} + S`,
+              text: (
+                <React.Fragment>
+                  <span className="hidden-xs">Save</span>
                   {this.props.isDirty ? "*" : null}
-                </button>
-              </Tooltip>
-            ) : null}
-            <Tooltip placement="top" title={modKey + " + Enter"}>
-              {/*
-                Tooltip wraps disabled buttons with `<span>` and moves all styles
-                and classes to that `<span>`. There is a piece of CSS that fixes
-                button appearance, but also wwe need to add `disabled` class to
-                disabled buttons so it will be assigned to wrapper and make it
-                looking properly
-              */}
-              <button
-                type="button"
-                className={"btn btn-primary m-l-5" + (isExecuteDisabled ? " disabled" : "")}
-                disabled={isExecuteDisabled}
-                onClick={this.props.executeQuery}
-                data-test="ExecuteButton">
-                <span className="zmdi zmdi-play" />
-                <span className="hidden-xs m-l-5">
-                  {this.state.selectedQueryText == null ? "Execute" : "Execute Selected"}
-                </span>
-              </button>
-            </Tooltip>
-          </div>
-        </div>
+                </React.Fragment>
+              ),
+              onClick: this.props.saveQuery,
+            }
+          }
+          executeButtonProps={{
+            title: `${modKey} + Enter`,
+            disabled: isExecuteDisabled,
+            onClick: this.props.executeQuery,
+            text: (
+              <span className="hidden-xs">{this.state.selectedQueryText == null ? "Execute" : "Execute Selected"}</span>
+            ),
+          }}
+          autocompleteToggleProps={{
+            available: !this.state.liveAutocompleteDisabled,
+            enabled: this.state.autocompleteQuery,
+            onToggle: this.toggleAutocomplete,
+          }}
+          dataSourceSelectorProps={{
+            disabled: !this.props.isQueryOwner,
+            value: this.props.dataSource.id,
+            onChange: this.props.updateDataSource,
+            options: map(this.props.dataSources, ds => ({ value: ds.id, label: ds.name })),
+          }}
+        />
       </section>
     );
   }
