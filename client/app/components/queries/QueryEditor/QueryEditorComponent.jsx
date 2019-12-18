@@ -14,6 +14,21 @@ const QueryEditorComponent = React.forwardRef(function(
   const [container, setContainer] = useState(null);
   const editorRef = useRef(null);
 
+  // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
+  const [currentValue, setCurrentValue] = useState(value);
+
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
+  const handleChange = useCallback(
+    str => {
+      setCurrentValue(str);
+      onChange(str);
+    },
+    [onChange]
+  );
+
   const editorOptions = useMemo(
     () => ({
       behavioursEnabled: true,
@@ -47,8 +62,7 @@ const QueryEditorComponent = React.forwardRef(function(
   const handleSelectionChange = useCallback(
     selection => {
       const { editor } = editorRef.current;
-      const doc = editor.getSession().doc;
-      const rawSelectedQueryText = doc.getTextRange(selection.getRange());
+      const rawSelectedQueryText = editor.session.doc.getTextRange(selection.getRange());
       const selectedQueryText = rawSelectedQueryText.length > 1 ? rawSelectedQueryText : null;
       onSelectionChange(selectedQueryText);
     },
@@ -117,7 +131,7 @@ const QueryEditorComponent = React.forwardRef(function(
         ref={editorRef}
         theme="textmate"
         mode={syntax || "sql"}
-        value={value}
+        value={currentValue}
         editorProps={editorProps}
         width="100%"
         height="100%"
@@ -125,7 +139,7 @@ const QueryEditorComponent = React.forwardRef(function(
         showPrintMargin={false}
         wrapEnabled={false}
         onLoad={initEditor}
-        onChange={onChange}
+        onChange={handleChange}
         onSelectionChange={handleSelectionChange}
       />
     </div>
