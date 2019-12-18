@@ -15,16 +15,16 @@ import "brace/mode/yaml";
 import "brace/theme/textmate";
 import "brace/ext/searchbox";
 
+import { DataSource, Schema } from "@/components/proptypes";
 import { Query } from "@/services/query";
 import { QuerySnippet } from "@/services/query-snippet";
 import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 
 import localOptions from "@/lib/localOptions";
 import AutocompleteToggle from "@/components/AutocompleteToggle";
-import keywordBuilder from "./keywordBuilder";
-import { DataSource, Schema } from "./proptypes";
 
-import "./QueryEditor.css";
+import { buildKeywordsFromSchema } from "./utils";
+import "./index.less";
 
 const langTools = ace.acequire("ace/ext/language_tools");
 const snippetsModule = ace.acequire("ace/snippets");
@@ -132,7 +132,7 @@ class QueryEditor extends React.Component {
       const tokensCount = nextProps.schema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
       return {
         schema: nextProps.schema,
-        keywords: keywordBuilder.buildKeywordsFromSchema(nextProps.schema),
+        keywords: buildKeywordsFromSchema(nextProps.schema),
         liveAutocompleteDisabled: tokensCount > 5000,
       };
     }

@@ -15,7 +15,7 @@ function buildTableColumnKeywords(table) {
   return keywords;
 }
 
-function buildKeywordsFromSchema(schema) {
+export function buildKeywordsFromSchema(schema) {
   const tableKeywords = [];
   const columnKeywords = {};
   const tableColumnKeywords = {};
@@ -44,7 +44,3 @@ function buildKeywordsFromSchema(schema) {
     tableColumn: tableColumnKeywords,
   };
 }
-
-export default {
-  buildKeywordsFromSchema,
-};
