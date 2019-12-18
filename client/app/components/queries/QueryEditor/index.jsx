@@ -151,7 +151,7 @@ function QueryEditor({
 
 QueryEditor.propTypes = {
   queryText: PropTypes.string.isRequired,
-  schema: Schema, // eslint-disable-line react/no-unused-prop-types
+  schema: Schema,
   addNewParameter: PropTypes.func.isRequired,
   dataSources: PropTypes.arrayOf(DataSource),
   dataSource: DataSource,
