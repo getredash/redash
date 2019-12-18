@@ -133,7 +133,7 @@ function QueryView(props) {
                 visualization: currentVisualization,
               })}
             />
-            {(queryResult && queryResultData) && (
+            {queryResultData.status === "done" && (
               <>
                 <span className="m-l-10">
                   <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
@@ -145,7 +145,7 @@ function QueryView(props) {
               </>
             )}
             <span className="flex-fill" />
-            {queryResult && (
+            {queryResultData.status === "done" && (
               <span className="m-r-10 hidden-xs">
                 Updated{" "}
                 <TimeAgo date={queryResult.query_result.retrieved_at} />
