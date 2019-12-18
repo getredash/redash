@@ -1,3 +1,25 @@
-.editor__container[data-executing="true"] .ace_marker-layer .ace_selection {
-    background-color: rgb(255, 210, 181);
+.editor__wrapper {
+  padding: 15px;
+  margin-bottom: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+  .editor__container {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+
+    &[data-executing] {
+      .ace_marker-layer {
+        .ace_selection {
+          background-color: rgb(255, 210, 181);
+        }
+      }
+    }
+  }
+
+  .editor__control {
+    flex: 0 0 auto;
+  }
 }

@@ -10,7 +10,7 @@ import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import notification from "@/services/notification";
 import localOptions from "@/lib/localOptions";
 
-import { AceEditor, langTools, snippetsModule } from './ace';
+import { AceEditor, langTools, snippetsModule } from "./ace";
 import { buildKeywordsFromSchema } from "./utils";
 import "./index.less";
 
@@ -200,110 +200,105 @@ class QueryEditor extends React.Component {
     const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery;
 
     return (
-      <section style={{ height: "100%" }} data-test="QueryEditor">
-        <div className="container p-15 m-b-10" style={{ height: "100%" }}>
-          <div
-            data-executing={this.props.queryExecuting}
-            style={{ height: "calc(100% - 40px)", marginBottom: "0px" }}
-            className="editor__container">
-            <AceEditor
-              ref={this.refEditor}
-              theme="textmate"
-              mode={this.props.dataSource.syntax || "sql"}
-              value={this.state.queryText}
-              editorProps={{ $blockScrolling: Infinity }}
-              width="100%"
-              height="100%"
-              setOptions={{
-                behavioursEnabled: true,
-                enableSnippets: true,
-                enableBasicAutocompletion: true,
-                enableLiveAutocompletion: !this.state.liveAutocompleteDisabled && this.state.autocompleteQuery,
-                autoScrollEditorIntoView: true,
-              }}
-              showPrintMargin={false}
-              wrapEnabled={false}
-              onLoad={this.onLoad}
-              onPaste={this.onPaste}
-              onChange={this.updateQuery}
-              onSelectionChange={this.updateSelectedQuery}
-            />
-          </div>
+      <section className="editor__wrapper" data-test="QueryEditor">
+        <div className="editor__container" data-executing={this.props.queryExecuting ? "true" : null}>
+          <AceEditor
+            ref={this.refEditor}
+            theme="textmate"
+            mode={this.props.dataSource.syntax || "sql"}
+            value={this.state.queryText}
+            editorProps={{ $blockScrolling: Infinity }}
+            width="100%"
+            height="100%"
+            setOptions={{
+              behavioursEnabled: true,
+              enableSnippets: true,
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: !this.state.liveAutocompleteDisabled && this.state.autocompleteQuery,
+              autoScrollEditorIntoView: true,
+            }}
+            showPrintMargin={false}
+            wrapEnabled={false}
+            onLoad={this.onLoad}
+            onPaste={this.onPaste}
+            onChange={this.updateQuery}
+            onSelectionChange={this.updateSelectedQuery}
+          />
+        </div>
 
-          <div className="editor__control">
-            <div className="form-inline d-flex">
-              <Tooltip
-                placement="top"
-                title={
-                  <span>
-                    Add New Parameter (<i>{modKey} + P</i>)
-                  </span>
-                }>
-                <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>
-                  &#123;&#123;&nbsp;&#125;&#125;
-                </button>
-              </Tooltip>
-              <Tooltip
-                placement="top"
-                title={
-                  <>
-                    Format Query (<i>{modKey} + Shift + F</i>)
-                  </>
-                }>
-                <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
-                  <span className="zmdi zmdi-format-indent-increase" />
-                </button>
-              </Tooltip>
-              <AutocompleteToggle
-                state={this.state.autocompleteQuery}
-                onToggle={this.toggleAutocomplete}
-                disabled={this.state.liveAutocompleteDisabled}
-              />
-              <select
-                className="form-control datasource-small flex-fill w-100"
-                onChange={this.props.updateDataSource}
-                disabled={!this.props.isQueryOwner}>
-                {this.props.dataSources.map(ds => (
-                  <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>
-                    {ds.name}
-                  </option>
-                ))}
-              </select>
-              {this.props.canEdit ? (
-                <Tooltip placement="top" title={modKey + " + S"}>
-                  <button
-                    type="button"
-                    className="btn btn-default m-l-5"
-                    onClick={this.props.saveQuery}
-                    data-test="SaveButton"
-                    title="Save">
-                    <span className="fa fa-floppy-o" />
-                    <span className="hidden-xs m-l-5">Save</span>
-                    {this.props.isDirty ? "*" : null}
-                  </button>
-                </Tooltip>
-              ) : null}
-              <Tooltip placement="top" title={modKey + " + Enter"}>
-                {/*
-                  Tooltip wraps disabled buttons with `<span>` and moves all styles
-                  and classes to that `<span>`. There is a piece of CSS that fixes
-                  button appearance, but also wwe need to add `disabled` class to
-                  disabled buttons so it will be assigned to wrapper and make it
-                  looking properly
-                */}
+        <div className="editor__control">
+          <div className="form-inline d-flex">
+            <Tooltip
+              placement="top"
+              title={
+                <span>
+                  Add New Parameter (<i>{modKey} + P</i>)
+                </span>
+              }>
+              <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>
+                {"{{"}&nbsp;{"}}"}
+              </button>
+            </Tooltip>
+            <Tooltip
+              placement="top"
+              title={
+                <>
+                  Format Query (<i>{modKey} + Shift + F</i>)
+                </>
+              }>
+              <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
+                <span className="zmdi zmdi-format-indent-increase" />
+              </button>
+            </Tooltip>
+            <AutocompleteToggle
+              state={this.state.autocompleteQuery}
+              onToggle={this.toggleAutocomplete}
+              disabled={this.state.liveAutocompleteDisabled}
+            />
+            <select
+              className="form-control datasource-small flex-fill w-100"
+              onChange={this.props.updateDataSource}
+              disabled={!this.props.isQueryOwner}>
+              {this.props.dataSources.map(ds => (
+                <option label={ds.name} value={ds.id} key={`ds-option-${ds.id}`}>
+                  {ds.name}
+                </option>
+              ))}
+            </select>
+            {this.props.canEdit ? (
+              <Tooltip placement="top" title={modKey + " + S"}>
                 <button
                   type="button"
-                  className={"btn btn-primary m-l-5" + (isExecuteDisabled ? " disabled" : "")}
-                  disabled={isExecuteDisabled}
-                  onClick={this.props.executeQuery}
-                  data-test="ExecuteButton">
-                  <span className="zmdi zmdi-play" />
-                  <span className="hidden-xs m-l-5">
-                    {this.state.selectedQueryText == null ? "Execute" : "Execute Selected"}
-                  </span>
+                  className="btn btn-default m-l-5"
+                  onClick={this.props.saveQuery}
+                  data-test="SaveButton"
+                  title="Save">
+                  <span className="fa fa-floppy-o" />
+                  <span className="hidden-xs m-l-5">Save</span>
+                  {this.props.isDirty ? "*" : null}
                 </button>
               </Tooltip>
-            </div>
+            ) : null}
+            <Tooltip placement="top" title={modKey + " + Enter"}>
+              {/*
+                Tooltip wraps disabled buttons with `<span>` and moves all styles
+                and classes to that `<span>`. There is a piece of CSS that fixes
+                button appearance, but also wwe need to add `disabled` class to
+                disabled buttons so it will be assigned to wrapper and make it
+                looking properly
+              */}
+              <button
+                type="button"
+                className={"btn btn-primary m-l-5" + (isExecuteDisabled ? " disabled" : "")}
+                disabled={isExecuteDisabled}
+                onClick={this.props.executeQuery}
+                data-test="ExecuteButton">
+                <span className="zmdi zmdi-play" />
+                <span className="hidden-xs m-l-5">
+                  {this.state.selectedQueryText == null ? "Execute" : "Execute Selected"}
+                </span>
+              </button>
+            </Tooltip>
           </div>
         </div>
       </section>
