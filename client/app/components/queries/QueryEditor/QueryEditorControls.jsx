@@ -6,7 +6,7 @@ import Button from "antd/lib/button";
 import Select from "antd/lib/select";
 import AutocompleteToggle from "@/components/AutocompleteToggle";
 
-import "./EditorControl.less";
+import "./QueryEditorControls.less";
 
 export default function EditorControl({
   addParameterButtonProps,

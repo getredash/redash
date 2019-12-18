@@ -9,7 +9,7 @@ import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import notification from "@/services/notification";
 import localOptions from "@/lib/localOptions";
 
-import EditorControl from "./EditorControl";
+import QueryEditorControls from "./QueryEditorControls";
 import { AceEditor, langTools, snippetsModule } from "./ace";
 import { buildKeywordsFromSchema } from "./utils";
 import "./index.less";
@@ -220,13 +220,12 @@ class QueryEditor extends React.Component {
             showPrintMargin={false}
             wrapEnabled={false}
             onLoad={this.onLoad}
-            onPaste={this.onPaste}
             onChange={this.updateQuery}
             onSelectionChange={this.updateSelectedQuery}
           />
         </div>
 
-        <EditorControl
+        <QueryEditorControls
           addParameterButtonProps={{
             title: (
               <React.Fragment>
