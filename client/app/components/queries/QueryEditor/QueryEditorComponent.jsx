@@ -43,7 +43,7 @@ const QueryEditorComponent = React.forwardRef(function(
   useEffect(() => {
     if (editorRef.current) {
       const { editor } = editorRef.current;
-      updateSchemaCompleter(editor.id, schema);
+      updateSchemaCompleter(editor.id, schema); // TODO: cleanup?
     }
   }, [schema]);
 

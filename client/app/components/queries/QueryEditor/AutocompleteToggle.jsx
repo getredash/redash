@@ -25,9 +25,11 @@ export default function AutocompleteToggle({ available, enabled, onToggle }) {
 
   return (
     <Tooltip placement="top" title={tooltipMessage}>
-      <Button className="m-r-5" disabled={!available} onClick={handleClick}>
-        <i className={"icon " + icon} />
-      </Button>
+      <span className="query-editor-controls-button-wrapper">
+        <Button className="m-r-5" disabled={!available} onClick={handleClick}>
+          <i className={"icon " + icon} />
+        </Button>
+      </span>
     </Tooltip>
   );
 }

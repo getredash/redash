@@ -1,9 +1,17 @@
 .query-editor-controls {
   display: flex;
+  flex-wrap: nowrap;
   align-items: stretch;
+  justify-content: stretch;
+
+  .query-editor-controls-button-wrapper {
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+  }
 
   .ant-btn {
-    height: 100%;
+    height: auto;
 
     .fa + span,
     .zmdi + span {
