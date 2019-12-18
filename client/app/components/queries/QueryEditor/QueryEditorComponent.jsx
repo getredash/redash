@@ -1,4 +1,3 @@
-import { reduce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState, useCallback, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -15,16 +14,16 @@ const QueryEditorComponent = React.forwardRef(function(
   const [container, setContainer] = useState(null);
   const editorRef = useRef(null);
 
-  const editorOptions = useMemo(() => {
-    const tokensCount = reduce(schema, (totalLength, table) => totalLength + table.columns.length, 0);
-    return {
+  const editorOptions = useMemo(
+    () => ({
       behavioursEnabled: true,
       enableSnippets: true,
       enableBasicAutocompletion: true,
-      enableLiveAutocompletion: autocompleteEnabled && tokensCount <= 5000,
+      enableLiveAutocompletion: autocompleteEnabled,
       autoScrollEditorIntoView: true,
-    };
-  }, [autocompleteEnabled, schema]);
+    }),
+    [autocompleteEnabled]
+  );
 
   useEffect(() => {
     if (editorRef.current) {
