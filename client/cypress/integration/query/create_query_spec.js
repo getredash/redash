@@ -16,6 +16,7 @@ describe('Create Query', () => {
     cy.getByTestId('ExecuteButton').click();
 
     cy.getByTestId('TableVisualization').should('exist');
+    cy.wait(200); // eslint-disable-line cypress/no-unnecessary-waiting
     cy.percySnapshot('Edit Query');
 
     cy.getByTestId('SaveButton').click();
