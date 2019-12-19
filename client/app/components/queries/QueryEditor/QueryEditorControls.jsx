@@ -20,24 +20,23 @@ export default function EditorControl({
     <div className="query-editor-controls">
       {addParameterButtonProps !== false && (
         <Tooltip placement="top" title={addParameterButtonProps.title}>
-          <span className="query-editor-controls-button-wrapper">
-            <Button
-              className="m-r-5"
-              disabled={addParameterButtonProps.disabled}
-              onClick={addParameterButtonProps.onClick}>
-              {"{{"}&nbsp;{"}}"}
-            </Button>
-          </span>
+          <Button
+            className="query-editor-controls-button m-r-5"
+            disabled={addParameterButtonProps.disabled}
+            onClick={addParameterButtonProps.onClick}>
+            {"{{"}&nbsp;{"}}"}
+          </Button>
         </Tooltip>
       )}
       {formatButtonProps !== false && (
         <Tooltip placement="top" title={formatButtonProps.title}>
-          <span className="query-editor-controls-button-wrapper">
-            <Button className="m-r-5" disabled={formatButtonProps.disabled} onClick={formatButtonProps.onClick}>
-              <span className="zmdi zmdi-format-indent-increase" />
-              {formatButtonProps.text}
-            </Button>
-          </span>
+          <Button
+            className="query-editor-controls-button m-r-5"
+            disabled={formatButtonProps.disabled}
+            onClick={formatButtonProps.onClick}>
+            <span className="zmdi zmdi-format-indent-increase" />
+            {formatButtonProps.text}
+          </Button>
         </Tooltip>
       )}
       {autocompleteToggleProps !== false && (
@@ -63,31 +62,27 @@ export default function EditorControl({
       )}
       {saveButtonProps !== false && (
         <Tooltip placement="top" title={saveButtonProps.title}>
-          <span className="query-editor-controls-button-wrapper">
-            <Button
-              className="m-l-5"
-              disabled={saveButtonProps.disabled}
-              onClick={saveButtonProps.onClick}
-              data-test="SaveButton">
-              <span className="fa fa-floppy-o" />
-              {saveButtonProps.text}
-            </Button>
-          </span>
+          <Button
+            className="query-editor-controls-button m-l-5"
+            disabled={saveButtonProps.disabled}
+            onClick={saveButtonProps.onClick}
+            data-test="SaveButton">
+            <span className="fa fa-floppy-o" />
+            {saveButtonProps.text}
+          </Button>
         </Tooltip>
       )}
       {executeButtonProps !== false && (
         <Tooltip placement="top" title={executeButtonProps.title}>
-          <span className="query-editor-controls-button-wrapper">
-            <Button
-              className="m-l-5"
-              type="primary"
-              disabled={executeButtonProps.disabled}
-              onClick={executeButtonProps.onClick}
-              data-test="ExecuteButton">
-              <span className="zmdi zmdi-play" />
-              {executeButtonProps.text}
-            </Button>
-          </span>
+          <Button
+            className="query-editor-controls-button m-l-5"
+            type="primary"
+            disabled={executeButtonProps.disabled}
+            onClick={executeButtonProps.onClick}
+            data-test="ExecuteButton">
+            <span className="zmdi zmdi-play" />
+            {executeButtonProps.text}
+          </Button>
         </Tooltip>
       )}
     </div>
