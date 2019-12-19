@@ -3,16 +3,13 @@
 kind: pipeline
 type: docker
 name: Trufflehog
-    
+
 steps:
 - name : Truffle-hog clone  
   image: docker:git
   commands:    
      - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
-  when:
-    trigger:
-    - pull_request
-    
+
 - name: Run truffle-hog
   image: python:2.7-alpine
   commands:
@@ -24,6 +21,13 @@ steps:
       -	pip install -r requirements.txt
       - python truffleHog/truffleHog.py --regex --rules rules.json --max_depth 1 --branch $DRONE_SOURCE_BRANCH "https://github.com/$DRONE_REPO.git" --entropy true 
       - echo "No tokens Found"
+
+- name: notify
+  image: plugins/slack
   when:
-    trigger:
-    - pull_request
+    status: [ failure ]
+  settings:
+    webhook:
+      from_secret: SLACK_WEBHOOK
+    template: >
+      {{repo.name}} ({{build.branch}}) <{{ build.link }}|{{ repo.owner }}/{{ repo.name }}#{{truncate build.commit 8}}> build failed. Tokens Found, Please remove tokens {{ build.author }}.
