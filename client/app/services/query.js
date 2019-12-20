@@ -1,7 +1,21 @@
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
-import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, extend, each, some } from "lodash";
+import {
+  zipObject,
+  isEmpty,
+  map,
+  filter,
+  includes,
+  union,
+  uniq,
+  has,
+  identity,
+  extend,
+  each,
+  some,
+  clone,
+} from "lodash";
 
 import { Parameter } from "./parameters";
 
@@ -409,6 +423,13 @@ function QueryResource($resource, $http, $location, $q, currentUser, QueryResult
 
   QueryService.prototype.getParametersDefs = function getParametersDefs(update = true) {
     return this.getParameters().get(update);
+  };
+
+  QueryService.prototype.clone = function cloneQuery() {
+    const newQuery = clone(this);
+    newQuery.$parameters = null;
+    newQuery.getParameters();
+    return newQuery;
   };
 
   return QueryService;

@@ -1,4 +1,4 @@
-import { extend, filter, find, map, clone, includes, reduce } from "lodash";
+import { extend, filter, find, map, includes, reduce } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
@@ -128,17 +128,13 @@ function QuerySource(props) {
   );
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
-    const newQuery = clone(query);
-    newQuery.getParameters().query = newQuery;
-    setQuery(extend(newQuery, { query: queryText }));
+    setQuery(extend(query.clone(), { query: queryText }));
   }, 200);
 
   const formatQuery = useCallback(() => {
     Query.format(dataSource.syntax || "sql", query.query)
       .then(queryText => {
-        const newQuery = clone(query);
-        newQuery.getParameters().query = newQuery;
-        setQuery(extend(newQuery, { query: queryText }));
+        setQuery(extend(query.clone(), { query: queryText }));
       })
       .catch(error => notification.error(error));
   }, [dataSource, query]);
@@ -166,11 +162,11 @@ function QuerySource(props) {
       }
       if (query.data_source_id !== dataSourceId) {
         recordEvent("update_data_source", "query", query.id, { dataSourceId });
-        const newQuery = clone(query);
-        newQuery.getParameters().query = newQuery;
-        newQuery.data_source_id = dataSourceId;
-        newQuery.latest_query_data_id = null;
-        newQuery.latest_query_data = null;
+        const newQuery = extend(query.clone(), {
+          data_source_id: dataSourceId,
+          latest_query_data_id: null,
+          latest_query_data: null,
+        });
         setQuery(newQuery);
         updateQuery(
           newQuery,
@@ -249,14 +245,13 @@ function QuerySource(props) {
       },
       existingParams: map(query.getParameters().get(), p => p.name),
     }).result.then(param => {
-      const newQuery = clone(query);
-      newQuery.getParameters().query = newQuery;
+      const newQuery = query.clone();
       param = newQuery.getParameters().add(param);
-      setQuery(newQuery);
       if (editorRef.current) {
         editorRef.current.paste(param.toQueryTextFragment());
         editorRef.current.focus();
       }
+      setQuery(newQuery);
     });
   }, [query]);
 

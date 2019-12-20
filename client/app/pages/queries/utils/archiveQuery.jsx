@@ -1,4 +1,4 @@
-import { clone, extend } from "lodash";
+import { extend } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
@@ -33,9 +33,7 @@ function doArchiveQuery(query) {
   // prettier-ignore
   return Query.delete({ id: query.id }).$promise
     .then(() => {
-      const newQuery = clone(query);
-      newQuery.getParameters().query = newQuery;
-      return extend(newQuery, { is_archived: true, schedule: null });
+      return extend(query.clone(), { is_archived: true, schedule: null });
     })
     .catch(error => {
       notification.error("Query could not be archived.");
