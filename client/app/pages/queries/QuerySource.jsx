@@ -260,7 +260,7 @@ function QuerySource(props) {
     });
   }, [query]);
 
-  const handleSchemaItemSelect = useCallback((schemaItem) => {
+  const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
     }
@@ -297,11 +297,7 @@ function QuerySource(props) {
             </Select>
           </div>
           <div className="editor__left__schema">
-            <SchemaBrowser
-              schema={schema}
-              onRefresh={() => reloadSchema(true)}
-              onItemSelect={handleSchemaItemSelect}
-            />
+            <SchemaBrowser schema={schema} onRefresh={() => reloadSchema(true)} onItemSelect={handleSchemaItemSelect} />
           </div>
         </nav>
 
@@ -355,7 +351,9 @@ function QuerySource(props) {
                     executeButtonProps={{
                       title: `${modKey} + Enter`,
                       disabled: !canExecuteQuery || queryExecuting,
-                      onClick: () => { console.log('executeQuery'); },
+                      onClick: () => {
+                        console.log("executeQuery");
+                      },
                       text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
                     }}
                     autocompleteToggleProps={{
@@ -363,12 +361,16 @@ function QuerySource(props) {
                       enabled: autocompleteEnabled,
                       onToggle: toggleAutocomplete,
                     }}
-                    dataSourceSelectorProps={dataSource ? {
-                      disabled: !query.can_edit,
-                      value: dataSource.id,
-                      onChange: handleDataSourceChange,
-                      options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
-                    } : false}
+                    dataSourceSelectorProps={
+                      dataSource
+                        ? {
+                            disabled: !query.can_edit,
+                            value: dataSource.id,
+                            onChange: handleDataSourceChange,
+                            options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
+                          }
+                        : false
+                    }
                   />
                 </section>
               </div>
