@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { first, orderBy } from "lodash";
+import { first, orderBy, find } from "lodash";
 import { $location, $rootScope } from "@/services/ng";
 
 function updateUrlHash(...args) {
@@ -27,6 +27,13 @@ export default function useVisualizationTabHandler(visualizations) {
     );
     return unwatch;
   }, [firstVisualization.id, selectedTab]);
+
+  // make sure selectedTab is in visualizations
+  useEffect(() => {
+    if (!find(visualizations, { id: selectedTab })) {
+      setSelectedTab(firstVisualization.id);
+    }
+  }, [firstVisualization.id, selectedTab, visualizations]);
 
   return [selectedTab, setSelectedTab];
 }
