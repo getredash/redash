@@ -12,6 +12,7 @@ import { TimeAgo } from "@/components/TimeAgo";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
+import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import useForceUpdate from "@/lib/hooks/useForceUpdate";
@@ -75,7 +76,7 @@ function QuerySource(props) {
   const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
 
-  const queryResult = useMemo(() => query.getQueryResult(), [query]);
+  const queryResult = useMemo(() => props.query.getQueryResult(), [props.query]); // TODO: Properly handle this
   const queryResultData = useQueryResult(queryResult);
 
   const editorRef = useRef(null);
@@ -127,13 +128,17 @@ function QuerySource(props) {
   );
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
-    setQuery(extend(clone(query), { query: queryText }));
+    const newQuery = clone(query);
+    newQuery.getParameters().query = newQuery;
+    setQuery(extend(newQuery, { query: queryText }));
   }, 200);
 
   const formatQuery = useCallback(() => {
     Query.format(dataSource.syntax || "sql", query.query)
       .then(queryText => {
-        setQuery(extend(clone(query), { query: queryText }));
+        const newQuery = clone(query);
+        newQuery.getParameters().query = newQuery;
+        setQuery(extend(newQuery, { query: queryText }));
       })
       .catch(error => notification.error(error));
   }, [dataSource, query]);
@@ -162,6 +167,7 @@ function QuerySource(props) {
       if (query.data_source_id !== dataSourceId) {
         recordEvent("update_data_source", "query", query.id, { dataSourceId });
         const newQuery = clone(query);
+        newQuery.getParameters().query = newQuery;
         newQuery.data_source_id = dataSourceId;
         newQuery.latest_query_data_id = null;
         newQuery.latest_query_data = null;
@@ -233,6 +239,27 @@ function QuerySource(props) {
     [query, queryResult, setSelectedTab, forceUpdate]
   );
 
+  const openAddNewParameterDialog = useCallback(() => {
+    EditParameterSettingsDialog.showModal({
+      parameter: {
+        title: null,
+        name: "",
+        type: "text",
+        value: null,
+      },
+      existingParams: map(query.getParameters().get(), p => p.name),
+    }).result.then(param => {
+      const newQuery = clone(query);
+      newQuery.getParameters().query = newQuery;
+      param = newQuery.getParameters().add(param);
+      setQuery(newQuery);
+      if (editorRef.current) {
+        editorRef.current.paste(param.toQueryTextFragment());
+        editorRef.current.focus();
+      }
+    });
+  }, [query]);
+
   const handleSchemaItemSelect = useCallback((schemaItem) => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
@@ -303,7 +330,7 @@ function QuerySource(props) {
                           Add New Parameter (<i>{modKey} + P</i>)
                         </React.Fragment>
                       ),
-                      onClick: () => { console.log('addNewParameter'); },
+                      onClick: openAddNewParameterDialog,
                     }}
                     formatButtonProps={{
                       title: (

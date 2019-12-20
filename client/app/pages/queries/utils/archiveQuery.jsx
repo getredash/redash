@@ -32,7 +32,11 @@ function doArchiveQuery(query) {
   // Prettier will put `.$promise` before `.catch` on next line :facepalm:
   // prettier-ignore
   return Query.delete({ id: query.id }).$promise
-    .then(() => Promise.resolve(extend(clone(query), { is_archived: true, schedule: null })))
+    .then(() => {
+      const newQuery = clone(query);
+      newQuery.getParameters().query = newQuery;
+      return extend(newQuery, { is_archived: true, schedule: null });
+    })
     .catch(error => {
       notification.error("Query could not be archived.");
       return Promise.reject(error);

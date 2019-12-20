@@ -99,7 +99,9 @@ export default function saveQuery(query, data = null, { successMessage = "Query 
       if (!isNil(successMessage)) {
         notification.success(successMessage);
       }
-      return extend(clone(query), pick(updatedQuery, keys(data)));
+      const newQuery = clone(query);
+      newQuery.getParameters().query = newQuery;
+      return extend(newQuery, pick(updatedQuery, keys(data)));
     })
     .catch(error => {
       const notificationOptions = {};
