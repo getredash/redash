@@ -13,21 +13,21 @@ function getMaxAge() {
 export default function useQueryExecute(query) {
   const [queryResult, setQueryResult] = useState(query.getQueryResult(getMaxAge()));
   const queryResultData = useQueryResult(queryResult);
-  const queryExecuting = useMemo(() => !includes(["done", "failed"], queryResultData.status), [queryResultData.status]);
+  const isQueryExecuting = useMemo(() => !includes(["done", "failed"], queryResultData.status), [queryResultData.status]);
 
   const executeQuery = useCallback(() => setQueryResult(query.getQueryResult(0)), [query]);
 
-  const executeQueryWithText = useCallback(
+  const executeAdhocQuery = useCallback(
     selectedQueryText => setQueryResult(query.getQueryResultByText(0, selectedQueryText)),
     [query]
   );
 
   useEffect(() => {
-    if (!queryExecuting && queryResult.query_result.query === query.query) {
+    if (!isQueryExecuting && queryResult.query_result.query === query.query) {
       query.latest_query_data_id = queryResult.getId();
       query.queryResult = queryResult;
     }
-  }, [queryExecuting]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isQueryExecuting]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { queryResult, queryResultData, queryExecuting, executeQuery, executeQueryWithText };
+  return { queryResult, queryResultData, isQueryExecuting, executeQuery, executeAdhocQuery };
 }
