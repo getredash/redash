@@ -110,7 +110,7 @@ function applyFilter(schema, filterString) {
   );
 }
 
-export default function SchemaBrowser({ schema, onRefresh, ...props }) {
+export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...props }) {
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});
@@ -176,6 +176,7 @@ export default function SchemaBrowser({ schema, onRefresh, ...props }) {
                     item={item}
                     expanded={expandedFlags[item.name]}
                     onToggle={() => toggleTable(item.name)}
+                    onSelect={onItemSelect}
                   />
                 );
               }}
@@ -190,9 +191,11 @@ export default function SchemaBrowser({ schema, onRefresh, ...props }) {
 SchemaBrowser.propTypes = {
   schema: PropTypes.arrayOf(SchemaItemType),
   onRefresh: PropTypes.func,
+  onItemSelect: PropTypes.func,
 };
 
 SchemaBrowser.defaultProps = {
   schema: [],
   onRefresh: () => {},
+  onItemSelect: () => {},
 };

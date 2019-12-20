@@ -46,7 +46,7 @@ export default function EditorControl({
           onToggle={autocompleteToggleProps.onToggle}
         />
       )}
-      {dataSourceSelectorProps === false && <span className="flex-fill" />}
+      {dataSourceSelectorProps === false && <span className="query-editor-controls-spacer" />}
       {dataSourceSelectorProps !== false && (
         <Select
           className="w-100 flex-fill datasource-small"

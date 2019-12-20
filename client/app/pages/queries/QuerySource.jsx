@@ -233,6 +233,12 @@ function QuerySource(props) {
     [query, queryResult, setSelectedTab, forceUpdate]
   );
 
+  const handleSchemaItemSelect = useCallback((schemaItem) => {
+    if (editorRef.current) {
+      editorRef.current.paste(schemaItem);
+    }
+  }, []);
+
   const canExecuteQuery = true; // TODO: Replace with real value
   const isDirty = query.query !== originalQuerySource;
 
@@ -264,7 +270,11 @@ function QuerySource(props) {
             </Select>
           </div>
           <div className="editor__left__schema">
-            <SchemaBrowser schema={schema} onRefresh={() => reloadSchema(true)} />
+            <SchemaBrowser
+              schema={schema}
+              onRefresh={() => reloadSchema(true)}
+              onItemSelect={handleSchemaItemSelect}
+            />
           </div>
         </nav>
 
