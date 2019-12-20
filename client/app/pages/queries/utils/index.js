@@ -29,6 +29,11 @@ function renameQuery(query, name) {
   return updateQuery(query, changes, options);
 }
 
+function changeQueryDescription(query, description) {
+  recordEvent("edit_description", "query", query.id);
+  return updateQuery(query, { description });
+}
+
 export {
   updateQuery,
   archiveQuery,
@@ -36,6 +41,7 @@ export {
   publishQuery,
   unpublishQuery,
   renameQuery,
+  changeQueryDescription,
   deleteQueryVisualization,
   addQueryVisualization,
   editQueryVisualization,
