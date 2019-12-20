@@ -13,7 +13,9 @@ function getMaxAge() {
 export default function useQueryExecute(query) {
   const [queryResult, setQueryResult] = useState(query.getQueryResult(getMaxAge()));
   const queryResultData = useQueryResult(queryResult);
-  const isQueryExecuting = useMemo(() => !includes(["done", "failed"], queryResultData.status), [queryResultData.status]);
+  const isQueryExecuting = useMemo(() => !includes(["done", "failed"], queryResultData.status), [
+    queryResultData.status,
+  ]);
 
   const executeQuery = useCallback(() => setQueryResult(query.getQueryResult(0)), [query]);
 
