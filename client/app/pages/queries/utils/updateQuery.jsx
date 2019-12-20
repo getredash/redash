@@ -72,7 +72,7 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
     });
 }
 
-export default function saveQuery(query, data, { successMessage = "Query saved" } = {}) {
+export default function saveQuery(query, data = null, { successMessage = "Query saved" } = {}) {
   if (isObject(data)) {
     // Don't save new query with partial data
     if (query.isNew()) {
