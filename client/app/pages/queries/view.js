@@ -359,6 +359,11 @@ function QueryViewCtrl(
     AlertDialog.open(title, message, confirm).then(archive);
   };
 
+  $scope.handleDataSourceChange = dataSourceId => {
+    $scope.query.data_source_id = dataSourceId;
+    $scope.updateDataSource();
+  };
+
   $scope.updateDataSource = () => {
     Events.record("update_data_source", "query", $scope.query.id);
     localStorage.lastSelectedDataSourceId = $scope.query.data_source_id;
