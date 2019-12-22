@@ -151,7 +151,7 @@ function QueryView(props) {
               query={query}
               queryResult={queryResult}
               queryExecuting={isQueryExecuting}
-              showEmbedDialog={() => EmbedQueryDialog.showEmbedDialog({ query, visualization: currentVisualization })}
+              showEmbedDialog={() => EmbedQueryDialog.showModal({ query, visualization: currentVisualization })}
               openAddToDashboardForm={() =>
                 AddToDashboardDialog.showModal({
                   visualization: currentVisualization,
