@@ -96,6 +96,13 @@ function QuerySource(props) {
   }, []);
 
   useEffect(() => {
+    const updatedDirtyParameters = query.getParameters().hasPendingValues();
+    if (updatedDirtyParameters !== dirtyParameters) {
+      setDirtyParameters(query.getParameters().hasPendingValues());
+    }
+  }, [dirtyParameters, parameters, query]);
+
+  useEffect(() => {
     let cancelDataSourceLoading = false;
     DataSource.query().$promise.then(data => {
       if (!cancelDataSourceLoading) {
