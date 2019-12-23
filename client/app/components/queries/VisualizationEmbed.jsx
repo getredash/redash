@@ -1,44 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { find, has } from 'lodash';
-import { react2angular } from 'react2angular';
-import moment from 'moment';
-import { markdown } from 'markdown';
-import Button from 'antd/lib/button';
-import Dropdown from 'antd/lib/dropdown';
-import Icon from 'antd/lib/icon';
-import Menu from 'antd/lib/menu';
-import Tooltip from 'antd/lib/tooltip';
-import { $location, $routeParams } from '@/services/ng';
-import { formatDateTime } from '@/filters/datetime';
-import HtmlContent from '@/components/HtmlContent';
-import { Parameters } from '@/components/Parameters';
-import { Moment } from '@/components/proptypes';
-import { TimeAgo } from '@/components/TimeAgo';
-import { Timer } from '@/components/Timer';
-import QueryResultsLink from '@/components/EditVisualizationButton/QueryResultsLink';
-import VisualizationName from '@/visualizations/VisualizationName';
-import { VisualizationRenderer } from '@/visualizations/VisualizationRenderer';
-import { VisualizationType } from '@/visualizations';
+import React, { useState, useEffect, useCallback } from "react";
+import PropTypes from "prop-types";
+import { find, has } from "lodash";
+import { react2angular } from "react2angular";
+import moment from "moment";
+import { markdown } from "markdown";
+import Button from "antd/lib/button";
+import Dropdown from "antd/lib/dropdown";
+import Icon from "antd/lib/icon";
+import Menu from "antd/lib/menu";
+import Tooltip from "antd/lib/tooltip";
+import { $location, $routeParams } from "@/services/ng";
+import { formatDateTime } from "@/filters/datetime";
+import HtmlContent from "@/components/HtmlContent";
+import { Parameters } from "@/components/Parameters";
+import { Moment } from "@/components/proptypes";
+import { TimeAgo } from "@/components/TimeAgo";
+import { Timer } from "@/components/Timer";
+import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
+import VisualizationName from "@/visualizations/VisualizationName";
+import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
+import { VisualizationType } from "@/visualizations";
 
-import logoUrl from '@/assets/images/redash_icon_small.png';
+import logoUrl from "@/assets/images/redash_icon_small.png";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
   return (
     <div className="embed-heading p-b-10 p-r-15 p-l-15">
       <h3>
-        <img
-          src={logoUrl}
-          alt="Redash Logo"
-          style={{ height: '24px', verticalAlign: 'text-bottom' }}
-        />
-        <VisualizationName visualization={visualization} />{' '}
-        {queryName}
+        <img src={logoUrl} alt="Redash Logo" style={{ height: "24px", verticalAlign: "text-bottom" }} />
+        <VisualizationName visualization={visualization} /> {queryName}
         {queryDescription && (
           <small>
-            <HtmlContent className="markdown text-muted">
-              {markdown.toHTML(queryDescription || '')}
-            </HtmlContent>
+            <HtmlContent className="markdown text-muted">{markdown.toHTML(queryDescription || "")}</HtmlContent>
           </small>
         )}
       </h3>
@@ -52,7 +45,7 @@ VisualizationEmbedHeader.propTypes = {
   visualization: VisualizationType.isRequired,
 };
 
-VisualizationEmbedHeader.defaultProps = { queryDescription: '' };
+VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
 
 function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl }) {
   const downloadMenu = (
@@ -63,8 +56,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           queryResult={queryResults}
           apiKey={$routeParams.api_key}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed
-        >
+          embed>
           <Icon type="file" /> Download as CSV File
         </QueryResultsLink>
       </Menu.Item>
@@ -75,8 +67,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           queryResult={queryResults}
           apiKey={$routeParams.api_key}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed
-        >
+          embed>
           <Icon type="file-excel" /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
@@ -87,11 +78,11 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
     <div className="tile__bottom-control">
       <span>
         <a className="small hidden-print">
-          <i className="zmdi zmdi-time-restore" />{' '}
+          <i className="zmdi zmdi-time-restore" />{" "}
           {refreshStartedAt ? <Timer from={refreshStartedAt} /> : <TimeAgo date={updatedAt} />}
         </a>
         <span className="small visible-print">
-          <i className="zmdi zmdi-time-restore" />{' '}{formatDateTime(updatedAt)}
+          <i className="zmdi zmdi-time-restore" /> {formatDateTime(updatedAt)}
         </span>
       </span>
       {queryUrl && (
@@ -102,12 +93,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
             </Button>
           </Tooltip>
           {!query.hasParameters() && (
-            <Dropdown
-              overlay={downloadMenu}
-              disabled={!queryResults}
-              trigger={['click']}
-              placement="topLeft"
-            >
+            <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
                 Download Dataset
                 <i className="fa fa-caret-up m-l-5" />
@@ -139,29 +125,32 @@ function VisualizationEmbed({ query }) {
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
-  const hideHeader = has($location.search(), 'hide_header');
-  const hideParametersUI = has($location.search(), 'hide_parameters');
-  const hideQueryLink = has($location.search(), 'hide_link');
+  const hideHeader = has($location.search(), "hide_header");
+  const hideParametersUI = has($location.search(), "hide_parameters");
+  const hideQueryLink = has($location.search(), "hide_link");
 
-  const showQueryDescription = has($location.search(), 'showDescription');
+  const showQueryDescription = has($location.search(), "showDescription");
   const visualizationId = parseInt($routeParams.visualizationId, 10);
   const visualization = find(query.visualizations, vis => vis.id === visualizationId);
 
   const refreshQueryResults = useCallback(() => {
     setError(null);
     setRefreshStartedAt(moment());
-    query.getQueryResultPromise()
-      .then((result) => {
+    query
+      .getQueryResultPromise()
+      .then(result => {
         setQueryResults(result);
-      }).catch((err) => {
+      })
+      .catch(err => {
         setError(err.getError());
-      }).finally(() => setRefreshStartedAt(null));
+      })
+      .finally(() => setRefreshStartedAt(null));
   }, [query]);
 
   useEffect(() => {
-    document.querySelector('body').classList.add('headless');
+    document.querySelector("body").classList.add("headless");
     refreshQueryResults();
-  }, []);
+  }, [refreshQueryResults]);
 
   return (
     <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
@@ -173,16 +162,16 @@ function VisualizationEmbed({ query }) {
         />
       )}
       <div className="col-md-12 query__vis">
-        {(!hideParametersUI && query.hasParameters()) && (
+        {!hideParametersUI && query.hasParameters() && (
           <div className="p-t-15 p-b-10">
             <Parameters parameters={query.getParametersDefs()} onValuesChange={refreshQueryResults} />
           </div>
         )}
         {error && <div className="alert alert-danger" data-test="ErrorMessage">{`Error: ${error}`}</div>}
-        {(!error && queryResults) && (
+        {!error && queryResults && (
           <VisualizationRenderer visualization={visualization} queryResult={queryResults} context="widget" />
         )}
-        {(!queryResults && refreshStartedAt) && (
+        {!queryResults && refreshStartedAt && (
           <div className="d-flex justify-content-center">
             <div className="spinner">
               <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" />
@@ -204,7 +193,7 @@ function VisualizationEmbed({ query }) {
 VisualizationEmbed.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
 export default function init(ngModule) {
-  ngModule.component('visualizationEmbed', react2angular(VisualizationEmbed));
+  ngModule.component("visualizationEmbed", react2angular(VisualizationEmbed));
 
   function loadSession($route, Auth) {
     const apiKey = $route.current.params.api_key;
@@ -213,13 +202,13 @@ export default function init(ngModule) {
   }
 
   function loadQuery($route, Auth, Query) {
-    'ngInject';
+    "ngInject";
 
     return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
   }
 
-  ngModule.config(($routeProvider) => {
-    $routeProvider.when('/embed/query/:queryId/visualization/:visualizationId', {
+  ngModule.config($routeProvider => {
+    $routeProvider.when("/embed/query/:queryId/visualization/:visualizationId", {
       resolve: {
         query: loadQuery,
       },
