@@ -15,6 +15,7 @@ import {
   each,
   some,
   clone,
+  find,
 } from "lodash";
 
 import { Parameter } from "./parameters";
@@ -68,6 +69,13 @@ class Parameters {
 
   updateParameters(update) {
     if (this.query.query && this.query.query === this.cachedQueryText) {
+      const parameters = this.query.options.parameters;
+      const hasUnprocessedParameters = find(parameters, p => !(p instanceof Parameter));
+      if (hasUnprocessedParameters) {
+        this.query.options.parameters = map(parameters, p =>
+          p instanceof Parameter ? p : Parameter.create(p, this.query.id)
+        );
+      }
       return;
     }
 

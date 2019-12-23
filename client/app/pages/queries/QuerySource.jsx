@@ -74,6 +74,7 @@ function QuerySource(props) {
   const refreshSchemaTokenRef = useRef(null);
   const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
+  const [dirtyParameters, setDirtyParameters] = useState(query.getParameters().hasPendingValues());
 
   const { queryResult, queryResultData, isQueryExecuting, executeQuery, executeAdhocQuery } = useQueryExecute(query);
 
@@ -246,9 +247,9 @@ function QuerySource(props) {
 
   const canExecuteQuery = useMemo(
     () =>
-      !query.getParameters().hasPendingValues() &&
+      !dirtyParameters &&
       (query.is_safe || (currentUser.hasPermission("execute_query") && dataSource && !dataSource.view_only)),
-    [query, dataSource]
+    [dirtyParameters, query, dataSource]
   );
   const isDirty = query.query !== originalQuerySource;
 
@@ -260,6 +261,20 @@ function QuerySource(props) {
       executeQuery();
     }
   }, [query, isDirty, selectedText, executeQuery, executeAdhocQuery]);
+
+  useEffect(() => {
+    const shortcuts = {
+      "mod+enter": doExecuteQuery,
+      "alt+enter": doExecuteQuery,
+      "mod+s": saveQuery,
+      "mod+p": openAddNewParameterDialog,
+      "mod+shift+f": () => formatQuery,
+    };
+    KeyboardShortcuts.bind(shortcuts);
+    return () => {
+      KeyboardShortcuts.unbind(shortcuts);
+    };
+  }, [doExecuteQuery, saveQuery, openAddNewParameterDialog, formatQuery]);
 
   const modKey = KeyboardShortcuts.modKey;
 
@@ -371,7 +386,23 @@ function QuerySource(props) {
                   style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
                   {query.hasParameters() && (
                     <div className="p-t-15 p-b-5">
-                      <Parameters parameters={parameters} />
+                      <Parameters
+                        editable={query.can_edit}
+                        disableUrlUpdate={query.isNew()}
+                        parameters={parameters}
+                        onPendingValuesChange={() => setDirtyParameters(query.getParameters().hasPendingValues())}
+                        onValuesChange={() => {
+                          setDirtyParameters(false);
+                          doExecuteQuery();
+                        }}
+                        onParametersEdit={() => {
+                          // save if query clean
+                          // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
+                          if (!isDirty) {
+                            saveQuery();
+                          }
+                        }}
+                      />
                     </div>
                   )}
                   {queryResult && queryResultData.status !== "done" && (
