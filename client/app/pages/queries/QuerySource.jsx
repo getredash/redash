@@ -390,7 +390,7 @@ function QuerySource(props) {
                         editable={query.can_edit}
                         disableUrlUpdate={query.isNew()}
                         parameters={parameters}
-                        onPendingValuesChange={() => setDirtyParameters(query.getParameters().hasPendingValues()) }
+                        onPendingValuesChange={() => setDirtyParameters(query.getParameters().hasPendingValues())}
                         onValuesChange={() => {
                           setDirtyParameters(false);
                           doExecuteQuery();
