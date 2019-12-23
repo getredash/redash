@@ -1,4 +1,4 @@
-import { extend, filter, find, map, includes, reduce } from "lodash";
+import { isEmpty, extend, filter, find, map, includes, reduce } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
@@ -14,11 +14,13 @@ import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import { durationHumanize, prettySize } from "@/filters";
+import { currentUser } from "@/services/auth";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
 import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
+import navigateTo from "@/services/navigateTo";
 import localOptions from "@/lib/localOptions";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -181,6 +183,9 @@ function QuerySource(props) {
     updateQuery(query).then(updatedQuery => {
       setQuery(updatedQuery);
       setOriginalQuerySource(updatedQuery.query);
+      if (updatedQuery.id !== query.id) {
+        navigateTo(updatedQuery.getSourceLink());
+      }
     });
   }, [query]);
 
@@ -239,8 +244,22 @@ function QuerySource(props) {
     }
   }, []);
 
-  const canExecuteQuery = true; // TODO: Replace with real value
+  const canExecuteQuery = useMemo(
+    () =>
+      !query.getParameters().hasPendingValues() &&
+      (query.is_safe || (currentUser.hasPermission("execute_query") && dataSource && !dataSource.view_only)),
+    [query, dataSource]
+  );
   const isDirty = query.query !== originalQuerySource;
+
+  const doExecuteQuery = useCallback(() => {
+    recordEvent("execute", "query", query.id);
+    if (isDirty || !isEmpty(selectedText)) {
+      executeAdhocQuery(selectedText);
+    } else {
+      executeQuery();
+    }
+  }, [query, isDirty, selectedText, executeQuery, executeAdhocQuery]);
 
   const modKey = KeyboardShortcuts.modKey;
 
@@ -323,14 +342,8 @@ function QuerySource(props) {
                     }
                     executeButtonProps={{
                       title: `${modKey} + Enter`,
-                      disabled: !canExecuteQuery || isQueryExecuting,
-                      onClick: () => {
-                        if (selectedText === null) {
-                          executeQuery();
-                        } else {
-                          executeAdhocQuery(selectedText);
-                        }
-                      },
+                      disabled: isEmpty(query.query) || !canExecuteQuery || isQueryExecuting,
+                      onClick: doExecuteQuery,
                       text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
                     }}
                     autocompleteToggleProps={{
@@ -361,7 +374,7 @@ function QuerySource(props) {
                       <Parameters parameters={parameters} />
                     </div>
                   )}
-                  {queryResultData.status !== "done" && (
+                  {queryResult && queryResultData.status !== "done" && (
                     <div className="query-alerts m-t-15 m-b-15">
                       <QueryExecutionStatus
                         status={queryResultData.status}

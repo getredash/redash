@@ -11,9 +11,12 @@ function getMaxAge() {
 }
 
 export default function useQueryExecute(query) {
-  const [queryResult, setQueryResult] = useState(query.getQueryResult(getMaxAge()));
+  const [queryResult, setQueryResult] = useState(
+    query.hasResult() || query.paramsRequired() ? query.getQueryResult(getMaxAge()) : null
+  );
   const queryResultData = useQueryResult(queryResult);
-  const isQueryExecuting = useMemo(() => !includes(["done", "failed"], queryResultData.status), [
+  const isQueryExecuting = useMemo(() => queryResult && !includes(["done", "failed"], queryResultData.status), [
+    queryResult,
     queryResultData.status,
   ]);
 
@@ -25,7 +28,7 @@ export default function useQueryExecute(query) {
   );
 
   useEffect(() => {
-    if (!isQueryExecuting && queryResult.query_result.query === query.query) {
+    if (!isQueryExecuting && queryResult && queryResult.query_result.query === query.query) {
       query.latest_query_data_id = queryResult.getId();
       query.queryResult = queryResult;
     }
