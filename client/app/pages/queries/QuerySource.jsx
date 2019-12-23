@@ -11,11 +11,9 @@ import QueryEditor from "@/components/queries/QueryEditor";
 import { TimeAgo } from "@/components/TimeAgo";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
-import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
-import useForceUpdate from "@/lib/hooks/useForceUpdate";
 import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
@@ -28,7 +26,7 @@ import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import SchemaBrowser from "./components/SchemaBrowser";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
-import { updateQuery } from "./utils";
+import { updateQuery, deleteQueryVisualization, addQueryVisualization, editQueryVisualization } from "./utils";
 
 import "./query-source.less";
 
@@ -60,8 +58,6 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
-  const forceUpdate = useForceUpdate();
-
   const [query, setQuery] = useState(props.query);
   const [originalQuerySource, setOriginalQuerySource] = useState(props.query.query);
   const [allDataSources, setAllDataSources] = useState([]);
@@ -217,22 +213,6 @@ function QuerySource(props) {
       EmbedQueryDialog.showModal({ query, visualization });
     },
     [query]
-  );
-
-  const openEditVisualizationDialog = useCallback(
-    visualizationId => {
-      // TODO: New queries should be saved (and URL updated), and only then this dialog should appear
-      const visualization = find(query.visualizations, { id: visualizationId });
-      EditVisualizationDialog.showModal({
-        query,
-        visualization,
-        queryResult,
-      }).result.then(visualization => {
-        setSelectedTab(visualization.id);
-        forceUpdate();
-      });
-    },
-    [query, queryResult, setSelectedTab, forceUpdate]
   );
 
   const openAddNewParameterDialog = useCallback(() => {
@@ -400,8 +380,18 @@ function QuerySource(props) {
                           queryResult={queryResult}
                           visualizations={query.visualizations}
                           showNewVisualizationButton={query.can_edit}
+                          canDeleteVisualizations={query.can_edit}
                           selectedTab={selectedTab}
                           onChangeTab={setSelectedTab}
+                          onClickNewVisualization={() =>
+                            addQueryVisualization(query, queryResult).then(({ query, visualization }) => {
+                              setQuery(query);
+                              setSelectedTab(visualization.id);
+                            })
+                          }
+                          onDeleteVisualization={visualization =>
+                            deleteQueryVisualization(query, visualization).then(setQuery)
+                          }
                         />
                       </div>
                     </div>
@@ -415,7 +405,13 @@ function QuerySource(props) {
               <div className="bottom-controller">
                 {!query.isNew() && query.can_edit && (
                   <EditVisualizationButton
-                    openVisualizationEditor={openEditVisualizationDialog}
+                    openVisualizationEditor={visId =>
+                      editQueryVisualization(
+                        query,
+                        queryResult,
+                        find(query.visualizations, { id: visId })
+                      ).then(({ query }) => setQuery(query))
+                    }
                     selectedTab={selectedTab}
                   />
                 )}
