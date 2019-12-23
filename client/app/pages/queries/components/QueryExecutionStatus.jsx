@@ -37,11 +37,14 @@ export default function QueryExecutionStatus({ status, updatedAt, error, onCance
       message={
         <div className="d-flex align-items-center">
           <div className="flex-fill">
-            {message}{" "}
-            {showTimer && <Timer from={updatedAt} />}
+            {message} {showTimer && <Timer from={updatedAt} />}
           </div>
           <div>
-            {canCancel && <Button type="primary" size="small" onClick={onCancel}>Cancel</Button>}
+            {canCancel && (
+              <Button type="primary" size="small" onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
           </div>
         </div>
       }
