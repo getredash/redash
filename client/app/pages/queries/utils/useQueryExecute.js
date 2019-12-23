@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { noop, includes } from "lodash";
 import useQueryResult from "@/lib/hooks/useQueryResult";
-import { useCallback } from "react";
 import { $location } from "@/services/ng";
+import recordEvent from "@/services/recordEvent";
 
 function getMaxAge() {
   const maxAge = $location.search().maxAge;
@@ -23,10 +23,16 @@ export default function useQueryExecute(query) {
     queryResultData.status,
   ]);
 
-  const executeQuery = useCallback(() => setQueryResult(query.getQueryResult(0)), [query]);
+  const executeQuery = useCallback(() => {
+    recordEvent("execute", "query", query.id);
+    setQueryResult(query.getQueryResult(0));
+  }, [query]);
 
   const executeAdhocQuery = useCallback(
-    selectedQueryText => setQueryResult(query.getQueryResultByText(0, selectedQueryText)),
+    selectedQueryText => {
+      recordEvent("execute", "query", query.id);
+      setQueryResult(query.getQueryResultByText(0, selectedQueryText));
+    },
     [query]
   );
 

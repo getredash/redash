@@ -261,13 +261,12 @@ function QuerySource(props) {
   const isDirty = query.query !== originalQuerySource;
 
   const doExecuteQuery = useCallback(() => {
-    recordEvent("execute", "query", query.id);
     if (isDirty || !isEmpty(selectedText)) {
       executeAdhocQuery(selectedText);
     } else {
       executeQuery();
     }
-  }, [query, isDirty, selectedText, executeQuery, executeAdhocQuery]);
+  }, [isDirty, selectedText, executeQuery, executeAdhocQuery]);
 
   useEffect(() => {
     const shortcuts = {
