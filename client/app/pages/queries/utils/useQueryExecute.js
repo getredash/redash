@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from "react";
-import { includes } from "lodash";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { noop, includes } from "lodash";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import { useCallback } from "react";
 import { $location } from "@/services/ng";
@@ -10,13 +10,13 @@ function getMaxAge() {
 }
 
 export default function useQueryExecute(query) {
-  // This variable should be initialized only once on component mount
-  const initialQueryResult = useMemo(
-    () => (query.hasResult() || query.paramsRequired() ? query.getQueryResult(getMaxAge()) : null),
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+  // Query result should be initialized only once on component mount
+  const initializeQueryResultRef = useRef(() =>
+    query.hasResult() || query.paramsRequired() ? query.getQueryResult(getMaxAge()) : null
   );
+  const [queryResult, setQueryResult] = useState(initializeQueryResultRef.current());
+  initializeQueryResultRef.current = noop;
 
-  const [queryResult, setQueryResult] = useState(initialQueryResult);
   const queryResultData = useQueryResult(queryResult);
   const isQueryExecuting = useMemo(() => queryResult && !includes(["done", "failed"], queryResultData.status), [
     queryResult,
