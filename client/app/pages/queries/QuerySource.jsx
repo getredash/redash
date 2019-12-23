@@ -264,17 +264,31 @@ function QuerySource(props) {
 
   useEffect(() => {
     const shortcuts = {
-      "mod+enter": doExecuteQuery,
-      "alt+enter": doExecuteQuery,
       "mod+s": saveQuery,
       "mod+p": openAddNewParameterDialog,
       "mod+shift+f": () => formatQuery,
     };
+
+    if (!isEmpty(query.query) && canExecuteQuery && !isQueryExecuting) {
+      extend(shortcuts, {
+        "mod+enter": doExecuteQuery,
+        "alt+enter": doExecuteQuery,
+      });
+    }
+
     KeyboardShortcuts.bind(shortcuts);
     return () => {
       KeyboardShortcuts.unbind(shortcuts);
     };
-  }, [doExecuteQuery, saveQuery, openAddNewParameterDialog, formatQuery]);
+  }, [
+    doExecuteQuery,
+    saveQuery,
+    openAddNewParameterDialog,
+    formatQuery,
+    query.query,
+    canExecuteQuery,
+    isQueryExecuting,
+  ]);
 
   const modKey = KeyboardShortcuts.modKey;
 
