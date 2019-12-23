@@ -13,7 +13,6 @@ import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
-import useQueryResult from "@/lib/hooks/useQueryResult";
 import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
@@ -24,8 +23,10 @@ import localOptions from "@/lib/localOptions";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
+import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
+import useQueryExecute from "./utils/useQueryExecute";
 import { updateQuery, deleteQueryVisualization, addQueryVisualization, editQueryVisualization } from "./utils";
 
 import "./query-source.less";
@@ -72,8 +73,7 @@ function QuerySource(props) {
   const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
 
-  const queryResult = useMemo(() => props.query.getQueryResult(), [props.query]); // TODO: Properly handle this
-  const queryResultData = useQueryResult(queryResult);
+  const { queryResult, queryResultData, isQueryExecuting, executeQuery, executeAdhocQuery } = useQueryExecute(query);
 
   const editorRef = useRef(null);
   const autocompleteAvailable = useMemo(() => {
@@ -197,8 +197,6 @@ function QuerySource(props) {
     }
   }, [query, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
-  const queryExecuting = false; // TODO: Replace with real value
-
   const openAddToDashboardDialog = useCallback(
     visualizationId => {
       const visualization = find(query.visualizations, { id: visualizationId });
@@ -285,7 +283,7 @@ function QuerySource(props) {
                 <section className="query-editor-wrapper" data-test="QueryEditor">
                   <QueryEditor
                     ref={editorRef}
-                    data-executing={queryExecuting ? "true" : null}
+                    data-executing={isQueryExecuting ? "true" : null}
                     syntax={dataSource ? dataSource.syntax : null}
                     value={query.query}
                     schema={schema}
@@ -325,9 +323,13 @@ function QuerySource(props) {
                     }
                     executeButtonProps={{
                       title: `${modKey} + Enter`,
-                      disabled: !canExecuteQuery || queryExecuting,
+                      disabled: !canExecuteQuery || isQueryExecuting,
                       onClick: () => {
-                        console.log("executeQuery");
+                        if (selectedText === null) {
+                          executeQuery();
+                        } else {
+                          executeAdhocQuery(selectedText);
+                        }
                       },
                       text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
                     }}
@@ -359,7 +361,16 @@ function QuerySource(props) {
                       <Parameters parameters={parameters} />
                     </div>
                   )}
-                  <div className="query-alerts">{/* Query Execution Status */}</div>
+                  {queryResultData.status !== "done" && (
+                    <div className="query-alerts m-t-15 m-b-15">
+                      <QueryExecutionStatus
+                        status={queryResultData.status}
+                        updatedAt={queryResultData.updatedAt}
+                        error={queryResultData.error}
+                        onCancel={() => console.log("Query execution cancelled")}
+                      />
+                    </div>
+                  )}
 
                   {queryResultData.status === "done" && (
                     <div className="flex-fill p-relative">
@@ -418,7 +429,7 @@ function QuerySource(props) {
                 <QueryControlDropdown
                   query={query}
                   queryResult={queryResult}
-                  queryExecuting={false}
+                  queryExecuting={isQueryExecuting}
                   showEmbedDialog={openEmbedDialog}
                   embed={false}
                   apiKey={query.api_key}
@@ -432,13 +443,13 @@ function QuerySource(props) {
                     {queryResultData.rows.length === 1 ? " row" : " rows"}
                   </span>
                   <span className="query-metadata__property">
-                    {!queryExecuting && (
+                    {!isQueryExecuting && (
                       <React.Fragment>
                         <strong>{durationHumanize(queryResultData.runtime)}</strong>
                         <span className="hidden-xs"> runtime</span>
                       </React.Fragment>
                     )}
-                    {queryExecuting && <span>Running&hellip;</span>}
+                    {isQueryExecuting && <span>Running&hellip;</span>}
                   </span>
                   {queryResultData.metadata.data_scanned && (
                     <span className="query-metadata__property">
