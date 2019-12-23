@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useDebouncedCallback } from 'use-debounce';
-import { Section, Input, ContextHelp } from '@/components/visualizations/editor';
-import { createDateTimeFormatter } from '@/lib/value-format';
+import React from "react";
+import PropTypes from "prop-types";
+import { useDebouncedCallback } from "use-debounce";
+import { Section, Input, ContextHelp } from "@/components/visualizations/editor";
+import { createDateTimeFormatter } from "@/lib/value-format";
 
 function Editor({ column, onChange }) {
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
@@ -10,7 +10,12 @@ function Editor({ column, onChange }) {
   return (
     <Section>
       <Input
-        label={(<React.Fragment>Date/Time format<ContextHelp.DateTimeFormatSpecs /></React.Fragment>)}
+        label={
+          <React.Fragment>
+            Date/Time format
+            <ContextHelp.DateTimeFormatSpecs />
+          </React.Fragment>
+        }
         data-test="Table.ColumnEditor.DateTime.Format"
         defaultValue={column.dateTimeFormat}
         onChange={event => onChangeDebounced({ dateTimeFormat: event.target.value })}
@@ -36,7 +41,8 @@ export default function initDateTimeColumn(column) {
     };
   }
 
-  function DateTimeColumn({ row }) { // eslint-disable-line react/prop-types
+  function DateTimeColumn({ row }) {
+    // eslint-disable-line react/prop-types
     const { text } = prepareData(row);
     return text;
   }
@@ -46,5 +52,5 @@ export default function initDateTimeColumn(column) {
   return DateTimeColumn;
 }
 
-initDateTimeColumn.friendlyName = 'Date/Time';
+initDateTimeColumn.friendlyName = "Date/Time";
 initDateTimeColumn.Editor = Editor;

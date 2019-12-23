@@ -1,34 +1,34 @@
-import { filter, map, includes } from 'lodash';
-import React from 'react';
-import { react2angular } from 'react2angular';
-import Button from 'antd/lib/button';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
-import Icon from 'antd/lib/icon';
+import { filter, map, includes } from "lodash";
+import React from "react";
+import { react2angular } from "react2angular";
+import Button from "antd/lib/button";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import Icon from "antd/lib/icon";
 
-import { Paginator } from '@/components/Paginator';
+import { Paginator } from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from '@/components/items-list/ItemsList';
-import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
-import { StateStorage } from '@/components/items-list/classes/StateStorage';
+import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
+import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
-import LoadingState from '@/components/items-list/components/LoadingState';
-import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
-import SelectItemsDialog from '@/components/SelectItemsDialog';
-import { DataSourcePreviewCard } from '@/components/PreviewCard';
+import LoadingState from "@/components/items-list/components/LoadingState";
+import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
+import SelectItemsDialog from "@/components/SelectItemsDialog";
+import { DataSourcePreviewCard } from "@/components/PreviewCard";
 
-import GroupName from '@/components/groups/GroupName';
-import ListItemAddon from '@/components/groups/ListItemAddon';
-import Sidebar from '@/components/groups/DetailsPageSidebar';
-import Layout from '@/components/layouts/ContentWithSidebar';
-import wrapSettingsTab from '@/components/SettingsWrapper';
+import GroupName from "@/components/groups/GroupName";
+import ListItemAddon from "@/components/groups/ListItemAddon";
+import Sidebar from "@/components/groups/DetailsPageSidebar";
+import Layout from "@/components/layouts/ContentWithSidebar";
+import wrapSettingsTab from "@/components/SettingsWrapper";
 
-import notification from '@/services/notification';
-import { currentUser } from '@/services/auth';
-import { Group } from '@/services/group';
-import { DataSource } from '@/services/data-source';
-import navigateTo from '@/services/navigateTo';
-import { routesToAngularRoutes } from '@/lib/utils';
+import notification from "@/services/notification";
+import { currentUser } from "@/services/auth";
+import { Group } from "@/services/group";
+import { DataSource } from "@/services/data-source";
+import navigateTo from "@/services/navigateTo";
+import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -41,87 +41,95 @@ class GroupDataSources extends React.Component {
 
   sidebarMenu = [
     {
-      key: 'users',
+      key: "users",
       href: `groups/${this.groupId}`,
-      title: 'Members',
+      title: "Members",
     },
     {
-      key: 'datasources',
+      key: "datasources",
       href: `groups/${this.groupId}/data_sources`,
-      title: 'Data Sources',
+      title: "Data Sources",
       isAvailable: () => currentUser.isAdmin,
     },
   ];
 
   listColumns = [
-    Columns.custom((text, datasource) => (
-      <DataSourcePreviewCard dataSource={datasource} withLink />
-    ), {
-      title: 'Name',
-      field: 'name',
+    Columns.custom((text, datasource) => <DataSourcePreviewCard dataSource={datasource} withLink />, {
+      title: "Name",
+      field: "name",
       width: null,
     }),
-    Columns.custom((text, datasource) => {
-      const menu = (
-        <Menu
-          selectedKeys={[datasource.view_only ? 'viewonly' : 'full']}
-          onClick={item => this.setDataSourcePermissions(datasource, item.key)}
-        >
-          <Menu.Item key="full">Full Access</Menu.Item>
-          <Menu.Item key="viewonly">View Only</Menu.Item>
-        </Menu>
-      );
+    Columns.custom(
+      (text, datasource) => {
+        const menu = (
+          <Menu
+            selectedKeys={[datasource.view_only ? "viewonly" : "full"]}
+            onClick={item => this.setDataSourcePermissions(datasource, item.key)}>
+            <Menu.Item key="full">Full Access</Menu.Item>
+            <Menu.Item key="viewonly">View Only</Menu.Item>
+          </Menu>
+        );
 
-      return (
-        <Dropdown trigger={['click']} overlay={menu}>
-          <Button className="w-100">{datasource.view_only ? 'View Only' : 'Full Access'}<Icon type="down" /></Button>
-        </Dropdown>
-      );
-    }, {
-      width: '1%',
-      className: 'p-r-0',
-      isAvailable: () => currentUser.isAdmin,
-    }),
-    Columns.custom((text, datasource) => (
-      <Button className="w-100" type="danger" onClick={() => this.removeGroupDataSource(datasource)}>Remove</Button>
-    ), {
-      width: '1%',
-      isAvailable: () => currentUser.isAdmin,
-    }),
+        return (
+          <Dropdown trigger={["click"]} overlay={menu}>
+            <Button className="w-100">
+              {datasource.view_only ? "View Only" : "Full Access"}
+              <Icon type="down" />
+            </Button>
+          </Dropdown>
+        );
+      },
+      {
+        width: "1%",
+        className: "p-r-0",
+        isAvailable: () => currentUser.isAdmin,
+      }
+    ),
+    Columns.custom(
+      (text, datasource) => (
+        <Button className="w-100" type="danger" onClick={() => this.removeGroupDataSource(datasource)}>
+          Remove
+        </Button>
+      ),
+      {
+        width: "1%",
+        isAvailable: () => currentUser.isAdmin,
+      }
+    ),
   ];
 
   componentDidMount() {
-    Group.get({ id: this.groupId }).$promise
-      .then((group) => {
+    Group.get({ id: this.groupId })
+      .$promise.then(group => {
         this.group = group;
         this.forceUpdate();
       })
-      .catch((error) => {
+      .catch(error => {
         this.props.controller.handleError(error);
       });
   }
 
-  removeGroupDataSource = (datasource) => {
-    Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id }).$promise
-      .then(() => {
+  removeGroupDataSource = datasource => {
+    Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id })
+      .$promise.then(() => {
         this.props.controller.updatePagination({ page: 1 });
         this.props.controller.update();
       })
       .catch(() => {
-        notification.error('Failed to remove data source from group.');
+        notification.error("Failed to remove data source from group.");
       });
   };
 
   setDataSourcePermissions = (datasource, permission) => {
-    const viewOnly = permission !== 'full';
+    const viewOnly = permission !== "full";
 
-    Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly }).$promise
-      .then(() => {
+    Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
+      .$promise.then(() => {
         datasource.view_only = viewOnly;
         this.forceUpdate();
       })
       .catch(() => {
-        notification.error('Failed change data source permissions.');
+        notification.error("Failed change data source permissions.");
       });
   };
 
@@ -129,10 +137,10 @@ class GroupDataSources extends React.Component {
     const allDataSources = DataSource.query().$promise;
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
-      dialogTitle: 'Add Data Sources',
-      inputPlaceholder: 'Search data sources...',
-      selectedItemsTitle: 'New Data Sources',
-      searchItems: (searchTerm) => {
+      dialogTitle: "Add Data Sources",
+      inputPlaceholder: "Search data sources...",
+      selectedItemsTitle: "New Data Sources",
+      searchItems: searchTerm => {
         searchTerm = searchTerm.toLowerCase();
         return allDataSources.then(items => filter(items, ds => ds.name.toLowerCase().includes(searchTerm)));
       },
@@ -145,7 +153,7 @@ class GroupDataSources extends React.Component {
             </DataSourcePreviewCard>
           ),
           isDisabled: alreadyInGroup,
-          className: isSelected || alreadyInGroup ? 'selected' : '',
+          className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
       renderStagedItem: (item, { isSelected }) => ({
@@ -155,7 +163,7 @@ class GroupDataSources extends React.Component {
           </DataSourcePreviewCard>
         ),
       }),
-      save: (items) => {
+      save: items => {
         const promises = map(items, ds => Group.addDataSource({ id: this.groupId, data_source_id: ds.id }).$promise);
         return Promise.all(promises);
       },
@@ -177,44 +185,41 @@ class GroupDataSources extends React.Component {
               items={this.sidebarMenu}
               canAddDataSources={currentUser.isAdmin}
               onAddDataSourcesClick={this.addDataSources}
-              onGroupDeleted={() => navigateTo('/groups', true)}
+              onGroupDeleted={() => navigateTo("/groups", true)}
             />
           </Layout.Sidebar>
           <Layout.Content>
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                <p>
-                  There are no data sources in this group yet.
-                </p>
+                <p>There are no data sources in this group yet.</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addDataSources}>
-                    <i className="fa fa-plus m-r-5" />Add Data Sources
+                    <i className="fa fa-plus m-r-5" />
+                    Add Data Sources
                   </Button>
                 )}
               </div>
             )}
-            {
-              controller.isLoaded && !controller.isEmpty && (
-                <div className="table-responsive">
-                  <ItemsTable
-                    items={controller.pageItems}
-                    columns={this.listColumns}
-                    showHeader={false}
-                    context={this.actions}
-                    orderByField={controller.orderByField}
-                    orderByReverse={controller.orderByReverse}
-                    toggleSorting={controller.toggleSorting}
-                  />
-                  <Paginator
-                    totalCount={controller.totalItemsCount}
-                    itemsPerPage={controller.itemsPerPage}
-                    page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
-                  />
-                </div>
-              )
-            }
+            {controller.isLoaded && !controller.isEmpty && (
+              <div className="table-responsive">
+                <ItemsTable
+                  items={controller.pageItems}
+                  columns={this.listColumns}
+                  showHeader={false}
+                  context={this.actions}
+                  orderByField={controller.orderByField}
+                  orderByReverse={controller.orderByReverse}
+                  toggleSorting={controller.toggleSorting}
+                />
+                <Paginator
+                  totalCount={controller.totalItemsCount}
+                  itemsPerPage={controller.itemsPerPage}
+                  page={controller.page}
+                  onChange={page => controller.updatePagination({ page })}
+                />
+              </div>
+            )}
           </Layout.Content>
         </Layout>
       </div>
@@ -223,38 +228,49 @@ class GroupDataSources extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageGroupDataSources', react2angular(wrapSettingsTab(null, liveItemsList(
-    GroupDataSources,
-    new ResourceItemsSource({
-      isPlainList: true,
-      getRequest(unused, { params: { groupId } }) {
-        return { id: groupId };
-      },
-      getResource() {
-        return Group.dataSources.bind(Group);
-      },
-      getItemProcessor() {
-        return (item => new DataSource(item));
-      },
-    }),
-    new StateStorage({ orderByField: 'name' }),
-  ))));
+  ngModule.component(
+    "pageGroupDataSources",
+    react2angular(
+      wrapSettingsTab(
+        null,
+        liveItemsList(
+          GroupDataSources,
+          new ResourceItemsSource({
+            isPlainList: true,
+            getRequest(unused, { params: { groupId } }) {
+              return { id: groupId };
+            },
+            getResource() {
+              return Group.dataSources.bind(Group);
+            },
+            getItemProcessor() {
+              return item => new DataSource(item);
+            },
+          }),
+          new StateStorage({ orderByField: "name" })
+        )
+      )
+    )
+  );
 
-  return routesToAngularRoutes([
+  return routesToAngularRoutes(
+    [
+      {
+        path: "/groups/:groupId/data_sources",
+        title: "Group Data Sources",
+        key: "datasources",
+      },
+    ],
     {
-      path: '/groups/:groupId/data_sources',
-      title: 'Group Data Sources',
-      key: 'datasources',
-    },
-  ], {
-    reloadOnSearch: false,
-    template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
-    controller($scope, $exceptionHandler) {
-      'ngInject';
+      reloadOnSearch: false,
+      template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
+      controller($scope, $exceptionHandler) {
+        "ngInject";
 
-      $scope.handleError = $exceptionHandler;
-    },
-  });
+        $scope.handleError = $exceptionHandler;
+      },
+    }
+  );
 }
 
 init.init = true;

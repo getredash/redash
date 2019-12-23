@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 
-import { isFinite, isString, isArray, isObject, keys, map } from 'lodash';
-import React, { useState } from 'react';
-import cx from 'classnames';
-import PropTypes from 'prop-types';
+import { isFinite, isString, isArray, isObject, keys, map } from "lodash";
+import React, { useState } from "react";
+import cx from "classnames";
+import PropTypes from "prop-types";
 
-import './json-view-interactive.less';
+import "./json-view-interactive.less";
 
 function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -15,14 +15,16 @@ function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
 
   return (
     <React.Fragment>
-      {(count > 0) && (
+      {count > 0 && (
         <span className="jvi-toggle" onClick={() => setIsExpanded(!isExpanded)}>
-          <i className={cx('fa', { 'fa-caret-right': !isExpanded, 'fa-caret-down': isExpanded })} />
+          <i className={cx("fa", { "fa-caret-right": !isExpanded, "fa-caret-down": isExpanded })} />
         </span>
       )}
       <span className="jvi-punctuation jvi-braces">{openingBrace}</span>
-      {!isExpanded && (count > 0) && (
-        <span className="jvi-punctuation jvi-ellipsis" onClick={() => setIsExpanded(true)}>&hellip;</span>
+      {!isExpanded && count > 0 && (
+        <span className="jvi-punctuation jvi-ellipsis" onClick={() => setIsExpanded(true)}>
+          &hellip;
+        </span>
       )}
       {isExpanded && (
         <span className="jvi-block">
@@ -32,9 +34,8 @@ function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
             const comma = isLast ? null : <span className="jvi-punctuation jvi-comma">,</span>;
             return (
               <span
-                key={'item-' + key}
-                className={cx('jvi-item', { 'jvi-nested-first': isFirst, 'jvi-nested-last': isLast })}
-              >
+                key={"item-" + key}
+                className={cx("jvi-item", { "jvi-nested-first": isFirst, "jvi-nested-last": isLast })}>
                 {withKeys && (
                   <span className="jvi-object-key">
                     <JsonValue value={key}>
@@ -50,18 +51,16 @@ function JsonBlock({ value, children, openingBrace, closingBrace, withKeys }) {
       )}
       <span className="jvi-punctuation jvi-braces">{closingBrace}</span>
       {children}
-      {!isExpanded && (
-        <span className="jvi-comment">{' // ' + count + ' ' + (count === 1 ? 'item' : 'items')}</span>
-      )}
+      {!isExpanded && <span className="jvi-comment">{" // " + count + " " + (count === 1 ? "item" : "items")}</span>}
     </React.Fragment>
   );
 }
 
 function JsonValue({ value, children }) {
-  if ((value === null) || (value === false) || (value === true) || isFinite(value)) {
+  if (value === null || value === false || value === true || isFinite(value)) {
     return (
       <span className="jvi-value jvi-primitive">
-        {'' + value}
+        {"" + value}
         {children}
       </span>
     );
@@ -77,10 +76,18 @@ function JsonValue({ value, children }) {
     );
   }
   if (isArray(value)) {
-    return <JsonBlock value={value} openingBrace="[" closingBrace="]">{children}</JsonBlock>;
+    return (
+      <JsonBlock value={value} openingBrace="[" closingBrace="]">
+        {children}
+      </JsonBlock>
+    );
   }
   if (isObject(value)) {
-    return <JsonBlock value={value} openingBrace="{" closingBrace="}" withKeys>{children}</JsonBlock>;
+    return (
+      <JsonBlock value={value} openingBrace="{" closingBrace="}" withKeys>
+        {children}
+      </JsonBlock>
+    );
   }
   return null;
 }

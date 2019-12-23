@@ -1,14 +1,14 @@
-import _ from 'lodash';
-import dashboardGridOptions from '@/config/dashboard-grid-options';
-import { Widget } from './widget';
+import _ from "lodash";
+import dashboardGridOptions from "@/config/dashboard-grid-options";
+import { Widget } from "./widget";
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
-  _.each(queryResults, (queryResult) => {
+  _.each(queryResults, queryResult => {
     const queryFilters = queryResult ? queryResult.getFilters() : [];
-    _.each(queryFilters, (queryFilter) => {
+    _.each(queryFilters, queryFilter => {
       const hasQueryStringValue = _.has(urlParams, queryFilter.name);
 
       if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
@@ -39,12 +39,11 @@ function prepareWidgetsForDashboard(widgets) {
   // This value should be big enough so auto-height widgets will not overlap other ones.
   const defaultWidgetSizeY =
     Math.max(
-      _
-        .chain(widgets)
+      _.chain(widgets)
         .map(w => w.options.position.sizeY)
         .max()
         .value(),
-      20,
+      20
     ) + 5;
 
   // Fix layout:
@@ -56,10 +55,10 @@ function prepareWidgetsForDashboard(widgets) {
     .groupBy(widget => widget.options.position.row)
     .reduce((row, widgetsAtRow) => {
       let height = 1;
-      _.each(widgetsAtRow, (widget) => {
+      _.each(widgetsAtRow, widget => {
         height = Math.max(
           height,
-          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY,
+          widget.options.position.autoHeight ? defaultWidgetSizeY : widget.options.position.sizeY
         );
         widget.options.position.row = row;
         if (widget.options.position.sizeY < 1) {
@@ -81,9 +80,8 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
   const width = _.extend({ sizeX: dashboardGridOptions.defaultSizeX }, _.extend({}, newWidget.options).position).sizeX;
 
   // Find first free row for each column
-  const bottomLine = _
-    .chain(existingWidgets)
-    .map((w) => {
+  const bottomLine = _.chain(existingWidgets)
+    .map(w => {
       const options = _.extend({}, w.options);
       const position = _.extend({ row: 0, sizeY: 0 }, options.position);
       return {
@@ -108,17 +106,15 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
   // Go through columns, pick them by count necessary to hold new block,
   // and calculate bottom-most free row per group.
   // Choose group with the top-most free row (comparing to other groups)
-  return _
-    .chain(_.range(0, dashboardGridOptions.columns - width + 1))
+  return _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
     .map(col => ({
       col,
-      row: _
-        .chain(bottomLine)
+      row: _.chain(bottomLine)
         .slice(col, col + width)
         .max()
         .value(),
     }))
-    .sortBy('row')
+    .sortBy("row")
     .first()
     .value();
 }
@@ -135,7 +131,7 @@ function DashboardService($resource, $http, $location, currentUser) {
     dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
   }
 
-  const transform = $http.defaults.transformResponse.concat((data) => {
+  const transform = $http.defaults.transformResponse.concat(data => {
     if (data.results) {
       data.results.forEach(transformSingle);
     } else {
@@ -145,36 +141,36 @@ function DashboardService($resource, $http, $location, currentUser) {
   });
 
   const resource = $resource(
-    'api/dashboards/:slug',
-    { slug: '@slug' },
+    "api/dashboards/:slug",
+    { slug: "@slug" },
     {
-      get: { method: 'GET', transformResponse: transform },
-      save: { method: 'POST', transformResponse: transform },
-      query: { method: 'GET', isArray: false, transformResponse: transform },
+      get: { method: "GET", transformResponse: transform },
+      save: { method: "POST", transformResponse: transform },
+      query: { method: "GET", isArray: false, transformResponse: transform },
       recent: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/dashboards/recent',
+        url: "api/dashboards/recent",
         transformResponse: transform,
       },
       favorites: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/dashboards/favorites',
+        url: "api/dashboards/favorites",
       },
       favorite: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/dashboards/:slug/favorite",
+        transformRequest: [() => ""], // body not needed
       },
       unfavorite: {
-        method: 'delete',
+        method: "delete",
         isArray: false,
-        url: 'api/dashboards/:slug/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/dashboards/:slug/favorite",
+        transformRequest: [() => ""], // body not needed
       },
-    },
+    }
   );
 
   resource.prototype.canEdit = function canEdit() {
@@ -186,13 +182,13 @@ function DashboardService($resource, $http, $location, currentUser) {
   resource.prototype.getParametersDefs = function getParametersDefs() {
     const globalParams = {};
     const queryParams = $location.search();
-    _.each(this.widgets, (widget) => {
+    _.each(this.widgets, widget => {
       if (widget.getQuery()) {
         const mappings = widget.getParameterMappings();
         widget
           .getQuery()
           .getParametersDefs(false)
-          .forEach((param) => {
+          .forEach(param => {
             const mapping = mappings[param.name];
             if (mapping.type === Widget.MappingType.DashboardLevel) {
               // create global param
@@ -209,10 +205,12 @@ function DashboardService($resource, $http, $location, currentUser) {
           });
       }
     });
-    return _.values(_.each(globalParams, (param) => {
-      param.setValue(param.value); // apply global param value to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
-    }));
+    return _.values(
+      _.each(globalParams, param => {
+        param.setValue(param.value); // apply global param value to all locals
+        param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      })
+    );
   };
 
   resource.prototype.addWidget = function addWidget(textOrVisualization, options = {}) {
@@ -223,7 +221,7 @@ function DashboardService($resource, $http, $location, currentUser) {
         isHidden: false,
         position: {},
       },
-      text: '',
+      text: "",
       visualization_id: null,
       visualization: null,
     };
@@ -253,10 +251,10 @@ function DashboardService($resource, $http, $location, currentUser) {
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Dashboard', DashboardService);
+  ngModule.factory("Dashboard", DashboardService);
 
-  ngModule.run(($injector) => {
-    Dashboard = $injector.get('Dashboard');
+  ngModule.run($injector => {
+    Dashboard = $injector.get("Dashboard");
   });
 }
 

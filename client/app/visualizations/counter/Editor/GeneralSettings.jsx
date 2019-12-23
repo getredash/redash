@@ -1,7 +1,7 @@
-import { map } from 'lodash';
-import React from 'react';
-import { Section, Select, Input, InputNumber, Switch } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React from "react";
+import { Section, Select, Input, InputNumber, Switch } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations";
 
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }) {
   return (
@@ -26,10 +26,11 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           data-test="Counter.General.ValueColumn"
           defaultValue={options.counterColName}
           disabled={options.countRow}
-          onChange={counterColName => onOptionsChange({ counterColName })}
-        >
+          onChange={counterColName => onOptionsChange({ counterColName })}>
           {map(data.columns, col => (
-            <Select.Option key={col.name} data-test={'Counter.General.ValueColumn.' + col.name}>{col.name}</Select.Option>
+            <Select.Option key={col.name} data-test={"Counter.General.ValueColumn." + col.name}>
+              {col.name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -53,11 +54,12 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           className="w-100"
           data-test="Counter.General.TargetValueColumn"
           defaultValue={options.targetColName}
-          onChange={targetColName => onOptionsChange({ targetColName })}
-        >
+          onChange={targetColName => onOptionsChange({ targetColName })}>
           <Select.Option value="">No target value</Select.Option>
           {map(data.columns, col => (
-            <Select.Option key={col.name} data-test={'Counter.General.TargetValueColumn.' + col.name}>{col.name}</Select.Option>
+            <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
+              {col.name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -77,8 +79,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
         <Switch
           data-test="Counter.General.CountRows"
           defaultChecked={options.countRow}
-          onChange={countRow => onOptionsChange({ countRow })}
-        >
+          onChange={countRow => onOptionsChange({ countRow })}>
           Count Rows
         </Switch>
       </Section>

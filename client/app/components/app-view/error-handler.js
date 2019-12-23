@@ -1,4 +1,4 @@
-import PromiseRejectionError from '@/lib/promise-rejection-error';
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 // eslint-disable-next-line import/prefer-default-export
 export class ErrorHandler {
@@ -18,10 +18,7 @@ export class ErrorHandler {
       // eslint-disable-next-line no-console
       console.error(error);
     }
-    if (
-      (error === null) ||
-      (error instanceof PromiseRejectionError)
-    ) {
+    if (error === null || error instanceof PromiseRejectionError) {
       this.error = error;
     }
   }

@@ -1,26 +1,23 @@
-import moment from 'moment';
-import debug from 'debug';
-import Mustache from 'mustache';
-import {
-  zipObject, isEmpty, map, filter, includes, union,
-  uniq, has, identity, extend, each, some,
-} from 'lodash';
+import moment from "moment";
+import debug from "debug";
+import Mustache from "mustache";
+import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, extend, each, some } from "lodash";
 
-import { Parameter } from './parameters';
+import { Parameter } from "./parameters";
 
 Mustache.escape = identity; // do not html-escape values
 
 export let Query = null; // eslint-disable-line import/no-mutable-exports
 
-const logger = debug('redash:services:query');
+const logger = debug("redash:services:query");
 
 function collectParams(parts) {
   let parameters = [];
 
-  parts.forEach((part) => {
-    if (part[0] === 'name' || part[0] === '&') {
-      parameters.push(part[1].split('.')[0]);
-    } else if (part[0] === '#') {
+  parts.forEach(part => {
+    if (part[0] === "name" || part[0] === "&") {
+      parameters.push(part[1].split(".")[0]);
+    } else if (part[0] === "#") {
       parameters = union(parameters, collectParams(part[4]));
     }
   });
@@ -44,7 +41,7 @@ class Parameters {
         const parts = Mustache.parse(this.query.query);
         parameters = uniq(collectParams(parts));
       } catch (e) {
-        logger('Failed parsing parameters: ', e);
+        logger("Failed parsing parameters: ", e);
         // Return current parameters so we don't reset the list
         parameters = fallback();
       }
@@ -66,30 +63,33 @@ class Parameters {
     this.query.options.parameters = this.query.options.parameters || [];
 
     const parametersMap = {};
-    this.query.options.parameters.forEach((param) => {
+    this.query.options.parameters.forEach(param => {
       parametersMap[param.name] = param;
     });
 
-    parameterNames.forEach((param) => {
+    parameterNames.forEach(param => {
       if (!has(parametersMap, param)) {
-        this.query.options.parameters.push(Parameter.create({
-          title: param,
-          name: param,
-          type: 'text',
-          value: null,
-          global: false,
-        }));
+        this.query.options.parameters.push(
+          Parameter.create({
+            title: param,
+            name: param,
+            type: "text",
+            value: null,
+            global: false,
+          })
+        );
       }
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
     const parameters = this.query.options.parameters;
-    this.query.options.parameters = parameters.filter(parameterExists)
+    this.query.options.parameters = parameters
+      .filter(parameterExists)
       .map(p => (p instanceof Parameter ? p : Parameter.create(p, this.query.id)));
   }
 
   initFromQueryString(query) {
-    this.get().forEach((param) => {
+    this.get().forEach(param => {
       param.fromUrlParams(query);
     });
   }
@@ -100,15 +100,17 @@ class Parameters {
   }
 
   add(parameterDef) {
-    this.query.options.parameters = this.query.options.parameters
-      .filter(p => p.name !== parameterDef.name);
+    this.query.options.parameters = this.query.options.parameters.filter(p => p.name !== parameterDef.name);
     const param = Parameter.create(parameterDef);
     this.query.options.parameters.push(param);
     return param;
   }
 
   getMissing() {
-    return map(filter(this.get(), p => p.isEmpty), i => i.title);
+    return map(
+      filter(this.get(), p => p.isEmpty),
+      i => i.title
+    );
   }
 
   isRequired() {
@@ -117,7 +119,10 @@ class Parameters {
 
   getExecutionValues(extra = {}) {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.getExecutionValue(extra)));
+    return zipObject(
+      map(params, i => i.name),
+      map(params, i => i.getExecutionValue(extra))
+    );
   }
 
   hasPendingValues() {
@@ -130,15 +135,14 @@ class Parameters {
 
   toUrlParams() {
     if (this.get().length === 0) {
-      return '';
+      return "";
     }
 
     const params = Object.assign(...this.get().map(p => p.toUrlParams()));
     Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-    return Object
-      .keys(params)
+    return Object.keys(params)
       .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
-      .join('&');
+      .join("&");
   }
 }
 
@@ -163,7 +167,7 @@ function QueryResultErrorFactory($q) {
 
     // eslint-disable-next-line class-methods-use-this
     getStatus() {
-      return 'failed';
+      return "failed";
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -180,82 +184,74 @@ function QueryResultErrorFactory($q) {
   return QueryResultError;
 }
 
-function QueryResource(
-  $resource,
-  $http,
-  $location,
-  $q,
-  currentUser,
-  QueryResultError,
-  QueryResult,
-) {
+function QueryResource($resource, $http, $location, $q, currentUser, QueryResultError, QueryResult) {
   const QueryService = $resource(
-    'api/queries/:id',
-    { id: '@id' },
+    "api/queries/:id",
+    { id: "@id" },
     {
       recent: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/queries/recent',
+        url: "api/queries/recent",
       },
       archive: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/archive',
+        url: "api/queries/archive",
       },
       query: {
         isArray: false,
       },
       myQueries: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/my',
+        url: "api/queries/my",
       },
       fork: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/queries/:id/fork',
-        params: { id: '@id' },
+        url: "api/queries/:id/fork",
+        params: { id: "@id" },
       },
       resultById: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/:id/results.json',
+        url: "api/queries/:id/results.json",
       },
       asDropdown: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/queries/:id/dropdown',
+        url: "api/queries/:id/dropdown",
       },
       associatedDropdown: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/queries/:queryId/dropdowns/:dropdownQueryId',
+        url: "api/queries/:queryId/dropdowns/:dropdownQueryId",
       },
       favorites: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/favorites',
+        url: "api/queries/favorites",
       },
       favorite: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/queries/:id/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""], // body not needed
       },
       unfavorite: {
-        method: 'delete',
+        method: "delete",
         isArray: false,
-        url: 'api/queries/:id/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""], // body not needed
       },
-    },
+    }
   );
 
   QueryService.newQuery = function newQuery() {
     return new QueryService({
-      query: '',
-      name: 'New Query',
+      query: "",
+      name: "New Query",
       schedule: null,
       user: currentUser,
       options: {},
@@ -263,17 +259,17 @@ function QueryResource(
   };
 
   QueryService.format = function formatQuery(syntax, query) {
-    if (syntax === 'json') {
+    if (syntax === "json") {
       try {
-        const formatted = JSON.stringify(JSON.parse(query), ' ', 4);
+        const formatted = JSON.stringify(JSON.parse(query), " ", 4);
         return $q.resolve(formatted);
       } catch (err) {
         return $q.reject(String(err));
       }
-    } else if (syntax === 'sql') {
-      return $http.post('api/queries/format', { query }).then(response => response.data.query);
+    } else if (syntax === "sql") {
+      return $http.post("api/queries/format", { query }).then(response => response.data.query);
     } else {
-      return $q.reject('Query formatting is not supported for your data source syntax.');
+      return $q.reject("Query formatting is not supported for your data source syntax.");
     }
   };
 
@@ -290,13 +286,13 @@ function QueryResource(
   };
 
   QueryService.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
-    const parts = this.schedule.split(':');
+    const parts = this.schedule.split(":");
     return moment
       .utc()
       .hour(parts[0])
       .minute(parts[1])
       .local()
-      .format('HH:mm');
+      .format("HH:mm");
   };
 
   QueryService.prototype.hasResult = function hasResult() {
@@ -316,16 +312,16 @@ function QueryResource(
     const missingParams = parameters.getMissing();
 
     if (missingParams.length > 0) {
-      let paramsWord = 'parameter';
-      let valuesWord = 'value';
+      let paramsWord = "parameter";
+      let valuesWord = "value";
       if (missingParams.length > 1) {
-        paramsWord = 'parameters';
-        valuesWord = 'values';
+        paramsWord = "parameters";
+        valuesWord = "values";
       }
 
       return new QueryResult({
         job: {
-          error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`,
+          error: `missing ${valuesWord} for ${missingParams.join(", ")} ${paramsWord}.`,
           status: 4,
         },
       });
@@ -374,19 +370,19 @@ function QueryResource(
     let url = `queries/${this.id}`;
 
     if (source) {
-      url += '/source';
+      url += "/source";
     }
 
     let params = {};
     if (this.getParameters().isRequired()) {
-      this.getParametersDefs().forEach((param) => {
+      this.getParametersDefs().forEach(param => {
         extend(params, param.toUrlParams());
       });
     }
     Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
+    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join("&");
 
-    if (params !== '') {
+    if (params !== "") {
       url += `?${params}`;
     }
 
@@ -417,11 +413,11 @@ function QueryResource(
 }
 
 export default function init(ngModule) {
-  ngModule.factory('QueryResultError', QueryResultErrorFactory);
-  ngModule.factory('Query', QueryResource);
+  ngModule.factory("QueryResultError", QueryResultErrorFactory);
+  ngModule.factory("Query", QueryResource);
 
-  ngModule.run(($injector) => {
-    Query = $injector.get('Query');
+  ngModule.run($injector => {
+    Query = $injector.get("Query");
   });
 }
 

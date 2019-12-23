@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { $sanitize } from '@/services/ng';
+import React from "react";
+import PropTypes from "prop-types";
+import { $sanitize } from "@/services/ng";
 
 export default function HtmlContent({ children, ...props }) {
   return (
@@ -16,5 +16,5 @@ HtmlContent.propTypes = {
 };
 
 HtmlContent.defaultProps = {
-  children: '',
+  children: "",
 };

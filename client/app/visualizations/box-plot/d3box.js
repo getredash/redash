@@ -55,212 +55,212 @@ function box() {
       // elements also fade in and out.
 
       // Update center line: the vertical line spanning the whiskers.
-      const center = g.selectAll('line.center').data(whiskerData ? [whiskerData] : []);
+      const center = g.selectAll("line.center").data(whiskerData ? [whiskerData] : []);
 
       center
         .enter()
-        .insert('line', 'rect')
-        .attr('class', 'center')
-        .attr('x1', width / 2)
-        .attr('y1', d => x0(d[0]))
-        .attr('x2', width / 2)
-        .attr('y2', d => x0(d[1]))
-        .style('opacity', 1e-6)
+        .insert("line", "rect")
+        .attr("class", "center")
+        .attr("x1", width / 2)
+        .attr("y1", d => x0(d[0]))
+        .attr("x2", width / 2)
+        .attr("y2", d => x0(d[1]))
+        .style("opacity", 1e-6)
         .transition()
         .duration(duration)
-        .style('opacity', 1)
-        .attr('y1', d => x1(d[0]))
-        .attr('y2', d => x1(d[1]));
+        .style("opacity", 1)
+        .attr("y1", d => x1(d[0]))
+        .attr("y2", d => x1(d[1]));
 
       center
         .transition()
         .duration(duration)
-        .style('opacity', 1)
-        .attr('y1', d => x1(d[0]))
-        .attr('y2', d => x1(d[1]));
+        .style("opacity", 1)
+        .attr("y1", d => x1(d[0]))
+        .attr("y2", d => x1(d[1]));
 
       center
         .exit()
         .transition()
         .duration(duration)
-        .style('opacity', 1e-6)
-        .attr('y1', d => x1(d[0]))
-        .attr('y2', d => x1(d[1]))
+        .style("opacity", 1e-6)
+        .attr("y1", d => x1(d[0]))
+        .attr("y2", d => x1(d[1]))
         .remove();
 
       // Update innerquartile box.
-      const box = g.selectAll('rect.box').data([quartileData]);
+      const box = g.selectAll("rect.box").data([quartileData]);
 
       box
         .enter()
-        .append('rect')
-        .attr('class', 'box')
-        .attr('x', 0)
-        .attr('y', d => x0(d[2]))
-        .attr('width', width)
-        .attr('height', d => x0(d[0]) - x0(d[2]))
+        .append("rect")
+        .attr("class", "box")
+        .attr("x", 0)
+        .attr("y", d => x0(d[2]))
+        .attr("width", width)
+        .attr("height", d => x0(d[0]) - x0(d[2]))
         .transition()
         .duration(duration)
-        .attr('y', d => x1(d[2]))
-        .attr('height', d => x1(d[0]) - x1(d[2]));
+        .attr("y", d => x1(d[2]))
+        .attr("height", d => x1(d[0]) - x1(d[2]));
 
       box
         .transition()
         .duration(duration)
-        .attr('y', d => x1(d[2]))
-        .attr('height', d => x1(d[0]) - x1(d[2]));
+        .attr("y", d => x1(d[2]))
+        .attr("height", d => x1(d[0]) - x1(d[2]));
 
       box.exit().remove();
 
       // Update median line.
-      const medianLine = g.selectAll('line.median').data([quartileData[1]]);
+      const medianLine = g.selectAll("line.median").data([quartileData[1]]);
 
       medianLine
         .enter()
-        .append('line')
-        .attr('class', 'median')
-        .attr('x1', 0)
-        .attr('y1', x0)
-        .attr('x2', width)
-        .attr('y2', x0)
+        .append("line")
+        .attr("class", "median")
+        .attr("x1", 0)
+        .attr("y1", x0)
+        .attr("x2", width)
+        .attr("y2", x0)
         .transition()
         .duration(duration)
-        .attr('y1', x1)
-        .attr('y2', x1);
+        .attr("y1", x1)
+        .attr("y2", x1);
 
       medianLine
         .transition()
         .duration(duration)
-        .attr('y1', x1)
-        .attr('y2', x1);
+        .attr("y1", x1)
+        .attr("y2", x1);
 
       medianLine.exit().remove();
 
       // Update whiskers.
-      const whisker = g.selectAll('line.whisker').data(whiskerData || []);
+      const whisker = g.selectAll("line.whisker").data(whiskerData || []);
 
       whisker
         .enter()
-        .insert('line', 'circle, text')
-        .attr('class', 'whisker')
-        .attr('x1', 0)
-        .attr('y1', x0)
-        .attr('x2', width)
-        .attr('y2', x0)
-        .style('opacity', 1e-6)
+        .insert("line", "circle, text")
+        .attr("class", "whisker")
+        .attr("x1", 0)
+        .attr("y1", x0)
+        .attr("x2", width)
+        .attr("y2", x0)
+        .style("opacity", 1e-6)
         .transition()
         .duration(duration)
-        .attr('y1', x1)
-        .attr('y2', x1)
-        .style('opacity', 1);
+        .attr("y1", x1)
+        .attr("y2", x1)
+        .style("opacity", 1);
 
       whisker
         .transition()
         .duration(duration)
-        .attr('y1', x1)
-        .attr('y2', x1)
-        .style('opacity', 1);
+        .attr("y1", x1)
+        .attr("y2", x1)
+        .style("opacity", 1);
 
       whisker
         .exit()
         .transition()
         .duration(duration)
-        .attr('y1', x1)
-        .attr('y2', x1)
-        .style('opacity', 1e-6)
+        .attr("y1", x1)
+        .attr("y2", x1)
+        .style("opacity", 1e-6)
         .remove();
 
       // Update outliers.
-      const outlier = g.selectAll('circle.outlier').data(outlierIndices, Number);
+      const outlier = g.selectAll("circle.outlier").data(outlierIndices, Number);
 
       outlier
         .enter()
-        .insert('circle', 'text')
-        .attr('class', 'outlier')
-        .attr('r', 5)
-        .attr('cx', width / 2)
-        .attr('cy', i => x0(d[i]))
-        .style('opacity', 1e-6)
+        .insert("circle", "text")
+        .attr("class", "outlier")
+        .attr("r", 5)
+        .attr("cx", width / 2)
+        .attr("cy", i => x0(d[i]))
+        .style("opacity", 1e-6)
         .transition()
         .duration(duration)
-        .attr('cy', i => x1(d[i]))
-        .style('opacity', 1);
+        .attr("cy", i => x1(d[i]))
+        .style("opacity", 1);
 
       outlier
         .transition()
         .duration(duration)
-        .attr('cy', i => x1(d[i]))
-        .style('opacity', 1);
+        .attr("cy", i => x1(d[i]))
+        .style("opacity", 1);
 
       outlier
         .exit()
         .transition()
         .duration(duration)
-        .attr('cy', i => x1(d[i]))
-        .style('opacity', 1e-6)
+        .attr("cy", i => x1(d[i]))
+        .style("opacity", 1e-6)
         .remove();
 
       // Compute the tick format.
       const format = tickFormat || x1.tickFormat(8);
 
       // Update box ticks.
-      const boxTick = g.selectAll('text.box').data(quartileData);
+      const boxTick = g.selectAll("text.box").data(quartileData);
 
       boxTick
         .enter()
-        .append('text')
-        .attr('class', 'box')
-        .attr('dy', '.3em')
-        .attr('dx', (d, i) => (i & 1 ? 6 : -6))
-        .attr('x', (d, i) => (i & 1 ? width : 0))
-        .attr('y', x0)
-        .attr('text-anchor', (d, i) => (i & 1 ? 'start' : 'end'))
+        .append("text")
+        .attr("class", "box")
+        .attr("dy", ".3em")
+        .attr("dx", (d, i) => (i & 1 ? 6 : -6))
+        .attr("x", (d, i) => (i & 1 ? width : 0))
+        .attr("y", x0)
+        .attr("text-anchor", (d, i) => (i & 1 ? "start" : "end"))
         .text(format)
         .transition()
         .duration(duration)
-        .attr('y', x1);
+        .attr("y", x1);
 
       boxTick
         .transition()
         .duration(duration)
         .text(format)
-        .attr('y', x1);
+        .attr("y", x1);
 
       boxTick.exit().remove();
 
       // Update whisker ticks. These are handled separately from the box
       // ticks because they may or may not exist, and we want don't want
       // to join box ticks pre-transition with whisker ticks post-.
-      const whiskerTick = g.selectAll('text.whisker').data(whiskerData || []);
+      const whiskerTick = g.selectAll("text.whisker").data(whiskerData || []);
 
       whiskerTick
         .enter()
-        .append('text')
-        .attr('class', 'whisker')
-        .attr('dy', '.3em')
-        .attr('dx', 6)
-        .attr('x', width)
-        .attr('y', x0)
+        .append("text")
+        .attr("class", "whisker")
+        .attr("dy", ".3em")
+        .attr("dx", 6)
+        .attr("x", width)
+        .attr("y", x0)
         .text(format)
-        .style('opacity', 1e-6)
+        .style("opacity", 1e-6)
         .transition()
         .duration(duration)
-        .attr('y', x1)
-        .style('opacity', 1);
+        .attr("y", x1)
+        .style("opacity", 1);
 
       whiskerTick
         .transition()
         .duration(duration)
         .text(format)
-        .attr('y', x1)
-        .style('opacity', 1);
+        .attr("y", x1)
+        .style("opacity", 1);
 
       whiskerTick
         .exit()
         .transition()
         .duration(duration)
-        .attr('y', x1)
-        .style('opacity', 1e-6)
+        .attr("y", x1)
+        .style("opacity", 1e-6)
         .remove();
     });
     d3.timer.flush();

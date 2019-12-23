@@ -1,10 +1,10 @@
-import { isArray, isObject } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { RendererPropTypes } from '@/visualizations';
-import resizeObserver from '@/services/resizeObserver';
+import { isArray, isObject } from "lodash";
+import React, { useState, useEffect } from "react";
+import { RendererPropTypes } from "@/visualizations";
+import resizeObserver from "@/services/resizeObserver";
 
-import getChartData from '../getChartData';
-import { Plotly, prepareData, prepareLayout, updateData, applyLayoutFixes } from '../plotly';
+import getChartData from "../getChartData";
+import { Plotly, prepareData, prepareLayout, updateData, applyLayoutFixes } from "../plotly";
 
 export default function PlotlyChart({ options, data }) {
   const [container, setContainer] = useState(null);
@@ -22,7 +22,7 @@ export default function PlotlyChart({ options, data }) {
         applyLayoutFixes(container, plotlyLayout, (e, u) => Plotly.relayout(e, u));
       });
 
-      container.on('plotly_restyle', (updates) => {
+      container.on("plotly_restyle", updates => {
         // This event is triggered if some plotly data/layout has changed.
         // We need to catch only changes of traces visibility to update stacking
         if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {

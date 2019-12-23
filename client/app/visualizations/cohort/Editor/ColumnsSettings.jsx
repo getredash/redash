@@ -1,7 +1,7 @@
-import { map } from 'lodash';
-import React from 'react';
-import { Section, Select } from '@/components/visualizations/editor';
-import { EditorPropTypes } from '@/visualizations';
+import { map } from "lodash";
+import React from "react";
+import { Section, Select } from "@/components/visualizations/editor";
+import { EditorPropTypes } from "@/visualizations";
 
 export default function ColumnsSettings({ options, data, onOptionsChange }) {
   return (
@@ -12,10 +12,11 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           data-test="Cohort.DateColumn"
           className="w-100"
           value={options.dateColumn}
-          onChange={dateColumn => onOptionsChange({ dateColumn })}
-        >
+          onChange={dateColumn => onOptionsChange({ dateColumn })}>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name} data-test={'Cohort.DateColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={"Cohort.DateColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -26,10 +27,11 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           data-test="Cohort.StageColumn"
           className="w-100"
           value={options.stageColumn}
-          onChange={stageColumn => onOptionsChange({ stageColumn })}
-        >
+          onChange={stageColumn => onOptionsChange({ stageColumn })}>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name} data-test={'Cohort.StageColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={"Cohort.StageColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -40,10 +42,11 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           data-test="Cohort.TotalColumn"
           className="w-100"
           value={options.totalColumn}
-          onChange={totalColumn => onOptionsChange({ totalColumn })}
-        >
+          onChange={totalColumn => onOptionsChange({ totalColumn })}>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name} data-test={'Cohort.TotalColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={"Cohort.TotalColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>
@@ -54,10 +57,11 @@ export default function ColumnsSettings({ options, data, onOptionsChange }) {
           data-test="Cohort.ValueColumn"
           className="w-100"
           value={options.valueColumn}
-          onChange={valueColumn => onOptionsChange({ valueColumn })}
-        >
+          onChange={valueColumn => onOptionsChange({ valueColumn })}>
           {map(data.columns, ({ name }) => (
-            <Select.Option key={name} data-test={'Cohort.ValueColumn.' + name}>{name}</Select.Option>
+            <Select.Option key={name} data-test={"Cohort.ValueColumn." + name}>
+              {name}
+            </Select.Option>
           ))}
         </Select>
       </Section>

@@ -1,13 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
 
 function SectionTitle({ className, children, ...props }) {
   if (!children) {
     return null;
   }
 
-  return <h4 className={cx('m-t-0', 'm-b-15', className)} {...props}>{children}</h4>;
+  return (
+    <h4 className={cx("m-t-0", "m-b-15", className)} {...props}>
+      {children}
+    </h4>
+  );
 }
 
 SectionTitle.propTypes = {
@@ -22,7 +26,7 @@ SectionTitle.defaultProps = {
 
 export default function Section({ className, children, ...props }) {
   return (
-    <div className={cx('m-b-15', className)} {...props}>
+    <div className={cx("m-b-15", className)} {...props}>
       {children}
     </div>
   );
