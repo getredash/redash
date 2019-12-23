@@ -1,14 +1,17 @@
-import { filter, find, map, clone, includes } from "lodash";
+import { isArray, filter, find, map, clone, includes, intersection } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
 import { Parameters } from "@/components/Parameters";
+import { EditInPlace } from "@/components/EditInPlace";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
 import { TimeAgo } from "@/components/TimeAgo";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
+import ScheduleDialog from "@/components/queries/ScheduleDialog";
+import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
 import { routesToAngularRoutes } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import { durationHumanize, prettySize } from "@/filters";
@@ -16,6 +19,8 @@ import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
+import { policy } from "@/services/policy";
+import { clientConfig } from "@/services/auth";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
@@ -172,6 +177,31 @@ function QuerySource(props) {
     [query]
   );
 
+  const editSchedule = useCallback(() => {
+    const canScheduleQuery = true; // TODO: Use real value
+    if (!query.can_edit || !canScheduleQuery) {
+      return;
+    }
+
+    const intervals = clientConfig.queryRefreshIntervals;
+    const allowedIntervals = policy.getQueryRefreshIntervals();
+    const refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
+
+    ScheduleDialog.showModal({
+      schedule: query.schedule,
+      refreshOptions,
+    }).result.then(schedule => {
+      updateQuery(query, { schedule }).then(setQuery);
+    });
+  }, [query]);
+
+  const updateQueryDescription = useCallback(
+    description => {
+      updateQuery(query, { description }).then(setQuery);
+    },
+    [query]
+  );
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
@@ -200,6 +230,63 @@ function QuerySource(props) {
           <div className="editor__left__schema">
             <SchemaBrowser schema={schema} onRefresh={() => reloadSchema(true)} />
           </div>
+
+          <div className="query-metadata query-metadata--description" ng-if="!query.isNew()">
+            <EditInPlace
+              editor="textarea"
+              isEditable={query.can_edit}
+              markdown
+              ignoreBlanks={false}
+              placeholder="Add description"
+              value={query.description}
+              onDone={updateQueryDescription}
+            />
+          </div>
+
+          <div className="query-metadata query-metadata--history" ng-if="!query.isNew()">
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <img className="profile__image_thumb" src={query.user.profile_image_url} alt="Avatar" />
+                    <strong className="meta__name" ng-class="{'text-muted': query.user.is_disabled}">
+                      {query.user.name}
+                    </strong>
+                  </td>
+                  <td className="text-right">
+                    created{" "}
+                    <strong>
+                      <TimeAgo date={query.created_at} />
+                    </strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <img className="profile__image_thumb" src={query.last_modified_by.profile_image_url} alt="Avatar" />
+                    <strong className="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">
+                      {query.last_modified_by.name}
+                    </strong>
+                  </td>
+                  <td className="text-right">
+                    updated{" "}
+                    <strong>
+                      <TimeAgo date={query.updated_at} />
+                    </strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-t-15">
+                    <span className="query-metadata__property">
+                      <span className="zmdi zmdi-refresh" /> Refresh Schedule
+                    </span>
+                  </td>
+                  <td className="p-t-15 text-right">
+                    <SchedulePhrase isLink isNew={query.isNew()} schedule={query.schedule} onClick={editSchedule} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </nav>
 
         <div className="content">
@@ -209,6 +296,31 @@ function QuerySource(props) {
               style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}>
               <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
                 Editor
+              </div>
+
+              <div className="row query-metadata__mobile">
+                <img className="profile__image_thumb" src={query.user.profile_image_url} alt="Avatar" />
+                <div className="flex-fill m-r-10">
+                  <strong className="meta__name" ng-class="{'text-muted': query.user.is_disabled}">
+                    {query.user.name}
+                  </strong>
+                  {" created "}
+                  <TimeAgo date={query.created_at} />
+                </div>
+
+                <img className="profile__image_thumb" src={query.last_modified_by.profile_image_url} alt="Avatar" />
+                <div className="flex-fill m-r-10">
+                  <strong className="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">
+                    {query.last_modified_by.name}
+                  </strong>
+                  {" updated "}
+                  <TimeAgo date={query.updated_at} />
+                </div>
+
+                <div>
+                  <span className="query-metadata__property">Refresh schedule:</span>{" "}
+                  <SchedulePhrase schedule={query.schedule} isNew={query.isNew()} isLink onClick={editSchedule} />
+                </div>
               </div>
 
               <section className="flex-fill p-relative t-body query-visualizations-wrapper">
