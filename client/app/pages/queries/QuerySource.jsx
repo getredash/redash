@@ -19,7 +19,6 @@ import { Query } from "@/services/query";
 import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
-import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import navigateTo from "@/services/navigateTo";
 import localOptions from "@/lib/localOptions";
 
@@ -254,49 +253,24 @@ function QuerySource(props) {
 
   const canExecuteQuery = useMemo(
     () =>
+      !isEmpty(query.query) &&
+      !isQueryExecuting &&
       !dirtyParameters &&
       (query.is_safe || (currentUser.hasPermission("execute_query") && dataSource && !dataSource.view_only)),
-    [dirtyParameters, query, dataSource]
+    [isQueryExecuting, dirtyParameters, query, dataSource]
   );
   const isDirty = query.query !== originalQuerySource;
 
   const doExecuteQuery = useCallback(() => {
+    if (!canExecuteQuery) {
+      return;
+    }
     if (isDirty || !isEmpty(selectedText)) {
       executeAdhocQuery(selectedText);
     } else {
       executeQuery();
     }
-  }, [isDirty, selectedText, executeQuery, executeAdhocQuery]);
-
-  useEffect(() => {
-    const shortcuts = {
-      "mod+s": saveQuery,
-      "mod+p": openAddNewParameterDialog,
-      "mod+shift+f": () => formatQuery,
-    };
-
-    if (!isEmpty(query.query) && canExecuteQuery && !isQueryExecuting) {
-      extend(shortcuts, {
-        "mod+enter": doExecuteQuery,
-        "alt+enter": doExecuteQuery,
-      });
-    }
-
-    KeyboardShortcuts.bind(shortcuts);
-    return () => {
-      KeyboardShortcuts.unbind(shortcuts);
-    };
-  }, [
-    doExecuteQuery,
-    saveQuery,
-    openAddNewParameterDialog,
-    formatQuery,
-    query.query,
-    canExecuteQuery,
-    isQueryExecuting,
-  ]);
-
-  const modKey = KeyboardShortcuts.modKey;
+  }, [canExecuteQuery, isDirty, selectedText, executeQuery, executeAdhocQuery]);
 
   return (
     <div className="query-page-wrapper">
@@ -348,36 +322,30 @@ function QuerySource(props) {
 
                   <QueryEditor.Controls
                     addParameterButtonProps={{
-                      title: (
-                        <React.Fragment>
-                          Add New Parameter (<i>{modKey} + P</i>)
-                        </React.Fragment>
-                      ),
+                      title: "Add New Parameter",
+                      shortcut: "mod+p",
                       onClick: openAddNewParameterDialog,
                     }}
                     formatButtonProps={{
-                      title: (
-                        <React.Fragment>
-                          Format Query (<i>{modKey} + Shift + F</i>)
-                        </React.Fragment>
-                      ),
+                      title: "Format Query",
+                      shortcut: "mod+shift+f",
                       onClick: formatQuery,
                     }}
                     saveButtonProps={
                       query.can_edit && {
-                        title: `${modKey} + S`,
                         text: (
                           <React.Fragment>
                             <span className="hidden-xs">Save</span>
                             {isDirty ? "*" : null}
                           </React.Fragment>
                         ),
+                        shortcut: "mod+s",
                         onClick: saveQuery,
                       }
                     }
                     executeButtonProps={{
-                      title: `${modKey} + Enter`,
-                      disabled: isEmpty(query.query) || !canExecuteQuery || isQueryExecuting,
+                      disabled: !canExecuteQuery,
+                      shortcut: "mod+enter, alt+enter",
                       onClick: doExecuteQuery,
                       text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
                     }}
