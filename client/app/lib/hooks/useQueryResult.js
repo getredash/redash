@@ -2,7 +2,7 @@ import { includes, get, invoke } from "lodash";
 import { useState, useEffect, useRef } from "react";
 
 function getQueryResultStatus(queryResult) {
-  return invoke(queryResult, "getStatus") || "waiting";
+  return invoke(queryResult, "getStatus") || null;
 }
 
 function isFinalStatus(status) {
