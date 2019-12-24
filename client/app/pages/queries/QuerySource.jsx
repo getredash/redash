@@ -33,7 +33,14 @@ import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 import useQueryExecute from "./utils/useQueryExecute";
-import { updateQuery, deleteQueryVisualization, addQueryVisualization, editQueryVisualization } from "./utils";
+import {
+  updateQuery,
+  updateQueryDescription,
+  updateQuerySchedule,
+  deleteQueryVisualization,
+  addQueryVisualization,
+  editQueryVisualization,
+} from "./utils";
 
 import "./query-source.less";
 
@@ -244,13 +251,13 @@ function QuerySource(props) {
       schedule: query.schedule,
       refreshOptions,
     }).result.then(schedule => {
-      updateQuery(query, { schedule }).then(setQuery);
+      updateQuerySchedule(query, schedule).then(setQuery);
     });
   }, [query]);
 
-  const updateQueryDescription = useCallback(
+  const doUpdateQueryDescription = useCallback(
     description => {
-      updateQuery(query, { description }).then(setQuery);
+      updateQueryDescription(query, description).then(setQuery);
     },
     [query]
   );
@@ -340,7 +347,7 @@ function QuerySource(props) {
                 ignoreBlanks={false}
                 placeholder="Add description"
                 value={query.description}
-                onDone={updateQueryDescription}
+                onDone={doUpdateQueryDescription}
               />
             </div>
           )}
