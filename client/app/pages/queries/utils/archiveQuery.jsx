@@ -1,4 +1,4 @@
-import { clone, extend } from "lodash";
+import { extend } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
@@ -32,7 +32,9 @@ function doArchiveQuery(query) {
   // Prettier will put `.$promise` before `.catch` on next line :facepalm:
   // prettier-ignore
   return Query.delete({ id: query.id }).$promise
-    .then(() => Promise.resolve(extend(clone(query), { is_archived: true, schedule: null })))
+    .then(() => {
+      return extend(query.clone(), { is_archived: true, schedule: null });
+    })
     .catch(error => {
       notification.error("Query could not be archived.");
       return Promise.reject(error);

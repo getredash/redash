@@ -47,8 +47,16 @@ TabWithDeleteButton.propTypes = {
 };
 TabWithDeleteButton.defaultProps = { canDelete: false, onDelete: () => {} };
 
+const defaultVisualizations = [
+  {
+    type: "TABLE",
+    name: "Table",
+    id: null,
+    options: {},
+  },
+];
+
 export default function QueryVisualizationTabs({
-  visualizations,
   queryResult,
   selectedTab,
   showNewVisualizationButton,
@@ -56,7 +64,13 @@ export default function QueryVisualizationTabs({
   onChangeTab,
   onClickNewVisualization,
   onDeleteVisualization,
+  ...props
 }) {
+  const visualizations = useMemo(
+    () => (props.visualizations.length > 0 ? props.visualizations : defaultVisualizations),
+    [props.visualizations]
+  );
+
   const tabsProps = {};
   if (find(visualizations, { id: selectedTab })) {
     tabsProps.activeKey = `${selectedTab}`;

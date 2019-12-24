@@ -1,181 +1,183 @@
-import { map, reduce } from "lodash";
-import React, { useRef, useState, useMemo, useEffect, useCallback } from "react";
+import React, { useEffect, useMemo, useRef, useState, useCallback, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
-import { DataSource, Schema } from "@/components/proptypes";
-import { Query } from "@/services/query";
-import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
-import { $rootScope } from "@/services/ng";
-import notification from "@/services/notification";
-import localOptions from "@/lib/localOptions";
+import cx from "classnames";
+import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
+import resizeObserver from "@/services/resizeObserver";
+import { QuerySnippet } from "@/services/query-snippet";
 
-import QueryEditorComponent from "./QueryEditorComponent";
 import QueryEditorControls from "./QueryEditorControls";
 import "./index.less";
 
-function QueryEditor({
-  queryText,
-  schema,
-  addNewParameter,
-  dataSources,
-  dataSource,
-  canEdit,
-  isDirty,
-  isQueryOwner,
-  updateDataSource,
-  canExecuteQuery,
-  executeQuery,
-  queryExecuting,
-  saveQuery,
-  updateQuery,
-  updateSelectedQuery,
-  listenForEditorCommand,
-}) {
-  const editorRef = useRef(null);
-  const autocompleteAvailable = useMemo(() => {
-    const tokensCount = reduce(schema, (totalLength, table) => totalLength + table.columns.length, 0);
-    return tokensCount <= 5000;
-  }, [schema]);
-  const [autocompleteEnabled, setAutocompleteEnabled] = useState(localOptions.get("liveAutocomplete", true));
-  const [selectedText, setSelectedText] = useState(null);
+const editorProps = { $blockScrolling: Infinity };
 
-  useEffect(
-    () =>
-      // `listenForEditorCommand` returns function that removes event listener
-      listenForEditorCommand((e, command, ...args) => {
-        const editor = editorRef.current;
-        if (editor) {
-          switch (command) {
-            case "focus": {
-              editor.focus();
-              break;
-            }
-            case "paste": {
-              const [text] = args;
-              editor.paste(text);
-              $rootScope.$applyAsync();
-              break;
-            }
-            default:
-              break;
-          }
-        }
-      }),
-    [listenForEditorCommand]
+const QueryEditor = React.forwardRef(function(
+  { className, syntax, value, autocompleteEnabled, schema, onChange, onSelectionChange, ...props },
+  ref
+) {
+  const [container, setContainer] = useState(null);
+  const editorRef = useRef(null);
+
+  // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
+  const [currentValue, setCurrentValue] = useState(value);
+
+  useEffect(() => {
+    setCurrentValue(value);
+  }, [value]);
+
+  const handleChange = useCallback(
+    str => {
+      setCurrentValue(str);
+      onChange(str);
+    },
+    [onChange]
   );
+
+  const editorOptions = useMemo(
+    () => ({
+      behavioursEnabled: true,
+      enableSnippets: true,
+      enableBasicAutocompletion: true,
+      enableLiveAutocompletion: autocompleteEnabled,
+      autoScrollEditorIntoView: true,
+    }),
+    [autocompleteEnabled]
+  );
+
+  useEffect(() => {
+    if (editorRef.current) {
+      const { editor } = editorRef.current;
+      updateSchemaCompleter(editor.id, schema); // TODO: cleanup?
+    }
+  }, [schema]);
+
+  useEffect(() => {
+    function resize() {
+      if (editorRef.current) {
+        const { editor } = editorRef.current;
+        editor.resize();
+      }
+    }
+
+    if (container) {
+      resize();
+      const unwatch = resizeObserver(container, resize);
+      return unwatch;
+    }
+  }, [container]);
 
   const handleSelectionChange = useCallback(
-    text => {
-      setSelectedText(text);
-      updateSelectedQuery(text);
+    selection => {
+      const { editor } = editorRef.current;
+      const rawSelectedQueryText = editor.session.doc.getTextRange(selection.getRange());
+      const selectedQueryText = rawSelectedQueryText.length > 1 ? rawSelectedQueryText : null;
+      onSelectionChange(selectedQueryText);
     },
-    [updateSelectedQuery]
+    [onSelectionChange]
   );
 
-  const formatQuery = useCallback(() => {
-    Query.format(dataSource.syntax || "sql", queryText)
-      .then(updateQuery)
-      .catch(error => notification.error(error));
-  }, [dataSource.syntax, queryText, updateQuery]);
+  const initEditor = useCallback(editor => {
+    // Release Cmd/Ctrl+L to the browser
+    editor.commands.bindKey("Cmd+L", null);
+    editor.commands.bindKey("Ctrl+P", null);
+    editor.commands.bindKey("Ctrl+L", null);
 
-  const toggleAutocomplete = useCallback(state => {
-    setAutocompleteEnabled(state);
-    localOptions.set("liveAutocomplete", state);
+    // Ignore Ctrl+P to open new parameter dialog
+    editor.commands.bindKey({ win: "Ctrl+P", mac: null }, null);
+    // Lineup only mac
+    editor.commands.bindKey({ win: null, mac: "Ctrl+P" }, "golineup");
+    editor.commands.bindKey({ win: "Ctrl+Shift+F", mac: "Cmd+Shift+F" }, () => console.log("formatQuery"));
+
+    // Reset Completer in case dot is pressed
+    editor.commands.on("afterExec", e => {
+      if (e.command.name === "insertstring" && e.args === "." && editor.completer) {
+        editor.completer.showPopup(editor);
+      }
+    });
+
+    QuerySnippet.query(snippets => {
+      const snippetManager = snippetsModule.snippetManager;
+      const m = {
+        snippetText: "",
+      };
+      m.snippets = snippetManager.parseSnippetFile(m.snippetText);
+      snippets.forEach(snippet => {
+        m.snippets.push(snippet.getSnippet());
+      });
+      snippetManager.register(m.snippets || [], m.scope);
+    });
+
+    editor.focus();
   }, []);
 
-  const modKey = KeyboardShortcuts.modKey;
+  useImperativeHandle(
+    ref,
+    () => ({
+      paste: text => {
+        if (editorRef.current) {
+          const { editor } = editorRef.current;
+          editor.session.doc.replace(editor.selection.getRange(), text);
+          const range = editor.selection.getRange();
+          onChange(editor.session.getValue());
+          editor.selection.setRange(range);
+        }
+      },
+      focus: () => {
+        if (editorRef.current) {
+          const { editor } = editorRef.current;
+          editor.focus();
+        }
+      },
+    }),
+    [onChange]
+  );
 
   return (
-    <section className="editor__wrapper" data-test="QueryEditor">
-      <QueryEditorComponent
+    <div className={cx("query-editor-container", className)} {...props} ref={setContainer}>
+      <AceEditor
         ref={editorRef}
-        data-executing={queryExecuting ? "true" : null}
-        syntax={dataSource.syntax}
-        value={queryText}
-        schema={schema}
-        autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
-        onChange={updateQuery}
+        theme="textmate"
+        mode={syntax || "sql"}
+        value={currentValue}
+        editorProps={editorProps}
+        width="100%"
+        height="100%"
+        setOptions={editorOptions}
+        showPrintMargin={false}
+        wrapEnabled={false}
+        onLoad={initEditor}
+        onChange={handleChange}
         onSelectionChange={handleSelectionChange}
       />
-
-      <QueryEditorControls
-        addParameterButtonProps={{
-          title: (
-            <React.Fragment>
-              Add New Parameter (<i>{modKey} + P</i>)
-            </React.Fragment>
-          ),
-          onClick: addNewParameter,
-        }}
-        formatButtonProps={{
-          title: (
-            <React.Fragment>
-              Format Query (<i>{modKey} + Shift + F</i>)
-            </React.Fragment>
-          ),
-          onClick: formatQuery,
-        }}
-        saveButtonProps={
-          canEdit && {
-            title: `${modKey} + S`,
-            text: (
-              <React.Fragment>
-                <span className="hidden-xs">Save</span>
-                {isDirty ? "*" : null}
-              </React.Fragment>
-            ),
-            onClick: saveQuery,
-          }
-        }
-        executeButtonProps={{
-          title: `${modKey} + Enter`,
-          disabled: !canExecuteQuery || queryExecuting,
-          onClick: executeQuery,
-          text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
-        }}
-        autocompleteToggleProps={{
-          available: autocompleteAvailable,
-          enabled: autocompleteEnabled,
-          onToggle: toggleAutocomplete,
-        }}
-        dataSourceSelectorProps={{
-          disabled: !isQueryOwner,
-          value: dataSource.id,
-          onChange: updateDataSource,
-          options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
-        }}
-      />
-    </section>
+    </div>
   );
-}
+});
 
 QueryEditor.propTypes = {
-  queryText: PropTypes.string.isRequired,
-  schema: Schema,
-  addNewParameter: PropTypes.func.isRequired,
-  dataSources: PropTypes.arrayOf(DataSource),
-  dataSource: DataSource,
-  canEdit: PropTypes.bool.isRequired,
-  isDirty: PropTypes.bool.isRequired,
-  isQueryOwner: PropTypes.bool.isRequired,
-  updateDataSource: PropTypes.func.isRequired,
-  canExecuteQuery: PropTypes.bool.isRequired,
-  executeQuery: PropTypes.func.isRequired,
-  queryExecuting: PropTypes.bool.isRequired,
-  saveQuery: PropTypes.func.isRequired,
-  updateQuery: PropTypes.func.isRequired,
-  updateSelectedQuery: PropTypes.func.isRequired,
-  listenForEditorCommand: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  syntax: PropTypes.string,
+  value: PropTypes.string,
+  autocompleteEnabled: PropTypes.bool,
+  schema: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      size: PropTypes.number,
+      columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+    })
+  ),
+  onChange: PropTypes.func,
+  onSelectionChange: PropTypes.func,
 };
 
 QueryEditor.defaultProps = {
-  schema: null,
-  dataSource: {},
-  dataSources: [],
+  className: null,
+  syntax: null,
+  value: null,
+  autocompleteEnabled: true,
+  schema: [],
+  onChange: () => {},
+  onSelectionChange: () => {},
 };
 
-export default function init(ngModule) {
-  ngModule.component("queryEditor", react2angular(QueryEditor));
-}
+QueryEditor.Controls = QueryEditorControls;
 
-init.init = true;
+export default QueryEditor;

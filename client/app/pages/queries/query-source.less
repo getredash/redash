@@ -2,3 +2,29 @@ page-query-source {
   display: flex;
   flex-grow: 1;
 }
+
+.query-editor-wrapper {
+  padding: 15px;
+  margin-bottom: 10px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+  .query-editor-container {
+    flex: 1 1 auto;
+
+    &[data-executing] {
+      .ace_marker-layer {
+        .ace_selection {
+          background-color: rgb(255, 210, 181);
+        }
+      }
+    }
+  }
+
+  .query-editor-controls {
+    flex: 0 0 auto;
+    margin-top: 10px;
+  }
+}

@@ -1,4 +1,4 @@
-import { isNil, isObject, clone, extend, keys, map, omit, pick } from "lodash";
+import { isNil, isObject, extend, keys, map, omit, pick, uniq } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
@@ -72,11 +72,11 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
     });
 }
 
-export default function saveQuery(query, data, { successMessage = "Query saved" } = {}) {
+export default function saveQuery(query, data = null, { successMessage = "Query saved" } = {}) {
   if (isObject(data)) {
     // Don't save new query with partial data
     if (query.isNew()) {
-      return Promise.resolve(extend(clone(query), data));
+      return Promise.resolve(extend(query.clone(), data));
     }
     data = { ...data, id: query.id, version: query.version };
   } else {
@@ -99,7 +99,7 @@ export default function saveQuery(query, data, { successMessage = "Query saved" 
       if (!isNil(successMessage)) {
         notification.success(successMessage);
       }
-      return extend(clone(query), pick(updatedQuery, keys(data)));
+      return extend(query.clone(), pick(updatedQuery, uniq(["id", "version", ...keys(data)])));
     })
     .catch(error => {
       const notificationOptions = {};
