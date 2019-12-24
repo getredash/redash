@@ -1,13 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Dropdown from 'antd/lib/dropdown';
-import Menu from 'antd/lib/menu';
-import Button from 'antd/lib/button';
-import Icon from 'antd/lib/icon';
-import { react2angular } from 'react2angular';
+import React from "react";
+import PropTypes from "prop-types";
+import Dropdown from "antd/lib/dropdown";
+import Menu from "antd/lib/menu";
+import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
+import { react2angular } from "react2angular";
 
-import QueryResultsLink from './QueryResultsLink';
-
+import QueryResultsLink from "./QueryResultsLink";
 
 export function QueryControlDropdown(props) {
   const menu = (
@@ -32,8 +31,7 @@ export function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}
-        >
+          apiKey={props.apiKey}>
           <Icon type="file" /> Download as CSV File
         </QueryResultsLink>
       </Menu.Item>
@@ -44,8 +42,7 @@ export function QueryControlDropdown(props) {
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
-          apiKey={props.apiKey}
-        >
+          apiKey={props.apiKey}>
           <Icon type="file-excel" /> Download as Excel File
         </QueryResultsLink>
       </Menu.Item>
@@ -53,11 +50,7 @@ export function QueryControlDropdown(props) {
   );
 
   return (
-    <Dropdown
-      trigger={['click']}
-      overlay={menu}
-      overlayClassName="query-control-dropdown-overlay"
-    >
+    <Dropdown trigger={["click"]} overlay={menu} overlayClassName="query-control-dropdown-overlay">
       <Button data-test="QueryControlDropdownButton">
         <Icon type="ellipsis" rotate={90} />
       </Button>
@@ -72,22 +65,19 @@ QueryControlDropdown.propTypes = {
   showEmbedDialog: PropTypes.func.isRequired,
   embed: PropTypes.bool,
   apiKey: PropTypes.string,
-  selectedTab: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number,
-  ]),
+  selectedTab: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   openAddToDashboardForm: PropTypes.func.isRequired,
 };
 
 QueryControlDropdown.defaultProps = {
   queryResult: {},
   embed: false,
-  apiKey: '',
-  selectedTab: '',
+  apiKey: "",
+  selectedTab: "",
 };
 
 export default function init(ngModule) {
-  ngModule.component('queryControlDropdown', react2angular(QueryControlDropdown));
+  ngModule.component("queryControlDropdown", react2angular(QueryControlDropdown));
 }
 
 init.init = true;

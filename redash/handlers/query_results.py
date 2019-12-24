@@ -6,34 +6,65 @@ from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
-from redash.permissions import (has_access, not_view_only, require_access,
-                                require_permission, view_only)
+from redash.permissions import (
+    has_access,
+    not_view_only,
+    require_access,
+    require_permission,
+    view_only,
+)
 from redash.tasks import QueryTask
 from redash.tasks.queries import enqueue_query
-from redash.utils import (collect_parameters_from_request, gen_query_hash, json_dumps, utcnow, to_filename)
-from redash.models.parameterized_query import (ParameterizedQuery, InvalidParameterError,
-                                               QueryDetachedFromDataSourceError, dropdown_values)
-from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
+from redash.utils import (
+    collect_parameters_from_request,
+    gen_query_hash,
+    json_dumps,
+    utcnow,
+    to_filename,
+)
+from redash.models.parameterized_query import (
+    ParameterizedQuery,
+    InvalidParameterError,
+    QueryDetachedFromDataSourceError,
+    dropdown_values,
+)
+from redash.serializers import (
+    serialize_query_result,
+    serialize_query_result_to_csv,
+    serialize_query_result_to_xlsx,
+)
 
 
 def error_response(message, http_status=400):
-    return {'job': {'status': 4, 'error': message}}, http_status
+    return {"job": {"status": 4, "error": message}}, http_status
 
 
 error_messages = {
-    'unsafe_when_shared': error_response('This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.', 403),
-    'unsafe_on_view_only': error_response('This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.', 403),
-    'no_permission': error_response('You do not have permission to run queries with this data source.', 403),
-    'select_data_source': error_response('Please select data source to run this query.', 401)
+    "unsafe_when_shared": error_response(
+        "This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.",
+        403,
+    ),
+    "unsafe_on_view_only": error_response(
+        "This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.",
+        403,
+    ),
+    "no_permission": error_response(
+        "You do not have permission to run queries with this data source.", 403
+    ),
+    "select_data_source": error_response(
+        "Please select data source to run this query.", 401
+    ),
 }
 
 
 def run_query(query, parameters, data_source, query_id, max_age=0):
     if data_source.paused:
         if data_source.pause_reason:
-            message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
+            message = "{} is paused ({}). Please try later.".format(
+                data_source.name, data_source.pause_reason
+            )
         else:
-            message = '{} is paused. Please try later.'.format(data_source.name)
+            message = "{} is paused. Please try later.".format(data_source.name)
 
         return error_response(message)
 
@@ -43,44 +74,62 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
         abort(400, message=e.message)
 
     if query.missing_params:
-        return error_response('Missing parameter value for: {}'.format(", ".join(query.missing_params)))
+        return error_response(
+            "Missing parameter value for: {}".format(", ".join(query.missing_params))
+        )
 
     if max_age == 0:
         query_result = None
     else:
         query_result = models.QueryResult.get_latest(data_source, query.text, max_age)
 
-    record_event(current_user.org, current_user, {
-        'action': 'execute_query',
-        'cache': 'hit' if query_result else 'miss',
-        'object_id': data_source.id,
-        'object_type': 'data_source',
-        'query': query.text,
-        'query_id': query_id,
-        'parameters': parameters
-    })
+    record_event(
+        current_user.org,
+        current_user,
+        {
+            "action": "execute_query",
+            "cache": "hit" if query_result else "miss",
+            "object_id": data_source.id,
+            "object_type": "data_source",
+            "query": query.text,
+            "query_id": query_id,
+            "parameters": parameters,
+        },
+    )
 
     if query_result:
-        return {'query_result': serialize_query_result(query_result, current_user.is_api_user())}
+        return {
+            "query_result": serialize_query_result(
+                query_result, current_user.is_api_user()
+            )
+        }
     else:
-        job = enqueue_query(query.text, data_source, current_user.id, current_user.is_api_user(), metadata={
-            "Username": repr(current_user) if current_user.is_api_user() else current_user.email,
-            "Query ID": query_id
-        })
-        return {'job': job.to_dict()}
+        job = enqueue_query(
+            query.text,
+            data_source,
+            current_user.id,
+            current_user.is_api_user(),
+            metadata={
+                "Username": repr(current_user)
+                if current_user.is_api_user()
+                else current_user.email,
+                "Query ID": query_id,
+            },
+        )
+        return {"job": job.to_dict()}
 
 
 def get_download_filename(query_result, query, filetype):
     retrieved_at = query_result.retrieved_at.strftime("%Y_%m_%d")
     if query:
-        filename = to_filename(query.name) if query.name != '' else str(query.id)
+        filename = to_filename(query.name) if query.name != "" else str(query.id)
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
 
 
 class QueryResultListResource(BaseResource):
-    @require_permission('execute_query')
+    @require_permission("execute_query")
     def post(self):
         """
         Execute a query (or retrieve recent results).
@@ -96,27 +145,33 @@ class QueryResultListResource(BaseResource):
         """
         params = request.get_json(force=True)
 
-        query = params['query']
-        max_age = params.get('max_age', -1)
+        query = params["query"]
+        max_age = params.get("max_age", -1)
         # max_age might have the value of None, in which case calling int(None) will fail
         if max_age is None:
             max_age = -1
         max_age = int(max_age)
-        query_id = params.get('query_id', 'adhoc')
-        parameters = params.get('parameters', collect_parameters_from_request(request.args))
+        query_id = params.get("query_id", "adhoc")
+        parameters = params.get(
+            "parameters", collect_parameters_from_request(request.args)
+        )
 
         parameterized_query = ParameterizedQuery(query, org=self.current_org)
 
-        data_source_id = params.get('data_source_id')
+        data_source_id = params.get("data_source_id")
         if data_source_id:
-            data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
+            data_source = models.DataSource.get_by_id_and_org(
+                params.get("data_source_id"), self.current_org
+            )
         else:
-            return error_messages['select_data_source']
+            return error_messages["select_data_source"]
 
         if not has_access(data_source, self.current_user, not_view_only):
-            return error_messages['no_permission']
+            return error_messages["no_permission"]
 
-        return run_query(parameterized_query, parameters, data_source, query_id, max_age)
+        return run_query(
+            parameterized_query, parameters, data_source, query_id, max_age
+        )
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
@@ -124,7 +179,9 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 class QueryResultDropdownResource(BaseResource):
     def get(self, query_id):
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(
+            models.Query.get_by_id_and_org, query_id, self.current_org
+        )
         require_access(query.data_source, current_user, view_only)
         try:
             return dropdown_values(query_id, self.current_org)
@@ -134,12 +191,18 @@ class QueryResultDropdownResource(BaseResource):
 
 class QueryDropdownsResource(BaseResource):
     def get(self, query_id, dropdown_query_id):
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(
+            models.Query.get_by_id_and_org, query_id, self.current_org
+        )
         require_access(query, current_user, view_only)
 
-        related_queries_ids = [p['queryId'] for p in query.parameters if p['type'] == 'query']
+        related_queries_ids = [
+            p["queryId"] for p in query.parameters if p["type"] == "query"
+        ]
         if int(dropdown_query_id) not in related_queries_ids:
-            dropdown_query = get_object_or_404(models.Query.get_by_id_and_org, dropdown_query_id, self.current_org)
+            dropdown_query = get_object_or_404(
+                models.Query.get_by_id_and_org, dropdown_query_id, self.current_org
+            )
             require_access(dropdown_query.data_source, current_user, view_only)
 
         return dropdown_values(dropdown_query_id, self.current_org)
@@ -148,27 +211,33 @@ class QueryDropdownsResource(BaseResource):
 class QueryResultResource(BaseResource):
     @staticmethod
     def add_cors_headers(headers):
-        if 'Origin' in request.headers:
-            origin = request.headers['Origin']
+        if "Origin" in request.headers:
+            origin = request.headers["Origin"]
 
-            if set(['*', origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
-                headers['Access-Control-Allow-Origin'] = origin
-                headers['Access-Control-Allow-Credentials'] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
+            if set(["*", origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+                headers["Access-Control-Allow-Origin"] = origin
+                headers["Access-Control-Allow-Credentials"] = str(
+                    settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
+                ).lower()
 
-    @require_permission('view_query')
-    def options(self, query_id=None, query_result_id=None, filetype='json'):
+    @require_permission("view_query")
+    def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
         self.add_cors_headers(headers)
 
         if settings.ACCESS_CONTROL_REQUEST_METHOD:
-            headers['Access-Control-Request-Method'] = settings.ACCESS_CONTROL_REQUEST_METHOD
+            headers[
+                "Access-Control-Request-Method"
+            ] = settings.ACCESS_CONTROL_REQUEST_METHOD
 
         if settings.ACCESS_CONTROL_ALLOW_HEADERS:
-            headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
+            headers[
+                "Access-Control-Allow-Headers"
+            ] = settings.ACCESS_CONTROL_ALLOW_HEADERS
 
         return make_response("", 200, headers)
 
-    @require_permission('view_query')
+    @require_permission("view_query")
     def post(self, query_id):
         """
         Execute a saved query.
@@ -181,31 +250,41 @@ class QueryResultResource(BaseResource):
                                 always execute.
         """
         params = request.get_json(force=True, silent=True) or {}
-        parameter_values = params.get('parameters', {})
+        parameter_values = params.get("parameters", {})
 
-        max_age = params.get('max_age', -1)
+        max_age = params.get("max_age", -1)
         # max_age might have the value of None, in which case calling int(None) will fail
         if max_age is None:
             max_age = -1
         max_age = int(max_age)
 
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(
+            models.Query.get_by_id_and_org, query_id, self.current_org
+        )
 
         allow_executing_with_view_only_permissions = query.parameterized.is_safe
 
-        if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
-            return run_query(query.parameterized, parameter_values, query.data_source, query_id, max_age)
+        if has_access(
+            query, self.current_user, allow_executing_with_view_only_permissions
+        ):
+            return run_query(
+                query.parameterized,
+                parameter_values,
+                query.data_source,
+                query_id,
+                max_age,
+            )
         else:
             if not query.parameterized.is_safe:
                 if current_user.is_api_user():
-                    return error_messages['unsafe_when_shared']
+                    return error_messages["unsafe_when_shared"]
                 else:
-                    return error_messages['unsafe_on_view_only']
+                    return error_messages["unsafe_on_view_only"]
             else:
-                return error_messages['no_permission']
+                return error_messages["no_permission"]
 
-    @require_permission('view_query')
-    def get(self, query_id=None, query_result_id=None, filetype='json'):
+    @require_permission("view_query")
+    def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
 
@@ -228,52 +307,66 @@ class QueryResultResource(BaseResource):
         should_cache = query_result_id is not None
 
         parameter_values = collect_parameters_from_request(request.args)
-        max_age = int(request.args.get('maxAge', 0))
+        max_age = int(request.args.get("maxAge", 0))
 
         query_result = None
         query = None
 
         if query_result_id:
-            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
+            query_result = get_object_or_404(
+                models.QueryResult.get_by_id_and_org, query_result_id, self.current_org
+            )
 
         if query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+            query = get_object_or_404(
+                models.Query.get_by_id_and_org, query_id, self.current_org
+            )
 
-            if query_result is None and query is not None and query.latest_query_data_id is not None:
-                query_result = get_object_or_404(models.QueryResult.get_by_id_and_org,
-                                                 query.latest_query_data_id,
-                                                 self.current_org)
+            if (
+                query_result is None
+                and query is not None
+                and query.latest_query_data_id is not None
+            ):
+                query_result = get_object_or_404(
+                    models.QueryResult.get_by_id_and_org,
+                    query.latest_query_data_id,
+                    self.current_org,
+                )
 
-            if query is not None and query_result is not None and self.current_user.is_api_user():
+            if (
+                query is not None
+                and query_result is not None
+                and self.current_user.is_api_user()
+            ):
                 if query.query_hash != query_result.query_hash:
-                    abort(404, message='No cached result found for this query.')
+                    abort(404, message="No cached result found for this query.")
 
         if query_result:
             require_access(query_result.data_source, self.current_user, view_only)
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {
-                    'user_id': None,
-                    'org_id': self.current_org.id,
-                    'action': 'api_get',
-                    'api_key': self.current_user.name,
-                    'file_type': filetype,
-                    'user_agent': request.user_agent.string,
-                    'ip': request.remote_addr
+                    "user_id": None,
+                    "org_id": self.current_org.id,
+                    "action": "api_get",
+                    "api_key": self.current_user.name,
+                    "file_type": filetype,
+                    "user_agent": request.user_agent.string,
+                    "ip": request.remote_addr,
                 }
 
                 if query_id:
-                    event['object_type'] = 'query'
-                    event['object_id'] = query_id
+                    event["object_type"] = "query"
+                    event["object_id"] = query_id
                 else:
-                    event['object_type'] = 'query_result'
-                    event['object_id'] = query_result_id
+                    event["object_type"] = "query_result"
+                    event["object_id"] = query_result_id
 
                 self.record_event(event)
 
-            if filetype == 'json':
+            if filetype == "json":
                 response = self.make_json_response(query_result)
-            elif filetype == 'xlsx':
+            elif filetype == "xlsx":
                 response = self.make_excel_response(query_result)
             else:
                 response = self.make_csv_response(query_result)
@@ -282,33 +375,36 @@ class QueryResultResource(BaseResource):
                 self.add_cors_headers(response.headers)
 
             if should_cache:
-                response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
+                response.headers.add_header(
+                    "Cache-Control", "private,max-age=%d" % ONE_YEAR
+                )
 
             filename = get_download_filename(query_result, query, filetype)
 
             response.headers.add_header(
-                "Content-Disposition",
-                'attachment; filename="{}"'.format(filename)
+                "Content-Disposition", 'attachment; filename="{}"'.format(filename)
             )
 
             return response
 
         else:
-            abort(404, message='No cached result found for this query.')
+            abort(404, message="No cached result found for this query.")
 
     def make_json_response(self, query_result):
-        data = json_dumps({'query_result': query_result.to_dict()})
-        headers = {'Content-Type': "application/json"}
+        data = json_dumps({"query_result": query_result.to_dict()})
+        headers = {"Content-Type": "application/json"}
         return make_response(data, 200, headers)
 
     @staticmethod
     def make_csv_response(query_result):
-        headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        headers = {"Content-Type": "text/csv; charset=UTF-8"}
         return make_response(serialize_query_result_to_csv(query_result), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
-        headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+        headers = {
+            "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        }
         return make_response(serialize_query_result_to_xlsx(query_result), 200, headers)
 
 
@@ -318,7 +414,7 @@ class JobResource(BaseResource):
         Retrieve info about a running query job.
         """
         job = QueryTask(job_id=job_id)
-        return {'job': job.to_dict()}
+        return {"job": job.to_dict()}
 
     def delete(self, job_id):
         """

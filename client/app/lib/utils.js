@@ -1,4 +1,4 @@
-import { isObject, cloneDeep, each, extend } from 'lodash';
+import { isObject, cloneDeep, each, extend } from "lodash";
 
 export function routesToAngularRoutes(routes, template) {
   const result = {};
@@ -26,9 +26,9 @@ export function routesToAngularRoutes(routes, template) {
 // ANGULAR_REMOVE_ME
 export function cleanAngularProps(value) {
   // remove all props that start with '$$' - that's what `angular.toJson` does
-  const omitAngularProps = (obj) => {
+  const omitAngularProps = obj => {
     each(obj, (v, k) => {
-      if (('' + k).startsWith('$$')) {
+      if (("" + k).startsWith("$$")) {
         delete obj[k];
       } else {
         obj[k] = isObject(v) ? omitAngularProps(v) : v;

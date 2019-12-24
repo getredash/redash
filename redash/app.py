@@ -6,17 +6,20 @@ from . import settings
 
 class Redash(Flask):
     """A custom Flask app for Redash"""
+
     def __init__(self, *args, **kwargs):
-        kwargs.update({
-            'template_folder': settings.STATIC_ASSETS_PATH,
-            'static_folder': settings.STATIC_ASSETS_PATH,
-            'static_url_path': '/static',
-        })
+        kwargs.update(
+            {
+                "template_folder": settings.STATIC_ASSETS_PATH,
+                "static_folder": settings.STATIC_ASSETS_PATH,
+                "static_url_path": "/static",
+            }
+        )
         super(Redash, self).__init__(__name__, *args, **kwargs)
         # Make sure we get the right referral address even behind proxies like nginx.
         self.wsgi_app = ProxyFix(self.wsgi_app, settings.PROXIES_COUNT)
         # Configure Redash using our settings
-        self.config.from_object('redash.settings')
+        self.config.from_object("redash.settings")
 
 
 def create_app():

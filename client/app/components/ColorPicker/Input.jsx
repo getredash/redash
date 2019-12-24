@@ -1,12 +1,12 @@
-import { isNil, isArray, chunk, map, filter, toPairs } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import tinycolor from 'tinycolor2';
-import TextInput from 'antd/lib/input';
-import Typography from 'antd/lib/typography';
-import Swatch from './Swatch';
+import { isNil, isArray, chunk, map, filter, toPairs } from "lodash";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import tinycolor from "tinycolor2";
+import TextInput from "antd/lib/input";
+import Typography from "antd/lib/typography";
+import Swatch from "./Swatch";
 
-import './input.less';
+import "./input.less";
 
 function preparePresets(presetColors, presetColumns) {
   presetColors = isArray(presetColors) ? map(presetColors, v => [null, v]) : toPairs(presetColors);
@@ -16,14 +16,14 @@ function preparePresets(presetColors, presetColumns) {
     }
     value = tinycolor(value);
     if (value.isValid()) {
-      return [title, '#' + value.toHex().toUpperCase()];
+      return [title, "#" + value.toHex().toUpperCase()];
     }
     return null;
   });
   return chunk(filter(presetColors), presetColumns);
 }
 
-function validateColor(value, callback, prefix = '#') {
+function validateColor(value, callback, prefix = "#") {
   if (isNil(value)) {
     callback(null);
   }
@@ -34,7 +34,7 @@ function validateColor(value, callback, prefix = '#') {
 }
 
 export default function Input({ color, presetColors, presetColumns, onChange, onPressEnter }) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const presets = preparePresets(presetColors, presetColumns);
@@ -46,7 +46,7 @@ export default function Input({ color, presetColors, presetColumns, onChange, on
 
   useEffect(() => {
     if (!isInputFocused) {
-      validateColor(color, setInputValue, '');
+      validateColor(color, setInputValue, "");
     }
   }, [color, isInputFocused]);
 
@@ -86,7 +86,7 @@ Input.propTypes = {
 };
 
 Input.defaultProps = {
-  color: '#FFFFFF',
+  color: "#FFFFFF",
   presetColors: null,
   presetColumns: 8,
   onChange: () => {},

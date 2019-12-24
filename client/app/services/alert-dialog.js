@@ -14,14 +14,14 @@ const AlertDialogComponent = {
 </div>
   `,
   bindings: {
-    close: '&',
-    dismiss: '&',
-    resolve: '<',
+    close: "&",
+    dismiss: "&",
+    resolve: "<",
   },
   controller() {
     this.title = this.resolve.title;
     this.message = this.resolve.message;
-    this.confirm = Object.assign({}, { class: 'btn-sucess', show: true, title: 'OK' }, this.resolve.confirm);
+    this.confirm = Object.assign({}, { class: "btn-sucess", show: true, title: "OK" }, this.resolve.confirm);
   },
 };
 
@@ -29,7 +29,7 @@ function AlertDialogService($uibModal) {
   return {
     open(title, message, confirm) {
       return $uibModal.open({
-        component: 'alertDialog',
+        component: "alertDialog",
         resolve: {
           title: () => title,
           message: () => message,
@@ -41,11 +41,11 @@ function AlertDialogService($uibModal) {
 }
 
 export default function init(ngModule) {
-  ngModule.component('alertDialog', AlertDialogComponent);
-  ngModule.factory('AlertDialog', AlertDialogService);
+  ngModule.component("alertDialog", AlertDialogComponent);
+  ngModule.factory("AlertDialog", AlertDialogService);
 
-  ngModule.run(($injector) => {
-    AlertDialog = $injector.get('AlertDialog');
+  ngModule.run($injector => {
+    AlertDialog = $injector.get("AlertDialog");
   });
 }
 

@@ -1,11 +1,10 @@
-
-
 import logging
 import socket
 import time
 from redash import settings
 
 from celery.concurrency import asynpool
+
 asynpool.PROC_ALIVE_TIMEOUT = settings.CELERY_INIT_TIMEOUT
 
 from celery.signals import task_postrun, task_prerun
@@ -34,23 +33,29 @@ def metric_name(name, tags):
 
 
 @task_postrun.connect
-def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, state, **kw):
+def task_postrun_handler(
+    signal, sender, task_id, task, args, kwargs, retval, state, **kw
+):
     try:
         run_time = 1000 * (time.time() - tasks_start_time.pop(task_id))
 
-        state = (state or 'unknown').lower()
-        tags = {'state': state, 'hostname': socket.gethostname()}
-        if task.name == 'redash.tasks.execute_query':
+        state = (state or "unknown").lower()
+        tags = {"state": state, "hostname": socket.gethostname()}
+        if task.name == "redash.tasks.execute_query":
             if isinstance(retval, Exception):
-                tags['state'] = 'exception'
-                state = 'exception'
+                tags["state"] = "exception"
+                state = "exception"
 
-            tags['data_source_id'] = args[1]
+            tags["data_source_id"] = args[1]
 
-        normalized_task_name = task.name.replace('redash.tasks.', '').replace('.', '_')
+        normalized_task_name = task.name.replace("redash.tasks.", "").replace(".", "_")
         metric = "celery.task_runtime.{}".format(normalized_task_name)
-        logging.debug("metric=%s", json_dumps({'metric': metric, 'tags': tags, 'value': run_time}))
+        logging.debug(
+            "metric=%s", json_dumps({"metric": metric, "tags": tags, "value": run_time})
+        )
         statsd_client.timing(metric_name(metric, tags), run_time)
-        statsd_client.incr(metric_name('celery.task.{}.{}'.format(normalized_task_name, state), tags))
+        statsd_client.incr(
+            metric_name("celery.task.{}.{}".format(normalized_task_name, state), tags)
+        )
     except Exception:
         logging.exception("Exception during task_postrun handler.")

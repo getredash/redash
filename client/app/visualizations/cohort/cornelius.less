@@ -1,10 +1,13 @@
 .cornelius-container {
+  // replace with variable from `ant-variables.less` after Bootstrap removed
+  @table-header-color: #333;
+
   .cornelius-title {
     text-align: center;
     padding-bottom: 10px;
     font-weight: bold;
     font-size: 14pt;
-    color: #3A3838;
+    color: @table-header-color;
     border-collapse: collapse;
   }
 
@@ -18,7 +21,7 @@
       text-align: center;
       padding: 10px;
       border: 1px solid #E4E4E4;
-      color: #3A3838;
+      color: @table-header-color;
       font-weight: bold;
     }
 
@@ -37,15 +40,12 @@
     .cornelius-people,
     .cornelius-stage {
       font-weight: bold;
-      color: #3A3838;
+      color: @table-header-color;
     }
 
     .cornelius-percentage,
     .cornelius-absolute {
-      color: #000000;
-
       &.cornelius-white-text {
-        color: #ffffff;
         text-shadow: 1px 1px 1px #000000;
       }
     }

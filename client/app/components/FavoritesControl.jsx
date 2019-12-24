@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import { $rootScope } from '@/services/ng';
+import React from "react";
+import PropTypes from "prop-types";
+import { react2angular } from "react2angular";
+import { $rootScope } from "@/services/ng";
 
 export class FavoritesControl extends React.Component {
   static propTypes = {
@@ -16,7 +16,7 @@ export class FavoritesControl extends React.Component {
 
   static defaultProps = {
     onChange: () => {},
-    forceUpdate: '',
+    forceUpdate: "",
   };
 
   toggleItem(event, item, callback) {
@@ -26,21 +26,17 @@ export class FavoritesControl extends React.Component {
     action().then(() => {
       item.is_favorite = !savedIsFavorite;
       this.forceUpdate();
-      $rootScope.$broadcast('reloadFavorites');
+      $rootScope.$broadcast("reloadFavorites");
       callback();
     });
   }
 
   render() {
     const { item, onChange } = this.props;
-    const icon = item.is_favorite ? 'fa fa-star' : 'fa fa-star-o';
-    const title = item.is_favorite ? 'Remove from favorites' : 'Add to favorites';
+    const icon = item.is_favorite ? "fa fa-star" : "fa fa-star-o";
+    const title = item.is_favorite ? "Remove from favorites" : "Add to favorites";
     return (
-      <a
-        title={title}
-        className="btn-favourite"
-        onClick={event => this.toggleItem(event, item, onChange)}
-      >
+      <a title={title} className="btn-favourite" onClick={event => this.toggleItem(event, item, onChange)}>
         <i className={icon} aria-hidden="true" />
       </a>
     );
@@ -48,8 +44,8 @@ export class FavoritesControl extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('favoritesControlImpl', react2angular(FavoritesControl));
-  ngModule.component('favoritesControl', {
+  ngModule.component("favoritesControlImpl", react2angular(FavoritesControl));
+  ngModule.component("favoritesControl", {
     template: `
       <favorites-control-impl 
         ng-if="$ctrl.item" 
@@ -59,13 +55,13 @@ export default function init(ngModule) {
       ></favorites-control-impl>
     `,
     bindings: {
-      item: '=',
+      item: "=",
     },
     controller($scope) {
       // See comment for FavoritesControl.propTypes.forceUpdate
-      this.forceUpdateTag = 'force' + Date.now();
-      $scope.$on('reloadFavorites', () => {
-        this.forceUpdateTag = 'force' + Date.now();
+      this.forceUpdateTag = "force" + Date.now();
+      $scope.$on("reloadFavorites", () => {
+        this.forceUpdateTag = "force" + Date.now();
       });
 
       this.onChange = () => {
