@@ -1,8 +1,25 @@
-import { each, trim, without } from "lodash";
+import { each, filter, map, toLower, toString, trim, upperFirst, without } from "lodash";
 import Mousetrap from "mousetrap";
 import "mousetrap/plugins/global-bind/mousetrap-global-bind";
 
+const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Cmd" : "Ctrl";
+
 export let KeyboardShortcuts = null; // eslint-disable-line import/no-mutable-exports
+
+export function humanReadableShortcut(shortcut, limit = Infinity) {
+  const modifiers = {
+    mod: upperFirst(modKey),
+  };
+
+  shortcut = toLower(toString(shortcut));
+  shortcut = filter(map(shortcut.split(","), trim), s => s !== "").slice(0, limit);
+  shortcut = map(shortcut, sc => {
+    sc = filter(map(sc.split("+")), s => s !== "");
+    return map(sc, s => modifiers[s] || upperFirst(s)).join(" + ");
+  }).join(", ");
+
+  return shortcut !== "" ? shortcut : null;
+}
 
 const handlers = {};
 
@@ -13,7 +30,7 @@ function onShortcut(event, shortcut) {
 }
 
 function KeyboardShortcutsService() {
-  this.modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Cmd" : "Ctrl";
+  this.modKey = modKey;
 
   this.bind = function bind(keymap) {
     each(keymap, (fn, key) => {

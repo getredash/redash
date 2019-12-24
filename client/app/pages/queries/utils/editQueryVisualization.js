@@ -1,4 +1,4 @@
-import { clone, extend, filter, get } from "lodash";
+import { clone, extend, filter } from "lodash";
 import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 
 export function editQueryVisualization(query, queryResult, visualization) {

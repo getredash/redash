@@ -8,7 +8,7 @@ function updateUrlHash(...args) {
 }
 
 export default function useVisualizationTabHandler(visualizations) {
-  const firstVisualization = useMemo(() => first(orderBy(visualizations, ["id"])), [visualizations]);
+  const firstVisualization = useMemo(() => first(orderBy(visualizations, ["id"])) || {}, [visualizations]);
   const [selectedTab, setSelectedTab] = useState(+$location.hash() || firstVisualization.id);
 
   useEffect(() => {
