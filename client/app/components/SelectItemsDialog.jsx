@@ -7,7 +7,7 @@ import Input from "antd/lib/input";
 import List from "antd/lib/list";
 import Button from "antd/lib/button";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { BigMessage } from "@/components/BigMessage";
+import BigMessage from "@/components/BigMessage";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
 import notification from "@/services/notification";

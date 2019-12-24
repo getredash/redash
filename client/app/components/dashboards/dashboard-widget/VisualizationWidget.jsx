@@ -124,7 +124,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
     }
   };
 
-  return (
+  return widgetQueryResult ? (
     <>
       <span>
         {!isPublic && !!widgetQueryResult && (
@@ -158,7 +158,7 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
         </a>
       </span>
     </>
-  );
+  ) : null;
 }
 
 VisualizationWidgetFooter.propTypes = {
