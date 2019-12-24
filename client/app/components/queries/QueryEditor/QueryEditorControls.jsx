@@ -10,7 +10,7 @@ import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";
 
 function ButtonTooltip({ title, shortcut, ...props }) {
-  shortcut = humanReadableShortcut(shortcut);
+  shortcut = humanReadableShortcut(shortcut, 1); // show only primary shortcut
   title =
     title && shortcut ? (
       <React.Fragment>
