@@ -20,6 +20,7 @@ import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { IMG_ROOT, DataSource } from "@/services/data-source";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
+import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import { pluralize, durationHumanize } from "@/filters";
 import {
   updateQuery,
@@ -116,6 +117,16 @@ function QueryView(props) {
           <Divider />
           <QueryPropertyList query={query} dataSource={dataSource} onClickSchedulePhrase={openScheduleDialog} />
         </div>
+        {queryResult && queryResultData.status !== "done" && (
+          <div className="query-alerts m-t-15 m-b-15">
+            <QueryExecutionStatus
+              status={queryResultData.status}
+              updatedAt={queryResultData.updatedAt}
+              error={queryResultData.error}
+              onCancel={() => console.log("Query execution cancelled")}
+            />
+          </div>
+        )}
         <div className="query-content tiled bg-white p-15 m-t-15">
           {query.hasParameters() && (
             <Parameters
@@ -144,29 +155,29 @@ function QueryView(props) {
           />
           <Divider />
           <div className="d-flex align-items-center">
-            <EditVisualizationButton
-              selectedTab={selectedTab}
-              openVisualizationEditor={visId =>
-                editQueryVisualization(
-                  query,
-                  queryResult,
-                  find(query.visualizations, { id: visId })
-                ).then(({ query }) => setQuery(query))
-              }
-            />
-            <QueryControlDropdown
-              query={query}
-              queryResult={queryResult}
-              queryExecuting={isQueryExecuting}
-              showEmbedDialog={() => EmbedQueryDialog.showModal({ query, visualization: currentVisualization })}
-              openAddToDashboardForm={() =>
-                AddToDashboardDialog.showModal({
-                  visualization: currentVisualization,
-                })
-              }
-            />
             {queryResultData.status === "done" && (
               <>
+                <EditVisualizationButton
+                  selectedTab={selectedTab}
+                  openVisualizationEditor={visId =>
+                    editQueryVisualization(
+                      query,
+                      queryResult,
+                      find(query.visualizations, { id: visId })
+                    ).then(({ query }) => setQuery(query))
+                  }
+                />
+                <QueryControlDropdown
+                  query={query}
+                  queryResult={queryResult}
+                  queryExecuting={isQueryExecuting}
+                  showEmbedDialog={() => EmbedQueryDialog.showModal({ query, visualization: currentVisualization })}
+                  openAddToDashboardForm={() =>
+                    AddToDashboardDialog.showModal({
+                      visualization: currentVisualization,
+                    })
+                  }
+                />
                 <span className="m-l-10">
                   <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
                 </span>
