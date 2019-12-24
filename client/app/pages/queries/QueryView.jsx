@@ -21,7 +21,13 @@ import { policy } from "@/services/policy";
 import { IMG_ROOT, DataSource } from "@/services/data-source";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import { pluralize, durationHumanize } from "@/filters";
-import { updateQuery, deleteQueryVisualization, addQueryVisualization, editQueryVisualization, changeQueryDescription } from "./utils";
+import {
+  updateQuery,
+  deleteQueryVisualization,
+  addQueryVisualization,
+  editQueryVisualization,
+  changeQueryDescription,
+} from "./utils";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 import useQueryExecute from "./utils/useQueryExecute";
 
@@ -114,7 +120,10 @@ function QueryView(props) {
           {query.hasParameters() && (
             <Parameters
               parameters={parameters}
-              onValuesChange={() => { setDirtyParameters(false); executeQuery(); }}
+              onValuesChange={() => {
+                setDirtyParameters(false);
+                executeQuery();
+              }}
               onPendingValuesChange={() => setDirtyParameters(query.$parameters.hasPendingValues())}
             />
           )}
@@ -131,9 +140,7 @@ function QueryView(props) {
                 setSelectedTab(visualization.id);
               })
             }
-            onDeleteVisualization={visualization =>
-              deleteQueryVisualization(query, visualization).then(setQuery)
-            }
+            onDeleteVisualization={visualization => deleteQueryVisualization(query, visualization).then(setQuery)}
           />
           <Divider />
           <div className="d-flex align-items-center">
@@ -175,7 +182,9 @@ function QueryView(props) {
                 Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
               </span>
             )}
-            <Button type="primary" loading={isQueryExecuting} disabled={dirtyParameters} onClick={executeQuery}>Execute</Button>
+            <Button type="primary" loading={isQueryExecuting} disabled={dirtyParameters} onClick={executeQuery}>
+              Execute
+            </Button>
           </div>
         </div>
       </div>
