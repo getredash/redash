@@ -124,10 +124,10 @@ class Impala(BaseSQLQueryRunner):
             cursor.close()
         except DatabaseError as e:
             json_data = None
-            error = e.message
+            error = str(e)
         except RPCError as e:
             json_data = None
-            error = "Metastore Error [%s]" % e.message
+            error = "Metastore Error [%s]" % str(e)
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
