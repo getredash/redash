@@ -112,7 +112,7 @@ class TreasureData(BaseQueryRunner):
         except errors.InternalError as e:
             json_data = None
             error = "%s: %s" % (
-                e.message,
+                str(e),
                 cursor.show_job()
                 .get("debug", {})
                 .get("stderr", "No stderr message in the response"),
