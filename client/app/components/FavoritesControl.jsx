@@ -36,7 +36,10 @@ export class FavoritesControl extends React.Component {
     const icon = item.is_favorite ? "fa fa-star" : "fa fa-star-o";
     const title = item.is_favorite ? "Remove from favorites" : "Add to favorites";
     return (
-      <a title={title} className="btn-favourite" onClick={event => this.toggleItem(event, item, onChange)}>
+      <a
+        title={title}
+        className="favorites-control btn-favourite"
+        onClick={event => this.toggleItem(event, item, onChange)}>
         <i className={icon} aria-hidden="true" />
       </a>
     );

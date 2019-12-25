@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
-export function BigMessage({ message, icon, children, className }) {
+function BigMessage({ message, icon, children, className }) {
   return (
     <div className={"p-15 text-center " + className}>
       <h3 className="m-t-0 m-b-0">
@@ -28,8 +27,4 @@ BigMessage.defaultProps = {
   className: "tiled bg-white",
 };
 
-export default function init(ngModule) {
-  ngModule.component("bigMessage", react2angular(BigMessage));
-}
-
-init.init = true;
+export default BigMessage;

@@ -205,7 +205,7 @@ class BigQuery(BaseQueryRunner):
 
         rows = []
 
-        while ("rows" in query_reply) and current_row < query_reply["totalRows"]:
+        while ("rows" in query_reply) and current_row < int(query_reply["totalRows"]):
             for row in query_reply["rows"]:
                 rows.append(transform_row(row, query_reply["schema"]["fields"]))
 

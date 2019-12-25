@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { chain, cloneDeep, find } from "lodash";
-import { react2angular } from "react2angular";
 import cx from "classnames";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { VisualizationWidget, TextboxWidget, RestrictedWidget } from "@/components/dashboards/dashboard-widget";
@@ -242,8 +241,4 @@ class DashboardGrid extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("dashboardGrid", react2angular(DashboardGrid));
-}
-
-init.init = true;
+export default DashboardGrid;
