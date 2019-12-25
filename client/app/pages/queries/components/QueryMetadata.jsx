@@ -2,12 +2,14 @@ import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
+import { Moment } from "@/components/proptypes";
 import { TimeAgo } from "@/components/TimeAgo";
 import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
+import { IMG_ROOT } from "@/services/data-source";
 
 import "./QueryMetadata.less";
 
-export default function QueryMetadata({ query, layout, onEditSchedule }) {
+export default function QueryMetadata({ query, dataSource, layout, onEditSchedule }) {
   return (
     <div className={`query-metadata-new query-metadata-${layout}`}>
       <div className="query-metadata-item">
@@ -38,6 +40,14 @@ export default function QueryMetadata({ query, layout, onEditSchedule }) {
           </span>
         </div>
       </div>
+      {dataSource && (
+        <div className="query-metadata-item">
+          <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.type} />
+          <div className="query-metadata-property">
+            <div className="query-metadata-label">{dataSource.name}</div>
+          </div>
+        </div>
+      )}
       <div className="query-metadata-item">
         <div className="query-metadata-property">
           <span className="query-metadata-label">
@@ -61,24 +71,29 @@ export default function QueryMetadata({ query, layout, onEditSchedule }) {
 QueryMetadata.propTypes = {
   layout: PropTypes.oneOf(["table", "horizontal"]),
   query: PropTypes.shape({
-    created_at: PropTypes.any, // string or Moment instance
-    updated_at: PropTypes.any, // string or Moment instance
+    created_at: PropTypes.oneOfType([PropTypes.string, Moment]).isRequired,
+    updated_at: PropTypes.oneOfType([PropTypes.string, Moment]).isRequired,
     user: PropTypes.shape({
-      name: PropTypes.string,
-      profile_image_url: PropTypes.string,
+      name: PropTypes.string.isRequired,
+      profile_image_url: PropTypes.string.isRequired,
       is_disabled: PropTypes.bool,
-    }),
+    }).isRequired,
     last_modified_by: PropTypes.shape({
-      name: PropTypes.string,
-      profile_image_url: PropTypes.string,
+      name: PropTypes.string.isRequired,
+      profile_image_url: PropTypes.string.isRequired,
       is_disabled: PropTypes.bool,
-    }),
+    }).isRequired,
     schedule: PropTypes.object,
   }).isRequired,
+  dataSource: PropTypes.shape({
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  }),
   onEditSchedule: PropTypes.func,
 };
 
 QueryMetadata.defaultProps = {
   layout: "table",
+  dataSource: null,
   onEditSchedule: null,
 };
