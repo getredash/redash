@@ -1072,7 +1072,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 (
                     DataSourceGroup.group_id.in_(group_ids)
                     | (Dashboard.user_id == user_id)
-                    | ((Widget.dashboard != None) & (Widget.visualization == None))
                 ),
                 Dashboard.org == org,
             )
