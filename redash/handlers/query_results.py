@@ -11,6 +11,7 @@ from redash.permissions import (
     not_view_only,
     require_access,
     require_permission,
+    require_any_of_permission,
     view_only,
 )
 from redash.tasks import QueryTask
@@ -220,7 +221,7 @@ class QueryResultResource(BaseResource):
                     settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
                 ).lower()
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
         self.add_cors_headers(headers)
@@ -237,7 +238,7 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def post(self, query_id):
         """
         Execute a saved query.
@@ -283,7 +284,7 @@ class QueryResultResource(BaseResource):
             else:
                 return error_messages["no_permission"]
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
