@@ -120,9 +120,9 @@ class Presto(BaseQueryRunner):
             error = None
         except DatabaseError as db:
             json_data = None
-            default_message = "Unspecified DatabaseError: {0}".format(db.message)
-            if isinstance(db.message, dict):
-                message = db.message.get("failureInfo", {"message", None}).get(
+            default_message = "Unspecified DatabaseError: {0}".format(str(db))
+            if isinstance(db.args[0], dict):
+                message = db.args[0].get("failureInfo", {"message", None}).get(
                     "message"
                 )
             else:
@@ -134,9 +134,7 @@ class Presto(BaseQueryRunner):
             json_data = None
         except Exception as ex:
             json_data = None
-            error = ex.message
-            if not isinstance(error, str):
-                error = str(error)
+            error = str(ex)
 
         return json_data, error
 
