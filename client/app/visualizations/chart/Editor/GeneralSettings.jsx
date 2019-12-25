@@ -122,31 +122,31 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
 
       {includes(["bubble"], options.globalSeriesType) && (
         <React.Fragment>
-        <Section>
-          <InputNumber
-            label="Bubble Size Coefficient"
-            className="w-100"
-            data-test="Chart.BubbleCoefficient"
-            defaultValue={options.coefficient}
-            onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
-          />
-        </Section>
-
-        <Section>
-          <Select
-            label="Bubble Size Proportional To"
-            className="w-100"
-            data-test="Chart.SizeMode"
-            defaultValue={options.sizemode}
-            onChange={mode => onOptionsChange({ sizemode: mode })}>
-            <Select.Option value="area" data-test="Chart.SizeMode.Area">
-              Area
-            </Select.Option>
-            <Select.Option value="diameter" data-test="Chart.SizeMode.Diameter">
-              Diameter
-            </Select.Option>
-          </Select>
-        </Section>
+          <Section>
+            <InputNumber
+              label="Bubble Size Coefficient"
+              className="w-100"
+              data-test="Chart.BubbleCoefficient"
+              defaultValue={options.coefficient}
+              onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
+            />
+          </Section>
+  
+          <Section>
+            <Select
+              label="Bubble Size Proportional To"
+              className="w-100"
+              data-test="Chart.SizeMode"
+              defaultValue={options.sizemode}
+              onChange={mode => onOptionsChange({ sizemode: mode })}>
+              <Select.Option value="area" data-test="Chart.SizeMode.Area">
+                Area
+              </Select.Option>
+              <Select.Option value="diameter" data-test="Chart.SizeMode.Diameter">
+                Diameter
+              </Select.Option>
+            </Select>
+          </Section>
         </React.Fragment>
       )}
 
