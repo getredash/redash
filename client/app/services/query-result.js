@@ -55,6 +55,13 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       queryResult.update(response.data);
     } else if (response.status === 400 && "job" in response.data) {
       queryResult.update(response.data);
+    } else if (response.status === 404) {
+      queryResult.update({
+        job: {
+          error: "cached query result unavailable, please execute again.",
+          status: 4,
+        },
+      });
     } else {
       logger("Unknown error", response);
       queryResult.update({
