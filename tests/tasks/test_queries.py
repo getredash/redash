@@ -1,12 +1,13 @@
 from unittest import TestCase
 from collections import namedtuple
 import uuid
+import datetime
 
 import mock
 
 from tests import BaseTestCase
 from redash import redis_connection, models
-from redash.utils import json_dumps
+from redash.utils import json_dumps, utcnow
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks.queries.execution import (
     QueryExecutionError,
@@ -199,3 +200,27 @@ class QueryExecutorTests(BaseTestCase):
             )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
+
+    def test_doesnt_change_updated_at_timestamp(self):
+        cm = mock.patch("celery.app.task.Context.delivery_info",
+                        {'routing_key': 'test'})
+
+        month_ago = utcnow() + datetime.timedelta(-30)
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300}, updated_at=month_ago)
+        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+            qr.side_effect = ValueError("broken")
+            with self.assertRaises(QueryExecutionError):
+                execute_query("SELECT 1, 2", self.factory.data_source.id, {},
+                              scheduled_query_id=q.id)
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 1)
+            self.assertEqual(q.updated_at, month_ago)
+
+        with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
+            qr.return_value = ([1, 2], None)
+            execute_query("SELECT 1, 2",
+                          self.factory.data_source.id, {},
+                          scheduled_query_id=q.id)
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 0)
+            self.assertEqual(q.updated_at, month_ago)
