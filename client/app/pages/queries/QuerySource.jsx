@@ -1,16 +1,18 @@
-import { isEmpty, extend, filter, find, map, includes, reduce } from "lodash";
+import { isEmpty, isArray, filter, find, map, extend, reduce, includes, intersection } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
 import { Parameters } from "@/components/Parameters";
+import { EditInPlace } from "@/components/EditInPlace";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import { TimeAgo } from "@/components/TimeAgo";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
+import ScheduleDialog from "@/components/queries/ScheduleDialog";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import { durationHumanize, prettySize } from "@/filters";
@@ -20,15 +22,25 @@ import { DataSource, SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
 import navigateTo from "@/services/navigateTo";
+import { policy } from "@/services/policy";
+import { clientConfig } from "@/services/auth";
 import localOptions from "@/lib/localOptions";
 
 import QueryPageHeader from "./components/QueryPageHeader";
+import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 import useQueryExecute from "./utils/useQueryExecute";
-import { updateQuery, deleteQueryVisualization, addQueryVisualization, editQueryVisualization } from "./utils";
+import {
+  updateQuery,
+  updateQueryDescription,
+  updateQuerySchedule,
+  deleteQueryVisualization,
+  addQueryVisualization,
+  editQueryVisualization,
+} from "./utils";
 
 import "./query-source.less";
 
@@ -225,6 +237,31 @@ function QuerySource(props) {
     [query]
   );
 
+  const editSchedule = useCallback(() => {
+    const canScheduleQuery = true; // TODO: Use real value
+    if (!query.can_edit || !canScheduleQuery) {
+      return;
+    }
+
+    const intervals = clientConfig.queryRefreshIntervals;
+    const allowedIntervals = policy.getQueryRefreshIntervals();
+    const refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
+
+    ScheduleDialog.showModal({
+      schedule: query.schedule,
+      refreshOptions,
+    }).result.then(schedule => {
+      updateQuerySchedule(query, schedule).then(setQuery);
+    });
+  }, [query]);
+
+  const doUpdateQueryDescription = useCallback(
+    description => {
+      updateQueryDescription(query, description).then(setQuery);
+    },
+    [query]
+  );
+
   const openAddNewParameterDialog = useCallback(() => {
     EditParameterSettingsDialog.showModal({
       parameter: {
@@ -300,6 +337,22 @@ function QuerySource(props) {
           <div className="editor__left__schema">
             <SchemaBrowser schema={schema} onRefresh={() => reloadSchema(true)} onItemSelect={handleSchemaItemSelect} />
           </div>
+
+          {!query.isNew() && (
+            <div className="query-metadata query-metadata--description">
+              <EditInPlace
+                editor="textarea"
+                isEditable={query.can_edit}
+                markdown
+                ignoreBlanks={false}
+                placeholder="Add description"
+                value={query.description}
+                onDone={doUpdateQueryDescription}
+              />
+            </div>
+          )}
+
+          {!query.isNew() && <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} />}
         </nav>
 
         <div className="content">
@@ -367,6 +420,8 @@ function QuerySource(props) {
                   />
                 </section>
               </div>
+
+              {!query.isNew() && <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />}
 
               <section className="flex-fill p-relative t-body query-visualizations-wrapper">
                 <div
