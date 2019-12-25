@@ -47,6 +47,7 @@ function prepareBubbleSeries(series, options, { seriesColor, data }) {
   series.marker = {
     color: seriesColor,
     size: map(data, i => i.size * coefficient),
+    sizemode: options.sizemode || "diameter",
   };
   return series;
 }
