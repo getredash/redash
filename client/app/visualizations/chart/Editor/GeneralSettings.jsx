@@ -131,7 +131,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
               onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
             />
           </Section>
-  
+
           <Section>
             <Select
               label="Bubble Size Proportional To"
