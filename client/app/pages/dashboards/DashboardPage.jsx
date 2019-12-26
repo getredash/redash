@@ -46,7 +46,6 @@ function DashboardPageTitle({ dashboardOptions }) {
           isEditable={editingLayout}
           onDone={name => updateDashboard({ name })}
           value={dashboard.name}
-          editor="input"
           ignoreBlanks
         />
       </h3>
