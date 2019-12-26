@@ -222,7 +222,7 @@
                   </button>
                 </div>
                 <div class="alert alert-danger m-t-15" ng-if="queryResult.getError()">
-                  Error running query:
+                  {{queryResult.getErrorOrigin()}} error while running query:
                   <strong>{{queryResult.getError()}}</strong>
                 </div>
               </div>

@@ -166,6 +166,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
       return this.job.error;
     }
 
+    getErrorOrigin() {
+      return this.job.error_origin;
+    }
+
     getLog() {
       if (!this.query_result.data || !this.query_result.data.log || this.query_result.data.log.length === 0) {
         return null;
