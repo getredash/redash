@@ -1,12 +1,15 @@
 import datetime
 import csv
 import io
+from rq.job import JobStatus
 
 from tests import BaseTestCase
+from mock import Mock
 
 from redash import models
 from redash.utils import utcnow, json_dumps
-from redash.serializers import serialize_query_result, serialize_query_result_to_csv
+from redash.serializers import serialize_query_result, serialize_query_result_to_csv, serialize_job
+from redash.tasks.queries.execution import QueryExecutionError
 
 
 data = {
@@ -36,6 +39,25 @@ class QueryResultSerializationTest(BaseTestCase):
         serialized = serialize_query_result(query_result, True)
         self.assertSetEqual(set(['data', 'retrieved_at']),
                             set(serialized.keys()))
+
+
+class JobSerializationTest(BaseTestCase):
+    def test_sets_data_source_origin_for_query_runner_errors(self):
+        job = Mock()
+        job.get_status = Mock(return_value=JobStatus.FAILED)
+        job.result = QueryExecutionError()
+        
+        serialized = serialize_job(job)['job']
+        self.assertEqual(serialized['error_origin'], 'Data source')
+
+    def test_sets_system_origin_for_non_query_runner_errors(self):
+        job = Mock()
+        job.get_status = Mock(return_value=JobStatus.FAILED)
+        job.result = ZeroDivisionError()
+        
+        serialized = serialize_job(job)['job']
+        self.assertEqual(serialized['error_origin'], 'System')
+
 
 class CsvSerializationTest(BaseTestCase):
     def get_csv_content(self):

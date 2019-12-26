@@ -13,6 +13,7 @@ from redash import models
 from redash.permissions import has_access, view_only
 from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
+from redash.tasks.queries.execution import QueryExecutionError
 
 
 from .query_result import serialize_query_result, serialize_query_result_to_csv, serialize_query_result_to_xlsx
@@ -249,20 +250,22 @@ def serialize_job(job):
         updated_at = 0
 
     status = STATUSES[job_status]
+    error_origin = ''
+    error = ''
 
     if isinstance(job.result, Exception):
+        error_origin = 'Data source' if isinstance(job.result, QueryExecutionError) else 'System'
         error = str(job.result)
         status = 4
     elif job.is_cancelled:
         error = 'Query execution cancelled.'
-    else:
-        error = ''
 
     return {
         'job': {
             'id': job.id,
             'updated_at': updated_at,
             'status': status,
+            'error_origin': error_origin,
             'error': error,
             'query_result_id': job.result if job.is_finished and not error else None
         }

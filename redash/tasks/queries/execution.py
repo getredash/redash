@@ -218,6 +218,6 @@ def execute_query(query, data_source_id, metadata, user_id=None,
 
     try:
         return QueryExecutor(query, data_source_id, user_id, is_api_key, metadata, scheduled_query).run()
-    except QueryExecutionError as e:
+    except Exception as e:
         models.db.session.rollback()
         return e
