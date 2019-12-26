@@ -23,6 +23,8 @@ export default function useQueryExecute(query) {
     queryResultData.status,
   ]);
 
+  const [isExecutionCancelling, setIsExecutionCancelling] = useState(false);
+
   const executeQuery = useCallback(() => {
     recordEvent("execute", "query", query.id);
     setQueryResult(query.getQueryResult(0));
@@ -36,12 +38,31 @@ export default function useQueryExecute(query) {
     [query]
   );
 
+  const cancelExecution = useCallback(() => {
+    if (queryResult) {
+      recordEvent("cancel_execute", "query", query.id);
+      queryResult.cancelExecution();
+      setIsExecutionCancelling(true);
+    }
+  }, [query, queryResult]);
+
   useEffect(() => {
-    if (!isQueryExecuting && queryResult && queryResult.query_result.query === query.query) {
-      query.latest_query_data_id = queryResult.getId();
-      query.queryResult = queryResult;
+    if (!isQueryExecuting) {
+      setIsExecutionCancelling(false);
+      if (queryResult && queryResult.query_result.query === query.query) {
+        query.latest_query_data_id = queryResult.getId();
+        query.queryResult = queryResult;
+      }
     }
   }, [isQueryExecuting]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return { queryResult, queryResultData, isQueryExecuting, executeQuery, executeAdhocQuery };
+  return {
+    queryResult,
+    queryResultData,
+    isQueryExecuting,
+    isExecutionCancelling,
+    executeQuery,
+    executeAdhocQuery,
+    cancelExecution,
+  };
 }

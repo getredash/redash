@@ -87,7 +87,15 @@ function QuerySource(props) {
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dirtyParameters, setDirtyParameters] = useState(query.getParameters().hasPendingValues());
 
-  const { queryResult, queryResultData, isQueryExecuting, executeQuery, executeAdhocQuery } = useQueryExecute(query);
+  const {
+    queryResult,
+    queryResultData,
+    isQueryExecuting,
+    isExecutionCancelling,
+    executeQuery,
+    executeAdhocQuery,
+    cancelExecution,
+  } = useQueryExecute(query);
 
   const editorRef = useRef(null);
   const autocompleteAvailable = useMemo(() => {
@@ -454,7 +462,8 @@ function QuerySource(props) {
                         status={queryResultData.status}
                         updatedAt={queryResultData.updatedAt}
                         error={queryResultData.error}
-                        onCancel={() => console.log("Query execution cancelled")}
+                        isCancelling={isExecutionCancelling}
+                        onCancel={cancelExecution}
                       />
                     </div>
                   )}
