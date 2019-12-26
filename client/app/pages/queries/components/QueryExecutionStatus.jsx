@@ -5,18 +5,22 @@ import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
 import { Timer } from "@/components/Timer";
 
-export default function QueryExecutionStatus({ status, updatedAt, error, onCancel }) {
+export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
   const alertType = status === "failed" ? "error" : "info";
   const showTimer = status !== "failed" && updatedAt;
-  const canCancel = includes(["waiting", "processing"], status);
-  let message = null;
+  const isCancelButtonAvailable = includes(["waiting", "processing"], status);
+  let message = isCancelling ? <React.Fragment>Cancelling&hellip;</React.Fragment> : null;
 
   switch (status) {
     case "waiting":
-      message = <React.Fragment>Query in queue&hellip;</React.Fragment>;
+      if (!isCancelling) {
+        message = <React.Fragment>Query in queue&hellip;</React.Fragment>;
+      }
       break;
     case "processing":
-      message = <React.Fragment>Executing query&hellip;</React.Fragment>;
+      if (!isCancelling) {
+        message = <React.Fragment>Executing query&hellip;</React.Fragment>;
+      }
       break;
     case "loading-result":
       message = <React.Fragment>Loading results&hellip;</React.Fragment>;
@@ -40,8 +44,8 @@ export default function QueryExecutionStatus({ status, updatedAt, error, onCance
             {message} {showTimer && <Timer from={updatedAt} />}
           </div>
           <div>
-            {canCancel && (
-              <Button type="primary" size="small" onClick={onCancel}>
+            {isCancelButtonAvailable && (
+              <Button type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
                 Cancel
               </Button>
             )}
@@ -56,6 +60,7 @@ QueryExecutionStatus.propTypes = {
   status: PropTypes.string,
   updatedAt: PropTypes.any,
   error: PropTypes.string,
+  isCancelling: PropTypes.bool,
   onCancel: PropTypes.func,
 };
 
@@ -63,5 +68,6 @@ QueryExecutionStatus.defaultProps = {
   status: "waiting",
   updatedAt: null,
   error: null,
+  isCancelling: true,
   onCancel: () => {},
 };
