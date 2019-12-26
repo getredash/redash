@@ -29,6 +29,16 @@ class TestQueryResultsCacheHeaders(BaseTestCase):
         self.assertEqual(404, rv.status_code)
 
 
+class TestQueryResultsContentDispositionHeaders(BaseTestCase):
+    def test_supports_unicode(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(name="עברית", latest_query_data=query_result)
+
+        rv = self.make_request("get", "/api/queries/{}/results.json".format(query.id))
+        # This is what gunicorn will do with it
+        rv.headers['Content-Disposition'].encode('ascii')
+
+
 class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):
         query_result = self.factory.create_query_result()
