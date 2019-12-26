@@ -3,24 +3,20 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
-from funcy import project
-
 from flask_login import current_user
+from funcy import project
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
+from .query_result import serialize_query_result
+from .query_result import serialize_query_result_to_csv
+from .query_result import serialize_query_result_to_xlsx
 from redash import models
-from redash.permissions import has_access, view_only
-from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
+from redash.permissions import has_access
+from redash.permissions import view_only
 from redash.tasks.queries.execution import QueryExecutionError
-
-
-from .query_result import (
-    serialize_query_result,
-    serialize_query_result_to_csv,
-    serialize_query_result_to_xlsx,
-)
+from redash.utils import json_loads
 
 
 def public_widget(widget):
