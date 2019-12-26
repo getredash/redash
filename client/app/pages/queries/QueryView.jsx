@@ -44,7 +44,14 @@ function QueryView(props) {
   const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dirtyParameters, setDirtyParameters] = useState(query.$parameters.hasPendingValues());
   const [dataSource, setDataSource] = useState();
-  const { queryResult, queryResultData, isQueryExecuting, executeQuery } = useQueryExecute(query);
+  const {
+    queryResult,
+    queryResultData,
+    isQueryExecuting,
+    isExecutionCancelling,
+    executeQuery,
+    cancelExecution,
+  } = useQueryExecute(query);
 
   const openScheduleDialog = useCallback(() => {
     const canScheduleQuery = true; // TODO: Use real value
@@ -97,7 +104,8 @@ function QueryView(props) {
               status={queryResultData.status}
               updatedAt={queryResultData.updatedAt}
               error={queryResultData.error}
-              onCancel={() => console.log("Query execution cancelled")}
+              isCancelling={isExecutionCancelling}
+              onCancel={cancelExecution}
             />
           </div>
         )}
