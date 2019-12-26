@@ -27,7 +27,7 @@ import {
   deleteQueryVisualization,
   addQueryVisualization,
   editQueryVisualization,
-  changeQueryDescription,
+  updateQueryDescription,
 } from "./utils";
 import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 import useQueryExecute from "./utils/useQueryExecute";
@@ -109,7 +109,7 @@ function QueryView(props) {
             className="w-100"
             value={query.description}
             isEditable={query.can_edit}
-            onDone={description => changeQueryDescription(query, description).then(setQuery)}
+            onDone={description => updateQueryDescription(query, description).then(setQuery)}
             editor="textarea"
             placeholder="Add description"
             ignoreBlanks={false}
