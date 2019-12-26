@@ -13,6 +13,7 @@ export class EditInPlace extends React.Component {
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
     multiline: PropTypes.bool,
+    editorProps: PropTypes.object,
   };
 
   static defaultProps = {
@@ -21,6 +22,7 @@ export class EditInPlace extends React.Component {
     placeholder: "",
     value: "",
     multiline: false,
+    editorProps: {},
   };
 
   constructor(props) {
@@ -72,13 +74,15 @@ export class EditInPlace extends React.Component {
   );
 
   renderEdit = () => {
-    const InputComponent = this.props.multiline ? Input.TextArea : Input;
+    const { multiline, value, editorProps } = this.props;
+    const InputComponent = multiline ? Input.TextArea : Input;
     return (
       <InputComponent
         ref={this.inputRef}
-        defaultValue={this.props.value}
+        defaultValue={value}
         onBlur={e => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
+        {...editorProps}
       />
     );
   };
