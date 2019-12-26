@@ -1,6 +1,6 @@
-import { isArray, map, mapValues, includes, some, each, difference } from "lodash";
+import { isArray, map, mapValues, includes, some, each, difference, toNumber } from "lodash";
 import React, { useMemo } from "react";
-import { Section, Select, Checkbox } from "@/components/visualizations/editor";
+import { Section, Select, Checkbox, InputNumber } from "@/components/visualizations/editor";
 import { UpdateOptionsStrategy } from "@/components/visualizations/editor/createTabbedEditor";
 import { EditorPropTypes } from "@/visualizations";
 
@@ -22,7 +22,7 @@ function getAvailableColumnMappingTypes(options) {
     result.push("zVal");
   }
 
-  if (!includes(["custom", "heatmap"], options.globalSeriesType)) {
+  if (!includes(["custom", "bubble", "heatmap"], options.globalSeriesType)) {
     result.push("yError");
   }
 
@@ -119,6 +119,36 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
           onChange={handleColumnMappingChange}
         />
       ))}
+
+      {includes(["bubble"], options.globalSeriesType) && (
+        <React.Fragment>
+          <Section>
+            <InputNumber
+              label="Bubble Size Coefficient"
+              className="w-100"
+              data-test="Chart.BubbleCoefficient"
+              defaultValue={options.coefficient}
+              onChange={value => onOptionsChange({ coefficient: toNumber(value) })}
+            />
+          </Section>
+
+          <Section>
+            <Select
+              label="Bubble Size Proportional To"
+              className="w-100"
+              data-test="Chart.SizeMode"
+              defaultValue={options.sizemode}
+              onChange={mode => onOptionsChange({ sizemode: mode })}>
+              <Select.Option value="area" data-test="Chart.SizeMode.Area">
+                Area
+              </Select.Option>
+              <Select.Option value="diameter" data-test="Chart.SizeMode.Diameter">
+                Diameter
+              </Select.Option>
+            </Select>
+          </Section>
+        </React.Fragment>
+      )}
 
       {includes(["pie"], options.globalSeriesType) && (
         <Section>

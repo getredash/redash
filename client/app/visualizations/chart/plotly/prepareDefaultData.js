@@ -42,10 +42,12 @@ function prepareScatterSeries(series, options) {
 }
 
 function prepareBubbleSeries(series, options, { seriesColor, data }) {
+  const coefficient = options.coefficient || 1;
   series.mode = "markers";
   series.marker = {
     color: seriesColor,
-    size: map(data, i => i.size),
+    size: map(data, i => i.size * coefficient),
+    sizemode: options.sizemode || "diameter",
   };
   return series;
 }
