@@ -27,12 +27,24 @@ export function QueryControlDropdown(props) {
       )}
       <Menu.Item>
         <QueryResultsLink
+          fileType="csv"
           disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
           query={props.query}
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
           <Icon type="file" /> Download as CSV File
+        </QueryResultsLink>
+      </Menu.Item>
+      <Menu.Item>
+        <QueryResultsLink
+          fileType="tsv"
+          disabled={props.queryExecuting || !props.queryResult.getData || !props.queryResult.getData()}
+          query={props.query}
+          queryResult={props.queryResult}
+          embed={props.embed}
+          apiKey={props.apiKey}>
+          <Icon type="file" /> Download as TSV File
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
