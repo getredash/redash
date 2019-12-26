@@ -760,6 +760,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             "query_text",
             "query_hash",
             "options",
+            "tags",
         ]
         kwargs = {a: getattr(self, a) for a in forked_list}
 

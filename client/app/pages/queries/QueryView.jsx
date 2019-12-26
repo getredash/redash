@@ -78,9 +78,9 @@ function QueryView(props) {
             value={query.description}
             isEditable={query.can_edit}
             onDone={description => updateQueryDescription(query, description).then(setQuery)}
-            editor="textarea"
             placeholder="Add description"
             ignoreBlanks={false}
+            multiline
           />
           <Divider />
           <QueryMetadata

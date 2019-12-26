@@ -2,7 +2,6 @@ import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lod
 import moment from "moment";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
 import { formatColumnValue } from "@/filters";
 
@@ -67,7 +66,7 @@ export function filterData(rows, filters = []) {
   return result;
 }
 
-export function Filters({ filters, onChange }) {
+function Filters({ filters, onChange }) {
   if (filters.length === 0) {
     return null;
   }
@@ -138,8 +137,4 @@ Filters.defaultProps = {
   onChange: () => {},
 };
 
-export default function init(ngModule) {
-  ngModule.component("filters", react2angular(Filters));
-}
-
-init.init = true;
+export default Filters;

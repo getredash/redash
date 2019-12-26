@@ -6,7 +6,7 @@ import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import * as Grid from "antd/lib/grid";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { Filters, filterData } from "@/components/Filters";
+import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import { Visualization } from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";

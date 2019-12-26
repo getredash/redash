@@ -2,6 +2,7 @@ import sqlite3
 from unittest import TestCase
 
 import pytest
+import mock
 
 from redash.query_runner.query_results import (
     CreateTableError,
@@ -10,8 +11,11 @@ from redash.query_runner.query_results import (
     create_table,
     extract_cached_query_ids,
     extract_query_ids,
+    get_query_results,
     fix_column_name,
 )
+
+from redash.utils import json_dumps
 from tests import BaseTestCase
 
 
@@ -180,3 +184,21 @@ class TestExtractCachedQueryIds(TestCase):
 class TestFixColumnName(TestCase):
     def test_fix_column_name(self):
         self.assertEqual('"a_b_c_d"', fix_column_name("a:b.c d"))
+
+
+class TestGetQueryResult(BaseTestCase):
+    def test_cached_query_result(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(latest_query_data=query_result)
+
+        self.assertEqual(query_result.data, get_query_results(self.factory.user, query.id, True))
+
+    def test_non_cached_query_result(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(latest_query_data=query_result)
+
+        from redash.query_runner.pg import PostgreSQL
+        with mock.patch.object(PostgreSQL, "run_query") as qr:
+            query_result_data = {"columns": [], "rows": []}
+            qr.return_value = (json_dumps(query_result_data), None)
+            self.assertEqual(query_result_data, get_query_results(self.factory.user, query.id, False))

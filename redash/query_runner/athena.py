@@ -252,7 +252,7 @@ class Athena(BaseQueryRunner):
         except Exception as ex:
             if cursor.query_id:
                 cursor.cancel()
-            error = ex.message
+            error = str(ex)
             json_data = None
 
         return json_data, error

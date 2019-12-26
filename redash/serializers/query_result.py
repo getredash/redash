@@ -78,14 +78,14 @@ def serialize_query_result(query_result, is_api_user):
         return query_result.to_dict()
 
 
-def serialize_query_result_to_csv(query_result):
+def serialize_query_result_to_dsv(query_result, delimiter):
     s = io.StringIO()
 
     query_data = query_result.data
 
     fieldnames, special_columns = _get_column_lists(query_data["columns"] or [])
 
-    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames)
+    writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=fieldnames, delimiter=delimiter)
     writer.writeheader()
 
     for row in query_data["rows"]:

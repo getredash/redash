@@ -341,13 +341,13 @@ function QuerySource(props) {
           {!query.isNew() && (
             <div className="query-metadata query-metadata--description">
               <EditInPlace
-                editor="textarea"
                 isEditable={query.can_edit}
                 markdown
                 ignoreBlanks={false}
                 placeholder="Add description"
                 value={query.description}
                 onDone={doUpdateQueryDescription}
+                multiline
               />
             </div>
           )}
