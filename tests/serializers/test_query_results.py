@@ -27,6 +27,7 @@ data = {
     ]
 }
 
+
 class QueryResultSerializationTest(BaseTestCase):
     def test_serializes_all_keys_for_authenticated_users(self):
         query_result = self.factory.create_query_result(data=json_dumps({}))
@@ -46,7 +47,7 @@ class JobSerializationTest(BaseTestCase):
         job = Mock()
         job.get_status = Mock(return_value=JobStatus.FAILED)
         job.result = QueryExecutionError()
-        
+
         serialized = serialize_job(job)['job']
         self.assertEqual(serialized['error_origin'], 'Data source')
 
@@ -54,7 +55,7 @@ class JobSerializationTest(BaseTestCase):
         job = Mock()
         job.get_status = Mock(return_value=JobStatus.FAILED)
         job.result = ZeroDivisionError()
-        
+
         serialized = serialize_job(job)['job']
         self.assertEqual(serialized['error_origin'], 'System')
 
