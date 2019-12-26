@@ -12,7 +12,7 @@ export class EditInPlace extends React.Component {
     placeholder: PropTypes.string,
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
-    textArea: PropTypes.bool,
+    multiline: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -20,7 +20,7 @@ export class EditInPlace extends React.Component {
     isEditable: true,
     placeholder: "",
     value: "",
-    textArea: false,
+    multiline: false,
   };
 
   constructor(props) {
@@ -72,7 +72,7 @@ export class EditInPlace extends React.Component {
   );
 
   renderEdit = () => {
-    const InputComponent = this.props.textArea ? Input.TextArea : Input;
+    const InputComponent = this.props.multiline ? Input.TextArea : Input;
     return (
       <InputComponent
         ref={this.inputRef}

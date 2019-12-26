@@ -106,7 +106,7 @@
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
       <div class="query-metadata query-metadata--description" ng-if="!query.isNew()">
-        <edit-in-place is-editable="canEdit" on-done="saveDescription" text-area="true" placeholder="'Add description'" ignore-blanks='false'
+        <edit-in-place is-editable="canEdit" on-done="saveDescription" multiline="true" placeholder="'Add description'" ignore-blanks='false'
           value="query.description" markdown="true">
         </edit-in-place>
       </div>
