@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { react2angular } from "react2angular";
 import { trim } from "lodash";
 import Input from "antd/lib/input";
@@ -84,7 +85,7 @@ export class EditInPlace extends React.Component {
 
   render() {
     return (
-      <span className={"edit-in-place" + (this.state.editing ? " active" : "")}>
+      <span className={cx("edit-in-place", { active: this.state.editing }, this.props.className)}>
         {this.state.editing ? this.renderEdit() : this.renderNormal()}
       </span>
     );
