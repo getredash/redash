@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { find, isArray, intersection } from "lodash";
+import { find, isArray, intersection, isFunction } from "lodash";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 import Button from "antd/lib/button";
@@ -62,10 +62,13 @@ function QueryPropertyList({ query, dataSource, onClickSchedulePhrase }) {
       <span className="flex-fill" />
       <div className="query-property">
         <i className="zmdi zmdi-refresh m-r-5" />
-        Refresh Schedule
-        <a className="clickable m-l-5" onClick={onClickSchedulePhrase}>
-          <SchedulePhrase schedule={query.schedule} isNew={false} />
-        </a>
+        <span className="m-r-5">Refresh schedule</span>
+        <SchedulePhrase
+          isLink={isFunction(onClickSchedulePhrase)}
+          onClick={onClickSchedulePhrase}
+          schedule={query.schedule}
+          isNew={false}
+        />
       </div>
     </div>
   );
@@ -84,6 +87,11 @@ function QueryView(props) {
   const { queryResult, queryResultData, isQueryExecuting, executeQuery } = useQueryExecute(query);
 
   const openScheduleDialog = useCallback(() => {
+    const canScheduleQuery = true; // TODO: Use real value
+    if (!query.can_edit || !canScheduleQuery) {
+      return;
+    }
+
     const intervals = clientConfig.queryRefreshIntervals;
     const allowedIntervals = policy.getQueryRefreshIntervals();
     const refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
