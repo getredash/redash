@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { VisualizationName } from "@/visualizations/VisualizationName";
+import VisualizationName from "@/visualizations/VisualizationName";
 
 function ExpandedWidgetDialog({ dialog, widget }) {
   return (

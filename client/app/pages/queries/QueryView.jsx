@@ -38,9 +38,9 @@ function QueryView({ query }) {
             className="w-100"
             value={query.description}
             isEditable={canEdit}
-            editor="textarea"
             placeholder="Add description"
             ignoreBlanks
+            multiline
           />
           <Divider />
           <div className="d-flex flex-wrap">

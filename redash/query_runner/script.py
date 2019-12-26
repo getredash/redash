@@ -74,7 +74,7 @@ class Script(BaseQueryRunner):
             script = query_to_script_path(self.configuration["path"], query)
             return run_script(script, self.configuration["shell"])
         except IOError as e:
-            return None, e.message
+            return None, str(e)
         except subprocess.CalledProcessError as e:
             return None, str(e)
         except KeyboardInterrupt:

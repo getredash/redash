@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { VisualizationType } from "@/visualizations";
-import { VisualizationName } from "@/visualizations/VisualizationName";
+import VisualizationName from "@/visualizations/VisualizationName";
+
+import "./QueryLink.less";
 
 function QueryLink({ query, visualization, readOnly }) {
   const getUrl = () => {

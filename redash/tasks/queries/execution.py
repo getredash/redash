@@ -275,6 +275,7 @@ class QueryExecutor(object):
                     self.scheduled_query, load=False
                 )
                 self.scheduled_query.schedule_failures = 0
+                self.scheduled_query.skip_updated_at = True
                 models.db.session.add(self.scheduled_query)
 
             query_result = models.QueryResult.store_result(

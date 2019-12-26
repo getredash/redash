@@ -141,7 +141,7 @@ export default function QueryPageHeader({ query, sourceMode, onChange }) {
             </span>
           )}
           <h3>
-            <EditInPlace isEditable={query.can_edit} onDone={saveName} ignoreBlanks value={query.name} editor="input" />
+            <EditInPlace isEditable={query.can_edit} onDone={saveName} ignoreBlanks value={query.name} />
             <span className={cx("m-l-10", "query-tags", { "query-tags__empty": query.tags.length === 0 })}>
               <QueryTagsControl
                 tags={query.tags}

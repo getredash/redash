@@ -13,6 +13,8 @@ const DEFAULT_OPTIONS = {
   valuesOptions: {},
   columnMapping: {},
   direction: { type: "counterclockwise" },
+  sizemode: "diameter",
+  coefficient: 1,
 
   // showDataLabels: false, // depends on chart type
   numberFormat: "0,0[.]00000",

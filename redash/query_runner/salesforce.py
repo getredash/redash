@@ -15,8 +15,8 @@ from redash.utils import json_dumps
 logger = logging.getLogger(__name__)
 
 try:
-    from simple_salesforce import Salesforce as SimpleSalesforce
-    from simple_salesforce.api import SalesforceError, DEFAULT_API_VERSION
+    from simple_salesforce import Salesforce as SimpleSalesforce, SalesforceError
+    from simple_salesforce.api import DEFAULT_API_VERSION
 
     enabled = True
 except ImportError as e:
