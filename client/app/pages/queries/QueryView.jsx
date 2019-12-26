@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { find, isArray, intersection, isFunction } from "lodash";
+import { find, isArray, intersection } from "lodash";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 import Button from "antd/lib/button";
@@ -8,7 +8,6 @@ import Button from "antd/lib/button";
 import { EditInPlace } from "@/components/EditInPlace";
 import { Parameters } from "@/components/Parameters";
 import { TimeAgo } from "@/components/TimeAgo";
-import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
 import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
@@ -18,9 +17,10 @@ import QueryPageHeader from "./components/QueryPageHeader";
 
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
-import { IMG_ROOT, DataSource } from "@/services/data-source";
+import { DataSource } from "@/services/data-source";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
+import QueryMetadata from "./components/QueryMetadata";
 import { pluralize, durationHumanize } from "@/filters";
 import {
   updateQuery,
@@ -33,46 +33,6 @@ import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
 import useQueryExecute from "./utils/useQueryExecute";
 
 import "./query-view.less";
-
-function QueryPropertyList({ query, dataSource, onClickSchedulePhrase }) {
-  return (
-    <div className="query-property-list">
-      <div className="query-property">
-        <img src={query.user.profile_image_url} className="profile__image_thumb" alt={query.user.name} />
-        <strong>{query.user.name}</strong>
-        {" created "}
-        <TimeAgo date={query.created_at} />
-      </div>
-      <div className="query-property">
-        <img
-          src={query.last_modified_by.profile_image_url}
-          className="profile__image_thumb"
-          alt={query.last_modified_by.name}
-        />
-        <strong>{query.last_modified_by.name}</strong>
-        {" updated "}
-        <TimeAgo date={query.updated_at} />
-      </div>
-      {dataSource && (
-        <div className="query-property">
-          <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.type} />
-          {dataSource.name}
-        </div>
-      )}
-      <span className="flex-fill" />
-      <div className="query-property">
-        <i className="zmdi zmdi-refresh m-r-5" />
-        <span className="m-r-5">Refresh schedule</span>
-        <SchedulePhrase
-          isLink={isFunction(onClickSchedulePhrase)}
-          onClick={onClickSchedulePhrase}
-          schedule={query.schedule}
-          isNew={false}
-        />
-      </div>
-    </div>
-  );
-}
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
@@ -123,7 +83,12 @@ function QueryView(props) {
             ignoreBlanks={false}
           />
           <Divider />
-          <QueryPropertyList query={query} dataSource={dataSource} onClickSchedulePhrase={openScheduleDialog} />
+          <QueryMetadata
+            layout="horizontal"
+            query={query}
+            dataSource={dataSource}
+            onEditSchedule={openScheduleDialog}
+          />
         </div>
         {queryResult && queryResultData.status !== "done" && (
           <div className="query-alerts m-t-15 m-b-15">
