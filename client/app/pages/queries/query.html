@@ -24,7 +24,7 @@
           <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
           <h3>
             <edit-in-place class="m-r-5" is-editable="canEdit" on-done="saveName"
-              ignore-blanks="true" value="query.name" editor="'input'"></edit-in-place>
+              ignore-blanks="true" value="query.name"></edit-in-place>
             <query-tags-control
               class="query-tags" ng-class="{'query-tags__empty': query.tags.length == 0}"
               tags="query.tags" is-draft="query.is_draft" is-archived="query.is_archived"
@@ -106,7 +106,7 @@
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
       <div class="query-metadata query-metadata--description" ng-if="!query.isNew()">
-        <edit-in-place is-editable="canEdit" on-done="saveDescription" editor="'textarea'" placeholder="'Add description'" ignore-blanks='false'
+        <edit-in-place is-editable="canEdit" on-done="saveDescription" multiline="true" placeholder="'Add description'" ignore-blanks='false'
           value="query.description" markdown="true">
         </edit-in-place>
       </div>

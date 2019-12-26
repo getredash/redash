@@ -22,7 +22,6 @@ export default function GroupName({ group, onChange, ...props }) {
         className="edit-in-place"
         isEditable={canEdit}
         ignoreBlanks
-        editor="input"
         onDone={name => updateGroupName(group, name, onChange)}
         value={group.name}
       />
