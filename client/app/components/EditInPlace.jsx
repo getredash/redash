@@ -2,15 +2,16 @@ import React from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { trim } from "lodash";
+import Input from "antd/lib/input";
 
 export class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
     isEditable: PropTypes.bool,
-    editor: PropTypes.string.isRequired,
     placeholder: PropTypes.string,
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
+    textArea: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -18,6 +19,7 @@ export class EditInPlace extends React.Component {
     isEditable: true,
     placeholder: "",
     value: "",
+    textArea: false,
   };
 
   constructor(props) {
@@ -26,12 +28,12 @@ export class EditInPlace extends React.Component {
       editing: false,
     };
     this.inputRef = React.createRef();
-    const self = this;
-    this.componentDidUpdate = (prevProps, prevState) => {
-      if (self.state.editing && !prevState.editing) {
-        self.inputRef.current.focus();
-      }
-    };
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (this.state.editing && !prevState.editing) {
+      this.inputRef.current.focus();
+    }
   }
 
   startEditing = () => {
@@ -40,8 +42,8 @@ export class EditInPlace extends React.Component {
     }
   };
 
-  stopEditing = () => {
-    const newValue = trim(this.inputRef.current.value);
+  stopEditing = currentValue => {
+    const newValue = trim(currentValue);
     const ignorableBlank = this.props.ignoreBlanks && newValue === "";
     if (!ignorableBlank && newValue !== this.props.value) {
       this.props.onDone(newValue);
@@ -49,10 +51,10 @@ export class EditInPlace extends React.Component {
     this.setState({ editing: false });
   };
 
-  keyDown = event => {
+  handleKeyDown = event => {
     if (event.keyCode === 13 && !event.shiftKey) {
       event.preventDefault();
-      this.stopEditing();
+      this.stopEditing(event.target.value);
     } else if (event.keyCode === 27) {
       this.setState({ editing: false });
     }
@@ -68,14 +70,17 @@ export class EditInPlace extends React.Component {
     </span>
   );
 
-  renderEdit = () =>
-    React.createElement(this.props.editor, {
-      ref: this.inputRef,
-      className: "rd-form-control",
-      defaultValue: this.props.value,
-      onBlur: this.stopEditing,
-      onKeyDown: this.keyDown,
-    });
+  renderEdit = () => {
+    const InputComponent = this.props.textArea ? Input.TextArea : Input;
+    return (
+      <InputComponent
+        ref={this.inputRef}
+        defaultValue={this.props.value}
+        onBlur={e => this.stopEditing(e.target.value)}
+        onKeyDown={this.handleKeyDown}
+      />
+    );
+  };
 
   render() {
     return (
