@@ -1,6 +1,7 @@
 import { values, each } from "lodash";
 import moment from "moment";
 import React from "react";
+import axios from "axios";
 import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
@@ -9,7 +10,6 @@ import * as Grid from "antd/lib/grid";
 import Layout from "@/components/admin/Layout";
 import { CounterCard, QueuesTable, QueriesTable } from "@/components/admin/CeleryStatus";
 
-import { $http } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
 import { routesToAngularRoutes } from "@/lib/utils";
 
@@ -34,7 +34,7 @@ class Tasks extends React.Component {
 
   componentDidMount() {
     recordEvent("view", "page", "admin/tasks");
-    $http
+    axios
       .get("/api/admin/queries/tasks")
       .then(({ data }) => this.processTasks(data.tasks))
       .catch(error => this.handleError(error));

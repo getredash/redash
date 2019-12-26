@@ -1,5 +1,6 @@
 import { map } from "lodash";
 import React from "react";
+import axios from "axios";
 import { react2angular } from "react2angular";
 
 import Switch from "antd/lib/switch";
@@ -18,7 +19,6 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import { PageSizeSelect } from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import { $http } from "@/services/ng";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 import { routesToAngularRoutes } from "@/lib/utils";
@@ -156,7 +156,7 @@ export default function init(ngModule) {
         new ItemsSource({
           doRequest(request, context) {
             return (
-              $http
+              axios
                 .get("/api/admin/queries/outdated")
                 // eslint-disable-next-line camelcase
                 .then(({ data: { queries, updated_at } }) => {

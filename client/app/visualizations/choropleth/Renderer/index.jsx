@@ -1,7 +1,7 @@
 import { omit, merge } from "lodash";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { RendererPropTypes } from "@/visualizations";
-import { $http } from "@/services/ng";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 
 import initChoropleth from "./initChoropleth";
@@ -33,7 +33,7 @@ export default function Renderer({ data, options, onOptionsChange }) {
   useEffect(() => {
     let cancelled = false;
 
-    $http.get(getDataUrl(options.mapType)).then(response => {
+    axios.get(getDataUrl(options.mapType)).then(response => {
       if (!cancelled) {
         setGeoJson(response.data);
       }

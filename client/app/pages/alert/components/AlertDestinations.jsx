@@ -1,4 +1,5 @@
 import React from "react";
+import axios from "axios";
 import PropTypes from "prop-types";
 import { without, find, isEmpty, includes, map } from "lodash";
 
@@ -7,7 +8,6 @@ import { Destination as DestinationType, UserProfile as UserType } from "@/compo
 
 import { Destination as DestinationService, IMG_ROOT } from "@/services/destination";
 import { AlertSubscription } from "@/services/alert-subscription";
-import { $q } from "@/services/ng";
 import { clientConfig, currentUser } from "@/services/auth";
 import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
@@ -71,13 +71,15 @@ export default class AlertDestinations extends React.Component {
 
   componentDidMount() {
     const { alertId } = this.props;
-    $q.all([
-      DestinationService.query().$promise, // get all destinations
-      AlertSubscription.query({ alertId }).$promise, // get subcriptions per alert
-    ]).then(([dests, subs]) => {
-      subs = subs.map(normalizeSub);
-      this.setState({ dests, subs });
-    });
+    axios
+      .all([
+        DestinationService.query(), // get all destinations
+        AlertSubscription.query({ alertId }), // get subcriptions per alert
+      ])
+      .then(([dests, subs]) => {
+        subs = subs.map(normalizeSub);
+        this.setState({ dests, subs });
+      });
   }
 
   showAddAlertSubDialog = () => {
