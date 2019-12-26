@@ -80,6 +80,7 @@ function QueryView(props) {
             onDone={description => updateQueryDescription(query, description).then(setQuery)}
             placeholder="Add description"
             ignoreBlanks={false}
+            editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
             multiline
           />
           <Divider />
