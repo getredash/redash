@@ -13,7 +13,7 @@ import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import ApiKeyDialog from "@/components/queries/ApiKeyDialog";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
-import useQueryFlags from "../utils/useQueryFlags";
+import useQueryFlags from "../hooks/useQueryFlags";
 
 import { updateQuery, publishQuery, unpublishQuery, renameQuery, archiveQuery, duplicateQuery } from "../utils";
 

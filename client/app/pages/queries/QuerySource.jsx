@@ -29,11 +29,13 @@ import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
-import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
-import useQueryExecute from "./utils/useQueryExecute";
-import useQueryDataSources from "./utils/useQueryDataSources";
-import useDataSourceSchema from "./utils/useDataSourceSchema";
-import useQueryFlags from "./utils/useQueryFlags";
+
+import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
+import useQueryExecute from "./hooks/useQueryExecute";
+import useQueryDataSources from "./hooks/useQueryDataSources";
+import useDataSourceSchema from "./hooks/useDataSourceSchema";
+import useQueryFlags from "./hooks/useQueryFlags";
+
 import {
   updateQuery,
   updateQueryDescription,
