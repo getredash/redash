@@ -3,6 +3,7 @@ import axios from "axios";
 const axiosInstance = axios.create();
 
 const getData = ({ data }) => data;
-axiosInstance.interceptors.response.use(getData);
+const getResponse = ({ response }) => Promise.reject(response);
+axiosInstance.interceptors.response.use(getData, getResponse);
 
 export default axiosInstance;
