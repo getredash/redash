@@ -61,24 +61,14 @@ function createMenu(menu) {
 
 export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, onChange }) {
   const queryFlags = useQueryFlags(query, dataSource);
-
   const updateName = useRenameQuery(query, onChange);
-
   const updateTags = useUpdateQueryTags(query, onChange);
-
   const archiveQuery = useArchiveQuery(query, onChange);
-
   const publishQuery = usePublishQuery(query, onChange);
-
   const unpublishQuery = useUnpublishQuery(query, onChange);
-
   const duplicateQuery = useDuplicateQuery(query);
-
   const openApiKeyDialog = useApiKeyDialog(query, onChange);
-
   const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
-
-  const showPermissionsControl = clientConfig.showPermissionsControl;
 
   const moreActionsMenu = useMemo(
     () =>
@@ -102,7 +92,8 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             onClick: archiveQuery,
           },
           managePermissions: {
-            isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && showPermissionsControl,
+            isAvailable:
+              !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && clientConfig.showPermissionsControl,
             title: "Manage Permissions",
             onClick: openPermissionsEditorDialog,
           },
@@ -120,15 +111,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
           },
         },
       ]),
-    [
-      showPermissionsControl,
-      queryFlags,
-      archiveQuery,
-      unpublishQuery,
-      openApiKeyDialog,
-      openPermissionsEditorDialog,
-      duplicateQuery,
-    ]
+    [queryFlags, archiveQuery, unpublishQuery, openApiKeyDialog, openPermissionsEditorDialog, duplicateQuery]
   );
 
   return (

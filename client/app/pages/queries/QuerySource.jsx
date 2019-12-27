@@ -81,6 +81,8 @@ function QuerySource(props) {
   }, [query.name]);
 
   const updateQuery = useUpdateQuery(query, setQuery);
+  const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
+  const formatQuery = useFormatQuery(query, dataSource ? dataSource.syntax : null, setQuery);
 
   const handleDataSourceChange = useCallback(
     dataSourceId => {
@@ -119,11 +121,8 @@ function QuerySource(props) {
   }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
-
   const openEmbedDialog = useEmbedDialog(query);
-
   const editSchedule = useEditScheduleDialog(query, setQuery);
-
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
     if (editorRef.current) {
       editorRef.current.paste(param.toQueryTextFragment());
@@ -137,10 +136,7 @@ function QuerySource(props) {
     setSelectedVisualization(visualization.id);
   });
   const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
-
   const deleteVisualization = useDeleteVisualization(query, setQuery);
-
-  const formatQuery = useFormatQuery(query, dataSource ? dataSource.syntax : null, setQuery);
 
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
@@ -166,8 +162,6 @@ function QuerySource(props) {
       executeQuery();
     }
   }, [canExecuteQuery, isDirty, selectedText, executeQuery, executeAdhocQuery]);
-
-  const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
 
   return (
     <div className="query-page-wrapper">

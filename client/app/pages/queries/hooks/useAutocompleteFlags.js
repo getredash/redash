@@ -10,8 +10,5 @@ export default function useAutocompleteFlags(schema) {
     localOptions.set("liveAutocomplete", state);
   }, []);
 
-  return useMemo(
-    () => [isAvailable, isEnabled, toggleAutocomplete],
-    [isAvailable, isEnabled, toggleAutocomplete]
-  );
+  return useMemo(() => [isAvailable, isEnabled, toggleAutocomplete], [isAvailable, isEnabled, toggleAutocomplete]);
 }

@@ -7,7 +7,7 @@ import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 
-import "./query-visualization-tabs.less";
+import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
