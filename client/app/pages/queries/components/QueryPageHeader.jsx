@@ -9,13 +9,15 @@ import Icon from "antd/lib/icon";
 import { EditInPlace } from "@/components/EditInPlace";
 import { FavoritesControl } from "@/components/FavoritesControl";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
-import ApiKeyDialog from "@/components/queries/ApiKeyDialog";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
+import useArchiveQuery from "../hooks/useArchiveQuery";
+import useDuplicateQuery from "../hooks/useDuplicateQuery";
+import useApiKeyDialog from "../hooks/useApiKeyDialog";
+import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 
-import { updateQuery, publishQuery, unpublishQuery, renameQuery, archiveQuery, duplicateQuery } from "../utils";
+import { updateQuery, publishQuery, unpublishQuery, renameQuery } from "../utils";
 
 function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
@@ -72,6 +74,14 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
     [query, onChange]
   );
 
+  const archiveQuery = useArchiveQuery(query, onChange);
+
+  const duplicateQuery = useDuplicateQuery(query);
+
+  const openApiKeyDialog = useApiKeyDialog(query, onChange);
+
+  const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
+
   const showPermissionsControl = clientConfig.showPermissionsControl;
 
   const moreActionsMenu = useMemo(
@@ -86,30 +96,19 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
                 <i className="fa fa-external-link m-l-5" />
               </React.Fragment>
             ),
-            onClick: () => {
-              duplicateQuery(query);
-            },
+            onClick: duplicateQuery,
           },
         },
         {
           archive: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived,
             title: "Archive",
-            onClick: () => {
-              archiveQuery(query).then(onChange);
-            },
+            onClick: archiveQuery,
           },
           managePermissions: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && showPermissionsControl,
             title: "Manage Permissions",
-            onClick: () => {
-              const aclUrl = `api/queries/${query.id}/acl`;
-              PermissionsEditorDialog.showModal({
-                aclUrl,
-                context: "query",
-                author: query.user,
-              });
-            },
+            onClick: openPermissionsEditorDialog,
           },
           unpublish: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
@@ -123,13 +122,20 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
           showAPIKey: {
             isAvailable: !queryFlags.isNew,
             title: "Show API Key",
-            onClick: () => {
-              ApiKeyDialog.showModal({ query }).result.then(onChange);
-            },
+            onClick: openApiKeyDialog,
           },
         },
       ]),
-    [showPermissionsControl, query, queryFlags, onChange]
+    [
+      showPermissionsControl,
+      query,
+      queryFlags,
+      archiveQuery,
+      openApiKeyDialog,
+      openPermissionsEditorDialog,
+      duplicateQuery,
+      onChange,
+    ]
   );
 
   return (

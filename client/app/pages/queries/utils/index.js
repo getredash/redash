@@ -1,8 +1,4 @@
 import updateQuery from "./updateQuery";
-import archiveQuery from "./archiveQuery";
-import duplicateQuery from "./duplicateQuery";
-import formatQuery from "./formatQuery";
-import deleteQueryVisualization from "./deleteQueryVisualization";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 
@@ -39,15 +35,4 @@ function updateQuerySchedule(query, schedule) {
   return updateQuery(query, { schedule });
 }
 
-export {
-  updateQuery,
-  archiveQuery,
-  duplicateQuery,
-  formatQuery,
-  publishQuery,
-  unpublishQuery,
-  renameQuery,
-  updateQueryDescription,
-  updateQuerySchedule,
-  deleteQueryVisualization,
-};
+export { updateQuery, publishQuery, unpublishQuery, renameQuery, updateQueryDescription, updateQuerySchedule };

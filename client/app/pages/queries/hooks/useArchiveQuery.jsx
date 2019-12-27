@@ -1,5 +1,5 @@
-import { extend } from "lodash";
-import React from "react";
+import { extend, isFunction } from "lodash";
+import React, { useCallback, useRef } from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
@@ -29,10 +29,8 @@ function confirmArchive() {
 }
 
 function doArchiveQuery(query) {
-  // Prettier will put `.$promise` before `.catch` on next line :facepalm:
-  // prettier-ignore
-  return Query.delete({ id: query.id }).$promise
-    .then(() => {
+  return Query.delete({ id: query.id })
+    .$promise.then(() => {
       return extend(query.clone(), { is_archived: true, schedule: null });
     })
     .catch(error => {
@@ -41,6 +39,15 @@ function doArchiveQuery(query) {
     });
 }
 
-export default function archiveQuery(query) {
-  return confirmArchive().then(() => doArchiveQuery(query));
+export default function useArchiveQuery(query, onChange) {
+  const onChangeRef = useRef(null);
+  onChangeRef.current = isFunction(onChange) ? onChange : () => {};
+
+  return useCallback(() => {
+    confirmArchive()
+      .then(() => doArchiveQuery(query))
+      .then(updatedQuery => {
+        onChangeRef.current(updatedQuery);
+      });
+  }, [query]);
 }

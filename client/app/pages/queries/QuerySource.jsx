@@ -34,8 +34,10 @@ import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
+import useDeleteVisualization from "./hooks/useDeleteVisualization";
+import useFormatQuery from "./hooks/useFormatQuery";
 
-import { updateQuery, formatQuery, updateQueryDescription, deleteQueryVisualization } from "./utils";
+import { updateQuery, updateQueryDescription } from "./utils";
 
 import "./query-source.less";
 
@@ -140,6 +142,10 @@ function QuerySource(props) {
     setSelectedVisualization(visualization.id);
   });
   const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+
+  const deleteVisualization = useDeleteVisualization(query, setQuery);
+
+  const formatQuery = useFormatQuery(query, dataSource ? dataSource.syntax : null, setQuery);
 
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
@@ -251,9 +257,7 @@ function QuerySource(props) {
                     formatButtonProps={{
                       title: "Format Query",
                       shortcut: "mod+shift+f",
-                      onClick: () => {
-                        formatQuery(query, dataSource.syntax).then(setQuery);
-                      },
+                      onClick: formatQuery,
                     }}
                     saveButtonProps={
                       queryFlags.canEdit && {
@@ -354,9 +358,7 @@ function QuerySource(props) {
                           selectedTab={selectedVisualization}
                           onChangeTab={setSelectedVisualization}
                           onAddVisualization={addVisualization}
-                          onDeleteVisualization={visualization =>
-                            deleteQueryVisualization(query, visualization).then(setQuery)
-                          }
+                          onDeleteVisualization={deleteVisualization}
                         />
                       </div>
                     </div>
