@@ -1,6 +1,7 @@
 import { map, debounce } from "lodash";
 import template from "./query.html";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
+import DataSource from "@/services/data-source";
 
 function QuerySourceCtrl(
   Events,
@@ -123,10 +124,10 @@ export default function init(ngModule) {
 
           return Query.newQuery();
         },
-        dataSources(DataSource) {
+        dataSources() {
           "ngInject";
 
-          return DataSource.query().$promise;
+          return DataSource.query();
         },
       },
     },

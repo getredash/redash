@@ -1,5 +1,5 @@
 import { pick, some, find, minBy, map, intersection, isEmpty, isArray } from "lodash";
-import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from "@/services/data-source";
+import DataSource, { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from "@/services/data-source";
 import getTags from "@/services/getTags";
 import { policy } from "@/services/policy";
 import { Visualization } from "@/services/visualization";
@@ -27,8 +27,7 @@ function QueryViewCtrl(
   clientConfig,
   $uibModal,
   currentUser,
-  Query,
-  DataSource
+  Query
 ) {
   // Should create it here since visualization registry might not be fulfilled when this file is loaded
   const DEFAULT_VISUALIZATION = newVisualization("TABLE", { itemsPerPage: 50 });
@@ -76,7 +75,7 @@ function QueryViewCtrl(
   function getSchema(refresh = undefined) {
     // TODO: is it possible this will be called before dataSource is set?
     $scope.schema = [];
-    $scope.dataSource.getSchema(refresh).then(data => {
+    DataSource.fetchSchema($scope.dataSource, refresh).then(data => {
       if (data.schema) {
         $scope.schema = data.schema;
         $scope.schema.forEach(table => {
@@ -90,6 +89,7 @@ function QueryViewCtrl(
         notification.error("Schema refresh failed.", "Please try again later.");
       }
     });
+    $scope.$applyAsync();
   }
 
   $scope.refreshSchema = () => getSchema(true);
@@ -115,6 +115,7 @@ function QueryViewCtrl(
     $scope.canCreateQuery = some(dataSources, ds => !ds.view_only);
 
     getSchema();
+    $scope.$applyAsync();
   }
 
   $scope.updateSelectedQuery = selectedQueryText => {
@@ -180,7 +181,8 @@ function QueryViewCtrl(
     $scope.dataSources = $route.current.locals.dataSources;
     updateDataSources($route.current.locals.dataSources);
   } else {
-    $scope.dataSources = DataSource.query(updateDataSources);
+    $scope.dataSources = [];
+    DataSource.query().then(updateDataSources);
   }
 
   // in view mode, latest dataset is always visible

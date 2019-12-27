@@ -26,7 +26,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import { Group } from "@/services/group";
-import { DataSource } from "@/services/data-source";
+import DataSource from "@/services/data-source";
 import navigateTo from "@/services/navigateTo";
 import { routesToAngularRoutes } from "@/lib/utils";
 
@@ -134,7 +134,7 @@ class GroupDataSources extends React.Component {
   };
 
   addDataSources = () => {
-    const allDataSources = DataSource.query().$promise;
+    const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
