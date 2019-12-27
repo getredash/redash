@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 import EditVisualizationDialog from "@/visualizations/EditVisualizationDialog";
 
 export default function useEditVisualizationDialog(query, queryResult, onChange) {
-  const onChangeRef = useRef(null);
+  const onChangeRef = useRef();
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
   return useCallback(

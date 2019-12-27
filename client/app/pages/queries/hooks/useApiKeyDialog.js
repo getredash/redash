@@ -3,7 +3,7 @@ import { useRef, useCallback } from "react";
 import ApiKeyDialog from "@/components/queries/ApiKeyDialog";
 
 export default function useApiKeyDialog(query, onChange) {
-  const onChangeRef = useRef(null);
+  const onChangeRef = useRef();
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
   return useCallback(() => {

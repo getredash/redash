@@ -78,8 +78,6 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
 
   const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
 
-  const showPermissionsControl = clientConfig.showPermissionsControl;
-
   const moreActionsMenu = useMemo(
     () =>
       createMenu([
@@ -102,7 +100,8 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             onClick: archiveQuery,
           },
           managePermissions: {
-            isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && showPermissionsControl,
+            isAvailable:
+              !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && clientConfig.showPermissionsControl,
             title: "Manage Permissions",
             onClick: openPermissionsEditorDialog,
           },
@@ -120,15 +119,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
           },
         },
       ]),
-    [
-      showPermissionsControl,
-      queryFlags,
-      archiveQuery,
-      unpublishQuery,
-      openApiKeyDialog,
-      openPermissionsEditorDialog,
-      duplicateQuery,
-    ]
+    [queryFlags, archiveQuery, unpublishQuery, openApiKeyDialog, openPermissionsEditorDialog, duplicateQuery]
   );
 
   return (

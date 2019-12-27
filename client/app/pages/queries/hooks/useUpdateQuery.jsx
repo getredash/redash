@@ -73,7 +73,7 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
 }
 
 export default function useUpdateQuery(query, onChange) {
-  const onChangeRef = useRef(null);
+  const onChangeRef = useRef();
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
   return useCallback(

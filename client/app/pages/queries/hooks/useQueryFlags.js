@@ -1,4 +1,4 @@
-import { isEmpty } from "lodash";
+import { isNil, isEmpty } from "lodash";
 import { useMemo } from "react";
 import { currentUser } from "@/services/auth";
 
@@ -8,7 +8,7 @@ export default function useQueryFlags(query, dataSource = null) {
   return useMemo(
     () => ({
       // state flags
-      isNew: query.isNew(),
+      isNew: isNil(query.id),
       isDraft: query.is_draft,
       isArchived: query.is_archived,
 

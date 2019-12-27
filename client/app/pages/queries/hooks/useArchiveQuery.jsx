@@ -40,7 +40,7 @@ function doArchiveQuery(query) {
 }
 
 export default function useArchiveQuery(query, onChange) {
-  const onChangeRef = useRef(null);
+  const onChangeRef = useRef();
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
   return useCallback(() => {

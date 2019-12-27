@@ -3,7 +3,7 @@ import { useCallback, useRef } from "react";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 
 export default function useAddNewParameterDialog(query, onParameterAdded) {
-  const onParameterAddedRef = useRef(null);
+  const onParameterAddedRef = useRef();
   onParameterAddedRef.current = isFunction(onParameterAdded) ? onParameterAdded : () => {};
 
   return useCallback(() => {
