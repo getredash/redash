@@ -4,7 +4,7 @@ import Group from "@/services/group";
 import UserShow from "./UserShow";
 
 beforeEach(() => {
-  Group.query = jest.fn(dataCallback => dataCallback([]));
+  Group.query = jest.fn().mockResolvedValue([]);
 });
 
 test("renders correctly", () => {
