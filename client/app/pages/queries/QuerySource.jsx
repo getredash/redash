@@ -1,4 +1,4 @@
-import { isEmpty, isArray, find, map, extend, includes, intersection } from "lodash";
+import { isEmpty, find, map, extend, includes } from "lodash";
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
@@ -10,18 +10,12 @@ import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import { TimeAgo } from "@/components/TimeAgo";
-import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
-import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
-import ScheduleDialog from "@/components/queries/ScheduleDialog";
-import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import { routesToAngularRoutes } from "@/lib/utils";
 import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
 import navigateTo from "@/services/navigateTo";
-import { policy } from "@/services/policy";
-import { clientConfig } from "@/services/auth";
 import localOptions from "@/lib/localOptions";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -35,11 +29,14 @@ import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
+import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
+import useEmbedDialog from "./hooks/useEmbedDialog";
+import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
+import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 
 import {
   updateQuery,
   updateQueryDescription,
-  updateQuerySchedule,
   deleteQueryVisualization,
   addQueryVisualization,
   editQueryVisualization,
@@ -167,38 +164,11 @@ function QuerySource(props) {
     }
   }, [query, queryFlags, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
-  const openAddToDashboardDialog = useCallback(
-    visualizationId => {
-      const visualization = find(query.visualizations, { id: visualizationId });
-      AddToDashboardDialog.showModal({ visualization });
-    },
-    [query]
-  );
+  const openAddToDashboardDialog = useAddToDashboardDialog(query);
 
-  const openEmbedDialog = useCallback(
-    (unused, visualizationId) => {
-      const visualization = find(query.visualizations, { id: visualizationId });
-      EmbedQueryDialog.showModal({ query, visualization });
-    },
-    [query]
-  );
+  const openEmbedDialog = useEmbedDialog(query);
 
-  const editSchedule = useCallback(() => {
-    if (!queryFlags.canEdit || !queryFlags.canSchedule) {
-      return;
-    }
-
-    const intervals = clientConfig.queryRefreshIntervals;
-    const allowedIntervals = policy.getQueryRefreshIntervals();
-    const refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
-
-    ScheduleDialog.showModal({
-      schedule: query.schedule,
-      refreshOptions,
-    }).result.then(schedule => {
-      updateQuerySchedule(query, schedule).then(setQuery);
-    });
-  }, [query, queryFlags]);
+  const editSchedule = useEditScheduleDialog(query, setQuery);
 
   const doUpdateQueryDescription = useCallback(
     description => {
@@ -207,25 +177,13 @@ function QuerySource(props) {
     [query]
   );
 
-  const openAddNewParameterDialog = useCallback(() => {
-    EditParameterSettingsDialog.showModal({
-      parameter: {
-        title: null,
-        name: "",
-        type: "text",
-        value: null,
-      },
-      existingParams: map(query.getParameters().get(), p => p.name),
-    }).result.then(param => {
-      const newQuery = query.clone();
-      param = newQuery.getParameters().add(param);
-      if (editorRef.current) {
-        editorRef.current.paste(param.toQueryTextFragment());
-        editorRef.current.focus();
-      }
-      setQuery(newQuery);
-    });
-  }, [query]);
+  const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
+    if (editorRef.current) {
+      editorRef.current.paste(param.toQueryTextFragment());
+      editorRef.current.focus();
+    }
+    setQuery(newQuery);
+  });
 
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
