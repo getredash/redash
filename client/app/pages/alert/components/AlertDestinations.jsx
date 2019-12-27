@@ -5,7 +5,7 @@ import { without, find, isEmpty, includes, map } from "lodash";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
-import { Destination as DestinationService, IMG_ROOT } from "@/services/destination";
+import DestinationService, { IMG_ROOT } from "@/services/destination";
 import { AlertSubscription } from "@/services/alert-subscription";
 import { $q } from "@/services/ng";
 import { clientConfig, currentUser } from "@/services/auth";
@@ -72,7 +72,7 @@ export default class AlertDestinations extends React.Component {
   componentDidMount() {
     const { alertId } = this.props;
     $q.all([
-      DestinationService.query().$promise, // get all destinations
+      DestinationService.query(), // get all destinations
       AlertSubscription.query({ alertId }).$promise, // get subcriptions per alert
     ]).then(([dests, subs]) => {
       subs = subs.map(normalizeSub);

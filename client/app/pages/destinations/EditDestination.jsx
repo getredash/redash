@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { get, find } from "lodash";
 import { react2angular } from "react2angular";
 import Modal from "antd/lib/modal";
-import { Destination, IMG_ROOT } from "@/services/destination";
+import Destination, { IMG_ROOT } from "@/services/destination";
 import navigateTo from "@/services/navigateTo";
 import { $route } from "@/services/ng";
 import notification from "@/services/notification";
@@ -30,10 +30,10 @@ class EditDestination extends React.Component {
 
   componentDidMount() {
     Destination.get({ id: $route.current.params.destinationId })
-      .$promise.then(destination => {
+      .then(destination => {
         const { type } = destination;
         this.setState({ destination });
-        Destination.types(types => this.setState({ type: find(types, { type }), loading: false }));
+        Destination.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
       .catch(error => {
         // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
@@ -47,28 +47,26 @@ class EditDestination extends React.Component {
   saveDestination = (values, successCallback, errorCallback) => {
     const { destination } = this.state;
     helper.updateTargetWithValues(destination, values);
-    destination.$save(
-      () => successCallback("Saved."),
-      error => {
+    Destination.save(destination)
+      .then(() => successCallback("Saved."))
+      .catch(error => {
         const message = get(error, "data.message", "Failed saving.");
         errorCallback(message);
-      }
-    );
+      });
   };
 
   deleteDestination = callback => {
     const { destination } = this.state;
 
     const doDelete = () => {
-      destination.$delete(
-        () => {
+      Destination.delete(destination)
+        .then(() => {
           notification.success("Alert destination deleted successfully.");
           navigateTo("/destinations", true);
-        },
-        () => {
+        })
+        .catch(() => {
           callback();
-        }
-      );
+        });
     };
 
     Modal.confirm({
