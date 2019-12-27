@@ -1,4 +1,4 @@
-import { isFunction, identity, map, extend } from "lodash";
+import { isFunction, identity, map, extend, get } from "lodash";
 import Paginator from "./Paginator";
 import Sorter from "./Sorter";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
@@ -156,8 +156,9 @@ export class ResourceItemsSource extends ItemsSource {
     super({
       ...rest,
       doRequest: (request, context) => {
-        const resource = getResource(context);
-        return resource(request).$promise;
+        const resource = getResource(context)(request);
+        // ANGULAR_REMOVE_ME just return resource when all Services are migrated
+        return get(resource, "$promise", resource);
       },
       processResults: (results, context) => {
         let processItem = getItemProcessor(context);
