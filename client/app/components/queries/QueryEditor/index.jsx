@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useCallback, useImperativeHandle } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
@@ -15,7 +15,7 @@ const QueryEditor = React.forwardRef(function(
   ref
 ) {
   const [container, setContainer] = useState(null);
-  const editorRef = useRef(null);
+  const [editorRef, setEditorRef] = useState(null);
 
   // For some reason, value for AceEditor should be managed in this way - otherwise it goes berserk when selecting text
   const [currentValue, setCurrentValue] = useState(value);
@@ -44,17 +44,19 @@ const QueryEditor = React.forwardRef(function(
   );
 
   useEffect(() => {
-    if (editorRef.current) {
-      const { editor } = editorRef.current;
-      updateSchemaCompleter(editor.id, schema); // TODO: cleanup?
+    if (editorRef) {
+      const editorId = editorRef.editor.id;
+      updateSchemaCompleter(editorId, schema);
+      return () => {
+        updateSchemaCompleter(editorId, null);
+      };
     }
-  }, [schema]);
+  }, [schema, editorRef]);
 
   useEffect(() => {
     function resize() {
-      if (editorRef.current) {
-        const { editor } = editorRef.current;
-        editor.resize();
+      if (editorRef) {
+        editorRef.editor.resize();
       }
     }
 
@@ -63,16 +65,15 @@ const QueryEditor = React.forwardRef(function(
       const unwatch = resizeObserver(container, resize);
       return unwatch;
     }
-  }, [container]);
+  }, [container, editorRef]);
 
   const handleSelectionChange = useCallback(
     selection => {
-      const { editor } = editorRef.current;
-      const rawSelectedQueryText = editor.session.doc.getTextRange(selection.getRange());
+      const rawSelectedQueryText = editorRef.editor.session.doc.getTextRange(selection.getRange());
       const selectedQueryText = rawSelectedQueryText.length > 1 ? rawSelectedQueryText : null;
       onSelectionChange(selectedQueryText);
     },
-    [onSelectionChange]
+    [editorRef, onSelectionChange]
   );
 
   const initEditor = useCallback(editor => {
@@ -113,8 +114,8 @@ const QueryEditor = React.forwardRef(function(
     ref,
     () => ({
       paste: text => {
-        if (editorRef.current) {
-          const { editor } = editorRef.current;
+        if (editorRef) {
+          const { editor } = editorRef;
           editor.session.doc.replace(editor.selection.getRange(), text);
           const range = editor.selection.getRange();
           onChange(editor.session.getValue());
@@ -122,19 +123,18 @@ const QueryEditor = React.forwardRef(function(
         }
       },
       focus: () => {
-        if (editorRef.current) {
-          const { editor } = editorRef.current;
-          editor.focus();
+        if (editorRef) {
+          editorRef.editor.focus();
         }
       },
     }),
-    [onChange]
+    [editorRef, onChange]
   );
 
   return (
     <div className={cx("query-editor-container", className)} {...props} ref={setContainer}>
       <AceEditor
-        ref={editorRef}
+        ref={setEditorRef}
         theme="textmate"
         mode={syntax || "sql"}
         value={currentValue}
