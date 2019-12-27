@@ -1,7 +1,7 @@
 import { values, each } from "lodash";
 import moment from "moment";
 import React from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
@@ -36,7 +36,7 @@ class Tasks extends React.Component {
     recordEvent("view", "page", "admin/tasks");
     axios
       .get("/api/admin/queries/tasks")
-      .then(({ data }) => this.processTasks(data.tasks))
+      .then(data => this.processTasks(data.tasks))
       .catch(error => this.handleError(error));
   }
 

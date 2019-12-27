@@ -1,6 +1,6 @@
 import { replace } from "lodash";
 import React from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import PropTypes from "prop-types";
 import Switch from "antd/lib/switch";
 import Modal from "antd/lib/modal";
@@ -55,7 +55,7 @@ class ShareDashboardDialog extends React.Component {
 
     axios
       .post(this.apiUrl)
-      .then(({ data }) => {
+      .then(data => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
       })

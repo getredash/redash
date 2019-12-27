@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
 import { react2angular } from "react2angular";
@@ -38,7 +38,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    axios.post("verification_email").then(({ data }) => {
+    axios.post("verification_email").then(data => {
       notification.success(data.message);
     });
   };

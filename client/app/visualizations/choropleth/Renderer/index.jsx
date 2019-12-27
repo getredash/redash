@@ -1,6 +1,6 @@
 import { omit, merge } from "lodash";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import { RendererPropTypes } from "@/visualizations";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 
@@ -33,9 +33,9 @@ export default function Renderer({ data, options, onOptionsChange }) {
   useEffect(() => {
     let cancelled = false;
 
-    axios.get(getDataUrl(options.mapType)).then(response => {
+    axios.get(getDataUrl(options.mapType)).then(data => {
       if (!cancelled) {
-        setGeoJson(response.data);
+        setGeoJson(data);
       }
     });
 

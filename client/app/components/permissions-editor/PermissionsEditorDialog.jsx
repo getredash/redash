@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
 import Button from "antd/lib/button";
@@ -23,7 +23,7 @@ const DEBOUNCE_SEARCH_DURATION = 200;
 function useGrantees(url) {
   const loadGrantees = useCallback(
     () =>
-      axios.get(url).then(({ data }) => {
+      axios.get(url).then(data => {
         const resultGrantees = [];
         each(data, (grantees, accessType) => {
           grantees.forEach(grantee => {

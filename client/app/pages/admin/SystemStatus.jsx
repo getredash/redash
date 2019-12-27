@@ -1,6 +1,6 @@
 import { omit } from "lodash";
 import React from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 
@@ -43,7 +43,7 @@ class SystemStatus extends React.Component {
   refresh = () => {
     axios
       .get("/status.json")
-      .then(({ data }) => {
+      .then(data => {
         this.setState({
           queues: data.manager.queues,
           manager: {

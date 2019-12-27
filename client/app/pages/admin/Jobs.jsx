@@ -1,6 +1,6 @@
 import { flatMap, values } from "lodash";
 import React from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
@@ -44,7 +44,7 @@ class Jobs extends React.Component {
   refresh = () => {
     axios
       .get("/api/admin/queries/rq_status")
-      .then(({ data }) => this.processQueues(data))
+      .then(data => this.processQueues(data))
       .catch(error => this.handleError(error));
 
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);

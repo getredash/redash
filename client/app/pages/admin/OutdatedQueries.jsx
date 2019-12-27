@@ -1,6 +1,6 @@
 import { map } from "lodash";
 import React from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import { react2angular } from "react2angular";
 
 import Switch from "antd/lib/switch";
@@ -159,7 +159,7 @@ export default function init(ngModule) {
               axios
                 .get("/api/admin/queries/outdated")
                 // eslint-disable-next-line camelcase
-                .then(({ data: { queries, updated_at } }) => {
+                .then(({ queries, updated_at }) => {
                   context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
                   return queries;
                 })

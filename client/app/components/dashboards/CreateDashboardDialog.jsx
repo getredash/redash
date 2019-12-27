@@ -1,6 +1,6 @@
 import { trim } from "lodash";
 import React, { useRef, useState, useEffect } from "react";
-import axios from "axios";
+import axios from "@/services/axios";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -37,7 +37,7 @@ function CreateDashboardDialog({ dialog }) {
     if (name !== "") {
       setSaveInProgress(true);
 
-      axios.post("api/dashboards", { name }).then(({ data }) => {
+      axios.post("api/dashboards", { name }).then(data => {
         dialog.close();
         $location
           .path(`/dashboard/${data.slug}`)
