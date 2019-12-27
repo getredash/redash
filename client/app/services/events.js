@@ -1,5 +1,7 @@
 import recordEvent from "@/services/recordEvent";
 
+// ANGULAR_REMOVE_ME delete this file - it replaced with recordEvent
+
 function Events() {
   this.record = recordEvent;
 }
