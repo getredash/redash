@@ -169,8 +169,7 @@ class AlertPage extends React.Component {
 
   mute = () => {
     const { alert } = this.state;
-    return alert
-      .$mute()
+    return AlertService.mute(alert)
       .then(() => {
         this.setAlertOptions({ muted: true });
         notification.warn("Notifications have been muted.");
@@ -182,8 +181,7 @@ class AlertPage extends React.Component {
 
   unmute = () => {
     const { alert } = this.state;
-    return alert
-      .$unmute()
+    return AlertService.unmute(alert)
       .then(() => {
         this.setAlertOptions({ muted: false });
         notification.success("Notifications have been restored.");
