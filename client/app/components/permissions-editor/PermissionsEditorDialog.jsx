@@ -13,7 +13,7 @@ import { toHuman } from "@/filters";
 import HelpTrigger from "@/components/HelpTrigger";
 import { UserPreviewCard } from "@/components/PreviewCard";
 import notification from "@/services/notification";
-import { User } from "@/services/user";
+import User from "@/services/user";
 
 import "./PermissionsEditorDialog.less";
 
@@ -57,7 +57,7 @@ function useGrantees(url) {
 
 const searchUsers = searchTerm =>
   User.query({ q: searchTerm })
-    .$promise.then(({ results }) => results)
+    .then(({ results }) => results)
     .catch(() => []);
 
 function PermissionsEditorDialogHeader({ context }) {

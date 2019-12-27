@@ -25,7 +25,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
-import { User } from "@/services/user";
+import User from "@/services/user";
 import navigateTo from "@/services/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
@@ -141,7 +141,7 @@ class UsersList extends React.Component {
 
   createUser = values =>
     User.create(values)
-      .$promise.then(user => {
+      .then(user => {
         notification.success("Saved.");
         if (user.invite_link) {
           Modal.warning({
@@ -276,7 +276,7 @@ export default function init(ngModule) {
               return User.query.bind(User);
             },
             getItemProcessor() {
-              return item => new User(item);
+              return item => item;
             },
           }),
           new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })

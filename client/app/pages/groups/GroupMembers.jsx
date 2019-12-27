@@ -23,7 +23,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import Group from "@/services/group";
-import { User } from "@/services/user";
+import User from "@/services/user";
 import navigateTo from "@/services/navigateTo";
 import { routesToAngularRoutes } from "@/lib/utils";
 
@@ -106,7 +106,7 @@ class GroupMembers extends React.Component {
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
       selectedItemsTitle: "New Members",
-      searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
+      searchItems: searchTerm => User.query({ q: searchTerm }).then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedUsers, item.id);
         return {
@@ -207,7 +207,7 @@ export default function init(ngModule) {
               return Group.members.bind(Group);
             },
             getItemProcessor() {
-              return item => new User(item);
+              return item => item;
             },
           }),
           new StateStorage({ orderByField: "name" })
