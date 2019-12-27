@@ -44,7 +44,7 @@ export default function useQueryExecute(query) {
       queryResult.cancelExecution();
       setIsExecutionCancelling(true);
     }
-  }, [query, queryResult]);
+  }, [query.id, queryResult]);
 
   useEffect(() => {
     if (!isQueryExecuting) {
@@ -56,13 +56,24 @@ export default function useQueryExecute(query) {
     }
   }, [isQueryExecuting]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return {
-    queryResult,
-    queryResultData,
-    isQueryExecuting,
-    isExecutionCancelling,
-    executeQuery,
-    executeAdhocQuery,
-    cancelExecution,
-  };
+  return useMemo(
+    () => ({
+      queryResult,
+      queryResultData,
+      isQueryExecuting,
+      isExecutionCancelling,
+      executeQuery,
+      executeAdhocQuery,
+      cancelExecution,
+    }),
+    [
+      queryResult,
+      queryResultData,
+      isQueryExecuting,
+      isExecutionCancelling,
+      executeQuery,
+      executeAdhocQuery,
+      cancelExecution,
+    ]
+  );
 }

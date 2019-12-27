@@ -16,7 +16,7 @@ import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import { pluralize } from "@/filters";
 
-import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
+import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 
 function QueryView({ query }) {
   const canEdit = useMemo(() => currentUser.canEdit(query) || query.can_edit, [query]);

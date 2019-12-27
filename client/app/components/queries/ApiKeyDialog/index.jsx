@@ -1,4 +1,4 @@
-import { clone, extend } from "lodash";
+import { extend } from "lodash";
 import React, { useMemo, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
@@ -22,7 +22,7 @@ function ApiKeyDialog({ dialog, ...props }) {
       .post(`api/queries/${query.id}/regenerate_api_key`)
       .success(data => {
         setUpdatingApiKey(false);
-        setQuery(extend(clone(query), { api_key: data.api_key }));
+        setQuery(extend(query.clone(), { api_key: data.api_key }));
       })
       .error(() => {
         setUpdatingApiKey(false);
