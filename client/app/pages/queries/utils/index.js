@@ -1,6 +1,7 @@
 import updateQuery from "./updateQuery";
 import archiveQuery from "./archiveQuery";
 import duplicateQuery from "./duplicateQuery";
+import formatQuery from "./formatQuery";
 import deleteQueryVisualization from "./deleteQueryVisualization";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -42,6 +43,7 @@ export {
   updateQuery,
   archiveQuery,
   duplicateQuery,
+  formatQuery,
   publishQuery,
   unpublishQuery,
   renameQuery,

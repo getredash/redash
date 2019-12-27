@@ -13,7 +13,6 @@ import { TimeAgo } from "@/components/TimeAgo";
 import { routesToAngularRoutes } from "@/lib/utils";
 import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
-import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -36,7 +35,7 @@ import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 
-import { updateQuery, updateQueryDescription, deleteQueryVisualization } from "./utils";
+import { updateQuery, formatQuery, updateQueryDescription, deleteQueryVisualization } from "./utils";
 
 import "./query-source.less";
 
@@ -68,21 +67,9 @@ function QuerySource(props) {
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [selectedText, setSelectedText] = useState(null);
 
-  const handleSelectionChange = useCallback(text => {
-    setSelectedText(text);
-  }, []);
-
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
   }, 200);
-
-  const formatQuery = useCallback(() => {
-    Query.format(dataSource.syntax || "sql", query.query)
-      .then(queryText => {
-        setQuery(extend(query.clone(), { query: queryText }));
-      })
-      .catch(error => notification.error(error));
-  }, [dataSource, query, setQuery]);
 
   useEffect(() => {
     recordEvent("view_source", "query", query.id);
@@ -140,13 +127,6 @@ function QuerySource(props) {
   const openEmbedDialog = useEmbedDialog(query);
 
   const editSchedule = useEditScheduleDialog(query, setQuery);
-
-  const doUpdateQueryDescription = useCallback(
-    description => {
-      updateQueryDescription(query, description).then(setQuery);
-    },
-    [query, setQuery]
-  );
 
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
     if (editorRef.current) {
@@ -232,7 +212,9 @@ function QuerySource(props) {
                 ignoreBlanks={false}
                 placeholder="Add description"
                 value={query.description}
-                onDone={doUpdateQueryDescription}
+                onDone={description => {
+                  updateQueryDescription(query, description).then(setQuery);
+                }}
                 multiline
               />
             </div>
@@ -256,7 +238,7 @@ function QuerySource(props) {
                     schema={schema}
                     autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
                     onChange={handleQueryEditorChange}
-                    onSelectionChange={handleSelectionChange}
+                    onSelectionChange={setSelectedText}
                   />
 
                   <QueryEditor.Controls
@@ -268,7 +250,9 @@ function QuerySource(props) {
                     formatButtonProps={{
                       title: "Format Query",
                       shortcut: "mod+shift+f",
-                      onClick: formatQuery,
+                      onClick: () => {
+                        formatQuery(query, dataSource.syntax).then(setQuery);
+                      },
                     }}
                     saveButtonProps={
                       queryFlags.canEdit && {
