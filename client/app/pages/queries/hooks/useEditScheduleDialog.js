@@ -29,5 +29,5 @@ export default function useEditScheduleDialog(query, onChange) {
         onChangeRef.current(...args);
       });
     });
-  }, [query, queryFlags]);
+  }, [query, queryFlags.canEdit, queryFlags.canSchedule]);
 }

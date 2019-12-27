@@ -9,7 +9,10 @@ export default function useQueryDataSources(query) {
     allDataSources,
     query.data_source_id,
   ]);
-  const dataSource = useMemo(() => find(dataSources, { id: query.data_source_id }) || null, [query, dataSources]);
+  const dataSource = useMemo(() => find(dataSources, { id: query.data_source_id }) || null, [
+    query.data_source_id,
+    dataSources,
+  ]);
 
   useEffect(() => {
     let cancelDataSourceLoading = false;

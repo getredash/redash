@@ -44,7 +44,7 @@ export default function useQueryExecute(query) {
       queryResult.cancelExecution();
       setIsExecutionCancelling(true);
     }
-  }, [query, queryResult]);
+  }, [query.id, queryResult]);
 
   useEffect(() => {
     if (!isQueryExecuting) {

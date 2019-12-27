@@ -65,7 +65,6 @@ function QuerySource(props) {
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
-  const [selectedText, setSelectedText] = useState(null);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -120,7 +119,7 @@ function QuerySource(props) {
         )
       );
     }
-  }, [query, queryFlags, dataSourcesLoaded, dataSources, handleDataSourceChange]);
+  }, [query.data_source_id, queryFlags.isNew, dataSourcesLoaded, dataSources, handleDataSourceChange]);
 
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
 
@@ -151,8 +150,10 @@ function QuerySource(props) {
   const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !areParametersDirty, [
     isQueryExecuting,
     areParametersDirty,
-    queryFlags,
+    queryFlags.canExecute,
   ]);
+
+  const [selectedText, setSelectedText] = useState(null);
 
   const doExecuteQuery = useCallback(() => {
     if (!canExecuteQuery) {

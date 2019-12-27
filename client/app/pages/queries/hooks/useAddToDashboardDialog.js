@@ -8,6 +8,6 @@ export default function useAddToDashboardDialog(query) {
       const visualization = find(query.visualizations, { id: visualizationId });
       AddToDashboardDialog.showModal({ visualization });
     },
-    [query]
+    [query.visualizations]
   );
 }
