@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
 import resizeObserver from "@/services/resizeObserver";
-import { QuerySnippet } from "@/services/query-snippet";
+import QuerySnippet from "@/services/query-snippet";
 
 const editorProps = { $blockScrolling: Infinity };
 
@@ -91,7 +91,7 @@ const QueryEditorComponent = React.forwardRef(function(
       }
     });
 
-    QuerySnippet.query(snippets => {
+    QuerySnippet.query().then(snippets => {
       const snippetManager = snippetsModule.snippetManager;
       const m = {
         snippetText: "",
