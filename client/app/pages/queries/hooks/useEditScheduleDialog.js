@@ -1,16 +1,17 @@
-import { isArray, isFunction, intersection } from "lodash";
-import { useCallback, useRef } from "react";
+import { isArray, intersection } from "lodash";
+import { useCallback } from "react";
 import ScheduleDialog from "@/components/queries/ScheduleDialog";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
-import { updateQuerySchedule } from "../utils";
+import useUpdateQuery from "./useUpdateQuery";
 import useQueryFlags from "./useQueryFlags";
+import recordEvent from "@/services/recordEvent";
 
 export default function useEditScheduleDialog(query, onChange) {
   // We won't use flags that depend on data source
   const queryFlags = useQueryFlags(query);
-  const onChangeRef = useRef(null);
-  onChangeRef.current = isFunction(onChange) ? onChange : () => {};
+
+  const updateQuery = useUpdateQuery(query, onChange);
 
   return useCallback(() => {
     if (!queryFlags.canEdit || !queryFlags.canSchedule) {
@@ -25,9 +26,8 @@ export default function useEditScheduleDialog(query, onChange) {
       schedule: query.schedule,
       refreshOptions,
     }).result.then(schedule => {
-      updateQuerySchedule(query, schedule).then((...args) => {
-        onChangeRef.current(...args);
-      });
+      recordEvent("edit_schedule", "query", query.id);
+      updateQuery({ schedule });
     });
-  }, [query, queryFlags.canEdit, queryFlags.canSchedule]);
+  }, [query.id, query.schedule, queryFlags.canEdit, queryFlags.canSchedule, updateQuery]);
 }

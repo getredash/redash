@@ -1,5 +1,5 @@
 import { extend, map, filter, reduce } from "lodash";
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import Button from "antd/lib/button";
@@ -13,11 +13,13 @@ import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import useQueryFlags from "../hooks/useQueryFlags";
 import useArchiveQuery from "../hooks/useArchiveQuery";
+import usePublishQuery from "../hooks/usePublishQuery";
+import useUnpublishQuery from "../hooks/useUnpublishQuery";
+import useUpdateQueryTags from "../hooks/useUpdateQueryTags";
+import useRenameQuery from "../hooks/useRenameQuery";
 import useDuplicateQuery from "../hooks/useDuplicateQuery";
 import useApiKeyDialog from "../hooks/useApiKeyDialog";
 import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
-
-import { updateQuery, publishQuery, unpublishQuery, renameQuery } from "../utils";
 
 function getQueryTags() {
   return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
@@ -60,21 +62,15 @@ function createMenu(menu) {
 export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, onChange }) {
   const queryFlags = useQueryFlags(query, dataSource);
 
-  const saveName = useCallback(
-    name => {
-      renameQuery(query, name).then(onChange);
-    },
-    [query, onChange]
-  );
+  const updateName = useRenameQuery(query, onChange);
 
-  const saveTags = useCallback(
-    tags => {
-      updateQuery(query, { tags }).then(onChange);
-    },
-    [query, onChange]
-  );
+  const updateTags = useUpdateQueryTags(query, onChange);
 
   const archiveQuery = useArchiveQuery(query, onChange);
+
+  const publishQuery = usePublishQuery(query, onChange);
+
+  const unpublishQuery = useUnpublishQuery(query, onChange);
 
   const duplicateQuery = useDuplicateQuery(query);
 
@@ -113,9 +109,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
           unpublish: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
             title: "Unpublish",
-            onClick: () => {
-              unpublishQuery(query).then(onChange);
-            },
+            onClick: unpublishQuery,
           },
         },
         {
@@ -128,13 +122,12 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
       ]),
     [
       showPermissionsControl,
-      query,
       queryFlags,
       archiveQuery,
+      unpublishQuery,
       openApiKeyDialog,
       openPermissionsEditorDialog,
       duplicateQuery,
-      onChange,
     ]
   );
 
@@ -148,7 +141,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             </span>
           )}
           <h3>
-            <EditInPlace isEditable={queryFlags.canEdit} onDone={saveName} ignoreBlanks value={query.name} />
+            <EditInPlace isEditable={queryFlags.canEdit} onDone={updateName} ignoreBlanks value={query.name} />
             <span className={cx("m-l-10", "query-tags", { "query-tags__empty": query.tags.length === 0 })}>
               <QueryTagsControl
                 tags={query.tags}
@@ -156,17 +149,13 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
                 isArchived={queryFlags.isArchived}
                 canEdit={queryFlags.canEdit}
                 getAvailableTags={getQueryTags}
-                onEdit={saveTags}
+                onEdit={updateTags}
               />
             </span>
           </h3>
           <span className="flex-fill" />
           {queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
-            <Button
-              className="hidden-xs m-r-5"
-              onClick={() => {
-                publishQuery(query).then(onChange);
-              }}>
+            <Button className="hidden-xs m-r-5" onClick={publishQuery}>
               <i className="fa fa-paper-plane m-r-5" /> Publish
             </Button>
           )}
@@ -204,7 +193,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             isArchived={queryFlags.isArchived}
             canEdit={queryFlags.canEdit}
             getAvailableTags={getQueryTags}
-            onEdit={saveTags}
+            onEdit={updateTags}
           />
         </span>
       </div>

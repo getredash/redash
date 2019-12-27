@@ -36,8 +36,8 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFormatQuery from "./hooks/useFormatQuery";
-
-import { updateQuery, updateQueryDescription } from "./utils";
+import useUpdateQuery from "./hooks/useUpdateQuery";
+import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 
 import "./query-source.less";
 
@@ -80,6 +80,8 @@ function QuerySource(props) {
     document.title = query.name;
   }, [query.name]);
 
+  const updateQuery = useUpdateQuery(query, setQuery);
+
   const handleDataSourceChange = useCallback(
     dataSourceId => {
       if (dataSourceId) {
@@ -91,23 +93,16 @@ function QuerySource(props) {
       }
       if (query.data_source_id !== dataSourceId) {
         recordEvent("update_data_source", "query", query.id, { dataSourceId });
-        const newQuery = extend(query.clone(), {
+        const updates = {
           data_source_id: dataSourceId,
           latest_query_data_id: null,
           latest_query_data: null,
-        });
-        setQuery(newQuery);
-        updateQuery(
-          newQuery,
-          {
-            data_source_id: newQuery.data_source_id,
-            latest_query_data_id: newQuery.latest_query_data_id,
-          },
-          { successMessage: null } // show message only on error
-        ).then(setQuery);
+        };
+        setQuery(extend(query.clone(), updates));
+        updateQuery(updates, { successMessage: null }); // show message only on error
       }
     },
-    [query, setQuery]
+    [query, setQuery, updateQuery]
   );
 
   useEffect(() => {
@@ -172,6 +167,8 @@ function QuerySource(props) {
     }
   }, [canExecuteQuery, isDirty, selectedText, executeQuery, executeAdhocQuery]);
 
+  const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
+
   return (
     <div className="query-page-wrapper">
       <div className="container">
@@ -219,9 +216,7 @@ function QuerySource(props) {
                 ignoreBlanks={false}
                 placeholder="Add description"
                 value={query.description}
-                onDone={description => {
-                  updateQueryDescription(query, description).then(setQuery);
-                }}
+                onDone={updateQueryDescription}
                 multiline
               />
             </div>
