@@ -1,6 +1,6 @@
 import React from "react";
 import renderer from "react-test-renderer";
-import { Group } from "@/services/group";
+import Group from "@/services/group";
 import UserShow from "./UserShow";
 
 beforeEach(() => {

@@ -6,7 +6,7 @@ import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Tag from "antd/lib/tag";
 import { User } from "@/services/user";
-import { Group } from "@/services/group";
+import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 import { absoluteUrl } from "@/services/utils";
 import { UserProfile } from "../proptypes";
@@ -33,7 +33,7 @@ export default class UserEdit extends React.Component {
   }
 
   componentDidMount() {
-    Group.query(groups => {
+    Group.query().then(groups => {
       this.setState({
         groups: groups.map(({ id, name }) => ({ value: id, name })),
         loadingGroups: false,
