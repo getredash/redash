@@ -6,7 +6,7 @@ import { $route } from "@/services/ng";
 import { currentUser } from "@/services/auth";
 import navigateTo from "@/services/navigateTo";
 import notification from "@/services/notification";
-import { Alert as AlertService } from "@/services/alert";
+import AlertService from "@/services/alert";
 import { Query as QueryService } from "@/services/query";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -51,20 +51,20 @@ class AlertPage extends React.Component {
 
     if (mode === MODES.NEW) {
       this.setState({
-        alert: new AlertService({
+        alert: {
           options: {
             op: ">",
             value: 1,
             muted: false,
           },
-        }),
+        },
         pendingRearm: 0,
         canEdit: true,
       });
     } else {
       const { alertId } = $route.current.params;
       AlertService.get({ id: alertId })
-        .$promise.then(alert => {
+        .then(alert => {
           if (this._isMounted) {
             const canEdit = currentUser.canEdit(alert);
 
@@ -100,12 +100,12 @@ class AlertPage extends React.Component {
     alert.name = trim(alert.name) || getDefaultName(alert);
     alert.rearm = pendingRearm || null;
 
-    return alert
-      .$save()
-      .then(() => {
+    const saveAlert = alert.id ? AlertService.save : AlertService.create;
+    return saveAlert(alert)
+      .then(alert => {
         notification.success("Saved.");
         navigateTo(`/alerts/${alert.id}`, true, false);
-        this.setState({ mode: MODES.VIEW });
+        this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
         notification.error("Failed saving alert.");
@@ -157,15 +157,14 @@ class AlertPage extends React.Component {
 
   delete = () => {
     const { alert } = this.state;
-    return alert.$delete(
-      () => {
+    return AlertService.delete(alert)
+      .then(() => {
         notification.success("Alert deleted successfully.");
         navigateTo("/alerts");
-      },
-      () => {
+      })
+      .catch(() => {
         notification.error("Failed deleting alert.");
-      }
-    );
+      });
   };
 
   mute = () => {
