@@ -7,6 +7,7 @@ import { updateQuerySchedule } from "../utils";
 import useQueryFlags from "./useQueryFlags";
 
 export default function useEditScheduleDialog(query, onChange) {
+  // We won't use flags that depend on data source
   const queryFlags = useQueryFlags(query);
   const onChangeRef = useRef(null);
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};

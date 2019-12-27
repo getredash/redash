@@ -62,7 +62,7 @@ export default function QueryVisualizationTabs({
   showNewVisualizationButton,
   canDeleteVisualizations,
   onChangeTab,
-  onClickNewVisualization,
+  onAddVisualization,
   onDeleteVisualization,
   ...props
 }) {
@@ -78,7 +78,7 @@ export default function QueryVisualizationTabs({
 
   if (showNewVisualizationButton) {
     tabsProps.tabBarExtraContent = (
-      <Button onClick={onClickNewVisualization}>
+      <Button onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
         <span className="m-l-5 hidden-xs">New Visualization</span>
       </Button>
@@ -121,7 +121,7 @@ QueryVisualizationTabs.propTypes = {
   showNewVisualizationButton: PropTypes.bool,
   canDeleteVisualizations: PropTypes.bool,
   onChangeTab: PropTypes.func,
-  onClickNewVisualization: PropTypes.func,
+  onAddVisualization: PropTypes.func,
   onDeleteVisualization: PropTypes.func,
 };
 
@@ -132,6 +132,6 @@ QueryVisualizationTabs.defaultProps = {
   showNewVisualizationButton: false,
   canDeleteVisualizations: false,
   onChangeTab: () => {},
-  onClickNewVisualization: () => {},
+  onAddVisualization: () => {},
   onDeleteVisualization: () => {},
 };

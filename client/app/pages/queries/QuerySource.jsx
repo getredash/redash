@@ -15,8 +15,6 @@ import { durationHumanize, prettySize } from "@/filters";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
 import recordEvent from "@/services/recordEvent";
-import navigateTo from "@/services/navigateTo";
-import localOptions from "@/lib/localOptions";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryMetadata from "./components/QueryMetadata";
@@ -24,23 +22,21 @@ import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
 
+import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
+import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
 import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
+import useQueryParameters from "./hooks/useQueryParameters";
 import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
 import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
+import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 
-import {
-  updateQuery,
-  updateQueryDescription,
-  deleteQueryVisualization,
-  addQueryVisualization,
-  editQueryVisualization,
-} from "./utils";
+import { updateQuery, updateQueryDescription, deleteQueryVisualization } from "./utils";
 
 import "./query-source.less";
 
@@ -51,14 +47,12 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
-  const [query, setQuery] = useState(props.query);
-  const [originalQuerySource, setOriginalQuerySource] = useState(props.query.query);
+  const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const queryFlags = useQueryFlags(query, dataSource);
+  const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
-  const parameters = useMemo(() => query.getParametersDefs(), [query]);
-  const [dirtyParameters, setDirtyParameters] = useState(query.getParameters().hasPendingValues());
 
   const {
     queryResult,
@@ -71,25 +65,12 @@ function QuerySource(props) {
   } = useQueryExecute(query);
 
   const editorRef = useRef(null);
-  const autocompleteAvailable = useMemo(() => schema.tokensCount <= 5000, [schema]);
-  const [autocompleteEnabled, setAutocompleteEnabled] = useState(localOptions.get("liveAutocomplete", true));
+  const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
   const [selectedText, setSelectedText] = useState(null);
 
   const handleSelectionChange = useCallback(text => {
     setSelectedText(text);
   }, []);
-
-  const toggleAutocomplete = useCallback(state => {
-    setAutocompleteEnabled(state);
-    localOptions.set("liveAutocomplete", state);
-  }, []);
-
-  useEffect(() => {
-    const updatedDirtyParameters = query.getParameters().hasPendingValues();
-    if (updatedDirtyParameters !== dirtyParameters) {
-      setDirtyParameters(query.getParameters().hasPendingValues());
-    }
-  }, [dirtyParameters, parameters, query]);
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
@@ -101,7 +82,7 @@ function QuerySource(props) {
         setQuery(extend(query.clone(), { query: queryText }));
       })
       .catch(error => notification.error(error));
-  }, [dataSource, query]);
+  }, [dataSource, query, setQuery]);
 
   useEffect(() => {
     recordEvent("view_source", "query", query.id);
@@ -138,18 +119,8 @@ function QuerySource(props) {
         ).then(setQuery);
       }
     },
-    [query]
+    [query, setQuery]
   );
-
-  const saveQuery = useCallback(() => {
-    updateQuery(query).then(updatedQuery => {
-      setQuery(updatedQuery);
-      setOriginalQuerySource(updatedQuery.query);
-      if (updatedQuery.id !== query.id) {
-        navigateTo(updatedQuery.getSourceLink());
-      }
-    });
-  }, [query]);
 
   useEffect(() => {
     // choose data source id for new queries
@@ -174,7 +145,7 @@ function QuerySource(props) {
     description => {
       updateQueryDescription(query, description).then(setQuery);
     },
-    [query]
+    [query, setQuery]
   );
 
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
@@ -185,18 +156,23 @@ function QuerySource(props) {
     setQuery(newQuery);
   });
 
+  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
+    setQuery(newQuery);
+    setSelectedVisualization(visualization.id);
+  });
+  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
     }
   }, []);
 
-  const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !dirtyParameters, [
+  const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !areParametersDirty, [
     isQueryExecuting,
-    dirtyParameters,
+    areParametersDirty,
     queryFlags,
   ]);
-  const isDirty = query.query !== originalQuerySource;
 
   const doExecuteQuery = useCallback(() => {
     if (!canExecuteQuery) {
@@ -212,7 +188,13 @@ function QuerySource(props) {
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} sourceMode selectedVisualization={selectedVisualization} onChange={setQuery} />
+        <QueryPageHeader
+          query={query}
+          dataSource={dataSource}
+          sourceMode
+          selectedVisualization={selectedVisualization}
+          onChange={setQuery}
+        />
       </div>
       <main className="query-fullscreen">
         <nav>
@@ -337,9 +319,9 @@ function QuerySource(props) {
                         editable={queryFlags.canEdit}
                         disableUrlUpdate={queryFlags.isNew}
                         parameters={parameters}
-                        onPendingValuesChange={() => setDirtyParameters(query.getParameters().hasPendingValues())}
+                        onPendingValuesChange={() => updateParametersDirtyFlag()}
                         onValuesChange={() => {
-                          setDirtyParameters(false);
+                          updateParametersDirtyFlag(false);
                           doExecuteQuery();
                         }}
                         onParametersEdit={() => {
@@ -386,12 +368,7 @@ function QuerySource(props) {
                           canDeleteVisualizations={queryFlags.canEdit}
                           selectedTab={selectedVisualization}
                           onChangeTab={setSelectedVisualization}
-                          onClickNewVisualization={() =>
-                            addQueryVisualization(query, queryResult).then(({ query, visualization }) => {
-                              setQuery(query);
-                              setSelectedVisualization(visualization.id);
-                            })
-                          }
+                          onAddVisualization={addVisualization}
                           onDeleteVisualization={visualization =>
                             deleteQueryVisualization(query, visualization).then(setQuery)
                           }
@@ -408,13 +385,7 @@ function QuerySource(props) {
               <div className="bottom-controller">
                 {!queryFlags.isNew && queryFlags.canEdit && (
                   <EditVisualizationButton
-                    openVisualizationEditor={visId =>
-                      editQueryVisualization(
-                        query,
-                        queryResult,
-                        find(query.visualizations, { id: visId })
-                      ).then(({ query }) => setQuery(query))
-                    }
+                    openVisualizationEditor={editVisualization}
                     selectedTab={selectedVisualization}
                   />
                 )}

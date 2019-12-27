@@ -1,5 +1,5 @@
 import { reduce } from "lodash";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 
@@ -59,5 +59,5 @@ export default function useDataSourceSchema(dataSource) {
     };
   }, []);
 
-  return [schema, reloadSchema];
+  return useMemo(() => [schema, reloadSchema], [schema, reloadSchema]);
 }

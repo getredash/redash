@@ -35,5 +35,5 @@ export default function useVisualizationTabHandler(visualizations) {
     }
   }, [firstVisualization.id, selectedTab, visualizations]);
 
-  return [selectedTab, setSelectedTab];
+  return useMemo(() => [selectedTab, setSelectedTab], [selectedTab]);
 }

@@ -2,7 +2,6 @@ import updateQuery from "./updateQuery";
 import archiveQuery from "./archiveQuery";
 import duplicateQuery from "./duplicateQuery";
 import deleteQueryVisualization from "./deleteQueryVisualization";
-import { addQueryVisualization, editQueryVisualization } from "./editQueryVisualization";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 
@@ -49,6 +48,4 @@ export {
   updateQueryDescription,
   updateQuerySchedule,
   deleteQueryVisualization,
-  addQueryVisualization,
-  editQueryVisualization,
 };

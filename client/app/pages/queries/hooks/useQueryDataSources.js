@@ -25,5 +25,5 @@ export default function useQueryDataSources(query) {
     };
   }, []);
 
-  return { dataSourcesLoaded, dataSources, dataSource };
+  return useMemo(() => ({ dataSourcesLoaded, dataSources, dataSource }), [dataSourcesLoaded, dataSources, dataSource]);
 }

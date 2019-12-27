@@ -55,8 +55,8 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({ query, sourceMode, selectedVisualization, onChange }) {
-  const queryFlags = useQueryFlags(query);
+export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, onChange }) {
+  const queryFlags = useQueryFlags(query, dataSource);
 
   const saveName = useCallback(
     name => {
@@ -173,7 +173,10 @@ export default function QueryPageHeader({ query, sourceMode, selectedVisualizati
                 </Button>
               )}
               {sourceMode && (
-                <Button className="m-r-5" href={query.getUrl(false, selectedVisualization)} data-test="QueryPageShowDataOnly">
+                <Button
+                  className="m-r-5"
+                  href={query.getUrl(false, selectedVisualization)}
+                  data-test="QueryPageShowDataOnly">
                   <i className="fa fa-table m-r-5" aria-hidden="true" /> Show Data Only
                 </Button>
               )}
@@ -209,12 +212,14 @@ QueryPageHeader.propTypes = {
     name: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
+  dataSource: PropTypes.object,
   sourceMode: PropTypes.bool,
   selectedVisualization: PropTypes.number,
   onChange: PropTypes.func,
 };
 
 QueryPageHeader.defaultProps = {
+  dataSource: null,
   sourceMode: false,
   selectedVisualization: null,
   onChange: () => {},
