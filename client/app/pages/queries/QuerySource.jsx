@@ -179,7 +179,7 @@ function QuerySource(props) {
         className="query-fullscreen"
         direction="horizontal"
         sizes={[25, 75]}
-        minSize={[0, 600]}
+        minSize={[10, 600]}
         expandToMin
         gutterAlign="start"
         toggleShortcut="Alt+Shift+D, Alt+D"
@@ -236,9 +236,10 @@ function QuerySource(props) {
                 style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}
                 direction="vertical"
                 sizes={[35, 65]}
+                minSize={[10, 0]}
                 gutterAlign="start"
                 firstPane={
-                  <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
+                  <div className="row editor">
                     <section className="query-editor-wrapper" data-test="QueryEditor">
                       <QueryEditor
                         ref={editorRef}

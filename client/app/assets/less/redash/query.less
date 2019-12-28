@@ -272,13 +272,12 @@ a.label-tag {
   .split-gutter {
     &.split-gutter-horizontal {
       border-right: 1px solid #efefef;
-      margin-left: -10px;
       z-index: 1;
     }
 
     &.split-gutter-vertical {
       border-bottom: 1px solid #efefef;
-      margin: -10px -15px 0 -15px;
+      margin: 0 -15px;
       z-index: 1;
     }
   }
@@ -296,6 +295,7 @@ a.label-tag {
     max-width: 600px;
     min-width: 10px;
     overflow-x: hidden;
+    margin-right: -10px;
 
     .editor__left__data-source,
     .schema-control,
@@ -354,6 +354,7 @@ a.label-tag {
 
     .editor {
       border-bottom: 1px solid #efefef;
+      margin-bottom: -10px;
     }
 
     .pivot-table-visualization-container > table,
@@ -378,6 +379,8 @@ a.label-tag {
       flex-flow: row nowrap;
       justify-content: space-around;
       align-content: space-around;
+      min-height: 0;
+      max-height: 70vh;
       overflow: hidden;
     }
 

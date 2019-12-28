@@ -6,6 +6,7 @@ import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import "./index.less";
 
 export default function Split({ toggleShortcut, firstPane, secondPane, ...props }) {
+  const ignoreNextClickEventRef = useRef(false);
   const onToggleFirstPageRef = useRef(() => {
     console.log("toggle pane");
   });
@@ -33,12 +34,21 @@ export default function Split({ toggleShortcut, firstPane, secondPane, ...props 
       gutter={(index, direction) => {
         const gutter = document.createElement('div');
         gutter.className = `split-gutter split-gutter-${direction}`;
-        gutter.addEventListener("click", () => onToggleFirstPageRef.current(), false);
+        gutter.addEventListener("click", () => {
+          if (!ignoreNextClickEventRef.current) {
+            onToggleFirstPageRef.current();
+          }
+          ignoreNextClickEventRef.current = false;
+        }, false);
         return gutter
       }}
       elementStyle={(dimension, elementSize, gutterSize, index) => (index === 0 ? {
         "flex-basis": `${elementSize}%`
       } : {})}
+      onDrag={() => {
+        // If gutter was dragged - skip next click event on it (don't toggle pane)
+        ignoreNextClickEventRef.current = true;
+      }}
     >
       {firstPane}
       {secondPane}
