@@ -180,7 +180,7 @@ function QuerySource(props) {
         direction="horizontal"
         sizes={[25, 75]}
         minSize={[10, 600]}
-        expandToMin
+        expandToMin={false}
         gutterAlign="start"
         toggleShortcut="Alt+Shift+D, Alt+D"
         firstPane={
@@ -237,6 +237,7 @@ function QuerySource(props) {
                 direction="vertical"
                 sizes={[35, 65]}
                 minSize={[10, 0]}
+                expandToMin={false}
                 gutterAlign="start"
                 firstPane={
                   <div className="row editor">
