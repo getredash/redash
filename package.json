@@ -80,6 +80,7 @@
     "react-grid-layout": "git+https://github.com/getredash/react-grid-layout.git",
     "react-pivottable": "^0.9.0",
     "react-sortable-hoc": "^1.10.1",
+    "react-split": "^2.0.7",
     "react-virtualized": "^9.21.2",
     "react2angular": "^3.2.1",
     "tinycolor2": "^1.4.1",

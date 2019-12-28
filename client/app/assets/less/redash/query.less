@@ -267,7 +267,52 @@ a.label-tag {
   box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
   flex-grow: 1;
   display: flex;
+  // height: 100%;
   width: 100vw;
+
+  .gutter {
+    &:hover, &:active {
+      background: fade(@redash-gray, 6%);
+    }
+
+    &.gutter-horizontal {
+      cursor: col-resize;
+      border-right: 1px solid #efefef;
+      margin-left: -10px;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 25px;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+      }
+    }
+
+    &.gutter-vertical {
+      cursor: row-resize;
+      border-bottom: 1px solid #efefef;
+      margin: -10px -15px 0 -15px;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        width: 25px;
+        height: 3px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+    }
+  }
 
   .tile,
   .tiled {
@@ -279,8 +324,6 @@ a.label-tag {
     position: relative;
     display: flex;
     flex-flow: column;
-    flex-basis: 25%;
-    flex-shrink: 0;
     max-width: 600px;
     min-width: 10px;
     overflow-x: hidden;
@@ -330,10 +373,6 @@ a.label-tag {
       }
     }
   }
-  main {
-    display: flex;
-    height: 100%;
-  }
   .content {
     background: #fff;
     flex-grow: 1;
@@ -359,7 +398,6 @@ a.label-tag {
   }
   .row {
     background: #fff;
-    z-index: 9;
     min-height: 50px;
 
     &.resizable {
@@ -623,44 +661,18 @@ nav .rg-bottom {
     }
 
     .query-metadata__mobile {
+      display: block;
       border-bottom: 1px solid #efefef;
-      min-height: 0 !important;
-      flex-shrink: 0;
-      padding: 10px 15px;
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: space-between;
-      align-items: center;
-
-      .profile__image_thumb {
-        margin: 0 5px 0 0;
-      }
-
-      .query-metadata__property {
-        white-space: nowrap;
-      }
+      min-height: 0;
+      padding: 0 15px;
     }
 
-    main {
-      flex-direction: column-reverse;
-
-      nav {
-        width: 100%;
-        max-width: 100%;
-        border-right: none;
-
-        .editor__left__schema {
-          height: 300px !important;
-        }
-
-        .rg-right {
-          display: none;
-        }
-      }
+    .gutter.gutter-horizontal {
+      display: none;
     }
 
     .content {
-      width: 100%;
+      width: 100% !important;
       height: 100%;
 
       .static-position__mobile {

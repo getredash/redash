@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
+import Split from "react-split";
 import Select from "antd/lib/select";
 import { Parameters } from "@/components/Parameters";
 import { EditInPlace } from "@/components/EditInPlace";
@@ -174,7 +175,16 @@ function QuerySource(props) {
           onChange={setQuery}
         />
       </div>
-      <main className="query-fullscreen">
+      <Split
+        className="query-fullscreen"
+        direction="horizontal"
+        sizes={[25, 75]}
+        minSize={[0, 600]}
+        expandToMin
+        snapOffset={0}
+        gutterSize={10}
+        gutterAlign="start"
+      >
         <nav>
           <div className="editor__left__data-source">
             <Select
@@ -221,10 +231,16 @@ function QuerySource(props) {
 
         <div className="content">
           <div className="flex-fill p-relative">
-            <div
+            <Split
               className="p-absolute d-flex flex-column p-l-15 p-r-15"
-              style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}>
-              <div className="row editor resizable" style={{ minHeight: "11px", maxHeight: "70vh" }}>
+              style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}
+              direction="vertical"
+              sizes={[35, 65]}
+              snapOffset={0}
+              gutterSize={10}
+              gutterAlign="start"
+            >
+              <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
                 <section className="query-editor-wrapper" data-test="QueryEditor">
                   <QueryEditor
                     ref={editorRef}
@@ -285,12 +301,16 @@ function QuerySource(props) {
                 </section>
               </div>
 
-              {!queryFlags.isNew && <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />}
-
               <section className="flex-fill p-relative t-body query-visualizations-wrapper">
                 <div
                   className="d-flex flex-column p-b-15 p-absolute static-position__mobile"
                   style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
+                  {!queryFlags.isNew && (
+                    <div className="row query-metadata__mobile">
+                      <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />
+                    </div>
+                  )}
+
                   {query.hasParameters() && (
                     <div className="p-t-15 p-b-5">
                       <Parameters
@@ -354,7 +374,7 @@ function QuerySource(props) {
                   )}
                 </div>
               </section>
-            </div>
+            </Split>
           </div>
           {queryResultData.status === "done" && (
             <div className="bottom-controller-container">
@@ -408,7 +428,7 @@ function QuerySource(props) {
             </div>
           )}
         </div>
-      </main>
+      </Split>
     </div>
   );
 }
