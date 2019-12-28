@@ -9,6 +9,7 @@ import cfg from "@/config/dashboard-grid-options";
 import AutoHeightController from "./AutoHeightController";
 import { WidgetTypeEnum } from "@/services/widget";
 
+import "react-resizable/css/styles.css";
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
 

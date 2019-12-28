@@ -126,6 +126,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
 
   return (
     <ReactResizable
+      className="resizable-component"
       axis={direction === "horizontal" ? "x" : "y"}
       resizeHandles={[direction === "horizontal" ? "e" : "s"]}
       handle={resizeHandle}
