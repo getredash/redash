@@ -1,0 +1,41 @@
+@import (reference, less) "~@/assets/less/inc/variables.less";
+
+.split-gutter {
+  &:hover, &:active {
+    background: fade(@redash-gray, 6%);
+  }
+
+  &.split-gutter-horizontal {
+    cursor: col-resize;
+    width: 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:before {
+      content: "";
+      display: inline-block;
+      width: 3px;
+      height: 25px;
+      border-left: 1px solid #ccc;
+      border-right: 1px solid #ccc;
+    }
+  }
+
+  &.split-gutter-vertical {
+    cursor: row-resize;
+    height: 10px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:before {
+      content: "";
+      display: inline-block;
+      width: 25px;
+      height: 3px;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+  }
+}

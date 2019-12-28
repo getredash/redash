@@ -3,8 +3,8 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from "react"
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
-import Split from "react-split";
 import Select from "antd/lib/select";
+import Split from "@/components/Split";
 import { Parameters } from "@/components/Parameters";
 import { EditInPlace } from "@/components/EditInPlace";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
@@ -181,254 +181,256 @@ function QuerySource(props) {
         sizes={[25, 75]}
         minSize={[0, 600]}
         expandToMin
-        snapOffset={0}
-        gutterSize={10}
         gutterAlign="start"
-      >
-        <nav>
-          <div className="editor__left__data-source">
-            <Select
-              className="w-100"
-              placeholder="Choose data source..."
-              value={dataSource ? dataSource.id : undefined}
-              disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
-              loading={!dataSourcesLoaded}
-              optionFilterProp="data-name"
-              showSearch
-              onChange={handleDataSourceChange}>
-              {map(dataSources, ds => (
-                <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
-                  <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
-                  <span>{ds.name}</span>
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <div className="editor__left__schema">
-            <SchemaBrowser
-              schema={schema}
-              onRefresh={() => refreshSchema(true)}
-              onItemSelect={handleSchemaItemSelect}
-            />
-          </div>
-
-          {!query.isNew() && (
-            <div className="query-metadata query-metadata--description">
-              <EditInPlace
-                isEditable={queryFlags.canEdit}
-                markdown
-                ignoreBlanks={false}
-                placeholder="Add description"
-                value={query.description}
-                onDone={updateQueryDescription}
-                multiline
+        firstPane={
+          <nav>
+            <div className="editor__left__data-source">
+              <Select
+                className="w-100"
+                placeholder="Choose data source..."
+                value={dataSource ? dataSource.id : undefined}
+                disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
+                loading={!dataSourcesLoaded}
+                optionFilterProp="data-name"
+                showSearch
+                onChange={handleDataSourceChange}>
+                {map(dataSources, ds => (
+                  <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
+                    <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                    <span>{ds.name}</span>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div className="editor__left__schema">
+              <SchemaBrowser
+                schema={schema}
+                onRefresh={() => refreshSchema(true)}
+                onItemSelect={handleSchemaItemSelect}
               />
             </div>
-          )}
 
-          {!query.isNew() && <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} />}
-        </nav>
-
-        <div className="content">
-          <div className="flex-fill p-relative">
-            <Split
-              className="p-absolute d-flex flex-column p-l-15 p-r-15"
-              style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}
-              direction="vertical"
-              sizes={[35, 65]}
-              snapOffset={0}
-              gutterSize={10}
-              gutterAlign="start"
-            >
-              <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
-                <section className="query-editor-wrapper" data-test="QueryEditor">
-                  <QueryEditor
-                    ref={editorRef}
-                    data-executing={isQueryExecuting ? "true" : null}
-                    syntax={dataSource ? dataSource.syntax : null}
-                    value={query.query}
-                    schema={schema}
-                    autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
-                    onChange={handleQueryEditorChange}
-                    onSelectionChange={setSelectedText}
-                  />
-
-                  <QueryEditor.Controls
-                    addParameterButtonProps={{
-                      title: "Add New Parameter",
-                      shortcut: "mod+p",
-                      onClick: openAddNewParameterDialog,
-                    }}
-                    formatButtonProps={{
-                      title: "Format Query",
-                      shortcut: "mod+shift+f",
-                      onClick: formatQuery,
-                    }}
-                    saveButtonProps={
-                      queryFlags.canEdit && {
-                        text: (
-                          <React.Fragment>
-                            <span className="hidden-xs">Save</span>
-                            {isDirty ? "*" : null}
-                          </React.Fragment>
-                        ),
-                        shortcut: "mod+s",
-                        onClick: saveQuery,
-                      }
-                    }
-                    executeButtonProps={{
-                      disabled: !canExecuteQuery,
-                      shortcut: "mod+enter, alt+enter",
-                      onClick: doExecuteQuery,
-                      text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
-                    }}
-                    autocompleteToggleProps={{
-                      available: autocompleteAvailable,
-                      enabled: autocompleteEnabled,
-                      onToggle: toggleAutocomplete,
-                    }}
-                    dataSourceSelectorProps={
-                      dataSource
-                        ? {
-                            disabled: !queryFlags.canEdit,
-                            value: dataSource.id,
-                            onChange: handleDataSourceChange,
-                            options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
-                          }
-                        : false
-                    }
-                  />
-                </section>
-              </div>
-
-              <section className="flex-fill p-relative t-body query-visualizations-wrapper">
-                <div
-                  className="d-flex flex-column p-b-15 p-absolute static-position__mobile"
-                  style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
-                  {!queryFlags.isNew && (
-                    <div className="row query-metadata__mobile">
-                      <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />
-                    </div>
-                  )}
-
-                  {query.hasParameters() && (
-                    <div className="p-t-15 p-b-5">
-                      <Parameters
-                        editable={queryFlags.canEdit}
-                        disableUrlUpdate={queryFlags.isNew}
-                        parameters={parameters}
-                        onPendingValuesChange={() => updateParametersDirtyFlag()}
-                        onValuesChange={() => {
-                          updateParametersDirtyFlag(false);
-                          doExecuteQuery();
-                        }}
-                        onParametersEdit={() => {
-                          // save if query clean
-                          // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
-                          if (!isDirty) {
-                            saveQuery();
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
-                  {queryResult && queryResultData.status !== "done" && (
-                    <div className="query-alerts m-t-15 m-b-15">
-                      <QueryExecutionStatus
-                        status={queryResultData.status}
-                        updatedAt={queryResultData.updatedAt}
-                        error={queryResultData.error}
-                        isCancelling={isExecutionCancelling}
-                        onCancel={cancelExecution}
-                      />
-                    </div>
-                  )}
-
-                  {queryResultData.status === "done" && (
-                    <div className="flex-fill p-relative">
-                      <div
-                        className="d-flex flex-column p-absolute static-position__mobile"
-                        style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
-                        {queryResultData.log.length > 0 && (
-                          <div className="p-10">
-                            <p>Log Information:</p>
-                            {map(queryResultData.log, (line, index) => (
-                              <p key={`log-line-${index}`} className="query-log-line">
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                        <QueryVisualizationTabs
-                          queryResult={queryResult}
-                          visualizations={query.visualizations}
-                          showNewVisualizationButton={queryFlags.canEdit}
-                          canDeleteVisualizations={queryFlags.canEdit}
-                          selectedTab={selectedVisualization}
-                          onChangeTab={setSelectedVisualization}
-                          onAddVisualization={addVisualization}
-                          onDeleteVisualization={deleteVisualization}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </Split>
-          </div>
-          {queryResultData.status === "done" && (
-            <div className="bottom-controller-container">
-              <div className="bottom-controller">
-                {!queryFlags.isNew && queryFlags.canEdit && (
-                  <EditVisualizationButton
-                    openVisualizationEditor={editVisualization}
-                    selectedTab={selectedVisualization}
-                  />
-                )}
-                <QueryControlDropdown
-                  query={query}
-                  queryResult={queryResult}
-                  queryExecuting={isQueryExecuting}
-                  showEmbedDialog={openEmbedDialog}
-                  embed={false}
-                  apiKey={query.api_key}
-                  selectedTab={selectedVisualization}
-                  openAddToDashboardForm={openAddToDashboardDialog}
+            {!query.isNew() && (
+              <div className="query-metadata query-metadata--description">
+                <EditInPlace
+                  isEditable={queryFlags.canEdit}
+                  markdown
+                  ignoreBlanks={false}
+                  placeholder="Add description"
+                  value={query.description}
+                  onDone={updateQueryDescription}
+                  multiline
                 />
+              </div>
+            )}
 
-                <span className="query-metadata__bottom">
-                  <span className="query-metadata__property">
-                    <strong>{queryResultData.rows.length}</strong>
-                    {queryResultData.rows.length === 1 ? " row" : " rows"}
-                  </span>
-                  <span className="query-metadata__property">
-                    {!isQueryExecuting && (
-                      <React.Fragment>
-                        <strong>{durationHumanize(queryResultData.runtime)}</strong>
-                        <span className="hidden-xs"> runtime</span>
-                      </React.Fragment>
-                    )}
-                    {isQueryExecuting && <span>Running&hellip;</span>}
-                  </span>
-                  {queryResultData.metadata.data_scanned && (
-                    <span className="query-metadata__property">
-                      Data Scanned
-                      <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
-                    </span>
+            {!query.isNew() && <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} />}
+          </nav>
+        }
+        secondPane={
+          <div className="content">
+            <div className="flex-fill p-relative">
+              <Split
+                className="p-absolute d-flex flex-column p-l-15 p-r-15"
+                style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}
+                direction="vertical"
+                sizes={[35, 65]}
+                gutterAlign="start"
+                firstPane={
+                  <div className="row editor" style={{ minHeight: "11px", maxHeight: "70vh" }}>
+                    <section className="query-editor-wrapper" data-test="QueryEditor">
+                      <QueryEditor
+                        ref={editorRef}
+                        data-executing={isQueryExecuting ? "true" : null}
+                        syntax={dataSource ? dataSource.syntax : null}
+                        value={query.query}
+                        schema={schema}
+                        autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
+                        onChange={handleQueryEditorChange}
+                        onSelectionChange={setSelectedText}
+                      />
+
+                      <QueryEditor.Controls
+                        addParameterButtonProps={{
+                          title: "Add New Parameter",
+                          shortcut: "mod+p",
+                          onClick: openAddNewParameterDialog,
+                        }}
+                        formatButtonProps={{
+                          title: "Format Query",
+                          shortcut: "mod+shift+f",
+                          onClick: formatQuery,
+                        }}
+                        saveButtonProps={
+                          queryFlags.canEdit && {
+                            text: (
+                              <React.Fragment>
+                                <span className="hidden-xs">Save</span>
+                                {isDirty ? "*" : null}
+                              </React.Fragment>
+                            ),
+                            shortcut: "mod+s",
+                            onClick: saveQuery,
+                          }
+                        }
+                        executeButtonProps={{
+                          disabled: !canExecuteQuery,
+                          shortcut: "mod+enter, alt+enter",
+                          onClick: doExecuteQuery,
+                          text: (
+                            <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
+                          ),
+                        }}
+                        autocompleteToggleProps={{
+                          available: autocompleteAvailable,
+                          enabled: autocompleteEnabled,
+                          onToggle: toggleAutocomplete,
+                        }}
+                        dataSourceSelectorProps={
+                          dataSource
+                            ? {
+                                disabled: !queryFlags.canEdit,
+                                value: dataSource.id,
+                                onChange: handleDataSourceChange,
+                                options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
+                              }
+                            : false
+                        }
+                      />
+                    </section>
+                  </div>
+                }
+                secondPane={
+                  <section className="flex-fill p-relative t-body query-visualizations-wrapper">
+                    <div
+                      className="d-flex flex-column p-b-15 p-absolute static-position__mobile"
+                      style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
+                      {!queryFlags.isNew && (
+                        <div className="row query-metadata__mobile">
+                          <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />
+                        </div>
+                      )}
+
+                      {query.hasParameters() && (
+                        <div className="p-t-15 p-b-5">
+                          <Parameters
+                            editable={queryFlags.canEdit}
+                            disableUrlUpdate={queryFlags.isNew}
+                            parameters={parameters}
+                            onPendingValuesChange={() => updateParametersDirtyFlag()}
+                            onValuesChange={() => {
+                              updateParametersDirtyFlag(false);
+                              doExecuteQuery();
+                            }}
+                            onParametersEdit={() => {
+                              // save if query clean
+                              // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
+                              if (!isDirty) {
+                                saveQuery();
+                              }
+                            }}
+                          />
+                        </div>
+                      )}
+                      {queryResult && queryResultData.status !== "done" && (
+                        <div className="query-alerts m-t-15 m-b-15">
+                          <QueryExecutionStatus
+                            status={queryResultData.status}
+                            updatedAt={queryResultData.updatedAt}
+                            error={queryResultData.error}
+                            isCancelling={isExecutionCancelling}
+                            onCancel={cancelExecution}
+                          />
+                        </div>
+                      )}
+
+                      {queryResultData.status === "done" && (
+                        <div className="flex-fill p-relative">
+                          <div
+                            className="d-flex flex-column p-absolute static-position__mobile"
+                            style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
+                            {queryResultData.log.length > 0 && (
+                              <div className="p-10">
+                                <p>Log Information:</p>
+                                {map(queryResultData.log, (line, index) => (
+                                  <p key={`log-line-${index}`} className="query-log-line">
+                                    {line}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                            <QueryVisualizationTabs
+                              queryResult={queryResult}
+                              visualizations={query.visualizations}
+                              showNewVisualizationButton={queryFlags.canEdit}
+                              canDeleteVisualizations={queryFlags.canEdit}
+                              selectedTab={selectedVisualization}
+                              onChangeTab={setSelectedVisualization}
+                              onAddVisualization={addVisualization}
+                              onDeleteVisualization={deleteVisualization}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                }
+              />
+            </div>
+            {queryResultData.status === "done" && (
+              <div className="bottom-controller-container">
+                <div className="bottom-controller">
+                  {!queryFlags.isNew && queryFlags.canEdit && (
+                    <EditVisualizationButton
+                      openVisualizationEditor={editVisualization}
+                      selectedTab={selectedVisualization}
+                    />
                   )}
-                </span>
+                  <QueryControlDropdown
+                    query={query}
+                    queryResult={queryResult}
+                    queryExecuting={isQueryExecuting}
+                    showEmbedDialog={openEmbedDialog}
+                    embed={false}
+                    apiKey={query.api_key}
+                    selectedTab={selectedVisualization}
+                    openAddToDashboardForm={openAddToDashboardDialog}
+                  />
 
-                <div>
-                  <span className="query-metadata__property hidden-xs">
-                    <span className="hidden-xs">Updated </span>
-                    <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
+                  <span className="query-metadata__bottom">
+                    <span className="query-metadata__property">
+                      <strong>{queryResultData.rows.length}</strong>
+                      {queryResultData.rows.length === 1 ? " row" : " rows"}
+                    </span>
+                    <span className="query-metadata__property">
+                      {!isQueryExecuting && (
+                        <React.Fragment>
+                          <strong>{durationHumanize(queryResultData.runtime)}</strong>
+                          <span className="hidden-xs"> runtime</span>
+                        </React.Fragment>
+                      )}
+                      {isQueryExecuting && <span>Running&hellip;</span>}
+                    </span>
+                    {queryResultData.metadata.data_scanned && (
+                      <span className="query-metadata__property">
+                        Data Scanned
+                        <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
+                      </span>
+                    )}
                   </span>
+
+                  <div>
+                    <span className="query-metadata__property hidden-xs">
+                      <span className="hidden-xs">Updated </span>
+                      <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </Split>
+            )}
+          </div>
+        }
+      />
     </div>
   );
 }
