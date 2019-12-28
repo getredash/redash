@@ -6,9 +6,18 @@ import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import "./index.less";
 
 export default function Split({ toggleShortcut, firstPane, secondPane, ...props }) {
-  const ignoreNextClickEventRef = useRef(false);
+  const reactSplitRef = useRef();
+  const wasDragged = useRef(false);
+  const lastPaneSize = useRef(null);
   const onToggleFirstPageRef = useRef(() => {
-    console.log("toggle pane");
+    const element = reactSplitRef.current.parent.firstChild;
+    if (lastPaneSize.current === null) {
+      lastPaneSize.current = element.style.flexBasis;
+      element.style.flexBasis = '10px';
+    } else {
+      element.style.flexBasis = lastPaneSize.current;
+      lastPaneSize.current = null;
+    }
   });
 
   useEffect(() => {
@@ -29,16 +38,17 @@ export default function Split({ toggleShortcut, firstPane, secondPane, ...props 
   return (
     <ReactSplit
       {...props}
+      ref={reactSplitRef}
       snapOffset={0}
       gutterSize={0}
       gutter={(index, direction) => {
         const gutter = document.createElement('div');
         gutter.className = `split-gutter split-gutter-${direction}`;
         gutter.addEventListener("click", () => {
-          if (!ignoreNextClickEventRef.current) {
+          if (!wasDragged.current) {
             onToggleFirstPageRef.current();
           }
-          ignoreNextClickEventRef.current = false;
+          wasDragged.current = false;
         }, false);
         return gutter
       }}
@@ -47,7 +57,12 @@ export default function Split({ toggleShortcut, firstPane, secondPane, ...props 
       } : {})}
       onDrag={() => {
         // If gutter was dragged - skip next click event on it (don't toggle pane)
-        ignoreNextClickEventRef.current = true;
+        wasDragged.current = true;
+      }}
+      onDragEnd={() => {
+        if (wasDragged.current) {
+          lastPaneSize.current = null;
+        }
       }}
     >
       {firstPane}
