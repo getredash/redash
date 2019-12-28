@@ -1,5 +1,5 @@
-import { isNil, isObject, extend, keys, map, omit, pick, uniq } from "lodash";
-import React from "react";
+import { isNil, isObject, extend, keys, map, omit, pick, uniq, isFunction } from "lodash";
+import React, { useRef, useCallback } from "react";
 import Modal from "antd/lib/modal";
 import { Query } from "@/services/query";
 import notification from "@/services/notification";
@@ -72,41 +72,49 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
     });
 }
 
-export default function saveQuery(query, data = null, { successMessage = "Query saved" } = {}) {
-  if (isObject(data)) {
-    // Don't save new query with partial data
-    if (query.isNew()) {
-      return Promise.resolve(extend(query.clone(), data));
-    }
-    data = { ...data, id: query.id, version: query.version };
-  } else {
-    data = pick(query, [
-      "id",
-      "version",
-      "schedule",
-      "query",
-      "description",
-      "name",
-      "data_source_id",
-      "options",
-      "latest_query_data_id",
-      "is_draft",
-    ]);
-  }
+export default function useUpdateQuery(query, onChange) {
+  const onChangeRef = useRef();
+  onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
-  return doSaveQuery(data, { canOverwrite: query.can_edit })
-    .then(updatedQuery => {
-      if (!isNil(successMessage)) {
-        notification.success(successMessage);
+  return useCallback(
+    (data = null, { successMessage = "Query saved" } = {}) => {
+      if (isObject(data)) {
+        // Don't save new query with partial data
+        if (query.isNew()) {
+          onChangeRef.current(extend(query.clone(), data));
+          return;
+        }
+        data = { ...data, id: query.id, version: query.version };
+      } else {
+        data = pick(query, [
+          "id",
+          "version",
+          "schedule",
+          "query",
+          "description",
+          "name",
+          "data_source_id",
+          "options",
+          "latest_query_data_id",
+          "is_draft",
+        ]);
       }
-      return extend(query.clone(), pick(updatedQuery, uniq(["id", "version", ...keys(data)])));
-    })
-    .catch(error => {
-      const notificationOptions = {};
-      if (error instanceof SaveQueryConflictError) {
-        notificationOptions.duration = null;
-      }
-      notification.error(error.message, error.detailedMessage, notificationOptions);
-      return Promise.reject(error);
-    });
+
+      return doSaveQuery(data, { canOverwrite: query.can_edit })
+        .then(updatedQuery => {
+          if (!isNil(successMessage)) {
+            notification.success(successMessage);
+          }
+          onChangeRef.current(extend(query.clone(), pick(updatedQuery, uniq(["id", "version", ...keys(data)]))));
+        })
+        .catch(error => {
+          const notificationOptions = {};
+          if (error instanceof SaveQueryConflictError) {
+            notificationOptions.duration = null;
+          }
+          notification.error(error.message, error.detailedMessage, notificationOptions);
+        });
+    },
+    [query]
+  );
 }

@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { find, isArray, intersection } from "lodash";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 import Button from "antd/lib/button";
@@ -9,41 +8,36 @@ import { EditInPlace } from "@/components/EditInPlace";
 import { Parameters } from "@/components/Parameters";
 import { TimeAgo } from "@/components/TimeAgo";
 import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
-import EmbedQueryDialog from "@/components/queries/EmbedQueryDialog";
-import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
-import ScheduleDialog from "@/components/queries/ScheduleDialog";
-import QueryPageHeader from "./components/QueryPageHeader";
 
-import { clientConfig } from "@/services/auth";
-import { policy } from "@/services/policy";
 import { DataSource } from "@/services/data-source";
+import { pluralize, durationHumanize } from "@/filters";
+
+import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
-import { pluralize, durationHumanize } from "@/filters";
-import {
-  updateQuery,
-  deleteQueryVisualization,
-  addQueryVisualization,
-  editQueryVisualization,
-  updateQueryDescription,
-} from "./utils";
-import useVisualizationTabHandler from "./utils/useVisualizationTabHandler";
-import useQueryExecute from "./utils/useQueryExecute";
+
+import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
+import useQueryExecute from "./hooks/useQueryExecute";
+import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
+import useQueryFlags from "./hooks/useQueryFlags";
+import useQueryParameters from "./hooks/useQueryParameters";
+import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
+import useEmbedDialog from "./hooks/useEmbedDialog";
+import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
+import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
+import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
 import "./query-view.less";
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
-  const [selectedTab, setSelectedTab] = useVisualizationTabHandler(query.visualizations);
-  const currentVisualization = useMemo(() => find(query.visualizations, { id: selectedTab }), [
-    query.visualizations,
-    selectedTab,
-  ]);
-  const parameters = useMemo(() => query.getParametersDefs(), [query]);
-  const [dirtyParameters, setDirtyParameters] = useState(query.$parameters.hasPendingValues());
   const [dataSource, setDataSource] = useState();
+  const queryFlags = useQueryFlags(query, dataSource);
+  const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
+  const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+
   const {
     queryResult,
     queryResultData,
@@ -53,20 +47,29 @@ function QueryView(props) {
     cancelExecution,
   } = useQueryExecute(query);
 
-  const openScheduleDialog = useCallback(() => {
-    const canScheduleQuery = true; // TODO: Use real value
-    if (!query.can_edit || !canScheduleQuery) {
+  const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
+  const openAddToDashboardDialog = useAddToDashboardDialog(query);
+  const openEmbedDialog = useEmbedDialog(query);
+  const editSchedule = useEditScheduleDialog(query, setQuery);
+  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
+    setQuery(newQuery);
+    setSelectedVisualization(visualization.id);
+  });
+  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+  const deleteVisualization = useDeleteVisualization(query, setQuery);
+
+  const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !areParametersDirty, [
+    isQueryExecuting,
+    areParametersDirty,
+    queryFlags.canExecute,
+  ]);
+
+  const doExecuteQuery = useCallback(() => {
+    if (!canExecuteQuery) {
       return;
     }
-
-    const intervals = clientConfig.queryRefreshIntervals;
-    const allowedIntervals = policy.getQueryRefreshIntervals();
-    const refreshOptions = isArray(allowedIntervals) ? intersection(intervals, allowedIntervals) : intervals;
-    ScheduleDialog.showModal({
-      schedule: query.schedule,
-      refreshOptions,
-    }).result.then(schedule => updateQuery(query, { schedule }).then(setQuery));
-  }, [query]);
+    executeQuery();
+  }, [canExecuteQuery, executeQuery]);
 
   useEffect(() => {
     document.title = query.name;
@@ -78,25 +81,20 @@ function QueryView(props) {
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} onChange={setQuery} />
+        <QueryPageHeader query={query} onChange={setQuery} selectedVisualization={selectedVisualization} />
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
             value={query.description}
-            isEditable={query.can_edit}
-            onDone={description => updateQueryDescription(query, description).then(setQuery)}
+            isEditable={queryFlags.canEdit}
+            onDone={updateQueryDescription}
             placeholder="Add description"
             ignoreBlanks={false}
             editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
             multiline
           />
           <Divider />
-          <QueryMetadata
-            layout="horizontal"
-            query={query}
-            dataSource={dataSource}
-            onEditSchedule={openScheduleDialog}
-          />
+          <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
         {queryResult && queryResultData.status !== "done" && (
           <div className="query-alerts m-t-15 m-b-15">
@@ -114,51 +112,45 @@ function QueryView(props) {
             <Parameters
               parameters={parameters}
               onValuesChange={() => {
-                setDirtyParameters(false);
-                executeQuery();
+                updateParametersDirtyFlag(false);
+                doExecuteQuery();
               }}
-              onPendingValuesChange={() => setDirtyParameters(query.$parameters.hasPendingValues())}
+              onPendingValuesChange={() => updateParametersDirtyFlag()}
             />
           )}
-          <QueryVisualizationTabs
-            queryResult={queryResult}
-            visualizations={query.visualizations}
-            showNewVisualizationButton={query.can_edit}
-            canDeleteVisualizations={query.can_edit}
-            selectedTab={selectedTab}
-            onChangeTab={setSelectedTab}
-            onClickNewVisualization={() =>
-              addQueryVisualization(query, queryResult).then(({ query, visualization }) => {
-                setQuery(query);
-                setSelectedTab(visualization.id);
-              })
-            }
-            onDeleteVisualization={visualization => deleteQueryVisualization(query, visualization).then(setQuery)}
-          />
-          <Divider />
+          {queryResultData.status === "done" && (
+            <>
+              <QueryVisualizationTabs
+                queryResult={queryResult}
+                visualizations={query.visualizations}
+                showNewVisualizationButton={queryFlags.canEdit}
+                canDeleteVisualizations={queryFlags.canEdit}
+                selectedTab={selectedVisualization}
+                onChangeTab={setSelectedVisualization}
+                onAddVisualization={addVisualization}
+                onDeleteVisualization={deleteVisualization}
+              />
+              <Divider />
+            </>
+          )}
           <div className="d-flex align-items-center">
             {queryResultData.status === "done" && (
               <>
-                <EditVisualizationButton
-                  selectedTab={selectedTab}
-                  openVisualizationEditor={visId =>
-                    editQueryVisualization(
-                      query,
-                      queryResult,
-                      find(query.visualizations, { id: visId })
-                    ).then(({ query }) => setQuery(query))
-                  }
-                />
+                {queryFlags.canEdit && (
+                  <EditVisualizationButton
+                    openVisualizationEditor={editVisualization}
+                    selectedTab={selectedVisualization}
+                  />
+                )}
                 <QueryControlDropdown
                   query={query}
                   queryResult={queryResult}
                   queryExecuting={isQueryExecuting}
-                  showEmbedDialog={() => EmbedQueryDialog.showModal({ query, visualization: currentVisualization })}
-                  openAddToDashboardForm={() =>
-                    AddToDashboardDialog.showModal({
-                      visualization: currentVisualization,
-                    })
-                  }
+                  showEmbedDialog={openEmbedDialog}
+                  embed={false}
+                  apiKey={query.api_key}
+                  selectedTab={selectedVisualization}
+                  openAddToDashboardForm={openAddToDashboardDialog}
                 />
                 <span className="m-l-10">
                   <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
@@ -175,7 +167,7 @@ function QueryView(props) {
                 Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
               </span>
             )}
-            <Button type="primary" loading={isQueryExecuting} disabled={dirtyParameters} onClick={executeQuery}>
+            <Button type="primary" loading={isQueryExecuting} disabled={!canExecuteQuery} onClick={executeQuery}>
               Execute
             </Button>
           </div>
