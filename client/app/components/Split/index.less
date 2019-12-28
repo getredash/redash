@@ -1,6 +1,11 @@
 @import (reference, less) "~@/assets/less/inc/variables.less";
 
 .split-gutter {
+  flex: 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   &:hover,
   &:active {
     background: fade(@redash-gray, 6%);
@@ -9,9 +14,6 @@
   &.split-gutter-horizontal {
     cursor: col-resize;
     width: 10px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     &:before {
       content: "";
@@ -26,9 +28,6 @@
   &.split-gutter-vertical {
     cursor: row-resize;
     height: 10px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     &:before {
       content: "";
