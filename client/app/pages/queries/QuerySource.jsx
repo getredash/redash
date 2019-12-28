@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
+import Resizable from "@/components/Resizable";
 import { Parameters } from "@/components/Parameters";
 import { EditInPlace } from "@/components/EditInPlace";
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
@@ -175,115 +176,121 @@ function QuerySource(props) {
         />
       </div>
       <main className="query-fullscreen">
-        <nav>
-          <div className="editor__left__data-source">
-            <Select
-              className="w-100"
-              placeholder="Choose data source..."
-              value={dataSource ? dataSource.id : undefined}
-              disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
-              loading={!dataSourcesLoaded}
-              optionFilterProp="data-name"
-              showSearch
-              onChange={handleDataSourceChange}>
-              {map(dataSources, ds => (
-                <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
-                  <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
-                  <span>{ds.name}</span>
-                </Select.Option>
-              ))}
-            </Select>
-          </div>
-          <div className="editor__left__schema">
-            <SchemaBrowser
-              schema={schema}
-              onRefresh={() => refreshSchema(true)}
-              onItemSelect={handleSchemaItemSelect}
-            />
-          </div>
-
-          {!query.isNew() && (
-            <div className="query-metadata query-metadata--description">
-              <EditInPlace
-                isEditable={queryFlags.canEdit}
-                markdown
-                ignoreBlanks={false}
-                placeholder="Add description"
-                value={query.description}
-                onDone={updateQueryDescription}
-                multiline
+        <Resizable direction="horizontal" toggleShortcut="Alt+Shift+D, Alt+D">
+          <nav>
+            <div className="editor__left__data-source">
+              <Select
+                className="w-100"
+                placeholder="Choose data source..."
+                value={dataSource ? dataSource.id : undefined}
+                disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
+                loading={!dataSourcesLoaded}
+                optionFilterProp="data-name"
+                showSearch
+                onChange={handleDataSourceChange}>
+                {map(dataSources, ds => (
+                  <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
+                    <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                    <span>{ds.name}</span>
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div className="editor__left__schema">
+              <SchemaBrowser
+                schema={schema}
+                onRefresh={() => refreshSchema(true)}
+                onItemSelect={handleSchemaItemSelect}
               />
             </div>
-          )}
 
-          {!query.isNew() && <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} />}
-        </nav>
+            {!query.isNew() && (
+              <div className="query-metadata query-metadata--description">
+                <EditInPlace
+                  isEditable={queryFlags.canEdit}
+                  markdown
+                  ignoreBlanks={false}
+                  placeholder="Add description"
+                  value={query.description}
+                  onDone={updateQueryDescription}
+                  multiline
+                />
+              </div>
+            )}
+
+            {!query.isNew() && <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} />}
+          </nav>
+        </Resizable>
 
         <div className="content">
           <div className="flex-fill p-relative">
             <div
               className="p-absolute d-flex flex-column p-l-15 p-r-15"
               style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}>
-              <div className="row editor resizable" style={{ minHeight: "11px", maxHeight: "70vh" }}>
-                <section className="query-editor-wrapper" data-test="QueryEditor">
-                  <QueryEditor
-                    ref={editorRef}
-                    data-executing={isQueryExecuting ? "true" : null}
-                    syntax={dataSource ? dataSource.syntax : null}
-                    value={query.query}
-                    schema={schema}
-                    autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
-                    onChange={handleQueryEditorChange}
-                    onSelectionChange={setSelectedText}
-                  />
+              <Resizable direction="vertical">
+                <div className="row editor">
+                  <section className="query-editor-wrapper" data-test="QueryEditor">
+                    <QueryEditor
+                      ref={editorRef}
+                      data-executing={isQueryExecuting ? "true" : null}
+                      syntax={dataSource ? dataSource.syntax : null}
+                      value={query.query}
+                      schema={schema}
+                      autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
+                      onChange={handleQueryEditorChange}
+                      onSelectionChange={setSelectedText}
+                    />
 
-                  <QueryEditor.Controls
-                    addParameterButtonProps={{
-                      title: "Add New Parameter",
-                      shortcut: "mod+p",
-                      onClick: openAddNewParameterDialog,
-                    }}
-                    formatButtonProps={{
-                      title: "Format Query",
-                      shortcut: "mod+shift+f",
-                      onClick: formatQuery,
-                    }}
-                    saveButtonProps={
-                      queryFlags.canEdit && {
-                        text: (
-                          <React.Fragment>
-                            <span className="hidden-xs">Save</span>
-                            {isDirty ? "*" : null}
-                          </React.Fragment>
-                        ),
-                        shortcut: "mod+s",
-                        onClick: saveQuery,
+                    <QueryEditor.Controls
+                      addParameterButtonProps={{
+                        title: "Add New Parameter",
+                        shortcut: "mod+p",
+                        onClick: openAddNewParameterDialog,
+                      }}
+                      formatButtonProps={{
+                        title: "Format Query",
+                        shortcut: "mod+shift+f",
+                        onClick: formatQuery,
+                      }}
+                      saveButtonProps={
+                        queryFlags.canEdit && {
+                          text: (
+                            <React.Fragment>
+                              <span className="hidden-xs">Save</span>
+                              {isDirty ? "*" : null}
+                            </React.Fragment>
+                          ),
+                          shortcut: "mod+s",
+                          onClick: saveQuery,
+                        }
                       }
-                    }
-                    executeButtonProps={{
-                      disabled: !canExecuteQuery,
-                      shortcut: "mod+enter, alt+enter",
-                      onClick: doExecuteQuery,
-                      text: <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>,
-                    }}
-                    autocompleteToggleProps={{
-                      available: autocompleteAvailable,
-                      enabled: autocompleteEnabled,
-                      onToggle: toggleAutocomplete,
-                    }}
-                    dataSourceSelectorProps={
-                      dataSource
-                        ? {
-                            disabled: !queryFlags.canEdit,
-                            value: dataSource.id,
-                            onChange: handleDataSourceChange,
-                            options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
-                          }
-                        : false
-                    }
-                  />
-                </section>
-              </div>
+                      executeButtonProps={{
+                        disabled: !canExecuteQuery,
+                        shortcut: "mod+enter, alt+enter",
+                        onClick: doExecuteQuery,
+                        text: (
+                          <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
+                        ),
+                      }}
+                      autocompleteToggleProps={{
+                        available: autocompleteAvailable,
+                        enabled: autocompleteEnabled,
+                        onToggle: toggleAutocomplete,
+                      }}
+                      dataSourceSelectorProps={
+                        dataSource
+                          ? {
+                              disabled: !queryFlags.canEdit,
+                              value: dataSource.id,
+                              onChange: handleDataSourceChange,
+                              options: map(dataSources, ds => ({ value: ds.id, label: ds.name })),
+                            }
+                          : false
+                      }
+                    />
+                  </section>
+                </div>
+              </Resizable>
 
               {!queryFlags.isNew && <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />}
 
