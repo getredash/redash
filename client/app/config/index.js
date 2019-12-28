@@ -7,7 +7,6 @@ import "@/assets/images/avatar.svg";
 import * as Pace from "pace-progress";
 import debug from "debug";
 import angular from "angular";
-import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
 import ngResource from "angular-resource";
 import uiBootstrap from "angular-ui-bootstrap";
@@ -55,7 +54,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
+const requirements = [ngRoute, ngResource, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
 
 const ngModule = angular.module("app", requirements);
 
