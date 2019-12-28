@@ -182,6 +182,7 @@ function QuerySource(props) {
         minSize={[0, 600]}
         expandToMin
         gutterAlign="start"
+        toggleShortcut="Alt+Shift+D, Alt+D"
         firstPane={
           <nav>
             <div className="editor__left__data-source">
