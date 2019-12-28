@@ -176,7 +176,7 @@ function QuerySource(props) {
         />
       </div>
       <main className="query-fullscreen">
-        <Resizable direction="horizontal" toggleShortcut="Alt+Shift+D, Alt+D">
+        <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
           <nav>
             <div className="editor__left__data-source">
               <Select
@@ -227,7 +227,7 @@ function QuerySource(props) {
             <div
               className="p-absolute d-flex flex-column p-l-15 p-r-15"
               style={{ left: 0, top: 0, right: 0, bottom: 0, overflow: "auto" }}>
-              <Resizable direction="vertical">
+              <Resizable direction="vertical" sizeAttribute="flex-basis">
                 <div className="row editor">
                   <section className="query-editor-wrapper" data-test="QueryEditor">
                     <QueryEditor

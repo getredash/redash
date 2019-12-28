@@ -1,43 +1,78 @@
 import d3 from "d3";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Resizable as ReactResizable } from "react-resizable";
 import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 
 import "./index.less";
 
-export default function Resizable({ toggleShortcut, direction, children }) {
+export default function Resizable({ toggleShortcut, direction, sizeAttribute, children }) {
   const [size, setSize] = useState(0);
-  const childrenRef = useRef();
+  const elementRef = useRef();
+  const wasUsingTouchEvents = useRef(false);
+  const wasResizedRef = useRef(false);
 
-  const wasDragged = useRef(false);
-  const lastPaneSize = useRef(null);
-  const onToggleRef = useRef(() => {
-    const element = d3.select(childrenRef.current);
+  const sizeProp = direction === "horizontal" ? "width" : "height";
+  sizeAttribute = sizeAttribute || sizeProp;
+
+  const getElementSize = useCallback(() => {
+    if (!elementRef.current) {
+      return 0;
+    }
+    return Math.floor(elementRef.current.getBoundingClientRect()[sizeProp]);
+  }, [sizeProp]);
+
+  const savedSize = useRef(null);
+  const toggle = useCallback(() => {
+    if (!elementRef.current) {
+      return;
+    }
+
+    const element = d3.select(elementRef.current);
     let targetSize;
-    if (lastPaneSize.current === null) {
+    if (savedSize.current === null) {
       targetSize = "0px";
-      lastPaneSize.current = element.style("flex-basis");
+      savedSize.current = `${getElementSize()}px`;
     } else {
-      targetSize = lastPaneSize.current;
-      lastPaneSize.current = null;
+      targetSize = savedSize.current;
+      savedSize.current = null;
     }
 
     element
+      .style(sizeAttribute, savedSize.current || "0px")
       .transition()
       .duration(200)
       .ease("swing")
-      .style("flex-basis", targetSize);
-  });
+      .style(sizeAttribute, targetSize);
+  }, [getElementSize, sizeAttribute]);
 
-  const sizeProp = direction === "horizontal" ? "width" : "height";
+  const resizeHandle = useMemo(
+    () => (
+      <span
+        className={`react-resizable-handle react-resizable-handle-${direction}`}
+        onClick={() => {
+          // On desktops resize uses `mousedown`/`mousemove`/`mouseup` events, and there is a conflict
+          // with this `click` handler: after user releases mouse - this handler will be executed.
+          // So we use `wasResized` flag to check if there was actual resize or user just pressed and released
+          // left mouse button (see also resize event handlers where ths flag is set).
+          // On mobile devices `touchstart`/`touchend` events wll be used, so it's safe to just execute this handler.
+          // To detect which set of events was actually used during particular resize operation, we pass
+          // `onMouseDown` handler to draggable core and check event type there (see also that handler's code).
+          if (wasUsingTouchEvents.current || !wasResizedRef.current) {
+            toggle();
+          }
+          wasUsingTouchEvents.current = false;
+          wasResizedRef.current = false;
+        }}
+      />
+    ),
+    [direction, toggle]
+  );
 
   useEffect(() => {
     if (toggleShortcut) {
       const shortcuts = {
-        [toggleShortcut]: () => {
-          onToggleRef.current();
-        },
+        [toggleShortcut]: toggle,
       };
 
       KeyboardShortcuts.bind(shortcuts);
@@ -45,51 +80,60 @@ export default function Resizable({ toggleShortcut, direction, children }) {
         KeyboardShortcuts.unbind(shortcuts);
       };
     }
-  }, [toggleShortcut]);
+  }, [toggleShortcut, toggle]);
+
+  const resizeEventHandlers = useMemo(
+    () => ({
+      onResizeStart: () => {
+        // use element's size as initial value (it will also check constraints set in CSS)
+        setSize(getElementSize());
+      },
+      onResize: (unused, data) => {
+        // update element directly for better UI responsiveness
+        d3.select(elementRef.current).style(sizeAttribute, `${data.size[sizeProp]}px`);
+        setSize(data.size[sizeProp]);
+        wasResizedRef.current = true;
+      },
+      onResizeStop: () => {
+        if (wasResizedRef.current) {
+          savedSize.current = null;
+        }
+      },
+    }),
+    [sizeProp, getElementSize, sizeAttribute]
+  );
+
+  const draggableCoreOptions = useMemo(
+    () => ({
+      onMouseDown: e => {
+        // In some cases this handler is executed twice during the same resize operation - first time
+        // with `touchstart` event and second time with `mousedown` (probably emulated by browser).
+        // Therefore we set the flag only when we receive `touchstart` because in ths case it's definitely
+        // mobile browser (desktop browsers will also send `mousedown` but never `touchstart`).
+        if (e.type === "touchstart") {
+          wasUsingTouchEvents.current = true;
+        }
+      },
+    }),
+    []
+  );
 
   if (!children) {
     return null;
   }
 
-  children = React.createElement(children.type, { ...children.props, ref: childrenRef });
+  children = React.createElement(children.type, { ...children.props, ref: elementRef });
 
   return (
     <ReactResizable
       axis={direction === "horizontal" ? "x" : "y"}
       resizeHandles={[direction === "horizontal" ? "e" : "s"]}
-      handle={
-        <span
-          className={`react-resizable-handle react-resizable-handle-${direction}`}
-          onClick={() => {
-            if (!wasDragged.current) {
-              onToggleRef.current();
-            }
-            wasDragged.current = false;
-          }}
-        />
-      }
+      handle={resizeHandle}
       width={direction === "horizontal" ? size : 0}
       height={direction === "vertical" ? size : 0}
       minConstraints={[0, 0]}
-      onResizeStart={(unused, data) => {
-        const element = data.node.parentNode;
-        const newSize = Math.floor(element.getBoundingClientRect()[sizeProp]);
-        setSize(newSize);
-      }}
-      onResize={(unused, data) => {
-        const element = data.node.parentNode;
-        element.style.flexBasis = `${data.size[sizeProp]}px`;
-        setSize(data.size[sizeProp]);
-        wasDragged.current = true;
-      }}
-      onResizeStop={(unused, data) => {
-        const element = data.node.parentNode;
-        const newSize = Math.floor(element.getBoundingClientRect()[sizeProp]);
-        setSize(newSize);
-        if (wasDragged.current) {
-          lastPaneSize.current = null;
-        }
-      }}>
+      {...resizeEventHandlers}
+      draggableOpts={draggableCoreOptions}>
       {children}
     </ReactResizable>
   );
@@ -97,12 +141,14 @@ export default function Resizable({ toggleShortcut, direction, children }) {
 
 Resizable.propTypes = {
   direction: PropTypes.oneOf(["horizontal", "vertical"]),
+  sizeAttribute: PropTypes.string,
   toggleShortcut: PropTypes.string,
   children: PropTypes.element,
 };
 
 Resizable.defaultProps = {
   direction: "horizontal",
+  sizeAttribute: null, // "width"/"height" - depending on `direction`
   toggleShortcut: null,
   children: null,
 };
