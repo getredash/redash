@@ -1,6 +1,6 @@
 import _ from "lodash";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
-import { Widget } from "./widget";
+import Widget from "./widget";
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
 
