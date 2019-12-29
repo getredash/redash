@@ -13,7 +13,9 @@ export default function useQueryFlags(query, dataSource = null) {
       isArchived: query.is_archived,
 
       // permissions flags
-      canEdit: query.can_edit,
+      canCreate: currentUser.hasPermission("create_query"),
+      canView: currentUser.hasPermission("view_query"),
+      canEdit: currentUser.hasPermission("edit_query") && query.can_edit,
       canViewSource: currentUser.hasPermission("view_source"),
       canExecute:
         !isEmpty(query.query) &&
