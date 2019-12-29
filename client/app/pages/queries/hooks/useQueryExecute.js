@@ -18,7 +18,7 @@ export default function useQueryExecute(query) {
   initializeQueryResultRef.current = noop;
 
   const queryResultData = useQueryResult(queryResult);
-  const isQueryExecuting = useMemo(() => queryResult && !includes(["done", "failed"], queryResultData.status), [
+  const isQueryExecuting = useMemo(() => !!queryResult && !includes(["done", "failed"], queryResultData.status), [
     queryResult,
     queryResultData.status,
   ]);

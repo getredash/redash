@@ -107,7 +107,9 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+          {queryResult && (
+            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+          )}
         </TabPane>
       ))}
     </Tabs>
