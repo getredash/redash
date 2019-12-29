@@ -428,7 +428,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries-react/new",
+          path: "/queries/new",
         },
       ],
       {
@@ -443,7 +443,7 @@ export default function init(ngModule) {
     ...routesToAngularRoutes(
       [
         {
-          path: "/queries-react/:queryId/source",
+          path: "/queries/:queryId/source",
         },
       ],
       {

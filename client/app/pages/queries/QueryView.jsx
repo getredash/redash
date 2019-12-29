@@ -185,7 +185,7 @@ export default function init(ngModule) {
   ngModule.component("pageQueryView", react2angular(QueryView));
 
   return {
-    "/queries-react/:queryId": {
+    "/queries/:queryId": {
       template: '<page-query-view query="$resolve.query"></page-query-view>',
       reloadOnSearch: false,
       resolve: {

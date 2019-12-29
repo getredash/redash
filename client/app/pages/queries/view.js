@@ -543,7 +543,7 @@ export default function init(ngModule) {
   ngModule.controller("QueryViewCtrl", QueryViewCtrl);
 
   return {
-    "/queries/:queryId": {
+    "/queries-ng/:queryId": {
       template,
       layout: "fixed",
       controller: "QueryViewCtrl",

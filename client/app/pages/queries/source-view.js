@@ -112,7 +112,7 @@ export default function init(ngModule) {
   ngModule.controller("QuerySourceCtrl", QuerySourceCtrl);
 
   return {
-    "/queries/new": {
+    "/queries-ng/new": {
       template,
       layout: "fixed",
       controller: "QuerySourceCtrl",
@@ -130,7 +130,7 @@ export default function init(ngModule) {
         },
       },
     },
-    "/queries/:queryId/source": {
+    "/queries-ng/:queryId/source": {
       template,
       layout: "fixed",
       controller: "QuerySourceCtrl",
