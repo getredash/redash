@@ -2,8 +2,6 @@ import React, { useMemo, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
-import Button from "antd/lib/button";
-import Tooltip from "antd/lib/tooltip";
 
 import { EditInPlace } from "@/components/EditInPlace";
 import { Parameters } from "@/components/Parameters";
@@ -12,13 +10,13 @@ import { QueryControlDropdown } from "@/components/EditVisualizationButton/Query
 import { EditVisualizationButton } from "@/components/EditVisualizationButton";
 
 import { DataSource } from "@/services/data-source";
-import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
 import { pluralize, durationHumanize } from "@/filters";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
+import QueryViewExecuteButton from "./components/QueryViewExecuteButton";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
@@ -78,18 +76,6 @@ function QueryView(props) {
   useEffect(() => {
     DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
   }, [query.data_source_id]);
-
-  useEffect(() => {
-    const shortcuts = {
-      "mod+enter": doExecuteQuery,
-      "alt+enter": doExecuteQuery,
-    };
-
-    KeyboardShortcuts.bind(shortcuts);
-    return () => {
-      KeyboardShortcuts.unbind(shortcuts);
-    };
-  }, [doExecuteQuery]);
 
   return (
     <div className="query-page-wrapper">
@@ -180,15 +166,12 @@ function QueryView(props) {
                 Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
               </span>
             )}
-            <Tooltip placement="top" title={`${KeyboardShortcuts.modKey} + Enter`}>
-              <Button
-                type="primary"
-                loading={isQueryExecuting}
-                disabled={!isQueryExecuting && !canExecuteQuery}
-                onClick={executeQuery}>
-                Execute
-              </Button>
-            </Tooltip>
+            <QueryViewExecuteButton
+              shortcut="mod+enter, alt+enter"
+              disabled={!canExecuteQuery || isQueryExecuting}
+              onClick={doExecuteQuery}>
+              Execute
+            </QueryViewExecuteButton>
           </div>
         </div>
       </div>
