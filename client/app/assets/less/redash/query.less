@@ -269,6 +269,20 @@ a.label-tag {
   display: flex;
   width: 100vw;
 
+  .resizable-component.react-resizable {
+    .react-resizable-handle-horizontal {
+      border-right: 1px solid #efefef;
+    }
+
+    .react-resizable-handle-vertical {
+      border-bottom: 1px solid #efefef;
+    }
+  }
+
+  .query-metadata-new.query-metadata-horizontal {
+    border-bottom: 1px solid #efefef;
+  }
+
   .tile,
   .tiled {
     box-shadow: none;
@@ -330,10 +344,6 @@ a.label-tag {
       }
     }
   }
-  main {
-    display: flex;
-    height: 100%;
-  }
   .content {
     background: #fff;
     flex-grow: 1;
@@ -343,10 +353,6 @@ a.label-tag {
     align-content: space-around;
     padding: 0;
     overflow-x: hidden;
-
-    .editor {
-      border-bottom: 1px solid #efefef;
-    }
 
     .pivot-table-visualization-container > table,
     .visualization-renderer > .visualization-renderer-wrapper {
@@ -359,7 +365,6 @@ a.label-tag {
   }
   .row {
     background: #fff;
-    z-index: 9;
     min-height: 50px;
 
     &.resizable {
@@ -372,6 +377,10 @@ a.label-tag {
       justify-content: space-around;
       align-content: space-around;
       overflow: hidden;
+
+      min-height: 10px;
+      max-height: 70vh;
+      flex: 0 0 300px;
     }
 
     .row {
