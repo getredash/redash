@@ -32,7 +32,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
       message = (
         <React.Fragment>
           <Typography.Title level={4}>
-            Looks like no data sources were created yet (or none of them available to the group(s) you're member of).
+            Looks like no data sources were created yet or none of them available to the group(s) you're member of.
           </Typography.Title>
           <p>
             <Typography.Text type="secondary">Please create one first, and then start querying.</Typography.Text>
@@ -52,7 +52,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
       message = (
         <React.Fragment>
           <Typography.Title level={4}>
-            Looks like no data sources were created yet (or none of them available to the group(s) you're member of).
+            Looks like no data sources were created yet or none of them available to the group(s) you're member of.
           </Typography.Title>
           <p>
             <Typography.Text type="secondary">Please ask your Redash admin to create one first.</Typography.Text>
