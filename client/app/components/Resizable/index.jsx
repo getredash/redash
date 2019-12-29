@@ -44,6 +44,9 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
       .duration(200)
       .ease("swing")
       .style(sizeAttribute, targetSize);
+
+    // update state to new element's size
+    setSize(parseInt(targetSize) || 0);
   }, [getElementSize, sizeAttribute]);
 
   const resizeHandle = useMemo(
@@ -86,6 +89,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
     () => ({
       onResizeStart: () => {
         // use element's size as initial value (it will also check constraints set in CSS)
+        // updated here and in `draggableCore::onMouseDown` handler to ensure that right value will be used
         setSize(getElementSize());
       },
       onResize: (unused, data) => {
@@ -113,9 +117,13 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
         if (e.type === "touchstart") {
           wasUsingTouchEvents.current = true;
         }
+
+        // use element's size as initial value (it will also check constraints set in CSS)
+        // updated here and in `onResizeStart` handler to ensure that right value will be used
+        setSize(getElementSize());
       },
     }),
-    []
+    [getElementSize]
   );
 
   if (!children) {
