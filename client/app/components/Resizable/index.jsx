@@ -9,7 +9,7 @@ import "./index.less";
 export default function Resizable({ toggleShortcut, direction, sizeAttribute, children }) {
   const [size, setSize] = useState(0);
   const elementRef = useRef();
-  const wasUsingTouchEvents = useRef(false);
+  const wasUsingTouchEventsRef = useRef(false);
   const wasResizedRef = useRef(false);
 
   const sizeProp = direction === "horizontal" ? "width" : "height";
@@ -61,10 +61,10 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
           // On mobile devices `touchstart`/`touchend` events wll be used, so it's safe to just execute this handler.
           // To detect which set of events was actually used during particular resize operation, we pass
           // `onMouseDown` handler to draggable core and check event type there (see also that handler's code).
-          if (wasUsingTouchEvents.current || !wasResizedRef.current) {
+          if (wasUsingTouchEventsRef.current || !wasResizedRef.current) {
             toggle();
           }
-          wasUsingTouchEvents.current = false;
+          wasUsingTouchEventsRef.current = false;
           wasResizedRef.current = false;
         }}
       />
@@ -115,7 +115,7 @@ export default function Resizable({ toggleShortcut, direction, sizeAttribute, ch
         // Therefore we set the flag only when we receive `touchstart` because in ths case it's definitely
         // mobile browser (desktop browsers will also send `mousedown` but never `touchstart`).
         if (e.type === "touchstart") {
-          wasUsingTouchEvents.current = true;
+          wasUsingTouchEventsRef.current = true;
         }
 
         // use element's size as initial value (it will also check constraints set in CSS)

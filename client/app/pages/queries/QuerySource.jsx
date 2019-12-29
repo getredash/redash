@@ -294,72 +294,64 @@ function QuerySource(props) {
 
               {!queryFlags.isNew && <QueryMetadata layout="horizontal" query={query} onEditSchedule={editSchedule} />}
 
-              <section className="flex-fill p-relative t-body query-visualizations-wrapper">
-                <div
-                  className="d-flex flex-column p-b-15 p-absolute static-position__mobile"
-                  style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
-                  {query.hasParameters() && (
-                    <div className="p-t-15 p-b-5">
-                      <Parameters
-                        editable={queryFlags.canEdit}
-                        disableUrlUpdate={queryFlags.isNew}
-                        parameters={parameters}
-                        onPendingValuesChange={() => updateParametersDirtyFlag()}
-                        onValuesChange={() => {
-                          updateParametersDirtyFlag(false);
-                          doExecuteQuery();
-                        }}
-                        onParametersEdit={() => {
-                          // save if query clean
-                          // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
-                          if (!isDirty) {
-                            saveQuery();
-                          }
-                        }}
-                      />
-                    </div>
-                  )}
-                  {queryResult && queryResultData.status !== "done" && (
-                    <div className="query-alerts m-t-15 m-b-15">
-                      <QueryExecutionStatus
-                        status={queryResultData.status}
-                        updatedAt={queryResultData.updatedAt}
-                        error={queryResultData.error}
-                        isCancelling={isExecutionCancelling}
-                        onCancel={cancelExecution}
-                      />
-                    </div>
-                  )}
+              <section className="query-results-wrapper">
+                {query.hasParameters() && (
+                  <div className="query-parameters-wrapper">
+                    <Parameters
+                      editable={queryFlags.canEdit}
+                      disableUrlUpdate={queryFlags.isNew}
+                      parameters={parameters}
+                      onPendingValuesChange={() => updateParametersDirtyFlag()}
+                      onValuesChange={() => {
+                        updateParametersDirtyFlag(false);
+                        doExecuteQuery();
+                      }}
+                      onParametersEdit={() => {
+                        // save if query clean
+                        // https://discuss.redash.io/t/query-unsaved-changes-indication/3302/5
+                        if (!isDirty) {
+                          saveQuery();
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+                {queryResult && queryResultData.status !== "done" && (
+                  <div className="query-alerts">
+                    <QueryExecutionStatus
+                      status={queryResultData.status}
+                      updatedAt={queryResultData.updatedAt}
+                      error={queryResultData.error}
+                      isCancelling={isExecutionCancelling}
+                      onCancel={cancelExecution}
+                    />
+                  </div>
+                )}
 
-                  {queryResultData.status === "done" && (
-                    <div className="flex-fill p-relative">
-                      <div
-                        className="d-flex flex-column p-absolute static-position__mobile"
-                        style={{ left: 0, top: 0, right: 0, bottom: 0 }}>
-                        {queryResultData.log.length > 0 && (
-                          <div className="p-10">
-                            <p>Log Information:</p>
-                            {map(queryResultData.log, (line, index) => (
-                              <p key={`log-line-${index}`} className="query-log-line">
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                        <QueryVisualizationTabs
-                          queryResult={queryResult}
-                          visualizations={query.visualizations}
-                          showNewVisualizationButton={queryFlags.canEdit}
-                          canDeleteVisualizations={queryFlags.canEdit}
-                          selectedTab={selectedVisualization}
-                          onChangeTab={setSelectedVisualization}
-                          onAddVisualization={addVisualization}
-                          onDeleteVisualization={deleteVisualization}
-                        />
+                {queryResultData.status === "done" && (
+                  <React.Fragment>
+                    {queryResultData.log.length > 0 && (
+                      <div className="query-results-log">
+                        <p>Log Information:</p>
+                        {map(queryResultData.log, (line, index) => (
+                          <p key={`log-line-${index}`} className="query-log-line">
+                            {line}
+                          </p>
+                        ))}
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                    <QueryVisualizationTabs
+                      queryResult={queryResult}
+                      visualizations={query.visualizations}
+                      showNewVisualizationButton={queryFlags.canEdit}
+                      canDeleteVisualizations={queryFlags.canEdit}
+                      selectedTab={selectedVisualization}
+                      onChangeTab={setSelectedVisualization}
+                      onAddVisualization={addVisualization}
+                      onDeleteVisualization={deleteVisualization}
+                    />
+                  </React.Fragment>
+                )}
               </section>
             </div>
           </div>
