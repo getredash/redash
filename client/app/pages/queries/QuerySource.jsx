@@ -20,6 +20,7 @@ import QueryMetadata from "./components/QueryMetadata";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import SchemaBrowser from "./components/SchemaBrowser";
+import QuerySourceAlerts from "./components/QuerySourceAlerts";
 
 import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
@@ -39,7 +40,7 @@ import useFormatQuery from "./hooks/useFormatQuery";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
 
-import "./query-source.less";
+import "./QuerySource.less";
 
 function chooseDataSourceId(dataSourceIds, availableDataSources) {
   dataSourceIds = map(dataSourceIds, v => parseInt(v, 10));
@@ -165,6 +166,7 @@ function QuerySource(props) {
 
   return (
     <div className="query-page-wrapper">
+      <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
       <div className="container">
         <QueryPageHeader
           query={query}
