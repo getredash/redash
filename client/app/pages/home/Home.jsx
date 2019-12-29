@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { includes, isEmpty, get } from "lodash";
 import { react2angular } from "react2angular";

@@ -1,9 +1,23 @@
-import axios from "axios";
+import axiosLib from "axios";
 
-const axiosInstance = axios.create();
+export const axios = axiosLib.create();
 
 const getData = ({ data }) => data;
 const getResponse = ({ response }) => Promise.reject(response);
-axiosInstance.interceptors.response.use(getData, getResponse);
+axios.interceptors.response.use(getData, getResponse);
 
-export default axiosInstance;
+// TODO: revisit this definition when auth is updated
+export default function init(ngModule) {
+  ngModule.run($injector => {
+    axios.interceptors.request.use(config => {
+      const apiKey = $injector.get("Auth").getApiKey();
+      if (apiKey) {
+        config.headers.Authorization = `Key ${apiKey}`;
+      }
+
+      return config;
+    });
+  });
+}
+
+init.init = true;

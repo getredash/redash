@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 
 function processTags(data) {
   return data.tags || [];

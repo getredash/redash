@@ -1,6 +1,6 @@
 import { omit, merge } from "lodash";
 import React, { useState, useEffect } from "react";
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import { RendererPropTypes } from "@/visualizations";
 import useMemoWithDeepCompare from "@/lib/hooks/useMemoWithDeepCompare";
 

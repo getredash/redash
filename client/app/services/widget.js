@@ -1,5 +1,5 @@
 import moment from "moment";
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@/visualizations";

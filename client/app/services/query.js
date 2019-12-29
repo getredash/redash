@@ -1,7 +1,7 @@
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, extend, each, some } from "lodash";
 
 import { Parameter } from "./parameters";

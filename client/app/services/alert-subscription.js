@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 
 const AlertSubscription = {
   query: ({ alertId }) => axios.get(`api/alerts/${alertId}/subscriptions`),

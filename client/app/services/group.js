@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 
 const Group = {
   query: () => axios.get("api/groups"),

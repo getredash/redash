@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import { isString, get } from "lodash";
 import { $sanitize } from "@/services/ng";
 import notification from "@/services/notification";

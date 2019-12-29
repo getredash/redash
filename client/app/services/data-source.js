@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 
 export const SCHEMA_NOT_SUPPORTED = 1;
 export const SCHEMA_LOAD_ERROR = 2;

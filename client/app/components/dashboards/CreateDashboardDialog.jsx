@@ -1,6 +1,6 @@
 import { trim } from "lodash";
 import React, { useRef, useState, useEffect } from "react";
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import DynamicComponent from "@/components/DynamicComponent";

@@ -1,4 +1,4 @@
-import axios from "@/services/axios";
+import { axios } from "@/services/axios";
 
 export const IMG_ROOT = "/static/images/destinations";
 
