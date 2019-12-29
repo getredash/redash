@@ -13,7 +13,7 @@ export default function QuerySourceAlerts({ query, dataSourcesAvailable }) {
   const queryFlags = useQueryFlags(query); // we don't use flags that depend on data source
 
   let message = null;
-  if (queryFlags.isNew && !queryFlags.canCreateQuery) {
+  if (queryFlags.isNew && !queryFlags.canCreate) {
     message = (
       <React.Fragment>
         <Typography.Title level={4}>
