@@ -280,6 +280,7 @@ function QueryViewCtrl(
       .then(updatedQuery => {
         notification.success(options.successMessage);
         $scope.query.version = updatedQuery.version;
+        $scope.$applyAsync();
         return updatedQuery;
       })
       .catch(error => {
@@ -344,6 +345,7 @@ function QueryViewCtrl(
         .then(() => {
           $scope.query.is_archived = true;
           $scope.query.schedule = null;
+          $scope.$applyAsync();
         })
         .catch(() => {
           notification.error("Query could not be archived.");
@@ -377,6 +379,7 @@ function QueryViewCtrl(
         latest_query_data_id: null,
       }).then(updatedQuery => {
         $scope.query.version = updatedQuery.version;
+        $scope.$applyAsync();
       });
     }
 
