@@ -10,7 +10,8 @@ export default function useQuery(originalQuery) {
     setQuery(updatedQuery);
     setOriginalQuerySource(updatedQuery.query);
     if (updatedQuery.id !== query.id) {
-      navigateTo(updatedQuery.getSourceLink());
+      // Don't reload page when saving new query
+      navigateTo(updatedQuery.getSourceLink(), true, false);
     }
   });
 

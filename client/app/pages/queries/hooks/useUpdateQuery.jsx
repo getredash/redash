@@ -105,7 +105,14 @@ export default function useUpdateQuery(query, onChange) {
           if (!isNil(successMessage)) {
             notification.success(successMessage);
           }
-          onChangeRef.current(extend(query.clone(), pick(updatedQuery, uniq(["id", "version", ...keys(data)]))));
+          onChangeRef.current(
+            extend(
+              query.clone(),
+              // if server returned completely new object (currently possible only when saving new query) -
+              // update all fields; otherwise pick only changed fields
+              updatedQuery.id !== query.id ? updatedQuery : pick(updatedQuery, uniq(["id", "version", ...keys(data)]))
+            )
+          );
         })
         .catch(error => {
           const notificationOptions = {};
