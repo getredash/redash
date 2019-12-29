@@ -31,8 +31,6 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
-import "./query-view.less";
-
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
