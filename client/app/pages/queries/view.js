@@ -12,6 +12,7 @@ import AddToDashboardDialog from "@/components/queries/AddToDashboardDialog";
 import PermissionsEditorDialog from "@/components/permissions-editor/PermissionsEditorDialog";
 import notification from "@/services/notification";
 import template from "./query.html";
+import { Query } from "@/services/query";
 
 function QueryViewCtrl(
   $scope,
@@ -26,8 +27,7 @@ function QueryViewCtrl(
   AlertDialog,
   clientConfig,
   $uibModal,
-  currentUser,
-  Query
+  currentUser
 ) {
   // Should create it here since visualization registry might not be fulfilled when this file is loaded
   const DEFAULT_VISUALIZATION = newVisualization("TABLE", { itemsPerPage: 50 });
@@ -208,7 +208,7 @@ function QueryViewCtrl(
     const tabName = "duplicatedQueryTab" + Math.random().toString();
 
     $window.open("", tabName);
-    Query.fork({ id: $scope.query.id }, newQuery => {
+    Query.fork({ id: $scope.query.id }).then(newQuery => {
       const queryUrl = newQuery.getUrl(true);
       $window.open(queryUrl, tabName);
     });
@@ -231,7 +231,7 @@ function QueryViewCtrl(
     if (request) {
       // Don't save new query with partial data
       if ($scope.query.isNew()) {
-        return $q.reject();
+        return Promise.reject();
       }
       request.id = $scope.query.id;
       request.version = $scope.query.version;
@@ -276,13 +276,13 @@ function QueryViewCtrl(
       $scope.saveQuery(options, data);
     }
 
-    return Query.save(
-      request,
-      updatedQuery => {
+    return Query.save(request)
+      .then(updatedQuery => {
         notification.success(options.successMessage);
         $scope.query.version = updatedQuery.version;
-      },
-      error => {
+        return updatedQuery;
+      })
+      .catch(error => {
         if (error.status === 409) {
           const errorMessage = "It seems like the query has been modified by another user.";
 
@@ -302,8 +302,7 @@ function QueryViewCtrl(
         } else {
           notification.error(options.errorMessage);
         }
-      }
-    ).$promise;
+      });
   };
 
   $scope.togglePublished = () => {
@@ -341,16 +340,14 @@ function QueryViewCtrl(
 
   $scope.archiveQuery = () => {
     function archive() {
-      Query.delete(
-        { id: $scope.query.id },
-        () => {
+      Query.delete({ id: $scope.query.id })
+        .then(() => {
           $scope.query.is_archived = true;
           $scope.query.schedule = null;
-        },
-        () => {
+        })
+        .catch(() => {
           notification.error("Query could not be archived.");
-        }
-      );
+        });
     }
 
     const title = "Archive Query";
@@ -374,16 +371,13 @@ function QueryViewCtrl(
     $scope.query.latest_query_data_id = null;
 
     if ($scope.query.id) {
-      Query.save(
-        {
-          id: $scope.query.id,
-          data_source_id: $scope.query.data_source_id,
-          latest_query_data_id: null,
-        },
-        updatedQuery => {
-          $scope.query.version = updatedQuery.version;
-        }
-      );
+      Query.save({
+        id: $scope.query.id,
+        data_source_id: $scope.query.data_source_id,
+        latest_query_data_id: null,
+      }).then(updatedQuery => {
+        $scope.query.version = updatedQuery.version;
+      });
     }
 
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
@@ -552,10 +546,10 @@ export default function init(ngModule) {
       controller: "QueryViewCtrl",
       reloadOnSearch: false,
       resolve: {
-        query: (Query, $route) => {
+        query: $route => {
           "ngInject";
 
-          return Query.get({ id: $route.current.params.queryId }).$promise;
+          return Query.get({ id: $route.current.params.queryId });
         },
       },
     },

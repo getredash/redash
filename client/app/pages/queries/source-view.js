@@ -2,6 +2,7 @@ import { map, debounce } from "lodash";
 import template from "./query.html";
 import EditParameterSettingsDialog from "@/components/EditParameterSettingsDialog";
 import DataSource from "@/services/data-source";
+import { Query } from "@/services/query";
 
 function QuerySourceCtrl(
   Events,
@@ -119,7 +120,7 @@ export default function init(ngModule) {
       controller: "QuerySourceCtrl",
       reloadOnSearch: false,
       resolve: {
-        query: function newQuery(Query) {
+        query: function newQuery() {
           "ngInject";
 
           return Query.newQuery();
@@ -137,10 +138,10 @@ export default function init(ngModule) {
       controller: "QuerySourceCtrl",
       reloadOnSearch: false,
       resolve: {
-        query: (Query, $route) => {
+        query: $route => {
           "ngInject";
 
-          return Query.get({ id: $route.current.params.queryId }).$promise;
+          return Query.get({ id: $route.current.params.queryId });
         },
       },
     },

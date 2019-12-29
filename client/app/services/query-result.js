@@ -1,9 +1,12 @@
 import debug from "debug";
 import moment from "moment";
 import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from "lodash";
+import { QueryResultError } from "./query";
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
+
+export let QueryResult = null; // eslint-disable-line import/no-mutable-exports
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -35,7 +38,7 @@ function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
-function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
+function QueryResultService($resource, $timeout, $q, Auth) {
   const QueryResultResource = $resource("api/query_results/:id", { id: "@id" }, { post: { method: "POST" } });
   const QueryResultByQueryIdResource = $resource("api/queries/:queryId/results/:id.json", {
     queryId: "@queryId",
@@ -447,6 +450,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError, Auth) {
 
 export default function init(ngModule) {
   ngModule.factory("QueryResult", QueryResultService);
+
+  ngModule.run($injector => {
+    QueryResult = $injector.get("QueryResult");
+  });
 }
 
 init.init = true;

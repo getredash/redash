@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "@/services/axios";
 import PropTypes from "prop-types";
-import { includes, isEmpty } from "lodash";
+import { includes, isEmpty, get } from "lodash";
 import { react2angular } from "react2angular";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
@@ -67,9 +67,9 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
 
   useEffect(() => {
     setLoading(true);
-    resource
-      .favorites()
-      .$promise.then(({ results }) => setItems(results))
+    const request = resource.favorites();
+    get(request, "$promise", request)
+      .then(({ results }) => setItems(results))
       .finally(() => setLoading(false));
   }, [resource]);
 

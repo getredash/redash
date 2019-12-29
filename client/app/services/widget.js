@@ -2,6 +2,7 @@ import moment from "moment";
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@/visualizations";
+import { Query } from "./query";
 
 export let Widget = null; // eslint-disable-line import/no-mutable-exports
 
@@ -75,7 +76,7 @@ export const ParameterMappingType = {
   StaticValue: "static-value",
 };
 
-function WidgetFactory($http, $location, Query) {
+function WidgetFactory($http, $location) {
   class WidgetService {
     static MappingType = ParameterMappingType;
 
@@ -202,19 +203,22 @@ function WidgetFactory($http, $location, Query) {
       const queryParams = $location.search();
 
       const localTypes = [WidgetService.MappingType.WidgetLevel, WidgetService.MappingType.StaticValue];
-      return map(filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0), param => {
-        const mapping = mappings[param.name];
-        const result = param.clone();
-        result.title = mapping.title || param.title;
-        result.locals = [param];
-        result.urlPrefix = `p_w${this.id}_`;
-        if (mapping.type === WidgetService.MappingType.StaticValue) {
-          result.setValue(mapping.value);
-        } else {
-          result.fromUrlParams(queryParams);
+      return map(
+        filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
+        param => {
+          const mapping = mappings[param.name];
+          const result = param.clone();
+          result.title = mapping.title || param.title;
+          result.locals = [param];
+          result.urlPrefix = `p_w${this.id}_`;
+          if (mapping.type === WidgetService.MappingType.StaticValue) {
+            result.setValue(mapping.value);
+          } else {
+            result.fromUrlParams(queryParams);
+          }
+          return result;
         }
-        return result;
-      });
+      );
     }
 
     getParameterMappings() {

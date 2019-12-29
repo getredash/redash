@@ -36,7 +36,7 @@ class AddWidgetDialog extends React.Component {
     });
 
     if (selectedQuery) {
-      Query.get({ id: selectedQuery.id }, query => {
+      Query.get({ id: selectedQuery.id }).then(query => {
         if (query) {
           const existingParamNames = map(this.props.dashboard.getParametersDefs(), param => param.name);
           this.setState({
