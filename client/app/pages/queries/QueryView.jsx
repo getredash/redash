@@ -109,17 +109,6 @@ function QueryView(props) {
           <Divider />
           <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
-        {queryResult && queryResultData.status !== "done" && (
-          <div className="query-alerts m-t-15 m-b-15">
-            <QueryExecutionStatus
-              status={queryResultData.status}
-              updatedAt={queryResultData.updatedAt}
-              error={queryResultData.error}
-              isCancelling={isExecutionCancelling}
-              onCancel={cancelExecution}
-            />
-          </div>
-        )}
         <div className="query-content tiled bg-white p-15 m-t-15">
           {query.hasParameters() && (
             <Parameters
@@ -130,6 +119,17 @@ function QueryView(props) {
               }}
               onPendingValuesChange={() => updateParametersDirtyFlag()}
             />
+          )}
+          {queryResult && queryResultData.status !== "done" && (
+            <div className="query-alerts m-t-15 m-b-15">
+              <QueryExecutionStatus
+                status={queryResultData.status}
+                updatedAt={queryResultData.updatedAt}
+                error={queryResultData.error}
+                isCancelling={isExecutionCancelling}
+                onCancel={cancelExecution}
+              />
+            </div>
           )}
           {queryResultData.status === "done" && (
             <>
