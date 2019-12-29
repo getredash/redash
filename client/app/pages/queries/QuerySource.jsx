@@ -39,6 +39,7 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFormatQuery from "./hooks/useFormatQuery";
 import useUpdateQuery from "./hooks/useUpdateQuery";
 import useUpdateQueryDescription from "./hooks/useUpdateQueryDescription";
+import useUnsavedChangesAlert from "./hooks/useUnsavedChangesAlert";
 
 import "./QuerySource.less";
 
@@ -55,6 +56,8 @@ function QuerySource(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+
+  useUnsavedChangesAlert(isDirty);
 
   const {
     queryResult,
