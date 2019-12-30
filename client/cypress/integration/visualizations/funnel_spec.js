@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const SQL = `
   SELECT 'a.01' AS a, 1.758831600227 AS b UNION ALL
@@ -20,18 +20,18 @@ const SQL = `
   SELECT 'a.15' AS a, 72.94883358030 AS b
 `;
 
-describe('Funnel', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Funnel", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
   });
 
-  it('creates visualization', () => {
+  it("creates visualization", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -39,7 +39,7 @@ describe('Funnel', () => {
     `);
 
     cy.clickThrough(`
-      Funnel.EditorTabs.General
+      VisualizationEditor.Tabs.General
 
       Funnel.StepColumn
       Funnel.StepColumn.a
@@ -53,31 +53,41 @@ describe('Funnel', () => {
       Funnel.SortDirection.Ascending
     `);
 
-    cy.fillInputs({
-      'Funnel.StepColumnTitle': 'Column A',
-      'Funnel.ValueColumnTitle': 'Column B',
-    }, { wait: 200 }); // inputs are debounced
+    cy.fillInputs(
+      {
+        "Funnel.StepColumnTitle": "Column A",
+        "Funnel.ValueColumnTitle": "Column B",
+      },
+      { wait: 200 }
+    ); // inputs are debounced
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId('VisualizationPreview').find('table').should('exist');
-    cy.percySnapshot('Visualizations - Funnel (basic)', { widths: [viewportWidth] });
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
+    cy.percySnapshot("Visualizations - Funnel (basic)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
-      Funnel.EditorTabs.Appearance
+      VisualizationEditor.Tabs.Appearance
     `);
 
-    cy.fillInputs({
-      'Funnel.NumberFormat': '0[.]00',
-      'Funnel.PercentFormat': '0[.]0000%',
-      'Funnel.ItemsLimit': '10',
-      'Funnel.PercentRangeMin': '10',
-      'Funnel.PercentRangeMax': '90',
-    }, { wait: 200 }); // inputs are debounced
+    cy.fillInputs(
+      {
+        "Funnel.NumberFormat": "0[.]00",
+        "Funnel.PercentFormat": "0[.]0000%",
+        "Funnel.ItemsLimit": "10",
+        "Funnel.PercentRangeMin": "10",
+        "Funnel.PercentRangeMax": "90",
+      },
+      { wait: 200 }
+    ); // inputs are debounced
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId('VisualizationPreview').find('table').should('exist');
-    cy.percySnapshot('Visualizations - Funnel (extra options)', { widths: [viewportWidth] });
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
+    cy.percySnapshot("Visualizations - Funnel (extra options)", { widths: [viewportWidth] });
   });
 });

@@ -1,21 +1,24 @@
-import { isNil, map, filter, each, sortBy, some, findIndex, toString } from 'lodash';
-import React from 'react';
-import cx from 'classnames';
-import Icon from 'antd/lib/icon';
-import Tooltip from 'antd/lib/tooltip';
-import ColumnTypes from './columns';
+import { isNil, map, filter, each, sortBy, some, findIndex, toString } from "lodash";
+import React from "react";
+import cx from "classnames";
+import Icon from "antd/lib/icon";
+import Tooltip from "antd/lib/tooltip";
+import ColumnTypes from "./columns";
 
 function nextOrderByDirection(direction) {
   switch (direction) {
-    case 'ascend': return 'descend';
-    case 'descend': return null;
-    default: return 'ascend';
+    case "ascend":
+      return "descend";
+    case "descend":
+      return null;
+    default:
+      return "ascend";
   }
 }
 
 function toggleOrderBy(columnName, orderBy = [], multiColumnSort = false) {
   const index = findIndex(orderBy, i => i.name === columnName);
-  const item = { name: columnName, direction: 'ascend' };
+  const item = { name: columnName, direction: "ascend" };
   if (index >= 0) {
     item.direction = nextOrderByDirection(orderBy[index].direction);
   }
@@ -43,40 +46,38 @@ function getOrderByInfo(orderBy) {
 }
 
 export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
-  columns = filter(columns, 'visible');
-  columns = sortBy(columns, 'order');
+  columns = filter(columns, "visible");
+  columns = sortBy(columns, "order");
 
   const isMultiColumnSort = orderBy.length > 1;
   const orderByInfo = getOrderByInfo(orderBy);
 
-  let tableColumns = map(columns, (column) => {
-    const isAscend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'ascend');
-    const isDescend = orderByInfo[column.name] && (orderByInfo[column.name].direction === 'descend');
+  let tableColumns = map(columns, column => {
+    const isAscend = orderByInfo[column.name] && orderByInfo[column.name].direction === "ascend";
+    const isDescend = orderByInfo[column.name] && orderByInfo[column.name].direction === "descend";
 
     const sortColumnIndex = isMultiColumnSort && orderByInfo[column.name] ? orderByInfo[column.name].index : null;
 
     const result = {
-      key: column.name, // set this because we don't use `dataIndex`
-      // Column name may contain any characters (or be empty at all), therefore
-      // we cannot use `dataIndex` because it has special syntax and will not work
-      // for all possible column names. Instead, we'll generate row key dynamically
-      // based on row index
-      dataIndex: null,
+      key: column.name,
+      dataIndex: `record[${JSON.stringify(column.name)}]`,
       align: column.alignContent,
       title: (
         <React.Fragment>
           <Tooltip placement="top" title={column.title}>
-            <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>{column.title}</div>
+            <div className="table-visualization-heading" data-sort-column-index={sortColumnIndex}>
+              {column.title}
+            </div>
           </Tooltip>
           <span className="ant-table-column-sorter">
             <div className="ant-table-column-sorter-inner ant-table-column-sorter-inner-full">
               <Icon
-                className={`ant-table-column-sorter-up ${isAscend ? 'on' : 'off'}`}
+                className={`ant-table-column-sorter-up ${isAscend ? "on" : "off"}`}
                 type="caret-up"
                 theme="filled"
               />
               <Icon
-                className={`ant-table-column-sorter-down ${isDescend ? 'on' : 'off'}`}
+                className={`ant-table-column-sorter-down ${isDescend ? "on" : "off"}`}
                 type="caret-down"
                 theme="filled"
               />
@@ -85,10 +86,9 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
         </React.Fragment>
       ),
       onHeaderCell: () => ({
-        className: cx(
-          'ant-table-column-has-actions ant-table-column-has-sorters',
-          { 'table-visualization-column-is-sorted': isAscend || isDescend },
-        ),
+        className: cx("ant-table-column-has-actions ant-table-column-has-sorters", {
+          "table-visualization-column-is-sorted": isAscend || isDescend,
+        }),
         onClick: event => onOrderByChange(toggleOrderBy(column.name, orderBy, event.shiftKey)),
       }),
     };
@@ -96,7 +96,7 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     const initColumn = ColumnTypes[column.displayAs];
     const Component = initColumn(column);
     result.render = (unused, row) => ({
-      children: <Component row={row} />,
+      children: <Component row={row.record} />,
       props: { className: `display-as-${column.displayAs}` },
     });
 
@@ -104,12 +104,12 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
   });
 
   tableColumns.push({
-    key: '###Redash::Visualizations::Table::Spacer###',
+    key: "###Redash::Visualizations::Table::Spacer###",
     dataIndex: null,
-    title: '',
-    className: 'table-visualization-spacer',
-    render: () => '',
-    onHeaderCell: () => ({ className: 'table-visualization-spacer' }),
+    title: "",
+    className: "table-visualization-spacer",
+    render: () => "",
+    onHeaderCell: () => ({ className: "table-visualization-spacer" }),
   });
 
   if (searchInput) {
@@ -117,43 +117,53 @@ export function prepareColumns(columns, searchInput, orderBy, onOrderByChange) {
     // is to add a single child to every column move `dataIndex` property to it and set
     // `colSpan` to 0 for every child cell except of the 1st one - which should be expanded.
     tableColumns = map(tableColumns, ({ title, align, key, onHeaderCell, ...rest }, index) => ({
-      key: key + '(parent)',
+      key: key + "(parent)",
       title,
       align,
       onHeaderCell,
-      children: [{
-        ...rest,
-        key: key + '(child)',
-        align,
-        colSpan: index === 0 ? tableColumns.length : 0,
-        title: index === 0 ? searchInput : null,
-        onHeaderCell: () => ({ className: 'table-visualization-search' }),
-      }],
+      children: [
+        {
+          ...rest,
+          key: key + "(child)",
+          align,
+          colSpan: index === 0 ? tableColumns.length : 0,
+          title: index === 0 ? searchInput : null,
+          onHeaderCell: () => ({ className: "table-visualization-search" }),
+        },
+      ],
     }));
   }
 
   return tableColumns;
 }
 
+export function initRows(rows) {
+  return map(rows, (record, index) => ({ key: `record${index}`, record }));
+}
+
 export function filterRows(rows, searchTerm, searchColumns) {
-  if ((searchTerm !== '') && (searchColumns.length > 0)) {
+  if (searchTerm !== "" && searchColumns.length > 0) {
     searchTerm = searchTerm.toUpperCase();
-    const matchFields = map(searchColumns, (column) => {
+    const matchFields = map(searchColumns, column => {
       const initColumn = ColumnTypes[column.displayAs];
       const { prepareData } = initColumn(column);
-      return (row) => {
+      return row => {
         const { text } = prepareData(row);
-        return toString(text).toUpperCase().indexOf(searchTerm) >= 0;
+        return (
+          toString(text)
+            .toUpperCase()
+            .indexOf(searchTerm) >= 0
+        );
       };
     });
 
-    return filter(rows, row => some(matchFields, match => match(row)));
+    return filter(rows, row => some(matchFields, match => match(row.record)));
   }
   return rows;
 }
 
 export function sortRows(rows, orderBy) {
-  if ((orderBy.length === 0) || (rows.length === 0)) {
+  if (orderBy.length === 0 || rows.length === 0) {
     return rows;
   }
 
@@ -164,8 +174,8 @@ export function sortRows(rows, orderBy) {
     let va;
     let vb;
     for (let i = 0; i < orderBy.length; i += 1) {
-      va = a[orderBy[i].name];
-      vb = b[orderBy[i].name];
+      va = a.record[orderBy[i].name];
+      vb = b.record[orderBy[i].name];
       if (isNil(va) || va < vb) {
         // if a < b - we should return -1, but take in account direction
         return -1 * directions[orderBy[i].direction];

@@ -1,12 +1,12 @@
 function alertUnsavedChanges($window) {
   return {
-    restrict: 'E',
+    restrict: "E",
     replace: true,
     scope: {
-      isDirty: '=',
+      isDirty: "=",
     },
     link($scope) {
-      const unloadMessage = 'You will lose your changes if you leave';
+      const unloadMessage = "You will lose your changes if you leave";
       const confirmMessage = `${unloadMessage}\n\nAre you sure you want to leave this page?`;
       // store original handler (if any)
       const _onbeforeunload = $window.onbeforeunload;
@@ -15,8 +15,8 @@ function alertUnsavedChanges($window) {
         return $scope.isDirty ? unloadMessage : null;
       };
 
-      $scope.$on('$locationChangeStart', (event, next, current) => {
-        if (next.split('?')[0] === current.split('?')[0] || next.split('#')[0] === current.split('#')[0]) {
+      $scope.$on("$locationChangeStart", (event, next, current) => {
+        if (next.split("?")[0] === current.split("?")[0] || next.split("#")[0] === current.split("#")[0]) {
           return;
         }
 
@@ -25,7 +25,7 @@ function alertUnsavedChanges($window) {
         }
       });
 
-      $scope.$on('$destroy', () => {
+      $scope.$on("$destroy", () => {
         $window.onbeforeunload = _onbeforeunload;
       });
     },
@@ -33,7 +33,7 @@ function alertUnsavedChanges($window) {
 }
 
 export default function init(ngModule) {
-  ngModule.directive('alertUnsavedChanges', alertUnsavedChanges);
+  ngModule.directive("alertUnsavedChanges", alertUnsavedChanges);
 }
 
 init.init = true;

@@ -38,7 +38,7 @@ gunicorn==19.9.0
 rq==1.1.0
 rq-scheduler==0.9.1
 celery==4.3.0
-kombu==4.6.5
+kombu==4.6.3
 jsonschema==3.1.1
 RestrictedPython==5.0
 pysaml2==4.8.0

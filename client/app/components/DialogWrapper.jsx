@@ -1,7 +1,7 @@
-import { isFunction } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
+import { isFunction } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import ReactDOM from "react-dom";
 
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
@@ -140,7 +140,7 @@ function openDialog(DialogComponent, props) {
     reject: () => {},
   };
 
-  const container = document.createElement('div');
+  const container = document.createElement("div");
   document.body.appendChild(container);
 
   function render() {
@@ -176,7 +176,7 @@ function openDialog(DialogComponent, props) {
   const result = {
     close: closeDialog,
     dismiss: dismissDialog,
-    update: (newProps) => {
+    update: newProps => {
       props = { ...props, ...newProps };
       render();
     },

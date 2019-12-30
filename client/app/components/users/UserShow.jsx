@@ -1,8 +1,8 @@
-import React from 'react';
-import { includes } from 'lodash';
-import Tag from 'antd/lib/tag';
-import { Group } from '@/services/group';
-import { UserProfile } from '../proptypes';
+import React from "react";
+import { includes } from "lodash";
+import Tag from "antd/lib/tag";
+import { Group } from "@/services/group";
+import { UserProfile } from "../proptypes";
 
 export default class UserShow extends React.Component {
   static propTypes = {
@@ -15,7 +15,7 @@ export default class UserShow extends React.Component {
   }
 
   componentDidMount() {
-    Group.query((groups) => {
+    Group.query(groups => {
       this.setState({ groups, loadingGroups: false });
     });
   }
@@ -26,11 +26,13 @@ export default class UserShow extends React.Component {
 
     return (
       <div>
-        {groups.filter(group => includes(groupIds, group.id)).map((group => (
-          <Tag className="m-t-5 m-r-5" key={group.id}>
-            <a href={`groups/${group.id}`}>{group.name}</a>
-          </Tag>
-        )))}
+        {groups
+          .filter(group => includes(groupIds, group.id))
+          .map(group => (
+            <Tag className="m-t-5 m-r-5" key={group.id}>
+              <a href={`groups/${group.id}`}>{group.name}</a>
+            </Tag>
+          ))}
       </div>
     );
   }
@@ -41,12 +43,7 @@ export default class UserShow extends React.Component {
 
     return (
       <div className="col-md-4 col-md-offset-4 profile__container">
-        <img
-          alt="profile"
-          src={profileImageUrl}
-          className="profile__image"
-          width="40"
-        />
+        <img alt="profile" src={profileImageUrl} className="profile__image" width="40" />
 
         <h3 className="profile__h3">{name}</h3>
 
@@ -58,7 +55,7 @@ export default class UserShow extends React.Component {
           <dt>Email:</dt>
           <dd>{email}</dd>
           <dt>Groups:</dt>
-          <dd>{loadingGroups ? 'Loading...' : this.renderUserGroups()}</dd>
+          <dd>{loadingGroups ? "Loading..." : this.renderUserGroups()}</dd>
         </dl>
       </div>
     );

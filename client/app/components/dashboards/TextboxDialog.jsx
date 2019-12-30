@@ -1,16 +1,16 @@
-import { markdown } from 'markdown';
-import { debounce } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'antd/lib/modal';
-import Input from 'antd/lib/input';
-import Tooltip from 'antd/lib/tooltip';
-import Divider from 'antd/lib/divider';
-import HtmlContent from '@/components/HtmlContent';
-import { wrap as wrapDialog, DialogPropType } from '@/components/DialogWrapper';
-import notification from '@/services/notification';
+import { markdown } from "markdown";
+import { debounce } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import Modal from "antd/lib/modal";
+import Input from "antd/lib/input";
+import Tooltip from "antd/lib/tooltip";
+import Divider from "antd/lib/divider";
+import HtmlContent from "@/components/HtmlContent";
+import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import notification from "@/services/notification";
 
-import './TextboxDialog.less';
+import "./TextboxDialog.less";
 
 class TextboxDialog extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ class TextboxDialog extends React.Component {
   };
 
   static defaultProps = {
-    text: '',
+    text: "",
   };
 
   updatePreview = debounce(() => {
@@ -40,7 +40,7 @@ class TextboxDialog extends React.Component {
     };
   }
 
-  onTextChanged = (event) => {
+  onTextChanged = event => {
     this.setState({ text: event.target.value });
     this.updatePreview();
   };
@@ -48,12 +48,13 @@ class TextboxDialog extends React.Component {
   saveWidget() {
     this.setState({ saveInProgress: true });
 
-    this.props.onConfirm(this.state.text)
+    this.props
+      .onConfirm(this.state.text)
       .then(() => {
         this.props.dialog.close();
       })
       .catch(() => {
-        notification.error('Widget could not be added');
+        notification.error("Widget could not be added");
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
@@ -67,16 +68,15 @@ class TextboxDialog extends React.Component {
     return (
       <Modal
         {...dialog.props}
-        title={isNew ? 'Add Textbox' : 'Edit Textbox'}
+        title={isNew ? "Add Textbox" : "Edit Textbox"}
         onOk={() => this.saveWidget()}
         okButtonProps={{
           loading: this.state.saveInProgress,
           disabled: !this.state.text,
         }}
-        okText={isNew ? 'Add to Dashboard' : 'Save'}
+        okText={isNew ? "Add to Dashboard" : "Save"}
         width={500}
-        wrapProps={{ 'data-test': 'TextboxDialog' }}
-      >
+        wrapProps={{ "data-test": "TextboxDialog" }}>
         <div className="textbox-dialog">
           <Input.TextArea
             className="resize-vertical"
@@ -87,14 +87,11 @@ class TextboxDialog extends React.Component {
             placeholder="This is where you write some text"
           />
           <small>
-            Supports basic{' '}
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.markdownguide.org/cheat-sheet/#basic-syntax"
-            >
+            Supports basic{" "}
+            <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
               <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
-            </a>.
+            </a>
+            .
           </small>
           {this.state.text && (
             <React.Fragment>

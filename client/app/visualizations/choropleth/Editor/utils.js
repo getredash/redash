@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 
-import _ from 'lodash';
+import _ from "lodash";
 
 export function inferCountryCodeType(mapType, data, countryCodeField) {
   const regexMap = {
@@ -34,5 +34,5 @@ export function inferCountryCodeType(mapType, data, countryCodeField) {
     .reduce((memo, item) => (item[1] > memo[1] ? item : memo))
     .value();
 
-  return (result[1] / data.length) >= 0.9 ? result[0] : null;
+  return result[1] / data.length >= 0.9 ? result[0] : null;
 }

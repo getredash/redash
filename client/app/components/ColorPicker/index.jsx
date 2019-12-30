@@ -1,26 +1,35 @@
-import { toString } from 'lodash';
-import React, { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import tinycolor from 'tinycolor2';
-import Popover from 'antd/lib/popover';
-import Card from 'antd/lib/card';
-import Tooltip from 'antd/lib/tooltip';
-import Icon from 'antd/lib/icon';
+import { toString } from "lodash";
+import React, { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Popover from "antd/lib/popover";
+import Card from "antd/lib/card";
+import Tooltip from "antd/lib/tooltip";
+import Icon from "antd/lib/icon";
+import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
-import ColorInput from './Input';
-import Swatch from './Swatch';
-import Label from './Label';
-import { validateColor } from './utils';
+import ColorInput from "./Input";
+import Swatch from "./Swatch";
+import Label from "./Label";
+import { validateColor } from "./utils";
 
-import './index.less';
+import "./index.less";
 
 export default function ColorPicker({
-  color, placement, presetColors, presetColumns, interactive, children, onChange, triggerProps,
+  color,
+  placement,
+  presetColors,
+  presetColumns,
+  interactive,
+  children,
+  onChange,
+  triggerProps,
+  addonBefore,
+  addonAfter,
 }) {
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
-  const [currentColor, setCurrentColor] = useState('');
+  const [currentColor, setCurrentColor] = useState("");
 
   function handleApply() {
     setVisible(false);
@@ -35,16 +44,16 @@ export default function ColorPicker({
 
   const actions = [];
   if (!interactive) {
-    actions.push((
+    actions.push(
       <Tooltip key="cancel" title="Cancel">
         <Icon type="close" onClick={handleCancel} />
       </Tooltip>
-    ));
-    actions.push((
+    );
+    actions.push(
       <Tooltip key="apply" title="Apply">
         <Icon type="check" onClick={handleApply} />
       </Tooltip>
-    ));
+    );
   }
 
   function handleInputChange(newColor) {
@@ -61,55 +70,65 @@ export default function ColorPicker({
   }, [validatedColor, visible]);
 
   return (
-    <Popover
-      arrowPointAtCenter
-      destroyTooltipOnHide
-      overlayClassName={`color-picker ${interactive ? 'color-picker-interactive' : 'color-picker-with-actions'}`}
-      overlayStyle={{ '--color-picker-selected-color': currentColor }}
-      content={(
-        <Card
-          data-test="ColorPicker"
-          className="color-picker-panel"
-          bordered={false}
-          title={toString(currentColor).toUpperCase()}
-          headStyle={{
-            backgroundColor: currentColor,
-            color: tinycolor(currentColor).isLight() ? '#000000' : '#ffffff',
-          }}
-          actions={actions}
-        >
-          <ColorInput
-            color={currentColor}
-            presetColors={presetColors}
-            presetColumns={presetColumns}
-            onChange={handleInputChange}
-            onPressEnter={handleApply}
+    <React.Fragment>
+      {addonBefore}
+      <Popover
+        arrowPointAtCenter
+        overlayClassName={`color-picker ${interactive ? "color-picker-interactive" : "color-picker-with-actions"}`}
+        overlayStyle={{ "--color-picker-selected-color": currentColor }}
+        content={
+          <Card
+            data-test="ColorPicker"
+            className="color-picker-panel"
+            bordered={false}
+            title={toString(currentColor).toUpperCase()}
+            headStyle={{
+              backgroundColor: currentColor,
+              color: chooseTextColorForBackground(currentColor),
+            }}
+            actions={actions}>
+            <ColorInput
+              color={currentColor}
+              presetColors={presetColors}
+              presetColumns={presetColumns}
+              onChange={handleInputChange}
+              onPressEnter={handleApply}
+            />
+          </Card>
+        }
+        trigger="click"
+        placement={placement}
+        visible={visible}
+        onVisibleChange={setVisible}>
+        {children || (
+          <Swatch
+            color={validatedColor}
+            size={30}
+            {...triggerProps}
+            className={cx("color-picker-trigger", triggerProps.className)}
           />
-        </Card>
-      )}
-      trigger="click"
-      placement={placement}
-      visible={visible}
-      onVisibleChange={setVisible}
-    >
-      {children || (
-        <Swatch
-          color={validatedColor}
-          size={30}
-          {...triggerProps}
-          className={cx('color-picker-trigger', triggerProps.className)}
-        />
-      )}
-    </Popover>
+        )}
+      </Popover>
+      {addonAfter}
+    </React.Fragment>
   );
 }
 
 ColorPicker.propTypes = {
   color: PropTypes.string,
   placement: PropTypes.oneOf([
-    'top', 'left', 'right', 'bottom',
-    'topLeft', 'topRight', 'bottomLeft', 'bottomRight',
-    'leftTop', 'leftBottom', 'rightTop', 'rightBottom',
+    "top",
+    "left",
+    "right",
+    "bottom",
+    "topLeft",
+    "topRight",
+    "bottomLeft",
+    "bottomRight",
+    "leftTop",
+    "leftBottom",
+    "rightTop",
+    "rightBottom",
   ]),
   presetColors: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.string), // array of colors (no tooltips)
@@ -119,17 +138,21 @@ ColorPicker.propTypes = {
   interactive: PropTypes.bool,
   triggerProps: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   children: PropTypes.node,
+  addonBefore: PropTypes.node,
+  addonAfter: PropTypes.node,
   onChange: PropTypes.func,
 };
 
 ColorPicker.defaultProps = {
-  color: '#FFFFFF',
-  placement: 'top',
+  color: "#FFFFFF",
+  placement: "top",
   presetColors: null,
   presetColumns: 8,
   interactive: false,
   triggerProps: {},
   children: null,
+  addonBefore: null,
+  addonAfter: null,
   onChange: () => {},
 };
 

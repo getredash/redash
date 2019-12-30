@@ -1,8 +1,8 @@
-import { each, includes, isString, map, reduce } from 'lodash';
-import d3 from 'd3';
-import { ColorPaletteArray } from '@/visualizations/ColorPalette';
+import { each, includes, isString, map, reduce } from "lodash";
+import d3 from "d3";
+import { ColorPaletteArray } from "@/visualizations/ColorPalette";
 
-import { cleanNumber, normalizeValue } from './utils';
+import { cleanNumber, normalizeValue } from "./utils";
 
 export function getPieDimensions(series) {
   const rows = series.length > 2 ? 2 : 1;
@@ -17,15 +17,22 @@ export function getPieDimensions(series) {
 
 function getPieHoverInfoPattern(options) {
   const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
-  let result = 'text';
-  if (!hasX) result += '+label';
+  let result = "text";
+  if (!hasX) result += "+label";
   return result;
 }
 
 function prepareSeries(series, options, additionalOptions) {
   const {
-    cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
-    index, hoverInfoPattern, getValueColor,
+    cellWidth,
+    cellHeight,
+    xPadding,
+    yPadding,
+    cellsInRow,
+    hasX,
+    index,
+    hoverInfoPattern,
+    getValueColor,
   } = additionalOptions;
 
   const xPosition = (index % cellsInRow) * cellWidth;
@@ -34,11 +41,15 @@ function prepareSeries(series, options, additionalOptions) {
   const labels = [];
   const values = [];
   const sourceData = new Map();
-  const seriesTotal = reduce(series.data, (result, row) => {
-    const y = cleanNumber(row.y);
-    return result + Math.abs(y);
-  }, 0);
-  each(series.data, (row) => {
+  const seriesTotal = reduce(
+    series.data,
+    (result, row) => {
+      const y = cleanNumber(row.y);
+      return result + Math.abs(y);
+    },
+    0
+  );
+  each(series.data, row => {
     const x = hasX ? normalizeValue(row.x, options.xAxis.type) : `Slice ${index}`;
     const y = cleanNumber(row.y);
     labels.push(x);
@@ -46,7 +57,7 @@ function prepareSeries(series, options, additionalOptions) {
     sourceData.set(x, {
       x,
       y,
-      yPercent: y / seriesTotal * 100,
+      yPercent: (y / seriesTotal) * 100,
       row,
     });
   });
@@ -55,16 +66,20 @@ function prepareSeries(series, options, additionalOptions) {
     visible: true,
     values,
     labels,
-    type: 'pie',
+    type: "pie",
     hole: 0.4,
     marker: {
       colors: map(series.data, row => getValueColor(row.x)),
     },
     hoverinfo: hoverInfoPattern,
     text: [],
-    textinfo: options.showDataLabels ? 'percent' : 'none',
-    textposition: 'inside',
-    textfont: { color: '#ffffff' },
+    textinfo: options.showDataLabels ? "percent" : "none",
+    textposition: "inside",
+    textfont: {
+      // In Plotly@1.42.0 and upper this options can be set to array of colors (similar to `marker.colors`):
+      // `colors: map(markerColors, c => chooseTextColorForBackground(c))`
+      color: "#ffffff",
+    },
     name: series.name,
     direction: options.direction.type,
     domain: {
@@ -77,17 +92,20 @@ function prepareSeries(series, options, additionalOptions) {
 
 export default function preparePieData(seriesList, options) {
   // we will use this to assign colors for values that have no explicitly set color
-  const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
+  const getDefaultColor = d3.scale
+    .ordinal()
+    .domain([])
+    .range(ColorPaletteArray);
   const valuesColors = {};
   each(options.valuesOptions, (item, key) => {
-    if (isString(item.color) && (item.color !== '')) {
+    if (isString(item.color) && item.color !== "") {
       valuesColors[key] = item.color;
     }
   });
 
   const additionalOptions = {
     ...getPieDimensions(seriesList),
-    hasX: includes(options.columnMapping, 'x'),
+    hasX: includes(options.columnMapping, "x"),
     hoverInfoPattern: getPieHoverInfoPattern(options),
     getValueColor: v => valuesColors[v] || getDefaultColor(v),
   };

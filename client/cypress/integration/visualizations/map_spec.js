@@ -1,6 +1,6 @@
 /* global cy */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const SQL = `
   SELECT 'Israel' AS country, 32.0808800 AS lat, 34.7805700 AS lng UNION ALL 
@@ -14,18 +14,18 @@ const SQL = `
   SELECT 'Hungary' AS country, 47.4980100 AS lat, 19.0399100 AS lng
 `;
 
-describe('Map (Markers)', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Map (Markers)", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
   });
 
-  it('creates Map with groups', () => {
+  it("creates Map with groups", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -33,7 +33,7 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat
       Map.Editor.LongitudeColumnName
@@ -42,24 +42,27 @@ describe('Map (Markers)', () => {
       Map.Editor.GroupBy.country
     `);
 
-    cy.clickThrough('Map.EditorTabs.Groups');
-    cy.clickThrough('Map.Editor.Groups.Israel.Color');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.clickThrough('Map.Editor.Groups.Ukraine.Color');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'green{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.clickThrough('Map.Editor.Groups.Hungary.Color');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'blue{enter}' });
+    cy.clickThrough("VisualizationEditor.Tabs.Groups");
+    cy.clickThrough("Map.Editor.Groups.Israel.Color");
+    cy.fillInputs({ "ColorPicker.CustomColor": "red{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
+    cy.clickThrough("Map.Editor.Groups.Ukraine.Color");
+    cy.fillInputs({ "ColorPicker.CustomColor": "green{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
+    cy.clickThrough("Map.Editor.Groups.Hungary.Color");
+    cy.fillInputs({ "ColorPicker.CustomColor": "blue{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
 
-    cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
+    cy.getByTestId("VisualizationPreview")
+      .find(".leaflet-control-zoom-in")
+      .click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Map (Markers) with groups', { widths: [viewportWidth] });
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot("Visualizations - Map (Markers) with groups", { widths: [viewportWidth] });
   });
 
-  it('creates Map with custom markers', () => {
+  it("creates Map with custom markers", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -67,7 +70,7 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Map.Editor.LatitudeColumnName
       Map.Editor.LatitudeColumnName.lat
       Map.Editor.LongitudeColumnName
@@ -75,23 +78,26 @@ describe('Map (Markers)', () => {
     `);
 
     cy.clickThrough(`
-      Map.EditorTabs.Style
+      VisualizationEditor.Tabs.Style
       Map.Editor.ClusterMarkers
       Map.Editor.CustomizeMarkers
     `);
 
-    cy.fillInputs({ 'Map.Editor.MarkerIcon': 'home' }, { wait: 250 }); // this input is debounced
+    cy.fillInputs({ "Map.Editor.MarkerIcon": "home" }, { wait: 250 }); // this input is debounced
 
-    cy.clickThrough('Map.Editor.MarkerBackgroundColor');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.clickThrough('Map.Editor.MarkerBorderColor');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'maroon{enter}' });
+    cy.clickThrough("Map.Editor.MarkerBackgroundColor");
+    cy.fillInputs({ "ColorPicker.CustomColor": "red{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
+    cy.clickThrough("Map.Editor.MarkerBorderColor");
+    cy.fillInputs({ "ColorPicker.CustomColor": "maroon{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
 
-    cy.getByTestId('VisualizationPreview').find('.leaflet-control-zoom-in').click();
+    cy.getByTestId("VisualizationPreview")
+      .find(".leaflet-control-zoom-in")
+      .click();
 
     // Wait for proper initialization of visualization
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.percySnapshot('Visualizations - Map (Markers) with custom markers', { widths: [viewportWidth] });
+    cy.wait(1000); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.percySnapshot("Visualizations - Map (Markers) with custom markers", { widths: [viewportWidth] });
   });
 });
