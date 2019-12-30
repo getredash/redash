@@ -55,13 +55,17 @@ def require_access(obj, user, need_view_only):
 
 
 class require_permissions(object):
-    def __init__(self, permissions):
+    def __init__(self, permissions, allow_one=False):
         self.permissions = permissions
+        self.allow_one = allow_one
 
     def __call__(self, fn):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            has_permissions = current_user.has_permissions(self.permissions)
+            if self.allow_one:
+                has_permissions = any([current_user.has_permission(permission) for permission in self.permissions])
+            else:
+                has_permissions = current_user.has_permissions(self.permissions)
 
             if has_permissions:
                 return fn(*args, **kwargs)
@@ -73,6 +77,10 @@ class require_permissions(object):
 
 def require_permission(permission):
     return require_permissions((permission,))
+
+
+def require_any_of_permission(permissions):
+    return require_permissions(permissions, True)
 
 
 def require_admin(fn):
