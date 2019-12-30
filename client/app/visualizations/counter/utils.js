@@ -1,5 +1,5 @@
-import { isNumber, isFinite, toString } from 'lodash';
-import numeral from 'numeral';
+import { isNumber, isFinite, toString } from "lodash";
+import numeral from "numeral";
 
 // TODO: allow user to specify number format string instead of delimiters only
 // It will allow to remove this function (move all that weird formatting logic to a migration
@@ -14,25 +14,21 @@ function numberFormat(value, decimalPoints, decimalDelimiter, thousandsDelimiter
   // - `.` as decimal delimiter
   // - three decimal points
   locale.delimiters = {
-    thousands: ',',
-    decimal: '.',
+    thousands: ",",
+    decimal: ".",
   };
-  let formatString = '0,0.000';
-  if (
-    (Number.isFinite(decimalPoints) && (decimalPoints >= 0)) ||
-    decimalDelimiter ||
-    thousandsDelimiter
-  ) {
+  let formatString = "0,0.000";
+  if ((Number.isFinite(decimalPoints) && decimalPoints >= 0) || decimalDelimiter || thousandsDelimiter) {
     locale.delimiters = {
       thousands: thousandsDelimiter,
-      decimal: decimalDelimiter || '.',
+      decimal: decimalDelimiter || ".",
     };
 
-    formatString = '0,0';
+    formatString = "0,0";
     if (decimalPoints > 0) {
-      formatString += '.';
+      formatString += ".";
       while (decimalPoints > 0) {
-        formatString += '0';
+        formatString += "0";
         decimalPoints -= 1;
       }
     }
@@ -72,29 +68,25 @@ function formatTooltip(value, formatString) {
 
 export function getCounterData(rows, options, visualizationName) {
   const result = {};
-
   const rowsCount = rows.length;
-  if (rowsCount > 0) {
-    const rowNumber = getRowNumber(options.rowNumber, rowsCount);
-    const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
+
+  if (rowsCount > 0 || options.countRow) {
     const counterColName = options.counterColName;
     const targetColName = options.targetColName;
-    const counterLabel = options.counterLabel;
 
-    if (counterLabel) {
-      result.counterLabel = counterLabel;
-    } else {
-      result.counterLabel = visualizationName;
-    }
+    result.counterLabel = options.counterLabel || visualizationName;
 
     if (options.countRow) {
       result.counterValue = rowsCount;
     } else if (counterColName) {
+      const rowNumber = getRowNumber(options.rowNumber, rowsCount);
       result.counterValue = rows[rowNumber][counterColName];
     }
 
     result.showTrend = false;
+
     if (targetColName) {
+      const targetRowNumber = getRowNumber(options.targetRowNumber, rowsCount);
       result.targetValue = rows[targetRowNumber][targetColName];
 
       if (Number.isFinite(result.counterValue) && isFinite(result.targetValue)) {
@@ -115,7 +107,7 @@ export function getCounterData(rows, options, visualizationName) {
       result.targetValue = formatValue(result.targetValue, options);
     } else {
       if (isFinite(result.targetValue)) {
-        result.targetValue = numeral(result.targetValue).format('0[.]00[0]');
+        result.targetValue = numeral(result.targetValue).format("0[.]00[0]");
       }
     }
   }

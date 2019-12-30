@@ -43,7 +43,10 @@ def get_queues_status():
             queue: {"size": redis_connection.llen(queue)}
             for queue in get_celery_queues()
         },
-        **{queue.name: {"size": len(queue)} for queue in Queue.all()},
+        **{
+            queue.name: {"size": len(queue)}
+            for queue in Queue.all()
+        },
     }
 
 

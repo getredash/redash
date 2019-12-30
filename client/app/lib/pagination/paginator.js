@@ -1,4 +1,4 @@
-import { sortBy } from 'lodash';
+import { sortBy } from "lodash";
 
 export default class Paginator {
   constructor(rows, { page = 1, itemsPerPage = 20, totalCount = undefined } = {}) {
@@ -15,7 +15,7 @@ export default class Paginator {
 
   getPageRows() {
     const first = this.itemsPerPage * (this.page - 1);
-    const last = this.itemsPerPage * (this.page);
+    const last = this.itemsPerPage * this.page;
 
     return this.rows.slice(first, last);
   }

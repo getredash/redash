@@ -17,30 +17,19 @@ class ClickHouse(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "url": {
-                    "type": "string",
-                    "default": "http://127.0.0.1:8123"
-                },
-                "user": {
-                    "type": "string",
-                    "default": "default"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
+                "url": {"type": "string", "default": "http://127.0.0.1:8123"},
+                "user": {"type": "string", "default": "default"},
+                "password": {"type": "string"},
+                "dbname": {"type": "string", "title": "Database Name"},
                 "timeout": {
                     "type": "number",
                     "title": "Request Timeout",
-                    "default": 30
-                }
+                    "default": 30,
+                },
             },
             "required": ["dbname"],
             "extra_options": ["timeout"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -57,29 +46,29 @@ class ClickHouse(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        for row in results['rows']:
-            table_name = '{}.{}'.format(row['database'], row['table'])
+        for row in results["rows"]:
+            table_name = "{}.{}".format(row["database"], row["table"])
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['name'])
+            schema[table_name]["columns"].append(row["name"])
 
         return list(schema.values())
 
     def _send_query(self, data, stream=False):
-        url = self.configuration.get('url', "http://127.0.0.1:8123")
+        url = self.configuration.get("url", "http://127.0.0.1:8123")
         try:
             r = requests.post(
                 url,
                 data=data.encode("utf-8"),
                 stream=stream,
-                timeout=self.configuration.get('timeout', 30),
+                timeout=self.configuration.get("timeout", 30),
                 params={
-                    'user': self.configuration.get('user', "default"),
-                    'password':  self.configuration.get('password', ""),
-                    'database': self.configuration['dbname']
-                }
+                    "user": self.configuration.get("user", "default"),
+                    "password": self.configuration.get("password", ""),
+                    "database": self.configuration["dbname"],
+                },
             )
             if r.status_code != 200:
                 raise Exception(r.text)
@@ -87,7 +76,9 @@ class ClickHouse(BaseSQLQueryRunner):
             return r.json()
         except requests.RequestException as e:
             if e.response:
-                details = "({}, Status Code: {})".format(e.__class__.__name__, e.response.status_code)
+                details = "({}, Status Code: {})".format(
+                    e.__class__.__name__, e.response.status_code
+                )
             else:
                 details = "({})".format(e.__class__.__name__)
             raise Exception("Connection error to: {} {}.".format(url, details))
@@ -95,39 +86,43 @@ class ClickHouse(BaseSQLQueryRunner):
     @staticmethod
     def _define_column_type(column):
         c = column.lower()
-        f = re.search(r'^nullable\((.*)\)$', c)
+        f = re.search(r"^nullable\((.*)\)$", c)
         if f is not None:
             c = f.group(1)
-        if c.startswith('int') or c.startswith('uint'):
+        if c.startswith("int") or c.startswith("uint"):
             return TYPE_INTEGER
-        elif c.startswith('float'):
+        elif c.startswith("float"):
             return TYPE_FLOAT
-        elif c == 'datetime':
+        elif c == "datetime":
             return TYPE_DATETIME
-        elif c == 'date':
+        elif c == "date":
             return TYPE_DATE
         else:
             return TYPE_STRING
 
     def _clickhouse_query(self, query):
-        query += '\nFORMAT JSON'
+        query += "\nFORMAT JSON"
         result = self._send_query(query)
         columns = []
         columns_int64 = []  # db converts value to string if its type equals UInt64
         columns_totals = {}
 
-        for r in result['meta']:
-            column_name = r['name']
-            column_type = self._define_column_type(r['type'])
+        for r in result["meta"]:
+            column_name = r["name"]
+            column_type = self._define_column_type(r["type"])
 
-            if r['type'] in ('Int64', 'UInt64', 'Nullable(Int64)', 'Nullable(UInt64)'):
+            if r["type"] in ("Int64", "UInt64", "Nullable(Int64)", "Nullable(UInt64)"):
                 columns_int64.append(column_name)
             else:
-                columns_totals[column_name] = 'Total' if column_type == TYPE_STRING else None
+                columns_totals[column_name] = (
+                    "Total" if column_type == TYPE_STRING else None
+                )
 
-            columns.append({'name': column_name, 'friendly_name': column_name, 'type': column_type})
+            columns.append(
+                {"name": column_name, "friendly_name": column_name, "type": column_type}
+            )
 
-        rows = result['data']
+        rows = result["data"]
         for row in rows:
             for column in columns_int64:
                 try:
@@ -135,13 +130,13 @@ class ClickHouse(BaseSQLQueryRunner):
                 except TypeError:
                     row[column] = None
 
-        if 'totals' in result:
-            totals = result['totals']
+        if "totals" in result:
+            totals = result["totals"]
             for column, value in columns_totals.items():
                 totals[column] = value
             rows.append(totals)
 
-        return {'columns': columns, 'rows': rows}
+        return {"columns": columns, "rows": rows}
 
     def run_query(self, query, user):
         logger.debug("Clickhouse is about to execute query: %s", query)

@@ -86,6 +86,11 @@
 // Button overrides
 .@{btn-prefix-cls} {
   transition-duration: 150ms;
+
+  &.icon-button {
+    width: 32px;
+    padding: 0 10px;
+  }
 }
 
 // Fix ant input number showing duplicate arrows
@@ -386,4 +391,12 @@
       }
     }
   }
+}
+
+// overrides for checkbox
+@checkbox-prefix-cls: ~'@{ant-prefix}-checkbox';
+
+.@{checkbox-prefix-cls}-wrapper + span,
+.@{checkbox-prefix-cls} + span {
+  padding-right: 0;
 }

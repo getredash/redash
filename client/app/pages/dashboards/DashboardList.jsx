@@ -1,26 +1,26 @@
-import React from 'react';
-import { react2angular } from 'react2angular';
+import React from "react";
+import { react2angular } from "react2angular";
 
-import { PageHeader } from '@/components/PageHeader';
-import { Paginator } from '@/components/Paginator';
-import { DashboardTagsControl } from '@/components/tags-control/TagsControl';
+import { PageHeader } from "@/components/PageHeader";
+import { Paginator } from "@/components/Paginator";
+import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 
-import { wrap as itemsList, ControllerType } from '@/components/items-list/ItemsList';
-import { ResourceItemsSource } from '@/components/items-list/classes/ItemsSource';
-import { UrlStateStorage } from '@/components/items-list/classes/StateStorage';
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
+import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 
-import LoadingState from '@/components/items-list/components/LoadingState';
-import * as Sidebar from '@/components/items-list/components/Sidebar';
-import ItemsTable, { Columns } from '@/components/items-list/components/ItemsTable';
+import LoadingState from "@/components/items-list/components/LoadingState";
+import * as Sidebar from "@/components/items-list/components/Sidebar";
+import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import Layout from '@/components/layouts/ContentWithSidebar';
+import Layout from "@/components/layouts/ContentWithSidebar";
 
-import { Dashboard } from '@/services/dashboard';
-import { routesToAngularRoutes } from '@/lib/utils';
+import { Dashboard } from "@/services/dashboard";
+import { routesToAngularRoutes } from "@/lib/utils";
 
-import DashboardListEmptyState from './DashboardListEmptyState';
+import DashboardListEmptyState from "./DashboardListEmptyState";
 
-import './dashboard-list.css';
+import "./dashboard-list.css";
 
 class DashboardList extends React.Component {
   static propTypes = {
@@ -29,41 +29,46 @@ class DashboardList extends React.Component {
 
   sidebarMenu = [
     {
-      key: 'all',
-      href: 'dashboards',
-      title: 'All Dashboards',
+      key: "all",
+      href: "dashboards",
+      title: "All Dashboards",
     },
     {
-      key: 'favorites',
-      href: 'dashboards/favorites',
-      title: 'Favorites',
+      key: "favorites",
+      href: "dashboards/favorites",
+      title: "Favorites",
       icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
     },
   ];
 
   listColumns = [
-    Columns.favorites({ className: 'p-r-0' }),
-    Columns.custom.sortable((text, item) => (
-      <React.Fragment>
-        <a className="table-main-title" href={'dashboard/' + item.slug} data-test={item.slug}>{ item.name }</a>
-        <DashboardTagsControl
-          className="d-block"
-          tags={item.tags}
-          isDraft={item.is_draft}
-          isArchived={item.is_archived}
-        />
-      </React.Fragment>
-    ), {
-      title: 'Name',
-      field: 'name',
-      width: null,
-    }),
-    Columns.avatar({ field: 'user', className: 'p-l-0 p-r-0' }, name => `Created by ${name}`),
+    Columns.favorites({ className: "p-r-0" }),
+    Columns.custom.sortable(
+      (text, item) => (
+        <React.Fragment>
+          <a className="table-main-title" href={"dashboard/" + item.slug} data-test={item.slug}>
+            {item.name}
+          </a>
+          <DashboardTagsControl
+            className="d-block"
+            tags={item.tags}
+            isDraft={item.is_draft}
+            isArchived={item.is_archived}
+          />
+        </React.Fragment>
+      ),
+      {
+        title: "Name",
+        field: "name",
+        width: null,
+      }
+    ),
+    Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
     Columns.dateTime.sortable({
-      title: 'Created At',
-      field: 'created_at',
-      className: 'text-nowrap',
-      width: '1%',
+      title: "Created At",
+      field: "created_at",
+      className: "text-nowrap",
+      width: "1%",
     }),
   ];
 
@@ -126,42 +131,50 @@ class DashboardList extends React.Component {
 }
 
 export default function init(ngModule) {
-  ngModule.component('pageDashboardList', react2angular(itemsList(
-    DashboardList,
-    new ResourceItemsSource({
-      getResource({ params: { currentPage } }) {
-        return {
-          all: Dashboard.query.bind(Dashboard),
-          favorites: Dashboard.favorites.bind(Dashboard),
-        }[currentPage];
-      },
-      getItemProcessor() {
-        return (item => new Dashboard(item));
-      },
-    }),
-    new UrlStateStorage({ orderByField: 'created_at', orderByReverse: true }),
-  )));
+  ngModule.component(
+    "pageDashboardList",
+    react2angular(
+      itemsList(
+        DashboardList,
+        new ResourceItemsSource({
+          getResource({ params: { currentPage } }) {
+            return {
+              all: Dashboard.query.bind(Dashboard),
+              favorites: Dashboard.favorites.bind(Dashboard),
+            }[currentPage];
+          },
+          getItemProcessor() {
+            return item => new Dashboard(item);
+          },
+        }),
+        new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+      )
+    )
+  );
 
-  return routesToAngularRoutes([
+  return routesToAngularRoutes(
+    [
+      {
+        path: "/dashboards",
+        title: "Dashboards",
+        key: "all",
+      },
+      {
+        path: "/dashboards/favorites",
+        title: "Favorite Dashboards",
+        key: "favorites",
+      },
+    ],
     {
-      path: '/dashboards',
-      title: 'Dashboards',
-      key: 'all',
-    },
-    {
-      path: '/dashboards/favorites',
-      title: 'Favorite Dashboards',
-      key: 'favorites',
-    },
-  ], {
-    reloadOnSearch: false,
-    template: '<page-dashboard-list on-error="handleError"></page-dashboard-list>',
-    controller($scope, $exceptionHandler) {
-      'ngInject';
+      reloadOnSearch: false,
+      template: '<page-dashboard-list on-error="handleError"></page-dashboard-list>',
+      controller($scope, $exceptionHandler) {
+        "ngInject";
 
-      $scope.handleError = $exceptionHandler;
-    },
-  });
+        $scope.handleError = $exceptionHandler;
+      },
+    }
+  );
 }
 
 init.init = true;

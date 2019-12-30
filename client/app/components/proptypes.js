@@ -1,6 +1,6 @@
-import PropTypes from 'prop-types';
-import { wrap } from 'lodash';
-import moment from 'moment';
+import PropTypes from "prop-types";
+import { wrap } from "lodash";
+import moment from "moment";
 
 export const DataSource = PropTypes.shape({
   syntax: PropTypes.string,
@@ -35,16 +35,16 @@ export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,
   title: PropTypes.string,
   type: PropTypes.oneOf([
-    'ace',
-    'text',
-    'textarea',
-    'email',
-    'password',
-    'number',
-    'checkbox',
-    'file',
-    'select',
-    'content',
+    "ace",
+    "text",
+    "textarea",
+    "email",
+    "password",
+    "number",
+    "checkbox",
+    "file",
+    "select",
+    "content",
   ]).isRequired,
   initialValue: PropTypes.oneOfType([
     PropTypes.string,
@@ -112,7 +112,7 @@ export const Query = PropTypes.shape({
 
 export const AlertOptions = PropTypes.shape({
   column: PropTypes.string,
-  op: PropTypes.oneOf(['>', '>=', '<', '<=', '==', '!=']),
+  op: PropTypes.oneOf([">", ">=", "<", "<=", "==", "!="]),
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   custom_subject: PropTypes.string,
   custom_body: PropTypes.string,
@@ -125,7 +125,7 @@ export const Alert = PropTypes.shape({
   last_triggered_at: PropTypes.string,
   updated_at: PropTypes.string,
   rearm: PropTypes.number,
-  state: PropTypes.oneOf(['ok', 'triggered', 'unknown']),
+  state: PropTypes.oneOf(["ok", "triggered", "unknown"]),
   user: UserProfile,
   query: Query,
   options: PropTypes.shape({
@@ -137,10 +137,10 @@ export const Alert = PropTypes.shape({
 
 function checkMoment(isRequired, props, propName, componentName) {
   const value = props[propName];
-  const isRequiredValid = isRequired && (value !== null && value !== undefined) && moment.isMoment(value);
-  const isOptionalValid = !isRequired && ((value === null || value === undefined) || moment.isMoment(value));
+  const isRequiredValid = isRequired && value !== null && value !== undefined && moment.isMoment(value);
+  const isOptionalValid = !isRequired && (value === null || value === undefined || moment.isMoment(value));
   if (!isRequiredValid && !isOptionalValid) {
-    return new Error('Prop `' + propName + '` supplied to `' + componentName + '` should be a Moment.js instance.');
+    return new Error("Prop `" + propName + "` supplied to `" + componentName + "` should be a Moment.js instance.");
   }
 }
 

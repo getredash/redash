@@ -14,10 +14,9 @@ from redash.permissions import has_access, view_only
 from redash.utils import json_loads
 from redash.models.parameterized_query import ParameterizedQuery
 
-
 from .query_result import (
     serialize_query_result,
-    serialize_query_result_to_csv,
+    serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
 )
 

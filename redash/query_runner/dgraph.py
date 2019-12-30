@@ -2,6 +2,7 @@ import json
 
 try:
     import pydgraph
+
     enabled = True
 except ImportError:
     enabled = False
@@ -15,13 +16,13 @@ def reduce_item(reduced_item, key, value):
     # Reduction Condition 1
     if type(value) is list:
         for i, sub_item in enumerate(value):
-            reduce_item(reduced_item, '{}.{}'.format(key, i), sub_item)
+            reduce_item(reduced_item, "{}.{}".format(key, i), sub_item)
 
     # Reduction Condition 2
     elif type(value) is dict:
         sub_keys = value.keys()
         for sub_key in sub_keys:
-            reduce_item(reduced_item, '{}.{}'.format(key, sub_key), value[sub_key])
+            reduce_item(reduced_item, "{}.{}".format(key, sub_key), value[sub_key])
 
     # Base Condition
     else:
@@ -42,19 +43,13 @@ class Dgraph(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "servers": {
-                    "type": "string"
-                }
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "servers": {"type": "string"},
             },
             "order": ["servers", "user", "password"],
             "required": ["servers"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -66,7 +61,7 @@ class Dgraph(BaseQueryRunner):
         return enabled
 
     def run_dgraph_query_raw(self, query):
-        servers = self.configuration.get('servers')
+        servers = self.configuration.get("servers")
 
         client_stub = pydgraph.DgraphClientStub(servers)
         client = pydgraph.DgraphClient(client_stub)
@@ -111,10 +106,12 @@ class Dgraph(BaseQueryRunner):
 
             header = list(set(header))
 
-            columns = [{'name': c, 'friendly_name': c, 'type': 'string'} for c in header]
+            columns = [
+                {"name": c, "friendly_name": c, "type": "string"} for c in header
+            ]
 
             # finally, assemble both the columns and data
-            data = {'columns': columns, 'rows': processed_data}
+            data = {"columns": columns, "rows": processed_data}
 
             json_data = json_dumps(data)
         except Exception as e:
@@ -132,11 +129,11 @@ class Dgraph(BaseQueryRunner):
 
         schema = {}
 
-        for row in results['schema']:
-            table_name = row['predicate']
+        for row in results["schema"]:
+            table_name = row["predicate"]
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
         return list(schema.values())
 

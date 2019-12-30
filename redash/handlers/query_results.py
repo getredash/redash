@@ -1,9 +1,11 @@
 import logging
 import time
 
+import unicodedata
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
+from werkzeug.urls import url_quote
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (
@@ -11,6 +13,8 @@ from redash.permissions import (
     not_view_only,
     require_access,
     require_permission,
+    require_any_of_permission,
+    view_only,
     view_only,
 )
 from redash.tasks import Job
@@ -30,7 +34,7 @@ from redash.models.parameterized_query import (
 )
 from redash.serializers import (
     serialize_query_result,
-    serialize_query_result_to_csv,
+    serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
     serialize_job,
 )
@@ -72,7 +76,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
     try:
         query.apply(parameters)
     except (InvalidParameterError, QueryDetachedFromDataSourceError) as e:
-        abort(400, message=e.message)
+        abort(400, message=str(e))
 
     if query.missing_params:
         return error_response(
@@ -127,6 +131,25 @@ def get_download_filename(query_result, query, filetype):
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
+
+
+def content_disposition_filenames(attachment_filename):
+    if not isinstance(attachment_filename, str):
+        attachment_filename = attachment_filename.decode("utf-8")
+
+    try:
+        attachment_filename = attachment_filename.encode("ascii")
+    except UnicodeEncodeError:
+        filenames = {
+            "filename": unicodedata.normalize("NFKD", attachment_filename).encode(
+                "ascii", "ignore"
+            ),
+            "filename*": "UTF-8''%s" % url_quote(attachment_filename, safe=b""),
+        }
+    else:
+        filenames = {"filename": attachment_filename}
+
+    return filenames
 
 
 class QueryResultListResource(BaseResource):
@@ -187,7 +210,7 @@ class QueryResultDropdownResource(BaseResource):
         try:
             return dropdown_values(query_id, self.current_org)
         except QueryDetachedFromDataSourceError as e:
-            abort(400, message=e.message)
+            abort(400, message=str(e))
 
 
 class QueryDropdownsResource(BaseResource):
@@ -221,7 +244,7 @@ class QueryResultResource(BaseResource):
                     settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
                 ).lower()
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
         self.add_cors_headers(headers)
@@ -238,7 +261,7 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def post(self, query_id):
         """
         Execute a saved query.
@@ -284,7 +307,7 @@ class QueryResultResource(BaseResource):
             else:
                 return error_messages["no_permission"]
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
@@ -365,12 +388,13 @@ class QueryResultResource(BaseResource):
 
                 self.record_event(event)
 
-            if filetype == "json":
-                response = self.make_json_response(query_result)
-            elif filetype == "xlsx":
-                response = self.make_excel_response(query_result)
-            else:
-                response = self.make_csv_response(query_result)
+            response_builders = {
+                'json': self.make_json_response,
+                'xlsx': self.make_excel_response,
+                'csv': self.make_csv_response,
+                'tsv': self.make_tsv_response
+            }
+            response = response_builders[filetype](query_result)
 
             if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
                 self.add_cors_headers(response.headers)
@@ -382,16 +406,16 @@ class QueryResultResource(BaseResource):
 
             filename = get_download_filename(query_result, query, filetype)
 
-            response.headers.add_header(
-                "Content-Disposition", 'attachment; filename="{}"'.format(filename)
-            )
+            filenames = content_disposition_filenames(filename)
+            response.headers.add("Content-Disposition", "attachment", **filenames)
 
             return response
 
         else:
             abort(404, message="No cached result found for this query.")
 
-    def make_json_response(self, query_result):
+    @staticmethod
+    def make_json_response(query_result):
         data = json_dumps({"query_result": query_result.to_dict()})
         headers = {"Content-Type": "application/json"}
         return make_response(data, 200, headers)
@@ -399,7 +423,12 @@ class QueryResultResource(BaseResource):
     @staticmethod
     def make_csv_response(query_result):
         headers = {"Content-Type": "text/csv; charset=UTF-8"}
-        return make_response(serialize_query_result_to_csv(query_result), 200, headers)
+        return make_response(serialize_query_result_to_dsv(query_result, ","), 200, headers)
+
+    @staticmethod
+    def make_tsv_response(query_result):
+        headers = {"Content-Type": "text/tab-separated-values; charset=UTF-8"}
+        return make_response(serialize_query_result_to_dsv(query_result, "\t"), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
