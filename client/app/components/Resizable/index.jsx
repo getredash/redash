@@ -2,7 +2,7 @@ import d3 from "d3";
 import React, { useRef, useMemo, useCallback, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Resizable as ReactResizable } from "react-resizable";
-import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
+import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 
 import "./index.less";
 

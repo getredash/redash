@@ -6,7 +6,7 @@ import cx from "classnames";
 import Menu from "antd/lib/menu";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
-import { formatDateTime } from "@/filters/datetime";
+import { formatDateTime } from "@/filters";
 import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";

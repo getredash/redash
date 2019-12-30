@@ -93,23 +93,20 @@ class PublicDashboardPage extends React.Component {
 export default function init(ngModule) {
   ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
 
-  function session($route, Auth) {
-    const token = $route.current.params.token;
-    Auth.setApiKey(token);
-    return Auth.loadConfig();
-  }
-
-  ngModule.config($routeProvider => {
-    $routeProvider.when("/public/dashboards/:token", {
+  return {
+    "/public/dashboards/:token": {
       template: "<public-dashboard-page></public-dashboard-page>",
       reloadOnSearch: false,
       resolve: {
-        session,
+        session: ($route, Auth) => {
+          "ngInject";
+          const token = $route.current.params.token;
+          Auth.setApiKey(token);
+          return Auth.loadConfig();
+        },
       },
-    });
-  });
-
-  return [];
+    },
+  };
 }
 
 init.init = true;

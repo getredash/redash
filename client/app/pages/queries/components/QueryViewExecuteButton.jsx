@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
-import { KeyboardShortcuts, humanReadableShortcut } from "@/services/keyboard-shortcuts";
+import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 
 export default function QueryViewExecuteButton({ shortcut, disabled, children, onClick }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);

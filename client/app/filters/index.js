@@ -1,6 +1,5 @@
 import moment from "moment";
-import { capitalize as _capitalize, isEmpty } from "lodash";
-import { formatDate, formatDateTime } from "./datetime";
+import { clientConfig } from "@/services/auth";
 
 export const IntervalEnum = {
   NEVER: "Never",
@@ -10,6 +9,32 @@ export const IntervalEnum = {
   DAYS: "day",
   WEEKS: "week",
 };
+
+export function formatDateTime(value) {
+  if (!value) {
+    return "";
+  }
+
+  const parsed = moment(value);
+  if (!parsed.isValid()) {
+    return "-";
+  }
+
+  return parsed.format(clientConfig.dateTimeFormat);
+}
+
+export function formatDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const parsed = moment(value);
+  if (!parsed.isValid()) {
+    return "-";
+  }
+
+  return parsed.format(clientConfig.dateFormat);
+}
 
 export function localizeTime(time) {
   const [hrs, mins] = time.split(":");
@@ -46,27 +71,6 @@ export function secondsToInterval(count) {
   return { count, interval };
 }
 
-export function intervalToSeconds(count, interval) {
-  let intervalInSeconds = 0;
-  switch (interval) {
-    case IntervalEnum.MINUTES:
-      intervalInSeconds = 60;
-      break;
-    case IntervalEnum.HOURS:
-      intervalInSeconds = 3600;
-      break;
-    case IntervalEnum.DAYS:
-      intervalInSeconds = 86400;
-      break;
-    case IntervalEnum.WEEKS:
-      intervalInSeconds = 604800;
-      break;
-    default:
-      return null;
-  }
-  return intervalInSeconds * count;
-}
-
 export function pluralize(text, count) {
   const should = count !== 1;
   return text + (should ? "s" : "");
@@ -88,25 +92,6 @@ export function durationHumanize(duration, options = {}) {
 
 export function toHuman(text) {
   return text.replace(/_/g, " ").replace(/(?:^|\s)\S/g, a => a.toUpperCase());
-}
-
-export function colWidth(widgetWidth) {
-  if (widgetWidth === 0) {
-    return 0;
-  } else if (widgetWidth === 1) {
-    return 6;
-  } else if (widgetWidth === 2) {
-    return 12;
-  }
-  return widgetWidth;
-}
-
-export function capitalize(text) {
-  if (text) {
-    return _capitalize(text);
-  }
-
-  return null;
 }
 
 export function remove(items, item) {
@@ -131,18 +116,6 @@ export function remove(items, item) {
   }
 
   return filtered;
-}
-
-export function notEmpty(collection) {
-  return !isEmpty(collection);
-}
-
-export function showError(field) {
-  // In case of booleans, we get an undefined here.
-  if (field === undefined) {
-    return false;
-  }
-  return field.$touched && field.$invalid;
 }
 
 const units = ["bytes", "KB", "MB", "GB", "TB", "PB"];

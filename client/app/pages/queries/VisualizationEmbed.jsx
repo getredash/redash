@@ -10,7 +10,7 @@ import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
 import { $location, $routeParams } from "@/services/ng";
-import { formatDateTime } from "@/filters/datetime";
+import { formatDateTime } from "@/filters";
 import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
@@ -219,16 +219,15 @@ export default function init(ngModule) {
     return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
   }
 
-  // TODO: It's actually page - why is it here??
-  ngModule.config($routeProvider => {
-    $routeProvider.when("/embed/query/:queryId/visualization/:visualizationId", {
+  return {
+    "/embed/query/:queryId/visualization/:visualizationId": {
+      template: '<visualization-embed query="$resolve.query"></visualization-embed>',
+      reloadOnSearch: false,
       resolve: {
         query: loadQuery,
       },
-      reloadOnSearch: false,
-      template: '<visualization-embed query="$resolve.query"></visualization-embed>',
-    });
-  });
+    },
+  };
 }
 
 init.init = true;

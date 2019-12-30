@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import Button from "antd/lib/button";
 import Select from "antd/lib/select";
-import { KeyboardShortcuts, humanReadableShortcut } from "@/services/keyboard-shortcuts";
+import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 
 import AutocompleteToggle from "./AutocompleteToggle";
 import "./QueryEditorControls.less";

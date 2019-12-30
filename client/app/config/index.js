@@ -20,10 +20,6 @@ import { each, isFunction, extend } from "lodash";
 import DialogWrapper from "@/components/DialogWrapper";
 import organizationStatus from "@/services/organizationStatus";
 
-import * as filters from "@/filters";
-import registerDirectives from "@/directives";
-import markdownFilter from "@/filters/markdown";
-import dateTimeFilter from "@/filters/datetime";
 import "./antd-spinner";
 import moment from "moment";
 
@@ -131,22 +127,12 @@ function registerPages() {
   });
 }
 
-function registerFilters() {
-  each(filters, (filter, name) => {
-    ngModule.filter(name, () => filter);
-  });
-}
-
 requireImages();
-registerDirectives(ngModule);
 registerServices();
-registerFilters();
-markdownFilter(ngModule);
-dateTimeFilter(ngModule);
 registerComponents();
 registerPages();
 registerExtensions();
-registerVisualizations(ngModule);
+registerVisualizations();
 
 ngModule.run($q => {
   DialogWrapper.Promise = $q;

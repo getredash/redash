@@ -4,8 +4,6 @@ import "mousetrap/plugins/global-bind/mousetrap-global-bind";
 
 const modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? "Cmd" : "Ctrl";
 
-export let KeyboardShortcuts = null; // eslint-disable-line import/no-mutable-exports
-
 export function humanReadableShortcut(shortcut, limit = Infinity) {
   const modifiers = {
     mod: upperFirst(modKey),
@@ -29,10 +27,10 @@ function onShortcut(event, shortcut) {
   each(handlers[shortcut], fn => fn());
 }
 
-function KeyboardShortcutsService() {
-  this.modKey = modKey;
+const KeyboardShortcuts = {
+  modKey,
 
-  this.bind = function bind(keymap) {
+  bind: keymap => {
     each(keymap, (fn, key) => {
       const keys = key
         .toLowerCase()
@@ -43,9 +41,9 @@ function KeyboardShortcutsService() {
         Mousetrap.bindGlobal(k, onShortcut);
       });
     });
-  };
+  },
 
-  this.unbind = function unbind(keymap) {
+  unbind: keymap => {
     each(keymap, (fn, key) => {
       const keys = key
         .toLowerCase()
@@ -59,15 +57,7 @@ function KeyboardShortcutsService() {
         }
       });
     });
-  };
-}
+  },
+};
 
-export default function init(ngModule) {
-  ngModule.service("KeyboardShortcuts", KeyboardShortcutsService);
-
-  ngModule.run($injector => {
-    KeyboardShortcuts = $injector.get("KeyboardShortcuts");
-  });
-}
-
-init.init = true;
+export default KeyboardShortcuts;
