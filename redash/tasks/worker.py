@@ -12,14 +12,14 @@ class CancellableJob(BaseJob):
     def cancel(self, pipeline=None):
         # TODO - add tests that verify that queued jobs are removed from queue and running jobs are actively cancelled
         if self.is_started:
-            self.meta['cancelled'] = True
+            self.meta["cancelled"] = True
             self.save_meta()
 
         super().cancel(pipeline=pipeline)
-        
+
     @property
     def is_cancelled(self):
-        return self.meta.get('cancelled', False)
+        return self.meta.get("cancelled", False)
 
 
 class CancellableQueue(BaseQueue):
@@ -40,21 +40,27 @@ class HardLimitingWorker(BaseWorker):
     RQ Worker by checking if the work horse is still busy with the job, even after
     it should have timed out (+ a grace period of 15s). If it does, it kills the work horse.
     """
+
     grace_period = 15
     queue_class = CancellableQueue
     job_class = CancellableJob
 
     def stop_executing_job(self, job):
         os.kill(self.horse_pid, signal.SIGINT)
-        self.log.warning('Job %s has been cancelled.', job.id)
+        self.log.warning("Job %s has been cancelled.", job.id)
 
     def soft_limit_exceeded(self, job):
         seconds_under_monitor = (utcnow() - self.monitor_started).seconds
         return seconds_under_monitor > job.timeout + self.grace_period
 
     def enforce_hard_limit(self, job):
-        self.log.warning('Job %s exceeded timeout of %ds (+%ds grace period) but work horse did not terminate it. '
-                         'Killing the work horse.', job.id, job.timeout, self.grace_period)
+        self.log.warning(
+            "Job %s exceeded timeout of %ds (+%ds grace period) but work horse did not terminate it. "
+            "Killing the work horse.",
+            job.id,
+            job.timeout,
+            self.grace_period,
+        )
         self.kill_horse()
 
     def monitor_work_horse(self, job):
@@ -65,7 +71,9 @@ class HardLimitingWorker(BaseWorker):
         self.monitor_started = utcnow()
         while True:
             try:
-                with UnixSignalDeathPenalty(self.job_monitoring_interval, HorseMonitorTimeoutException):
+                with UnixSignalDeathPenalty(
+                    self.job_monitoring_interval, HorseMonitorTimeoutException
+                ):
                     retpid, ret_val = os.waitpid(self._horse_pid, 0)
                 break
             except HorseMonitorTimeoutException:
@@ -103,16 +111,19 @@ class HardLimitingWorker(BaseWorker):
                 job.ended_at = utcnow()
 
             # Unhandled failure: move the job to the failed queue
-            self.log.warning((
-                'Moving job to FailedJobRegistry '
-                '(work-horse terminated unexpectedly; waitpid returned {})'
-            ).format(ret_val))
+            self.log.warning(
+                (
+                    "Moving job to FailedJobRegistry "
+                    "(work-horse terminated unexpectedly; waitpid returned {})"
+                ).format(ret_val)
+            )
 
             self.handle_job_failure(
                 job,
                 exc_string="Work-horse process was terminated unexpectedly "
-                           "(waitpid returned %s)" % ret_val
+                "(waitpid returned %s)" % ret_val,
             )
+
 
 Job = CancellableJob
 Queue = CancellableQueue

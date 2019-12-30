@@ -11,29 +11,35 @@ from rq.registry import StartedJobRegistry
 
 def get_redis_status():
     info = redis_connection.info()
-    return {'redis_used_memory': info['used_memory'], 'redis_used_memory_human': info['used_memory_human']}
+    return {
+        "redis_used_memory": info["used_memory"],
+        "redis_used_memory_human": info["used_memory_human"],
+    }
 
 
 def get_object_counts():
     status = {}
-    status['queries_count'] = Query.query.count()
+    status["queries_count"] = Query.query.count()
     if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
-        status['query_results_count'] = QueryResult.query.count()
-        status['unused_query_results_count'] = QueryResult.unused().count()
-    status['dashboards_count'] = Dashboard.query.count()
-    status['widgets_count'] = Widget.query.count()
+        status["query_results_count"] = QueryResult.query.count()
+        status["unused_query_results_count"] = QueryResult.unused().count()
+    status["dashboards_count"] = Dashboard.query.count()
+    status["widgets_count"] = Widget.query.count()
     return status
 
 
 def get_queues_status():
-    return {queue.name: {'size': len(queue)} for queue in Queue.all()}
+    return {queue.name: {"size": len(queue)} for queue in Queue.all()}
 
 
 def get_db_sizes():
     database_metrics = []
     queries = [
-        ['Query Results Size', "select pg_total_relation_size('query_results') as size from (select 1) as a"],
-        ['Redash DB Size', "select pg_database_size('postgres') as size"]
+        [
+            "Query Results Size",
+            "select pg_total_relation_size('query_results') as size from (select 1) as a",
+        ],
+        ["Redash DB Size", "select pg_database_size('postgres') as size"],
     ]
     for query_name, query in queries:
         result = db.session.execute(query).first()
@@ -43,61 +49,64 @@ def get_db_sizes():
 
 
 def get_status():
-    status = {
-        'version': __version__,
-        'workers': []
-    }
+    status = {"version": __version__, "workers": []}
     status.update(get_redis_status())
     status.update(get_object_counts())
-    status['manager'] = redis_connection.hgetall('redash:status')
-    status['manager']['queues'] = get_queues_status()
-    status['database_metrics'] = {}
-    status['database_metrics']['metrics'] = get_db_sizes()
+    status["manager"] = redis_connection.hgetall("redash:status")
+    status["manager"]["queues"] = get_queues_status()
+    status["database_metrics"] = {}
+    status["database_metrics"]["metrics"] = get_db_sizes()
 
     return status
 
 
 def fetch_jobs(queue, job_ids):
-        return [{
-            'id': job.id,
-            'name': job.func_name,
-            'queue': queue.name,
-            'enqueued_at': job.enqueued_at,
-            'started_at': job.started_at
-        } for job in Job.fetch_many(job_ids, connection=rq_redis_connection) if job is not None]
+    return [
+        {
+            "id": job.id,
+            "name": job.func_name,
+            "queue": queue.name,
+            "enqueued_at": job.enqueued_at,
+            "started_at": job.started_at,
+        }
+        for job in Job.fetch_many(job_ids, connection=rq_redis_connection)
+        if job is not None
+    ]
 
 
 def rq_queues():
     return {
         q.name: {
-            'name': q.name,
-            'started': fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
-            'queued': len(q.job_ids)
-        } for q in Queue.all()}
+            "name": q.name,
+            "started": fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
+            "queued": len(q.job_ids),
+        }
+        for q in Queue.all()
+    }
 
 
 def describe_job(job):
-    return '{} ({})'.format(job.id, job.func_name.split(".").pop()) if job else None
+    return "{} ({})".format(job.id, job.func_name.split(".").pop()) if job else None
 
 
 def rq_workers():
-    return [{
-        'name': w.name,
-        'hostname': w.hostname,
-        'pid': w.pid,
-        'queues': ", ".join([q.name for q in w.queues]),
-        'state': w.state,
-        'last_heartbeat': w.last_heartbeat,
-        'birth_date': w.birth_date,
-        'current_job': describe_job(w.get_current_job()),
-        'successful_jobs': w.successful_job_count,
-        'failed_jobs': w.failed_job_count,
-        'total_working_time': w.total_working_time
-    } for w in Worker.all()]
+    return [
+        {
+            "name": w.name,
+            "hostname": w.hostname,
+            "pid": w.pid,
+            "queues": ", ".join([q.name for q in w.queues]),
+            "state": w.state,
+            "last_heartbeat": w.last_heartbeat,
+            "birth_date": w.birth_date,
+            "current_job": describe_job(w.get_current_job()),
+            "successful_jobs": w.successful_job_count,
+            "failed_jobs": w.failed_job_count,
+            "total_working_time": w.total_working_time,
+        }
+        for w in Worker.all()
+    ]
 
 
 def rq_status():
-    return {
-        'queues': rq_queues(),
-        'workers': rq_workers()
-    }
+    return {"queues": rq_queues(), "workers": rq_workers()}
