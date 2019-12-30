@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const SQL = `
   SELECT '2019-01-01' AS "date", 21 AS "bucket", 5 AS "value", 1 AS "stage" UNION ALL
@@ -19,18 +19,18 @@ const SQL = `
   SELECT '2019-05-01' AS "date", 15 AS "bucket", 2 AS "value", 4 AS "stage"
 `;
 
-describe('Cohort', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Cohort", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
   });
 
-  it('creates visualization', () => {
+  it("creates visualization", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -57,8 +57,10 @@ describe('Cohort', () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId('VisualizationPreview').find('table').should('exist');
-    cy.percySnapshot('Visualizations - Cohort (simple)', { widths: [viewportWidth] });
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
+    cy.percySnapshot("Visualizations - Cohort (simple)", { widths: [viewportWidth] });
 
     cy.clickThrough(`
       VisualizationEditor.Tabs.Options
@@ -68,7 +70,9 @@ describe('Cohort', () => {
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId('VisualizationPreview').find('table').should('exist');
-    cy.percySnapshot('Visualizations - Cohort (diagonal)', { widths: [viewportWidth] });
+    cy.getByTestId("VisualizationPreview")
+      .find("table")
+      .should("exist");
+    cy.percySnapshot("Visualizations - Cohort (diagonal)", { widths: [viewportWidth] });
   });
 });

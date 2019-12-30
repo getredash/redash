@@ -45,7 +45,12 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
     ? widgets.filter(widget =>
         Object.values(widget.getParameterMappings())
           .filter(({ type }) => type === "dashboard-level")
-          .some(({ mapTo }) => includes(updatedParameters.map(p => p.name), mapTo))
+          .some(({ mapTo }) =>
+            includes(
+              updatedParameters.map(p => p.name),
+              mapTo
+            )
+          )
       )
     : widgets;
 }
