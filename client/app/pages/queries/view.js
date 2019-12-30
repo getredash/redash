@@ -2,7 +2,7 @@ import { pick, some, find, minBy, map, intersection, isEmpty, isArray } from "lo
 import DataSource, { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from "@/services/data-source";
 import getTags from "@/services/getTags";
 import { policy } from "@/services/policy";
-import { Visualization } from "@/services/visualization";
+import Visualization from "@/services/visualization";
 import Notifications from "@/services/notifications";
 import ScheduleDialog from "@/components/queries/ScheduleDialog";
 import { newVisualization } from "@/visualizations";
@@ -401,19 +401,17 @@ function QueryViewCtrl(
     const confirm = { class: "btn-danger", title: "Delete" };
 
     AlertDialog.open(title, message, confirm).then(() => {
-      Visualization.delete(
-        { id: vis.id },
-        () => {
+      Visualization.delete({ id: vis.id })
+        .then(() => {
           if ($scope.selectedVisualization.id === vis.id) {
             $scope.selectedVisualization = DEFAULT_VISUALIZATION;
             $location.hash($scope.selectedVisualization.id);
           }
           $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
-        },
-        () => {
+        })
+        .catch(() => {
           notification.error("Error deleting visualization.", "Maybe it's used in a dashboard?");
-        }
-      );
+        });
     });
   };
 
