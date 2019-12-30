@@ -37,7 +37,12 @@ export default function QueryViewExecuteButton({ shortcut, disabled, children, o
   return (
     <Tooltip placement="top" title={humanReadableShortcut(shortcut, 1)} visible={tooltipVisible}>
       <span {...eventHandlers}>
-        <Button type="primary" disabled={disabled} onClick={onClick} style={disabled ? { pointerEvents: "none" } : {}}>
+        <Button
+          data-test="ExecuteButton"
+          type="primary"
+          disabled={disabled}
+          onClick={onClick}
+          style={disabled ? { pointerEvents: "none" } : {}}>
           {children}
         </Button>
       </span>

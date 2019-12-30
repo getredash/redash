@@ -5,15 +5,18 @@ describe('Create Query', () => {
   });
 
   it('executes and saves a query', () => {
-    cy.getByTestId('SelectDataSource')
-      .click()
-      .contains('Test PostgreSQL').click();
+    cy.clickThrough(`
+      SelectDataSource
+      SelectDataSource1
+    `);
 
     cy.getByTestId('QueryEditor')
       .get('.ace_text-input')
       .type('SELECT id, name FROM organizations{esc}', { force: true });
+    // QueryEditor::onChange is debounced, so this wait is needed
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId('ExecuteButton').click();
+    cy.getByTestId('ExecuteButton').should('be.enabled').click();
 
     cy.getByTestId('TableVisualization').should('exist');
     cy.percySnapshot('Edit Query');
