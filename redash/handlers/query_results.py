@@ -15,8 +15,9 @@ from redash.permissions import (
     require_permission,
     require_any_of_permission,
     view_only,
+    view_only,
 )
-from redash.tasks import QueryTask
+from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (
     collect_parameters_from_request,
@@ -35,6 +36,7 @@ from redash.serializers import (
     serialize_query_result,
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
+    serialize_job,
 )
 
 
@@ -119,7 +121,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
                 "Query ID": query_id,
             },
         )
-        return {"job": job.to_dict()}
+        return serialize_job(job)
 
 
 def get_download_filename(query_result, query, filetype):
@@ -441,12 +443,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = QueryTask(job_id=job_id)
-        return {"job": job.to_dict()}
+        job = Job.fetch(job_id)
+        return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = QueryTask(job_id=job_id)
+        job = Job.fetch(job_id)
         job.cancel()
