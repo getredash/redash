@@ -5,11 +5,12 @@ import datetime
 
 from click import argument
 from flask.cli import AppGroup
-from rq import Connection, Worker
+from rq import Connection
 from sqlalchemy.orm import configure_mappers
 
 from redash import rq_redis_connection
-from redash.schedule import (
+from redash.tasks import Worker
+from redash.tasks.schedule import (
     rq_scheduler,
     schedule_periodic_jobs,
     periodic_job_definitions,
@@ -34,10 +35,10 @@ def worker(queues):
     configure_mappers()
 
     if not queues:
-        queues = ["periodic", "emails", "default", "schemas"]
+        queues = ["scheduled_queries", "queries", "periodic", "emails", "default", "schemas"]
 
     with Connection(rq_redis_connection):
-        w = Worker(queues, log_job_description=False)
+        w = Worker(queues, log_job_description=False, job_monitoring_interval=5)
         w.work()
 
 

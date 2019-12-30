@@ -45,7 +45,7 @@ def get_queues_status():
         },
         **{
             queue.name: {"size": len(queue)}
-            for queue in Queue.all(connection=rq_redis_connection)
+            for queue in Queue.all()
         },
     }
 
@@ -166,7 +166,7 @@ def rq_queues():
             "started": fetch_jobs(q, StartedJobRegistry(queue=q).get_job_ids()),
             "queued": len(q.job_ids),
         }
-        for q in Queue.all(connection=rq_redis_connection)
+        for q in Queue.all()
     }
 
 
@@ -189,7 +189,7 @@ def rq_workers():
             "failed_jobs": w.failed_job_count,
             "total_working_time": w.total_working_time,
         }
-        for w in Worker.all(connection=rq_redis_connection)
+        for w in Worker.all()
     ]
 
 
