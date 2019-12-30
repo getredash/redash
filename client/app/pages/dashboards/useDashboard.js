@@ -283,7 +283,9 @@ function useDashboard(dashboardData) {
 
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
-    Dashboard.delete(dashboard).then(() => loadDashboard());
+    Dashboard.delete(dashboard).then(updatedDashboard =>
+      setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
+    );
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
