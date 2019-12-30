@@ -325,21 +325,22 @@ export class QueryResultError {
 
 const getQuery = query => new Query(query);
 const saveOrCreateUrl = data => (data.id ? `api/queries/${data.id}` : "api/queries");
+const mapResults = data => ({ ...data, results: map(data.results, getQuery) });
 
 const QueryService = {
-  query: params => axios.get("api/queries", { params }),
+  query: params => axios.get("api/queries", { params }).then(mapResults),
   get: data => axios.get(`api/queries/${data.id}`, data).then(getQuery),
   save: data => axios.post(saveOrCreateUrl(data), data).then(getQuery),
   delete: data => axios.delete(`api/queries/${data.id}`),
-  recent: params => axios.get(`api/queries/recent`, { params }),
-  archive: params => axios.get(`api/queries/archive`, { params }),
-  myQueries: params => axios.get("api/queries/my", { params }),
+  recent: params => axios.get(`api/queries/recent`, { params }).then(data => map(data, getQuery)),
+  archive: params => axios.get(`api/queries/archive`, { params }).then(mapResults),
+  myQueries: params => axios.get("api/queries/my", { params }).then(mapResults),
   fork: ({ id }) => axios.post(`api/queries/${id}/fork`, { id }).then(getQuery),
   resultById: data => axios.get(`api/queries/${data.id}/results.json`),
   asDropdown: data => axios.get(`api/queries/${data.id}/dropdown`),
   associatedDropdown: ({ queryId, dropdownQueryId }) =>
     axios.get(`api/queries/${queryId}/dropdowns/${dropdownQueryId}`),
-  favorites: params => axios.get("api/queries/favorites", { params }),
+  favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
   unfavorite: data => axios.delete(`api/queries/${data.id}/unfavorite`),
 };
