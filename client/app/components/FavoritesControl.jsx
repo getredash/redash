@@ -20,7 +20,7 @@ export class FavoritesControl extends React.Component {
   };
 
   toggleItem(event, item, callback) {
-    const action = item.is_favorite ? item.$unfavorite.bind(item) : item.$favorite.bind(item);
+    const action = item.is_favorite ? item.unfavorite.bind(item) : item.favorite.bind(item);
     const savedIsFavorite = item.is_favorite;
 
     action().then(() => {

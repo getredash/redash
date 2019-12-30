@@ -167,6 +167,14 @@ export class Query {
   getParametersDefs(update = true) {
     return this.getParameters().get(update);
   }
+
+  favorite() {
+    return Query.favorite(this);
+  }
+
+  unfavorite() {
+    return Query.unfavorite(this);
+  }
 }
 
 class Parameters {
@@ -289,6 +297,7 @@ class Parameters {
       .join("&");
   }
 }
+
 export class QueryResultError {
   constructor(errorMessage) {
     this.errorMessage = errorMessage;
@@ -342,7 +351,7 @@ const QueryService = {
     axios.get(`api/queries/${queryId}/dropdowns/${dropdownQueryId}`),
   favorites: params => axios.get("api/queries/favorites", { params }).then(mapResults),
   favorite: data => axios.post(`api/queries/${data.id}/favorite`),
-  unfavorite: data => axios.delete(`api/queries/${data.id}/unfavorite`),
+  unfavorite: data => axios.delete(`api/queries/${data.id}/favorite`),
 };
 
 QueryService.newQuery = function newQuery() {

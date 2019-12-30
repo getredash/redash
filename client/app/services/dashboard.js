@@ -234,3 +234,11 @@ Dashboard.prototype.addWidget = function addWidget(textOrVisualization, options 
     return widget;
   });
 };
+
+Dashboard.prototype.favorite = function favorite() {
+  return Dashboard.favorite(this);
+};
+
+Dashboard.prototype.unfavorite = function unfavorite() {
+  return Dashboard.unfavorite(this);
+};
