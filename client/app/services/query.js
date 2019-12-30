@@ -7,7 +7,7 @@ import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, 
 import { Parameter } from "./parameters";
 import { currentUser } from "./auth";
 import { $location } from "./ng";
-import { QueryResult } from "./query-result";
+import QueryResult from "./query-result";
 
 Mustache.escape = identity; // do not html-escape values
 
