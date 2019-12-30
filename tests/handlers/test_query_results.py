@@ -36,7 +36,10 @@ class TestQueryResultsContentDispositionHeaders(BaseTestCase):
 
         rv = self.make_request("get", "/api/queries/{}/results.json".format(query.id))
         # This is what gunicorn will do with it
-        rv.headers['Content-Disposition'].encode('ascii')
+        try:
+            rv.headers['Content-Disposition'].encode('ascii')
+        except Exception as e:
+            self.fail(repr(e))            
 
 
 class TestQueryResultListAPI(BaseTestCase):
