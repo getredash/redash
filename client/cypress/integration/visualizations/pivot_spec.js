@@ -89,6 +89,8 @@ describe('Pivot', () => {
         cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
         cy.getByTestId('ExecuteButton').click();
 
+        // Wait for proper initialization of visualization
+        cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.getByTestId(`QueryPageVisualization${visualization.id}`)
           .find('.pvtGrandTotal')
           .should('have.text', '11'); // assert number of rows is 11
@@ -101,6 +103,8 @@ describe('Pivot', () => {
         cy.getByTestId('SaveButton').click();
         cy.getByTestId('ExecuteButton').click();
 
+        // Wait for proper initialization of visualization
+        cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.getByTestId(`QueryPageVisualization${visualization.id}`)
           .find('.pvtGrandTotal')
           .should('have.text', '12'); // assert number of rows is 12

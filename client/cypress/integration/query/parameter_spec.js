@@ -566,7 +566,7 @@ describe('Parameter', () => {
       cy.getByTestId('ExecuteButton').should('be.disabled');
 
       cy.get('@Input').clear();
-      cy.getByTestId('ExecuteButton').should('not.be.disabled');
+      cy.getByTestId('ExecuteButton').should('be.enabled');
     });
   });
 
@@ -592,6 +592,8 @@ describe('Parameter', () => {
         .first()
         .invoke('width')
         .as('paramWidth');
+
+      cy.get('body').type('{alt}D'); // hide schema browser
     });
 
     const dragParam = (paramName, offsetLeft, offsetTop) => {

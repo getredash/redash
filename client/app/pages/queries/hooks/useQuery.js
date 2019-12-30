@@ -7,12 +7,13 @@ export default function useQuery(originalQuery) {
   const [originalQuerySource, setOriginalQuerySource] = useState(originalQuery.query);
 
   const updateQuery = useUpdateQuery(query, updatedQuery => {
-    setQuery(updatedQuery);
-    setOriginalQuerySource(updatedQuery.query);
+    // It's important to update URL first, and only then update state
     if (updatedQuery.id !== query.id) {
       // Don't reload page when saving new query
       navigateTo(updatedQuery.getSourceLink(), true, false);
     }
+    setQuery(updatedQuery);
+    setOriginalQuerySource(updatedQuery.query);
   });
 
   return useMemo(

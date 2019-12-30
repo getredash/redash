@@ -51,11 +51,13 @@ export class Parameters extends React.Component {
 
   componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
-    if (prevProps.parameters !== parameters) {
+    const parametersChanged = prevProps.parameters !== parameters;
+    const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
+    if (parametersChanged) {
       this.setState({ parameters });
-      if (!disableUrlUpdate) {
-        updateUrl(parameters);
-      }
+    }
+    if ((parametersChanged || disableUrlUpdateChanged) && !disableUrlUpdate) {
+      updateUrl(parameters);
     }
   };
 
