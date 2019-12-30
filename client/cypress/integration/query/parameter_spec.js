@@ -11,7 +11,7 @@ describe("Parameter", () => {
     edit();
 
     cy.getByTestId("ParameterName-test-parameter")
-      .find(".parameter-input")
+      .find('.parameter-input')
       .should($el => {
         assert.isTrue($el.data("dirty"));
       });
