@@ -45,7 +45,12 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
     ? widgets.filter(widget =>
         Object.values(widget.getParameterMappings())
           .filter(({ type }) => type === "dashboard-level")
-          .some(({ mapTo }) => includes(updatedParameters.map(p => p.name), mapTo))
+          .some(({ mapTo }) =>
+            includes(
+              updatedParameters.map(p => p.name),
+              mapTo
+            )
+          )
       )
     : widgets;
 }
@@ -213,7 +218,7 @@ function useDashboard(dashboardData) {
         data = { ...data, version: dashboard.version };
       }
       return Dashboard.save(data)
-        .$promise.then(updatedDashboard =>
+        .then(updatedDashboard =>
           setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))))
         )
         .catch(error => {
@@ -278,7 +283,7 @@ function useDashboard(dashboardData) {
 
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
-    dashboard.$delete().then(() => loadDashboard());
+    Dashboard.delete(dashboard).then(() => loadDashboard());
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
