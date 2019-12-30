@@ -120,9 +120,6 @@ export default function init(ngModule) {
           getResource() {
             return Alert.query.bind(Alert);
           },
-          getItemProcessor() {
-            return item => item;
-          },
         }),
         new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
       )

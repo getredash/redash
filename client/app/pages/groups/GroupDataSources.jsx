@@ -243,9 +243,6 @@ export default function init(ngModule) {
             getResource() {
               return Group.dataSources.bind(Group);
             },
-            getItemProcessor() {
-              return item => item;
-            },
           }),
           new StateStorage({ orderByField: "name" })
         )

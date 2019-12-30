@@ -145,9 +145,6 @@ export default function init(ngModule) {
             getResource() {
               return Group.query.bind(Group);
             },
-            getItemProcessor() {
-              return item => item;
-            },
           }),
           new StateStorage({ orderByField: "name", itemsPerPage: 10 })
         )

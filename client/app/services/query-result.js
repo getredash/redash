@@ -2,8 +2,8 @@ import debug from "debug";
 import moment from "moment";
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
-import { $q } from "@/services/ng";
 import { Auth } from "@/services/auth";
+import defer from "@/lib/defer";
 import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from "lodash";
 
 const logger = debug("redash:services:QueryResult");
@@ -70,7 +70,7 @@ function handleErrorResponse(queryResult, response) {
 
 class QueryResult {
   constructor(props) {
-    this.deferred = $q.defer(); // TODO: replace this defer
+    this.deferred = defer();
     this.job = {};
     this.query_result = {};
     this.status = "waiting";

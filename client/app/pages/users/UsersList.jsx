@@ -275,9 +275,6 @@ export default function init(ngModule) {
             getResource() {
               return User.query.bind(User);
             },
-            getItemProcessor() {
-              return item => item;
-            },
           }),
           new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
         )

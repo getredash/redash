@@ -211,9 +211,6 @@ export default function init(ngModule) {
             getResource() {
               return QuerySnippet.query.bind(QuerySnippet);
             },
-            getItemProcessor() {
-              return item => item;
-            },
           }),
           new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })
         )

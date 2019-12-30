@@ -206,9 +206,6 @@ export default function init(ngModule) {
             getResource() {
               return Group.members.bind(Group);
             },
-            getItemProcessor() {
-              return item => item;
-            },
           }),
           new StateStorage({ orderByField: "name" })
         )
