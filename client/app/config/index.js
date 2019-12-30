@@ -10,11 +10,7 @@ import angular from "angular";
 import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
 import ngResource from "angular-resource";
-import uiBootstrap from "angular-ui-bootstrap";
-import uiSelect from "ui-select";
-import vsRepeat from "angular-vs-repeat";
 import "brace";
-import "angular-resizable";
 import { each, isFunction, extend } from "lodash";
 
 import DialogWrapper from "@/components/DialogWrapper";
@@ -51,7 +47,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
+const requirements = [ngRoute, ngResource, ngSanitize];
 
 const ngModule = angular.module("app", requirements);
 
