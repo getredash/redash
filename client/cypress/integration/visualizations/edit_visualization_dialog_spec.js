@@ -39,6 +39,6 @@ describe('Edit visualization dialog', () => {
     cy.getByTestId('VisualizationName').clear().type(visualizationName);
 
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId('QueryPageVisualizationTabs').contains('span', visualizationName).should('exist');
   });
 });

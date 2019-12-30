@@ -41,7 +41,7 @@ describe('Sankey and Sunburst', () => {
     cy.percySnapshot('Visualizations - Sunburst', { widths: [viewportWidth] });
 
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId('QueryPageVisualizationTabs').contains('span', visualizationName).should('exist');
   });
 
   it('creates Sankey', () => {
@@ -58,6 +58,6 @@ describe('Sankey and Sunburst', () => {
     cy.percySnapshot('Visualizations - Sankey', { widths: [viewportWidth] });
 
     cy.getByTestId('EditVisualizationDialog').contains('button', 'Save').click();
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId('QueryPageVisualizationTabs').contains('span', visualizationName).should('exist');
   });
 });

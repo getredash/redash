@@ -1,5 +1,5 @@
 import { isEmpty, find, map, extend, includes } from "lodash";
-import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
@@ -149,16 +149,10 @@ function QuerySource(props) {
     }
   }, []);
 
-  const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !areParametersDirty, [
-    isQueryExecuting,
-    areParametersDirty,
-    queryFlags.canExecute,
-  ]);
-
   const [selectedText, setSelectedText] = useState(null);
 
   const doExecuteQuery = useCallback(() => {
-    if (!canExecuteQuery) {
+    if (!queryFlags.canExecute || isQueryExecuting) {
       return;
     }
     if (isDirty || !isEmpty(selectedText)) {
@@ -166,7 +160,7 @@ function QuerySource(props) {
     } else {
       executeQuery();
     }
-  }, [canExecuteQuery, isDirty, selectedText, executeQuery, executeAdhocQuery]);
+  }, [queryFlags.canExecute, isQueryExecuting, isDirty, selectedText, executeQuery, executeAdhocQuery]);
 
   return (
     <div className="query-page-wrapper">
@@ -183,24 +177,31 @@ function QuerySource(props) {
       <main className="query-fullscreen">
         <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
           <nav>
-            <div className="editor__left__data-source">
-              <Select
-                className="w-100"
-                placeholder="Choose data source..."
-                value={dataSource ? dataSource.id : undefined}
-                disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
-                loading={!dataSourcesLoaded}
-                optionFilterProp="data-name"
-                showSearch
-                onChange={handleDataSourceChange}>
-                {map(dataSources, ds => (
-                  <Select.Option key={`ds-${ds.id}`} value={ds.id} data-name={ds.name}>
-                    <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
-                    <span>{ds.name}</span>
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
+            {dataSourcesLoaded && (
+              <div className="editor__left__data-source">
+                <Select
+                  className="w-100"
+                  data-test="SelectDataSource"
+                  placeholder="Choose data source..."
+                  value={dataSource ? dataSource.id : undefined}
+                  disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
+                  loading={!dataSourcesLoaded}
+                  optionFilterProp="data-name"
+                  showSearch
+                  onChange={handleDataSourceChange}>
+                  {map(dataSources, ds => (
+                    <Select.Option
+                      key={`ds-${ds.id}`}
+                      value={ds.id}
+                      data-name={ds.name}
+                      data-test={`SelectDataSource${ds.id}`}>
+                      <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                      <span>{ds.name}</span>
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+            )}
             <div className="editor__left__schema">
               <SchemaBrowser
                 schema={schema}
@@ -270,7 +271,7 @@ function QuerySource(props) {
                         }
                       }
                       executeButtonProps={{
-                        disabled: !canExecuteQuery,
+                        disabled: !queryFlags.canExecute || isQueryExecuting || areParametersDirty,
                         shortcut: "mod+enter, alt+enter",
                         onClick: doExecuteQuery,
                         text: (

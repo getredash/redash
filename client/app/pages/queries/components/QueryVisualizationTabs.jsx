@@ -11,7 +11,7 @@ import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
-function TabWithDeleteButton({ visualizationName, canDelete, onDelete }) {
+function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
   const handleDelete = useCallback(
     e => {
       e.stopPropagation();
@@ -29,14 +29,14 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete }) {
   );
 
   return (
-    <>
+    <span {...props}>
       {visualizationName}
       {canDelete && (
         <a className="delete-visualization-button" onClick={handleDelete}>
           <i className="zmdi zmdi-close" />
         </a>
       )}
-    </>
+    </span>
   );
 }
 
@@ -78,7 +78,7 @@ export default function QueryVisualizationTabs({
 
   if (showNewVisualizationButton) {
     tabsProps.tabBarExtraContent = (
-      <Button onClick={() => onAddVisualization()}>
+      <Button data-test="NewVisualization" onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
         <span className="m-l-5 hidden-xs">New Visualization</span>
       </Button>
@@ -93,6 +93,7 @@ export default function QueryVisualizationTabs({
     <Tabs
       {...tabsProps}
       className="query-visualization-tabs"
+      data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
       onChange={activeKey => onChangeTab(+activeKey)}
@@ -100,8 +101,10 @@ export default function QueryVisualizationTabs({
       {orderedVisualizations.map(visualization => (
         <TabPane
           key={`${visualization.id}`}
+          data-test={`QueryPageVisualization${selectedTab}`}
           tab={
             <TabWithDeleteButton
+              data-test={`QueryPageVisualizationTab${visualization.id}`}
               canDelete={!isMobile && canDeleteVisualizations && !isFirstVisualization(visualization.id)}
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization.id)}

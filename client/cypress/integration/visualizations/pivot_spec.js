@@ -50,7 +50,7 @@ describe('Pivot', () => {
     const visualizationName = 'Pivot';
     createPivotThroughUI(visualizationName);
 
-    cy.getByTestId('QueryPageVisualizationTabs').contains('li', visualizationName).should('exist');
+    cy.getByTestId('QueryPageVisualizationTabs').contains('span', visualizationName).should('exist');
   });
 
   it('creates Pivot without controls', function () {
