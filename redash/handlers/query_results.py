@@ -1,9 +1,11 @@
 import logging
 import time
 
+import unicodedata
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
+from werkzeug.urls import url_quote
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (
@@ -127,6 +129,25 @@ def get_download_filename(query_result, query, filetype):
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
+
+
+def content_disposition_filenames(attachment_filename):
+    if not isinstance(attachment_filename, str):
+        attachment_filename = attachment_filename.decode("utf-8")
+
+    try:
+        attachment_filename = attachment_filename.encode("ascii")
+    except UnicodeEncodeError:
+        filenames = {
+            "filename": unicodedata.normalize("NFKD", attachment_filename).encode(
+                "ascii", "ignore"
+            ),
+            "filename*": "UTF-8''%s" % url_quote(attachment_filename, safe=b""),
+        }
+    else:
+        filenames = {"filename": attachment_filename}
+
+    return filenames
 
 
 class QueryResultListResource(BaseResource):
@@ -383,9 +404,8 @@ class QueryResultResource(BaseResource):
 
             filename = get_download_filename(query_result, query, filetype)
 
-            response.headers.add_header(
-                "Content-Disposition", 'attachment; filename="{}"'.format(filename)
-            )
+            filenames = content_disposition_filenames(filename)
+            response.headers.add("Content-Disposition", "attachment", **filenames)
 
             return response
 
