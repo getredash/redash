@@ -12,13 +12,13 @@ import Tooltip from "antd/lib/tooltip";
 import { $location, $routeParams } from "@/services/ng";
 import { formatDateTime } from "@/filters/datetime";
 import HtmlContent from "@/components/HtmlContent";
-import { Parameters } from "@/components/Parameters";
+import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";
-import { TimeAgo } from "@/components/TimeAgo";
-import { Timer } from "@/components/Timer";
+import TimeAgo from "@/components/TimeAgo";
+import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
 import VisualizationName from "@/visualizations/VisualizationName";
-import { VisualizationRenderer } from "@/visualizations/VisualizationRenderer";
+import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
@@ -219,6 +219,7 @@ export default function init(ngModule) {
     return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
   }
 
+  // TODO: It's actually page - why is it here??
   ngModule.config($routeProvider => {
     $routeProvider.when("/embed/query/:queryId/visualization/:visualizationId", {
       resolve: {

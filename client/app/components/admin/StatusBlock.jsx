@@ -5,7 +5,7 @@ import React from "react";
 
 import List from "antd/lib/list";
 import Card from "antd/lib/card";
-import { TimeAgo } from "@/components/TimeAgo";
+import TimeAgo from "@/components/TimeAgo";
 
 import { toHuman, prettySize } from "@/filters";
 

@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 
-import { EditInPlace } from "@/components/EditInPlace";
-import { Parameters } from "@/components/Parameters";
-import { TimeAgo } from "@/components/TimeAgo";
-import { QueryControlDropdown } from "@/components/EditVisualizationButton/QueryControlDropdown";
-import { EditVisualizationButton } from "@/components/EditVisualizationButton";
+import EditInPlace from "@/components/EditInPlace";
+import Parameters from "@/components/Parameters";
+import TimeAgo from "@/components/TimeAgo";
+import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
+import EditVisualizationButton from "@/components/EditVisualizationButton";
 
 import { DataSource } from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/filters";

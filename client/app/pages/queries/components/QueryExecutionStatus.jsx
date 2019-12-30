@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
-import { Timer } from "@/components/Timer";
+import Timer from "@/components/Timer";
 
 export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
   const alertType = status === "failed" ? "error" : "info";

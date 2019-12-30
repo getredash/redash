@@ -2,7 +2,7 @@ import React from "react";
 import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
-import { Paginator } from "@/components/Paginator";
+import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";

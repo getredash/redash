@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
-import { TimeAgo } from "@/components/TimeAgo";
+import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
 
 import Form from "antd/lib/form";

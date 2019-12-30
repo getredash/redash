@@ -3,8 +3,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { Moment } from "@/components/proptypes";
-import { TimeAgo } from "@/components/TimeAgo";
-import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
+import TimeAgo from "@/components/TimeAgo";
+import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { IMG_ROOT } from "@/services/data-source";
 
 import "./QueryMetadata.less";

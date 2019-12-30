@@ -1,6 +1,6 @@
 import React from "react";
 import Menu from "antd/lib/menu";
-import { PageHeader } from "@/components/PageHeader";
+import PageHeader from "@/components/PageHeader";
 import { $location } from "@/services/ng";
 import settingsMenu from "@/services/settingsMenu";
 
