@@ -482,6 +482,8 @@ describe('Parameter', () => {
         .find('input')
         .type('Redash');
 
+      cy.wait(300); // eslint-disable-line cypress/no-unnecessary-waiting
+
       cy.location('search').should('not.contain', 'Redash');
 
       cy.server();
