@@ -3,11 +3,19 @@ import moment from "moment";
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
-import defer from "@/lib/defer";
 import { uniqBy, each, isNumber, isString, includes, extend, forOwn } from "lodash";
 
 const logger = debug("redash:services:QueryResult");
 const filterTypes = ["filter", "multi-filter", "multiFilter"];
+
+function defer() {
+  const result = {};
+  result.promise = new Promise((resolve, reject) => {
+    result.resolve = resolve;
+    result.reject = reject;
+  });
+  return result;
+}
 
 function getColumnNameWithoutType(column) {
   let typeSplit;

@@ -81,9 +81,7 @@ class Widget {
 
   constructor(data) {
     // Copy properties
-    each(data, (v, k) => {
-      this[k] = v;
-    });
+    extend(this, data);
 
     const visualizationOptions = calculatePositionOptions(this);
 
