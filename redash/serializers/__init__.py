@@ -6,6 +6,8 @@ separation of concerns.
 from funcy import project
 
 from flask_login import current_user
+from rq.job import JobStatus
+from rq.timeouts import JobTimeoutException
 
 from redash import models
 from redash.permissions import has_access, view_only
@@ -263,3 +265,39 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         d["is_favorite"] = models.Favorite.is_favorite(current_user.id, obj)
 
     return d
+
+
+def serialize_job(job):
+    # TODO: this is mapping to the old Job class statuses. Need to update the client side and remove this
+    STATUSES = {
+        JobStatus.QUEUED: 1,
+        JobStatus.STARTED: 2,
+        JobStatus.FINISHED: 3,
+        JobStatus.FAILED: 4,
+    }
+
+    job_status = job.get_status()
+    if job.is_started:
+        updated_at = job.started_at or 0
+    else:
+        updated_at = 0
+
+    status = STATUSES[job_status]
+
+    if isinstance(job.result, Exception):
+        error = str(job.result)
+        status = 4
+    elif job.is_cancelled:
+        error = "Query execution cancelled."
+    else:
+        error = ""
+
+    return {
+        "job": {
+            "id": job.id,
+            "updated_at": updated_at,
+            "status": status,
+            "error": error,
+            "query_result_id": job.result if job.is_finished and not error else None,
+        }
+    }

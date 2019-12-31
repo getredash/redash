@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery, createVisualization } from '../../support/redash-api';
+import { createQuery, createVisualization } from "../../support/redash-api";
 
 const SQL = `
   SELECT 12 AS mn, 4967 AS mx UNION ALL
@@ -37,34 +37,36 @@ const SQL = `
   SELECT 5228 AS mn, 18466 AS mx
 `;
 
-describe('Box Plot', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Box Plot", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL })
-      .then(({ id }) => createVisualization(id, 'BOXPLOT', 'Boxplot (Deprecated)', {}))
+      .then(({ id }) => createVisualization(id, "BOXPLOT", "Boxplot (Deprecated)", {}))
       .then(({ id: visualizationId, query_id: queryId }) => {
         cy.visit(`queries/${queryId}/source#${visualizationId}`);
-        cy.getByTestId('ExecuteButton').click();
+        cy.getByTestId("ExecuteButton").click();
       });
   });
 
-  it('creates visualization', () => {
+  it("creates visualization", () => {
     cy.clickThrough(`
       EditVisualization
     `);
 
     cy.fillInputs({
-      'BoxPlot.XAxisLabel': 'X Axis',
-      'BoxPlot.YAxisLabel': 'Y Axis',
+      "BoxPlot.XAxisLabel": "X Axis",
+      "BoxPlot.YAxisLabel": "Y Axis",
     });
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
-    cy.getByTestId('VisualizationPreview').find('svg').should('exist');
+    cy.getByTestId("VisualizationPreview")
+      .find("svg")
+      .should("exist");
 
-    cy.percySnapshot('Visualizations - Box Plot', { widths: [viewportWidth] });
+    cy.percySnapshot("Visualizations - Box Plot", { widths: [viewportWidth] });
   });
 });
