@@ -132,7 +132,7 @@ def parse_api_error(error):
     if "error" in error_data and "message" in error_data["error"]:
         message = error_data["error"]["message"]
     else:
-        message = error.message
+        message = str(error)
 
     return message
 
