@@ -22,7 +22,7 @@ import { $route } from "@/services/ng";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
-import { durationHumanize } from "@/filters";
+import { durationHumanize } from "@/lib/utils";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import useDashboard, { DashboardStatusEnum } from "./useDashboard";
 

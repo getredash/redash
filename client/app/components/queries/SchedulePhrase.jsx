@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
-import { localizeTime, durationHumanize } from "@/filters";
+import { localizeTime, durationHumanize } from "@/lib/utils";
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
 import "./ScheduleDialog.css";

@@ -7,7 +7,7 @@ import Select from "antd/lib/select";
 import Radio from "antd/lib/radio";
 import { capitalize, clone, isEqual, omitBy, isNil } from "lodash";
 import moment from "moment";
-import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/filters";
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { RefreshScheduleType, RefreshScheduleDefault, Moment } from "../proptypes";
 

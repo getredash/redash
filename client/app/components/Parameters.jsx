@@ -7,7 +7,7 @@ import { Parameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
-import { toHuman } from "@/filters";
+import { toHuman } from "@/lib/utils";
 
 import "./Parameters.less";
 

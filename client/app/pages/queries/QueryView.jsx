@@ -10,7 +10,7 @@ import QueryControlDropdown from "@/components/EditVisualizationButton/QueryCont
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 
 import { DataSource } from "@/services/data-source";
-import { pluralize, durationHumanize } from "@/filters";
+import { pluralize, durationHumanize } from "@/lib/utils";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";

@@ -10,7 +10,7 @@ import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
 import { $location, $routeParams } from "@/services/ng";
-import { formatDateTime } from "@/filters";
+import { formatDateTime } from "@/lib/utils";
 import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
 import { Moment } from "@/components/proptypes";

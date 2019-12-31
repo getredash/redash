@@ -3,7 +3,7 @@ import moment from "moment";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
-import { formatColumnValue } from "@/filters";
+import { formatColumnValue } from "@/lib/utils";
 
 const ALL_VALUES = "###Redash::Filters::SelectAll###";
 const NONE_VALUES = "###Redash::Filters::Clear###";

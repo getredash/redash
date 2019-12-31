@@ -7,7 +7,7 @@ import List from "antd/lib/list";
 import Card from "antd/lib/card";
 import TimeAgo from "@/components/TimeAgo";
 
-import { toHuman, prettySize } from "@/filters";
+import { toHuman, prettySize } from "@/lib/utils";
 
 export function General({ info }) {
   info = toPairs(info);

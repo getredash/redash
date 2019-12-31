@@ -12,7 +12,7 @@ import QueryControlDropdown from "@/components/EditVisualizationButton/QueryCont
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
 import { routesToAngularRoutes } from "@/lib/utils";
-import { durationHumanize, prettySize } from "@/filters";
+import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 
