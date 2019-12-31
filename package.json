@@ -42,7 +42,6 @@
     "@types/react-dom": "^16.0.5",
     "angular": "~1.5.8",
     "angular-resizable": "^1.2.0",
-    "angular-resource": "~1.5.8",
     "angular-route": "~1.5.8",
     "angular-sanitize": "~1.5.8",
     "angular-ui-bootstrap": "^2.5.0",

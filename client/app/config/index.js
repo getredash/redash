@@ -9,7 +9,6 @@ import debug from "debug";
 import angular from "angular";
 import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
-import ngResource from "angular-resource";
 import uiBootstrap from "angular-ui-bootstrap";
 import uiSelect from "ui-select";
 import vsRepeat from "angular-vs-repeat";
@@ -55,7 +54,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
+const requirements = [ngRoute, ngSanitize, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
 
 const ngModule = angular.module("app", requirements);
 
