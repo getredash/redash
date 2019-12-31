@@ -1,9 +1,11 @@
 import logging
 import time
 
+import unicodedata
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
+from werkzeug.urls import url_quote
 from redash import models, settings
 from redash.handlers.base import BaseResource, get_object_or_404, record_event
 from redash.permissions import (
@@ -11,9 +13,11 @@ from redash.permissions import (
     not_view_only,
     require_access,
     require_permission,
+    require_any_of_permission,
+    view_only,
     view_only,
 )
-from redash.tasks import QueryTask
+from redash.tasks import Job
 from redash.tasks.queries import enqueue_query
 from redash.utils import (
     collect_parameters_from_request,
@@ -32,6 +36,7 @@ from redash.serializers import (
     serialize_query_result,
     serialize_query_result_to_dsv,
     serialize_query_result_to_xlsx,
+    serialize_job,
 )
 
 
@@ -116,7 +121,7 @@ def run_query(query, parameters, data_source, query_id, max_age=0):
                 "Query ID": query_id,
             },
         )
-        return {"job": job.to_dict()}
+        return serialize_job(job)
 
 
 def get_download_filename(query_result, query, filetype):
@@ -126,6 +131,25 @@ def get_download_filename(query_result, query, filetype):
     else:
         filename = str(query_result.id)
     return "{}_{}.{}".format(filename, retrieved_at, filetype)
+
+
+def content_disposition_filenames(attachment_filename):
+    if not isinstance(attachment_filename, str):
+        attachment_filename = attachment_filename.decode("utf-8")
+
+    try:
+        attachment_filename = attachment_filename.encode("ascii")
+    except UnicodeEncodeError:
+        filenames = {
+            "filename": unicodedata.normalize("NFKD", attachment_filename).encode(
+                "ascii", "ignore"
+            ),
+            "filename*": "UTF-8''%s" % url_quote(attachment_filename, safe=b""),
+        }
+    else:
+        filenames = {"filename": attachment_filename}
+
+    return filenames
 
 
 class QueryResultListResource(BaseResource):
@@ -220,7 +244,7 @@ class QueryResultResource(BaseResource):
                     settings.ACCESS_CONTROL_ALLOW_CREDENTIALS
                 ).lower()
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def options(self, query_id=None, query_result_id=None, filetype="json"):
         headers = {}
         self.add_cors_headers(headers)
@@ -237,7 +261,7 @@ class QueryResultResource(BaseResource):
 
         return make_response("", 200, headers)
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def post(self, query_id):
         """
         Execute a saved query.
@@ -283,7 +307,7 @@ class QueryResultResource(BaseResource):
             else:
                 return error_messages["no_permission"]
 
-    @require_permission("view_query")
+    @require_any_of_permission(("view_query", "execute_query"))
     def get(self, query_id=None, query_result_id=None, filetype="json"):
         """
         Retrieve query results.
@@ -382,9 +406,8 @@ class QueryResultResource(BaseResource):
 
             filename = get_download_filename(query_result, query, filetype)
 
-            response.headers.add_header(
-                "Content-Disposition", 'attachment; filename="{}"'.format(filename)
-            )
+            filenames = content_disposition_filenames(filename)
+            response.headers.add("Content-Disposition", "attachment", **filenames)
 
             return response
 
@@ -420,12 +443,12 @@ class JobResource(BaseResource):
         """
         Retrieve info about a running query job.
         """
-        job = QueryTask(job_id=job_id)
-        return {"job": job.to_dict()}
+        job = Job.fetch(job_id)
+        return serialize_job(job)
 
     def delete(self, job_id):
         """
         Cancel a query job in progress.
         """
-        job = QueryTask(job_id=job_id)
+        job = Job.fetch(job_id)
         job.cancel()
