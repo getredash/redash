@@ -221,6 +221,7 @@ export default function init(ngModule) {
 
   return {
     "/embed/query/:queryId/visualization/:visualizationId": {
+      authenticated: false,
       template: '<visualization-embed query="$resolve.query"></visualization-embed>',
       reloadOnSearch: false,
       resolve: {

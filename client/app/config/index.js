@@ -98,13 +98,15 @@ function registerPages() {
     ngModule.config($routeProvider => {
       each(routes, (route, path) => {
         logger("Registering route: %s", path);
-        route.authenticated = true;
-        route.resolve = extend(
-          {
-            __organizationStatus: () => organizationStatus.refresh(),
-          },
-          route.resolve
-        );
+        route.authenticated = route.authenticated !== false; // could be set to `false` do disable auth
+        if (route.authenticated) {
+          route.resolve = extend(
+            {
+              __organizationStatus: () => organizationStatus.refresh(),
+            },
+            route.resolve
+          );
+        }
         $routeProvider.when(path, route);
       });
     });

@@ -95,6 +95,7 @@ export default function init(ngModule) {
 
   return {
     "/public/dashboards/:token": {
+      authenticated: false,
       template: "<public-dashboard-page></public-dashboard-page>",
       reloadOnSearch: false,
       resolve: {
