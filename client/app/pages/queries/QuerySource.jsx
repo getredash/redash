@@ -151,16 +151,27 @@ function QuerySource(props) {
 
   const [selectedText, setSelectedText] = useState(null);
 
-  const doExecuteQuery = useCallback(() => {
-    if (!queryFlags.canExecute || isQueryExecuting) {
-      return;
-    }
-    if (isDirty || !isEmpty(selectedText)) {
-      executeAdhocQuery(selectedText);
-    } else {
-      executeQuery();
-    }
-  }, [queryFlags.canExecute, isQueryExecuting, isDirty, selectedText, executeQuery, executeAdhocQuery]);
+  const doExecuteQuery = useCallback(
+    (skipParametersDirtyFlag = false) => {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && areParametersDirty) || isQueryExecuting) {
+        return;
+      }
+      if (isDirty || !isEmpty(selectedText)) {
+        executeAdhocQuery(selectedText);
+      } else {
+        executeQuery();
+      }
+    },
+    [
+      queryFlags.canExecute,
+      areParametersDirty,
+      isQueryExecuting,
+      isDirty,
+      selectedText,
+      executeAdhocQuery,
+      executeQuery,
+    ]
+  );
 
   return (
     <div className="query-page-wrapper">
@@ -310,7 +321,7 @@ function QuerySource(props) {
                       onPendingValuesChange={() => updateParametersDirtyFlag()}
                       onValuesChange={() => {
                         updateParametersDirtyFlag(false);
-                        doExecuteQuery();
+                        doExecuteQuery(true);
                       }}
                       onParametersEdit={() => {
                         // save if query clean
