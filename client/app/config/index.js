@@ -13,6 +13,7 @@ import ngResource from "angular-resource";
 import "brace";
 import { each, isFunction, extend } from "lodash";
 
+import initAppView from "@/components/app-view";
 import DialogWrapper from "@/components/DialogWrapper";
 import organizationStatus from "@/services/organizationStatus";
 
@@ -69,13 +70,6 @@ function requireImages() {
   ctx.keys().forEach(ctx);
 }
 
-function registerComponents() {
-  // We repeat this code in other register functions, because if we don't use a literal for the path
-  // Webpack won't be able to statcily analyze our imports.
-  const context = require.context("@/components", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
-}
-
 function registerExtensions() {
   const context = require.context("extensions", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
@@ -127,7 +121,7 @@ function registerPages() {
 
 requireImages();
 registerServices();
-registerComponents();
+initAppView(ngModule);
 registerPages();
 registerExtensions();
 registerVisualizations();

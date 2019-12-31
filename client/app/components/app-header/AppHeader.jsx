@@ -1,7 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 
 import React, { useRef } from "react";
-import { react2angular } from "react2angular";
 
 import Dropdown from "antd/lib/dropdown";
 import Button from "antd/lib/button";
@@ -244,7 +243,7 @@ function MobileNavbar() {
   );
 }
 
-export function AppHeader() {
+export default function AppHeader() {
   return (
     <nav className="app-header-wrapper">
       <DesktopNavbar />
@@ -252,9 +251,3 @@ export function AppHeader() {
     </nav>
   );
 }
-
-export default function init(ngModule) {
-  ngModule.component("appHeader", react2angular(AppHeader));
-}
-
-init.init = true;
