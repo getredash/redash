@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
@@ -56,18 +56,15 @@ function QueryView(props) {
   const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
-  const canExecuteQuery = useMemo(() => queryFlags.canExecute && !isQueryExecuting && !areParametersDirty, [
-    isQueryExecuting,
-    areParametersDirty,
-    queryFlags.canExecute,
-  ]);
-
-  const doExecuteQuery = useCallback(() => {
-    if (!canExecuteQuery) {
-      return;
-    }
-    executeQuery();
-  }, [canExecuteQuery, executeQuery]);
+  const doExecuteQuery = useCallback(
+    (skipParametersDirtyFlag = false) => {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && areParametersDirty) || isQueryExecuting) {
+        return;
+      }
+      executeQuery();
+    },
+    [areParametersDirty, executeQuery, isQueryExecuting, queryFlags.canExecute]
+  );
 
   useEffect(() => {
     document.title = query.name;
@@ -101,7 +98,7 @@ function QueryView(props) {
               parameters={parameters}
               onValuesChange={() => {
                 updateParametersDirtyFlag(false);
-                executeQuery();
+                doExecuteQuery(true);
               }}
               onPendingValuesChange={() => updateParametersDirtyFlag()}
             />
@@ -168,7 +165,7 @@ function QueryView(props) {
             )}
             <QueryViewExecuteButton
               shortcut="mod+enter, alt+enter"
-              disabled={!canExecuteQuery || isQueryExecuting}
+              disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
               onClick={doExecuteQuery}>
               Execute
             </QueryViewExecuteButton>
