@@ -10,7 +10,6 @@ import angular from "angular";
 import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
 import ngResource from "angular-resource";
-import "brace";
 import { each, isFunction, extend } from "lodash";
 
 import initAppView from "@/components/app-view";
