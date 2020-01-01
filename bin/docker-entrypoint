@@ -25,7 +25,10 @@ dev_scheduler() {
 worker() {
   echo "Starting RQ worker..."
 
-  exec /app/manage.py rq worker $QUEUES
+  export WORKERS_COUNT=${WORKERS_COUNT:-2}
+  export QUEUES=${QUEUES:-}
+  
+  supervisord -c worker.conf
 }
 
 dev_worker() {
