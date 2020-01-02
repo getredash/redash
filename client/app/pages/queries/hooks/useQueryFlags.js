@@ -23,6 +23,6 @@ export default function useQueryFlags(query, dataSource = null) {
       canFork: currentUser.hasPermission("edit_query") && !dataSource.view_only,
       canSchedule: currentUser.hasPermission("schedule_query"),
     }),
-    [query, dataSource.view_only]
+    [query.id, query.is_draft, query.is_archived, query.can_edit, query.is_safe, query.query, dataSource.view_only]
   );
 }
