@@ -6,7 +6,7 @@ import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import * as Grid from "antd/lib/grid";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import { Visualization } from "@/services/visualization";
@@ -197,7 +197,9 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           </label>
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
-            <ErrorBoundary ref={errorHandlerRef}>
+            <ErrorBoundary
+              ref={errorHandlerRef}
+              renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
               <Renderer
                 data={filteredData}
                 options={options}

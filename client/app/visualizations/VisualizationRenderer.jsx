@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import useQueryResult from "@/lib/hooks/useQueryResult";
-import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { registeredVisualizations, VisualizationType } from "./index";
 
@@ -70,7 +70,9 @@ export function VisualizationRenderer(props) {
 
   return (
     <div className="visualization-renderer">
-      <ErrorBoundary ref={errorHandlerRef}>
+      <ErrorBoundary
+        ref={errorHandlerRef}
+        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
         {showFilters && <Filters filters={filters} onChange={setFilters} />}
         <div className="visualization-renderer-wrapper">
           <Renderer

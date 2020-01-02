@@ -10,7 +10,20 @@ export const ErrorBoundaryContext = React.createContext({
   handleError: error => {
     throw error;
   },
+  reset: () => {},
 });
+
+export function ErrorMessage({ children }) {
+  return <Alert message={children} type="error" showIcon />;
+}
+
+ErrorMessage.propTypes = {
+  children: PropTypes.node,
+};
+
+ErrorMessage.defaultProps = {
+  children: "Something went wrong.",
+};
 
 export default class ErrorBoundary extends React.Component {
   static propTypes = {
@@ -42,18 +55,17 @@ export default class ErrorBoundary extends React.Component {
     logger(error, errorInfo);
   }
 
-  renderError(error) {
-    if (isFunction(this.props.renderError)) {
-      return this.props.renderError(error);
-    }
-    return <Alert message="Something went wrong." type="error" showIcon />;
-  }
-
   render() {
-    if (this.state.error) {
-      return this.renderError(this.state.error);
+    const { renderError, children } = this.props;
+    const { error } = this.state;
+
+    if (error) {
+      if (isFunction(renderError)) {
+        return renderError(error);
+      }
+      return <ErrorMessage />;
     }
 
-    return <ErrorBoundaryContext.Provider value={this}>{this.props.children}</ErrorBoundaryContext.Provider>;
+    return <ErrorBoundaryContext.Provider value={this}>{children}</ErrorBoundaryContext.Provider>;
   }
 }
