@@ -2,7 +2,6 @@ import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import debug from "debug";
-import Typography from "antd/lib/typography";
 import Alert from "antd/lib/alert";
 
 const logger = debug("redash:errors");
@@ -47,18 +46,7 @@ export default class ErrorBoundary extends React.Component {
     if (isFunction(this.props.renderError)) {
       return this.props.renderError(error);
     }
-    return (
-      <Alert
-        message="Something went wrong."
-        description={
-          <Typography.Text style={{ display: "block" }} ellipsis>
-            {error.message}
-          </Typography.Text>
-        }
-        type="error"
-        showIcon
-      />
-    );
+    return <Alert message="Something went wrong." type="error" showIcon />;
   }
 
   render() {
