@@ -77,7 +77,7 @@ function QueryView(props) {
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} onChange={setQuery} selectedVisualization={selectedVisualization} />
+        <QueryPageHeader query={query} dataSource={dataSource} onChange={setQuery} selectedVisualization={selectedVisualization} />
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
