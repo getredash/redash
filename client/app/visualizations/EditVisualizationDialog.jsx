@@ -1,11 +1,12 @@
 import { isEqual, extend, map, sortBy, findIndex, filter, pick } from "lodash";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import * as Grid from "antd/lib/grid";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import { Visualization } from "@/services/visualization";
@@ -63,6 +64,8 @@ function confirmDialogClose(isDirty) {
 }
 
 function EditVisualizationDialog({ dialog, visualization, query, queryResult }) {
+  const errorHandlerRef = useRef();
+
   const isNew = !visualization;
 
   const data = useQueryResult(queryResult);
@@ -93,6 +96,12 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   const [options, setOptions] = useState(defaultState.options);
 
   const [saveInProgress, setSaveInProgress] = useState(false);
+
+  useEffect(() => {
+    if (errorHandlerRef.current) {
+      errorHandlerRef.current.reset();
+    }
+  }, [data, options]);
 
   function onTypeChanged(newType) {
     setType(newType);
@@ -188,13 +197,15 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
           </label>
           <Filters filters={filters} onChange={setFilters} />
           <div className="scrollbox" data-test="VisualizationPreview">
-            <Renderer
-              data={filteredData}
-              options={options}
-              visualizationName={name}
-              onOptionsChange={onOptionsChanged}
-              context="query"
-            />
+            <ErrorBoundary ref={errorHandlerRef}>
+              <Renderer
+                data={filteredData}
+                options={options}
+                visualizationName={name}
+                onOptionsChange={onOptionsChanged}
+                context="query"
+              />
+            </ErrorBoundary>
           </div>
         </Grid.Col>
       </Grid.Row>

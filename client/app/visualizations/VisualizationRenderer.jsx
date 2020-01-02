@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import useQueryResult from "@/lib/hooks/useQueryResult";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { registeredVisualizations, VisualizationType } from "./index";
 
@@ -28,6 +29,7 @@ export function VisualizationRenderer(props) {
   const data = useQueryResult(props.queryResult);
   const [filters, setFilters] = useState(data.filters);
   const lastOptions = useRef();
+  const errorHandlerRef = useRef();
 
   // Reset local filters when query results updated
   useEffect(() => {
@@ -60,18 +62,26 @@ export function VisualizationRenderer(props) {
   }
   lastOptions.current = options;
 
+  useEffect(() => {
+    if (errorHandlerRef.current) {
+      errorHandlerRef.current.reset();
+    }
+  }, [props.visualization.options, data]);
+
   return (
     <div className="visualization-renderer">
-      {showFilters && <Filters filters={filters} onChange={setFilters} />}
-      <div className="visualization-renderer-wrapper">
-        <Renderer
-          key={`visualization${visualization.id}`}
-          options={options}
-          data={filteredData}
-          visualizationName={visualization.name}
-          context={props.context}
-        />
-      </div>
+      <ErrorBoundary ref={errorHandlerRef}>
+        {showFilters && <Filters filters={filters} onChange={setFilters} />}
+        <div className="visualization-renderer-wrapper">
+          <Renderer
+            key={`visualization${visualization.id}`}
+            options={options}
+            data={filteredData}
+            visualizationName={visualization.name}
+            context={props.context}
+          />
+        </div>
+      </ErrorBoundary>
     </div>
   );
 }
