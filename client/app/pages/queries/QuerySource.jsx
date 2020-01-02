@@ -2,6 +2,7 @@ import { isEmpty, find, map, extend, includes } from "lodash";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
+import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
 import Resizable from "@/components/Resizable";
 import { Parameters } from "@/components/Parameters";
@@ -50,7 +51,7 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
-  const { query, setQuery, querySource, setQuerySource, isDirty, saveQuery } = useQuery(props.query);
+  const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
   const queryFlags = useQueryFlags(query, dataSource);
@@ -71,6 +72,10 @@ function QuerySource(props) {
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
+
+  const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
+    setQuery(extend(query.clone(), { query: queryText }));
+  }, 200);
 
   useEffect(() => {
     recordEvent("view_source", "query", query.id);
@@ -124,12 +129,11 @@ function QuerySource(props) {
   const openEmbedDialog = useEmbedDialog(query);
   const editSchedule = useEditScheduleDialog(query, setQuery);
   const openAddNewParameterDialog = useAddNewParameterDialog(query, (newQuery, param) => {
-    // order is important - first update entire query object, and only then - paste snippet
-    setQuery(newQuery);
     if (editorRef.current) {
       editorRef.current.paste(param.toQueryTextFragment());
       editorRef.current.focus();
     }
+    setQuery(newQuery);
   });
 
   const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
@@ -247,10 +251,10 @@ function QuerySource(props) {
                       ref={editorRef}
                       data-executing={isQueryExecuting ? "true" : null}
                       syntax={dataSource ? dataSource.syntax : null}
-                      value={querySource}
+                      value={query.query}
                       schema={schema}
                       autocompleteEnabled={autocompleteAvailable && autocompleteEnabled}
-                      onChange={setQuerySource}
+                      onChange={handleQueryEditorChange}
                       onSelectionChange={setSelectedText}
                     />
 

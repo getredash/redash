@@ -2,10 +2,7 @@ import { isUndefined } from "lodash";
 import { useEffect, useMemo, useState, useCallback } from "react";
 
 export default function useQueryParameters(query) {
-  // query.getParametersDefs() implicitly depends on query.query
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const parameters = useMemo(() => query.getParametersDefs(), [query, query.query]);
-
+  const parameters = useMemo(() => query.getParametersDefs(), [query]);
   const [dirtyFlag, setDirtyFlag] = useState(query.getParameters().hasPendingValues());
 
   const updateDirtyFlag = useCallback(
@@ -13,8 +10,7 @@ export default function useQueryParameters(query) {
       flag = isUndefined(flag) ? query.getParameters().hasPendingValues() : flag;
       setDirtyFlag(flag);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, query.query] // query.getParameters() implicitly depends on query.query
+    [query]
   );
 
   useEffect(() => {
@@ -22,7 +18,7 @@ export default function useQueryParameters(query) {
     if (updatedDirtyParameters !== dirtyFlag) {
       setDirtyFlag(updatedDirtyParameters);
     }
-  }, [query, query.query, parameters, dirtyFlag]); // query.getParameters() implicitly depends on query.query
+  }, [query, parameters, dirtyFlag]);
 
   return useMemo(() => [parameters, dirtyFlag, updateDirtyFlag], [parameters, dirtyFlag, updateDirtyFlag]);
 }
