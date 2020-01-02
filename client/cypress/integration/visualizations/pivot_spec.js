@@ -105,8 +105,6 @@ describe("Pivot", () => {
         .first()
         .focus()
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
-      // QueryEditor::onChange is debounced, so this wait is needed
-      cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
       cy.getByTestId("SaveButton").click();
       cy.getByTestId("ExecuteButton").click();

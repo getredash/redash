@@ -75,7 +75,7 @@ function QuerySource(props) {
 
   const [handleQueryEditorChange] = useDebouncedCallback(queryText => {
     setQuery(extend(query.clone(), { query: queryText }));
-  }, 200);
+  }, 100);
 
   useEffect(() => {
     recordEvent("view_source", "query", query.id);

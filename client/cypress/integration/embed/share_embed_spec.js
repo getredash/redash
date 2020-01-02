@@ -32,8 +32,6 @@ describe("Embedded Queries", () => {
     cy.getByTestId("QueryEditor")
       .get(".ace_text-input")
       .type("SELECT name, slug FROM organizations WHERE id='{{}{{}id}}'{esc}", { force: true });
-    // QueryEditor::onChange is debounced, so this wait is needed
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.getByTestId("TextParamInput").type("1");
     cy.getByTestId("ParameterApplyButton").click();
@@ -68,8 +66,6 @@ describe("Embedded Queries", () => {
     cy.getByTestId("QueryEditor")
       .get(".ace_text-input")
       .type("SELECT name, slug FROM organizations WHERE name='{{}{{}name}}'{esc}", { force: true });
-    // QueryEditor::onChange is debounced, so this wait is needed
-    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.getByTestId("TextParamInput").type("Redash");
     cy.getByTestId("ParameterApplyButton").click();
