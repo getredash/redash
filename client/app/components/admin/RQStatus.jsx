@@ -28,7 +28,7 @@ CounterCard.propTypes = {
 };
 
 CounterCard.defaultProps = {
-  value: '',
+  value: "",
 };
 
 // Tables
