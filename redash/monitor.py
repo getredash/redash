@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import itertools
+from funcy import flatten
 from sqlalchemy import union_all
 from redash import redis_connection, rq_redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
@@ -58,6 +59,15 @@ def get_status():
     status["database_metrics"]["metrics"] = get_db_sizes()
 
     return status
+
+
+def rq_job_ids():
+    queues = Queue.all(connection=redis_connection)
+
+    started_jobs = [StartedJobRegistry(queue=q).get_job_ids() for q in queues]
+    queued_jobs = [q.job_ids for q in queues]
+
+    return flatten(started_jobs + queued_jobs)
 
 
 def fetch_jobs(queue, job_ids):
