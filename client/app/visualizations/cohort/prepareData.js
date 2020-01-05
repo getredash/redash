@@ -1,16 +1,16 @@
-import _ from 'lodash';
-import moment from 'moment';
+import _ from "lodash";
+import moment from "moment";
 
 const momentInterval = {
-  weekly: 'weeks',
-  daily: 'days',
-  monthly: 'months',
+  weekly: "weeks",
+  daily: "days",
+  monthly: "months",
 };
 
 function groupData(sortedData) {
   const result = {};
 
-  _.each(sortedData, (item) => {
+  _.each(sortedData, item => {
     const date = moment(item.date);
     const groupKey = date.valueOf();
     result[groupKey] = result[groupKey] || {
@@ -34,7 +34,7 @@ function prepareDiagonalData(sortedData, options) {
   let previousDate = null;
 
   const data = [];
-  _.each(grouped, (group) => {
+  _.each(grouped, group => {
     if (previousDate !== null) {
       let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
@@ -74,7 +74,7 @@ function prepareSimpleData(sortedData, options) {
   let previousDate = null;
 
   const data = [];
-  _.each(grouped, (group) => {
+  _.each(grouped, group => {
     if (previousDate !== null) {
       let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
@@ -99,7 +99,7 @@ function prepareSimpleData(sortedData, options) {
 function isDataValid(rawData, options) {
   const columnNames = _.map(rawData.columns, c => c.name);
   return (
-    (rawData.rows.length > 0) &&
+    rawData.rows.length > 0 &&
     _.includes(columnNames, options.dateColumn) &&
     _.includes(columnNames, options.stageColumn) &&
     _.includes(columnNames, options.totalColumn) &&
@@ -123,7 +123,7 @@ export default function prepareData(rawData, options) {
 
   let data;
   switch (options.mode) {
-    case 'simple':
+    case "simple":
       data = prepareSimpleData(sortedData, options);
       break;
     default:

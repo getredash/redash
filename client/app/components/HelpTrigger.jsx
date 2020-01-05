@@ -1,114 +1,62 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import cx from 'classnames';
-import Tooltip from 'antd/lib/tooltip';
-import Drawer from 'antd/lib/drawer';
-import Icon from 'antd/lib/icon';
-import { BigMessage } from '@/components/BigMessage';
-import DynamicComponent from '@/components/DynamicComponent';
+import { startsWith } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import cx from "classnames";
+import Tooltip from "antd/lib/tooltip";
+import Drawer from "antd/lib/drawer";
+import Icon from "antd/lib/icon";
+import BigMessage from "@/components/BigMessage";
+import DynamicComponent from "@/components/DynamicComponent";
 
-import './HelpTrigger.less';
+import "./HelpTrigger.less";
 
-const DOMAIN = 'https://redash.io';
-const HELP_PATH = '/help';
+const DOMAIN = "https://redash.io";
+const HELP_PATH = "/help";
 const IFRAME_TIMEOUT = 20000;
-const IFRAME_URL_UPDATE_MESSAGE = 'iframe_url';
+const IFRAME_URL_UPDATE_MESSAGE = "iframe_url";
 
 export const TYPES = {
-  HOME: [
-    '',
-    'Help',
-  ],
-  VALUE_SOURCE_OPTIONS: [
-    '/user-guide/querying/query-parameters#Value-Source-Options',
-    'Guide: Value Source Options',
-  ],
-  SHARE_DASHBOARD: [
-    '/user-guide/dashboards/sharing-dashboards',
-    'Guide: Sharing and Embedding Dashboards',
-  ],
-  AUTHENTICATION_OPTIONS: [
-    '/user-guide/users/authentication-options',
-    'Guide: Authentication Options',
-  ],
-  USAGE_DATA_SHARING: [
-    '/open-source/admin-guide/usage-data',
-    'Help: Anonymous Usage Data Sharing',
-  ],
-  DS_ATHENA: [
-    '/data-sources/amazon-athena-setup',
-    'Guide: Help Setting up Amazon Athena',
-  ],
-  DS_BIGQUERY: [
-    '/data-sources/bigquery-setup',
-    'Guide: Help Setting up BigQuery',
-  ],
-  DS_URL: [
-    '/data-sources/querying-urls',
-    'Guide: Help Setting up URL',
-  ],
-  DS_MONGODB: [
-    '/data-sources/mongodb-setup',
-    'Guide: Help Setting up MongoDB',
-  ],
-  DS_GOOGLE_SPREADSHEETS: [
-    '/data-sources/querying-a-google-spreadsheet',
-    'Guide: Help Setting up Google Spreadsheets',
-  ],
-  DS_GOOGLE_ANALYTICS: [
-    '/data-sources/google-analytics-setup',
-    'Guide: Help Setting up Google Analytics',
-  ],
-  DS_AXIBASETSD: [
-    '/data-sources/axibase-time-series-database',
-    'Guide: Help Setting up Axibase Time Series',
-  ],
-  DS_RESULTS: [
-    '/user-guide/querying/query-results-data-source',
-    'Guide: Help Setting up Query Results',
-  ],
-  ALERT_SETUP: [
-    '/user-guide/alerts/setting-up-an-alert',
-    'Guide: Setting Up a New Alert',
-  ],
-  MAIL_CONFIG: [
-    '/open-source/setup/#Mail-Configuration',
-    'Guide: Mail Configuration',
-  ],
-  ALERT_NOTIF_TEMPLATE_GUIDE: [
-    '/user-guide/alerts/custom-alert-notifications',
-    'Guide: Custom Alerts Notifications',
-  ],
-  FAVORITES: [
-    '/user-guide/querying/favorites-tagging/#Favorites',
-    'Guide: Favorites',
-  ],
+  HOME: ["", "Help"],
+  VALUE_SOURCE_OPTIONS: ["/user-guide/querying/query-parameters#Value-Source-Options", "Guide: Value Source Options"],
+  SHARE_DASHBOARD: ["/user-guide/dashboards/sharing-dashboards", "Guide: Sharing and Embedding Dashboards"],
+  AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", "Guide: Authentication Options"],
+  USAGE_DATA_SHARING: ["/open-source/admin-guide/usage-data", "Help: Anonymous Usage Data Sharing"],
+  DS_ATHENA: ["/data-sources/amazon-athena-setup", "Guide: Help Setting up Amazon Athena"],
+  DS_BIGQUERY: ["/data-sources/bigquery-setup", "Guide: Help Setting up BigQuery"],
+  DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
+  DS_MONGODB: ["/data-sources/mongodb-setup", "Guide: Help Setting up MongoDB"],
+  DS_GOOGLE_SPREADSHEETS: ["/data-sources/querying-a-google-spreadsheet", "Guide: Help Setting up Google Spreadsheets"],
+  DS_GOOGLE_ANALYTICS: ["/data-sources/google-analytics-setup", "Guide: Help Setting up Google Analytics"],
+  DS_AXIBASETSD: ["/data-sources/axibase-time-series-database", "Guide: Help Setting up Axibase Time Series"],
+  DS_RESULTS: ["/user-guide/querying/query-results-data-source", "Guide: Help Setting up Query Results"],
+  ALERT_SETUP: ["/user-guide/alerts/setting-up-an-alert", "Guide: Setting Up a New Alert"],
+  MAIL_CONFIG: ["/open-source/setup/#Mail-Configuration", "Guide: Mail Configuration"],
+  ALERT_NOTIF_TEMPLATE_GUIDE: ["/user-guide/alerts/custom-alert-notifications", "Guide: Custom Alerts Notifications"],
+  FAVORITES: ["/user-guide/querying/favorites-tagging/#Favorites", "Guide: Favorites"],
   MANAGE_PERMISSIONS: [
-    '/user-guide/querying/writing-queries#Managing-Query-Permissions',
-    'Guide: Managing Query Permissions',
+    "/user-guide/querying/writing-queries#Managing-Query-Permissions",
+    "Guide: Managing Query Permissions",
   ],
+  NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", "Formatting Numbers"],
 };
 
 export default class HelpTrigger extends React.Component {
   static propTypes = {
     type: PropTypes.oneOf(Object.keys(TYPES)).isRequired,
     className: PropTypes.string,
+    showTooltip: PropTypes.bool,
     children: PropTypes.node,
   };
 
   static defaultProps = {
     className: null,
+    showTooltip: true,
     children: <i className="fa fa-question-circle" />,
   };
 
-  iframeRef = null;
+  iframeRef = React.createRef();
 
   iframeLoadingTimeout = null;
-
-  constructor(props) {
-    super(props);
-    this.iframeRef = React.createRef();
-  }
 
   state = {
     visible: false,
@@ -118,15 +66,15 @@ export default class HelpTrigger extends React.Component {
   };
 
   componentDidMount() {
-    window.addEventListener('message', this.onPostMessageReceived, DOMAIN);
+    window.addEventListener("message", this.onPostMessageReceived, false);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('message', this.onPostMessageReceived);
+    window.removeEventListener("message", this.onPostMessageReceived);
     clearTimeout(this.iframeLoadingTimeout);
   }
 
-  loadIframe = (url) => {
+  loadIframe = url => {
     clearTimeout(this.iframeLoadingTimeout);
     this.setState({ loading: true, error: false });
 
@@ -141,14 +89,18 @@ export default class HelpTrigger extends React.Component {
     clearTimeout(this.iframeLoadingTimeout);
   };
 
-  onPostMessageReceived = (event) => {
+  onPostMessageReceived = event => {
+    if (!startsWith(event.origin, DOMAIN)) {
+      return;
+    }
+
     const { type, message: currentUrl } = event.data || {};
     if (type !== IFRAME_URL_UPDATE_MESSAGE) {
       return;
     }
 
     this.setState({ currentUrl });
-  }
+  };
 
   openDrawer = () => {
     this.setState({ visible: true });
@@ -159,7 +111,7 @@ export default class HelpTrigger extends React.Component {
     setTimeout(() => this.loadIframe(url), 300);
   };
 
-  closeDrawer = (event) => {
+  closeDrawer = event => {
     if (event) {
       event.preventDefault();
     }
@@ -169,12 +121,12 @@ export default class HelpTrigger extends React.Component {
 
   render() {
     const [, tooltip] = TYPES[this.props.type];
-    const className = cx('help-trigger', this.props.className);
+    const className = cx("help-trigger", this.props.className);
     const url = this.state.currentUrl;
 
     return (
       <React.Fragment>
-        <Tooltip title={tooltip}>
+        <Tooltip title={this.props.showTooltip ? tooltip : null}>
           <a onClick={this.openDrawer} className={className}>
             {this.props.children}
           </a>
@@ -186,8 +138,7 @@ export default class HelpTrigger extends React.Component {
           visible={this.state.visible}
           className="help-drawer"
           destroyOnClose
-          width={400}
-        >
+          width={400}>
           <div className="drawer-wrapper">
             <div className="drawer-menu">
               {url && (
@@ -224,20 +175,19 @@ export default class HelpTrigger extends React.Component {
             {/* error message */}
             {this.state.error && (
               <BigMessage icon="fa-exclamation-circle" className="help-message">
-                Something went wrong.<br />
+                Something went wrong.
+                <br />
                 {/* eslint-disable-next-line react/jsx-no-target-blank */}
-                <a href={this.state.error} target="_blank" rel="noopener">Click here</a>{' '}
+                <a href={this.state.error} target="_blank" rel="noopener">
+                  Click here
+                </a>{" "}
                 to open the page in a new window.
               </BigMessage>
             )}
           </div>
 
           {/* extra content */}
-          <DynamicComponent
-            name="HelpDrawerExtraContent"
-            onLeave={this.closeDrawer}
-            openPageUrl={this.loadIframe}
-          />
+          <DynamicComponent name="HelpDrawerExtraContent" onLeave={this.closeDrawer} openPageUrl={this.loadIframe} />
         </Drawer>
       </React.Fragment>
     );

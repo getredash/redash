@@ -131,25 +131,6 @@ strong {
     transition: height 0s, width 0s !important;
 }
 
-// Ace Editor
-.ace_editor {
-    border: 1px solid fade(@redash-gray, 15%) !important;
-}
-
-.ace-tm {
-    .ace_gutter {
-        background: #fff !important;
-    }
-
-    .ace_gutter-active-line {
-        background-color: fade(@redash-gray, 20%) !important;
-    }
-
-    .ace_marker-layer .ace_active-line {
-        background: fade(@redash-gray, 9%) !important;
-    }
-}
-
 .bg-ace {
     background-color: fade(@redash-gray, 12%) !important;
 }
@@ -234,10 +215,6 @@ text.slicetext {
 }
 
 // page
-.page-header--new .btn-favourite, .page-header--new .btn-archive {
-    font-size: 19px;
-  }
-
   .page-title {
     display: flex;
     align-items: center;
@@ -251,22 +228,9 @@ text.slicetext {
       display: inline-block;
     }
 
-    favorites-control {
+    .favorites-control {
+      font-size: 19px;
       margin-right: 5px;
-    }
-
-    @media (max-width: 767px) {
-      display: block;
-
-      favorites-control {
-        float: left;
-      }
-
-      h3 {
-        width: 100%;
-        margin-bottom: 5px !important;
-        display: block !important;
-      }
     }
   }
 

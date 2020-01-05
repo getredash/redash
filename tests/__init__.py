@@ -9,12 +9,12 @@ os.environ['REDASH_REDIS_URL'] = os.environ.get('REDASH_REDIS_URL', "redis://loc
 os.environ['RQ_REDIS_URL'] = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0").replace("/5", "/6")
 
 # Dummy values for oauth login
-os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
-os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
-os.environ['REDASH_MULTI_ORG'] = "true"
+os.environ["REDASH_GOOGLE_CLIENT_ID"] = "dummy"
+os.environ["REDASH_GOOGLE_CLIENT_SECRET"] = "dummy"
+os.environ["REDASH_MULTI_ORG"] = "true"
 
 # Make sure rate limit is enabled
-os.environ['REDASH_RATELIMIT_ENABLED'] = "true"
+os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
 from redash import limiter, redis_connection
 from redash.app import create_app
@@ -29,7 +29,7 @@ logging.getLogger("metrics").setLevel(logging.ERROR)
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
-        sess['user_id'] = user.get_id()
+        sess["user_id"] = user.get_id()
 
 
 @contextmanager
@@ -46,7 +46,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         self.app = create_app()
         self.db = db
-        self.app.config['TESTING'] = True
+        self.app.config["TESTING"] = True
         limiter.enabled = False
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
@@ -62,8 +62,16 @@ class BaseTestCase(TestCase):
         self.app_ctx.pop()
         redis_connection.flushdb()
 
-    def make_request(self, method, path, org=None, user=None, data=None,
-                     is_json=True, follow_redirects=False):
+    def make_request(
+        self,
+        method,
+        path,
+        org=None,
+        user=None,
+        data=None,
+        is_json=True,
+        follow_redirects=False,
+    ):
         if user is None:
             user = self.factory.user
 
@@ -83,7 +91,7 @@ class BaseTestCase(TestCase):
             data = json_dumps(data)
 
         if is_json:
-            content_type = 'application/json'
+            content_type = "application/json"
         else:
             content_type = None
 
@@ -110,8 +118,9 @@ class BaseTestCase(TestCase):
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.items():
-            if isinstance(v, datetime.datetime) or isinstance(actual[k],
-                                                              datetime.datetime):
+            if isinstance(v, datetime.datetime) or isinstance(
+                actual[k], datetime.datetime
+            ):
                 continue
 
             if isinstance(v, list):
@@ -121,4 +130,8 @@ class BaseTestCase(TestCase):
                 self.assertResponseEqual(v, actual[k])
                 continue
 
-            self.assertEqual(v, actual[k], "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]))
+            self.assertEqual(
+                v,
+                actual[k],
+                "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]),
+            )

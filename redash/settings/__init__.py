@@ -388,6 +388,7 @@ EVENT_REPORTING_WEBHOOKS = array_from_string(
 
 # Support for Sentry (https://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
+SENTRY_ENVIRONMENT = os.environ.get("REDASH_SENTRY_ENVIRONMENT")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(

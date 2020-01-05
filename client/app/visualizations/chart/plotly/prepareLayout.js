@@ -1,5 +1,5 @@
-import { filter, has, isNumber, isObject, isUndefined, map, max, min } from 'lodash';
-import { getPieDimensions } from './preparePieData';
+import { filter, has, isNumber, isObject, isUndefined, map, max, min } from "lodash";
+import { getPieDimensions } from "./preparePieData";
 
 function getAxisTitle(axis) {
   return isObject(axis.title) ? axis.title.text : null;
@@ -7,9 +7,12 @@ function getAxisTitle(axis) {
 
 function getAxisScaleType(axis) {
   switch (axis.type) {
-    case 'datetime': return 'date';
-    case 'logarithmic': return 'log';
-    default: return axis.type;
+    case "datetime":
+      return "date";
+    case "logarithmic":
+      return "log";
+    default:
+      return axis.type;
   }
 }
 
@@ -30,11 +33,11 @@ function prepareXAxis(axisOptions, additionalOptions) {
     automargin: true,
   };
 
-  if (additionalOptions.sortX && axis.type === 'category') {
+  if (additionalOptions.sortX && axis.type === "category") {
     if (additionalOptions.reverseX) {
-      axis.categoryorder = 'category descending';
+      axis.categoryorder = "category descending";
     } else {
-      axis.categoryorder = 'category ascending';
+      axis.categoryorder = "category ascending";
     }
   }
 
@@ -67,38 +70,40 @@ function preparePieLayout(layout, options, data) {
   if (hasName) {
     layout.annotations = [];
   } else {
-    layout.annotations = filter(map(data, (series, index) => {
-      const xPosition = (index % cellsInRow) * cellWidth;
-      const yPosition = Math.floor(index / cellsInRow) * cellHeight;
-      return {
-        x: xPosition + ((cellWidth - xPadding) / 2),
-        y: yPosition + cellHeight - 0.015,
-        xanchor: 'center',
-        yanchor: 'top',
-        text: series.name,
-        showarrow: false,
-      };
-    }));
+    layout.annotations = filter(
+      map(data, (series, index) => {
+        const xPosition = (index % cellsInRow) * cellWidth;
+        const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+        return {
+          x: xPosition + (cellWidth - xPadding) / 2,
+          y: yPosition + cellHeight - 0.015,
+          xanchor: "center",
+          yanchor: "top",
+          text: series.name,
+          showarrow: false,
+        };
+      })
+    );
   }
 
   return layout;
 }
 
 function prepareDefaultLayout(layout, options, data) {
-  const ySeries = data.filter(s => s.yaxis !== 'y2');
-  const y2Series = data.filter(s => s.yaxis === 'y2');
+  const ySeries = data.filter(s => s.yaxis !== "y2");
+  const y2Series = data.filter(s => s.yaxis === "y2");
 
   layout.xaxis = prepareXAxis(options.xAxis, options);
 
   layout.yaxis = prepareYAxis(options.yAxis[0], options, ySeries);
   if (y2Series.length > 0) {
     layout.yaxis2 = prepareYAxis(options.yAxis[1], options, y2Series);
-    layout.yaxis2.overlaying = 'y';
-    layout.yaxis2.side = 'right';
+    layout.yaxis2.overlaying = "y";
+    layout.yaxis2.side = "right";
   }
 
   if (options.series.stacking) {
-    layout.barmode = 'relative';
+    layout.barmode = "relative";
   }
 
   return layout;
@@ -106,8 +111,8 @@ function prepareDefaultLayout(layout, options, data) {
 
 function prepareBoxLayout(layout, options, data) {
   layout = prepareDefaultLayout(layout, options, data);
-  layout.boxmode = 'group';
-  layout.boxgroupgap = 0.50;
+  layout.boxmode = "group";
+  layout.boxgroupgap = 0.5;
   return layout;
 }
 
@@ -117,12 +122,15 @@ export default function prepareLayout(element, options, data) {
     width: Math.floor(element.offsetWidth),
     height: Math.floor(element.offsetHeight),
     autosize: true,
-    showlegend: has(options, 'legend') ? options.legend.enabled : true,
+    showlegend: has(options, "legend") ? options.legend.enabled : true,
   };
 
   switch (options.globalSeriesType) {
-    case 'pie': return preparePieLayout(layout, options, data);
-    case 'box': return prepareBoxLayout(layout, options, data);
-    default: return prepareDefaultLayout(layout, options, data);
+    case "pie":
+      return preparePieLayout(layout, options, data);
+    case "box":
+      return prepareBoxLayout(layout, options, data);
+    default:
+      return prepareDefaultLayout(layout, options, data);
   }
 }
