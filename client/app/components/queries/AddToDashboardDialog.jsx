@@ -19,7 +19,9 @@ function AddToDashboardDialog({ dialog, visualization }) {
   const [doSearch, dashboards, isLoading] = useSearchResults(
     term => {
       if (isString(term) && term !== "") {
-        return Dashboard.get({ q: term }).then(results => results.results);
+        return Dashboard.query({ q: term })
+          .then(results => results.results)
+          .catch(() => []);
       }
       return Promise.resolve([]);
     },
