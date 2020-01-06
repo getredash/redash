@@ -26,6 +26,7 @@ function updateQueryVisualizations(query, visualization) {
     // new visualization
     query.visualizations.push(visualization);
   }
+  query.visualizations = [...query.visualizations]; // clone array
 }
 
 function saveVisualization(visualization) {

@@ -1,7 +1,22 @@
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
-import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, extend, each, some } from "lodash";
+import {
+  zipObject,
+  isEmpty,
+  map,
+  filter,
+  includes,
+  union,
+  uniq,
+  has,
+  identity,
+  extend,
+  each,
+  some,
+  clone,
+  find,
+} from "lodash";
 
 import { Parameter } from "./parameters";
 
@@ -54,6 +69,13 @@ class Parameters {
 
   updateParameters(update) {
     if (this.query.query && this.query.query === this.cachedQueryText) {
+      const parameters = this.query.options.parameters;
+      const hasUnprocessedParameters = find(parameters, p => !(p instanceof Parameter));
+      if (hasUnprocessedParameters) {
+        this.query.options.parameters = map(parameters, p =>
+          p instanceof Parameter ? p : Parameter.create(p, this.query.id)
+        );
+      }
       return;
     }
 
@@ -255,6 +277,8 @@ function QueryResource($resource, $http, $location, $q, currentUser, QueryResult
       schedule: null,
       user: currentUser,
       options: {},
+      tags: [],
+      can_edit: true,
     });
   };
 
@@ -407,6 +431,13 @@ function QueryResource($resource, $http, $location, $q, currentUser, QueryResult
 
   QueryService.prototype.getParametersDefs = function getParametersDefs(update = true) {
     return this.getParameters().get(update);
+  };
+
+  QueryService.prototype.clone = function cloneQuery() {
+    const newQuery = clone(this);
+    newQuery.$parameters = null;
+    newQuery.getParameters();
+    return newQuery;
   };
 
   return QueryService;

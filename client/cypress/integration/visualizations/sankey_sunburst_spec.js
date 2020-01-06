@@ -48,7 +48,7 @@ describe("Sankey and Sunburst", () => {
       .contains("button", "Save")
       .click();
     cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("li", visualizationName)
+      .contains("span", visualizationName)
       .should("exist");
   });
 
@@ -73,7 +73,7 @@ describe("Sankey and Sunburst", () => {
       .contains("button", "Save")
       .click();
     cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("li", visualizationName)
+      .contains("span", visualizationName)
       .should("exist");
   });
 });

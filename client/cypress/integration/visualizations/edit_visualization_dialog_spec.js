@@ -54,7 +54,7 @@ describe("Edit visualization dialog", () => {
       .contains("button", "Save")
       .click();
     cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("li", visualizationName)
+      .contains("span", visualizationName)
       .should("exist");
   });
 });

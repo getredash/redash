@@ -1,8 +1,8 @@
 import React from "react";
 import { react2angular } from "react2angular";
 
-import { PageHeader } from "@/components/PageHeader";
-import { Paginator } from "@/components/Paginator";
+import PageHeader from "@/components/PageHeader";
+import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";

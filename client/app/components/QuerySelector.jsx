@@ -1,8 +1,7 @@
+import { find } from "lodash";
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { react2angular } from "react2angular";
-import { find } from "lodash";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import { Query } from "@/services/query";
@@ -24,7 +23,7 @@ function search(term) {
   return Query.query({ q: term }).$promise.then(({ results }) => Promise.resolve(results));
 }
 
-export function QuerySelector(props) {
+export default function QuerySelector(props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuery, setSelectedQuery] = useState();
   const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
@@ -157,9 +156,3 @@ QuerySelector.defaultProps = {
   className: null,
   disabled: false,
 };
-
-export default function init(ngModule) {
-  ngModule.component("querySelector", react2angular(QuerySelector));
-}
-
-init.init = true;
