@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
-import { isEmpty, template, get } from "lodash";
+import { isEmpty, template } from "lodash";
 
 import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
@@ -18,8 +18,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
   const fetchItems = useCallback(
     (showLoadingState = true) => {
       setLoading(showLoadingState);
-      const request = fetch();
-      get(request, "$promise", request)
+      fetch()
         .then(({ results }) => {
           setItems(results);
         })
