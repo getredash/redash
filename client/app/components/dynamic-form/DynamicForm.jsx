@@ -13,7 +13,7 @@ import Select from "antd/lib/select";
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";
 import AceEditorInput from "@/components/AceEditorInput";
-import { toHuman } from "@/filters";
+import { toHuman } from "@/lib/utils";
 import { Field, Action, AntdForm } from "../proptypes";
 import helper from "./dynamicFormHelper";
 

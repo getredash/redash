@@ -25,7 +25,7 @@ import recordEvent from "@/services/recordEvent";
 import { policy } from "@/services/policy";
 import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
-import PermissionsEditorDialog from "@/components/permissions-editor/PermissionsEditorDialog";
+import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
 import ShareDashboardDialog from "./ShareDashboardDialog";
 

@@ -5,10 +5,10 @@ import { react2angular } from "react2angular";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
-import { Paginator } from "@/components/Paginator";
+import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
-import { TimeAgo } from "@/components/TimeAgo";
+import SchedulePhrase from "@/components/queries/SchedulePhrase";
+import TimeAgo from "@/components/TimeAgo";
 import Layout from "@/components/admin/Layout";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";

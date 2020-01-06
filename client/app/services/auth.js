@@ -11,6 +11,12 @@ export const currentUser = {
     return this.hasPermission("admin") || (userId && userId === this.id);
   },
 
+  canCreate() {
+    return (
+      this.hasPermission("create_query") || this.hasPermission("create_dashboard") || this.hasPermission("list_alerts")
+    );
+  },
+
   hasPermission(permission) {
     return includes(this.permissions, permission);
   },

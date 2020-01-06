@@ -435,6 +435,13 @@ class TestQueryFork(BaseTestCase):
         self.assertEqual(count_table, 1)
         self.assertEqual(count_vis, 1)
 
+    def test_fork_keeps_query_tags(self):
+        query = self.factory.create_query(tags=['test', 'query'])
+
+        forked_query = query.fork(self.factory.user)
+
+        self.assertEqual(query.tags, forked_query.tags)
+
 
 class TestQueryUpdateLatestResult(BaseTestCase):
     def setUp(self):

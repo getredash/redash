@@ -760,6 +760,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             "query_text",
             "query_hash",
             "options",
+            "tags",
         ]
         kwargs = {a: getattr(self, a) for a in forked_list}
 
@@ -1072,7 +1073,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 (
                     DataSourceGroup.group_id.in_(group_ids)
                     | (Dashboard.user_id == user_id)
-                    | ((Widget.dashboard != None) & (Widget.visualization == None))
                 ),
                 Dashboard.org == org,
             )

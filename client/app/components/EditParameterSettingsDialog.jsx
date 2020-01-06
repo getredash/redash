@@ -9,7 +9,7 @@ import Select from "antd/lib/select";
 import Input from "antd/lib/input";
 import Divider from "antd/lib/divider";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { QuerySelector } from "@/components/QuerySelector";
+import QuerySelector from "@/components/QuerySelector";
 import { Query } from "@/services/query";
 
 const { Option } = Select;

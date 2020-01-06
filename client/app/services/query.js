@@ -2,7 +2,22 @@ import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
 import { axios } from "@/services/axios";
-import { zipObject, isEmpty, map, filter, includes, union, uniq, has, identity, extend, each, some } from "lodash";
+import {
+  zipObject,
+  isEmpty,
+  map,
+  filter,
+  includes,
+  union,
+  uniq,
+  has,
+  identity,
+  extend,
+  each,
+  some,
+  clone,
+  find,
+} from "lodash";
 
 import { Parameter } from "./parameters";
 import { currentUser } from "./auth";
@@ -175,6 +190,13 @@ export class Query {
   unfavorite() {
     return Query.unfavorite(this);
   }
+
+  clone() {
+    const newQuery = clone(this);
+    newQuery.$parameters = null;
+    newQuery.getParameters();
+    return newQuery;
+  }
 }
 
 class Parameters {
@@ -206,6 +228,13 @@ class Parameters {
 
   updateParameters(update) {
     if (this.query.query && this.query.query === this.cachedQueryText) {
+      const parameters = this.query.options.parameters;
+      const hasUnprocessedParameters = find(parameters, p => !(p instanceof Parameter));
+      if (hasUnprocessedParameters) {
+        this.query.options.parameters = map(parameters, p =>
+          p instanceof Parameter ? p : Parameter.create(p, this.query.id)
+        );
+      }
       return;
     }
 
@@ -361,6 +390,8 @@ QueryService.newQuery = function newQuery() {
     schedule: null,
     user: currentUser,
     options: {},
+    tags: [],
+    can_edit: true,
   });
 };
 

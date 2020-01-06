@@ -3,8 +3,8 @@ import { isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import { react2angular } from "react2angular";
 import BigMessage from "@/components/BigMessage";
-import { PageHeader } from "@/components/PageHeader";
-import { Parameters } from "@/components/Parameters";
+import PageHeader from "@/components/PageHeader";
+import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
@@ -93,23 +93,21 @@ class PublicDashboardPage extends React.Component {
 export default function init(ngModule) {
   ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
 
-  function session($route, Auth) {
-    const token = $route.current.params.token;
-    Auth.setApiKey(token);
-    return Auth.loadConfig();
-  }
-
-  ngModule.config($routeProvider => {
-    $routeProvider.when("/public/dashboards/:token", {
+  return {
+    "/public/dashboards/:token": {
+      authenticated: false,
       template: "<public-dashboard-page></public-dashboard-page>",
       reloadOnSearch: false,
       resolve: {
-        session,
+        session: ($route, Auth) => {
+          "ngInject";
+          const token = $route.current.params.token;
+          Auth.setApiKey(token);
+          return Auth.loadConfig();
+        },
       },
-    });
-  });
-
-  return [];
+    },
+  };
 }
 
 init.init = true;

@@ -91,6 +91,7 @@ def track_failure(query, error):
     logging.debug(error)
 
     query.schedule_failures += 1
+    query.skip_updated_at = True
     models.db.session.add(query)
     models.db.session.commit()
 
