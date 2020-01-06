@@ -1,12 +1,11 @@
 import { find, isArray, map, intersection, isEqual } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Select from "antd/lib/select";
 
 const { Option } = Select;
 
-export class QueryBasedParameterInput extends React.Component {
+export default class QueryBasedParameterInput extends React.Component {
   static propTypes = {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
@@ -107,9 +106,3 @@ export class QueryBasedParameterInput extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component("queryBasedParameterInput", react2angular(QueryBasedParameterInput));
-}
-
-init.init = true;

@@ -1,13 +1,12 @@
-import { react2angular } from "react2angular";
 import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
-import { localizeTime, durationHumanize } from "@/filters";
+import { localizeTime, durationHumanize } from "@/lib/utils";
 import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
 import "./ScheduleDialog.css";
 
-export class SchedulePhrase extends React.Component {
+export default class SchedulePhrase extends React.Component {
   static propTypes = {
     schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,
@@ -60,9 +59,3 @@ export class SchedulePhrase extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component("schedulePhrase", react2angular(SchedulePhrase));
-}
-
-init.init = true;

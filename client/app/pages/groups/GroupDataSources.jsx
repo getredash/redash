@@ -6,7 +6,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
-import { Paginator } from "@/components/Paginator";
+import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";

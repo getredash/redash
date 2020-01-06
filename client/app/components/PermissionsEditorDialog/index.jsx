@@ -9,7 +9,7 @@ import Tag from "antd/lib/tag";
 import Tooltip from "antd/lib/tooltip";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { $http } from "@/services/ng";
-import { toHuman } from "@/filters";
+import { toHuman } from "@/lib/utils";
 import HelpTrigger from "@/components/HelpTrigger";
 import { UserPreviewCard } from "@/components/PreviewCard";
 import notification from "@/services/notification";

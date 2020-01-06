@@ -1,14 +1,13 @@
 import { map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
 import getTags from "@/services/getTags";
 
 import "./TagsList.less";
 
-export class TagsList extends React.Component {
+export default class TagsList extends React.Component {
   static propTypes = {
     tagsUrl: PropTypes.string.isRequired,
     onUpdate: PropTypes.func,
@@ -81,9 +80,3 @@ export class TagsList extends React.Component {
     return null;
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component("tagsList", react2angular(TagsList));
-}
-
-init.init = true;

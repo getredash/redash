@@ -5,7 +5,7 @@ import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import { Paginator } from "@/components/Paginator";
+import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
 import InputWithCopy from "@/components/InputWithCopy";

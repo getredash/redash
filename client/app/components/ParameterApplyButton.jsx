@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Badge from "antd/lib/badge";
 import Tooltip from "antd/lib/tooltip";
-import { KeyboardShortcuts } from "@/services/keyboard-shortcuts";
+import KeyboardShortcuts from "@/services/KeyboardShortcuts";
 
 function ParameterApplyButton({ paramCount, onClick }) {
   // show spinner when count is empty so the fade out is consistent

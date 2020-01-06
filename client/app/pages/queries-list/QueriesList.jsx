@@ -1,10 +1,10 @@
 import React from "react";
 import { react2angular } from "react2angular";
 
-import { PageHeader } from "@/components/PageHeader";
-import { Paginator } from "@/components/Paginator";
+import PageHeader from "@/components/PageHeader";
+import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
-import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
+import SchedulePhrase from "@/components/queries/SchedulePhrase";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";

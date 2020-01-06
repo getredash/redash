@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import BigMessage from "@/components/BigMessage";
-import { NoTaggedObjectsFound } from "@/components/NoTaggedObjectsFound";
+import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState from "@/components/empty-state/EmptyState";
 
 export default function DashboardListEmptyState({ page, searchTerm, selectedTags }) {
