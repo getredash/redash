@@ -100,8 +100,7 @@ class AlertPage extends React.Component {
     alert.name = trim(alert.name) || getDefaultName(alert);
     alert.rearm = pendingRearm || null;
 
-    const saveAlert = alert.id ? AlertService.save : AlertService.create;
-    return saveAlert(alert)
+    return AlertService.save(alert)
       .then(alert => {
         notification.success("Saved.");
         navigateTo(`/alerts/${alert.id}`, true, false);
