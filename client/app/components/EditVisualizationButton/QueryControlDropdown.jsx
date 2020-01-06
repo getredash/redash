@@ -4,11 +4,10 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
-import { react2angular } from "react2angular";
 
 import QueryResultsLink from "./QueryResultsLink";
 
-export function QueryControlDropdown(props) {
+export default function QueryControlDropdown(props) {
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
@@ -87,9 +86,3 @@ QueryControlDropdown.defaultProps = {
   apiKey: "",
   selectedTab: "",
 };
-
-export default function init(ngModule) {
-  ngModule.component("queryControlDropdown", react2angular(QueryControlDropdown));
-}
-
-init.init = true;

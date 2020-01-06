@@ -1,7 +1,6 @@
 import { isEqual, map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
@@ -25,7 +24,7 @@ function combineFilters(localFilters, globalFilters) {
   });
 }
 
-export function VisualizationRenderer(props) {
+export default function VisualizationRenderer(props) {
   const data = useQueryResult(props.queryResult);
   const [filters, setFilters] = useState(data.filters);
   const lastOptions = useRef();
@@ -100,9 +99,3 @@ VisualizationRenderer.defaultProps = {
   filters: [],
   showFilters: true,
 };
-
-export default function init(ngModule) {
-  ngModule.component("visualizationRenderer", react2angular(VisualizationRenderer));
-}
-
-init.init = true;

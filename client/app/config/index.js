@@ -10,20 +10,12 @@ import angular from "angular";
 import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
 import ngResource from "angular-resource";
-import uiBootstrap from "angular-ui-bootstrap";
-import uiSelect from "ui-select";
-import vsRepeat from "angular-vs-repeat";
-import "brace";
-import "angular-resizable";
 import { each, isFunction, extend } from "lodash";
 
+import initAppView from "@/components/app-view";
 import DialogWrapper from "@/components/DialogWrapper";
 import organizationStatus from "@/services/organizationStatus";
 
-import * as filters from "@/filters";
-import registerDirectives from "@/directives";
-import markdownFilter from "@/filters/markdown";
-import dateTimeFilter from "@/filters/datetime";
 import "./antd-spinner";
 import moment from "moment";
 
@@ -55,7 +47,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, "angularResizable", vsRepeat];
+const requirements = [ngRoute, ngResource, ngSanitize];
 
 const ngModule = angular.module("app", requirements);
 
@@ -75,13 +67,6 @@ function requireImages() {
   // client/app/assets/images/<path> => /images/<path>
   const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);
   ctx.keys().forEach(ctx);
-}
-
-function registerComponents() {
-  // We repeat this code in other register functions, because if we don't use a literal for the path
-  // Webpack won't be able to statcily analyze our imports.
-  const context = require.context("@/components", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  registerAll(context);
 }
 
 function registerExtensions() {
@@ -106,13 +91,15 @@ function registerPages() {
     ngModule.config($routeProvider => {
       each(routes, (route, path) => {
         logger("Registering route: %s", path);
-        route.authenticated = true;
-        route.resolve = extend(
-          {
-            __organizationStatus: () => organizationStatus.refresh(),
-          },
-          route.resolve
-        );
+        route.authenticated = route.authenticated !== false; // could be set to `false` do disable auth
+        if (route.authenticated) {
+          route.resolve = extend(
+            {
+              __organizationStatus: () => organizationStatus.refresh(),
+            },
+            route.resolve
+          );
+        }
         $routeProvider.when(path, route);
       });
     });
@@ -131,22 +118,12 @@ function registerPages() {
   });
 }
 
-function registerFilters() {
-  each(filters, (filter, name) => {
-    ngModule.filter(name, () => filter);
-  });
-}
-
 requireImages();
-registerDirectives(ngModule);
 registerServices();
-registerFilters();
-markdownFilter(ngModule);
-dateTimeFilter(ngModule);
-registerComponents();
+initAppView(ngModule);
 registerPages();
 registerExtensions();
-registerVisualizations(ngModule);
+registerVisualizations();
 
 ngModule.run($q => {
   DialogWrapper.Promise = $q;

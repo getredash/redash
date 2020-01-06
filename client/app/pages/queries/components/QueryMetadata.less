@@ -1,0 +1,103 @@
+// ANGULAR_REMOVE_ME Change this class to `.query-metadata` when all related Angular code removed
+.query-metadata-new {
+  .query-metadata-item {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+
+    img {
+      margin: 0 5px 0 0;
+    }
+
+    .query-metadata-property {
+      flex: 1 1 auto;
+
+      .query-metadata-label {
+        margin: 0 5px 0 0;
+        &:only-child {
+          margin-right: 0;
+        }
+      }
+
+      .query-metadata-value {
+        margin: 0;
+      }
+    }
+  }
+
+  &.query-metadata-table {
+    padding: 15px;
+    border-top: 1px solid #efefef;
+
+    .query-metadata-item {
+      margin-bottom: 8px;
+
+      &:last-child {
+        margin-top: 20px;
+        margin-bottom: 0;
+      }
+
+      .query-metadata-property {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  &.query-metadata-horizontal {
+    padding: 5px 0;
+    margin: 0 -5px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: space-between;
+
+    @media (max-width: 500px) {
+      & {
+        flex-direction: column;
+        justify-content: stretch;
+      }
+    }
+
+    @media (min-width: 1000px) {
+      align-items: flex-start;
+      justify-content: flex-start;
+
+      .query-metadata-item:last-child {
+        flex: 1 1 auto;
+        text-align: right;
+      }
+    }
+
+    .query-metadata-item {
+      padding: 5px;
+
+      &:last-child {
+        .query-metadata-property {
+          .query-metadata-label {
+            white-space: nowrap;
+            &:after {
+              content: ":";
+            }
+          }
+        }
+      }
+
+      .query-metadata-property {
+        .query-metadata-label {
+          .zmdi {
+            display: none;
+          }
+        }
+
+        .query-metadata-value {
+          strong {
+            font-weight: normal;
+          }
+        }
+      }
+    }
+  }
+}

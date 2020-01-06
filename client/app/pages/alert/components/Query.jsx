@@ -1,8 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import { QuerySelector } from "@/components/QuerySelector";
-import { SchedulePhrase } from "@/components/queries/SchedulePhrase";
+import QuerySelector from "@/components/QuerySelector";
+import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import { Query as QueryType } from "@/components/proptypes";
 
 import Tooltip from "antd/lib/tooltip";

@@ -3,10 +3,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
-import { FavoritesControl } from "@/components/FavoritesControl";
-import { TimeAgo } from "@/components/TimeAgo";
-import { durationHumanize } from "@/filters";
-import { formatDate, formatDateTime } from "@/filters/datetime";
+import FavoritesControl from "@/components/FavoritesControl";
+import TimeAgo from "@/components/TimeAgo";
+import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
 
 // `this` refers to previous function in the chain (`Columns.***`).
 // Adds `sorter: true` field to column definition
