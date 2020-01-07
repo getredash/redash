@@ -1,6 +1,6 @@
 import debug from "debug";
 import { react2angular } from "react2angular";
-import AppHeader from "@/components/app-header/AppHeader";
+import ApplicationHeader from "@/components/ApplicationHeader";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import { ErrorHandler } from "./error-handler";
 import template from "./template.html";
@@ -91,7 +91,7 @@ export default function init(ngModule) {
       }
   );
 
-  ngModule.component("appHeader", react2angular(AppHeader));
+  ngModule.component("appHeader", react2angular(ApplicationHeader));
 
   ngModule.component("appView", {
     template,

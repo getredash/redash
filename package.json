@@ -55,6 +55,7 @@
     "d3-cloud": "^1.2.4",
     "debug": "^3.1.0",
     "font-awesome": "^4.7.0",
+    "history": "^4.10.1",
     "hoist-non-react-statics": "^3.3.0",
     "jquery": "^3.2.1",
     "leaflet": "^1.2.0",
@@ -80,6 +81,7 @@
     "react-virtualized": "^9.21.2",
     "react2angular": "^3.2.1",
     "tinycolor2": "^1.4.1",
+    "universal-router": "^8.3.0",
     "use-debounce": "^3.1.0",
     "use-media": "^1.4.0"
   },
