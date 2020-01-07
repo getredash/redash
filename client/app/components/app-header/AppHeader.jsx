@@ -134,7 +134,7 @@ function DesktopNavbar() {
                       <a href="query_snippets">Query Snippets</a>
                     </Menu.Item>
                   )}
-                  {currentUser.hasPermission("list_users") && (
+                  {currentUser.isAdmin && (
                     <Menu.Item key="destinations">
                       <a href="destinations">Alert Destinations</a>
                     </Menu.Item>
