@@ -2,7 +2,7 @@ import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
-import { $location } from "@/services/ng";
+import { $location, $rootScope } from "@/services/ng";
 import { Parameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
@@ -18,6 +18,7 @@ function updateUrl(parameters) {
   });
   Object.keys(params).forEach(key => params[key] == null && delete params[key]);
   $location.search(params);
+  $rootScope.$applyAsync(); // needed for the url to update
 }
 
 export default class Parameters extends React.Component {
