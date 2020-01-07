@@ -8,7 +8,7 @@ function getSchema(dataSource, refresh = undefined) {
     return Promise.resolve([]);
   }
 
-  return DataSource.fetchSchema(dataSource)
+  return DataSource.fetchSchema(dataSource, refresh)
     .then(data => {
       if (data.schema) {
         return data.schema;
