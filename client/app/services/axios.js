@@ -1,5 +1,4 @@
 import axiosLib from "axios";
-import { $rootScope } from "./ng";
 
 export const axios = axiosLib.create();
 
