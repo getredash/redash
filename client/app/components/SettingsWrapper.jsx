@@ -17,11 +17,13 @@ function wrapSettingsTab(options, WrappedComponent) {
           <PageHeader title="Settings" />
           <div className="bg-white tiled">
             <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
-              {settingsMenu.items.map(item => (
-                <Menu.Item key={item.title}>
-                  <a href={item.path}>{item.title}</a>
-                </Menu.Item>
-              ))}
+              {settingsMenu.items
+                .filter(item => item.isAvailable())
+                .map(item => (
+                  <Menu.Item key={item.title}>
+                    <a href={item.path}>{item.title}</a>
+                  </Menu.Item>
+                ))}
             </Menu>
             <div className="p-15">
               <div>
