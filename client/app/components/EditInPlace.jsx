@@ -1,11 +1,10 @@
+import { trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { react2angular } from "react2angular";
-import { trim } from "lodash";
 import Input from "antd/lib/input";
 
-export class EditInPlace extends React.Component {
+export default class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
     isEditable: PropTypes.bool,
@@ -95,9 +94,3 @@ export class EditInPlace extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component("editInPlace", react2angular(EditInPlace));
-}
-
-init.init = true;

@@ -1,4 +1,14 @@
-import { map, maxBy, sortBy } from "lodash";
+import { map, maxBy, sortBy, toString } from "lodash";
+import moment from "moment";
+import { clientConfig } from "@/services/auth";
+
+function stepValueToString(value) {
+  if (moment.isMoment(value)) {
+    const format = clientConfig.dateTimeFormat || "DD/MM/YYYY HH:mm";
+    return value.format(format);
+  }
+  return toString(value);
+}
 
 export default function prepareData(rows, options) {
   if (rows.length === 0 || !options.stepCol.colName || !options.valueCol.colName) {
@@ -14,7 +24,7 @@ export default function prepareData(rows, options) {
   }
 
   const data = map(rows, row => ({
-    step: row[options.stepCol.colName],
+    step: stepValueToString(row[options.stepCol.colName]),
     value: parseFloat(row[options.valueCol.colName]) || 0.0,
   }));
 

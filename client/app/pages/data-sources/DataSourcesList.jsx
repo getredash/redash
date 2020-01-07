@@ -22,6 +22,8 @@ class DataSourcesList extends React.Component {
     loading: true,
   };
 
+  newDataSourceDialog = null;
+
   componentDidMount() {
     Promise.all([DataSource.query().$promise, DataSource.types().$promise]).then(values =>
       this.setState(
@@ -44,6 +46,12 @@ class DataSourcesList extends React.Component {
     );
   }
 
+  componentWillUnmount() {
+    if (this.newDataSourceDialog) {
+      this.newDataSourceDialog.dismiss();
+    }
+  }
+
   createDataSource = (selectedType, values) => {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
@@ -64,17 +72,24 @@ class DataSourcesList extends React.Component {
 
   showCreateSourceDialog = () => {
     recordEvent("view", "page", "data_sources/new");
-    CreateSourceDialog.showModal({
+    this.newDataSourceDialog = CreateSourceDialog.showModal({
       types: this.state.dataSourceTypes,
       sourceType: "Data Source",
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: "DS_",
       onCreate: this.createDataSource,
-    }).result.then((result = {}) => {
-      if (result.success) {
-        navigateTo(`data_sources/${result.data.id}`);
-      }
     });
+
+    this.newDataSourceDialog.result
+      .then((result = {}) => {
+        this.newDataSourceDialog = null;
+        if (result.success) {
+          navigateTo(`data_sources/${result.data.id}`);
+        }
+      })
+      .catch(() => {
+        this.newDataSourceDialog = null;
+      });
   };
 
   renderDataSources() {

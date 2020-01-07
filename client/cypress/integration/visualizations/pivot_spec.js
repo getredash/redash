@@ -57,7 +57,7 @@ describe("Pivot", () => {
     createPivotThroughUI(visualizationName);
 
     cy.getByTestId("QueryPageVisualizationTabs")
-      .contains("li", visualizationName)
+      .contains("span", visualizationName)
       .should("exist");
   });
 
@@ -105,6 +105,7 @@ describe("Pivot", () => {
         .first()
         .focus()
         .type(" UNION ALL {enter}SELECT 'c' AS stage1, 'c5' AS stage2, 55 AS value");
+
       cy.getByTestId("SaveButton").click();
       cy.getByTestId("ExecuteButton").click();
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { get, find, pick, map, mapValues } from "lodash";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import { RendererPropTypes } from "@/visualizations";
-import { formatColumnValue } from "@/filters";
+import { formatColumnValue } from "@/lib/utils";
 
 import "react-pivottable/pivottable.css";
 import "./renderer.less";
