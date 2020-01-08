@@ -1,0 +1,57 @@
+@import (reference, less) "~@/assets/less/inc/variables.less";
+
+.resizable-component.react-resizable {
+  position: relative;
+
+  .react-resizable-handle {
+    position: absolute;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover,
+    &:active {
+      background: mix(@redash-gray, #fff, 6%);
+    }
+
+    &.react-resizable-handle-horizontal {
+      cursor: col-resize;
+      width: 10px;
+      height: auto;
+      right: 0;
+      top: 0;
+      bottom: 0;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 25px;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+      }
+    }
+
+    &.react-resizable-handle-vertical {
+      cursor: row-resize;
+      width: auto;
+      height: 10px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      &:before {
+        content: "";
+        display: inline-block;
+        width: 25px;
+        height: 3px;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+    }
+  }
+}

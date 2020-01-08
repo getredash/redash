@@ -31,6 +31,8 @@ div.table-name {
   overflow-x: hidden;
   border: none;
   margin-top: 10px;
+  position: relative;
+  height: 100%;
 
   .collapse.in {
     background: transparent;
@@ -72,8 +74,14 @@ div.table-name {
 
 .schema-control {
   display: flex;
+  flex-wrap: nowrap;
   padding: 0;
 
+  .ant-btn {
+    height: auto;
+  }
+
+  // ANGULAR_REMOVE_ME
  .form-control {
    margin-right: 5px;
  }

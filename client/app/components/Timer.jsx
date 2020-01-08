@@ -1,11 +1,10 @@
 import React, { useMemo, useEffect } from "react";
 import moment from "moment";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import { Moment } from "@/components/proptypes";
 import useForceUpdate from "@/lib/hooks/useForceUpdate";
 
-export function Timer({ from }) {
+export default function Timer({ from }) {
   const startTime = useMemo(() => moment(from).valueOf(), [from]);
   const forceUpdate = useForceUpdate();
 
@@ -27,9 +26,3 @@ Timer.propTypes = {
 Timer.defaultProps = {
   from: null,
 };
-
-export default function init(ngModule) {
-  ngModule.component("rdTimer", react2angular(Timer));
-}
-
-init.init = true;

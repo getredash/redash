@@ -736,24 +736,38 @@ class TestDashboardAll(BaseTestCase):
             d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id))
         )
 
-    def test_returns_dashboards_with_text_widgets(self):
+    def test_returns_dashboards_with_text_widgets_to_creator(self):
         w1 = self.factory.create_widget(visualization=None)
 
+        self.assertEqual(w1.dashboard.user, self.factory.user)
         self.assertIn(
-            w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None)
+            w1.dashboard,
+            list(
+                models.Dashboard.all(
+                    self.factory.user.org,
+                    self.factory.user.group_ids,
+                    self.factory.user.id,
+                )
+            ),
         )
-        self.assertIn(
-            w1.dashboard, models.Dashboard.all(self.u2.org, self.u2.group_ids, None)
+        self.assertNotIn(
+            w1.dashboard,
+            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)),
         )
 
     def test_returns_dashboards_from_current_org_only(self):
-        w1 = self.factory.create_widget(visualization=None)
+        w1 = self.factory.create_widget()
 
         user = self.factory.create_user(org=self.factory.create_org())
 
         self.assertIn(
-            w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None)
+            w1.dashboard,
+            list(
+                models.Dashboard.all(
+                    self.factory.user.org, self.factory.user.group_ids, None
+                )
+            ),
         )
         self.assertNotIn(
-            w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None)
+            w1.dashboard, list(models.Dashboard.all(user.org, user.group_ids, user.id))
         )

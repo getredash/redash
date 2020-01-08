@@ -2,9 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Icon from "antd/lib/icon";
-import { react2angular } from "react2angular";
 
-export function EditVisualizationButton(props) {
+export default function EditVisualizationButton(props) {
   return (
     <Button
       data-test="EditVisualization"
@@ -24,9 +23,3 @@ EditVisualizationButton.propTypes = {
 EditVisualizationButton.defaultProps = {
   selectedTab: "",
 };
-
-export default function init(ngModule) {
-  ngModule.component("editVisualizationButton", react2angular(EditVisualizationButton));
-}
-
-init.init = true;

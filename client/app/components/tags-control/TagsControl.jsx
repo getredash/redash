@@ -1,7 +1,6 @@
-import { map, trim, extend } from "lodash";
+import { map, trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Tooltip from "antd/lib/tooltip";
 import EditTagsDialog from "./EditTagsDialog";
 
@@ -74,22 +73,15 @@ function modelTagsControl({ archivedTooltip }) {
     );
   }
 
-  // ANGULAR_REMOVE_ME `extend` needed just for `react2angular`, so remove it when `react2angular` no longer needed
-  ModelTagsControl.propTypes = extend(
-    {
-      isDraft: PropTypes.bool,
-      isArchived: PropTypes.bool,
-    },
-    TagsControl.propTypes
-  );
+  ModelTagsControl.propTypes = {
+    isDraft: PropTypes.bool,
+    isArchived: PropTypes.bool,
+  };
 
-  ModelTagsControl.defaultProps = extend(
-    {
-      isDraft: false,
-      isArchived: false,
-    },
-    TagsControl.defaultProps
-  );
+  ModelTagsControl.defaultProps = {
+    isDraft: false,
+    isArchived: false,
+  };
 
   return ModelTagsControl;
 }
@@ -101,9 +93,3 @@ export const QueryTagsControl = modelTagsControl({
 export const DashboardTagsControl = modelTagsControl({
   archivedTooltip: "This dashboard is archived and won't be listed in dashboards nor search results.",
 });
-
-export default function init(ngModule) {
-  ngModule.component("queryTagsControl", react2angular(QueryTagsControl));
-}
-
-init.init = true;

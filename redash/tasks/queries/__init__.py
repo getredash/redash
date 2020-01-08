@@ -4,4 +4,4 @@ from .maintenance import (
     cleanup_query_results,
     empty_schedules,
 )
-from .execution import QueryTask, execute_query, enqueue_query
+from .execution import execute_query, enqueue_query

@@ -1,7 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 
 import React, { useRef } from "react";
-import { react2angular } from "react2angular";
 
 import Dropdown from "antd/lib/dropdown";
 import Button from "antd/lib/button";
@@ -51,29 +50,33 @@ function DesktopNavbar() {
             </Menu.Item>
           )}
         </Menu>
-        <Dropdown
-          trigger={["click"]}
-          overlay={
-            <Menu>
-              {currentUser.hasPermission("create_query") && (
-                <Menu.Item key="new-query">
-                  <a href="queries/new">New Query</a>
-                </Menu.Item>
-              )}
-              {currentUser.hasPermission("create_dashboard") && (
-                <Menu.Item key="new-dashboard">
-                  <a onMouseUp={() => CreateDashboardDialog.showModal()}>New Dashboard</a>
-                </Menu.Item>
-              )}
-              <Menu.Item key="new-alert">
-                <a href="alerts/new">New Alert</a>
-              </Menu.Item>
-            </Menu>
-          }>
-          <Button type="primary" data-test="CreateButton">
-            Create <Icon type="down" />
-          </Button>
-        </Dropdown>
+        {currentUser.canCreate() && (
+          <Dropdown
+            trigger={["click"]}
+            overlay={
+              <Menu>
+                {currentUser.hasPermission("create_query") && (
+                  <Menu.Item key="new-query">
+                    <a href="queries/new">New Query</a>
+                  </Menu.Item>
+                )}
+                {currentUser.hasPermission("create_dashboard") && (
+                  <Menu.Item key="new-dashboard">
+                    <a onMouseUp={() => CreateDashboardDialog.showModal()}>New Dashboard</a>
+                  </Menu.Item>
+                )}
+                {currentUser.hasPermission("list_alerts") && (
+                  <Menu.Item key="new-alert">
+                    <a href="alerts/new">New Alert</a>
+                  </Menu.Item>
+                )}
+              </Menu>
+            }>
+            <Button type="primary" data-test="CreateButton">
+              Create <Icon type="down" />
+            </Button>
+          </Dropdown>
+        )}
       </div>
       <div className="header-logo">
         <a href="./">
@@ -126,9 +129,11 @@ function DesktopNavbar() {
                       <a href="users">Users</a>
                     </Menu.Item>
                   )}
-                  <Menu.Item key="snippets">
-                    <a href="query_snippets">Query Snippets</a>
-                  </Menu.Item>
+                  {currentUser.hasPermission("create_query") && (
+                    <Menu.Item key="snippets">
+                      <a href="query_snippets">Query Snippets</a>
+                    </Menu.Item>
+                  )}
                   {currentUser.hasPermission("list_users") && (
                     <Menu.Item key="destinations">
                       <a href="destinations">Alert Destinations</a>
@@ -244,7 +249,7 @@ function MobileNavbar() {
   );
 }
 
-export function AppHeader() {
+export default function AppHeader() {
   return (
     <nav className="app-header-wrapper">
       <DesktopNavbar />
@@ -252,9 +257,3 @@ export function AppHeader() {
     </nav>
   );
 }
-
-export default function init(ngModule) {
-  ngModule.component("appHeader", react2angular(AppHeader));
-}
-
-init.init = true;

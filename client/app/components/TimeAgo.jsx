@@ -1,7 +1,6 @@
 import moment from "moment";
 import { isNil } from "lodash";
 import React, { useEffect } from "react";
-import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import { Moment } from "@/components/proptypes";
 import { clientConfig } from "@/services/auth";
@@ -13,7 +12,7 @@ function toMoment(value) {
   return value && value.isValid() ? value : null;
 }
 
-export function TimeAgo({ date, placeholder, autoUpdate }) {
+export default function TimeAgo({ date, placeholder, autoUpdate }) {
   const startDate = toMoment(date);
 
   const value = startDate ? startDate.fromNow() : placeholder;
@@ -49,36 +48,3 @@ TimeAgo.defaultProps = {
   placeholder: "",
   autoUpdate: true,
 };
-
-export default function init(ngModule) {
-  ngModule.directive("amTimeAgo", () => ({
-    link($scope, $element, attr) {
-      const modelName = attr.amTimeAgo;
-      $scope.$watch(modelName, value => {
-        ReactDOM.render(<TimeAgo date={value} />, $element[0]);
-      });
-
-      $scope.$on("$destroy", () => {
-        ReactDOM.unmountComponentAtNode($element[0]);
-      });
-    },
-  }));
-
-  ngModule.component("rdTimeAgo", {
-    bindings: {
-      value: "=",
-    },
-    controller($scope, $element) {
-      $scope.$watch("$ctrl.value", () => {
-        // Initial render will occur here as well
-        ReactDOM.render(<TimeAgo date={this.value} placeholder="-" />, $element[0]);
-      });
-
-      $scope.$on("$destroy", () => {
-        ReactDOM.unmountComponentAtNode($element[0]);
-      });
-    },
-  });
-}
-
-init.init = true;
