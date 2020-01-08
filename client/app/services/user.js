@@ -1,6 +1,6 @@
 import { axios } from "@/services/axios";
 import { isString, get } from "lodash";
-import { $sanitize } from "@/services/ng";
+import { sanitize } from "dompurify";
 import notification from "@/services/notification";
 import { clientConfig } from "@/services/auth";
 
@@ -9,7 +9,7 @@ function disableResource(user) {
 }
 
 function enableUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
 
   return axios
     .delete(disableResource(user))
@@ -29,7 +29,7 @@ function enableUser(user) {
 }
 
 function disableUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
   return axios
     .post(disableResource(user))
     .then(data => {
@@ -45,7 +45,7 @@ function disableUser(user) {
 }
 
 function deleteUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
   return axios
     .delete(`api/users/${user.id}`)
     .then(data => {
