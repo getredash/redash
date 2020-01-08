@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import useUpdateQuery from "./useUpdateQuery";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 export default function useQuery(originalQuery) {
   const [query, setQuery] = useState(originalQuery);

@@ -16,7 +16,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { QuerySnippet } from "@/services/query-snippet";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import notification from "@/services/notification";

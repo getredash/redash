@@ -25,7 +25,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { User } from "@/services/user";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
 

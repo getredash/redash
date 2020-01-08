@@ -3,7 +3,8 @@ import { history } from "./Router";
 
 const htmlLink = document.createElement("a"); // cache instance
 
-export default function navigateTo(href) {
+// TODO: Implement `reload` option
+export default function navigateTo(href, replace = false, reload = true) {
   // do it async
   setTimeout(() => {
     // Resolve provided link and '' (root) relative to document's base.
@@ -23,6 +24,12 @@ export default function navigateTo(href) {
       return;
     }
 
-    history.push(`/${href.substr(baseHref.length)}`);
+    href = `/${href.substr(baseHref.length)}`;
+
+    if (replace) {
+      history.replace(href);
+    } else {
+      history.push(href);
+    }
   }, 10);
 }

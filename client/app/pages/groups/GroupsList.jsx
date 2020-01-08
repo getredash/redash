@@ -17,7 +17,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { Group } from "@/services/group";
 import { currentUser } from "@/services/auth";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 class GroupsList extends React.Component {
   static propTypes = {

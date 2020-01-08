@@ -11,9 +11,9 @@ import Tooltip from "antd/lib/tooltip";
 
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 import { currentUser, Auth, clientConfig } from "@/services/auth";
-import { $location, $route } from "@/services/ng";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 import frontendVersion from "@/version.json";
@@ -23,8 +23,8 @@ import FavoritesDropdown from "./FavoritesDropdown";
 import "./index.less";
 
 function onSearch(q) {
-  $location.path("/queries").search({ q });
-  $route.reload();
+  // TODO: Does not work, needs to be fixed
+  navigateTo(`/queries?q=${encodeURIComponent(q)}`);
 }
 
 function DesktopNavbar() {
