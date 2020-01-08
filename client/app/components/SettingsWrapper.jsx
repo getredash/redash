@@ -21,7 +21,9 @@ function wrapSettingsTab(options, WrappedComponent) {
                 .filter(item => item.isAvailable())
                 .map(item => (
                   <Menu.Item key={item.title}>
-                    <a href={item.path}>{item.title}</a>
+                    <a href={item.path} data-test="SettingsScreenItem">
+                      {item.title}
+                    </a>
                   </Menu.Item>
                 ))}
             </Menu>
