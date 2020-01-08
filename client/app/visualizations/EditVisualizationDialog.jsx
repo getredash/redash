@@ -13,7 +13,6 @@ import { Visualization } from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
-import { cleanAngularProps } from "@/lib/utils";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 
 import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from "./index";
@@ -135,7 +134,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
   }
 
   function dismiss() {
-    const optionsChanged = !isEqual(cleanAngularProps(options), defaultState.originalOptions);
+    const optionsChanged = !isEqual(options, defaultState.originalOptions);
     confirmDialogClose(nameChanged || optionsChanged).then(dialog.dismiss);
   }
 
