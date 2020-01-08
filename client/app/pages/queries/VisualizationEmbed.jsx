@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { find, has } from "lodash";
-import { react2angular } from "react2angular";
 import moment from "moment";
+import qs from "query-string";
 import { markdown } from "markdown";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import { $location, $routeParams } from "@/services/ng";
+import { Auth } from "@/services/auth";
+import { Query } from "@/services/query";
 import { formatDateTime } from "@/lib/utils";
 import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
@@ -47,7 +48,15 @@ VisualizationEmbedHeader.propTypes = {
 
 VisualizationEmbedHeader.defaultProps = { queryDescription: "" };
 
-function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStartedAt, queryUrl, hideTimestamp }) {
+function VisualizationEmbedFooter({
+  query,
+  queryResults,
+  updatedAt,
+  refreshStartedAt,
+  queryUrl,
+  hideTimestamp,
+  apiKey,
+}) {
   const downloadMenu = (
     <Menu>
       <Menu.Item>
@@ -55,7 +64,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="csv"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file" /> Download as CSV File
@@ -66,7 +75,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="tsv"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file" /> Download as TSV File
@@ -77,7 +86,7 @@ function VisualizationEmbedFooter({ query, queryResults, updatedAt, refreshStart
           fileType="xlsx"
           query={query}
           queryResult={queryResults}
-          apiKey={$routeParams.api_key}
+          apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
           <Icon type="file-excel" /> Download as Excel File
@@ -127,6 +136,7 @@ VisualizationEmbedFooter.propTypes = {
   refreshStartedAt: Moment,
   queryUrl: PropTypes.string,
   hideTimestamp: PropTypes.bool,
+  apiKey: PropTypes.string,
 };
 
 VisualizationEmbedFooter.defaultProps = {
@@ -135,19 +145,22 @@ VisualizationEmbedFooter.defaultProps = {
   refreshStartedAt: null,
   queryUrl: null,
   hideTimestamp: false,
+  apiKey: null,
 };
 
-function VisualizationEmbed({ query }) {
+function VisualizationEmbed({ query, visualizationId, location }) {
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
-  const hideHeader = has($location.search(), "hide_header");
-  const hideParametersUI = has($location.search(), "hide_parameters");
-  const hideQueryLink = has($location.search(), "hide_link");
-  const hideTimestamp = has($location.search(), "hide_timestamp");
 
-  const showQueryDescription = has($location.search(), "showDescription");
-  const visualizationId = parseInt($routeParams.visualizationId, 10);
+  const urlQueryParams = qs.parse(location.search);
+  const hideHeader = has(urlQueryParams, "hide_header");
+  const hideParametersUI = has(urlQueryParams, "hide_parameters");
+  const hideQueryLink = has(urlQueryParams, "hide_link");
+  const hideTimestamp = has(urlQueryParams, "hide_timestamp");
+
+  const showQueryDescription = has(urlQueryParams, "showDescription");
+  visualizationId = parseInt(visualizationId, 10);
   const visualization = find(query.visualizations, vis => vis.id === visualizationId);
 
   const refreshQueryResults = useCallback(() => {
@@ -203,38 +216,31 @@ function VisualizationEmbed({ query }) {
         refreshStartedAt={refreshStartedAt}
         queryUrl={!hideQueryLink ? query.getUrl() : null}
         hideTimestamp={hideTimestamp}
+        apiKey={urlQueryParams.api_key}
       />
     </div>
   );
 }
 
-VisualizationEmbed.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
+VisualizationEmbed.propTypes = {
+  query: PropTypes.object.isRequired,
+  visualizationId: PropTypes.string,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }),
+};
 
-export default function init(ngModule) {
-  ngModule.component("visualizationEmbed", react2angular(VisualizationEmbed));
-
-  function loadSession($route, Auth) {
-    const apiKey = $route.current.params.api_key;
-    Auth.setApiKey(apiKey);
-    return Auth.loadConfig();
-  }
-
-  function loadQuery($route, Auth, Query) {
-    "ngInject";
-
-    return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
-  }
-
-  return {
-    "/embed/query/:queryId/visualization/:visualizationId": {
-      authenticated: false,
-      template: '<visualization-embed query="$resolve.query"></visualization-embed>',
-      reloadOnSearch: false,
-      resolve: {
-        query: loadQuery,
-      },
+export default {
+  path: "/embed/query/:queryId/visualization/:visualizationId",
+  authenticated: false,
+  render: (routeParams, currentRoute, location) => (
+    <VisualizationEmbed key={location.pathname} {...routeParams} location={location} />
+  ),
+  resolve: {
+    query: ({ queryId }, currentRoute, location) => {
+      const urlQueryParams = qs.parse(location.search);
+      Auth.setApiKey(urlQueryParams.api_key);
+      return Auth.loadConfig().then(() => Query.get({ id: queryId }).$promise);
     },
-  };
-}
-
-init.init = true;
+  },
+};

@@ -11,6 +11,7 @@ import alertRoutes from "./alert/Alert";
 import alertsListRoutes from "./alerts/AlertsList";
 import dashboardListRoutes from "./dashboards/DashboardList";
 import dashboardRoutes from "./dashboards/DashboardPage";
+import publicDashboardRoutes from "./dashboards/PublicDashboardPage";
 import dataSourcesListRoutes from "./data-sources/DataSourcesList";
 import editDataSourceRoutes from "./data-sources/EditDataSource";
 import destinationsListRoutes from "./destinations/DestinationsList";
@@ -22,6 +23,7 @@ import homeRoutes from "./home/Home";
 import queriesListRoutes from "./queries-list/QueriesList";
 import queryViewRoutes from "./queries/QueryView";
 import querySourceRoutes from "./queries/QuerySource";
+import visualizationEmbedRoutes from "./queries/VisualizationEmbed";
 import querySnippetsRoutes from "./query-snippets/QuerySnippetsList";
 import organizationSettingsRoutes from "./settings/OrganizationSettings";
 import usersListRoutes from "./users/UsersList";
@@ -53,6 +55,7 @@ export default prepareRoutes([
   alertsListRoutes,
   dashboardListRoutes,
   dashboardRoutes,
+  publicDashboardRoutes,
   dataSourcesListRoutes,
   editDataSourceRoutes,
   destinationsListRoutes,
@@ -64,6 +67,7 @@ export default prepareRoutes([
   queriesListRoutes,
   queryViewRoutes,
   querySourceRoutes,
+  visualizationEmbedRoutes,
   querySnippetsRoutes,
   organizationSettingsRoutes,
   usersListRoutes,

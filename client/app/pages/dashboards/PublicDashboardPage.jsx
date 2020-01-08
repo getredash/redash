@@ -1,14 +1,13 @@
-import React from "react";
 import { isEmpty } from "lodash";
+import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
-import { $route as ngRoute } from "@/services/ng";
+import { Auth } from "@/services/auth";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import useDashboard from "./useDashboard";
@@ -53,13 +52,17 @@ PublicDashboard.propTypes = {
 };
 
 class PublicDashboardPage extends React.Component {
+  static propTypes = {
+    token: PropTypes.string.isRequired,
+  };
+
   state = {
     loading: true,
     dashboard: null,
   };
 
   componentDidMount() {
-    Dashboard.getByToken({ token: ngRoute.current.params.token })
+    Dashboard.getByToken({ token: this.props.token })
       .$promise.then(dashboard => this.setState({ dashboard, loading: false }))
       .catch(error => {
         throw new PromiseRejectionError(error);
@@ -90,24 +93,14 @@ class PublicDashboardPage extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
-
-  return {
-    "/public/dashboards/:token": {
-      authenticated: false,
-      template: "<public-dashboard-page></public-dashboard-page>",
-      reloadOnSearch: false,
-      resolve: {
-        session: ($route, Auth) => {
-          "ngInject";
-          const token = $route.current.params.token;
-          Auth.setApiKey(token);
-          return Auth.loadConfig();
-        },
-      },
+export default {
+  path: "/public/dashboards/:token",
+  authenticated: false,
+  render: (routeParams, currentRoute, location) => <PublicDashboardPage key={location.pathname} {...routeParams} />,
+  resolve: {
+    session: ({ token }) => {
+      Auth.setApiKey(token);
+      return Auth.loadConfig();
     },
-  };
-}
-
-init.init = true;
+  },
+};

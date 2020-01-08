@@ -12,7 +12,7 @@ export const history = createBrowserHistory();
 function resolveRouteDependencies(route) {
   return Promise.all(
     map(route.resolve, (value, key) => {
-      value = isFunction(value) ? value(route.routeParams) : value;
+      value = isFunction(value) ? value(route.routeParams, route, history.location) : value;
       return Promise.resolve(value).then(result => [key, result]);
     })
   ).then(results => {
