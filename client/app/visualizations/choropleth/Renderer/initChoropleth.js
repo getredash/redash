@@ -1,12 +1,12 @@
 import { isFunction, isObject, isArray, map } from "lodash";
 import React from "react";
 import ReactDOM from "react-dom";
+import { sanitize } from "dompurify";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";
-import { $sanitize } from "@/services/ng";
 import resizeObserver from "@/services/resizeObserver";
 import {
   createNumberFormatter,
@@ -48,11 +48,11 @@ function prepareLayer({ feature, layer, data, options, limits, colors, formatVal
   });
 
   if (options.tooltip.enabled) {
-    layer.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, featureData)), { sticky: true });
+    layer.bindTooltip(sanitize(formatSimpleTemplate(options.tooltip.template, featureData)), { sticky: true });
   }
 
   if (options.popup.enabled) {
-    layer.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, featureData)));
+    layer.bindPopup(sanitize(formatSimpleTemplate(options.popup.template, featureData)));
   }
 
   layer.on("mouseover", () => {
