@@ -1,6 +1,5 @@
 import { includes, map } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 
 import Paginator from "@/components/Paginator";
@@ -25,7 +24,6 @@ import { currentUser } from "@/services/auth";
 import { Group } from "@/services/group";
 import { User } from "@/services/user";
 import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -190,50 +188,32 @@ class GroupMembers extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupMembers",
-    react2angular(
-      wrapSettingsTab(
-        null,
-        liveItemsList(
-          GroupMembers,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest(unused, { params: { groupId } }) {
-              return { id: groupId };
-            },
-            getResource() {
-              return Group.members.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new User(item);
-            },
-          }),
-          new StateStorage({ orderByField: "name" })
-        )
-      )
-    )
-  );
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups/:groupId",
-        title: "Group Members",
-        key: "users",
+const GroupMembersPage = wrapSettingsTab(
+  null,
+  liveItemsList(
+    GroupMembers,
+    () => new ResourceItemsSource({
+      isPlainList: true,
+      getRequest(unused, { params: { groupId } }) {
+        return { id: groupId };
       },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-group-members on-error="handleError"></page-group-members>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
+      getResource() {
+        return Group.members.bind(Group);
       },
-    }
-  );
-}
+      getItemProcessor() {
+        return item => new User(item);
+      },
+    }),
+    () => new StateStorage({ orderByField: "name" })
+  )
+);
 
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/groups/:groupId([0-9]+)",
+  title: "Group Members",
+  render: (routeParams, currentRoute, location) => (
+    <GroupMembersPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+  ),
+  resolve: { currentPage: "users" },
+};

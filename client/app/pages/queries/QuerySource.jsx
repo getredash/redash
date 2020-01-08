@@ -1,7 +1,6 @@
 import { isEmpty, find, map, extend, includes } from "lodash";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
 import Resizable from "@/components/Resizable";
@@ -11,7 +10,6 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
-import { routesToAngularRoutes } from "@/lib/utils";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
@@ -433,45 +431,21 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-export default function init(ngModule) {
-  ngModule.component("pageQuerySource", react2angular(QuerySource));
-
-  return {
-    ...routesToAngularRoutes(
-      [
-        {
-          path: "/queries/new",
-        },
-      ],
-      {
-        layout: "fixed",
-        reloadOnSearch: false,
-        template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
-        resolve: {
-          query: () => Query.newQuery(),
-        },
-      }
-    ),
-    ...routesToAngularRoutes(
-      [
-        {
-          path: "/queries/:queryId/source",
-        },
-      ],
-      {
-        layout: "fixed",
-        reloadOnSearch: false,
-        template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
-        resolve: {
-          query: $route => {
-            "ngInject";
-
-            return Query.get({ id: $route.current.params.queryId }).$promise;
-          },
-        },
-      }
-    ),
-  };
-}
-
-init.init = true;
+export default [
+  {
+    path: "/queries/new",
+    layout: "fixed",
+    render: (routeParams, currentRoute, location) => <QuerySource key={location.pathname} {...routeParams} />,
+    resolve: {
+      query: () => Query.newQuery(),
+    },
+  },
+  {
+    path: "/queries/:queryId([0-9]+)/source",
+    layout: "fixed",
+    render: (routeParams, currentRoute, location) => <QuerySource key={location.pathname} {...routeParams} />,
+    resolve: {
+      query: ({ queryId }) => Query.get({ id: queryId }).$promise,
+    },
+  },
+];

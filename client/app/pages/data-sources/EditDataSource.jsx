@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
-import { react2angular } from "react2angular";
 import Modal from "antd/lib/modal";
 import { DataSource, IMG_ROOT } from "@/services/data-source";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -16,6 +14,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 class EditDataSource extends React.Component {
   static propTypes = {
+    dataSourceId: PropTypes.string.isRequired,
     onError: PropTypes.func,
   };
 
@@ -30,7 +29,7 @@ class EditDataSource extends React.Component {
   };
 
   componentDidMount() {
-    DataSource.get({ id: $route.current.params.dataSourceId })
+    DataSource.get({ id: this.props.dataSourceId })
       .$promise.then(dataSource => {
         const { type } = dataSource;
         this.setState({ dataSource });
@@ -147,20 +146,10 @@ class EditDataSource extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageEditDataSource", react2angular(wrapSettingsTab(null, EditDataSource)));
+const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 
-  return {
-    "/data_sources/:dataSourceId": {
-      template: '<page-edit-data-source on-error="handleError"></page-edit-data-source>',
-      title: "Data Sources",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/data_sources/:dataSourceId([0-9]+)",
+  title: "Data Sources",
+  render: (routeParams, currentRoute, location) => <EditDataSourcePage key={location.pathname} {...routeParams} />,
+};

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import UserEdit from "@/components/users/UserEdit";
@@ -9,17 +8,18 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import { User } from "@/services/user";
-import { $route } from "@/services/ng";
 import { currentUser } from "@/services/auth";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import "./settings.less";
 
 class UserProfile extends React.Component {
   static propTypes = {
+    userId: PropTypes.string,
     onError: PropTypes.func,
   };
 
   static defaultProps = {
+    userId: null, // defaults to `currentUser.id`
     onError: () => {},
   };
 
@@ -29,7 +29,7 @@ class UserProfile extends React.Component {
   }
 
   componentDidMount() {
-    const userId = $route.current.params.userId || currentUser.id;
+    const userId = this.props.userId || currentUser.id;
     User.get({ id: userId })
       .$promise.then(user => this.setState({ user: User.convertUserInfo(user) }))
       .catch(error => {
@@ -54,20 +54,27 @@ class UserProfile extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageUserProfile",
-    react2angular(
-      wrapSettingsTab(
-        {
-          title: "Account",
-          path: "users/me",
-          order: 7,
-        },
-        UserProfile
-      )
-    )
-  );
-}
+const UserProfilePage = wrapSettingsTab(
+  {
+    title: "Account",
+    path: "users/me",
+    order: 7,
+  },
+  UserProfile
+);
 
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/users/me",
+    title: "Account",
+    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.pathname} {...routeParams} />,
+    resolve: { currentPage: "users" },
+  },
+  {
+    path: "/users/:userId([0-9]+)",
+    title: "Users",
+    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.pathname} {...routeParams} />,
+    resolve: { currentPage: "users" },
+  },
+];

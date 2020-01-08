@@ -29,12 +29,12 @@ body {
   font-family: @redash-font;
   position: relative;
 
-  app-view {
+  #application-root {
     padding-bottom: 15px;
   }
 
   &.headless {
-    app-view {
+    #application-root {
       padding-top: 10px;
       padding-bottom: 0;
     }
@@ -45,11 +45,11 @@ body {
   }
 }
 
-app-view {
+#application-root {
   min-height: 100vh;
 }
 
-app-view,
+#application-root,
 #app-content {
   display: flex;
   flex-direction: column;

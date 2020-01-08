@@ -1,6 +1,5 @@
 import { filter, map, includes } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -28,7 +27,6 @@ import { currentUser } from "@/services/auth";
 import { Group } from "@/services/group";
 import { DataSource } from "@/services/data-source";
 import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -227,50 +225,33 @@ class GroupDataSources extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupDataSources",
-    react2angular(
-      wrapSettingsTab(
-        null,
-        liveItemsList(
-          GroupDataSources,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest(unused, { params: { groupId } }) {
-              return { id: groupId };
-            },
-            getResource() {
-              return Group.dataSources.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new DataSource(item);
-            },
-          }),
-          new StateStorage({ orderByField: "name" })
-        )
-      )
-    )
-  );
+const GroupDataSourcesPage = wrapSettingsTab(
+  null,
+  liveItemsList(
+    GroupDataSources,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.dataSources.bind(Group);
+        },
+        getItemProcessor() {
+          return item => new DataSource(item);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups/:groupId/data_sources",
-        title: "Group Data Sources",
-        key: "datasources",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/groups/:groupId([0-9]+)/data_sources",
+  title: "Group Data Sources",
+  render: (routeParams, currentRoute, location) => (
+    <GroupDataSourcesPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+  ),
+  resolve: { currentPage: "datasources" },
+};

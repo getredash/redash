@@ -9,7 +9,7 @@ export default function handleNavigationIntent(event) {
     }
     element = element.parentNode;
   }
-  if (!element) {
+  if (!element || !element.hasAttribute("href")) {
     return;
   }
 
@@ -24,7 +24,6 @@ export default function handleNavigationIntent(event) {
   }
 
   event.preventDefault();
-  event.stopPropagation();
 
   navigateTo(element.href);
 }

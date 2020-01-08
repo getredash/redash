@@ -164,16 +164,33 @@ export default [
   {
     path: "/queries",
     title: "Queries",
-    render: (routeParams, currentRoute) => (
-      <QueriesListPage key={routeParams.currentPage} routeParams={routeParams} currentRoute={currentRoute} />
+    render: (routeParams, currentRoute, location) => (
+      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "all" },
   },
   {
-    path: "/queries/:currentPage(favorites|archive|my)",
+    path: "/queries/favorites",
     title: "Favorite Queries",
-    render: (routeParams, currentRoute) => (
-      <QueriesListPage key={routeParams.currentPage} routeParams={routeParams} currentRoute={currentRoute} />
+    render: (routeParams, currentRoute, location) => (
+      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
     ),
+    resolve: { currentPage: "favorites" },
+  },
+  {
+    path: "/queries/archive",
+    title: "Archived Queries",
+    render: (routeParams, currentRoute, location) => (
+      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "archive" },
+  },
+  {
+    path: "/queries/my",
+    title: "My Queries",
+    render: (routeParams, currentRoute, location) => (
+      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "my" },
   },
 ];

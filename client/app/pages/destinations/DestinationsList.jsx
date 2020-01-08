@@ -1,12 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { react2angular } from "react2angular";
 import { isEmpty, get } from "lodash";
 import { Destination, IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
-import { routesToAngularRoutes } from "@/lib/utils";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
@@ -14,6 +12,14 @@ import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
 class DestinationsList extends React.Component {
+  static propTypes = {
+    isNewDestinationPage: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    isNewDestinationPage: false,
+  };
+
   state = {
     destinationTypes: [],
     destinations: [],
@@ -30,7 +36,7 @@ class DestinationsList extends React.Component {
         },
         () => {
           // all resources are loaded in state
-          if ($route.current.locals.isNewDestinationPage) {
+          if (this.props.isNewDestinationPage) {
             if (policy.canCreateDestination()) {
               this.showCreateSourceDialog();
             } else {
@@ -119,45 +125,31 @@ class DestinationsList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDestinationsList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Alert Destinations",
-          path: "destinations",
-          order: 4,
-        },
-        DestinationsList
-      )
-    )
-  );
+const DestinationsListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Alert Destinations",
+    path: "destinations",
+    order: 4,
+  },
+  DestinationsList
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/destinations",
-        title: "Alert Destinations",
-        key: "destinations",
-      },
-      {
-        path: "/destinations/new",
-        title: "Alert Destinations",
-        key: "destinations",
-        isNewDestinationPage: true,
-      },
-    ],
-    {
-      template: "<page-destinations-list></page-destinations-list>",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/destinations",
+    title: "Alert Destinations",
+    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.pathname} {...routeParams} />,
+    resolve: { currentPage: "destinations" },
+  },
+  {
+    path: "/destinations/new",
+    title: "Alert Destinations",
+    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.pathname} {...routeParams} />,
+    resolve: {
+      key: "destinations",
+      isNewDestinationPage: true,
+    },
+  },
+];

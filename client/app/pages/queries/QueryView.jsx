@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 
 import EditInPlace from "@/components/EditInPlace";
@@ -9,6 +8,7 @@ import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 
+import { Query } from "@/services/query";
 import { DataSource } from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/lib/utils";
 
@@ -77,7 +77,12 @@ function QueryView(props) {
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} dataSource={dataSource} onChange={setQuery} selectedVisualization={selectedVisualization} />
+        <QueryPageHeader
+          query={query}
+          dataSource={dataSource}
+          onChange={setQuery}
+          selectedVisualization={selectedVisualization}
+        />
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
@@ -178,22 +183,10 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
-export default function init(ngModule) {
-  ngModule.component("pageQueryView", react2angular(QueryView));
-
-  return {
-    "/queries/:queryId": {
-      template: '<page-query-view query="$resolve.query"></page-query-view>',
-      reloadOnSearch: false,
-      resolve: {
-        query: (Query, $route) => {
-          "ngInject";
-
-          return Query.get({ id: $route.current.params.queryId }).$promise;
-        },
-      },
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/queries/:queryId([0-9]+)",
+  render: (routeParams, currentRoute, location) => <QueryView key={location.pathname} {...routeParams} />,
+  resolve: {
+    query: ({ queryId }) => Query.get({ id: queryId }).$promise,
+  },
+};

@@ -1,7 +1,6 @@
 import { omit } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
 import Layout from "@/components/admin/Layout";
 import * as StatusBlock from "@/components/admin/StatusBlock";
@@ -9,7 +8,6 @@ import * as StatusBlock from "@/components/admin/StatusBlock";
 import { $http } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 import "./system-status.less";
 
@@ -89,26 +87,10 @@ class SystemStatus extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageSystemStatus", react2angular(SystemStatus));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/status",
-        title: "System Status",
-        key: "system_status",
-      },
-    ],
-    {
-      template: '<page-system-status on-error="handleError"></page-system-status>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/admin/status",
+  title: "System Status",
+  render: (routeParams, currentRoute, location) => <SystemStatus key={location.pathname} {...routeParams} />,
+  resolve: { currentPage: "system_status" },
+};

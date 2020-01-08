@@ -1,10 +1,9 @@
+import { head, includes, trim, template, values } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
-import { head, includes, trim, template } from "lodash";
+import PropTypes from "prop-types";
 
-import { $route } from "@/services/ng";
 import { currentUser } from "@/services/auth";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { Alert as AlertService } from "@/services/alert";
 import { Query as QueryService } from "@/services/query";
@@ -15,7 +14,6 @@ import AlertView from "./AlertView";
 import AlertEdit from "./AlertEdit";
 import AlertNew from "./AlertNew";
 
-import { routesToAngularRoutes } from "@/lib/utils";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 const MODES = {
@@ -34,6 +32,16 @@ export function getDefaultName(alert) {
 }
 
 class AlertPage extends React.Component {
+  static propTypes = {
+    mode: PropTypes.oneOf(values(MODES)),
+    alertId: PropTypes.string,
+  };
+
+  static defaultProps = {
+    mode: null,
+    alertId: null,
+  };
+
   _isMounted = false;
 
   state = {
@@ -46,7 +54,7 @@ class AlertPage extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
-    const { mode } = $route.current.locals;
+    const { mode } = this.props;
     this.setState({ mode });
 
     if (mode === MODES.NEW) {
@@ -62,7 +70,7 @@ class AlertPage extends React.Component {
         canEdit: true,
       });
     } else {
-      const { alertId } = $route.current.params;
+      const { alertId } = this.props;
       AlertService.get({ id: alertId })
         .$promise.then(alert => {
           if (this._isMounted) {
@@ -244,36 +252,24 @@ class AlertPage extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("alertPage", react2angular(AlertPage));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/alerts/new",
-        title: "New Alert",
-        mode: MODES.NEW,
-      },
-      {
-        path: "/alerts/:alertId",
-        title: "Alert",
-        mode: MODES.VIEW,
-      },
-      {
-        path: "/alerts/:alertId/edit",
-        title: "Alert",
-        mode: MODES.EDIT,
-      },
-    ],
-    {
-      template: "<alert-page></alert-page>",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/alerts/new",
+    title: "New Alert",
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    resolve: { mode: MODES.NEW },
+  },
+  {
+    path: "/alerts/:alertId([0-9]+)",
+    title: "Alert",
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    resolve: { mode: MODES.VIEW },
+  },
+  {
+    path: "/alerts/:alertId([0-9]+)/edit",
+    title: "Alert",
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    resolve: { mode: MODES.EDIT },
+  },
+];

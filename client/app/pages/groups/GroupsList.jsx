@@ -1,5 +1,4 @@
 import React from "react";
-import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
 import Paginator from "@/components/Paginator";
@@ -19,7 +18,6 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import { Group } from "@/services/group";
 import { currentUser } from "@/services/auth";
 import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 class GroupsList extends React.Component {
   static propTypes = {
@@ -124,55 +122,38 @@ class GroupsList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupsList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "list_users",
-          title: "Groups",
-          path: "groups",
-          order: 3,
+const GroupsListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Groups",
+    path: "groups",
+    order: 3,
+  },
+  liveItemsList(
+    GroupsList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
         },
-        liveItemsList(
-          GroupsList,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest() {
-              return {};
-            },
-            getResource() {
-              return Group.query.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new Group(item);
-            },
-          }),
-          new StateStorage({ orderByField: "name", itemsPerPage: 10 })
-        )
-      )
-    )
-  );
+        getResource() {
+          return Group.query.bind(Group);
+        },
+        getItemProcessor() {
+          return item => new Group(item);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups",
-        title: "Groups",
-        key: "groups",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-groups-list on-error="handleError"></page-groups-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/groups",
+  title: "Groups",
+  render: (routeParams, currentRoute, location) => (
+    <GroupsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+  ),
+  resolve: { currentPage: "groups" },
+};

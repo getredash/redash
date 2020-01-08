@@ -1,5 +1,4 @@
 import React from "react";
-import { react2angular } from "react2angular";
 
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -16,7 +15,6 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 import DashboardListEmptyState from "./DashboardListEmptyState";
 
@@ -130,51 +128,39 @@ class DashboardList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDashboardList",
-    react2angular(
-      itemsList(
-        DashboardList,
-        new ResourceItemsSource({
-          getResource({ params: { currentPage } }) {
-            return {
-              all: Dashboard.query.bind(Dashboard),
-              favorites: Dashboard.favorites.bind(Dashboard),
-            }[currentPage];
-          },
-          getItemProcessor() {
-            return item => new Dashboard(item);
-          },
-        }),
-        new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-      )
-    )
-  );
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/dashboards",
-        title: "Dashboards",
-        key: "all",
+const DashboardListPage = itemsList(
+  DashboardList,
+  () =>
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Dashboard.query.bind(Dashboard),
+          favorites: Dashboard.favorites.bind(Dashboard),
+        }[currentPage];
       },
-      {
-        path: "/dashboards/favorites",
-        title: "Favorite Dashboards",
-        key: "favorites",
+      getItemProcessor() {
+        return item => new Dashboard(item);
       },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-dashboard-list on-error="handleError"></page-dashboard-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
+    }),
+  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+);
 
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/dashboards",
+    title: "Dashboards",
+    render: (routeParams, currentRoute, location) => (
+      <DashboardListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "all" },
+  },
+  {
+    path: "/dashboards/favorites",
+    title: "Favorite Dashboards",
+    render: (routeParams, currentRoute, location) => (
+      <DashboardListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "favorites" },
+  },
+];

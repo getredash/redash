@@ -1,12 +1,10 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { react2angular } from "react2angular";
 import { isEmpty, get } from "lodash";
 import { DataSource, IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
-import { routesToAngularRoutes } from "@/lib/utils";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
@@ -16,6 +14,14 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import recordEvent from "@/services/recordEvent";
 
 class DataSourcesList extends React.Component {
+  static propTypes = {
+    isNewDataSourcePage: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    isNewDataSourcePage: false,
+  };
+
   state = {
     dataSourceTypes: [],
     dataSources: [],
@@ -34,7 +40,7 @@ class DataSourcesList extends React.Component {
         },
         () => {
           // all resources are loaded in state
-          if ($route.current.locals.isNewDataSourcePage) {
+          if (this.props.isNewDataSourcePage) {
             if (policy.canCreateDataSource()) {
               this.showCreateSourceDialog();
             } else {
@@ -139,45 +145,33 @@ class DataSourcesList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageDataSourcesList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Data Sources",
-          path: "data_sources",
-          order: 1,
-        },
-        DataSourcesList
-      )
-    )
-  );
+const DataSourcesListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Data Sources",
+    path: "data_sources",
+    order: 1,
+  },
+  DataSourcesList
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/data_sources",
-        title: "Data Sources",
-        key: "data_sources",
-      },
-      {
-        path: "/data_sources/new",
-        title: "Data Sources",
-        key: "data_sources",
-        isNewDataSourcePage: true,
-      },
-    ],
-    {
-      template: "<page-data-sources-list></page-data-sources-list>",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/data_sources",
+    title: "Data Sources",
+    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.pathname} {...routeParams} />,
+    resolve: {
+      currentPage: "data_sources",
+    },
+  },
+  {
+    path: "/data_sources/new",
+    title: "Data Sources",
+    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.pathname} {...routeParams} />,
+    resolve: {
+      currentPage: "data_sources",
+      isNewDataSourcePage: true,
+    },
+  },
+];

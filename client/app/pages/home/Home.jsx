@@ -175,5 +175,5 @@ function Home() {
 export default {
   path: "/",
   title: "Redash",
-  render: () => <Home />,
+  render: (routeParams, currentRoute, location) => <Home key={location.pathname} />,
 };

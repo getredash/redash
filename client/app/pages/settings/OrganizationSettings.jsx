@@ -1,5 +1,4 @@
 import React from "react";
-import { react2angular } from "react2angular";
 import { isEmpty, join, get } from "lodash";
 
 import Alert from "antd/lib/alert";
@@ -11,7 +10,6 @@ import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
 import LoadingState from "@/components/items-list/components/LoadingState";
 
-import { routesToAngularRoutes } from "@/lib/utils";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
@@ -259,40 +257,22 @@ class OrganizationSettings extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageOrganizationSettings",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Settings",
-          path: "settings/organization",
-          order: 6,
-        },
-        OrganizationSettings
-      )
-    )
-  );
+const OrganizationSettingsPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Settings",
+    path: "settings/organization",
+    order: 6,
+  },
+  OrganizationSettings
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/settings/organization",
-        title: "Organization Settings",
-        key: "organization-settings",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-organization-settings on-error="handleError"></page-organization-settings>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/settings/organization",
+  title: "Organization Settings",
+  render: (routeParams, currentRoute, location) => (
+    <OrganizationSettingsPage key={location.pathname} {...routeParams} />
+  ),
+  resolve: { currentPage: "organization-settings" },
+};

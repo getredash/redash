@@ -1,7 +1,6 @@
 import { map, get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
@@ -242,48 +241,79 @@ class UsersList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageUsersList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "list_users",
-          title: "Users",
-          path: "users",
-          isActive: path => path.startsWith("/users") && path !== "/users/me",
-          order: 2,
+const UsersListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Users",
+    path: "users",
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    order: 2,
+  },
+  itemsList(
+    UsersList,
+    () =>
+      new ResourceItemsSource({
+        getRequest(request, { params: { currentPage } }) {
+          switch (currentPage) {
+            case "active":
+              request.pending = false;
+              break;
+            case "pending":
+              request.pending = true;
+              break;
+            case "disabled":
+              request.disabled = true;
+              break;
+            // no default
+          }
+          return request;
         },
-        itemsList(
-          UsersList,
-          new ResourceItemsSource({
-            getRequest(request, { params: { currentPage } }) {
-              switch (currentPage) {
-                case "active":
-                  request.pending = false;
-                  break;
-                case "pending":
-                  request.pending = true;
-                  break;
-                case "disabled":
-                  request.disabled = true;
-                  break;
-                // no default
-              }
-              return request;
-            },
-            getResource() {
-              return User.query.bind(User);
-            },
-            getItemProcessor() {
-              return item => new User(item);
-            },
-          }),
-          new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-        )
-      )
-    )
-  );
-}
+        getResource() {
+          return User.query.bind(User);
+        },
+        getItemProcessor() {
+          return item => new User(item);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
+);
 
-init.init = true;
+// TODO: handleError
+export default [
+  {
+    path: "/users",
+    title: "Users",
+    render: (routeParams, currentRoute, location) => (
+      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "active" },
+  },
+  {
+    path: "/users/new",
+    title: "Users",
+    render: (routeParams, currentRoute, location) => (
+      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: {
+      currentPage: "active",
+      isNewUserPage: true,
+    },
+  },
+  {
+    path: "/users/pending",
+    title: "Pending Invitations",
+    render: (routeParams, currentRoute, location) => (
+      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "pending" },
+  },
+  {
+    path: "/users/disabled",
+    title: "Disabled Users",
+    render: (routeParams, currentRoute, location) => (
+      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "disabled" },
+  },
+];

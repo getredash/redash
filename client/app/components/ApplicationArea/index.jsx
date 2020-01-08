@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ApplicationHeader from "@/components/ApplicationHeader";
 
 import routes from "@/pages";
@@ -48,10 +48,18 @@ export default function ApplicationArea() {
     }
   }, []);
 
+  useEffect(() => {
+    document.body.addEventListener("click", handleNavigationIntent, false);
+
+    return () => {
+      document.body.removeEventListener("click", handleNavigationIntent, false);
+    };
+  });
+
   return (
-    <div onClick={handleNavigationIntent}>
+    <>
       {currentRoute && showHeader && <ApplicationHeader currentRoute={currentRoute} />}
       <Router routes={routes} onRouteChange={handleRouteChange} />
-    </div>
+    </>
   );
 }

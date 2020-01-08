@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { map, isEmpty, includes } from "lodash";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
 import Dropdown from "antd/lib/dropdown";
@@ -18,7 +17,6 @@ import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
-import { $route } from "@/services/ng";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -378,11 +376,11 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage() {
+function DashboardPage({ dashboardSlug }) {
   const [dashboard, setDashboard] = useState(null);
 
   useEffect(() => {
-    Dashboard.get({ slug: $route.current.params.dashboardSlug })
+    Dashboard.get({ slug: dashboardSlug })
       .$promise.then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
@@ -390,20 +388,16 @@ function DashboardPage() {
       .catch(error => {
         throw new PromiseRejectionError(error);
       });
-  }, []);
+  }, [dashboardSlug]);
 
   return <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
 }
 
-export default function init(ngModule) {
-  ngModule.component("dashboardPage", react2angular(DashboardPage));
+DashboardPage.propTypes = {
+  dashboardSlug: PropTypes.string.isRequired,
+};
 
-  return {
-    "/dashboard/:dashboardSlug": {
-      template: "<dashboard-page></dashboard-page>",
-      reloadOnSearch: false,
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/dashboard/:dashboardSlug",
+  render: (routeParams, currentRoute, location) => <DashboardPage key={location.pathname} {...routeParams} />,
+};

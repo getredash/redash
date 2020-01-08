@@ -1,7 +1,6 @@
 import { values, each } from "lodash";
 import moment from "moment";
 import React from "react";
-import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
@@ -11,7 +10,6 @@ import { CounterCard, QueuesTable, QueriesTable } from "@/components/admin/Celer
 
 import { $http } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 // Converting name coming from API to the one the UI expects.
 // TODO: update the UI components to use `waiting_in_queue` instead of `waiting`.
@@ -116,21 +114,9 @@ class Tasks extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageTasks", react2angular(Tasks));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/queries/tasks",
-        title: "Celery Status",
-        key: "tasks",
-      },
-    ],
-    {
-      template: "<page-tasks></page-tasks>",
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/admin/queries/tasks",
+  title: "Celery Status",
+  render: (routeParams, currentRoute, location) => <Tasks key={location.pathname} {...routeParams} />,
+  resolve: { currentPage: "tasks" },
+};

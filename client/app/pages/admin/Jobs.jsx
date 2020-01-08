@@ -1,6 +1,5 @@
 import { flatMap, values } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
@@ -11,7 +10,6 @@ import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQ
 
 import { $http, $location, $rootScope } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
-import { routesToAngularRoutes } from "@/lib/utils";
 import moment from "moment";
 
 class Jobs extends React.Component {
@@ -122,21 +120,9 @@ class Jobs extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageJobs", react2angular(Jobs));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/queries/jobs",
-        title: "RQ Status",
-        key: "jobs",
-      },
-    ],
-    {
-      template: "<page-jobs></page-jobs>",
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/admin/queries/jobs",
+  title: "RQ Status",
+  render: (routeParams, currentRoute, location) => <Jobs key={location.pathname} {...routeParams} />,
+  resolve: { currentPage: "jobs" },
+};

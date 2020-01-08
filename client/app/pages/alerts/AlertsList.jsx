@@ -1,7 +1,5 @@
-import React from "react";
-import { react2angular } from "react2angular";
-
 import { toUpper } from "lodash";
+import React from "react";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -14,7 +12,6 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import { Alert } from "@/services/alert";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 export const STATE_CLASS = {
   unknown: "label-warning",
@@ -106,46 +103,30 @@ class AlertsList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageAlertsList",
-    react2angular(
-      liveItemsList(
-        AlertsList,
-        new ResourceItemsSource({
-          isPlainList: true,
-          getRequest() {
-            return {};
-          },
-          getResource() {
-            return Alert.query.bind(Alert);
-          },
-          getItemProcessor() {
-            return item => new Alert(item);
-          },
-        }),
-        new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
-      )
-    )
-  );
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/alerts",
-        title: "Alerts",
-        key: "alerts",
+const AlertsListPage = liveItemsList(
+  AlertsList,
+  () =>
+    new ResourceItemsSource({
+      isPlainList: true,
+      getRequest() {
+        return {};
       },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-alerts-list on-error="handleError"></page-alerts-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
+      getResource() {
+        return Alert.query.bind(Alert);
       },
-    }
-  );
-}
+      getItemProcessor() {
+        return item => new Alert(item);
+      },
+    }),
+  () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
+);
 
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/alerts",
+  title: "Alerts",
+  render: (routeParams, currentRoute, location) => (
+    <AlertsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+  ),
+  resolve: { currentPage: "alerts" },
+};

@@ -1,11 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { get, find } from "lodash";
-import { react2angular } from "react2angular";
 import Modal from "antd/lib/modal";
 import { Destination, IMG_ROOT } from "@/services/destination";
-import navigateTo from "@/services/navigateTo";
-import { $route } from "@/services/ng";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -15,6 +13,7 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 class EditDestination extends React.Component {
   static propTypes = {
+    destinationId: PropTypes.string.isRequired,
     onError: PropTypes.func,
   };
 
@@ -29,7 +28,7 @@ class EditDestination extends React.Component {
   };
 
   componentDidMount() {
-    Destination.get({ id: $route.current.params.destinationId })
+    Destination.get({ id: this.props.destinationId })
       .$promise.then(destination => {
         const { type } = destination;
         this.setState({ destination });
@@ -112,20 +111,11 @@ class EditDestination extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageEditDestination", react2angular(wrapSettingsTab(null, EditDestination)));
+const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 
-  return {
-    "/destinations/:destinationId": {
-      template: '<page-edit-destination on-error="handleError"></page-edit-destination>',
-      title: "Alert Destinations",
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    },
-  };
-}
-
-init.init = true;
+// TODO: handleError
+export default {
+  path: "/destinations/:destinationId([0-9]+)",
+  title: "Alert Destinations",
+  render: (routeParams, currentRoute, location) => <EditDestinationPage key={location.pathname} {...routeParams} />,
+};
