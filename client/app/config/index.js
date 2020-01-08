@@ -5,21 +5,16 @@ import "core-js/fn/typed/array-buffer";
 import "@/assets/images/avatar.svg";
 
 import * as Pace from "pace-progress";
-import debug from "debug";
 import angular from "angular";
 import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
 import ngResource from "angular-resource";
-import { each, isFunction, extend } from "lodash";
+import { isFunction } from "lodash";
 
-import initAppView from "@/components/app-view";
 import DialogWrapper from "@/components/DialogWrapper";
-import organizationStatus from "@/services/organizationStatus";
 
 import "./antd-spinner";
 import moment from "moment";
-
-const logger = debug("redash:config");
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
   // Show pace progress bar only if URL path changed; when query params
@@ -84,44 +79,8 @@ function registerVisualizations() {
   registerAll(context);
 }
 
-function registerPages() {
-  const context = require.context("@/pages", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
-  const routesCollection = registerAll(context);
-  routesCollection.forEach(routes => {
-    ngModule.config($routeProvider => {
-      each(routes, (route, path) => {
-        logger("Registering route: %s", path);
-        route.authenticated = route.authenticated !== false; // could be set to `false` do disable auth
-        if (route.authenticated) {
-          route.resolve = extend(
-            {
-              __organizationStatus: () => organizationStatus.refresh(),
-            },
-            route.resolve
-          );
-        }
-        $routeProvider.when(path, route);
-      });
-    });
-  });
-
-  ngModule.config($routeProvider => {
-    $routeProvider.otherwise({
-      resolve: {
-        // Ugly hack to show 404 when hitting an unknown route.
-        error: () => {
-          const error = { status: 404 };
-          throw error;
-        },
-      },
-    });
-  });
-}
-
 requireImages();
 registerServices();
-initAppView(ngModule);
-registerPages();
 registerExtensions();
 registerVisualizations();
 

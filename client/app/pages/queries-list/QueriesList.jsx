@@ -1,5 +1,4 @@
 import React from "react";
-import { react2angular } from "react2angular";
 
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
@@ -18,7 +17,6 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 import QueriesListEmptyState from "./QueriesListEmptyState";
 
@@ -142,63 +140,40 @@ class QueriesList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageQueriesList",
-    react2angular(
-      itemsList(
-        QueriesList,
-        new ResourceItemsSource({
-          getResource({ params: { currentPage } }) {
-            return {
-              all: Query.query.bind(Query),
-              my: Query.myQueries.bind(Query),
-              favorites: Query.favorites.bind(Query),
-              archive: Query.archive.bind(Query),
-            }[currentPage];
-          },
-          getItemProcessor() {
-            return item => new Query(item);
-          },
-        }),
-        new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-      )
-    )
-  );
+const QueriesListPage = itemsList(
+  QueriesList,
+  () =>
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Query.query.bind(Query),
+          my: Query.myQueries.bind(Query),
+          favorites: Query.favorites.bind(Query),
+          archive: Query.archive.bind(Query),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return item => new Query(item);
+      },
+    }),
+  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/queries",
-        title: "Queries",
-        key: "all",
-      },
-      {
-        path: "/queries/favorites",
-        title: "Favorite Queries",
-        key: "favorites",
-      },
-      {
-        path: "/queries/archive",
-        title: "Archived Queries",
-        key: "archive",
-      },
-      {
-        path: "/queries/my",
-        title: "My Queries",
-        key: "my",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-queries-list on-error="handleError"></page-queries-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+// handleError - TODO
+export default [
+  {
+    path: "/queries",
+    title: "Queries",
+    render: (routeParams, currentRoute) => (
+      <QueriesListPage key={routeParams.currentPage} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+    resolve: { currentPage: "all" },
+  },
+  {
+    path: "/queries/:currentPage(favorites|archive|my)",
+    title: "Favorite Queries",
+    render: (routeParams, currentRoute) => (
+      <QueriesListPage key={routeParams.currentPage} routeParams={routeParams} currentRoute={currentRoute} />
+    ),
+  },
+];

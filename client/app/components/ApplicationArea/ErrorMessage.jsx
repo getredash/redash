@@ -2,6 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 
 export default function ErrorMessage({ error }) {
+  if (!error) {
+    return null;
+  }
+
+  console.error(error);
+
   return (
     <div className="fixed-container" data-test="ErrorMessage">
       <div className="container">

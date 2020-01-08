@@ -1,7 +1,10 @@
 import React, { useState, useCallback } from "react";
 import ApplicationHeader from "@/components/ApplicationHeader";
 
+import routes from "@/pages";
+
 import Router from "./Router";
+import handleNavigationIntent from "./handleNavigationIntent";
 
 const layouts = {
   default: {
@@ -30,7 +33,13 @@ function selectLayout(route) {
 export default function ApplicationArea() {
   const [showHeader, setShowHeader] = useState(false);
 
+  // TODO: This is needed to refresh header when route changes
+  // Better solution is either to move header to each page or create some global state for currentUser/clientConfig/etc.
+  const [currentRoute, setCurrentRoute] = useState(null);
+
   const handleRouteChange = useCallback(route => {
+    setCurrentRoute(route);
+    route = route || { authenticated: true };
     const layout = selectLayout(route);
     setShowHeader(layout.showHeader);
     document.body.className = layout.bodyClass;
@@ -40,9 +49,9 @@ export default function ApplicationArea() {
   }, []);
 
   return (
-    <div>
-      {showHeader && <ApplicationHeader />}
-      <Router onRouteChange={handleRouteChange} />
+    <div onClick={handleNavigationIntent}>
+      {currentRoute && showHeader && <ApplicationHeader currentRoute={currentRoute} />}
+      <Router routes={routes} onRouteChange={handleRouteChange} />
     </div>
   );
 }

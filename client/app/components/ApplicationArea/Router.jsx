@@ -3,25 +3,25 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
 import { createBrowserHistory } from "history";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 import ErrorMessage from "./ErrorMessage";
 
-const history = createBrowserHistory();
+export const history = createBrowserHistory();
 
 function resolveRouteDependencies(route) {
   return Promise.all(
     map(route.resolve, (value, key) => {
-      value = isFunction(value) ? value : value;
+      value = isFunction(value) ? value() : value;
       return Promise.resolve(value).then(result => [key, result]);
     })
   ).then(results => {
     route.routeParams = extend(route.routeParams, fromPairs(results));
-    delete route.resolve;
     return route;
   });
 }
 
-export default function Router({ routes, onRouteChange, ...props }) {
+export default function Router({ routes, onRouteChange }) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
   useEffect(() => {
@@ -29,12 +29,8 @@ export default function Router({ routes, onRouteChange, ...props }) {
 
     const router = new UniversalRouter(routes, {
       resolveRoute({ route }, routeParams) {
-        if (isFunction(route.component)) {
-          return {
-            Component: route.component,
-            routeParams,
-            resolve: route.resolve,
-          };
+        if (isFunction(route.render)) {
+          return { ...route, routeParams };
         }
       },
     });
@@ -44,7 +40,7 @@ export default function Router({ routes, onRouteChange, ...props }) {
         router
           .resolve({ pathname })
           .then(route => {
-            return isAbandoned ? null : resolveRouteDependencies(route.resolve);
+            return isAbandoned ? null : resolveRouteDependencies(route);
           })
           .then(route => {
             if (route) {
@@ -54,7 +50,7 @@ export default function Router({ routes, onRouteChange, ...props }) {
           .catch(error => {
             if (!isAbandoned) {
               setCurrentRoute({
-                Component: ErrorMessage,
+                render: params => <ErrorMessage {...params} />,
                 routeParams: { error },
               });
             }
@@ -81,22 +77,25 @@ export default function Router({ routes, onRouteChange, ...props }) {
   if (!currentRoute) {
     return null;
   }
-  const { Component, routeParams } = currentRoute;
 
-  return <Component {...props} {...routeParams} />;
+  return (
+    <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
+      {currentRoute.render(currentRoute.routeParams, currentRoute, history.location)}
+    </ErrorBoundary>
+  );
 }
 
 Router.propTypes = {
   routes: PropTypes.arrayOf(
     PropTypes.shape({
       path: PropTypes.string.isRequired,
-      component: PropTypes.elementType,
+      render: PropTypes.func, // (routeParams: PropTypes.object; currentRoute; location) => PropTypes.node
       // Additional props to be injected into route component.
       // Object keys are props names. Object values will become prop values:
       // - if value is a function - it will be called without arguments, and result will be used; otherwise value will be used;
       // - after previous step, if value is a promise - router will wait for it to resolve; resolved value then will be used;
       //   otherwise value will be used directly.
-      resolve: PropTypes.arrayOf(PropTypes.any),
+      resolve: PropTypes.objectOf(PropTypes.any),
     })
   ),
   onRouteChange: PropTypes.func,
