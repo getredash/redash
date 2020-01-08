@@ -1,5 +1,6 @@
 import { isString, get } from "lodash";
-import { $http, $sanitize } from "@/services/ng";
+import { sanitize } from "dompurify";
+import { $http } from "@/services/ng";
 import notification from "@/services/notification";
 import { clientConfig } from "@/services/auth";
 
@@ -10,7 +11,7 @@ function disableResource(user) {
 }
 
 function enableUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
 
   return $http
     .delete(disableResource(user))
@@ -30,7 +31,7 @@ function enableUser(user) {
 }
 
 function disableUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
   return $http
     .post(disableResource(user))
     .then(data => {
@@ -46,7 +47,7 @@ function disableUser(user) {
 }
 
 function deleteUser(user) {
-  const userName = $sanitize(user.name);
+  const userName = sanitize(user.name);
   return $http
     .delete(`api/users/${user.id}`)
     .then(data => {
