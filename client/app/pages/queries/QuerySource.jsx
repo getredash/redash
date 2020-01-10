@@ -435,7 +435,7 @@ export default [
   {
     path: "/queries/new",
     layout: "fixed",
-    render: (routeParams, currentRoute, location) => <QuerySource key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <QuerySource key={location.path} {...routeParams} />,
     resolve: {
       query: () => Query.newQuery(),
     },
@@ -443,7 +443,7 @@ export default [
   {
     path: "/queries/:queryId([0-9]+)/source",
     layout: "fixed",
-    render: (routeParams, currentRoute, location) => <QuerySource key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <QuerySource key={location.path} {...routeParams} />,
     resolve: {
       query: ({ queryId }) => Query.get({ id: queryId }).$promise,
     },

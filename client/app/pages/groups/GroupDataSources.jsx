@@ -251,7 +251,7 @@ export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
   render: (routeParams, currentRoute, location) => (
-    <GroupDataSourcesPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    <GroupDataSourcesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
   ),
   resolve: { currentPage: "datasources" },
 };

@@ -234,7 +234,7 @@ export default {
   path: "/embed/query/:queryId/visualization/:visualizationId",
   authenticated: false,
   render: (routeParams, currentRoute, location) => (
-    <VisualizationEmbed key={location.pathname} {...routeParams} location={location} />
+    <VisualizationEmbed key={location.path} {...routeParams} location={location} />
   ),
   resolve: {
     query: ({ queryId }, currentRoute, location) => {

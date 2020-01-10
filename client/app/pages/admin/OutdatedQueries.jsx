@@ -173,7 +173,7 @@ export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
   render: (routeParams, currentRoute, location) => (
-    <OutdatedQueriesPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    <OutdatedQueriesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
   ),
   resolve: { currentPage: "outdated_queries" },
 };

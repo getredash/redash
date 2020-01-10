@@ -257,19 +257,19 @@ export default [
   {
     path: "/alerts/new",
     title: "New Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
     resolve: { mode: MODES.NEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
     resolve: { mode: MODES.VIEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
     resolve: { mode: MODES.EDIT },
   },
 ];

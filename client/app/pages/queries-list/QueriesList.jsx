@@ -165,7 +165,7 @@ export default [
     path: "/queries",
     title: "Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "all" },
   },
@@ -173,7 +173,7 @@ export default [
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "favorites" },
   },
@@ -181,7 +181,7 @@ export default [
     path: "/queries/archive",
     title: "Archived Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "archive" },
   },
@@ -189,7 +189,7 @@ export default [
     path: "/queries/my",
     title: "My Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "my" },
   },

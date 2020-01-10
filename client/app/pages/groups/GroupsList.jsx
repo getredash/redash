@@ -153,7 +153,7 @@ export default {
   path: "/groups",
   title: "Groups",
   render: (routeParams, currentRoute, location) => (
-    <GroupsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    <GroupsListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
   ),
   resolve: { currentPage: "groups" },
 };

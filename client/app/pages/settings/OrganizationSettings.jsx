@@ -272,7 +272,7 @@ export default {
   path: "/settings/organization",
   title: "Organization Settings",
   render: (routeParams, currentRoute, location) => (
-    <OrganizationSettingsPage key={location.pathname} {...routeParams} />
+    <OrganizationSettingsPage key={location.path} {...routeParams} />
   ),
   resolve: { currentPage: "organization-settings" },
 };

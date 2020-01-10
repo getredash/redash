@@ -218,7 +218,7 @@ export default [
     path: "/query_snippets",
     title: "Query Snippets",
     render: (routeParams, currentRoute, location) => (
-      <QuerySnippetsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QuerySnippetsListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: {
       currentPage: "query_snippets",
@@ -228,7 +228,7 @@ export default [
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
     render: (routeParams, currentRoute, location) => (
-      <QuerySnippetsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <QuerySnippetsListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: {
       currentPage: "query_snippets",

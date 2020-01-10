@@ -16,6 +16,7 @@ export default function useUnsavedChangesAlert(shouldShowAlert = false) {
       return shouldShowAlertRef.current ? unloadMessage : undefined;
     };
 
+    // ANGULAR_REMOVE_ME
     const unsubscribe = $rootScope.$on("$locationChangeStart", (event, next, current) => {
       if (next.split("?")[0] === current.split("?")[0] || next.split("#")[0] === current.split("#")[0]) {
         return;

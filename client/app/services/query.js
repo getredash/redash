@@ -17,6 +17,7 @@ import {
   clone,
   find,
 } from "lodash";
+import location from "@/services/location";
 
 import { Parameter } from "./parameters";
 
@@ -206,7 +207,7 @@ function QueryResultErrorFactory($q) {
   return QueryResultError;
 }
 
-function QueryResource($resource, $http, $location, $q, currentUser, QueryResultError, QueryResult) {
+function QueryResource($resource, $http, $q, currentUser, QueryResultError, QueryResult) {
   const QueryService = $resource(
     "api/queries/:id",
     { id: "@id" },
@@ -423,7 +424,7 @@ function QueryResource($resource, $http, $location, $q, currentUser, QueryResult
 
   QueryService.prototype.getParameters = function getParameters() {
     if (!this.$parameters) {
-      this.$parameters = new Parameters(this, $location.search());
+      this.$parameters = new Parameters(this, location.search);
     }
 
     return this.$parameters;

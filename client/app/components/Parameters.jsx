@@ -2,7 +2,7 @@ import { size, filter, forEach, extend } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
-import { $location } from "@/services/ng";
+import location from "@/services/location";
 import { Parameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
@@ -12,12 +12,11 @@ import { toHuman } from "@/lib/utils";
 import "./Parameters.less";
 
 function updateUrl(parameters) {
-  const params = extend({}, $location.search());
+  const params = extend({}, location.search);
   parameters.forEach(param => {
     extend(params, param.toUrlParams());
   });
-  Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-  $location.search(params);
+  location.setSearch(params);
 }
 
 export default class Parameters extends React.Component {

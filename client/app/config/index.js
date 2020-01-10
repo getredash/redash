@@ -17,10 +17,13 @@ import "./antd-spinner";
 import moment from "moment";
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
+  const link = document.createElement('a');
   // Show pace progress bar only if URL path changed; when query params
   // or hash changed - ignore that history event
-  const [prevPrefix] = prevUrl.split("?");
-  const [newPrefix] = newUrl.split("?");
+  link.href = prevUrl;
+  const prevPrefix = link.pathname;
+  link.href = newUrl;
+  const newPrefix = link.pathname;
   return prevPrefix !== newPrefix;
 };
 

@@ -2,17 +2,15 @@ import { isFunction, map, fromPairs, extend } from "lodash";
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
-import { createBrowserHistory } from "history";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import location from "@/services/location";
 
 import ErrorMessage from "./ErrorMessage";
-
-export const history = createBrowserHistory();
 
 function resolveRouteDependencies(route) {
   return Promise.all(
     map(route.resolve, (value, key) => {
-      value = isFunction(value) ? value(route.routeParams, route, history.location) : value;
+      value = isFunction(value) ? value(route.routeParams, route, location) : value;
       return Promise.resolve(value).then(result => [key, result]);
     })
   ).then(results => {
@@ -35,10 +33,10 @@ export default function Router({ routes, onRouteChange }) {
       },
     });
 
-    function resolve(pathname) {
+    function resolve() {
       if (!isAbandoned) {
         router
-          .resolve({ pathname })
+          .resolve({ pathname: location.path })
           .then(route => {
             return isAbandoned ? null : resolveRouteDependencies(route);
           })
@@ -58,11 +56,9 @@ export default function Router({ routes, onRouteChange }) {
       }
     }
 
-    resolve(history.location.pathname);
+    resolve();
 
-    const unlisten = history.listen(location => {
-      resolve(location.pathname);
-    });
+    const unlisten = location.listen(resolve);
 
     return () => {
       isAbandoned = true;
@@ -80,7 +76,7 @@ export default function Router({ routes, onRouteChange }) {
 
   return (
     <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
-      {currentRoute.render(currentRoute.routeParams, currentRoute, history.location)}
+      {currentRoute.render(currentRoute.routeParams, currentRoute, location)}
     </ErrorBoundary>
   );
 }

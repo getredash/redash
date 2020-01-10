@@ -96,7 +96,7 @@ class PublicDashboardPage extends React.Component {
 export default {
   path: "/public/dashboards/:token",
   authenticated: false,
-  render: (routeParams, currentRoute, location) => <PublicDashboardPage key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <PublicDashboardPage key={location.path} {...routeParams} />,
   resolve: {
     session: ({ token }) => {
       Auth.setApiKey(token);

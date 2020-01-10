@@ -1,5 +1,5 @@
 import { startsWith } from "lodash";
-import { history } from "./Router";
+import location from "@/services/location";
 
 const htmlLink = document.createElement("a"); // cache instance
 
@@ -26,10 +26,6 @@ export default function navigateTo(href, replace = false, reload = true) {
 
     href = `/${href.substr(baseHref.length)}`;
 
-    if (replace) {
-      history.replace(href);
-    } else {
-      history.push(href);
-    }
+    location.update(href, replace);
   }, 10);
 }

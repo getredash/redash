@@ -68,13 +68,13 @@ export default [
   {
     path: "/users/me",
     title: "Account",
-    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.path} {...routeParams} />,
     resolve: { currentPage: "users" },
   },
   {
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.path} {...routeParams} />,
     resolve: { currentPage: "users" },
   },
 ];

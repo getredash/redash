@@ -285,7 +285,7 @@ export default [
     path: "/users",
     title: "Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "active" },
   },
@@ -293,7 +293,7 @@ export default [
     path: "/users/new",
     title: "Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: {
       currentPage: "active",
@@ -304,7 +304,7 @@ export default [
     path: "/users/pending",
     title: "Pending Invitations",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "pending" },
   },
@@ -312,7 +312,7 @@ export default [
     path: "/users/disabled",
     title: "Disabled Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "disabled" },
   },

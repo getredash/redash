@@ -213,7 +213,7 @@ export default {
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: (routeParams, currentRoute, location) => (
-    <GroupMembersPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    <GroupMembersPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
   ),
   resolve: { currentPage: "users" },
 };

@@ -140,13 +140,13 @@ export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.path} {...routeParams} />,
     resolve: { currentPage: "destinations" },
   },
   {
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.path} {...routeParams} />,
     resolve: {
       key: "destinations",
       isNewDestinationPage: true,

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
+import location from "@/services/location";
 import { Widget } from "./widget";
 
 export let Dashboard = null; // eslint-disable-line import/no-mutable-exports
@@ -119,7 +120,7 @@ function calculateNewWidgetPosition(existingWidgets, newWidget) {
     .value();
 }
 
-function DashboardService($resource, $http, $location, currentUser) {
+function DashboardService($resource, $http, currentUser) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -186,7 +187,7 @@ function DashboardService($resource, $http, $location, currentUser) {
   resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
   resource.prototype.getParametersDefs = function getParametersDefs() {
     const globalParams = {};
-    const queryParams = $location.search();
+    const queryParams = location.search;
     _.each(this.widgets, widget => {
       if (widget.getQuery()) {
         const mappings = widget.getParameterMappings();

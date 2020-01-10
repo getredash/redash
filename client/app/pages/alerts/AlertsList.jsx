@@ -126,7 +126,7 @@ export default {
   path: "/alerts",
   title: "Alerts",
   render: (routeParams, currentRoute, location) => (
-    <AlertsListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+    <AlertsListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
   ),
   resolve: { currentPage: "alerts" },
 };

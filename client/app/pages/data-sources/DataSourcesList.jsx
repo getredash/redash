@@ -160,7 +160,7 @@ export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.path} {...routeParams} />,
     resolve: {
       currentPage: "data_sources",
     },
@@ -168,7 +168,7 @@ export default [
   {
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.pathname} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.path} {...routeParams} />,
     resolve: {
       currentPage: "data_sources",
       isNewDataSourcePage: true,

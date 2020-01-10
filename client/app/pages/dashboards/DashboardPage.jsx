@@ -399,5 +399,5 @@ DashboardPage.propTypes = {
 
 export default {
   path: "/dashboard/:dashboardSlug",
-  render: (routeParams, currentRoute, location) => <DashboardPage key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <DashboardPage key={location.path} {...routeParams} />,
 };

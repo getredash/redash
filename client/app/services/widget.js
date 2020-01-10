@@ -1,5 +1,6 @@
 import moment from "moment";
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
+import location from "@/services/location";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@/visualizations";
 
@@ -75,7 +76,7 @@ export const ParameterMappingType = {
   StaticValue: "static-value",
 };
 
-function WidgetFactory($http, $location, Query) {
+function WidgetFactory($http, Query) {
   class WidgetService {
     static MappingType = ParameterMappingType;
 
@@ -199,7 +200,7 @@ function WidgetFactory($http, $location, Query) {
       // textboxes does not have query
       const params = this.getQuery() ? this.getQuery().getParametersDefs() : [];
 
-      const queryParams = $location.search();
+      const queryParams = location.search;
 
       const localTypes = [WidgetService.MappingType.WidgetLevel, WidgetService.MappingType.StaticValue];
       return map(

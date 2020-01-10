@@ -1,5 +1,6 @@
 import debug from "debug";
 import { includes, extend } from "lodash";
+import location from "@/services/location";
 
 // eslint-disable-next-line import/no-mutable-exports
 export let Auth = null;
@@ -39,13 +40,13 @@ function updateSession(sessionData) {
   extend(messages, session.messages);
 }
 
-function AuthService($window, $location, $q, $http) {
+function AuthService($window, $q, $http) {
   return {
     isAuthenticated() {
       return session.loaded && session.user.id;
     },
     login() {
-      const next = encodeURI($location.url());
+      const next = encodeURI(location.url);
       logger("Calling login with next = %s", next);
       window.location.href = `login?next=${next}`;
     },

@@ -91,6 +91,6 @@ class SystemStatus extends React.Component {
 export default {
   path: "/admin/status",
   title: "System Status",
-  render: (routeParams, currentRoute, location) => <SystemStatus key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <SystemStatus key={location.path} {...routeParams} />,
   resolve: { currentPage: "system_status" },
 };

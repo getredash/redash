@@ -1,6 +1,6 @@
 import { defaults } from "lodash";
 import { clientConfig } from "@/services/auth";
-import { $location } from "@/services/ng";
+import location from "@/services/location";
 import { parse as parseOrderBy, compile as compileOrderBy } from "./Sorter";
 
 export class StateStorage {
@@ -26,7 +26,7 @@ export class StateStorage {
 export class UrlStateStorage extends StateStorage {
   getState() {
     const defaultState = super.getState();
-    const params = $location.search();
+    const params = location.search;
 
     const searchTerm = params.q || "";
 
@@ -47,7 +47,7 @@ export class UrlStateStorage extends StateStorage {
 
   // eslint-disable-next-line class-methods-use-this
   setState({ page, itemsPerPage, orderByField, orderByReverse, searchTerm }) {
-    $location.search({
+    location.setSearch({
       page,
       page_size: itemsPerPage,
       order: compileOrderBy(orderByField, orderByReverse),

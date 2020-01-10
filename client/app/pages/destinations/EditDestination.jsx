@@ -117,5 +117,5 @@ const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 export default {
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
-  render: (routeParams, currentRoute, location) => <EditDestinationPage key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <EditDestinationPage key={location.path} {...routeParams} />,
 };

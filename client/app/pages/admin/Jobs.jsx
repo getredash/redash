@@ -8,13 +8,14 @@ import Layout from "@/components/admin/Layout";
 import { CounterCard } from "@/components/admin/CeleryStatus";
 import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
-import { $http, $location, $rootScope } from "@/services/ng";
+import { $http } from "@/services/ng";
+import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 import moment from "moment";
 
 class Jobs extends React.Component {
   state = {
-    activeTab: $location.hash(),
+    activeTab: location.hash,
     isLoading: true,
     error: null,
 
@@ -80,8 +81,7 @@ class Jobs extends React.Component {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
 
     const changeTab = newTab => {
-      $location.hash(newTab);
-      $rootScope.$applyAsync();
+      location.setHash(newTab);
       this.setState({ activeTab: newTab });
     };
 
@@ -123,6 +123,6 @@ class Jobs extends React.Component {
 export default {
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: (routeParams, currentRoute, location) => <Jobs key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <Jobs key={location.path} {...routeParams} />,
   resolve: { currentPage: "jobs" },
 };

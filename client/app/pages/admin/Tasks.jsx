@@ -117,6 +117,6 @@ class Tasks extends React.Component {
 export default {
   path: "/admin/queries/tasks",
   title: "Celery Status",
-  render: (routeParams, currentRoute, location) => <Tasks key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <Tasks key={location.path} {...routeParams} />,
   resolve: { currentPage: "tasks" },
 };

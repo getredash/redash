@@ -151,5 +151,5 @@ const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 export default {
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: (routeParams, currentRoute, location) => <EditDataSourcePage key={location.pathname} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => <EditDataSourcePage key={location.path} {...routeParams} />,
 };

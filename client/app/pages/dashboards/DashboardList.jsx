@@ -151,7 +151,7 @@ export default [
     path: "/dashboards",
     title: "Dashboards",
     render: (routeParams, currentRoute, location) => (
-      <DashboardListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <DashboardListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "all" },
   },
@@ -159,7 +159,7 @@ export default [
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: (routeParams, currentRoute, location) => (
-      <DashboardListPage key={location.pathname} routeParams={routeParams} currentRoute={currentRoute} />
+      <DashboardListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
     ),
     resolve: { currentPage: "favorites" },
   },
