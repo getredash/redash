@@ -2,15 +2,15 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { find, has } from "lodash";
 import moment from "moment";
-import qs from "query-string";
 import { markdown } from "markdown";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import { Auth } from "@/services/auth";
+import SignedOutPageWrapper from "@/components/ApplicationArea/SignedOutPageWrapper";
 import { Query } from "@/services/query";
+import location from "@/services/location";
 import { formatDateTime } from "@/lib/utils";
 import HtmlContent from "@/components/HtmlContent";
 import Parameters from "@/components/Parameters";
@@ -148,39 +148,58 @@ VisualizationEmbedFooter.defaultProps = {
   apiKey: null,
 };
 
-function VisualizationEmbed({ query, visualizationId, location }) {
+function VisualizationEmbed({ queryId, visualizationId, apiKey }) {
+  const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
 
-  const urlQueryParams = qs.parse(location.search);
-  const hideHeader = has(urlQueryParams, "hide_header");
-  const hideParametersUI = has(urlQueryParams, "hide_parameters");
-  const hideQueryLink = has(urlQueryParams, "hide_link");
-  const hideTimestamp = has(urlQueryParams, "hide_timestamp");
+  useEffect(() => {
+    let isCancelled = false;
+    Query.get({ id: queryId }).$promise.then(result => {
+      if (!isCancelled) {
+        setQuery(result);
+      }
+    });
 
-  const showQueryDescription = has(urlQueryParams, "showDescription");
-  visualizationId = parseInt(visualizationId, 10);
-  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+    return () => {
+      isCancelled = true;
+    };
+  }, [queryId]);
 
   const refreshQueryResults = useCallback(() => {
-    setError(null);
-    setRefreshStartedAt(moment());
-    query
-      .getQueryResultPromise()
-      .then(result => {
-        setQueryResults(result);
-      })
-      .catch(err => {
-        setError(err.getError());
-      })
-      .finally(() => setRefreshStartedAt(null));
+    if (query) {
+      setError(null);
+      setRefreshStartedAt(moment());
+      query
+        .getQueryResultPromise()
+        .then(result => {
+          setQueryResults(result);
+        })
+        .catch(err => {
+          setError(err.getError());
+        })
+        .finally(() => setRefreshStartedAt(null));
+    }
   }, [query]);
 
   useEffect(() => {
     document.querySelector("body").classList.add("headless");
     refreshQueryResults();
   }, [refreshQueryResults]);
+
+  if (!query) {
+    return null;
+  }
+
+  const hideHeader = has(location.search, "hide_header");
+  const hideParametersUI = has(location.search, "hide_parameters");
+  const hideQueryLink = has(location.search, "hide_link");
+  const hideTimestamp = has(location.search, "hide_timestamp");
+
+  const showQueryDescription = has(location.search, "showDescription");
+  visualizationId = parseInt(visualizationId, 10);
+  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
 
   return (
     <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
@@ -216,31 +235,24 @@ function VisualizationEmbed({ query, visualizationId, location }) {
         refreshStartedAt={refreshStartedAt}
         queryUrl={!hideQueryLink ? query.getUrl() : null}
         hideTimestamp={hideTimestamp}
-        apiKey={urlQueryParams.api_key}
+        apiKey={apiKey}
       />
     </div>
   );
 }
 
 VisualizationEmbed.propTypes = {
-  query: PropTypes.object.isRequired,
+  queryId: PropTypes.string.isRequired,
   visualizationId: PropTypes.string,
-  location: PropTypes.shape({
-    search: PropTypes.string,
-  }),
+  apiKey: PropTypes.string.isRequired,
 };
 
 export default {
   path: "/embed/query/:queryId/visualization/:visualizationId",
   authenticated: false,
   render: (routeParams, currentRoute, location) => (
-    <VisualizationEmbed key={location.path} {...routeParams} location={location} />
+    <SignedOutPageWrapper key={location.path} apiKey={location.search.api_key}>
+      <VisualizationEmbed {...routeParams} apiKey={location.search.api_key} />
+    </SignedOutPageWrapper>
   ),
-  resolve: {
-    query: ({ queryId }, currentRoute, location) => {
-      const urlQueryParams = qs.parse(location.search);
-      Auth.setApiKey(urlQueryParams.api_key);
-      return Auth.loadConfig().then(() => Query.get({ id: queryId }).$promise);
-    },
-  },
 };

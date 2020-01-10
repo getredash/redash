@@ -1,13 +1,13 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+import SignedOutPageWrapper from "@/components/ApplicationArea/SignedOutPageWrapper";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
 import { Dashboard } from "@/services/dashboard";
-import { Auth } from "@/services/auth";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import useDashboard from "./useDashboard";
@@ -96,11 +96,9 @@ class PublicDashboardPage extends React.Component {
 export default {
   path: "/public/dashboards/:token",
   authenticated: false,
-  render: (routeParams, currentRoute, location) => <PublicDashboardPage key={location.path} {...routeParams} />,
-  resolve: {
-    session: ({ token }) => {
-      Auth.setApiKey(token);
-      return Auth.loadConfig();
-    },
-  },
+  render: (routeParams, currentRoute, location) => (
+    <SignedOutPageWrapper key={location.path} apiKey={routeParams.token}>
+      <PublicDashboardPage {...routeParams} />
+    </SignedOutPageWrapper>
+  ),
 };

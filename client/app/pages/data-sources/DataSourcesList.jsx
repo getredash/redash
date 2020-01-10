@@ -4,6 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty, get } from "lodash";
 import { DataSource, IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -160,7 +161,11 @@ export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <DataSourcesListPage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: {
       currentPage: "data_sources",
     },
@@ -168,7 +173,11 @@ export default [
   {
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => <DataSourcesListPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <DataSourcesListPage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: {
       currentPage: "data_sources",
       isNewDataSourcePage: true,

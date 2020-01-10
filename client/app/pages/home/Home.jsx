@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
@@ -175,5 +176,9 @@ function Home() {
 export default {
   path: "/",
   title: "Redash",
-  render: (routeParams, currentRoute, location) => <Home key={location.path} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper key={location.path}>
+      <Home />
+    </AuthenticatedPageWrapper>
+  ),
 };

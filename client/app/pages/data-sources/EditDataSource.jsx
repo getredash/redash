@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
 import Modal from "antd/lib/modal";
 import { DataSource, IMG_ROOT } from "@/services/data-source";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
@@ -151,5 +152,9 @@ const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 export default {
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: (routeParams, currentRoute, location) => <EditDataSourcePage key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper key={location.path}>
+      <EditDataSourcePage {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
 };

@@ -5,6 +5,7 @@ import React from "react";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
 import { CounterCard, QueuesTable, QueriesTable } from "@/components/admin/CeleryStatus";
 
@@ -117,6 +118,10 @@ class Tasks extends React.Component {
 export default {
   path: "/admin/queries/tasks",
   title: "Celery Status",
-  render: (routeParams, currentRoute, location) => <Tasks key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper>
+      <Tasks key={location.path} {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
   resolve: { currentPage: "tasks" },
 };

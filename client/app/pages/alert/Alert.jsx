@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { currentUser } from "@/services/auth";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { Alert as AlertService } from "@/services/alert";
@@ -257,19 +258,31 @@ export default [
   {
     path: "/alerts/new",
     title: "New Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper>
+        <AlertPage key={location.path} {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { mode: MODES.NEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper>
+        <AlertPage key={location.path} {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { mode: MODES.VIEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => <AlertPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <AlertPage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { mode: MODES.EDIT },
   },
 ];

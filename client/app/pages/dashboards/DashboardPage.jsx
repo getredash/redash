@@ -9,6 +9,7 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
@@ -399,5 +400,9 @@ DashboardPage.propTypes = {
 
 export default {
   path: "/dashboard/:dashboardSlug",
-  render: (routeParams, currentRoute, location) => <DashboardPage key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper key={location.path}>
+      <DashboardPage {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
 };

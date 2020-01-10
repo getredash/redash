@@ -4,6 +4,7 @@ import React from "react";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
 import { CounterCard } from "@/components/admin/CeleryStatus";
 import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
@@ -123,6 +124,10 @@ class Jobs extends React.Component {
 export default {
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: (routeParams, currentRoute, location) => <Jobs key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper>
+      <Jobs key={location.path} {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
   resolve: { currentPage: "jobs" },
 };

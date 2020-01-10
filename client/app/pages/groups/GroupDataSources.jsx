@@ -5,6 +5,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -251,7 +252,9 @@ export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
   render: (routeParams, currentRoute, location) => (
-    <GroupDataSourcesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+    <AuthenticatedPageWrapper key={location.path}>
+      <GroupDataSourcesPage routeParams={routeParams} currentRoute={currentRoute} />
+    </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "datasources" },
 };

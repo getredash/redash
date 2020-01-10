@@ -4,6 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty, get } from "lodash";
 import { Destination, IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -140,13 +141,21 @@ export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <DestinationsListPage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { currentPage: "destinations" },
   },
   {
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => <DestinationsListPage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <DestinationsListPage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: {
       key: "destinations",
       isNewDestinationPage: true,

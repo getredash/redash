@@ -1,5 +1,6 @@
 import React from "react";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -165,7 +166,9 @@ export default [
     path: "/queries",
     title: "Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "all" },
   },
@@ -173,7 +176,9 @@ export default [
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "favorites" },
   },
@@ -181,7 +186,9 @@ export default [
     path: "/queries/archive",
     title: "Archived Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "archive" },
   },
@@ -189,7 +196,9 @@ export default [
     path: "/queries/my",
     title: "My Queries",
     render: (routeParams, currentRoute, location) => (
-      <QueriesListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "my" },
   },

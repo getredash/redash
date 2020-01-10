@@ -2,6 +2,7 @@ import { includes, map } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -192,18 +193,19 @@ const GroupMembersPage = wrapSettingsTab(
   null,
   liveItemsList(
     GroupMembers,
-    () => new ResourceItemsSource({
-      isPlainList: true,
-      getRequest(unused, { params: { groupId } }) {
-        return { id: groupId };
-      },
-      getResource() {
-        return Group.members.bind(Group);
-      },
-      getItemProcessor() {
-        return item => new User(item);
-      },
-    }),
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.members.bind(Group);
+        },
+        getItemProcessor() {
+          return item => new User(item);
+        },
+      }),
     () => new StateStorage({ orderByField: "name" })
   )
 );
@@ -213,7 +215,9 @@ export default {
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: (routeParams, currentRoute, location) => (
-    <GroupMembersPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+    <AuthenticatedPageWrapper key={location.path}>
+      <GroupMembersPage routeParams={routeParams} currentRoute={currentRoute} />
+    </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "users" },
 };

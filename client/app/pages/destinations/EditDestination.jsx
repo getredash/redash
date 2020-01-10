@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { get, find } from "lodash";
 import Modal from "antd/lib/modal";
 import { Destination, IMG_ROOT } from "@/services/destination";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
@@ -117,5 +118,9 @@ const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 export default {
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
-  render: (routeParams, currentRoute, location) => <EditDestinationPage key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper key={location.path}>
+      <EditDestinationPage {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
 };

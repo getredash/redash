@@ -3,6 +3,7 @@ import React from "react";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -173,7 +174,9 @@ export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
   render: (routeParams, currentRoute, location) => (
-    <OutdatedQueriesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+    <AuthenticatedPageWrapper>
+      <OutdatedQueriesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+    </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "outdated_queries" },
 };

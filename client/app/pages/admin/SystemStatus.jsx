@@ -2,6 +2,7 @@ import { omit } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
 import * as StatusBlock from "@/components/admin/StatusBlock";
 
@@ -91,6 +92,10 @@ class SystemStatus extends React.Component {
 export default {
   path: "/admin/status",
   title: "System Status",
-  render: (routeParams, currentRoute, location) => <SystemStatus key={location.path} {...routeParams} />,
+  render: (routeParams, currentRoute, location) => (
+    <AuthenticatedPageWrapper>
+      <SystemStatus key={location.path} {...routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
   resolve: { currentPage: "system_status" },
 };

@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
@@ -68,13 +69,21 @@ export default [
   {
     path: "/users/me",
     title: "Account",
-    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <UserProfilePage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { currentPage: "users" },
   },
   {
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: (routeParams, currentRoute, location) => <UserProfilePage key={location.path} {...routeParams} />,
+    render: (routeParams, currentRoute, location) => (
+      <AuthenticatedPageWrapper key={location.path}>
+        <UserProfilePage {...routeParams} />
+      </AuthenticatedPageWrapper>
+    ),
     resolve: { currentPage: "users" },
   },
 ];

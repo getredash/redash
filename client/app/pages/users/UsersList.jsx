@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -285,7 +286,9 @@ export default [
     path: "/users",
     title: "Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "active" },
   },
@@ -293,7 +296,9 @@ export default [
     path: "/users/new",
     title: "Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: {
       currentPage: "active",
@@ -304,7 +309,9 @@ export default [
     path: "/users/pending",
     title: "Pending Invitations",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "pending" },
   },
@@ -312,7 +319,9 @@ export default [
     path: "/users/disabled",
     title: "Disabled Users",
     render: (routeParams, currentRoute, location) => (
-      <UsersListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "disabled" },
   },

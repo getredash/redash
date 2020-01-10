@@ -1,5 +1,6 @@
 import { toUpper } from "lodash";
 import React from "react";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -126,7 +127,9 @@ export default {
   path: "/alerts",
   title: "Alerts",
   render: (routeParams, currentRoute, location) => (
-    <AlertsListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+    <AuthenticatedPageWrapper key={location.path}>
+      <AlertsListPage routeParams={routeParams} currentRoute={currentRoute} />
+    </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "alerts" },
 };

@@ -1,5 +1,6 @@
 import React from "react";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -151,7 +152,9 @@ export default [
     path: "/dashboards",
     title: "Dashboards",
     render: (routeParams, currentRoute, location) => (
-      <DashboardListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "all" },
   },
@@ -159,7 +162,9 @@ export default [
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: (routeParams, currentRoute, location) => (
-      <DashboardListPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <AuthenticatedPageWrapper key={location.path}>
+        <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} />
+      </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "favorites" },
   },

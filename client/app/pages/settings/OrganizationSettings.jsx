@@ -8,6 +8,7 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import LoadingState from "@/components/items-list/components/LoadingState";
 
 import { clientConfig } from "@/services/auth";
@@ -272,7 +273,9 @@ export default {
   path: "/settings/organization",
   title: "Organization Settings",
   render: (routeParams, currentRoute, location) => (
-    <OrganizationSettingsPage key={location.path} {...routeParams} />
+    <AuthenticatedPageWrapper key={location.path}>
+      <OrganizationSettingsPage {...routeParams} />
+    </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "organization-settings" },
 };
