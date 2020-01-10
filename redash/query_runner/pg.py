@@ -341,7 +341,7 @@ class Redshift(PostgreSQL):
 
         return list(schema.values())
 
-class RedshiftIAM(RedshiftUser):
+class RedshiftIAM(Redshift):
 
     @classmethod
     def type(cls):
