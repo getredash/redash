@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import ApplicationHeader from "@/components/ApplicationHeader";
 
 import routes from "@/pages";
@@ -37,16 +37,22 @@ export default function ApplicationArea() {
   // Better solution is either to move header to each page or create some global state for currentUser/clientConfig/etc.
   const [currentRoute, setCurrentRoute] = useState(null);
 
-  const handleRouteChange = useCallback(route => {
-    setCurrentRoute(route);
-    route = route || { authenticated: true };
-    const layout = selectLayout(route);
-    setShowHeader(layout.showHeader);
-    document.body.className = layout.bodyClass;
+  useEffect(() => {
+    const route = currentRoute || { authenticated: true };
+
     if (route.title) {
       document.title = route.title;
     }
-  }, []);
+
+    const layout = selectLayout(route);
+    setShowHeader(layout.showHeader);
+    if (layout.bodyClass) {
+      document.body.classList.toggle(layout.bodyClass, true);
+      return () => {
+        document.body.classList.toggle(layout.bodyClass, false);
+      };
+    }
+  }, [currentRoute]);
 
   useEffect(() => {
     document.body.addEventListener("click", handleNavigationIntent, false);
@@ -59,7 +65,7 @@ export default function ApplicationArea() {
   return (
     <>
       {currentRoute && showHeader && <ApplicationHeader currentRoute={currentRoute} />}
-      <Router routes={routes} onRouteChange={handleRouteChange} />
+      <Router routes={routes} onRouteChange={setCurrentRoute} />
     </>
   );
 }

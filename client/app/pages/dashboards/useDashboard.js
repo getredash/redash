@@ -71,7 +71,7 @@ function getRefreshRateFromUrl() {
 function useFullscreenHandler() {
   const [fullscreen, setFullscreen] = useState(has(location.search, "fullscreen"));
   useEffect(() => {
-    document.querySelector("body").classList.toggle("headless", fullscreen);
+    document.body.classList.toggle("headless", fullscreen);
     location.setSearch({ fullscreen: fullscreen ? true : null });
   }, [fullscreen]);
 
