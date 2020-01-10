@@ -234,11 +234,11 @@ class PostgreSQL(BaseSQLQueryRunner):
         return json_data, error
 
 
-class RedshiftUser(PostgreSQL):
+class Redshift(PostgreSQL):
 
     @classmethod
     def type(cls):
-        return "redshift user login"
+        return "redshift"
 
     def _get_connection(self):
 
@@ -345,7 +345,7 @@ class RedshiftIAM(RedshiftUser):
 
     @classmethod
     def type(cls):
-        return "redshift iam login"
+        return "redshift (IAM Login)"
 
     @classmethod
     def enabled(cls):
@@ -470,6 +470,6 @@ class CockroachDB(PostgreSQL):
 
 
 register(PostgreSQL)
-register(RedshiftUser)
+register(Redshift)
 register(RedshiftIAM)
 register(CockroachDB)
