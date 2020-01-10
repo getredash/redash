@@ -1,0 +1,26 @@
+---
+pipeline:
+  download:
+    image: docker:git
+    commands:
+      - git clone https://github.com/moengage/moe-truffleHog.git --branch dev
+
+  secret-checker:
+    image: python:2.7-alpine
+    commands:
+      - apk add --no-cache git
+      - echo $DRONE_SOURCE_BRANCH
+      - echo $DRONE_REPO
+      - cd moe-truffleHog
+      - git branch
+      - pip install -r requirements.txt
+      - python truffleHog/truffleHog.py --regex --rules rules.json --max_depth 1 --branch $DRONE_BRANCH "https://github.com/$DRONE_REPO.git" --entropy true 
+      - echo "No tokens Found"
+  notify_to_slack:
+    image: plugins/slack
+    when:
+      status: [ failure ]
+    secrets: [ SLACK_WEBHOOK ]
+    settings:
+      template: >
+        {{repo.name}} ({{build.branch}}) <{{ build.link }}|{{ repo.owner }}/{{ repo.name }}#{{truncate build.commit 8}}> build failed. Tokens Found, Please remove tokens {{ build.author }}.
