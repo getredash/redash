@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
-
 import routes from "@/pages";
-
 import Router from "./Router";
 import handleNavigationIntent from "./handleNavigationIntent";
 

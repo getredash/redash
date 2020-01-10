@@ -9,6 +9,7 @@ import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import TimeAgo from "@/components/TimeAgo";
 import Layout from "@/components/admin/Layout";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ItemsSource } from "@/components/items-list/classes/ItemsSource";
@@ -169,13 +170,21 @@ const OutdatedQueriesPage = itemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-// TODO: handleError
 export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper>
-      <OutdatedQueriesPage key={location.path} routeParams={routeParams} currentRoute={currentRoute} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <OutdatedQueriesPage
+            key={location.path}
+            routeParams={routeParams}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "outdated_queries" },

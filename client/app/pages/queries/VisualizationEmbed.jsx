@@ -18,6 +18,7 @@ import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import VisualizationName from "@/visualizations/VisualizationName";
 import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
@@ -252,7 +253,11 @@ export default {
   authenticated: false,
   render: (routeParams, currentRoute, location) => (
     <SignedOutPageWrapper key={location.path} apiKey={location.search.api_key}>
-      <VisualizationEmbed {...routeParams} apiKey={location.search.api_key} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <VisualizationEmbed {...routeParams} apiKey={location.search.api_key} onError={handleError} />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </SignedOutPageWrapper>
   ),
 };

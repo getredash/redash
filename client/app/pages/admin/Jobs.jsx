@@ -6,6 +6,7 @@ import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { CounterCard } from "@/components/admin/CeleryStatus";
 import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
@@ -126,7 +127,9 @@ export default {
   title: "RQ Status",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper>
-      <Jobs key={location.path} {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <Jobs key={location.path} {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "jobs" },

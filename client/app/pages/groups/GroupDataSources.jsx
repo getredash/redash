@@ -6,6 +6,7 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -22,12 +23,12 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import { Group } from "@/services/group";
 import { DataSource } from "@/services/data-source";
-import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -247,13 +248,16 @@ const GroupDataSourcesPage = wrapSettingsTab(
   )
 );
 
-// TODO: handleError
 export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <GroupDataSourcesPage routeParams={routeParams} currentRoute={currentRoute} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <GroupDataSourcesPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "datasources" },

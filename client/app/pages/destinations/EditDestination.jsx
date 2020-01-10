@@ -11,6 +11,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 class EditDestination extends React.Component {
   static propTypes = {
@@ -114,13 +115,14 @@ class EditDestination extends React.Component {
 
 const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 
-// TODO: handleError
 export default {
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <EditDestinationPage {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <EditDestinationPage {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
 };

@@ -22,6 +22,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -280,14 +281,17 @@ const UsersListPage = wrapSettingsTab(
   )
 );
 
-// TODO: handleError
 export default [
   {
     path: "/users",
     title: "Users",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "active" },
@@ -297,7 +301,11 @@ export default [
     title: "Users",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {
@@ -310,7 +318,11 @@ export default [
     title: "Pending Invitations",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "pending" },
@@ -320,7 +332,11 @@ export default [
     title: "Disabled Users",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UsersListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "disabled" },

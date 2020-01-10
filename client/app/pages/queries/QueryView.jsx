@@ -8,6 +8,7 @@ import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
 import { DataSource } from "@/services/data-source";
@@ -188,7 +189,9 @@ export default {
   path: "/queries/:queryId([0-9]+)",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <QueryView {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <QueryView {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: {

@@ -3,6 +3,7 @@ import React from "react";
 import Button from "antd/lib/button";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -19,12 +20,12 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
 import { Group } from "@/services/group";
 import { User } from "@/services/user";
-import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -210,13 +211,16 @@ const GroupMembersPage = wrapSettingsTab(
   )
 );
 
-// TODO: handleError
 export default {
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <GroupMembersPage routeParams={routeParams} currentRoute={currentRoute} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <GroupMembersPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "users" },

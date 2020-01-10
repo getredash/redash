@@ -12,6 +12,7 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import DynamicComponent from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import recordEvent from "@/services/recordEvent";
 
 class DataSourcesList extends React.Component {
@@ -156,14 +157,15 @@ const DataSourcesListPage = wrapSettingsTab(
   DataSourcesList
 );
 
-// TODO: handleError
 export default [
   {
     path: "/data_sources",
     title: "Data Sources",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DataSourcesListPage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {
@@ -175,7 +177,9 @@ export default [
     title: "Data Sources",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DataSourcesListPage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {

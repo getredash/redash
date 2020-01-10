@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import ApplicationHeader from "./ApplicationHeader";
+import ErrorMessage from "./ErrorMessage";
 
 export default function AuthenticatedPageWrapper({ bodyClass, children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Auth.isAuthenticated());
@@ -41,7 +43,7 @@ export default function AuthenticatedPageWrapper({ bodyClass, children }) {
   return (
     <>
       <ApplicationHeader />
-      {children}
+      <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>{children}</ErrorBoundary>
     </>
   );
 }

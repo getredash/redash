@@ -8,7 +8,7 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
-
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
@@ -146,14 +146,17 @@ const DashboardListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-// TODO: handleError
 export default [
   {
     path: "/dashboards",
     title: "Dashboards",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "all" },
@@ -163,7 +166,11 @@ export default [
     title: "Favorite Dashboards",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "favorites" },

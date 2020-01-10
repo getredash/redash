@@ -15,6 +15,7 @@ import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
 import Layout from "@/components/layouts/ContentWithSidebar";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
 import { currentUser } from "@/services/auth";
@@ -160,14 +161,17 @@ const QueriesListPage = itemsList(
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-// handleError - TODO
 export default [
   {
     path: "/queries",
     title: "Queries",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "all" },
@@ -177,7 +181,11 @@ export default [
     title: "Favorite Queries",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "favorites" },
@@ -187,7 +195,11 @@ export default [
     title: "Archived Queries",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "archive" },
@@ -197,7 +209,11 @@ export default [
     title: "My Queries",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "my" },

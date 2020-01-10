@@ -7,6 +7,7 @@ import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
@@ -54,6 +55,11 @@ PublicDashboard.propTypes = {
 class PublicDashboardPage extends React.Component {
   static propTypes = {
     token: PropTypes.string.isRequired,
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
   };
 
   state = {
@@ -65,7 +71,7 @@ class PublicDashboardPage extends React.Component {
     Dashboard.getByToken({ token: this.props.token })
       .$promise.then(dashboard => this.setState({ dashboard, loading: false }))
       .catch(error => {
-        throw new PromiseRejectionError(error);
+        this.props.onError(new PromiseRejectionError(error));
       });
   }
 
@@ -98,7 +104,9 @@ export default {
   authenticated: false,
   render: (routeParams, currentRoute, location) => (
     <SignedOutPageWrapper key={location.path} apiKey={routeParams.token}>
-      <PublicDashboardPage {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <PublicDashboardPage {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </SignedOutPageWrapper>
   ),
 };

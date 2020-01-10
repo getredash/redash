@@ -1,5 +1,5 @@
 import { isFunction, map, fromPairs, extend } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -22,6 +22,8 @@ function resolveRouteDependencies(route) {
 export default function Router({ routes, onRouteChange }) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
+  const errorHandlerRef = useRef();
+
   useEffect(() => {
     let isAbandoned = false;
 
@@ -35,6 +37,10 @@ export default function Router({ routes, onRouteChange }) {
 
     function resolve() {
       if (!isAbandoned) {
+        if (errorHandlerRef.current) {
+          errorHandlerRef.current.reset();
+        }
+
         router
           .resolve({ pathname: location.path })
           .then(route => {
@@ -47,6 +53,10 @@ export default function Router({ routes, onRouteChange }) {
           })
           .catch(error => {
             if (!isAbandoned) {
+              if (error.status === 404) {
+                // just a rename, original message is "Route not found"
+                error = new Error("Page not found");
+              }
               setCurrentRoute({
                 render: params => <ErrorMessage {...params} />,
                 routeParams: { error },
@@ -75,7 +85,7 @@ export default function Router({ routes, onRouteChange }) {
   }
 
   return (
-    <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
+    <ErrorBoundary ref={errorHandlerRef} renderError={error => <ErrorMessage error={error} />}>
       {currentRoute.render(currentRoute.routeParams, currentRoute, location)}
     </ErrorBoundary>
   );

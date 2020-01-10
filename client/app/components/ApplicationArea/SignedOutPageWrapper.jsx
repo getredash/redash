@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { Auth } from "@/services/auth";
+import ErrorMessage from "./ErrorMessage";
 
 export default function SignedOutPageWrapper({ apiKey, children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,7 +30,7 @@ export default function SignedOutPageWrapper({ apiKey, children }) {
     return null;
   }
 
-  return children;
+  return <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>{children}</ErrorBoundary>;
 }
 
 SignedOutPageWrapper.propTypes = {

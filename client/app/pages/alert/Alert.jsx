@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { currentUser } from "@/services/auth";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import notification from "@/services/notification";
 import { Alert as AlertService } from "@/services/alert";
 import { Query as QueryService } from "@/services/query";
@@ -36,11 +37,13 @@ class AlertPage extends React.Component {
   static propTypes = {
     mode: PropTypes.oneOf(values(MODES)),
     alertId: PropTypes.string,
+    onError: PropTypes.func,
   };
 
   static defaultProps = {
     mode: null,
     alertId: null,
+    onError: () => {},
   };
 
   _isMounted = false;
@@ -93,7 +96,7 @@ class AlertPage extends React.Component {
         })
         .catch(err => {
           if (this._isMounted) {
-            throw new PromiseRejectionError(err);
+            this.props.onError(new PromiseRejectionError(err));
           }
         });
     }
@@ -253,14 +256,15 @@ class AlertPage extends React.Component {
   }
 }
 
-// TODO: handleError
 export default [
   {
     path: "/alerts/new",
     title: "New Alert",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper>
-        <AlertPage key={location.path} {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <AlertPage key={location.path} {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { mode: MODES.NEW },
@@ -270,7 +274,9 @@ export default [
     title: "Alert",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper>
-        <AlertPage key={location.path} {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <AlertPage key={location.path} {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { mode: MODES.VIEW },
@@ -280,7 +286,9 @@ export default [
     title: "Alert",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <AlertPage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { mode: MODES.EDIT },

@@ -2,6 +2,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -15,10 +16,10 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import CreateGroupDialog from "@/components/groups/CreateGroupDialog";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Group } from "@/services/group";
 import { currentUser } from "@/services/auth";
-import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 class GroupsList extends React.Component {
   static propTypes = {
@@ -149,13 +150,16 @@ const GroupsListPage = wrapSettingsTab(
   )
 );
 
-// TODO: handleError
 export default {
   path: "/groups",
   title: "Groups",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <GroupsListPage routeParams={routeParams} currentRoute={currentRoute} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <GroupsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "groups" },

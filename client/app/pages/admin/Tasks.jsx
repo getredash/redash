@@ -7,6 +7,7 @@ import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { CounterCard, QueuesTable, QueriesTable } from "@/components/admin/CeleryStatus";
 
 import { $http } from "@/services/ng";
@@ -120,7 +121,9 @@ export default {
   title: "Celery Status",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper>
-      <Tasks key={location.path} {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <Tasks key={location.path} {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "tasks" },

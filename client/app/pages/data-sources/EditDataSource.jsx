@@ -12,6 +12,7 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from "@/components/HelpTrigger";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 class EditDataSource extends React.Component {
   static propTypes = {
@@ -152,9 +153,11 @@ const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 export default {
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: (routeParams, currentRoute, location) => (
+  render: (routeParams, currentRoute, location, handleError) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <EditDataSourcePage {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <EditDataSourcePage {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
 };

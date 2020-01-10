@@ -11,6 +11,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -136,14 +137,15 @@ const DestinationsListPage = wrapSettingsTab(
   DestinationsList
 );
 
-// TODO: handleError
 export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DestinationsListPage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "destinations" },
@@ -153,7 +155,9 @@ export default [
     title: "Alert Destinations",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <DestinationsListPage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {

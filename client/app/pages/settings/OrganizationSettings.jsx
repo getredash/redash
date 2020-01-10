@@ -10,6 +10,7 @@ import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import LoadingState from "@/components/items-list/components/LoadingState";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -268,13 +269,14 @@ const OrganizationSettingsPage = wrapSettingsTab(
   OrganizationSettings
 );
 
-// TODO: handleError
 export default {
   path: "/settings/organization",
   title: "Organization Settings",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <OrganizationSettingsPage {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <OrganizationSettingsPage {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "organization-settings" },

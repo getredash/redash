@@ -7,6 +7,7 @@ import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { User } from "@/services/user";
 import { currentUser } from "@/services/auth";
@@ -64,14 +65,15 @@ const UserProfilePage = wrapSettingsTab(
   UserProfile
 );
 
-// TODO: handleError
 export default [
   {
     path: "/users/me",
     title: "Account",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UserProfilePage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <UserProfilePage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "users" },
@@ -81,7 +83,9 @@ export default [
     title: "Users",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path}>
-        <UserProfilePage {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <UserProfilePage {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: { currentPage: "users" },

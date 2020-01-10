@@ -11,6 +11,7 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
@@ -437,7 +438,9 @@ export default [
     path: "/queries/new",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path} bodyClass="fixed-layout">
-        <QuerySource {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <QuerySource {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {
@@ -449,7 +452,9 @@ export default [
     layout: "fixed",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path} bodyClass="fixed-layout">
-        <QuerySource {...routeParams} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <QuerySource {...routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {

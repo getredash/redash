@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { map, isEmpty, includes } from "lodash";
@@ -16,6 +16,7 @@ import EditInPlace from "@/components/EditInPlace";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import getTags from "@/services/getTags";
@@ -377,8 +378,10 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage({ dashboardSlug }) {
+function DashboardPage({ dashboardSlug, onError }) {
   const [dashboard, setDashboard] = useState(null);
+  const onErrorRef = useRef();
+  onErrorRef.current = onError;
 
   useEffect(() => {
     Dashboard.get({ slug: dashboardSlug })
@@ -387,7 +390,7 @@ function DashboardPage({ dashboardSlug }) {
         setDashboard(dashboardData);
       })
       .catch(error => {
-        throw new PromiseRejectionError(error);
+        onErrorRef.current(new PromiseRejectionError(error));
       });
   }, [dashboardSlug]);
 
@@ -396,13 +399,20 @@ function DashboardPage({ dashboardSlug }) {
 
 DashboardPage.propTypes = {
   dashboardSlug: PropTypes.string.isRequired,
+  onError: PropTypes.func,
+};
+
+DashboardPage.defaultProps = {
+  onError: PropTypes.func,
 };
 
 export default {
   path: "/dashboard/:dashboardSlug",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <DashboardPage {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <DashboardPage {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
 };

@@ -5,6 +5,7 @@ import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
 
@@ -15,9 +16,9 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { QuerySnippet } from "@/services/query-snippet";
-import navigateTo from "@/components/ApplicationArea/navigateTo";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import notification from "@/services/notification";
@@ -213,14 +214,17 @@ const QuerySnippetsListPage = wrapSettingsTab(
   )
 );
 
-// TODO: handleError
 export default [
   {
     path: "/query_snippets",
     title: "Query Snippets",
     render: (routeParams, currentRoute) => (
       <AuthenticatedPageWrapper>
-        <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {
@@ -232,7 +236,11 @@ export default [
     title: "Query Snippets",
     render: (routeParams, currentRoute) => (
       <AuthenticatedPageWrapper>
-        <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} />
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          )}
+        </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
     resolve: {

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import * as StatusBlock from "@/components/admin/StatusBlock";
 
 import { $http } from "@/services/ng";
@@ -88,13 +89,14 @@ class SystemStatus extends React.Component {
   }
 }
 
-// TODO: handleError
 export default {
   path: "/admin/status",
   title: "System Status",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper>
-      <SystemStatus key={location.path} {...routeParams} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <SystemStatus key={location.path} {...routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "system_status" },

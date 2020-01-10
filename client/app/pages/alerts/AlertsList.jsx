@@ -4,7 +4,7 @@ import AuthenticatedPageWrapper from "@/components/ApplicationArea/Authenticated
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
-
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
@@ -122,13 +122,16 @@ const AlertsListPage = liveItemsList(
   () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
 );
 
-// TODO: handleError
 export default {
   path: "/alerts",
   title: "Alerts",
   render: (routeParams, currentRoute, location) => (
     <AuthenticatedPageWrapper key={location.path}>
-      <AlertsListPage routeParams={routeParams} currentRoute={currentRoute} />
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <AlertsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+        )}
+      </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
   resolve: { currentPage: "alerts" },
