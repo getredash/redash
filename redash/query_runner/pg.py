@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 try:
     import boto3
 
-    redshift_role_enabled = True
+    IAM_ENABLED = True
 except ImportError:
-    redshift_role_enabled = False
+    IAM_ENABLED = False
 
 types_map = {
     20: TYPE_INTEGER,
@@ -234,26 +234,11 @@ class PostgreSQL(BaseSQLQueryRunner):
         return json_data, error
 
 
-class Redshift(PostgreSQL):
+class RedshiftUser(PostgreSQL):
 
     @classmethod
     def type(cls):
-        return "redshift"
-
-    def _login_method_selection(self):
-        if not redshift_role_enabled:
-            return "PASSWORD"
-        elif self.configuration.get("rolename"):
-            if not self.configuration.get("aws_access_key_id") or not self.configuration.get("aws_secret_access_key"):
-                return "ASSUME_ROLE_NO_KEYS"
-            else:
-                return "ASSUME_ROLE_KEYS"
-        elif self.configuration.get("aws_access_key_id") and self.configuration.get("aws_secret_access_key"):
-            return "KEYS"
-        elif not self.configuration.get("password"):
-            return "ROLE"
-        else:
-            return "PASSWORD"
+        return "redshift user login"
 
     def _get_connection(self):
 
@@ -261,49 +246,9 @@ class Redshift(PostgreSQL):
             os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
         )
 
-        login_method = self._login_method_selection()
-
-        if login_method in ["ROLE", "ASSUME_ROLE_KEY", "ASSUME_ROLE_NO_KEY", "KEYS"]:
-            if login_method == "KEYS":
-                client = boto3.client("redshift",
-                                      region_name=self.configuration.get("aws_region"),
-                                      aws_access_key_id=self.configuration.get("aws_access_key_id"),
-                                      aws_secret_access_key=self.configuration.get("aws_secret_access_key"))
-            elif login_method == "ROLE":
-                client = boto3.client("redshift",
-                                      region_name=self.configuration.get("aws_region"))
-            else:
-                if login_method == "ASSUME_ROLE_KEYS":
-                    assume_client = client = boto3.client('sts',
-                                                          region_name=self.configuration.get("aws_region"),
-                                                          aws_access_key_id=self.configuration.get("aws_access_key_id"),
-                                                          aws_secret_access_key=self.configuration.get(
-                                                              "aws_secret_access_key"))
-                else:
-                    assume_client = client = boto3.client('sts',
-                                                          region_name=self.configuration.get("aws_region"))
-                role_session = f"redash_{uuid4().hex}"
-                session_keys = assume_client.assume_role(
-                    RoleArn=self.configuration.get("rolename"),
-                    RoleSessionName=role_session)["Credentials"]
-                client = boto3.client("redshift",
-                                      region_name=self.configuration.get("aws_region"),
-                                      aws_access_key_id=session_keys["AccessKeyId"],
-                                      aws_secret_access_key=session_keys["SecretAccessKey"],
-                                      aws_session_token=session_keys["SessionToken"]
-                                      )
-            credentials = client.get_cluster_credentials(
-                DbUser=self.configuration.get("user"),
-                DbName=self.configuration.get("dbname"),
-                ClusterIdentifier=self.configuration.get("clusterid"))
-            db_user = credentials["DbUser"]
-            db_password = credentials["DbPassword"]
-        else:
-            db_user = self.configuration.get("user")
-            db_password = self.configuration.get("password")
         connection = psycopg2.connect(
-            user=db_user,
-            password=db_password,
+            user=self.configuration.get("user"),
+            password=self.configuration.get("password"),
             host=self.configuration.get("host"),
             port=self.configuration.get("port"),
             dbname=self.configuration.get("dbname"),
@@ -316,7 +261,7 @@ class Redshift(PostgreSQL):
 
     @classmethod
     def configuration_schema(cls):
-        base_redshift_config = {
+        return {
             "type": "object",
             "properties": {
                 "user": {"type": "string"},
@@ -349,27 +294,6 @@ class Redshift(PostgreSQL):
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"],
         }
-        if redshift_role_enabled:
-            base_redshift_config["properties"]["rolename"] = {"type": "string", "title": "IAM Role Name"}
-            base_redshift_config["properties"]["clusterid"] = {"type": "string", "title": "Redshift Cluster ID"}
-            base_redshift_config["properties"]["aws_region"] = {"type": "string", "title": "AWS Region"}
-            base_redshift_config["properties"]["aws_access_key_id"] = {"type": "string", "title": "AWS Access Key ID"}
-            base_redshift_config["properties"]["aws_secret_access_key"] = {"type": "string",
-                                                                           "title": "AWS Secret Access Key"}
-            base_redshift_config["order"] = [
-                "host",
-                "port",
-                "user",
-                "password",
-                "dbname",
-                "rolename",
-                "sslmode",
-                "adhoc_query_group",
-                "scheduled_query_group",
-            ]
-            base_redshift_config["required"] = ["dbname", "host", "port"]
-            base_redshift_config["secret"] += "aws_secret_access_key"
-        return base_redshift_config
 
     def annotate_query(self, query, metadata):
         annotated = super(Redshift, self).annotate_query(query, metadata)
@@ -417,6 +341,127 @@ class Redshift(PostgreSQL):
 
         return list(schema.values())
 
+class RedshiftIAM(RedshiftUser):
+
+    @classmethod
+    def type(cls):
+        return "redshift iam login"
+
+    @classmethod
+    def enabled(cls):
+        return IAM_ENABLED
+
+    def _login_method_selection(self):
+        if self.configuration.get("rolename"):
+            if not self.configuration.get("aws_access_key_id") or not self.configuration.get("aws_secret_access_key"):
+                return "ASSUME_ROLE_NO_KEYS"
+            else:
+                return "ASSUME_ROLE_KEYS"
+        elif self.configuration.get("aws_access_key_id") and self.configuration.get("aws_secret_access_key"):
+            return "KEYS"
+        elif not self.configuration.get("password"):
+            return "ROLE"
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "rolename": {"type": "string", "title": "IAM Role Name"},
+                "aws_region": {"type": "string", "title": "AWS Region"},
+                "aws_access_key_id": {"type": "string", "title": "AWS Access Key ID"},
+                "aws_secret_access_key": {"type": "string", "title": "AWS Secret Access Key"},
+                "clusterid": {"type": "string", "title": "Redshift Cluster ID"},
+                "user": {"type": "string"},
+                "host": {"type": "string"},
+                "port": {"type": "number"},
+                "dbname": {"type": "string", "title": "Database Name"},
+                "sslmode": {"type": "string", "title": "SSL Mode", "default": "prefer"},
+                "adhoc_query_group": {
+                    "type": "string",
+                    "title": "Query Group for Adhoc Queries",
+                    "default": "default",
+                },
+                "scheduled_query_group": {
+                    "type": "string",
+                    "title": "Query Group for Scheduled Queries",
+                    "default": "default",
+                },
+            },
+            "order": [
+                "rolename",
+                "aws_region",
+                "aws_access_key_id",
+                "aws_secret_access_key"
+                "clusterid"
+                "host",
+                "port",
+                "user",
+                "dbname",
+                "sslmode",
+                "adhoc_query_group",
+                "scheduled_query_group",
+            ],
+            "required": ["dbname", "user", "host", "port", "aws_region"],
+            "secret": ["aws_secret_access_key"],
+        }
+
+    def _get_connection(self):
+
+        sslrootcert_path = os.path.join(
+            os.path.dirname(__file__), "./files/redshift-ca-bundle.crt"
+        )
+
+        login_method = self._login_method_selection()
+
+
+        if login_method == "KEYS":
+            client = boto3.client("redshift",
+                                  region_name=self.configuration.get("aws_region"),
+                                  aws_access_key_id=self.configuration.get("aws_access_key_id"),
+                                  aws_secret_access_key=self.configuration.get("aws_secret_access_key"))
+        elif login_method == "ROLE":
+            client = boto3.client("redshift",
+                                  region_name=self.configuration.get("aws_region"))
+        else:
+            if login_method == "ASSUME_ROLE_KEYS":
+                assume_client = client = boto3.client('sts',
+                                                      region_name=self.configuration.get("aws_region"),
+                                                      aws_access_key_id=self.configuration.get("aws_access_key_id"),
+                                                      aws_secret_access_key=self.configuration.get(
+                                                          "aws_secret_access_key"))
+            else:
+                assume_client = client = boto3.client('sts',
+                                                      region_name=self.configuration.get("aws_region"))
+            role_session = f"redash_{uuid4().hex}"
+            session_keys = assume_client.assume_role(
+                RoleArn=self.configuration.get("rolename"),
+                RoleSessionName=role_session)["Credentials"]
+            client = boto3.client("redshift",
+                                  region_name=self.configuration.get("aws_region"),
+                                  aws_access_key_id=session_keys["AccessKeyId"],
+                                  aws_secret_access_key=session_keys["SecretAccessKey"],
+                                  aws_session_token=session_keys["SessionToken"]
+                                  )
+        credentials = client.get_cluster_credentials(
+            DbUser=self.configuration.get("user"),
+            DbName=self.configuration.get("dbname"),
+            ClusterIdentifier=self.configuration.get("clusterid"))
+        db_user = credentials["DbUser"]
+        db_password = credentials["DbPassword"]
+        connection = psycopg2.connect(
+            user=db_user,
+            password=db_password,
+            host=self.configuration.get("host"),
+            port=self.configuration.get("port"),
+            dbname=self.configuration.get("dbname"),
+            sslmode=self.configuration.get("sslmode", "prefer"),
+            sslrootcert=sslrootcert_path,
+            async_=True,
+        )
+
+        return connection
+
 
 class CockroachDB(PostgreSQL):
     @classmethod
@@ -426,4 +471,5 @@ class CockroachDB(PostgreSQL):
 
 register(PostgreSQL)
 register(Redshift)
+register(RedshiftIAM)
 register(CockroachDB)
