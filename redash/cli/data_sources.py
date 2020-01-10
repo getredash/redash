@@ -2,7 +2,6 @@ from sys import exit
 
 import click
 from flask.cli import AppGroup
-from six import text_type
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
@@ -124,7 +123,7 @@ def new(name=None, type=None, options=None, organization="default"):
     schema = query_runner.configuration_schema()
 
     if options is None:
-        types = {"string": text_type, "number": int, "boolean": bool}
+        types = {"string": str, "number": int, "boolean": bool}
 
         options_obj = {}
 

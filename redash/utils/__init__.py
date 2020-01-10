@@ -10,8 +10,6 @@ import re
 import uuid
 import binascii
 
-from six import string_types
-
 import pystache
 import pytz
 import simplejson
@@ -148,7 +146,7 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def _encode_utf8(self, val):
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val
