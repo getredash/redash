@@ -240,6 +240,10 @@ class Redshift(PostgreSQL):
     def type(cls):
         return "redshift"
 
+    @classmethod
+    def name(cls):
+        return "Redshift User"
+
     def _get_connection(self):
 
         sslrootcert_path = os.path.join(
@@ -345,7 +349,11 @@ class RedshiftIAM(Redshift):
 
     @classmethod
     def type(cls):
-        return "redshift (IAM Login)"
+        return "redshift_iam"
+
+    @classmethod
+    def name(cls):
+        return "Redshift IAM User/Role"
 
     @classmethod
     def enabled(cls):
@@ -392,8 +400,8 @@ class RedshiftIAM(Redshift):
                 "rolename",
                 "aws_region",
                 "aws_access_key_id",
-                "aws_secret_access_key"
-                "clusterid"
+                "aws_secret_access_key",
+                "clusterid",
                 "host",
                 "port",
                 "user",
