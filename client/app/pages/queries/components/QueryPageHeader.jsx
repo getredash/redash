@@ -59,7 +59,15 @@ function createMenu(menu) {
   );
 }
 
-export default function QueryPageHeader({ query, dataSource, sourceMode, selectedVisualization, onChange }) {
+export default function QueryPageHeader({
+  query,
+  dataSource,
+  sourceMode,
+  selectedVisualization,
+  headerExtra,
+  onChange,
+  onRefresh,
+}) {
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
   const updateTags = useUpdateQueryTags(query, onChange);
@@ -115,7 +123,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
   );
 
   return (
-    <div className="p-b-10 page-header--new page-header--query">
+    <div className="page-header--new page-header--query">
       <div className="page-title">
         <div className="d-flex flex-nowrap align-items-center">
           {!queryFlags.isNew && (
@@ -137,6 +145,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
             </span>
           </h3>
           <span className="flex-fill" />
+          {headerExtra}
           {queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
             <Button className="hidden-xs m-r-5" onClick={publishQuery}>
               <i className="fa fa-paper-plane m-r-5" /> Publish
@@ -193,6 +202,7 @@ QueryPageHeader.propTypes = {
   dataSource: PropTypes.object,
   sourceMode: PropTypes.bool,
   selectedVisualization: PropTypes.number,
+  headerExtra: PropTypes.node,
   onChange: PropTypes.func,
 };
 
@@ -200,5 +210,6 @@ QueryPageHeader.defaultProps = {
   dataSource: null,
   sourceMode: false,
   selectedVisualization: null,
+  headerExtra: null,
   onChange: () => {},
 };
