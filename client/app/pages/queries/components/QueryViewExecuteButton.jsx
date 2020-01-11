@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
 
-export default function QueryViewExecuteButton({ shortcut, disabled, children, onClick }) {
+export default function QueryViewExecuteButton({ className, shortcut, disabled, children, onClick }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const eventHandlers = useMemo(
@@ -38,6 +38,7 @@ export default function QueryViewExecuteButton({ shortcut, disabled, children, o
     <Tooltip placement="top" title={humanReadableShortcut(shortcut, 1)} visible={tooltipVisible}>
       <span {...eventHandlers}>
         <Button
+          className={className}
           data-test="ExecuteButton"
           type="primary"
           disabled={disabled}
@@ -51,6 +52,7 @@ export default function QueryViewExecuteButton({ shortcut, disabled, children, o
 }
 
 QueryViewExecuteButton.propTypes = {
+  className: PropTypes.string,
   shortcut: PropTypes.string,
   disabled: PropTypes.bool,
   children: PropTypes.node,
@@ -58,6 +60,7 @@ QueryViewExecuteButton.propTypes = {
 };
 
 QueryViewExecuteButton.defaultProps = {
+  className: null,
   shortcut: null,
   disabled: false,
   children: null,

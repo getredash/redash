@@ -186,7 +186,7 @@ function QuerySource(props) {
   return (
     <div className="query-page-wrapper">
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
-      <div className="container">
+      <div className="container p-b-10">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
