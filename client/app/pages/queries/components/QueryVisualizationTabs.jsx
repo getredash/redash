@@ -1,5 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { find, orderBy } from "lodash";
 import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
@@ -59,6 +60,7 @@ const defaultVisualizations = [
 export default function QueryVisualizationTabs({
   queryResult,
   selectedTab,
+  cardStyle,
   showNewVisualizationButton,
   canDeleteVisualizations,
   onChangeTab,
@@ -85,6 +87,10 @@ export default function QueryVisualizationTabs({
     );
   }
 
+  if (cardStyle) {
+    tabsProps.type = "card";
+  }
+
   const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
   const isFirstVisualization = useCallback(visId => visId === orderedVisualizations[0].id, [orderedVisualizations]);
   const isMobile = useMedia({ maxWidth: 768 });
@@ -92,7 +98,7 @@ export default function QueryVisualizationTabs({
   return (
     <Tabs
       {...tabsProps}
-      className="query-visualization-tabs"
+      className={cx("query-visualization-tabs", { "card-style": cardStyle })}
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
@@ -123,6 +129,7 @@ QueryVisualizationTabs.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   visualizations: PropTypes.arrayOf(PropTypes.object),
   selectedTab: PropTypes.number,
+  cardStyle: PropTypes.bool,
   showNewVisualizationButton: PropTypes.bool,
   canDeleteVisualizations: PropTypes.bool,
   onChangeTab: PropTypes.func,
@@ -134,6 +141,7 @@ QueryVisualizationTabs.defaultProps = {
   queryResult: null,
   visualizations: [],
   selectedTab: null,
+  cardStyle: false,
   showNewVisualizationButton: false,
   canDeleteVisualizations: false,
   onChangeTab: () => {},

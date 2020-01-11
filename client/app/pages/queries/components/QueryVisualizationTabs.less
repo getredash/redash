@@ -1,13 +1,24 @@
 .query-visualization-tabs {
+  &.card-style {
+    .ant-tabs-content {
+      margin-top: -18px;
+
+      .ant-tabs-tabpane {
+        padding: 16px;
+        background: white;
+      }
+    }
+  }
+
   .delete-visualization-button {
     margin-left: 5px;
     cursor: pointer;
-    color: #A09797;
+    color: #a09797;
     font-size: 11px;
     padding: 0 4px 1px;
     &:hover {
       color: white;
-      background-color: #FF8080;
+      background-color: #ff8080;
       border-radius: 50%;
     }
   }
