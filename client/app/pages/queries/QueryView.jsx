@@ -112,14 +112,16 @@ function QueryView(props) {
       <div className="query-view-content">
         <div className="query-results m-t-15">
           {query.hasParameters() && (
-            <Parameters
-              parameters={parameters}
-              onValuesChange={() => {
-                updateParametersDirtyFlag(false);
-                doExecuteQuery(true);
-              }}
-              onPendingValuesChange={() => updateParametersDirtyFlag()}
-            />
+            <div className="bg-white tiled p-15 m-b-15">
+              <Parameters
+                parameters={parameters}
+                onValuesChange={() => {
+                  updateParametersDirtyFlag(false);
+                  doExecuteQuery(true);
+                }}
+                onPendingValuesChange={() => updateParametersDirtyFlag()}
+              />
+            </div>
           )}
           {queryResult && queryResultData.status !== "done" && (
             <div className="query-alerts m-t-15 m-b-15">
