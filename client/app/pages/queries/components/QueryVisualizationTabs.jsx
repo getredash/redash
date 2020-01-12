@@ -80,7 +80,7 @@ export default function QueryVisualizationTabs({
 
   if (showNewVisualizationButton) {
     tabsProps.tabBarExtraContent = (
-      <Button data-test="NewVisualization" onClick={() => onAddVisualization()}>
+      <Button data-test="NewVisualization" type={cardStyle ? "link" : "default"} onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
         <span className="m-l-5 hidden-xs">New Visualization</span>
       </Button>
