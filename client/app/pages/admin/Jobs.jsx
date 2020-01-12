@@ -6,8 +6,7 @@ import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 import Layout from "@/components/admin/Layout";
-import { CounterCard } from "@/components/admin/CeleryStatus";
-import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
+import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
 import { $http, $location, $rootScope } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";

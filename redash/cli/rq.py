@@ -12,8 +12,8 @@ from supervisor_checks import check_runner
 from supervisor_checks.check_modules import base
 
 from redash import rq_redis_connection
-from redash.tasks import Worker
-from redash.tasks.schedule import (
+from redash.tasks import (
+    Worker,
     rq_scheduler,
     schedule_periodic_jobs,
     periodic_job_definitions,

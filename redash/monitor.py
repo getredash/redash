@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 import itertools
+from funcy import flatten
 from sqlalchemy import union_all
 from redash import redis_connection, rq_redis_connection, __version__, settings
 from redash.models import db, DataSource, Query, QueryResult, Dashboard, Widget
 from redash.utils import json_loads
-from redash.worker import celery
 from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
@@ -29,25 +29,8 @@ def get_object_counts():
     return status
 
 
-def get_celery_queues():
-    queue_names = db.session.query(DataSource.queue_name).distinct()
-    scheduled_queue_names = db.session.query(DataSource.scheduled_queue_name).distinct()
-    query = db.session.execute(union_all(queue_names, scheduled_queue_names))
-
-    return ["celery"] + [row[0] for row in query]
-
-
 def get_queues_status():
-    return {
-        **{
-            queue: {"size": redis_connection.llen(queue)}
-            for queue in get_celery_queues()
-        },
-        **{
-            queue.name: {"size": len(queue)}
-            for queue in Queue.all()
-        },
-    }
+    return {queue.name: {"size": len(queue)} for queue in Queue.all()}
 
 
 def get_db_sizes():
@@ -78,71 +61,13 @@ def get_status():
     return status
 
 
-def get_waiting_in_queue(queue_name):
-    jobs = []
-    for raw in redis_connection.lrange(queue_name, 0, -1):
-        job = json_loads(raw)
-        try:
-            args = json_loads(job["headers"]["argsrepr"])
-            if args.get("query_id") == "adhoc":
-                args["query_id"] = None
-        except ValueError:
-            args = {}
+def rq_job_ids():
+    queues = Queue.all(connection=redis_connection)
 
-        job_row = {
-            "state": "waiting_in_queue",
-            "task_name": job["headers"]["task"],
-            "worker": None,
-            "worker_pid": None,
-            "start_time": None,
-            "task_id": job["headers"]["id"],
-            "queue": job["properties"]["delivery_info"]["routing_key"],
-        }
+    started_jobs = [StartedJobRegistry(queue=q).get_job_ids() for q in queues]
+    queued_jobs = [q.job_ids for q in queues]
 
-        job_row.update(args)
-        jobs.append(job_row)
-
-    return jobs
-
-
-def parse_tasks(task_lists, state):
-    rows = []
-
-    for task in itertools.chain(*task_lists.values()):
-        task_row = {
-            "state": state,
-            "task_name": task["name"],
-            "worker": task["hostname"],
-            "queue": task["delivery_info"]["routing_key"],
-            "task_id": task["id"],
-            "worker_pid": task["worker_pid"],
-            "start_time": task["time_start"],
-        }
-
-        if task["name"] == "redash.tasks.execute_query":
-            try:
-                args = json_loads(task["args"])
-            except ValueError:
-                args = {}
-
-            if args.get("query_id") == "adhoc":
-                args["query_id"] = None
-
-            task_row.update(args)
-
-        rows.append(task_row)
-
-    return rows
-
-
-def celery_tasks():
-    tasks = parse_tasks(celery.control.inspect().active(), "active")
-    tasks += parse_tasks(celery.control.inspect().reserved(), "reserved")
-
-    for queue_name in get_celery_queues():
-        tasks += get_waiting_in_queue(queue_name)
-
-    return tasks
+    return flatten(started_jobs + queued_jobs)
 
 
 def fetch_jobs(queue, job_ids):
