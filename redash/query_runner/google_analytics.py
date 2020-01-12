@@ -164,7 +164,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
             params = json_loads(query)
         except:
             params = parse_qs(urlparse(query).query, keep_blank_values=True)
-            for key in params.keys():
+            for key in [*params]:
                 params[key] = ",".join(params[key])
                 if "-" in key:
                     params[key.replace("-", "_")] = params.pop(key)
