@@ -1,6 +1,6 @@
 # This configuration file is for the **development** setup.
-# For a production example please refer to setup/docker-compose.yml.
 version: '3.2'
+# For a production example please refer to getredash/setup repository on GitHub.
 services:
   server:
     build: .
