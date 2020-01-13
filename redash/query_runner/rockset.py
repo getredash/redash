@@ -41,7 +41,9 @@ class RocksetAPI(object):
 
     def list_workspaces(self):
         response = self._request("ws")
-        return [x["name"] for x in response["data"] if x["collection_count"] > 0]
+        return [
+            x["name"] for x in response["data"] if x["collection_count"] > 0
+        ]
 
     def list_collections(self, workspace="commons"):
         response = self._request("ws/{}/collections".format(workspace))
@@ -49,8 +51,8 @@ class RocksetAPI(object):
 
     def collection_columns(self, workspace, collection):
         response = self.query(
-            'DESCRIBE "{}"."{}" OPTION(max_field_depth=1)'.format(workspace, collection)
-        )
+            'DESCRIBE "{}"."{}" OPTION(max_field_depth=1)'.format(
+                workspace, collection))
         return sorted(set([x["field"][0] for x in response["results"]]))
 
     def query(self, sql):
@@ -70,7 +72,10 @@ class Rockset(BaseSQLQueryRunner):
                     "title": "API Server",
                     "default": "https://api.rs2.usw2.rockset.com",
                 },
-                "api_key": {"title": "API Key", "type": "string"},
+                "api_key": {
+                    "title": "API Key",
+                    "type": "string"
+                },
             },
             "order": ["api_key", "api_server"],
             "required": ["api_server", "api_key"],
@@ -85,20 +90,19 @@ class Rockset(BaseSQLQueryRunner):
         super(Rockset, self).__init__(configuration)
         self.api = RocksetAPI(
             self.configuration.get("api_key"),
-            self.configuration.get("api_server", "https://api.rs2.usw2.rockset.com"),
+            self.configuration.get("api_server",
+                                   "https://api.rs2.usw2.rockset.com"),
         )
 
     def _get_tables(self, schema):
         for workspace in self.api.list_workspaces():
             for collection in self.api.list_collections(workspace):
-                table_name = (
-                    collection
-                    if workspace == "commons"
-                    else "{}.{}".format(workspace, collection)
-                )
+                table_name = (collection if workspace == "commons" else
+                              "{}.{}".format(workspace, collection))
                 schema[table_name] = {
                     "name": table_name,
-                    "columns": self.api.collection_columns(workspace, collection),
+                    "columns":
+                    self.api.collection_columns(workspace, collection),
                 }
         return sorted(schema.values(), key=lambda x: x["name"])
 
@@ -116,9 +120,11 @@ class Rockset(BaseSQLQueryRunner):
         if len(rows) > 0:
             columns = []
             for k in rows[0]:
-                columns.append(
-                    {"name": k, "friendly_name": k, "type": _get_type(rows[0][k])}
-                )
+                columns.append({
+                    "name": k,
+                    "friendly_name": k,
+                    "type": _get_type(rows[0][k])
+                })
         data = json_dumps({"columns": columns, "rows": rows})
         return data, None
 
