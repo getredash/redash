@@ -4,10 +4,32 @@ import { createBrowserHistory } from "history";
 
 const history = createBrowserHistory();
 
+function normalizeLocation(rawLocation) {
+  const { pathname, search, hash } = rawLocation;
+  const result = {};
+
+  result.path = pathname;
+  result.search = mapValues(qs.parse(search), value => (isNil(value) ? true : value));
+  result.hash = trimStart(hash, "#");
+  result.url = `${pathname}${search}${hash}`;
+
+  return result;
+}
+
 const location = {
   listen(handler) {
     if (isFunction(handler)) {
       return history.listen(() => handler(location));
+    } else {
+      return () => {};
+    }
+  },
+
+  confirmChange(handler) {
+    if (isFunction(handler)) {
+      return history.block(nextLocation => {
+        return handler(normalizeLocation(nextLocation), location);
+      });
     } else {
       return () => {};
     }
@@ -45,13 +67,7 @@ const location = {
 };
 
 function locationChanged() {
-  const { pathname, search, hash } = history.location;
-
-  location.path = pathname;
-  location.search = mapValues(qs.parse(search), value => isNil(value) ? true : value);
-  location.hash = trimStart(hash, "#");
-
-  return `${pathname}${search}${hash}`;
+  extend(location, normalizeLocation(history.location));
 }
 
 history.listen(locationChanged);

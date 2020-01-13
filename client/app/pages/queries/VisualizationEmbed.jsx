@@ -157,7 +157,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey }) {
 
   useEffect(() => {
     let isCancelled = false;
-    Query.get({ id: queryId }).$promise.then(result => {
+    Query.get({ id: queryId }).then(result => {
       if (!isCancelled) {
         setQuery(result);
       }

@@ -5,17 +5,13 @@ import "core-js/fn/typed/array-buffer";
 import "@/assets/images/avatar.svg";
 
 import * as Pace from "pace-progress";
-import angular from "angular";
-import ngRoute from "angular-route";
 import { isFunction } from "lodash";
-
-import DialogWrapper from "@/components/DialogWrapper";
 
 import "./antd-spinner";
 import moment from "moment";
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   // Show pace progress bar only if URL path changed; when query params
   // or hash changed - ignore that history event
   link.href = prevUrl;
@@ -43,10 +39,6 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute];
-
-const ngModule = angular.module("app", requirements);
-
 function registerAll(context) {
   const modules = context
     .keys()
@@ -56,7 +48,7 @@ function registerAll(context) {
   return modules
     .filter(isFunction)
     .filter(f => f.init)
-    .map(f => f(ngModule));
+    .map(f => f());
 }
 
 function requireImages() {
@@ -70,23 +62,11 @@ function registerExtensions() {
   registerAll(context);
 }
 
-function registerServices() {
-  const context = require.context("@/services", true, /^((?![\\/.]test[\\./]).)*\.js$/);
-  registerAll(context);
-}
-
 function registerVisualizations() {
   const context = require.context("@/visualizations", true, /^((?![\\/.]test[\\./]).)*\.jsx?$/);
   registerAll(context);
 }
 
 requireImages();
-registerServices();
 registerExtensions();
 registerVisualizations();
-
-ngModule.run($q => {
-  DialogWrapper.Promise = $q;
-});
-
-export default ngModule;
