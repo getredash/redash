@@ -383,7 +383,7 @@ function DashboardPage() {
 
   useEffect(() => {
     Dashboard.get({ slug: $route.current.params.dashboardSlug })
-      .$promise.then(dashboardData => {
+      .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })

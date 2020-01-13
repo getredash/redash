@@ -25,8 +25,8 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
-import { Group } from "@/services/group";
-import { DataSource } from "@/services/data-source";
+import Group from "@/services/group";
+import DataSource from "@/services/data-source";
 import navigateTo from "@/services/navigateTo";
 import { routesToAngularRoutes } from "@/lib/utils";
 
@@ -100,7 +100,7 @@ class GroupDataSources extends React.Component {
 
   componentDidMount() {
     Group.get({ id: this.groupId })
-      .$promise.then(group => {
+      .then(group => {
         this.group = group;
         this.forceUpdate();
       })
@@ -111,7 +111,7 @@ class GroupDataSources extends React.Component {
 
   removeGroupDataSource = datasource => {
     Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id })
-      .$promise.then(() => {
+      .then(() => {
         this.props.controller.updatePagination({ page: 1 });
         this.props.controller.update();
       })
@@ -124,7 +124,7 @@ class GroupDataSources extends React.Component {
     const viewOnly = permission !== "full";
 
     Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
-      .$promise.then(() => {
+      .then(() => {
         datasource.view_only = viewOnly;
         this.forceUpdate();
       })
@@ -134,7 +134,7 @@ class GroupDataSources extends React.Component {
   };
 
   addDataSources = () => {
-    const allDataSources = DataSource.query().$promise;
+    const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
@@ -164,7 +164,7 @@ class GroupDataSources extends React.Component {
         ),
       }),
       save: items => {
-        const promises = map(items, ds => Group.addDataSource({ id: this.groupId, data_source_id: ds.id }).$promise);
+        const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
         return Promise.all(promises);
       },
     }).result.finally(() => {
@@ -242,9 +242,6 @@ export default function init(ngModule) {
             },
             getResource() {
               return Group.dataSources.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new DataSource(item);
             },
           }),
           new StateStorage({ orderByField: "name" })

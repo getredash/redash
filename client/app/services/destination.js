@@ -1,28 +1,14 @@
+import { axios } from "@/services/axios";
+
 export const IMG_ROOT = "/static/images/destinations";
 
-export let Destination = null; // eslint-disable-line import/no-mutable-exports
+const Destination = {
+  query: () => axios.get("api/destinations"),
+  get: ({ id }) => axios.get(`api/destinations/${id}`),
+  types: () => axios.get("api/destinations/types"),
+  create: data => axios.post(`api/destinations`, data),
+  save: data => axios.post(`api/destinations/${data.id}`, data),
+  delete: ({ id }) => axios.delete(`api/destinations/${id}`),
+};
 
-function DestinationService($resource) {
-  const actions = {
-    get: { method: "GET", cache: false, isArray: false },
-    types: {
-      method: "GET",
-      cache: false,
-      isArray: true,
-      url: "api/destinations/types",
-    },
-    query: { method: "GET", cache: false, isArray: true },
-  };
-
-  return $resource("api/destinations/:id", { id: "@id" }, actions);
-}
-
-export default function init(ngModule) {
-  ngModule.factory("Destination", DestinationService);
-
-  ngModule.run($injector => {
-    Destination = $injector.get("Destination");
-  });
-}
-
-init.init = true;
+export default Destination;

@@ -1,7 +1,7 @@
 import React from "react";
 import { includes } from "lodash";
 import Tag from "antd/lib/tag";
-import { Group } from "@/services/group";
+import Group from "@/services/group";
 import { UserProfile } from "../proptypes";
 
 export default class UserShow extends React.Component {
@@ -15,7 +15,7 @@ export default class UserShow extends React.Component {
   }
 
   componentDidMount() {
-    Group.query(groups => {
+    Group.query().then(groups => {
       this.setState({ groups, loadingGroups: false });
     });
   }

@@ -13,7 +13,7 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import { Alert } from "@/services/alert";
+import Alert from "@/services/alert";
 import { routesToAngularRoutes } from "@/lib/utils";
 
 export const STATE_CLASS = {
@@ -119,9 +119,6 @@ export default function init(ngModule) {
           },
           getResource() {
             return Alert.query.bind(Alert);
-          },
-          getItemProcessor() {
-            return item => new Alert(item);
           },
         }),
         new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })

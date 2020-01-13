@@ -16,7 +16,7 @@ import CreateGroupDialog from "@/components/groups/CreateGroupDialog";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
-import { Group } from "@/services/group";
+import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 import navigateTo from "@/services/navigateTo";
 import { routesToAngularRoutes } from "@/lib/utils";
@@ -75,7 +75,7 @@ class GroupsList extends React.Component {
 
   createGroup = () => {
     CreateGroupDialog.showModal().result.then(group => {
-      group.$save().then(newGroup => navigateTo(`/groups/${newGroup.id}`));
+      Group.create(group).then(newGroup => navigateTo(`/groups/${newGroup.id}`));
     });
   };
 
@@ -144,9 +144,6 @@ export default function init(ngModule) {
             },
             getResource() {
               return Group.query.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new Group(item);
             },
           }),
           new StateStorage({ orderByField: "name", itemsPerPage: 10 })

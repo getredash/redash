@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
 import { react2angular } from "react2angular";
 import Modal from "antd/lib/modal";
-import { DataSource, IMG_ROOT } from "@/services/data-source";
+import DataSource, { IMG_ROOT } from "@/services/data-source";
 import navigateTo from "@/services/navigateTo";
 import { $route } from "@/services/ng";
 import notification from "@/services/notification";
@@ -31,10 +31,10 @@ class EditDataSource extends React.Component {
 
   componentDidMount() {
     DataSource.get({ id: $route.current.params.dataSourceId })
-      .$promise.then(dataSource => {
+      .then(dataSource => {
         const { type } = dataSource;
         this.setState({ dataSource });
-        DataSource.types(types => this.setState({ type: find(types, { type }), loading: false }));
+        DataSource.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
       .catch(error => {
         // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
@@ -48,28 +48,26 @@ class EditDataSource extends React.Component {
   saveDataSource = (values, successCallback, errorCallback) => {
     const { dataSource } = this.state;
     helper.updateTargetWithValues(dataSource, values);
-    dataSource.$save(
-      () => successCallback("Saved."),
-      error => {
+    DataSource.save(dataSource)
+      .then(() => successCallback("Saved."))
+      .catch(error => {
         const message = get(error, "data.message", "Failed saving.");
         errorCallback(message);
-      }
-    );
+      });
   };
 
   deleteDataSource = callback => {
     const { dataSource } = this.state;
 
     const doDelete = () => {
-      dataSource.$delete(
-        () => {
+      DataSource.delete(dataSource)
+        .then(() => {
           notification.success("Data source deleted successfully.");
           navigateTo("/data_sources", true);
-        },
-        () => {
+        })
+        .catch(() => {
           callback();
-        }
-      );
+        });
     };
 
     Modal.confirm({
@@ -86,25 +84,23 @@ class EditDataSource extends React.Component {
 
   testConnection = callback => {
     const { dataSource } = this.state;
-    DataSource.test(
-      { id: dataSource.id },
-      httpResponse => {
+    DataSource.test({ id: dataSource.id })
+      .then(httpResponse => {
         if (httpResponse.ok) {
           notification.success("Success");
         } else {
           notification.error("Connection Test Failed:", httpResponse.message, { duration: 10 });
         }
         callback();
-      },
-      () => {
+      })
+      .catch(() => {
         notification.error(
           "Connection Test Failed:",
           "Unknown error occurred while performing connection test. Please try again later.",
           { duration: 10 }
         );
         callback();
-      }
-    );
+      });
   };
 
   renderForm() {
