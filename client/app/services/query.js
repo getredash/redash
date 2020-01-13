@@ -20,7 +20,7 @@ import {
 } from "lodash";
 import location from "@/services/location";
 
-import { Parameter } from "./parameters";
+import { Parameter, createParameter } from "./parameters";
 import { currentUser } from "./auth";
 import QueryResult from "./query-result";
 
@@ -232,7 +232,7 @@ class Parameters {
       const hasUnprocessedParameters = find(parameters, p => !(p instanceof Parameter));
       if (hasUnprocessedParameters) {
         this.query.options.parameters = map(parameters, p =>
-          p instanceof Parameter ? p : Parameter.create(p, this.query.id)
+          p instanceof Parameter ? p : createParameter(p, this.query.id)
         );
       }
       return;
@@ -251,7 +251,7 @@ class Parameters {
     parameterNames.forEach(param => {
       if (!has(parametersMap, param)) {
         this.query.options.parameters.push(
-          Parameter.create({
+          createParameter({
             title: param,
             name: param,
             type: "text",
@@ -266,7 +266,7 @@ class Parameters {
     const parameters = this.query.options.parameters;
     this.query.options.parameters = parameters
       .filter(parameterExists)
-      .map(p => (p instanceof Parameter ? p : Parameter.create(p, this.query.id)));
+      .map(p => (p instanceof Parameter ? p : createParameter(p, this.query.id)));
   }
 
   initFromQueryString(query) {
@@ -282,7 +282,7 @@ class Parameters {
 
   add(parameterDef) {
     this.query.options.parameters = this.query.options.parameters.filter(p => p.name !== parameterDef.name);
-    const param = Parameter.create(parameterDef);
+    const param = createParameter(parameterDef);
     this.query.options.parameters.push(param);
     return param;
   }

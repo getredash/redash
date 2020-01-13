@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
 import location from "@/services/location";
-import { Parameter } from "@/services/parameters";
+import { Parameter, createParameter } from "@/services/parameters";
 import ParameterApplyButton from "@/components/ParameterApplyButton";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
@@ -109,7 +109,7 @@ export default class Parameters extends React.Component {
     EditParameterSettingsDialog.showModal({ parameter }).result.then(updated => {
       this.setState(({ parameters }) => {
         const updatedParameter = extend(parameter, updated);
-        parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
+        parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
         onParametersEdit();
         return { parameters };
       });

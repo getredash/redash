@@ -2,6 +2,7 @@ import moment from "moment";
 import { axios } from "@/services/axios";
 import { each, pick, extend, isObject, truncate, keys, difference, filter, map, merge } from "lodash";
 import location from "@/services/location";
+import { cloneParameter } from "@/services/parameters";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@/visualizations";
 import { Query } from "./query";
@@ -204,7 +205,7 @@ class Widget {
       filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
       param => {
         const mapping = mappings[param.name];
-        const result = param.clone();
+        const result = cloneParameter(param);
         result.title = mapping.title || param.title;
         result.locals = [param];
         result.urlPrefix = `p_w${this.id}_`;
