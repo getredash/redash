@@ -69,7 +69,7 @@ class PublicDashboardPage extends React.Component {
 
   componentDidMount() {
     Dashboard.getByToken({ token: this.props.token })
-      .$promise.then(dashboard => this.setState({ dashboard, loading: false }))
+      .then(dashboard => this.setState({ dashboard, loading: false }))
       .catch(error => {
         this.props.onError(new PromiseRejectionError(error));
       });

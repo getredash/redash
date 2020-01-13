@@ -385,7 +385,7 @@ function DashboardPage({ dashboardSlug, onError }) {
 
   useEffect(() => {
     Dashboard.get({ slug: dashboardSlug })
-      .$promise.then(dashboardData => {
+      .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })

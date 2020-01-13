@@ -449,7 +449,6 @@ export default [
   },
   {
     path: "/queries/:queryId([0-9]+)/source",
-    layout: "fixed",
     render: (routeParams, currentRoute, location) => (
       <AuthenticatedPageWrapper key={location.path} bodyClass="fixed-layout">
         <ErrorBoundaryContext.Consumer>
@@ -458,7 +457,7 @@ export default [
       </AuthenticatedPageWrapper>
     ),
     resolve: {
-      query: ({ queryId }) => Query.get({ id: queryId }).$promise,
+      query: ({ queryId }) => Query.get({ id: queryId }),
     },
   },
 ];

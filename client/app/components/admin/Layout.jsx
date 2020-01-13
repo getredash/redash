@@ -15,9 +15,6 @@ export default function Layout({ activeTab, children }) {
           <Tabs.TabPane key="system_status" tab={<a href="admin/status">System Status</a>}>
             {activeTab === "system_status" ? children : null}
           </Tabs.TabPane>
-          <Tabs.TabPane key="tasks" tab={<a href="admin/queries/tasks">Celery Status</a>}>
-            {activeTab === "tasks" ? children : null}
-          </Tabs.TabPane>
           <Tabs.TabPane key="jobs" tab={<a href="admin/queries/jobs">RQ Status</a>}>
             {activeTab === "jobs" ? children : null}
           </Tabs.TabPane>

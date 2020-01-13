@@ -11,7 +11,7 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
-import { DataSource } from "@/services/data-source";
+import DataSource from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/lib/utils";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -73,7 +73,7 @@ function QueryView(props) {
   }, [query.name]);
 
   useEffect(() => {
-    DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
+    DataSource.get({ id: query.data_source_id }).then(setDataSource);
   }, [query.data_source_id]);
 
   return (
@@ -195,6 +195,6 @@ export default {
     </AuthenticatedPageWrapper>
   ),
   resolve: {
-    query: ({ queryId }) => Query.get({ id: queryId }).$promise,
+    query: ({ queryId }) => Query.get({ id: queryId }),
   },
 };

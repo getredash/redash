@@ -1,5 +1,6 @@
 import { map } from "lodash";
 import React from "react";
+import { axios } from "@/services/axios";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
@@ -19,7 +20,6 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import { PageSizeSelect } from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import { $http } from "@/services/ng";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
 
@@ -153,10 +153,10 @@ const OutdatedQueriesPage = itemsList(
     new ItemsSource({
       doRequest(request, context) {
         return (
-          $http
+          axios
             .get("/api/admin/queries/outdated")
             // eslint-disable-next-line camelcase
-            .then(({ data: { queries, updated_at } }) => {
+            .then(({ queries, updated_at }) => {
               context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
               return queries;
             })

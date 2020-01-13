@@ -1,4 +1,5 @@
 import { isFunction, extend, omit, sortBy, find } from "lodash";
+import { currentUser } from "@/services/auth";
 
 class SettingsMenuItem {
   constructor(menuItem) {
@@ -10,6 +11,10 @@ class SettingsMenuItem {
 
   isActive(path) {
     return path.startsWith(this.pathPrefix);
+  }
+
+  isAvailable() {
+    return this.permission === undefined || currentUser.hasPermission(this.permission);
   }
 }
 

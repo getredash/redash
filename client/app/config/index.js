@@ -6,9 +6,7 @@ import "@/assets/images/avatar.svg";
 
 import * as Pace from "pace-progress";
 import angular from "angular";
-import ngSanitize from "angular-sanitize";
 import ngRoute from "angular-route";
-import ngResource from "angular-resource";
 import { isFunction } from "lodash";
 
 import DialogWrapper from "@/components/DialogWrapper";
@@ -45,7 +43,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource, ngSanitize];
+const requirements = [ngRoute];
 
 const ngModule = angular.module("app", requirements);
 

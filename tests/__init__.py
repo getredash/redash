@@ -7,8 +7,8 @@ from contextlib import contextmanager
 os.environ["REDASH_REDIS_URL"] = os.environ.get(
     "REDASH_REDIS_URL", "redis://localhost:6379/0"
 ).replace("/0", "/5")
-# Use different url for Celery to avoid DB being cleaned up:
-os.environ["REDASH_CELERY_BROKER"] = os.environ.get(
+# Use different url for RQ to avoid DB being cleaned up:
+os.environ["RQ_REDIS_URL"] = os.environ.get(
     "REDASH_REDIS_URL", "redis://localhost:6379/0"
 ).replace("/5", "/6")
 

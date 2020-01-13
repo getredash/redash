@@ -1,6 +1,6 @@
 import { reduce } from "lodash";
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
-import { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
+import DataSource, { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
 import notification from "@/services/notification";
 
 function getSchema(dataSource, refresh = undefined) {
@@ -8,8 +8,7 @@ function getSchema(dataSource, refresh = undefined) {
     return Promise.resolve([]);
   }
 
-  return dataSource
-    .getSchema(refresh)
+  return DataSource.fetchSchema(dataSource, refresh)
     .then(data => {
       if (data.schema) {
         return data.schema;

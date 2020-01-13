@@ -1,6 +1,6 @@
 from flask import current_app
 import datetime
-from redash.worker import celery, job, get_job_logger
+from redash.worker import job, get_job_logger
 from redash import models, utils
 
 

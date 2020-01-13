@@ -1,5 +1,6 @@
 import { isFunction, each, map, toString, clone } from "lodash";
 import chroma from "chroma-js";
+import { sanitize } from "dompurify";
 import L from "leaflet";
 import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
@@ -13,7 +14,6 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import "leaflet-fullscreen";
 import "leaflet-fullscreen/dist/leaflet.fullscreen.css";
 import { formatSimpleTemplate } from "@/lib/value-format";
-import { $sanitize } from "@/services/ng";
 import resizeObserver from "@/services/resizeObserver";
 import chooseTextColorForBackground from "@/lib/chooseTextColorForBackground";
 
@@ -115,7 +115,7 @@ function createMarkersLayer(options, { color, points }) {
 
     if (options.tooltip.enabled) {
       if (options.tooltip.template !== "") {
-        marker.bindTooltip($sanitize(formatSimpleTemplate(options.tooltip.template, rowCopy)));
+        marker.bindTooltip(sanitize(formatSimpleTemplate(options.tooltip.template, rowCopy)));
       } else {
         marker.bindTooltip(`
           <strong>${lat}, ${lon}</strong>
@@ -125,7 +125,7 @@ function createMarkersLayer(options, { color, points }) {
 
     if (options.popup.enabled) {
       if (options.popup.template !== "") {
-        marker.bindPopup($sanitize(formatSimpleTemplate(options.popup.template, rowCopy)));
+        marker.bindPopup(sanitize(formatSimpleTemplate(options.popup.template, rowCopy)));
       } else {
         marker.bindPopup(`
           <ul style="list-style-type: none; padding-left: 0">

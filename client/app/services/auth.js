@@ -1,6 +1,7 @@
 import debug from "debug";
 import { includes, extend } from "lodash";
 import location from "@/services/location";
+import { axios } from "@/services/axios";
 
 // eslint-disable-next-line import/no-mutable-exports
 export let Auth = null;
@@ -40,7 +41,7 @@ function updateSession(sessionData) {
   extend(messages, session.messages);
 }
 
-function AuthService($window, $q, $http) {
+function AuthService($window, $q) {
   return {
     isAuthenticated() {
       return session.loaded && session.user.id;
@@ -62,16 +63,16 @@ function AuthService($window, $q, $http) {
       }
 
       this.setApiKey(null);
-      return $http.get("api/session").then(response => {
-        updateSession(response.data);
+      return axios.get("api/session").then(data => {
+        updateSession(data);
         return session;
       });
     },
     loadConfig() {
       logger("Loading config");
-      return $http.get("/api/config").then(response => {
-        updateSession({ client_config: response.data.client_config, user: { permissions: [] }, messages: [] });
-        return response.data;
+      return axios.get("/api/config").then(data => {
+        updateSession({ client_config: data.client_config, user: { permissions: [] }, messages: [] });
+        return data;
       });
     },
     setApiKey(apiKey) {
@@ -103,29 +104,11 @@ function AuthService($window, $q, $http) {
   };
 }
 
-function apiKeyHttpInterceptor($injector) {
-  return {
-    request(config) {
-      const apiKey = $injector.get("Auth").getApiKey();
-      if (apiKey) {
-        config.headers.Authorization = `Key ${apiKey}`;
-      }
-
-      return config;
-    },
-  };
-}
-
 export default function init(ngModule) {
   ngModule.factory("Auth", AuthService);
   ngModule.value("currentUser", currentUser);
   ngModule.value("clientConfig", clientConfig);
   ngModule.value("messages", messages);
-  ngModule.factory("apiKeyHttpInterceptor", apiKeyHttpInterceptor);
-
-  ngModule.config($httpProvider => {
-    $httpProvider.interceptors.push("apiKeyHttpInterceptor");
-  });
 
   ngModule.run($injector => {
     Auth = $injector.get("Auth");

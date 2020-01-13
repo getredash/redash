@@ -24,8 +24,8 @@ import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
-import { Group } from "@/services/group";
-import { User } from "@/services/user";
+import Group from "@/services/group";
+import User from "@/services/user";
 
 class GroupMembers extends React.Component {
   static propTypes = {
@@ -81,7 +81,7 @@ class GroupMembers extends React.Component {
 
   componentDidMount() {
     Group.get({ id: this.groupId })
-      .$promise.then(group => {
+      .then(group => {
         this.group = group;
         this.forceUpdate();
       })
@@ -92,7 +92,7 @@ class GroupMembers extends React.Component {
 
   removeGroupMember = (event, user) =>
     Group.removeMember({ id: this.groupId, userId: user.id })
-      .$promise.then(() => {
+      .then(() => {
         this.props.controller.updatePagination({ page: 1 });
         this.props.controller.update();
       })
@@ -106,7 +106,7 @@ class GroupMembers extends React.Component {
       dialogTitle: "Add Members",
       inputPlaceholder: "Search users...",
       selectedItemsTitle: "New Members",
-      searchItems: searchTerm => User.query({ q: searchTerm }).$promise.then(({ results }) => results),
+      searchItems: searchTerm => User.query({ q: searchTerm }).then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedUsers, item.id);
         return {
@@ -127,7 +127,7 @@ class GroupMembers extends React.Component {
         ),
       }),
       save: items => {
-        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }).$promise);
+        const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
         return Promise.all(promises);
       },
     }).result.finally(() => {
@@ -202,9 +202,6 @@ const GroupMembersPage = wrapSettingsTab(
         },
         getResource() {
           return Group.members.bind(Group);
-        },
-        getItemProcessor() {
-          return item => new User(item);
         },
       }),
     () => new StateStorage({ orderByField: "name" })

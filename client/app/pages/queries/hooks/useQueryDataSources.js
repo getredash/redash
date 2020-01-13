@@ -1,6 +1,6 @@
 import { filter, find } from "lodash";
 import { useState, useMemo, useEffect } from "react";
-import { DataSource } from "@/services/data-source";
+import DataSource from "@/services/data-source";
 
 export default function useQueryDataSources(query) {
   const [allDataSources, setAllDataSources] = useState([]);
@@ -16,7 +16,7 @@ export default function useQueryDataSources(query) {
 
   useEffect(() => {
     let cancelDataSourceLoading = false;
-    DataSource.query().$promise.then(data => {
+    DataSource.query().then(data => {
       if (!cancelDataSourceLoading) {
         setDataSourcesLoaded(true);
         setAllDataSources(data);

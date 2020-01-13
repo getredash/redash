@@ -18,7 +18,7 @@ import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
-import { Group } from "@/services/group";
+import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 
 class GroupsList extends React.Component {
@@ -75,7 +75,7 @@ class GroupsList extends React.Component {
 
   createGroup = () => {
     CreateGroupDialog.showModal().result.then(group => {
-      group.$save().then(newGroup => navigateTo(`/groups/${newGroup.id}`));
+      Group.create(group).then(newGroup => navigateTo(`/groups/${newGroup.id}`));
     });
   };
 
@@ -141,9 +141,6 @@ const GroupsListPage = wrapSettingsTab(
         },
         getResource() {
           return Group.query.bind(Group);
-        },
-        getItemProcessor() {
-          return item => new Group(item);
         },
       }),
     () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })

@@ -1,14 +1,14 @@
-import { $http } from "@/services/ng";
+import { axios } from "@/services/axios";
 import notification from "@/services/notification";
 
 export default {
-  get: () => $http.get("api/settings/organization").then(response => response.data),
+  get: () => axios.get("api/settings/organization"),
   save: (data, message = "Settings changes saved.") =>
-    $http
+    axios
       .post("api/settings/organization", data)
-      .then(response => {
+      .then(data => {
         notification.success(message);
-        return response.data;
+        return data;
       })
       .catch(() => {
         notification.error("Failed saving changes.");

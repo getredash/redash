@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import { isEmpty, get } from "lodash";
-import { Destination, IMG_ROOT } from "@/services/destination";
+import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -29,7 +29,7 @@ class DestinationsList extends React.Component {
   };
 
   componentDidMount() {
-    Promise.all([Destination.query().$promise, Destination.types().$promise]).then(values =>
+    Promise.all([Destination.query(), Destination.types()]).then(values =>
       this.setState(
         {
           destinations: values[0],
@@ -54,10 +54,10 @@ class DestinationsList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return Destination.save(target)
-      .$promise.then(destination => {
+    return Destination.create(target)
+      .then(destination => {
         this.setState({ loading: true });
-        Destination.query(destinations => this.setState({ destinations, loading: false }));
+        Destination.query().then(destinations => this.setState({ destinations, loading: false }));
         return destination;
       })
       .catch(error => {

@@ -3,7 +3,6 @@ import { flatten } from "lodash";
 import adminJobsRoutes from "./admin/Jobs";
 import adminOutdatedQueriesRoutes from "./admin/OutdatedQueries";
 import adminSystemStatusRoutes from "./admin/SystemStatus";
-import adminTasksRoutes from "./admin/Tasks";
 import alertRoutes from "./alert/Alert";
 import alertsListRoutes from "./alerts/AlertsList";
 import dashboardListRoutes from "./dashboards/DashboardList";
@@ -30,7 +29,6 @@ export default flatten([
   adminJobsRoutes,
   adminOutdatedQueriesRoutes,
   adminSystemStatusRoutes,
-  adminTasksRoutes,
   alertRoutes,
   alertsListRoutes,
   dashboardListRoutes,

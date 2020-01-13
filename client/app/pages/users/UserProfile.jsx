@@ -9,7 +9,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
-import { User } from "@/services/user";
+import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import "./settings.less";
@@ -33,7 +33,7 @@ class UserProfile extends React.Component {
   componentDidMount() {
     const userId = this.props.userId || currentUser.id;
     User.get({ id: userId })
-      .$promise.then(user => this.setState({ user: User.convertUserInfo(user) }))
+      .then(user => this.setState({ user: User.convertUserInfo(user) }))
       .catch(error => {
         // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
         if (error.status && error.data) {

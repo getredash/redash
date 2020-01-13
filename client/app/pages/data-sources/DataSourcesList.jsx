@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import { isEmpty, get } from "lodash";
-import { DataSource, IMG_ROOT } from "@/services/data-source";
+import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -33,7 +33,7 @@ class DataSourcesList extends React.Component {
   newDataSourceDialog = null;
 
   componentDidMount() {
-    Promise.all([DataSource.query().$promise, DataSource.types().$promise]).then(values =>
+    Promise.all([DataSource.query(), DataSource.types()]).then(values =>
       this.setState(
         {
           dataSources: values[0],
@@ -64,10 +64,10 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.save(target)
-      .$promise.then(dataSource => {
+    return DataSource.create(target)
+      .then(dataSource => {
         this.setState({ loading: true });
-        DataSource.query(dataSources => this.setState({ dataSources, loading: false }));
+        DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
         return dataSource;
       })
       .catch(error => {
