@@ -1,10 +1,11 @@
 import { trim } from "lodash";
 import React, { useRef, useState, useEffect } from "react";
+import { axios } from "@/services/axios";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import DynamicComponent from "@/components/DynamicComponent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { $location, $http } from "@/services/ng";
+import { $location } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
 import { policy } from "@/services/policy";
 
@@ -36,7 +37,7 @@ function CreateDashboardDialog({ dialog }) {
     if (name !== "") {
       setSaveInProgress(true);
 
-      $http.post("api/dashboards", { name }).then(({ data }) => {
+      axios.post("api/dashboards", { name }).then(data => {
         dialog.close();
         $location
           .path(`/dashboard/${data.slug}`)

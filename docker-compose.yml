@@ -8,10 +8,7 @@ x-redash-service: &redash-service
       source: .
       target: /app
 x-redash-environment: &redash-environment
-  PYTHONUNBUFFERED: 0
-  REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
   REDASH_MAIL_SERVER: "email"
 services:
@@ -26,6 +23,9 @@ services:
       - "5678:5678"
     environment:
       <<: *redash-environment
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_RATELIMIT_ENABLED: "false"
   scheduler:
     <<: *redash-service
@@ -41,16 +41,9 @@ services:
       - server
     environment:
       <<: *redash-environment
-  celery-worker:
-    <<: *redash-service
-    command: dev_celery_worker
-    depends_on:
-      - server
-      - email
-    environment:
-      <<: *redash-environment
-      QUEUES: "queries,scheduled_queries"
-      WORKERS_COUNT: 2
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   redis:
     image: redis:3-alpine
     restart: unless-stopped

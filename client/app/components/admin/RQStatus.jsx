@@ -3,8 +3,33 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Badge from "antd/lib/badge";
+import Card from "antd/lib/card";
+import Spin from "antd/lib/spin";
 import Table from "antd/lib/table";
 import { Columns } from "@/components/items-list/components/ItemsTable";
+
+// CounterCard
+
+export function CounterCard({ title, value, loading }) {
+  return (
+    <Spin spinning={loading}>
+      <Card>
+        {title}
+        <div className="f-20">{value}</div>
+      </Card>
+    </Spin>
+  );
+}
+
+CounterCard.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  loading: PropTypes.bool.isRequired,
+};
+
+CounterCard.defaultProps = {
+  value: "",
+};
 
 // Tables
 

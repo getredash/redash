@@ -20,6 +20,7 @@ import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsL
 import VisualizationName from "@/visualizations/VisualizationName";
 import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
+import { Query } from "@/services/query";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
@@ -219,10 +220,10 @@ export default function init(ngModule) {
     return Auth.loadConfig();
   }
 
-  function loadQuery($route, Auth, Query) {
+  function loadQuery($route, Auth) {
     "ngInject";
 
-    return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }).$promise);
+    return loadSession($route, Auth).then(() => Query.get({ id: $route.current.params.queryId }));
   }
 
   return {

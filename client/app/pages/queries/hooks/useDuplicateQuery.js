@@ -10,11 +10,8 @@ export default function useDuplicateQuery(query) {
     // later browser will block such attempts
     const tab = window.open("", tabName);
 
-    // Prettier will put `.$promise` before `.catch` on next line :facepalm:
-    // prettier-ignore
-    Query.fork({ id: query.id }).$promise
-      .then(newQuery => {
-        tab.location = newQuery.getUrl(true);
-      });
+    Query.fork({ id: query.id }).then(newQuery => {
+      tab.location = newQuery.getUrl(true);
+    });
   }, [query.id]);
 }

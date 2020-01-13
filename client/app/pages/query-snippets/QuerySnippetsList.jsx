@@ -16,7 +16,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
-import { QuerySnippet } from "@/services/query-snippet";
+import QuerySnippet from "@/services/query-snippet";
 import navigateTo from "@/services/navigateTo";
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -87,7 +87,7 @@ class QuerySnippetsList extends React.Component {
         }
       } else {
         QuerySnippet.get({ id: querySnippetId })
-          .$promise.then(this.showSnippetDialog)
+          .then(this.showSnippetDialog)
           .catch((error = {}) => {
             // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
             if (error.status && error.data) {
@@ -99,7 +99,10 @@ class QuerySnippetsList extends React.Component {
     }
   }
 
-  saveQuerySnippet = querySnippet => QuerySnippet.save(querySnippet).$promise;
+  saveQuerySnippet = querySnippet => {
+    const saveSnippet = querySnippet.id ? QuerySnippet.save : QuerySnippet.create;
+    return saveSnippet(querySnippet);
+  };
 
   deleteQuerySnippet = (event, querySnippet) => {
     Modal.confirm({
@@ -109,15 +112,14 @@ class QuerySnippetsList extends React.Component {
       okType: "danger",
       cancelText: "No",
       onOk: () => {
-        querySnippet.$delete(
-          () => {
+        QuerySnippet.delete(querySnippet)
+          .then(() => {
             notification.success("Query snippet deleted successfully.");
             this.props.controller.update();
-          },
-          () => {
+          })
+          .catch(() => {
             notification.error("Failed deleting query snippet.");
-          }
-        );
+          });
       },
     });
   };
@@ -208,9 +210,6 @@ export default function init(ngModule) {
             },
             getResource() {
               return QuerySnippet.query.bind(QuerySnippet);
-            },
-            getItemProcessor() {
-              return item => new QuerySnippet(item);
             },
           }),
           new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })

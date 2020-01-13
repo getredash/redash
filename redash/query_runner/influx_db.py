@@ -6,7 +6,7 @@ from redash.utils import json_dumps
 logger = logging.getLogger(__name__)
 
 try:
-    from influxdb import InfluxDBClusterClient
+    from influxdb import InfluxDBClient
 
     enabled = True
 
@@ -68,7 +68,7 @@ class InfluxDB(BaseQueryRunner):
         return "influxdb"
 
     def run_query(self, query, user):
-        client = InfluxDBClusterClient.from_DSN(self.configuration["url"])
+        client = InfluxDBClient.from_dsn(self.configuration["url"])
 
         logger.debug("influxdb url: %s", self.configuration["url"])
         logger.debug("influxdb got query: %s", query)

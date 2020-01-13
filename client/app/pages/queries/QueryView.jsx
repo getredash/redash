@@ -9,7 +9,8 @@ import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 
-import { DataSource } from "@/services/data-source";
+import DataSource from "@/services/data-source";
+import { Query } from "@/services/query";
 import { pluralize, durationHumanize } from "@/lib/utils";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -71,13 +72,18 @@ function QueryView(props) {
   }, [query.name]);
 
   useEffect(() => {
-    DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
+    DataSource.get({ id: query.data_source_id }).then(setDataSource);
   }, [query.data_source_id]);
 
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} dataSource={dataSource} onChange={setQuery} selectedVisualization={selectedVisualization} />
+        <QueryPageHeader
+          query={query}
+          dataSource={dataSource}
+          onChange={setQuery}
+          selectedVisualization={selectedVisualization}
+        />
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
@@ -186,10 +192,10 @@ export default function init(ngModule) {
       template: '<page-query-view query="$resolve.query"></page-query-view>',
       reloadOnSearch: false,
       resolve: {
-        query: (Query, $route) => {
+        query: $route => {
           "ngInject";
 
-          return Query.get({ id: $route.current.params.queryId }).$promise;
+          return Query.get({ id: $route.current.params.queryId });
         },
       },
     },

@@ -8,7 +8,6 @@ import * as Pace from "pace-progress";
 import debug from "debug";
 import angular from "angular";
 import ngRoute from "angular-route";
-import ngResource from "angular-resource";
 import { each, isFunction, extend } from "lodash";
 
 import initAppView from "@/components/app-view";
@@ -46,7 +45,7 @@ moment.updateLocale("en", {
   },
 });
 
-const requirements = [ngRoute, ngResource];
+const requirements = [ngRoute];
 
 const ngModule = angular.module("app", requirements);
 

@@ -1,15 +1,15 @@
 import { flatMap, values } from "lodash";
 import React from "react";
+import { axios } from "@/services/axios";
 import { react2angular } from "react2angular";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 import Layout from "@/components/admin/Layout";
-import { CounterCard } from "@/components/admin/CeleryStatus";
-import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
+import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
-import { $http, $location, $rootScope } from "@/services/ng";
+import { $location, $rootScope } from "@/services/ng";
 import recordEvent from "@/services/recordEvent";
 import { routesToAngularRoutes } from "@/lib/utils";
 import moment from "moment";
@@ -41,9 +41,9 @@ class Jobs extends React.Component {
   }
 
   refresh = () => {
-    $http
+    axios
       .get("/api/admin/queries/rq_status")
-      .then(({ data }) => this.processQueues(data))
+      .then(data => this.processQueues(data))
       .catch(error => this.handleError(error));
 
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
