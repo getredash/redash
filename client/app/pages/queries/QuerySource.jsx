@@ -466,7 +466,7 @@ export default function init(ngModule) {
           query: $route => {
             "ngInject";
 
-            return Query.get({ id: $route.current.params.queryId }).$promise;
+            return Query.get({ id: $route.current.params.queryId });
           },
         },
       }

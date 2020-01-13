@@ -19,7 +19,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
     (showLoadingState = true) => {
       setLoading(showLoadingState);
       fetch()
-        .$promise.then(({ results }) => {
+        .then(({ results }) => {
           setItems(results);
         })
         .finally(() => {

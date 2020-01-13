@@ -5,6 +5,7 @@ import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
 import notification from "@/services/notification";
+import Group from "@/services/group";
 
 function deleteGroup(event, group, onGroupDeleted) {
   Modal.confirm({
@@ -14,7 +15,7 @@ function deleteGroup(event, group, onGroupDeleted) {
     okType: "danger",
     cancelText: "No",
     onOk: () => {
-      group.$delete(() => {
+      Group.delete(group).then(() => {
         notification.success("Group deleted successfully.");
         onGroupDeleted();
       });

@@ -9,7 +9,7 @@ import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
-import { Visualization } from "@/services/visualization";
+import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 
 // ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
@@ -37,7 +37,7 @@ function saveVisualization(visualization) {
   }
 
   return Visualization.save(visualization)
-    .$promise.then(result => {
+    .then(result => {
       notification.success("Visualization saved");
       return result;
     })

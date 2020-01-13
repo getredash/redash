@@ -19,7 +19,9 @@ function AddToDashboardDialog({ dialog, visualization }) {
   const [doSearch, dashboards, isLoading] = useSearchResults(
     term => {
       if (isString(term) && term !== "") {
-        return Dashboard.get({ q: term }).$promise.then(results => results.results);
+        return Dashboard.query({ q: term })
+          .then(results => results.results)
+          .catch(() => []);
       }
       return Promise.resolve([]);
     },
@@ -37,7 +39,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
   function addWidgetToDashboard() {
     // Load dashboard with all widgets
     Dashboard.get({ slug: selectedDashboard.slug })
-      .$promise.then(dashboard => {
+      .then(dashboard => {
         dashboard.addWidget(visualization);
         return dashboard;
       })

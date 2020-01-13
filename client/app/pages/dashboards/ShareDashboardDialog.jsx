@@ -1,11 +1,11 @@
 import { replace } from "lodash";
 import React from "react";
+import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import Switch from "antd/lib/switch";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Alert from "antd/lib/alert";
-import { $http } from "@/services/ng";
 import notification from "@/services/notification";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import InputWithCopy from "@/components/InputWithCopy";
@@ -53,13 +53,13 @@ class ShareDashboardDialog extends React.Component {
     const { dashboard } = this.props;
     this.setState({ saving: true });
 
-    $http
+    axios
       .post(this.apiUrl)
-      .success(data => {
+      .then(data => {
         dashboard.publicAccessEnabled = true;
         dashboard.public_url = data.public_url;
       })
-      .error(() => {
+      .catch(() => {
         notification.error("Failed to turn on sharing for this dashboard");
       })
       .finally(() => {
@@ -71,13 +71,13 @@ class ShareDashboardDialog extends React.Component {
     const { dashboard } = this.props;
     this.setState({ saving: true });
 
-    $http
+    axios
       .delete(this.apiUrl)
-      .success(() => {
+      .then(() => {
         dashboard.publicAccessEnabled = false;
         delete dashboard.public_url;
       })
-      .error(() => {
+      .catch(() => {
         notification.error("Failed to turn off sharing for this dashboard");
       })
       .finally(() => {

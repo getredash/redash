@@ -13,14 +13,11 @@ const { Option } = Select;
 function search(term) {
   // get recent
   if (!term) {
-    return Query.recent().$promise.then(results => {
-      const filteredResults = results.filter(item => !item.is_draft); // filter out draft
-      return Promise.resolve(filteredResults);
-    });
+    return Query.recent().then(results => results.filter(item => !item.is_draft)); // filter out draft
   }
 
   // search by query
-  return Query.query({ q: term }).$promise.then(({ results }) => Promise.resolve(results));
+  return Query.query({ q: term }).then(({ results }) => results);
 }
 
 export default function QuerySelector(props) {

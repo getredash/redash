@@ -5,8 +5,8 @@ import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Tag from "antd/lib/tag";
-import { User } from "@/services/user";
-import { Group } from "@/services/group";
+import User from "@/services/user";
+import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
 import { absoluteUrl } from "@/services/utils";
 import { UserProfile } from "../proptypes";
@@ -33,7 +33,7 @@ export default class UserEdit extends React.Component {
   }
 
   componentDidMount() {
-    Group.query(groups => {
+    Group.query().then(groups => {
       this.setState({
         groups: groups.map(({ id, name }) => ({ value: id, name })),
         loadingGroups: false,
@@ -102,7 +102,7 @@ export default class UserEdit extends React.Component {
     toggleUser(user)
       .then(data => {
         if (data) {
-          this.setState({ user: User.convertUserInfo(data.data) });
+          this.setState({ user: User.convertUserInfo(data) });
         }
       })
       .finally(() => {
@@ -116,16 +116,14 @@ export default class UserEdit extends React.Component {
       ...values,
     };
 
-    User.save(
-      data,
-      user => {
+    User.save(data)
+      .then(user => {
         successCallback("Saved.");
         this.setState({ user: User.convertUserInfo(user) });
-      },
-      (error = {}) => {
+      })
+      .catch((error = {}) => {
         errorCallback((error.data && error.data.message) || "Failed saving.");
-      }
-    );
+      });
   };
 
   renderUserInfoForm() {

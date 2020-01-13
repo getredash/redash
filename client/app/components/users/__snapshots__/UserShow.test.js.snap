@@ -35,7 +35,7 @@ exports[`renders correctly 1`] = `
       Groups:
     </dt>
     <dd>
-      <div />
+      Loading...
     </dd>
   </dl>
 </div>

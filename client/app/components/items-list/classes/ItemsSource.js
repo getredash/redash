@@ -156,8 +156,8 @@ export class ResourceItemsSource extends ItemsSource {
     super({
       ...rest,
       doRequest: (request, context) => {
-        const resource = getResource(context);
-        return resource(request).$promise;
+        const resource = getResource(context)(request);
+        return resource;
       },
       processResults: (results, context) => {
         let processItem = getItemProcessor(context);

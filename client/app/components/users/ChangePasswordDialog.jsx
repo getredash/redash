@@ -3,7 +3,7 @@ import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import { isFunction } from "lodash";
-import { User } from "@/services/user";
+import User from "@/services/user";
 import notification from "@/services/notification";
 import { UserProfile } from "../proptypes";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
@@ -67,17 +67,15 @@ class ChangePasswordDialog extends React.Component {
 
           this.setState({ updatingPassword: true });
 
-          User.save(
-            userData,
-            () => {
+          User.save(userData)
+            .then(() => {
               notification.success("Saved.");
               this.props.dialog.close({ success: true });
-            },
-            (error = {}) => {
+            })
+            .catch((error = {}) => {
               notification.error((error.data && error.data.message) || "Failed saving.");
               this.setState({ updatingPassword: false });
-            }
-          );
+            });
         } else {
           this.setState(prevState => ({
             currentPassword: { ...prevState.currentPassword, touched: true },

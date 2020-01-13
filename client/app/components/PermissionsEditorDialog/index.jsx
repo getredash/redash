@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
 import Button from "antd/lib/button";
@@ -8,12 +9,11 @@ import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
 import Tooltip from "antd/lib/tooltip";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
-import { $http } from "@/services/ng";
 import { toHuman } from "@/lib/utils";
 import HelpTrigger from "@/components/HelpTrigger";
 import { UserPreviewCard } from "@/components/PreviewCard";
 import notification from "@/services/notification";
-import { User } from "@/services/user";
+import User from "@/services/user";
 
 import "./index.less";
 
@@ -23,7 +23,7 @@ const DEBOUNCE_SEARCH_DURATION = 200;
 function useGrantees(url) {
   const loadGrantees = useCallback(
     () =>
-      $http.get(url).then(({ data }) => {
+      axios.get(url).then(data => {
         const resultGrantees = [];
         each(data, (grantees, accessType) => {
           grantees.forEach(grantee => {
@@ -38,7 +38,7 @@ function useGrantees(url) {
 
   const addPermission = useCallback(
     (userId, accessType = "modify") =>
-      $http
+      axios
         .post(url, { access_type: accessType, user_id: userId })
         .catch(() => notification.error("Could not grant permission to the user")),
     [url]
@@ -46,7 +46,7 @@ function useGrantees(url) {
 
   const removePermission = useCallback(
     (userId, accessType = "modify") =>
-      $http
+      axios
         .delete(url, { data: { access_type: accessType, user_id: userId } })
         .catch(() => notification.error("Could not remove permission from the user")),
     [url]
@@ -57,7 +57,7 @@ function useGrantees(url) {
 
 const searchUsers = searchTerm =>
   User.query({ q: searchTerm })
-    .$promise.then(({ results }) => results)
+    .then(({ results }) => results)
     .catch(() => []);
 
 function PermissionsEditorDialogHeader({ context }) {
