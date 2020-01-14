@@ -396,7 +396,7 @@ function DashboardPage({ dashboardSlug, onError }) {
 
   return (
     <div className="dashboard-page">
-      <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+      <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>
     </div>
   );
 }

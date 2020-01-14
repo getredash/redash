@@ -43,6 +43,9 @@ describe("Embedded Queries", () => {
       SaveButton
     `);
 
+    // Add a little waiting - page is not updated fast enough
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
+
     cy.location("search").should("eq", "?p_id=1");
     cy.clickThrough(`
       QueryControlDropdownButton
@@ -76,6 +79,9 @@ describe("Embedded Queries", () => {
       SaveParameterSettings
       SaveButton
     `);
+
+    // Add a little waiting - page is not updated fast enough
+    cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
 
     cy.location("search").should("eq", "?p_name=Redash");
     cy.clickThrough(`
