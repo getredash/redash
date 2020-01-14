@@ -6,19 +6,17 @@ import "@/assets/images/avatar.svg";
 
 import * as Pace from "pace-progress";
 import { isFunction } from "lodash";
+import url from "@/services/url";
 
 import "./antd-spinner";
 import moment from "moment";
 
 Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
-  const link = document.createElement("a");
   // Show pace progress bar only if URL path changed; when query params
   // or hash changed - ignore that history event
-  link.href = prevUrl;
-  const prevPrefix = link.pathname;
-  link.href = newUrl;
-  const newPrefix = link.pathname;
-  return prevPrefix !== newPrefix;
+  prevUrl = url.parse(prevUrl);
+  newUrl = url.parse(newUrl);
+  return prevUrl.pathname !== newUrl.pathname;
 };
 
 moment.updateLocale("en", {

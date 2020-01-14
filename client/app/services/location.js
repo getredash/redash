@@ -36,6 +36,17 @@ const location = {
   },
 
   update(newLocation, replace = false) {
+    if (isObject(newLocation)) {
+      // keep other fields
+      newLocation = extend(
+        {
+          path: history.location.path,
+          search: history.location.search,
+          hash: history.location.hash,
+        },
+        newLocation
+      );
+    }
     if (replace) {
       history.replace(newLocation);
     } else {
