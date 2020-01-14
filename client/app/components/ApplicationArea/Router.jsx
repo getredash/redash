@@ -1,11 +1,28 @@
-import { isFunction, map, fromPairs, extend } from "lodash";
+import { isFunction, map, fromPairs, extend, startsWith, trimStart, trimEnd } from "lodash";
 import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import UniversalRouter from "universal-router";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import location from "@/services/location";
+import url from "@/services/url";
 
 import ErrorMessage from "./ErrorMessage";
+
+export function stripBase(href) {
+  // Resolve provided link and '' (root) relative to document's base.
+  // If provided href is not related to current document (does not
+  // start with resolved root) - return false. Otherwise
+  // strip root and return relative url.
+
+  const baseHref = trimEnd(url.normalize(""), "/") + "/";
+  href = url.normalize(href);
+
+  if (startsWith(href, baseHref)) {
+    return "/" + trimStart(href.substr(baseHref.length), "/");
+  }
+
+  return false;
+}
 
 function resolveRouteDependencies(route) {
   return Promise.all(
@@ -41,8 +58,9 @@ export default function Router({ routes, onRouteChange }) {
           errorHandlerRef.current.reset();
         }
 
+        const pathname = stripBase(location.path);
         router
-          .resolve({ pathname: location.path })
+          .resolve({ pathname })
           .then(route => {
             return isAbandoned ? null : resolveRouteDependencies(route);
           })
