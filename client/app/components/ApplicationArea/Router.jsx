@@ -39,6 +39,7 @@ function resolveRouteDependencies(route) {
 export default function Router({ routes, onRouteChange }) {
   const [currentRoute, setCurrentRoute] = useState(null);
 
+  const currentPathRef = useRef(null);
   const errorHandlerRef = useRef();
 
   useEffect(() => {
@@ -59,10 +60,22 @@ export default function Router({ routes, onRouteChange }) {
         }
 
         const pathname = stripBase(location.path);
+
+        // This is a optimization for route resolver: if current route was already resolved
+        // from this path - do nothing. It also prevents router from using outdated route in a case
+        // when user navigated to another path while current one was still resolving.
+        // Note: this lock uses only `path` fragment of URL to distinguish routes because currently
+        // all pages depend only on this fragment and handle search/hash on their own. If router
+        // should reload page on search/hash change - this fragment (and few checks below) should be updated
+        if (pathname === currentPathRef.current) {
+          return;
+        }
+        currentPathRef.current = pathname;
+
         router
           .resolve({ pathname })
           .then(route => {
-            return isAbandoned ? null : resolveRouteDependencies(route);
+            return isAbandoned || currentPathRef.current !== pathname ? null : resolveRouteDependencies(route);
           })
           .then(route => {
             if (route) {
@@ -70,7 +83,7 @@ export default function Router({ routes, onRouteChange }) {
             }
           })
           .catch(error => {
-            if (!isAbandoned) {
+            if (!isAbandoned && currentPathRef.current === pathname) {
               if (error.status === 404) {
                 // just a rename, original message is "Route not found"
                 error = new Error("Page not found");
