@@ -5,7 +5,6 @@ import ipaddress
 import datetime
 from urllib.parse import urlparse
 from funcy import compact, project
-from six import text_type
 from redash.utils import json_dumps
 from redash.query_runner import (
     BaseHTTPQueryRunner,
@@ -32,19 +31,19 @@ def parse_query(query):
         return params
     except ValueError as e:
         logging.exception(e)
-        error = text_type(e)
+        error = str(e)
         raise QueryParseError(error)
 
 
 def is_private_address(url):
     hostname = urlparse(url).hostname
     ip_address = socket.gethostbyname(hostname)
-    return ipaddress.ip_address(text_type(ip_address)).is_private
+    return ipaddress.ip_address(str(ip_address)).is_private
 
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    text_type: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
