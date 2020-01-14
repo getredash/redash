@@ -74,56 +74,58 @@ class DashboardList extends React.Component {
   render() {
     const { controller } = this.props;
     return (
-      <div className="container">
-        <PageHeader title={controller.params.title} />
-        <Layout className="m-l-15 m-r-15">
-          <Layout.Sidebar className="m-b-0">
-            <Sidebar.SearchInput
-              placeholder="Search Dashboards..."
-              value={controller.searchTerm}
-              onChange={controller.updateSearch}
-            />
-            <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
-            <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
-            <Sidebar.PageSizeSelect
-              className="m-b-10"
-              options={controller.pageSizeOptions}
-              value={controller.itemsPerPage}
-              onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
-            />
-          </Layout.Sidebar>
-          <Layout.Content>
-            {controller.isLoaded ? (
-              <div data-test="DashboardLayoutContent">
-                {controller.isEmpty ? (
-                  <DashboardListEmptyState
-                    page={controller.params.currentPage}
-                    searchTerm={controller.searchTerm}
-                    selectedTags={controller.selectedTags}
-                  />
-                ) : (
-                  <div className="bg-white tiled table-responsive">
-                    <ItemsTable
-                      items={controller.pageItems}
-                      columns={this.listColumns}
-                      orderByField={controller.orderByField}
-                      orderByReverse={controller.orderByReverse}
-                      toggleSorting={controller.toggleSorting}
+      <div className="page-dashboard-list">
+        <div className="container">
+          <PageHeader title={controller.params.title} />
+          <Layout className="m-l-15 m-r-15">
+            <Layout.Sidebar className="m-b-0">
+              <Sidebar.SearchInput
+                placeholder="Search Dashboards..."
+                value={controller.searchTerm}
+                onChange={controller.updateSearch}
+              />
+              <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
+              <Sidebar.Tags url="api/dashboards/tags" onChange={controller.updateSelectedTags} />
+              <Sidebar.PageSizeSelect
+                className="m-b-10"
+                options={controller.pageSizeOptions}
+                value={controller.itemsPerPage}
+                onChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              />
+            </Layout.Sidebar>
+            <Layout.Content>
+              {controller.isLoaded ? (
+                <div data-test="DashboardLayoutContent">
+                  {controller.isEmpty ? (
+                    <DashboardListEmptyState
+                      page={controller.params.currentPage}
+                      searchTerm={controller.searchTerm}
+                      selectedTags={controller.selectedTags}
                     />
-                    <Paginator
-                      totalCount={controller.totalItemsCount}
-                      itemsPerPage={controller.itemsPerPage}
-                      page={controller.page}
-                      onChange={page => controller.updatePagination({ page })}
-                    />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <LoadingState />
-            )}
-          </Layout.Content>
-        </Layout>
+                  ) : (
+                    <div className="bg-white tiled table-responsive">
+                      <ItemsTable
+                        items={controller.pageItems}
+                        columns={this.listColumns}
+                        orderByField={controller.orderByField}
+                        orderByReverse={controller.orderByReverse}
+                        toggleSorting={controller.toggleSorting}
+                      />
+                      <Paginator
+                        totalCount={controller.totalItemsCount}
+                        itemsPerPage={controller.itemsPerPage}
+                        page={controller.page}
+                        onChange={page => controller.updatePagination({ page })}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <LoadingState />
+              )}
+            </Layout.Content>
+          </Layout>
+        </div>
       </div>
     );
   }

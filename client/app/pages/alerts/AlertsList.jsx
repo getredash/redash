@@ -68,36 +68,38 @@ class AlertsList extends React.Component {
     const { controller } = this.props;
 
     return (
-      <div className="container">
-        <PageHeader title={controller.params.title} />
-        <div className="m-l-15 m-r-15">
-          {!controller.isLoaded && <LoadingState className="" />}
-          {controller.isLoaded && controller.isEmpty && (
-            <EmptyState
-              icon="fa fa-bell-o"
-              illustration="alert"
-              description="Get notified on certain events"
-              helpLink="https://redash.io/help/user-guide/alerts/"
-              showAlertStep
-            />
-          )}
-          {controller.isLoaded && !controller.isEmpty && (
-            <div className="table-responsive bg-white tiled">
-              <ItemsTable
-                items={controller.pageItems}
-                columns={this.listColumns}
-                orderByField={controller.orderByField}
-                orderByReverse={controller.orderByReverse}
-                toggleSorting={controller.toggleSorting}
+      <div className="page-alerts-list">
+        <div className="container">
+          <PageHeader title={controller.params.title} />
+          <div className="m-l-15 m-r-15">
+            {!controller.isLoaded && <LoadingState className="" />}
+            {controller.isLoaded && controller.isEmpty && (
+              <EmptyState
+                icon="fa fa-bell-o"
+                illustration="alert"
+                description="Get notified on certain events"
+                helpLink="https://redash.io/help/user-guide/alerts/"
+                showAlertStep
               />
-              <Paginator
-                totalCount={controller.totalItemsCount}
-                itemsPerPage={controller.itemsPerPage}
-                page={controller.page}
-                onChange={page => controller.updatePagination({ page })}
-              />
-            </div>
-          )}
+            )}
+            {controller.isLoaded && !controller.isEmpty && (
+              <div className="table-responsive bg-white tiled">
+                <ItemsTable
+                  items={controller.pageItems}
+                  columns={this.listColumns}
+                  orderByField={controller.orderByField}
+                  orderByReverse={controller.orderByReverse}
+                  toggleSorting={controller.toggleSorting}
+                />
+                <Paginator
+                  totalCount={controller.totalItemsCount}
+                  itemsPerPage={controller.itemsPerPage}
+                  page={controller.page}
+                  onChange={page => controller.updatePagination({ page })}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

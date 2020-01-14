@@ -1,12 +1,13 @@
-@import '~@/assets/less/inc/variables';
-@import '~@/components/ApplicationArea/ApplicationHeader/index.less';
+@import "~@/assets/less/inc/variables";
+@import "~@/components/ApplicationArea/ApplicationHeader/index.less";
 
 /****
   grid bg - based on 6 cols, 35px rows and 15px spacing
 ****/
 
 // let the bg go all the way to the bottom
-dashboard-page, dashboard-page .container {
+.dashboard-page,
+.dashboard-page .container {
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -22,7 +23,7 @@ dashboard-page, dashboard-page .container {
 .dashboard-header {
   padding: 0 15px !important;
   margin: 0 0 10px !important;
-  position: -webkit-sticky;  // required for Safari
+  position: -webkit-sticky; // required for Safari
   position: sticky;
   background: #f6f7f9;
   z-index: 99;
@@ -81,26 +82,27 @@ dashboard-page, dashboard-page .container {
       width: 45px;
 
       &:after {
-        content: '';
+        content: "";
         animation: saving 2s linear infinite;
       }
     }
 
     &[data-error] {
-      color: #F44336;
+      color: #f44336;
     }
   }
 }
 
 @keyframes saving {
-  0%, 100% {
-    content: '.';
+  0%,
+  100% {
+    content: ".";
   }
   33% {
-    content: '..';
+    content: "..";
   }
   66% {
-    content: '...';
+    content: "...";
   }
 }
 
@@ -111,7 +113,7 @@ dashboard-page, dashboard-page .container {
   position: fixed;
   left: 15px;
   bottom: 20px;
-  width: calc(~'100% - 30px');
+  width: calc(~"100% - 30px");
   z-index: 99;
   box-shadow: fade(@redash-gray, 50%) 0px 7px 29px -3px;
   display: flex;

@@ -241,12 +241,14 @@ class AlertPage extends React.Component {
     };
 
     return (
-      <div className="container alert-page">
-        {mode === MODES.NEW && <AlertNew {...commonProps} />}
-        {mode === MODES.VIEW && (
-          <AlertView canEdit={canEdit} onEdit={this.edit} muted={muted} unmute={this.unmute} {...commonProps} />
-        )}
-        {mode === MODES.EDIT && <AlertEdit cancel={this.cancel} {...commonProps} />}
+      <div className="alert-page">
+        <div className="container">
+          {mode === MODES.NEW && <AlertNew {...commonProps} />}
+          {mode === MODES.VIEW && (
+            <AlertView canEdit={canEdit} onEdit={this.edit} muted={muted} unmute={this.unmute} {...commonProps} />
+          )}
+          {mode === MODES.EDIT && <AlertEdit cancel={this.cancel} {...commonProps} />}
+        </div>
       </div>
     );
   }

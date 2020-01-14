@@ -394,7 +394,11 @@ function DashboardPage({ dashboardSlug, onError }) {
       });
   }, [dashboardSlug]);
 
-  return <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+  return (
+    <div className="dashboard-page">
+      <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+    </div>
+  );
 }
 
 DashboardPage.propTypes = {
