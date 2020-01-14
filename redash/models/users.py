@@ -8,7 +8,6 @@ from operator import or_
 from flask import current_app as app, url_for, request_started
 from flask_login import current_user, AnonymousUserMixin, UserMixin
 from passlib.apps import custom_app_context as pwd_context
-from six import string_types, text_type
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.dialects import postgresql
 
@@ -290,7 +289,7 @@ class Group(db.Model, BelongsToOrgMixin):
     __tablename__ = "groups"
 
     def __str__(self):
-        return text_type(self.id)
+        return str(self.id)
 
     def to_dict(self):
         return {
@@ -405,7 +404,7 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key, org, groups, name=None):
         self.object = None
-        if isinstance(api_key, string_types):
+        if isinstance(api_key, str):
             self.id = api_key
             self.name = name
         else:

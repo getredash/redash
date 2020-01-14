@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 import redis
-from six import text_type
 
 from rq import get_current_job
 from rq.job import JobStatus
@@ -162,7 +161,7 @@ class QueryExecutor(object):
             if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE
             else:
-                error = text_type(e)
+                error = str(e)
 
             data = None
             logging.warning("Unexpected error while running query:", exc_info=1)
