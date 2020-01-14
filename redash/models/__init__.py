@@ -5,7 +5,6 @@ import time
 import numbers
 import pytz
 
-from six import text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
@@ -143,7 +142,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return d
 
     def __str__(self):
-        return text_type(self.name)
+        return str(self.name)
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
@@ -486,7 +485,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     __mapper_args__ = {"version_id_col": version, "version_id_generator": False}
 
     def __str__(self):
-        return text_type(self.id)
+        return str(self.id)
 
     def archive(self, user=None):
         db.session.add(self)
@@ -866,7 +865,7 @@ class Favorite(TimestampMixin, db.Model):
         if not objects:
             return []
 
-        object_type = text_type(objects[0].__class__.__name__)
+        object_type = str(objects[0].__class__.__name__)
         return [
             fav.object_id
             for fav in cls.query.filter(
@@ -1305,7 +1304,7 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     )
 
     def __str__(self):
-        return text_type(self.name)
+        return str(self.name)
 
     def to_dict(self, all=False):
         d = {
