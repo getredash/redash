@@ -123,9 +123,9 @@ class Mysql(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT col.table_schema as table_schema,
-               col.table_name as table_name,
-               col.column_name as column_name
+        SELECT col.table_schema as TABLE_SCHEMA,
+               col.table_name as TABLE_NAME,
+               col.column_name as COLUMN_NAME
         FROM `information_schema`.`columns` col
         WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
         """
@@ -138,15 +138,15 @@ class Mysql(BaseSQLQueryRunner):
         results = json_loads(results)
 
         for row in results["rows"]:
-            if row["table_schema"] != self.configuration["db"]:
-                table_name = "{}.{}".format(row["table_schema"], row["table_name"])
+            if row["TABLE_SCHEMA"] != self.configuration["db"]:
+                table_name = "{}.{}".format(row["TABLE_SCHEMA"], row["TABLE_NAME"])
             else:
-                table_name = row["table_name"]
+                table_name = row["TABLE_NAME"]
 
             if table_name not in schema:
                 schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]["columns"].append(row["column_name"])
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
         return list(schema.values())
 
