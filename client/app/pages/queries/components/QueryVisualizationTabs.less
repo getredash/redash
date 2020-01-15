@@ -1,12 +1,26 @@
 .query-visualization-tabs {
-  &.card-style {
-    .ant-tabs-content {
-      margin-top: -18px;
+  .ant-tabs-tab {
+    background: #f6f8f9 !important;
+    border-color: #d9d9d9 !important;
+    border-bottom: 0px !important;
 
-      .ant-tabs-tabpane {
-        padding: 16px;
-        background: white;
-      }
+    &.ant-tabs-tab-active {
+      background: white !important;
+      z-index: 1;
+      font-weight: normal;
+      border-top: 2px solid #2196f3 !important;
+    }
+  }
+
+  .ant-tabs-content {
+    margin-top: -18px;
+    border: 1px solid #d9d9d9;
+    box-sizing: border-box;
+    border-radius: 0px 4px 0px 0px;
+
+    .ant-tabs-tabpane {
+      padding: 16px;
+      background: white;
     }
   }
 

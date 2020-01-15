@@ -60,7 +60,6 @@ const defaultVisualizations = [
 export default function QueryVisualizationTabs({
   queryResult,
   selectedTab,
-  cardStyle,
   showNewVisualizationButton,
   canDeleteVisualizations,
   onChangeTab,
@@ -80,15 +79,11 @@ export default function QueryVisualizationTabs({
 
   if (showNewVisualizationButton) {
     tabsProps.tabBarExtraContent = (
-      <Button data-test="NewVisualization" type={cardStyle ? "link" : "default"} onClick={() => onAddVisualization()}>
+      <Button data-test="NewVisualization" type="link" onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" />
         <span className="m-l-5 hidden-xs">New Visualization</span>
       </Button>
     );
-  }
-
-  if (cardStyle) {
-    tabsProps.type = "card";
   }
 
   const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
@@ -98,7 +93,8 @@ export default function QueryVisualizationTabs({
   return (
     <Tabs
       {...tabsProps}
-      className={cx("query-visualization-tabs", { "card-style": cardStyle })}
+      type="card"
+      className={cx("query-visualization-tabs card-style")}
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
@@ -129,7 +125,6 @@ QueryVisualizationTabs.propTypes = {
   queryResult: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   visualizations: PropTypes.arrayOf(PropTypes.object),
   selectedTab: PropTypes.number,
-  cardStyle: PropTypes.bool,
   showNewVisualizationButton: PropTypes.bool,
   canDeleteVisualizations: PropTypes.bool,
   onChangeTab: PropTypes.func,
@@ -141,7 +136,6 @@ QueryVisualizationTabs.defaultProps = {
   queryResult: null,
   visualizations: [],
   selectedTab: null,
-  cardStyle: false,
   showNewVisualizationButton: false,
   canDeleteVisualizations: false,
   onChangeTab: () => {},
