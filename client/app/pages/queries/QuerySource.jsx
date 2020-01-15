@@ -283,7 +283,7 @@ function QuerySource(props) {
                           text: (
                             <React.Fragment>
                               <span className="hidden-xs">Save</span>
-                              {isDirty ? "*" : null}
+                              {isDirty && !isQuerySaving ? "*" : null}
                             </React.Fragment>
                           ),
                           shortcut: "mod+s",

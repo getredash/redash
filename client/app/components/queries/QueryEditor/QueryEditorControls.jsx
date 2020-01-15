@@ -106,7 +106,7 @@ export default function EditorControl({
             loading={saveButtonProps.loading}
             onClick={saveButtonProps.onClick}
             data-test="SaveButton">
-            <span className="fa fa-floppy-o" />
+            {!saveButtonProps.loading && <span className="fa fa-floppy-o" />}
             {saveButtonProps.text}
           </Button>
         </ButtonTooltip>
