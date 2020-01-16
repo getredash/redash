@@ -40,7 +40,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
       type={alertType}
       message={
         <div className="d-flex align-items-center">
-          <div className="flex-fill">
+          <div className="flex-fill p-t-5 p-b-5">
             {message} {showTimer && <Timer from={updatedAt} />}
           </div>
           <div>
