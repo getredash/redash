@@ -152,8 +152,8 @@ export default [
   {
     path: "/dashboards",
     title: "Dashboards",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key="/dashboards">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
@@ -166,8 +166,8 @@ export default [
   {
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key="/dashboards/favorites">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />

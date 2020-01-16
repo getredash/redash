@@ -187,8 +187,8 @@ QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-
 
 export default {
   path: "/queries/:queryId([0-9]+)",
-  render: (routeParams, currentRoute, location) => (
-    <AuthenticatedPageWrapper key={location.path}>
+  render: routeParams => (
+    <AuthenticatedPageWrapper key={`/queries/${routeParams.queryId}`}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => <QueryView {...routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>

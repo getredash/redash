@@ -124,8 +124,8 @@ const AlertsListPage = liveItemsList(
 export default {
   path: "/alerts",
   title: "Alerts",
-  render: (routeParams, currentRoute, location) => (
-    <AuthenticatedPageWrapper key={location.path}>
+  render: (routeParams, currentRoute) => (
+    <AuthenticatedPageWrapper key="/alerts">
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <AlertsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />

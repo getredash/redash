@@ -46,7 +46,7 @@ class DestinationsList extends React.Component {
               if (policy.canCreateDestination()) {
                 this.showCreateSourceDialog();
               } else {
-                navigateTo("/destinations");
+                navigateTo("/destinations", true);
               }
             }
           }
@@ -80,7 +80,9 @@ class DestinationsList extends React.Component {
           navigateTo(`destinations/${result.data.id}`);
         }
       })
-      .catch(() => {}); // ignore dismiss
+      .catch(() => {
+        navigateTo("destinations", true);
+      });
   };
 
   renderDestinations() {
@@ -143,8 +145,8 @@ export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/destinations">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -155,8 +157,8 @@ export default [
   {
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/destinations">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>

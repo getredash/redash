@@ -115,7 +115,7 @@ class AlertPage extends React.Component {
     return AlertService.save(alert)
       .then(alert => {
         notification.success("Saved.");
-        navigateTo(`/alerts/${alert.id}`, true, false);
+        navigateTo(`/alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
@@ -204,13 +204,13 @@ class AlertPage extends React.Component {
 
   edit = () => {
     const { id } = this.state.alert;
-    navigateTo(`/alerts/${id}/edit`, true, false);
+    navigateTo(`/alerts/${id}/edit`, true);
     this.setState({ mode: MODES.EDIT });
   };
 
   cancel = () => {
     const { id } = this.state.alert;
-    navigateTo(`/alerts/${id}`, true, false);
+    navigateTo(`/alerts/${id}`, true);
     this.setState({ mode: MODES.VIEW });
   };
 
@@ -258,10 +258,10 @@ export default [
   {
     path: "/alerts/new",
     title: "New Alert",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/alerts/new">
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <AlertPage key={location.path} {...routeParams} onError={handleError} />}
+          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
@@ -270,10 +270,10 @@ export default [
   {
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <AlertPage key={location.path} {...routeParams} onError={handleError} />}
+          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
@@ -282,8 +282,8 @@ export default [
   {
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>

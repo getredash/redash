@@ -50,7 +50,7 @@ class DataSourcesList extends React.Component {
               if (policy.canCreateDataSource()) {
                 this.showCreateSourceDialog();
               } else {
-                navigateTo("/data_sources");
+                navigateTo("/data_sources", true);
               }
             }
           }
@@ -86,7 +86,7 @@ class DataSourcesList extends React.Component {
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: "DS_",
       onCreate: this.createDataSource,
-    }).result.catch(() => {}); // ignore dismiss
+    });
 
     this.newDataSourceDialog.result
       .then((result = {}) => {
@@ -96,6 +96,7 @@ class DataSourcesList extends React.Component {
         }
       })
       .catch(() => {
+        navigateTo("data_sources", true);
         this.newDataSourceDialog = null;
       });
   };
@@ -161,8 +162,8 @@ export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/data_sources">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -175,8 +176,8 @@ export default [
   {
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/data_sources">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
