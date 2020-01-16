@@ -48,7 +48,7 @@ export class Query {
   }
 
   getSourceLink() {
-    return `/queries/${this.id}/source`;
+    return `queries/${this.id}/source`;
   }
 
   isNew() {

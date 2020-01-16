@@ -150,7 +150,7 @@ class GroupMembers extends React.Component {
               items={this.sidebarMenu}
               canAddMembers={currentUser.isAdmin}
               onAddMembersClick={this.addMembers}
-              onGroupDeleted={() => navigateTo("/groups", true)}
+              onGroupDeleted={() => navigateTo("groups", true)}
             />
           </Layout.Sidebar>
           <Layout.Content>

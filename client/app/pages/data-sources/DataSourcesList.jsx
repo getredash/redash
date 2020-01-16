@@ -50,7 +50,7 @@ class DataSourcesList extends React.Component {
               if (policy.canCreateDataSource()) {
                 this.showCreateSourceDialog();
               } else {
-                navigateTo("/data_sources", true);
+                navigateTo("data_sources", true);
               }
             }
           }

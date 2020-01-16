@@ -59,7 +59,7 @@ class EditDestination extends React.Component {
       Destination.delete(destination)
         .then(() => {
           notification.success("Alert destination deleted successfully.");
-          navigateTo("/destinations", true);
+          navigateTo("destinations", true);
         })
         .catch(() => {
           callback();

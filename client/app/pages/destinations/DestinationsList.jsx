@@ -46,7 +46,7 @@ class DestinationsList extends React.Component {
               if (policy.canCreateDestination()) {
                 this.showCreateSourceDialog();
               } else {
-                navigateTo("/destinations", true);
+                navigateTo("destinations", true);
               }
             }
           }

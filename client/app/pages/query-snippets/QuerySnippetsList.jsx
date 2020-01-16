@@ -83,7 +83,7 @@ class QuerySnippetsList extends React.Component {
         if (policy.isCreateQuerySnippetEnabled()) {
           this.showSnippetDialog();
         } else {
-          navigateTo("/query_snippets", true);
+          navigateTo("query_snippets", true);
         }
       } else {
         QuerySnippet.get({ id: querySnippetId })
@@ -122,7 +122,7 @@ class QuerySnippetsList extends React.Component {
 
   showSnippetDialog = (querySnippet = null) => {
     const canSave = !querySnippet || canEditQuerySnippet(querySnippet);
-    navigateTo("/query_snippets/" + get(querySnippet, "id", "new"), true);
+    navigateTo("query_snippets/" + get(querySnippet, "id", "new"), true);
     QuerySnippetDialog.showModal({
       querySnippet,
       onSubmit: this.saveQuerySnippet,
@@ -131,7 +131,7 @@ class QuerySnippetsList extends React.Component {
       .result.then(() => this.props.controller.update())
       .catch(() => {}) // ignore dismiss
       .finally(() => {
-        navigateTo("/query_snippets", true);
+        navigateTo("query_snippets", true);
       });
   };
 

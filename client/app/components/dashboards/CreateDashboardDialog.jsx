@@ -39,7 +39,7 @@ function CreateDashboardDialog({ dialog }) {
 
       axios.post("api/dashboards", { name }).then(data => {
         dialog.close();
-        navigateTo(`/dashboard/${data.slug}?edit`, true);
+        navigateTo(`dashboard/${data.slug}?edit`, true);
       });
       recordEvent("create", "dashboard");
     }

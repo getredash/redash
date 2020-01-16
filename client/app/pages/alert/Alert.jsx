@@ -115,7 +115,7 @@ class AlertPage extends React.Component {
     return AlertService.save(alert)
       .then(alert => {
         notification.success("Saved.");
-        navigateTo(`/alerts/${alert.id}`, true);
+        navigateTo(`alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
@@ -171,7 +171,7 @@ class AlertPage extends React.Component {
     return AlertService.delete(alert)
       .then(() => {
         notification.success("Alert deleted successfully.");
-        navigateTo("/alerts");
+        navigateTo("alerts");
       })
       .catch(() => {
         notification.error("Failed deleting alert.");
@@ -204,13 +204,13 @@ class AlertPage extends React.Component {
 
   edit = () => {
     const { id } = this.state.alert;
-    navigateTo(`/alerts/${id}/edit`, true);
+    navigateTo(`alerts/${id}/edit`, true);
     this.setState({ mode: MODES.EDIT });
   };
 
   cancel = () => {
     const { id } = this.state.alert;
-    navigateTo(`/alerts/${id}`, true);
+    navigateTo(`alerts/${id}`, true);
     this.setState({ mode: MODES.VIEW });
   };
 
