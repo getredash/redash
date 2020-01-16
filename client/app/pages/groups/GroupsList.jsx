@@ -74,9 +74,11 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal().result.then(group => {
-      Group.create(group).then(newGroup => navigateTo(`/groups/${newGroup.id}`));
-    });
+    CreateGroupDialog.showModal()
+      .result.then(group => {
+        Group.create(group).then(newGroup => navigateTo(`/groups/${newGroup.id}`));
+      })
+      .catch(() => {}); // ignore dismiss
   };
 
   onGroupDeleted = () => {

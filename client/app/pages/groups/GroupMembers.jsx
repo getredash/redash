@@ -130,9 +130,11 @@ class GroupMembers extends React.Component {
         const promises = map(items, u => Group.addMember({ id: this.groupId }, { user_id: u.id }));
         return Promise.all(promises);
       },
-    }).result.finally(() => {
-      this.props.controller.update();
-    });
+    })
+      .result.catch(() => {}) // ignore dismiss
+      .finally(() => {
+        this.props.controller.update();
+      });
   };
 
   render() {

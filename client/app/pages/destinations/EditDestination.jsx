@@ -37,11 +37,7 @@ class EditDestination extends React.Component {
         Destination.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
       .catch(error => {
-        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-        if (error.status && error.data) {
-          error = new PromiseRejectionError(error);
-        }
-        this.props.onError(error);
+        this.props.onError(new PromiseRejectionError(error));
       });
   }
 

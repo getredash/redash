@@ -167,9 +167,11 @@ class GroupDataSources extends React.Component {
         const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
         return Promise.all(promises);
       },
-    }).result.finally(() => {
-      this.props.controller.update();
-    });
+    })
+      .result.catch(() => {}) // ignore dismiss
+      .finally(() => {
+        this.props.controller.update();
+      });
   };
 
   render() {

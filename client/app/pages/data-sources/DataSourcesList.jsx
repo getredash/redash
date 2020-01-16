@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, get } from "lodash";
+import { isEmpty } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
@@ -14,14 +14,17 @@ import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import recordEvent from "@/services/recordEvent";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DataSourcesList extends React.Component {
   static propTypes = {
     isNewDataSourcePage: PropTypes.bool,
+    onError: PropTypes.func,
   };
 
   static defaultProps = {
     isNewDataSourcePage: false,
+    onError: () => {},
   };
 
   state = {
@@ -33,25 +36,27 @@ class DataSourcesList extends React.Component {
   newDataSourceDialog = null;
 
   componentDidMount() {
-    Promise.all([DataSource.query(), DataSource.types()]).then(values =>
-      this.setState(
-        {
-          dataSources: values[0],
-          dataSourceTypes: values[1],
-          loading: false,
-        },
-        () => {
-          // all resources are loaded in state
-          if (this.props.isNewDataSourcePage) {
-            if (policy.canCreateDataSource()) {
-              this.showCreateSourceDialog();
-            } else {
-              navigateTo("/data_sources");
+    Promise.all([DataSource.query(), DataSource.types()])
+      .then(values =>
+        this.setState(
+          {
+            dataSources: values[0],
+            dataSourceTypes: values[1],
+            loading: false,
+          },
+          () => {
+            // all resources are loaded in state
+            if (this.props.isNewDataSourcePage) {
+              if (policy.canCreateDataSource()) {
+                this.showCreateSourceDialog();
+              } else {
+                navigateTo("/data_sources");
+              }
             }
           }
-        }
+        )
       )
-    );
+      .catch(error => this.props.onError(new PromiseRejectionError(error)));
   }
 
   componentWillUnmount() {
@@ -70,12 +75,7 @@ class DataSourcesList extends React.Component {
         DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
         return dataSource;
       })
-      .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
-      });
+      .catch(error => Promise.reject(new PromiseRejectionError(error)));
   };
 
   showCreateSourceDialog = () => {
@@ -86,7 +86,7 @@ class DataSourcesList extends React.Component {
       imageFolder: IMG_ROOT,
       helpTriggerPrefix: "DS_",
       onCreate: this.createDataSource,
-    });
+    }).result.catch(() => {}); // ignore dismiss
 
     this.newDataSourceDialog.result
       .then((result = {}) => {

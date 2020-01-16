@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { find, has } from "lodash";
 import moment from "moment";
@@ -24,6 +24,7 @@ import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
 
 import logoUrl from "@/assets/images/redash_icon_small.png";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
   return (
@@ -149,19 +150,24 @@ VisualizationEmbedFooter.defaultProps = {
   apiKey: null,
 };
 
-function VisualizationEmbed({ queryId, visualizationId, apiKey }) {
+function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
   const [queryResults, setQueryResults] = useState(null);
 
+  const onErrorRef = useRef();
+  onErrorRef.current = onError;
+
   useEffect(() => {
     let isCancelled = false;
-    Query.get({ id: queryId }).then(result => {
-      if (!isCancelled) {
-        setQuery(result);
-      }
-    });
+    Query.get({ id: queryId })
+      .then(result => {
+        if (!isCancelled) {
+          setQuery(result);
+        }
+      })
+      .catch(error => onErrorRef.current(new PromiseRejectionError(error)));
 
     return () => {
       isCancelled = true;
@@ -201,6 +207,14 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey }) {
   const showQueryDescription = has(location.search, "showDescription");
   visualizationId = parseInt(visualizationId, 10);
   const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+
+  if (!visualization) {
+    // call error handler async, otherwise it will destroy the component on render phase
+    setTimeout(() => {
+      onError(new Error("Visualization does not exist"));
+    }, 10);
+    return null;
+  }
 
   return (
     <div className="tile m-l-10 m-r-10 p-t-10 embed__vis" data-test="VisualizationEmbed">
@@ -246,6 +260,11 @@ VisualizationEmbed.propTypes = {
   queryId: PropTypes.string.isRequired,
   visualizationId: PropTypes.string,
   apiKey: PropTypes.string.isRequired,
+  onError: PropTypes.func,
+};
+
+VisualizationEmbed.defaultProps = {
+  onError: () => {},
 };
 
 export default {

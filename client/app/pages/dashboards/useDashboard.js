@@ -201,7 +201,7 @@ function useDashboard(dashboardData) {
       aclUrl,
       context: "dashboard",
       author: dashboard.user,
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const updateDashboard = useCallback(
@@ -287,7 +287,9 @@ function useDashboard(dashboardData) {
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
-    }).result.finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+    })
+      .result.catch(() => {}) // ignore dismiss
+      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
   }, [dashboard, hasOnlySafeQueries]);
 
   const showAddTextboxDialog = useCallback(() => {
@@ -295,7 +297,7 @@ function useDashboard(dashboardData) {
       dashboard,
       onConfirm: text =>
         dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
@@ -315,7 +317,7 @@ function useDashboard(dashboardData) {
               setDashboard(currentDashboard => extend({}, currentDashboard))
             );
           }),
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);

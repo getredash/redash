@@ -43,7 +43,9 @@ export default function AuthenticatedPageWrapper({ bodyClass, children }) {
   return (
     <>
       <ApplicationHeader />
-      <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>{children}</ErrorBoundary>
+      <ErrorBoundary renderError={error => <ErrorMessage error={error} showOriginalMessage={false} />}>
+        {children}
+      </ErrorBoundary>
     </>
   );
 }

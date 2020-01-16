@@ -169,6 +169,7 @@ class UsersList extends React.Component {
     if (policy.isCreateUserEnabled()) {
       CreateUserDialog.showModal({ onCreate: this.createUser })
         .result.then(() => this.props.controller.update())
+        .catch(() => {}) // ignore dismiss
         .finally(() => {
           if (this.props.controller.params.isNewUserPage) {
             navigateTo("users");

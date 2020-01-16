@@ -5,6 +5,7 @@ import UniversalRouter from "universal-router";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import location from "@/services/location";
 import url from "@/services/url";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 import ErrorMessage from "./ErrorMessage";
 
@@ -84,13 +85,9 @@ export default function Router({ routes, onRouteChange }) {
           })
           .catch(error => {
             if (!isAbandoned && currentPathRef.current === pathname) {
-              if (error.status === 404) {
-                // just a rename, original message is "Route not found"
-                error = new Error("Page not found");
-              }
               setCurrentRoute({
                 render: params => <ErrorMessage {...params} />,
-                routeParams: { error },
+                routeParams: { error: new PromiseRejectionError(error) },
               });
             }
           });
@@ -116,7 +113,9 @@ export default function Router({ routes, onRouteChange }) {
   }
 
   return (
-    <ErrorBoundary ref={errorHandlerRef} renderError={error => <ErrorMessage error={error} />}>
+    <ErrorBoundary
+      ref={errorHandlerRef}
+      renderError={error => <ErrorMessage error={error} showOriginalMessage={false} />}>
       {currentRoute.render(currentRoute.routeParams, currentRoute, location)}
     </ErrorBoundary>
   );

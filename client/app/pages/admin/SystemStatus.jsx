@@ -56,11 +56,7 @@ class SystemStatus extends React.Component {
         });
       })
       .catch(error => {
-        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-        if (error.status && error.data) {
-          error = new PromiseRejectionError(error);
-        }
-        this.props.onError(error);
+        this.props.onError(new PromiseRejectionError(error));
       });
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };

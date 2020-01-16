@@ -1,12 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-export default function ErrorMessage({ error }) {
+export default function ErrorMessage({ error, showOriginalMessage }) {
   if (!error) {
     return null;
   }
 
   console.error(error);
+
+  const message = showOriginalMessage
+    ? error.message
+    : "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
 
   return (
     <div className="fixed-container" data-test="ErrorMessage">
@@ -17,7 +21,7 @@ export default function ErrorMessage({ error }) {
               <i className="zmdi zmdi-alert-circle-o" />
             </div>
             <div className="error-state__details">
-              <h4>{error.message}</h4>
+              <h4>{message}</h4>
             </div>
           </div>
         </div>
@@ -28,4 +32,9 @@ export default function ErrorMessage({ error }) {
 
 ErrorMessage.propTypes = {
   error: PropTypes.object.isRequired,
+  showOriginalMessage: PropTypes.bool,
+};
+
+ErrorMessage.defaultProps = {
+  showOriginalMessage: true,
 };

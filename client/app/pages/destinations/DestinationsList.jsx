@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, get } from "lodash";
+import { isEmpty } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
@@ -12,14 +12,17 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DestinationsList extends React.Component {
   static propTypes = {
     isNewDestinationPage: PropTypes.bool,
+    onError: PropTypes.func,
   };
 
   static defaultProps = {
     isNewDestinationPage: false,
+    onError: () => {},
   };
 
   state = {
@@ -29,25 +32,27 @@ class DestinationsList extends React.Component {
   };
 
   componentDidMount() {
-    Promise.all([Destination.query(), Destination.types()]).then(values =>
-      this.setState(
-        {
-          destinations: values[0],
-          destinationTypes: values[1],
-          loading: false,
-        },
-        () => {
-          // all resources are loaded in state
-          if (this.props.isNewDestinationPage) {
-            if (policy.canCreateDestination()) {
-              this.showCreateSourceDialog();
-            } else {
-              navigateTo("/destinations");
+    Promise.all([Destination.query(), Destination.types()])
+      .then(values =>
+        this.setState(
+          {
+            destinations: values[0],
+            destinationTypes: values[1],
+            loading: false,
+          },
+          () => {
+            // all resources are loaded in state
+            if (this.props.isNewDestinationPage) {
+              if (policy.canCreateDestination()) {
+                this.showCreateSourceDialog();
+              } else {
+                navigateTo("/destinations");
+              }
             }
           }
-        }
+        )
       )
-    );
+      .catch(error => this.props.onError(new PromiseRejectionError(error)));
   }
 
   createDestination = (selectedType, values) => {
@@ -60,12 +65,7 @@ class DestinationsList extends React.Component {
         Destination.query().then(destinations => this.setState({ destinations, loading: false }));
         return destination;
       })
-      .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
-      });
+      .catch(error => Promise.reject(new PromiseRejectionError(error)));
   };
 
   showCreateSourceDialog = () => {
@@ -74,11 +74,13 @@ class DestinationsList extends React.Component {
       sourceType: "Alert Destination",
       imageFolder: IMG_ROOT,
       onCreate: this.createDestination,
-    }).result.then((result = {}) => {
-      if (result.success) {
-        navigateTo(`destinations/${result.data.id}`);
-      }
-    });
+    })
+      .result.then((result = {}) => {
+        if (result.success) {
+          navigateTo(`destinations/${result.data.id}`);
+        }
+      })
+      .catch(() => {}); // ignore dismiss
   };
 
   renderDestinations() {

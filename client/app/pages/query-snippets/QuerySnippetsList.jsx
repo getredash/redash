@@ -89,11 +89,7 @@ class QuerySnippetsList extends React.Component {
         QuerySnippet.get({ id: querySnippetId })
           .then(this.showSnippetDialog)
           .catch((error = {}) => {
-            // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-            if (error.status && error.data) {
-              error = new PromiseRejectionError(error);
-            }
-            this.props.controller.handleError(error);
+            this.props.controller.handleError(new PromiseRejectionError(error));
           });
       }
     }
@@ -133,6 +129,7 @@ class QuerySnippetsList extends React.Component {
       readOnly: !canSave,
     })
       .result.then(() => this.props.controller.update())
+      .catch(() => {}) // ignore dismiss
       .finally(() => {
         navigateTo("/query_snippets", true, false);
       });
