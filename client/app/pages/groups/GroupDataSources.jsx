@@ -187,7 +187,7 @@ class GroupDataSources extends React.Component {
               items={this.sidebarMenu}
               canAddDataSources={currentUser.isAdmin}
               onAddDataSourcesClick={this.addDataSources}
-              onGroupDeleted={() => navigateTo("groups", true)}
+              onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
           <Layout.Content>
