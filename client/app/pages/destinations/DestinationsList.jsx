@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty } from "lodash";
+import { isEmpty, get } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
@@ -65,7 +65,12 @@ class DestinationsList extends React.Component {
         Destination.query().then(destinations => this.setState({ destinations, loading: false }));
         return destination;
       })
-      .catch(error => Promise.reject(new PromiseRejectionError(error)));
+      .catch(error => {
+        if (!(error instanceof Error)) {
+          error = new Error(get(error, "data.message", "Failed saving."));
+        }
+        return Promise.reject(error);
+      });
   };
 
   showCreateSourceDialog = () => {
