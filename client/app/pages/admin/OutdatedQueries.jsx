@@ -173,16 +173,11 @@ const OutdatedQueriesPage = itemsList(
 export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
-  render: (routeParams, currentRoute, location) => (
-    <AuthenticatedPageWrapper>
+  render: (routeParams, currentRoute) => (
+    <AuthenticatedPageWrapper key="/admin/queries/outdated">
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <OutdatedQueriesPage
-            key={location.path}
-            routeParams={routeParams}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
+          <OutdatedQueriesPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
         )}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>

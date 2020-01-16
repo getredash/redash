@@ -112,8 +112,8 @@ const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 export default {
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
-  render: (routeParams, currentRoute, location) => (
-    <AuthenticatedPageWrapper key={location.path}>
+  render: routeParams => (
+    <AuthenticatedPageWrapper key={`/destinations/${routeParams.destinationId}`}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => <EditDestinationPage {...routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>

@@ -65,8 +65,8 @@ export default [
   {
     path: "/users/me",
     title: "Account",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key="/users/me">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <UserProfilePage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -77,8 +77,8 @@ export default [
   {
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: (routeParams, currentRoute, location) => (
-      <AuthenticatedPageWrapper key={location.path}>
+    render: routeParams => (
+      <AuthenticatedPageWrapper key={`/users/${routeParams.userId}`}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <UserProfilePage {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>

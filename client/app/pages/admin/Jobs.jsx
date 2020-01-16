@@ -124,10 +124,10 @@ class Jobs extends React.Component {
 export default {
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: (routeParams, currentRoute, location) => (
-    <AuthenticatedPageWrapper>
+  render: routeParams => (
+    <AuthenticatedPageWrapper key="/admin/queries/jobs">
       <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <Jobs key={location.path} {...routeParams} onError={handleError} />}
+        {({ handleError }) => <Jobs {...routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
