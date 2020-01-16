@@ -1,4 +1,4 @@
-import { isNil, isFunction, isObject, trimStart, mapValues, omitBy, extend } from "lodash";
+import { isNil, isFunction, isObject, trimStart, mapValues, pick, omitBy, extend } from "lodash";
 import qs from "query-string";
 import { createBrowserHistory } from "history";
 
@@ -45,11 +45,11 @@ const location = {
       // keep other fields
       newLocation = extend(
         {
-          path: history.location.path,
+          pathname: history.location.pathname,
           search: history.location.search,
           hash: history.location.hash,
         },
-        newLocation
+        pick(newLocation, ["pathname", "search", "hash"])
       );
     }
     if (replace) {

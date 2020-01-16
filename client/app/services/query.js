@@ -47,10 +47,6 @@ export class Query {
     extend(this, query);
   }
 
-  getSourceLink() {
-    return `queries/${this.id}/source`;
-  }
-
   isNew() {
     return this.id === undefined;
   }
