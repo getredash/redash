@@ -173,6 +173,15 @@ function QuerySource(props) {
     ]
   );
 
+  const [isQuerySaving, setIsQuerySaving] = useState(false);
+
+  const doSaveQuery = useCallback(() => {
+    if (!isQuerySaving) {
+      setIsQuerySaving(true);
+      saveQuery().finally(() => setIsQuerySaving(false));
+    }
+  }, [isQuerySaving, saveQuery]);
+
   return (
     <div className="query-page-wrapper">
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
@@ -274,11 +283,12 @@ function QuerySource(props) {
                           text: (
                             <React.Fragment>
                               <span className="hidden-xs">Save</span>
-                              {isDirty ? "*" : null}
+                              {isDirty && !isQuerySaving ? "*" : null}
                             </React.Fragment>
                           ),
                           shortcut: "mod+s",
-                          onClick: saveQuery,
+                          onClick: doSaveQuery,
+                          loading: isQuerySaving,
                         }
                       }
                       executeButtonProps={{
