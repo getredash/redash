@@ -162,7 +162,7 @@ export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: (routeParams) => (
+    render: routeParams => (
       <AuthenticatedPageWrapper key="/data_sources">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
@@ -176,7 +176,7 @@ export default [
   {
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (routeParams) => (
+    render: routeParams => (
       <AuthenticatedPageWrapper key="/data_sources">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
