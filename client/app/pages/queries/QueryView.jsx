@@ -175,7 +175,7 @@ function QueryView(props) {
                 </span>
                 <span className="flex-fill" />
                 <span className="m-r-10 hidden-xs">
-                  Updated{" "}
+                  Refreshed{" "}
                   <strong>
                     <TimeAgo date={queryResult.query_result.retrieved_at} />
                   </strong>
