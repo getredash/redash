@@ -30,6 +30,8 @@ import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
+import "./QueryView.less";
+
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
@@ -76,14 +78,25 @@ function QueryView(props) {
   }, [query.data_source_id]);
 
   return (
-    <div className="query-page-wrapper">
-      <div className="container">
+    <div className="query-page-wrapper query-view">
+      <div className="query-view-header">
         <QueryPageHeader
           query={query}
           dataSource={dataSource}
           onChange={setQuery}
           selectedVisualization={selectedVisualization}
+          headerExtra={
+            <QueryViewExecuteButton
+              className="m-r-5"
+              shortcut="mod+enter, alt+enter"
+              disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
+              onClick={doExecuteQuery}>
+              Refresh
+            </QueryViewExecuteButton>
+          }
         />
+      </div>
+      <div className="container">
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
@@ -169,12 +182,6 @@ function QueryView(props) {
                 Updated <TimeAgo date={queryResult.query_result.retrieved_at} />
               </span>
             )}
-            <QueryViewExecuteButton
-              shortcut="mod+enter, alt+enter"
-              disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
-              onClick={doExecuteQuery}>
-              Execute
-            </QueryViewExecuteButton>
           </div>
         </div>
       </div>
