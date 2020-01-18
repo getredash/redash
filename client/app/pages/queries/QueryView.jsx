@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Divider from "antd/lib/divider";
 import cx from "classnames";
 import { has } from "lodash";
+import useMedia from "use-media";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EditInPlace from "@/components/EditInPlace";
@@ -34,7 +35,6 @@ import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
 import "./QueryView.less";
-import useMedia from "use-media";
 
 // ANGULAR_REMOVE_ME: Update with new Router
 function updateUrlSearch(...params) {
@@ -59,7 +59,7 @@ function QueryView(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
-  const isMobile = useMedia({ maxWidth: 768 });
+  const isMobile = !useMedia({ minWidth: 768 });
   const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
 
   const {

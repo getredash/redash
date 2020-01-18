@@ -7,17 +7,9 @@ page-query-view {
   width: 100vw;
 
   .query-view-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-
     .query-results {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
       padding: 0px 15px 0px;
       margin-bottom: 15px;
-      overflow: auto;
 
       .query-results-footer {
         border: 1px solid #d9d9d9;
@@ -30,16 +22,38 @@ page-query-view {
 
       .query-parameters-wrapper {
         margin: 15px 0 5px 0;
-        flex: 0 0 auto;
       }
 
       .query-alerts {
         margin: 15px 0;
-        flex: 0 0 auto;
       }
 
       .query-results-log {
         padding: 10px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+
+      .query-results {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: auto;
+      }
+
+      .query-parameters-wrapper {
+        flex: 0 0 auto;
+      }
+
+      .query-alerts {
+        flex: 0 0 auto;
+      }
+
+      .query-results-log {
         flex: 0 0 auto;
       }
 
@@ -56,15 +70,13 @@ page-query-view {
           flex: 1 1 auto;
           position: relative;
 
-          @media (min-width: 1px) {
-            .ant-tabs-tabpane {
-              position: absolute;
-              left: 0;
-              top: 0;
-              right: 0;
-              bottom: 0;
-              overflow: auto;
-            }
+          .ant-tabs-tabpane {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            overflow: auto;
           }
         }
       }
