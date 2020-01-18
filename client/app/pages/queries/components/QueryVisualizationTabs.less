@@ -50,4 +50,29 @@
       border-radius: 50%;
     }
   }
+
+  @media (min-width: 768px) {
+    // Always show scroll and pagination in tables
+    .table-visualization-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+
+      & div {
+        height: inherit;
+      }
+
+      .ant-spin-container {
+        display: flex;
+        flex-direction: column;
+
+        .ant-table {
+          flex-grow: 1;
+        }
+      }
+    }
+  }
 }
