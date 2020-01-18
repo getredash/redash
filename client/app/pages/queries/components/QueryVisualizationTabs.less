@@ -59,7 +59,6 @@
       top: 0;
       width: 100%;
       height: 100%;
-      padding: 15px;
 
       & div {
         height: inherit;
@@ -73,6 +72,54 @@
           flex-grow: 1;
         }
       }
+    }
+
+    // Make visualizations take 100% of height
+    .visualization-renderer {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      padding: 15px;
+
+      > .visualization-renderer-wrapper {
+        flex-grow: 1;
+        position: relative;
+      }
+
+      > .filters-wrapper {
+        flex-grow: 0;
+      }
+    }
+
+    .sunburst-visualization-container,
+    .sankey-visualization-container,
+    .map-visualization-container,
+    .word-cloud-visualization-container,
+    .box-plot-deprecated-visualization-container,
+    .chart-visualization-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      overflow: hidden;
+    }
+
+    .counter-visualization-content {
+      position: absolute;
+      left: 10px;
+      top: 15px;
+      right: 10px;
+      bottom: 15px;
+      height: auto;
+      overflow: hidden;
+      padding: 0;
     }
   }
 }
