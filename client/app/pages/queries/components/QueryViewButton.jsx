@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import Tooltip from "antd/lib/tooltip";
-import KeyboardShortcuts, { humanReadableShortcut } from "@/services/KeyboardShortcuts";
+import KeyboardShortcuts from "@/services/KeyboardShortcuts";
+import { ButtonTooltip } from "@/components/queries/QueryEditor/QueryEditorControls";
 
-export default function QueryViewExecuteButton({ className, shortcut, disabled, children, onClick }) {
+export default function QueryViewButton({ title, shortcut, disabled, children, onClick, ...props }) {
   const [tooltipVisible, setTooltipVisible] = useState(false);
 
   const eventHandlers = useMemo(
@@ -35,23 +35,22 @@ export default function QueryViewExecuteButton({ className, shortcut, disabled, 
   }, [shortcut, onClick]);
 
   return (
-    <Tooltip placement="top" title={humanReadableShortcut(shortcut, 1)} visible={tooltipVisible}>
+    <ButtonTooltip title={title} shortcut={shortcut} visible={tooltipVisible}>
       <span {...eventHandlers}>
         <Button
-          className={className}
           data-test="ExecuteButton"
-          type="primary"
           disabled={disabled}
           onClick={onClick}
-          style={disabled ? { pointerEvents: "none" } : {}}>
+          style={disabled ? { pointerEvents: "none" } : {}}
+          {...props}>
           {children}
         </Button>
       </span>
-    </Tooltip>
+    </ButtonTooltip>
   );
 }
 
-QueryViewExecuteButton.propTypes = {
+QueryViewButton.propTypes = {
   className: PropTypes.string,
   shortcut: PropTypes.string,
   disabled: PropTypes.bool,
@@ -59,7 +58,7 @@ QueryViewExecuteButton.propTypes = {
   onClick: PropTypes.func,
 };
 
-QueryViewExecuteButton.defaultProps = {
+QueryViewButton.defaultProps = {
   className: null,
   shortcut: null,
   disabled: false,

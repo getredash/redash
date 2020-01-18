@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
 import Divider from "antd/lib/divider";
+import cx from "classnames";
+import { has } from "lodash";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EditInPlace from "@/components/EditInPlace";
@@ -18,7 +20,7 @@ import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
 import QueryExecutionStatus from "./components/QueryExecutionStatus";
 import QueryMetadata from "./components/QueryMetadata";
-import QueryViewExecuteButton from "./components/QueryViewExecuteButton";
+import QueryViewButton from "./components/QueryViewButton";
 
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useQueryExecute from "./hooks/useQueryExecute";
@@ -32,6 +34,24 @@ import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
 import "./QueryView.less";
+import useMedia from "use-media";
+
+// ANGULAR_REMOVE_ME: Update with new Router
+function updateUrlSearch(...params) {
+  $location.search(...params);
+  $rootScope.$applyAsync();
+}
+
+function useFullscreenHandler(available) {
+  const [fullscreen, setFullscreen] = useState(has($location.search(), "fullscreen"));
+  const toggleFullscreen = useCallback(() => setFullscreen(!fullscreen), [fullscreen]);
+
+  useEffect(() => {
+    updateUrlSearch("fullscreen", fullscreen ? true : null);
+  }, [fullscreen]);
+
+  return useMemo(() => [available && fullscreen, toggleFullscreen], [available, fullscreen, toggleFullscreen]);
+}
 
 function QueryView(props) {
   const [query, setQuery] = useState(props.query);
@@ -39,6 +59,8 @@ function QueryView(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+  const isMobile = useMedia({ maxWidth: 768 });
+  const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
 
   const {
     queryResult,
@@ -79,7 +101,7 @@ function QueryView(props) {
   }, [query.data_source_id]);
 
   return (
-    <div className="query-page-wrapper">
+    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen })}>
       <div className="container">
         <QueryPageHeader
           query={query}
@@ -87,42 +109,45 @@ function QueryView(props) {
           onChange={setQuery}
           selectedVisualization={selectedVisualization}
           headerExtra={
-            <QueryViewExecuteButton
+            <QueryViewButton
               className="m-r-5"
+              type="primary"
               shortcut="mod+enter, alt+enter"
               disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
               onClick={doExecuteQuery}>
               Refresh
-            </QueryViewExecuteButton>
+            </QueryViewButton>
           }
         />
-        <div className="m-t-5 m-l-15 m-r-15">
-          <EditInPlace
-            className="w-100"
-            value={query.description}
-            isEditable={queryFlags.canEdit}
-            onDone={updateQueryDescription}
-            placeholder="Add description"
-            ignoreBlanks={false}
-            editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
-            multiline
-          />
-        </div>
+        {!fullscreen && (
+          <div className="m-t-5 m-l-15 m-r-15">
+            <EditInPlace
+              className="w-100"
+              value={query.description}
+              isEditable={queryFlags.canEdit}
+              onDone={updateQueryDescription}
+              placeholder="Add description"
+              ignoreBlanks={false}
+              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
+              multiline
+            />
+          </div>
+        )}
       </div>
       <div className="query-view-content">
+        {!fullscreen && query.hasParameters() && (
+          <div className="bg-white tiled p-15 m-t-15 m-l-15 m-r-15">
+            <Parameters
+              parameters={parameters}
+              onValuesChange={() => {
+                updateParametersDirtyFlag(false);
+                doExecuteQuery(true);
+              }}
+              onPendingValuesChange={() => updateParametersDirtyFlag()}
+            />
+          </div>
+        )}
         <div className="query-results m-t-15">
-          {query.hasParameters() && (
-            <div className="bg-white tiled p-15 m-b-15">
-              <Parameters
-                parameters={parameters}
-                onValuesChange={() => {
-                  updateParametersDirtyFlag(false);
-                  doExecuteQuery(true);
-                }}
-                onPendingValuesChange={() => updateParametersDirtyFlag()}
-              />
-            </div>
-          )}
           {queryResult && queryResultData.status !== "done" && (
             <div className="query-alerts m-t-15 m-b-15">
               <QueryExecutionStatus
@@ -148,7 +173,7 @@ function QueryView(props) {
                 cardStyle
               />
               <div className="query-results-footer d-flex align-items-center">
-                <span className="m-r-10">
+                <span className="m-r-5">
                   <QueryControlDropdown
                     query={query}
                     queryResult={queryResult}
@@ -160,6 +185,14 @@ function QueryView(props) {
                     openAddToDashboardForm={openAddToDashboardDialog}
                   />
                 </span>
+                <QueryViewButton
+                  className="icon-button m-r-5 hidden-xs"
+                  title="Toggle Fullscreen"
+                  type={fullscreen ? "primary" : "default"}
+                  shortcut="alt+f"
+                  onClick={toggleFullscreen}>
+                  <i className="zmdi zmdi-fullscreen" />
+                </QueryViewButton>
                 {queryFlags.canEdit && (
                   <EditVisualizationButton
                     openVisualizationEditor={editVisualization}
@@ -184,9 +217,11 @@ function QueryView(props) {
             </>
           )}
         </div>
-        <div className="p-15">
-          <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
-        </div>
+        {!fullscreen && (
+          <div className="p-r-15 p-l-15 p-b-15">
+            <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
+          </div>
+        )}
       </div>
     </div>
   );
