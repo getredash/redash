@@ -119,24 +119,22 @@ function QueryView(props) {
             </QueryViewButton>
           }
         />
-        {!fullscreen && (
-          <div className="m-t-5 m-l-15 m-r-15">
-            <EditInPlace
-              className="w-100"
-              value={query.description}
-              isEditable={queryFlags.canEdit}
-              onDone={updateQueryDescription}
-              placeholder="Add description"
-              ignoreBlanks={false}
-              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
-              multiline
-            />
-          </div>
-        )}
+        <div className={cx("m-t-5 m-l-15 m-r-15", { hidden: fullscreen })}>
+          <EditInPlace
+            className="w-100"
+            value={query.description}
+            isEditable={queryFlags.canEdit}
+            onDone={updateQueryDescription}
+            placeholder="Add description"
+            ignoreBlanks={false}
+            editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
+            multiline
+          />
+        </div>
       </div>
       <div className="query-view-content">
-        {!fullscreen && query.hasParameters() && (
-          <div className="bg-white tiled p-15 m-t-15 m-l-15 m-r-15">
+        {query.hasParameters() && (
+          <div className={cx("bg-white tiled p-15 m-t-15 m-l-15 m-r-15", { hidden: fullscreen })}>
             <Parameters
               parameters={parameters}
               onValuesChange={() => {
@@ -170,7 +168,6 @@ function QueryView(props) {
                 onChangeTab={setSelectedVisualization}
                 onAddVisualization={addVisualization}
                 onDeleteVisualization={deleteVisualization}
-                cardStyle
               />
               <div className="query-results-footer d-flex align-items-center">
                 <span className="m-r-5">
@@ -217,11 +214,9 @@ function QueryView(props) {
             </>
           )}
         </div>
-        {!fullscreen && (
-          <div className="p-r-15 p-l-15 p-b-15">
-            <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
-          </div>
-        )}
+        <div className={cx("p-r-15 p-l-15 p-b-15", { hidden: fullscreen })}>
+          <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
+        </div>
       </div>
     </div>
   );
