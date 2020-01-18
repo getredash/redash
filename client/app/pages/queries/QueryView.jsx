@@ -61,6 +61,7 @@ function QueryView(props) {
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
   const isMobile = !useMedia({ minWidth: 768 });
   const [fullscreen, toggleFullscreen] = useFullscreenHandler(!isMobile);
+  const [addingDescription, setAddingDescription] = useState(false);
 
   const {
     queryResult,
@@ -118,19 +119,34 @@ function QueryView(props) {
               Refresh
             </QueryViewButton>
           }
+          tagsExtra={
+            !query.description &&
+            queryFlags.canEdit &&
+            !addingDescription &&
+            !fullscreen && (
+              <a className="label label-tag" role="none" onClick={() => setAddingDescription(true)}>
+                <i className="zmdi zmdi-plus m-r-5" />
+                Add description
+              </a>
+            )
+          }
         />
-        <div className={cx("m-t-5 m-l-15 m-r-15", { hidden: fullscreen })}>
-          <EditInPlace
-            className="w-100"
-            value={query.description}
-            isEditable={queryFlags.canEdit}
-            onDone={updateQueryDescription}
-            placeholder="Add description"
-            ignoreBlanks={false}
-            editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
-            multiline
-          />
-        </div>
+        {(query.description || addingDescription) && (
+          <div className={cx("m-t-5 m-l-15 m-r-15", { hidden: fullscreen })}>
+            <EditInPlace
+              className="w-100"
+              value={query.description}
+              isEditable={queryFlags.canEdit}
+              onDone={updateQueryDescription}
+              onStopEditing={() => setAddingDescription(false)}
+              placeholder="Add description"
+              ignoreBlanks={false}
+              editorProps={{ autosize: { minRows: 2, maxRows: 4 } }}
+              defaultEditing={addingDescription}
+              multiline
+            />
+          </div>
+        )}
       </div>
       <div className="query-view-content">
         {query.hasParameters() && (
@@ -214,7 +230,7 @@ function QueryView(props) {
             </>
           )}
         </div>
-        <div className={cx("p-r-15 p-l-15 p-b-15", { hidden: fullscreen })}>
+        <div className={cx("p-t-15 p-r-15 p-l-15", { hidden: fullscreen })}>
           <QueryMetadata layout="horizontal" query={query} dataSource={dataSource} onEditSchedule={editSchedule} />
         </div>
       </div>

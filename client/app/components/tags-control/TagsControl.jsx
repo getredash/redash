@@ -11,6 +11,7 @@ export class TagsControl extends React.Component {
     getAvailableTags: PropTypes.func,
     onEdit: PropTypes.func,
     className: PropTypes.string,
+    tagsExtra: PropTypes.node,
     children: PropTypes.node,
   };
 
@@ -20,6 +21,7 @@ export class TagsControl extends React.Component {
     getAvailableTags: () => Promise.resolve([]),
     onEdit: () => {},
     className: "",
+    tagsExtra: null,
     children: null,
   };
 
@@ -54,6 +56,7 @@ export class TagsControl extends React.Component {
           </span>
         ))}
         {this.props.canEdit && this.renderEditButton()}
+        {this.props.tagsExtra}
       </div>
     );
   }

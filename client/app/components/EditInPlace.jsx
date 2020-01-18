@@ -11,8 +11,10 @@ export default class EditInPlace extends React.Component {
     placeholder: PropTypes.string,
     value: PropTypes.string,
     onDone: PropTypes.func.isRequired,
+    onStopEditing: PropTypes.func,
     multiline: PropTypes.bool,
     editorProps: PropTypes.object,
+    defaultEditing: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -20,14 +22,16 @@ export default class EditInPlace extends React.Component {
     isEditable: true,
     placeholder: "",
     value: "",
+    onStopEditing: () => {},
     multiline: false,
     editorProps: {},
+    defaultEditing: false,
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      editing: false,
+      editing: props.defaultEditing,
     };
     this.inputRef = React.createRef();
   }
@@ -35,6 +39,10 @@ export default class EditInPlace extends React.Component {
   componentDidUpdate(_, prevState) {
     if (this.state.editing && !prevState.editing) {
       this.inputRef.current.focus();
+    }
+
+    if (!this.state.editing && prevState.editing) {
+      this.props.onStopEditing();
     }
   }
 

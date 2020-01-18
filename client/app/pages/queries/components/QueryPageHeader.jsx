@@ -65,6 +65,7 @@ export default function QueryPageHeader({
   sourceMode,
   selectedVisualization,
   headerExtra,
+  tagsExtra,
   onChange,
   onRefresh,
 }) {
@@ -141,6 +142,7 @@ export default function QueryPageHeader({
                 canEdit={queryFlags.canEdit}
                 getAvailableTags={getQueryTags}
                 onEdit={updateTags}
+                tagsExtra={tagsExtra}
               />
             </span>
           </h3>
@@ -203,6 +205,7 @@ QueryPageHeader.propTypes = {
   sourceMode: PropTypes.bool,
   selectedVisualization: PropTypes.number,
   headerExtra: PropTypes.node,
+  tagsExtra: PropTypes.node,
   onChange: PropTypes.func,
 };
 
@@ -211,5 +214,6 @@ QueryPageHeader.defaultProps = {
   sourceMode: false,
   selectedVisualization: null,
   headerExtra: null,
+  tagsExtra: null,
   onChange: () => {},
 };
