@@ -102,7 +102,7 @@ function QueryView(props) {
   }, [query.data_source_id]);
 
   return (
-    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen })}>
+    <div className={cx("query-page-wrapper", { "query-view-fullscreen": fullscreen, "query-fixed-layout": !isMobile })}>
       <div className="container">
         <QueryPageHeader
           query={query}

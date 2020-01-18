@@ -31,52 +31,52 @@ page-query-view {
         padding: 10px;
       }
     }
+  }
 
-    @media (min-width: 768px) {
+  &.query-fixed-layout .query-view-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .query-results {
       display: flex;
       flex-direction: column;
       flex-grow: 1;
+      overflow: auto;
+    }
 
-      .query-results {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        overflow: auto;
-      }
+    .query-parameters-wrapper {
+      flex: 0 0 auto;
+    }
 
-      .query-parameters-wrapper {
+    .query-alerts {
+      flex: 0 0 auto;
+    }
+
+    .query-results-log {
+      flex: 0 0 auto;
+    }
+
+    .ant-tabs {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+
+      .ant-tabs-bar {
         flex: 0 0 auto;
       }
 
-      .query-alerts {
-        flex: 0 0 auto;
-      }
-
-      .query-results-log {
-        flex: 0 0 auto;
-      }
-
-      .ant-tabs {
+      .ant-tabs-content {
         flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
+        position: relative;
 
-        .ant-tabs-bar {
-          flex: 0 0 auto;
-        }
-
-        .ant-tabs-content {
-          flex: 1 1 auto;
-          position: relative;
-
-          .ant-tabs-tabpane {
-            position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            overflow: auto;
-          }
+        .ant-tabs-tabpane {
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          overflow: auto;
         }
       }
     }

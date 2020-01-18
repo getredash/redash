@@ -1,7 +1,9 @@
 import { isEmpty, find, map, extend, includes } from "lodash";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
+import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
+import useMedia from "use-media";
 import Select from "antd/lib/select";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Resizable from "@/components/Resizable";
@@ -58,6 +60,7 @@ function QuerySource(props) {
   const queryFlags = useQueryFlags(query, dataSource);
   const [parameters, areParametersDirty, updateParametersDirtyFlag] = useQueryParameters(query);
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
+  const isMobile = !useMedia({ minWidth: 768 });
 
   useUnsavedChangesAlert(isDirty);
 
@@ -184,7 +187,7 @@ function QuerySource(props) {
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   return (
-    <div className="query-page-wrapper">
+    <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
       <div className="container p-b-10">
         <QueryPageHeader
