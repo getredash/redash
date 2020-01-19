@@ -9,6 +9,12 @@ import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 import ErrorMessage from "./ErrorMessage";
 
+function generateRouteKey() {
+  return Math.random()
+    .toString(32)
+    .substr(2);
+}
+
 export function stripBase(href) {
   // Resolve provided link and '' (root) relative to document's base.
   // If provided href is not related to current document (does not
@@ -54,7 +60,7 @@ export default function Router({ routes, onRouteChange }) {
       },
     });
 
-    function resolve() {
+    function resolve(action) {
       if (!isAbandoned) {
         if (errorHandlerRef.current) {
           errorHandlerRef.current.reset();
@@ -73,6 +79,11 @@ export default function Router({ routes, onRouteChange }) {
         }
         currentPathRef.current = pathname;
 
+        // Don't reload controller if URL was replaced
+        if (action === "REPLACE") {
+          return;
+        }
+
         router
           .resolve({ pathname })
           .then(route => {
@@ -80,7 +91,7 @@ export default function Router({ routes, onRouteChange }) {
           })
           .then(route => {
             if (route) {
-              setCurrentRoute(route);
+              setCurrentRoute({ ...route, key: generateRouteKey() });
             }
           })
           .catch(error => {
@@ -94,9 +105,9 @@ export default function Router({ routes, onRouteChange }) {
       }
     }
 
-    resolve();
+    resolve("PUSH");
 
-    const unlisten = location.listen(resolve);
+    const unlisten = location.listen((unused, action) => resolve(action));
 
     return () => {
       isAbandoned = true;

@@ -19,12 +19,7 @@ function normalizeLocation(rawLocation) {
 const location = {
   listen(handler) {
     if (isFunction(handler)) {
-      return history.listen((unused, action) => {
-        // If URL was replaced - don't reload current page
-        if (action !== "REPLACE") {
-          handler(location);
-        }
-      });
+      return history.listen((unused, action) => handler(location, action));
     } else {
       return () => {};
     }

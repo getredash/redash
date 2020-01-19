@@ -446,8 +446,8 @@ QuerySource.propTypes = {
 export default [
   {
     path: "/queries/new",
-    render: routeParams => (
-      <AuthenticatedPageWrapper key="/queries/new" bodyClass="fixed-layout">
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <QuerySource {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -459,8 +459,8 @@ export default [
   },
   {
     path: "/queries/:queryId([0-9]+)/source",
-    render: routeParams => (
-      <AuthenticatedPageWrapper key={`/queries/${routeParams.queryId}/source`} bodyClass="fixed-layout">
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <QuerySource {...routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
