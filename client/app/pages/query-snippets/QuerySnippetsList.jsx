@@ -215,7 +215,7 @@ export default [
     path: "/query_snippets",
     title: "Query Snippets",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/query_snippets">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QuerySnippetsListPage
@@ -232,7 +232,7 @@ export default [
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/query_snippets">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QuerySnippetsListPage

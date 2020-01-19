@@ -258,8 +258,8 @@ export default [
   {
     path: "/alerts/new",
     title: "New Alert",
-    render: routeParams => (
-      <AuthenticatedPageWrapper key="/alerts/new">
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <AlertPage {...routeParams} mode={MODES.NEW} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -269,8 +269,8 @@ export default [
   {
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: routeParams => (
-      <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <AlertPage {...routeParams} mode={MODES.VIEW} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
@@ -280,8 +280,8 @@ export default [
   {
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: routeParams => (
-      <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
+    render: (routeParams, currentRoute) => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => <AlertPage {...routeParams} mode={MODES.EDIT} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>

@@ -174,7 +174,7 @@ export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
   render: (routeParams, currentRoute) => (
-    <AuthenticatedPageWrapper key="/admin/queries/outdated">
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <OutdatedQueriesPage

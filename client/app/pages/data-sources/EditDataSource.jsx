@@ -145,8 +145,8 @@ const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 export default {
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: routeParams => (
-    <AuthenticatedPageWrapper key={`/data_sources/${routeParams.dataSourceId}`}>
+  render: (routeParams, currentRoute) => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => <EditDataSourcePage {...routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>

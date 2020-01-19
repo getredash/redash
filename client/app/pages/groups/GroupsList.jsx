@@ -153,7 +153,7 @@ export default {
   path: "/groups",
   title: "Groups",
   render: (routeParams, currentRoute) => (
-    <AuthenticatedPageWrapper key="/groups">
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <GroupsListPage

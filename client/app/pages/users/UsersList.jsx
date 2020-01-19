@@ -284,7 +284,7 @@ export default [
     path: "/users",
     title: "Users",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/users">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <UsersListPage
@@ -301,7 +301,7 @@ export default [
     path: "/users/new",
     title: "Users",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/users/new">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <UsersListPage
@@ -318,7 +318,7 @@ export default [
     path: "/users/pending",
     title: "Pending Invitations",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/users/pending">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <UsersListPage
@@ -335,7 +335,7 @@ export default [
     path: "/users/disabled",
     title: "Disabled Users",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/users/disabled">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <UsersListPage

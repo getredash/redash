@@ -102,8 +102,8 @@ class PublicDashboardPage extends React.Component {
 export default {
   path: "/public/dashboards/:token",
   authenticated: false,
-  render: routeParams => (
-    <SignedOutPageWrapper key={`/public/dashboards/${routeParams.token}`} apiKey={routeParams.token}>
+  render: (routeParams, currentRoute) => (
+    <SignedOutPageWrapper key={currentRoute.key} apiKey={routeParams.token}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => <PublicDashboardPage {...routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>

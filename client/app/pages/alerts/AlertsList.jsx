@@ -125,7 +125,7 @@ export default {
   path: "/alerts",
   title: "Alerts",
   render: (routeParams, currentRoute) => (
-    <AuthenticatedPageWrapper key="/alerts">
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <AlertsListPage

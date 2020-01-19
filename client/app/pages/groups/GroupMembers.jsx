@@ -214,7 +214,7 @@ export default {
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: (routeParams, currentRoute) => (
-    <AuthenticatedPageWrapper key={`/groups/${routeParams.groupId}`}>
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <GroupMembersPage

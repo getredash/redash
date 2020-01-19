@@ -251,7 +251,7 @@ export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
   render: (routeParams, currentRoute) => (
-    <AuthenticatedPageWrapper key={`/groups/${routeParams.groupId}/data_sources`}>
+    <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <GroupDataSourcesPage

@@ -153,7 +153,7 @@ export default [
     path: "/dashboards",
     title: "Dashboards",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/dashboards">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <DashboardListPage
@@ -170,7 +170,7 @@ export default [
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/dashboards/favorites">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <DashboardListPage

@@ -168,7 +168,7 @@ export default [
     path: "/queries",
     title: "Queries",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/queries">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
@@ -185,7 +185,7 @@ export default [
     path: "/queries/favorites",
     title: "Favorite Queries",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/queries/favorites">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
@@ -202,7 +202,7 @@ export default [
     path: "/queries/archive",
     title: "Archived Queries",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/queries/archive">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
@@ -219,7 +219,7 @@ export default [
     path: "/queries/my",
     title: "My Queries",
     render: (routeParams, currentRoute) => (
-      <AuthenticatedPageWrapper key="/queries/my">
+      <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
