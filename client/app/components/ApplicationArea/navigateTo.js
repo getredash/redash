@@ -12,6 +12,14 @@ export default function navigateTo(href, replace = false) {
       window.location = href;
       return;
     }
-    location.update(url.parse(href), replace);
+    href = url.parse(href);
+    location.update(
+      {
+        path: href.pathname,
+        search: href.search,
+        hash: href.hash,
+      },
+      replace
+    );
   }, 10);
 }

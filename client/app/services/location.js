@@ -1,4 +1,4 @@
-import { isNil, isFunction, isObject, trimStart, mapValues, pick, omitBy, extend } from "lodash";
+import { isNil, isUndefined, isFunction, isObject, trimStart, mapValues, omitBy, extend } from "lodash";
 import qs from "query-string";
 import { createBrowserHistory } from "history";
 
@@ -37,15 +37,32 @@ const location = {
 
   update(newLocation, replace = false) {
     if (isObject(newLocation)) {
-      // keep other fields
+      // remap fields and remove undefined ones
+      newLocation = omitBy(
+        {
+          pathname: newLocation.path,
+          search: newLocation.search,
+          hash: newLocation.hash,
+        },
+        isUndefined
+      );
+
+      // keep existing fields (!)
       newLocation = extend(
         {
-          pathname: history.location.pathname,
-          search: history.location.search,
-          hash: history.location.hash,
+          pathname: location.path,
+          search: location.search,
+          hash: location.hash,
         },
-        pick(newLocation, ["pathname", "search", "hash"])
+        newLocation
       );
+
+      // serialize search and keep existing search parameters (!)
+      if (isObject(newLocation.search)) {
+        newLocation.search = omitBy(extend({}, location.search, newLocation.search), isNil);
+        newLocation.search = mapValues(newLocation.search, value => (value === true ? null : value));
+        newLocation.search = qs.stringify(newLocation.search);
+      }
     }
     if (replace) {
       history.replace(newLocation);
@@ -63,11 +80,6 @@ const location = {
 
   search: undefined,
   setSearch(search, replace = false) {
-    if (isObject(search)) {
-      search = omitBy(extend({}, location.search, search), isNil);
-      search = mapValues(search, value => (value === true ? null : value));
-      search = qs.stringify(search);
-    }
     location.update({ search }, replace);
   },
 
