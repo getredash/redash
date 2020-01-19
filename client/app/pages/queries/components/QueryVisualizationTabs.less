@@ -1,9 +1,18 @@
 .query-visualization-tabs {
+  .ant-tabs-bar {
+    display: flex;
+
+    .ant-tabs-extra-content {
+      order: 2;
+    }
+  }
+
   .ant-tabs-tab {
     background: #f6f8f9 !important;
     border-color: #d9d9d9 !important;
     border-bottom: 0px !important;
     border-radius: 0 !important;
+    // border-width animation makes it flicker on Firefox
     transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), border-width 0s !important;
 
     &:first-child {
@@ -35,6 +44,12 @@
     .ant-tabs-tabpane {
       padding: 16px;
       background: white;
+    }
+  }
+
+  .add-visualization-button {
+    span {
+      color: #767676;
     }
   }
 
