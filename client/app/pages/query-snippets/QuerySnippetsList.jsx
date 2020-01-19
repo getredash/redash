@@ -218,14 +218,15 @@ export default [
       <AuthenticatedPageWrapper key="/query_snippets">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QuerySnippetsListPage
+              routeParams={{ ...routeParams, currentPage: "query_snippets" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      currentPage: "query_snippets",
-    },
   },
   {
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
@@ -234,14 +235,14 @@ export default [
       <AuthenticatedPageWrapper key="/query_snippets">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QuerySnippetsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QuerySnippetsListPage
+              routeParams={{ ...routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      currentPage: "query_snippets",
-      isNewOrEditPage: true,
-    },
   },
 ];

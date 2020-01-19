@@ -169,9 +169,6 @@ export default [
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      currentPage: "data_sources",
-    },
   },
   {
     path: "/data_sources/new",
@@ -179,13 +176,9 @@ export default [
     render: routeParams => (
       <AuthenticatedPageWrapper key="/data_sources">
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <DataSourcesListPage {...routeParams} isNewDataSourcePage onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      currentPage: "data_sources",
-      isNewDataSourcePage: true,
-    },
   },
 ];

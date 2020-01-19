@@ -287,12 +287,15 @@ export default [
       <AuthenticatedPageWrapper key="/users">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <UsersListPage
+              routeParams={{ ...routeParams, currentPage: "active" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "active" },
   },
   {
     path: "/users/new",
@@ -301,15 +304,15 @@ export default [
       <AuthenticatedPageWrapper key="/users/new">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <UsersListPage
+              routeParams={{ ...routeParams, currentPage: "active", isNewUserPage: true }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      currentPage: "active",
-      isNewUserPage: true,
-    },
   },
   {
     path: "/users/pending",
@@ -318,12 +321,15 @@ export default [
       <AuthenticatedPageWrapper key="/users/pending">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <UsersListPage
+              routeParams={{ ...routeParams, currentPage: "pending" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "pending" },
   },
   {
     path: "/users/disabled",
@@ -332,11 +338,14 @@ export default [
       <AuthenticatedPageWrapper key="/users/disabled">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <UsersListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <UsersListPage
+              routeParams={{ ...routeParams, currentPage: "disabled" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "disabled" },
   },
 ];

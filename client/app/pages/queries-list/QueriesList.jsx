@@ -171,12 +171,15 @@ export default [
       <AuthenticatedPageWrapper key="/queries">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QueriesListPage
+              routeParams={{ ...routeParams, currentPage: "all" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "all" },
   },
   {
     path: "/queries/favorites",
@@ -185,12 +188,15 @@ export default [
       <AuthenticatedPageWrapper key="/queries/favorites">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QueriesListPage
+              routeParams={{ ...routeParams, currentPage: "favorites" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "favorites" },
   },
   {
     path: "/queries/archive",
@@ -199,12 +205,15 @@ export default [
       <AuthenticatedPageWrapper key="/queries/archive">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QueriesListPage
+              routeParams={{ ...routeParams, currentPage: "archive" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "archive" },
   },
   {
     path: "/queries/my",
@@ -213,11 +222,14 @@ export default [
       <AuthenticatedPageWrapper key="/queries/my">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <QueriesListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <QueriesListPage
+              routeParams={{ ...routeParams, currentPage: "my" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "my" },
   },
 ];

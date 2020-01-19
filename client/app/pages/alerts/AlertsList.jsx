@@ -128,10 +128,13 @@ export default {
     <AuthenticatedPageWrapper key="/alerts">
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <AlertsListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          <AlertsListPage
+            routeParams={{ ...routeParams, currentPage: "alerts" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
         )}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "alerts" },
 };

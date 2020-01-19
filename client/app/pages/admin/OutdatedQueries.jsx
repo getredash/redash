@@ -177,10 +177,13 @@ export default {
     <AuthenticatedPageWrapper key="/admin/queries/outdated">
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <OutdatedQueriesPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          <OutdatedQueriesPage
+            routeParams={{ ...routeParams, currentPage: "outdated_queries" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
         )}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "outdated_queries" },
 };

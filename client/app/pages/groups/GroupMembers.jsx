@@ -217,10 +217,13 @@ export default {
     <AuthenticatedPageWrapper key={`/groups/${routeParams.groupId}`}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <GroupMembersPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          <GroupMembersPage
+            routeParams={{ ...routeParams, currentPage: "users" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
         )}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "users" },
 };

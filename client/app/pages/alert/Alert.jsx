@@ -261,11 +261,10 @@ export default [
     render: routeParams => (
       <AuthenticatedPageWrapper key="/alerts/new">
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <AlertPage {...routeParams} mode={MODES.NEW} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { mode: MODES.NEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)",
@@ -273,11 +272,10 @@ export default [
     render: routeParams => (
       <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <AlertPage {...routeParams} mode={MODES.VIEW} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { mode: MODES.VIEW },
   },
   {
     path: "/alerts/:alertId([0-9]+)/edit",
@@ -285,10 +283,9 @@ export default [
     render: routeParams => (
       <AuthenticatedPageWrapper key={`/alerts/${routeParams.alertId}`}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <AlertPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <AlertPage {...routeParams} mode={MODES.EDIT} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { mode: MODES.EDIT },
   },
 ];

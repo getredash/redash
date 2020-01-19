@@ -95,5 +95,4 @@ export default {
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "system_status" },
 };

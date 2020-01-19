@@ -131,5 +131,4 @@ export default {
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "jobs" },
 };

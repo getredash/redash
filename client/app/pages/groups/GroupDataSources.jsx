@@ -254,10 +254,13 @@ export default {
     <AuthenticatedPageWrapper key={`/groups/${routeParams.groupId}/data_sources`}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <GroupDataSourcesPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+          <GroupDataSourcesPage
+            routeParams={{ ...routeParams, currentPage: "datasources" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
         )}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
-  resolve: { currentPage: "datasources" },
 };

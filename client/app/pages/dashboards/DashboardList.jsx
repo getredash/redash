@@ -156,12 +156,15 @@ export default [
       <AuthenticatedPageWrapper key="/dashboards">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <DashboardListPage
+              routeParams={{ ...routeParams, currentPage: "all" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "all" },
   },
   {
     path: "/dashboards/favorites",
@@ -170,11 +173,14 @@ export default [
       <AuthenticatedPageWrapper key="/dashboards/favorites">
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
-            <DashboardListPage routeParams={routeParams} currentRoute={currentRoute} onError={handleError} />
+            <DashboardListPage
+              routeParams={{ ...routeParams, currentPage: "favorites" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
           )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "favorites" },
   },
 ];

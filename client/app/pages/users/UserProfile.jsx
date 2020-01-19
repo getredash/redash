@@ -72,7 +72,6 @@ export default [
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "users" },
   },
   {
     path: "/users/:userId([0-9]+)",
@@ -84,6 +83,5 @@ export default [
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "users" },
   },
 ];

@@ -157,7 +157,6 @@ export default [
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: { currentPage: "destinations" },
   },
   {
     path: "/destinations/new",
@@ -165,13 +164,9 @@ export default [
     render: routeParams => (
       <AuthenticatedPageWrapper key="/destinations">
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <DestinationsListPage {...routeParams} isNewDestinationPage onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
-    resolve: {
-      key: "destinations",
-      isNewDestinationPage: true,
-    },
   },
 ];
