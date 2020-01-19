@@ -162,10 +162,10 @@ export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DataSourcesListPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <DataSourcesListPage {...currentRoute.routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
@@ -173,10 +173,12 @@ export default [
   {
     path: "/data_sources/new",
     title: "Data Sources",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DataSourcesListPage {...routeParams} isNewDataSourcePage onError={handleError} />}
+          {({ handleError }) => (
+            <DataSourcesListPage {...currentRoute.routeParams} isNewDataSourcePage onError={handleError} />
+          )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),

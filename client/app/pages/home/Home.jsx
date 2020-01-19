@@ -176,9 +176,9 @@ function Home() {
 export default {
   path: "/",
   title: "Redash",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
-      <Home {...routeParams} />
+      <Home {...currentRoute.routeParams} />
     </AuthenticatedPageWrapper>
   ),
 };

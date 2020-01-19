@@ -127,7 +127,7 @@ export default function Router({ routes, onRouteChange }) {
     <ErrorBoundary
       ref={errorHandlerRef}
       renderError={error => <ErrorMessage error={error} showOriginalMessage={false} />}>
-      {currentRoute.render(currentRoute.routeParams, currentRoute, location)}
+      {currentRoute.render(currentRoute)}
     </ErrorBoundary>
   );
 }

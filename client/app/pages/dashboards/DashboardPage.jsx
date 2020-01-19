@@ -412,10 +412,10 @@ DashboardPage.defaultProps = {
 
 export default {
   path: "/dashboard/:dashboardSlug",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <DashboardPage {...routeParams} onError={handleError} />}
+        {({ handleError }) => <DashboardPage {...currentRoute.routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),

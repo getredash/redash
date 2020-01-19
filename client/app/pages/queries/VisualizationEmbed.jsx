@@ -270,11 +270,11 @@ VisualizationEmbed.defaultProps = {
 export default {
   path: "/embed/query/:queryId/visualization/:visualizationId",
   authenticated: false,
-  render: (routeParams, currentRoute, location) => (
+  render: currentRoute => (
     <SignedOutPageWrapper key={currentRoute.key} apiKey={location.search.api_key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
-          <VisualizationEmbed {...routeParams} apiKey={location.search.api_key} onError={handleError} />
+          <VisualizationEmbed {...currentRoute.routeParams} apiKey={location.search.api_key} onError={handleError} />
         )}
       </ErrorBoundaryContext.Consumer>
     </SignedOutPageWrapper>

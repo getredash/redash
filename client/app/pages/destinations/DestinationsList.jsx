@@ -150,10 +150,10 @@ export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DestinationsListPage {...routeParams} onError={handleError} />}
+          {({ handleError }) => <DestinationsListPage {...currentRoute.routeParams} onError={handleError} />}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),
@@ -161,10 +161,12 @@ export default [
   {
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DestinationsListPage {...routeParams} isNewDestinationPage onError={handleError} />}
+          {({ handleError }) => (
+            <DestinationsListPage {...currentRoute.routeParams} isNewDestinationPage onError={handleError} />
+          )}
         </ErrorBoundaryContext.Consumer>
       </AuthenticatedPageWrapper>
     ),

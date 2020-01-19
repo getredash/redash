@@ -88,10 +88,10 @@ class SystemStatus extends React.Component {
 export default {
   path: "/admin/status",
   title: "System Status",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <SystemStatus {...routeParams} onError={handleError} />}
+        {({ handleError }) => <SystemStatus {...currentRoute.routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),

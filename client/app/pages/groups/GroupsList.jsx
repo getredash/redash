@@ -152,12 +152,12 @@ const GroupsListPage = wrapSettingsTab(
 export default {
   path: "/groups",
   title: "Groups",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <GroupsListPage
-            routeParams={{ ...routeParams, currentPage: "groups" }}
+            routeParams={{ ...currentRoute.routeParams, currentPage: "groups" }}
             currentRoute={currentRoute}
             onError={handleError}
           />

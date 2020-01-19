@@ -167,12 +167,12 @@ export default [
   {
     path: "/queries",
     title: "Queries",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
-              routeParams={{ ...routeParams, currentPage: "all" }}
+              routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
               currentRoute={currentRoute}
               onError={handleError}
             />
@@ -184,12 +184,12 @@ export default [
   {
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
-              routeParams={{ ...routeParams, currentPage: "favorites" }}
+              routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
               currentRoute={currentRoute}
               onError={handleError}
             />
@@ -201,12 +201,12 @@ export default [
   {
     path: "/queries/archive",
     title: "Archived Queries",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
-              routeParams={{ ...routeParams, currentPage: "archive" }}
+              routeParams={{ ...currentRoute.routeParams, currentPage: "archive" }}
               currentRoute={currentRoute}
               onError={handleError}
             />
@@ -218,12 +218,12 @@ export default [
   {
     path: "/queries/my",
     title: "My Queries",
-    render: (routeParams, currentRoute) => (
+    render: currentRoute => (
       <AuthenticatedPageWrapper key={currentRoute.key}>
         <ErrorBoundaryContext.Consumer>
           {({ handleError }) => (
             <QueriesListPage
-              routeParams={{ ...routeParams, currentPage: "my" }}
+              routeParams={{ ...currentRoute.routeParams, currentPage: "my" }}
               currentRoute={currentRoute}
               onError={handleError}
             />

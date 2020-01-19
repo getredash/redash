@@ -250,12 +250,12 @@ const GroupDataSourcesPage = wrapSettingsTab(
 export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
         {({ handleError }) => (
           <GroupDataSourcesPage
-            routeParams={{ ...routeParams, currentPage: "datasources" }}
+            routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
             currentRoute={currentRoute}
             onError={handleError}
           />

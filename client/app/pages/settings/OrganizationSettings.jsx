@@ -285,10 +285,10 @@ const OrganizationSettingsPage = wrapSettingsTab(
 export default {
   path: "/settings/organization",
   title: "Organization Settings",
-  render: (routeParams, currentRoute) => (
+  render: currentRoute => (
     <AuthenticatedPageWrapper key={currentRoute.key}>
       <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <OrganizationSettingsPage {...routeParams} onError={handleError} />}
+        {({ handleError }) => <OrganizationSettingsPage {...currentRoute.routeParams} onError={handleError} />}
       </ErrorBoundaryContext.Consumer>
     </AuthenticatedPageWrapper>
   ),
