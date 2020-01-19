@@ -12,6 +12,27 @@ import "./QueryVisualizationTabs.less";
 
 const { TabPane } = Tabs;
 
+function EmptyState({ onRefresh, refreshButton }) {
+  return (
+    <div className="query-results-empty-state">
+      <div className="empty-state-content">
+        <img src="/static/images/illustrations/no-query-results.svg" alt="No Query Results Illustration" />
+        <h3>No results found!</h3>
+        <div className="m-b-20">Please update your query or refresh the results using the button below.</div>
+        {refreshButton}
+      </div>
+    </div>
+  );
+}
+
+EmptyState.propTypes = {
+  refreshButton: PropTypes.node,
+};
+
+EmptyState.defaultProps = {
+  refreshButton: null,
+};
+
 function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
   const handleDelete = useCallback(
     e => {
@@ -65,6 +86,7 @@ export default function QueryVisualizationTabs({
   onChangeTab,
   onAddVisualization,
   onDeleteVisualization,
+  refreshButton,
   ...props
 }) {
   const visualizations = useMemo(
@@ -116,8 +138,10 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          {queryResult && (
+          {queryResult ? (
             <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+          ) : (
+            <EmptyState refreshButton={refreshButton} />
           )}
         </TabPane>
       ))}
@@ -134,6 +158,7 @@ QueryVisualizationTabs.propTypes = {
   onChangeTab: PropTypes.func,
   onAddVisualization: PropTypes.func,
   onDeleteVisualization: PropTypes.func,
+  refreshButton: PropTypes.node,
 };
 
 QueryVisualizationTabs.defaultProps = {
@@ -145,4 +170,5 @@ QueryVisualizationTabs.defaultProps = {
   onChangeTab: () => {},
   onAddVisualization: () => {},
   onDeleteVisualization: () => {},
+  refreshButton: null,
 };

@@ -4,6 +4,7 @@ import Divider from "antd/lib/divider";
 import cx from "classnames";
 import { has } from "lodash";
 import useMedia from "use-media";
+import Button from "antd/lib/button";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EditInPlace from "@/components/EditInPlace";
@@ -173,61 +174,71 @@ function QueryView(props) {
               />
             </div>
           )}
+          {(!queryResult || queryResultData.status === "done") && (
+            <QueryVisualizationTabs
+              queryResult={queryResult}
+              visualizations={query.visualizations}
+              showNewVisualizationButton={queryFlags.canEdit && !!queryResult}
+              canDeleteVisualizations={queryFlags.canEdit}
+              selectedTab={selectedVisualization}
+              onChangeTab={setSelectedVisualization}
+              onAddVisualization={addVisualization}
+              onDeleteVisualization={deleteVisualization}
+              refreshButton={
+                <Button
+                  type="primary"
+                  disabled={!queryFlags.canExecute || areParametersDirty}
+                  loading={isQueryExecuting}
+                  onClick={doExecuteQuery}>
+                  {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
+                  Refresh Now
+                </Button>
+              }
+            />
+          )}
           {queryResultData.status === "done" && (
-            <>
-              <QueryVisualizationTabs
-                queryResult={queryResult}
-                visualizations={query.visualizations}
-                showNewVisualizationButton={queryFlags.canEdit}
-                canDeleteVisualizations={queryFlags.canEdit}
-                selectedTab={selectedVisualization}
-                onChangeTab={setSelectedVisualization}
-                onAddVisualization={addVisualization}
-                onDeleteVisualization={deleteVisualization}
-              />
-              <div className="query-results-footer d-flex align-items-center">
-                <span className="m-r-5">
-                  <QueryControlDropdown
-                    query={query}
-                    queryResult={queryResult}
-                    queryExecuting={isQueryExecuting}
-                    showEmbedDialog={openEmbedDialog}
-                    embed={false}
-                    apiKey={query.api_key}
-                    selectedTab={selectedVisualization}
-                    openAddToDashboardForm={openAddToDashboardDialog}
-                  />
-                </span>
-                <QueryViewButton
-                  className="icon-button m-r-5 hidden-xs"
-                  title="Toggle Fullscreen"
-                  type={fullscreen ? "primary" : "default"}
-                  shortcut="alt+f"
-                  onClick={toggleFullscreen}>
-                  <i className="zmdi zmdi-fullscreen" />
-                </QueryViewButton>
-                {queryFlags.canEdit && (
-                  <EditVisualizationButton
-                    openVisualizationEditor={editVisualization}
-                    selectedTab={selectedVisualization}
-                  />
-                )}
-                <span className="m-l-5">
-                  <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
-                </span>
-                <span className="m-l-10">
-                  <strong>{durationHumanize(queryResult.getRuntime())}</strong>
-                  <span className="hidden-xs"> runtime</span>
-                </span>
-                <span className="flex-fill" />
-                <span className="m-r-10 hidden-xs">
-                  Refreshed{" "}
-                  <strong>
-                    <TimeAgo date={queryResult.query_result.retrieved_at} />
-                  </strong>
-                </span>
-              </div>
-            </>
+            <div className="query-results-footer d-flex align-items-center">
+              <span className="m-r-5">
+                <QueryControlDropdown
+                  query={query}
+                  queryResult={queryResult}
+                  queryExecuting={isQueryExecuting}
+                  showEmbedDialog={openEmbedDialog}
+                  embed={false}
+                  apiKey={query.api_key}
+                  selectedTab={selectedVisualization}
+                  openAddToDashboardForm={openAddToDashboardDialog}
+                />
+              </span>
+              <QueryViewButton
+                className="icon-button m-r-5 hidden-xs"
+                title="Toggle Fullscreen"
+                type={fullscreen ? "primary" : "default"}
+                shortcut="alt+f"
+                onClick={toggleFullscreen}>
+                <i className="zmdi zmdi-fullscreen" />
+              </QueryViewButton>
+              {queryFlags.canEdit && (
+                <EditVisualizationButton
+                  openVisualizationEditor={editVisualization}
+                  selectedTab={selectedVisualization}
+                />
+              )}
+              <span className="m-l-5">
+                <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
+              </span>
+              <span className="m-l-10">
+                <strong>{durationHumanize(queryResult.getRuntime())}</strong>
+                <span className="hidden-xs"> runtime</span>
+              </span>
+              <span className="flex-fill" />
+              <span className="m-r-10 hidden-xs">
+                Refreshed{" "}
+                <strong>
+                  <TimeAgo date={queryResult.query_result.retrieved_at} />
+                </strong>
+              </span>
+            </div>
           )}
         </div>
         <div className={cx("p-t-15 p-r-15 p-l-15", { hidden: fullscreen })}>
