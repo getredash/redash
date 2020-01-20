@@ -127,7 +127,7 @@ export default class AlertDestinations extends React.Component {
             notification.error("Failed saving subscription.");
           });
       },
-    });
+    }).result.catch(() => {}); // ignore dismiss
   };
 
   onUserEmailToggle = sub => {

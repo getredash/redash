@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { map, isEmpty, includes } from "lodash";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
 import Dropdown from "antd/lib/dropdown";
@@ -10,15 +9,16 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
-import { $route } from "@/services/ng";
 import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
@@ -378,32 +378,45 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage() {
+function DashboardPage({ dashboardSlug, onError }) {
   const [dashboard, setDashboard] = useState(null);
+  const onErrorRef = useRef();
+  onErrorRef.current = onError;
 
   useEffect(() => {
-    Dashboard.get({ slug: $route.current.params.dashboardSlug })
+    Dashboard.get({ slug: dashboardSlug })
       .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })
       .catch(error => {
-        throw new PromiseRejectionError(error);
+        onErrorRef.current(new PromiseRejectionError(error));
       });
-  }, []);
+  }, [dashboardSlug]);
 
-  return <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+  return (
+    <div className="dashboard-page">
+      <div className="container">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>
+    </div>
+  );
 }
 
-export default function init(ngModule) {
-  ngModule.component("dashboardPage", react2angular(DashboardPage));
+DashboardPage.propTypes = {
+  dashboardSlug: PropTypes.string.isRequired,
+  onError: PropTypes.func,
+};
 
-  return {
-    "/dashboard/:dashboardSlug": {
-      template: "<dashboard-page></dashboard-page>",
-      reloadOnSearch: false,
-    },
-  };
-}
+DashboardPage.defaultProps = {
+  onError: PropTypes.func,
+};
 
-init.init = true;
+export default {
+  path: "/dashboard/:dashboardSlug",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <DashboardPage {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

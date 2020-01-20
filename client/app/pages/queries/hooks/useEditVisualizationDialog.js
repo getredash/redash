@@ -13,13 +13,15 @@ export default function useEditVisualizationDialog(query, queryResult, onChange)
         query,
         visualization,
         queryResult,
-      }).result.then(updatedVisualization => {
-        const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
-        onChangeRef.current(
-          extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),
-          updatedVisualization
-        );
-      });
+      })
+        .result.then(updatedVisualization => {
+          const filteredVisualizations = filter(query.visualizations, v => v.id !== updatedVisualization.id);
+          onChangeRef.current(
+            extend(query.clone(), { visualizations: [...filteredVisualizations, updatedVisualization] }),
+            updatedVisualization
+          );
+        })
+        .catch(() => {}); // ignore dismiss
     },
     [query, queryResult]
   );

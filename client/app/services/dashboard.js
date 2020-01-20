@@ -3,7 +3,8 @@ import { axios } from "@/services/axios";
 import dashboardGridOptions from "@/config/dashboard-grid-options";
 import Widget from "./widget";
 import { currentUser } from "@/services/auth";
-import { $location } from "@/services/ng";
+import location from "@/services/location";
+import { cloneParameter } from "@/services/parameters";
 
 export function collectDashboardFilters(dashboard, queryResults, urlParams) {
   const filters = {};
@@ -170,7 +171,7 @@ Dashboard.prototype.canEdit = function canEdit() {
 
 Dashboard.prototype.getParametersDefs = function getParametersDefs() {
   const globalParams = {};
-  const queryParams = $location.search();
+  const queryParams = location.search;
   _.each(this.widgets, widget => {
     if (widget.getQuery()) {
       const mappings = widget.getParameterMappings();
@@ -182,7 +183,7 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
           if (mapping.type === Widget.MappingType.DashboardLevel) {
             // create global param
             if (!globalParams[mapping.mapTo]) {
-              globalParams[mapping.mapTo] = param.clone();
+              globalParams[mapping.mapTo] = cloneParameter(param);
               globalParams[mapping.mapTo].name = mapping.mapTo;
               globalParams[mapping.mapTo].title = mapping.title || param.title;
               globalParams[mapping.mapTo].locals = [];

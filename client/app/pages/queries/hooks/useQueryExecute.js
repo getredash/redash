@@ -1,11 +1,11 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { noop, includes } from "lodash";
 import useQueryResult from "@/lib/hooks/useQueryResult";
-import { $location } from "@/services/ng";
+import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
 
 function getMaxAge() {
-  const maxAge = $location.search().maxAge;
+  const { maxAge } = location.search;
   return maxAge !== undefined ? maxAge : -1;
 }
 

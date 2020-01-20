@@ -1,7 +1,9 @@
+import { isObject } from "lodash";
+
 export default class PromiseRejectionError extends Error {
   constructor(rejection) {
     let message;
-    if (rejection.status !== undefined) {
+    if (isObject(rejection) && rejection.status !== undefined) {
       if (rejection.status === 404) {
         message = "It seems like the page you're looking for cannot be found.";
       } else if (rejection.status === 403 || rejection.status === 401) {

@@ -8,8 +8,8 @@ function addOnlineListener(notificationKey) {
   window.addEventListener("online", onlineStateHandler);
 }
 
-export default function init(ngModule) {
-  ngModule.run(() => {
+export default {
+  init() {
     window.addEventListener("offline", () => {
       notification.warning("Please check your Internet connection.", null, {
         key: "connectionNotification",
@@ -17,7 +17,5 @@ export default function init(ngModule) {
       });
       addOnlineListener("connectionNotification");
     });
-  });
-}
-
-init.init = true;
+  },
+};

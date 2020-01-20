@@ -1,9 +1,9 @@
 import { isEmpty, find, map, extend, includes } from "lodash";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -11,7 +11,7 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
-import { routesToAngularRoutes } from "@/lib/utils";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
@@ -443,45 +443,31 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-export default function init(ngModule) {
-  ngModule.component("pageQuerySource", react2angular(QuerySource));
-
-  return {
-    ...routesToAngularRoutes(
-      [
-        {
-          path: "/queries/new",
-        },
-      ],
-      {
-        layout: "fixed",
-        reloadOnSearch: false,
-        template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
-        resolve: {
-          query: () => Query.newQuery(),
-        },
-      }
+export default [
+  {
+    path: "/queries/new",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
     ),
-    ...routesToAngularRoutes(
-      [
-        {
-          path: "/queries/:queryId/source",
-        },
-      ],
-      {
-        layout: "fixed",
-        reloadOnSearch: false,
-        template: '<page-query-source ng-if="$resolve.query" query="$resolve.query"></page-query-source>',
-        resolve: {
-          query: $route => {
-            "ngInject";
-
-            return Query.get({ id: $route.current.params.queryId });
-          },
-        },
-      }
+    resolve: {
+      query: () => Query.newQuery(),
+    },
+  },
+  {
+    path: "/queries/:queryId([0-9]+)/source",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
     ),
-  };
-}
-
-init.init = true;
+    resolve: {
+      query: ({ queryId }) => Query.get({ id: queryId }),
+    },
+  },
+];

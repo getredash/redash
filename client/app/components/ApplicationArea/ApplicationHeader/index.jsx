@@ -1,6 +1,6 @@
 /* eslint-disable no-template-curly-in-string */
 
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 
 import Dropdown from "antd/lib/dropdown";
 import Button from "antd/lib/button";
@@ -9,25 +9,28 @@ import Menu from "antd/lib/menu";
 import Input from "antd/lib/input";
 import Tooltip from "antd/lib/tooltip";
 
-import FavoritesDropdown from "./components/FavoritesDropdown";
 import HelpTrigger from "@/components/HelpTrigger";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 
 import { currentUser, Auth, clientConfig } from "@/services/auth";
-import { $location, $route } from "@/services/ng";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 import frontendVersion from "@/version.json";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 
-import "./AppHeader.less";
+import FavoritesDropdown from "./FavoritesDropdown";
+import "./index.less";
 
 function onSearch(q) {
-  $location.path("/queries").search({ q });
-  $route.reload();
+  navigateTo(`queries?q=${encodeURIComponent(q)}`);
 }
 
 function DesktopNavbar() {
+  const showCreateDashboardDialog = useCallback(() => {
+    CreateDashboardDialog.showModal().result.catch(() => {}); // ignore dismiss
+  }, []);
+
   return (
     <div className="app-header" data-platform="desktop">
       <div>
@@ -62,7 +65,7 @@ function DesktopNavbar() {
                 )}
                 {currentUser.hasPermission("create_dashboard") && (
                   <Menu.Item key="new-dashboard">
-                    <a onMouseUp={() => CreateDashboardDialog.showModal()}>New Dashboard</a>
+                    <a onMouseUp={showCreateDashboardDialog}>New Dashboard</a>
                   </Menu.Item>
                 )}
                 {currentUser.hasPermission("list_alerts") && (
@@ -249,7 +252,7 @@ function MobileNavbar() {
   );
 }
 
-export default function AppHeader() {
+export default function ApplicationHeader() {
   return (
     <nav className="app-header-wrapper">
       <DesktopNavbar />
