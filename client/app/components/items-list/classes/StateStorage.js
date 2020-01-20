@@ -47,11 +47,14 @@ export class UrlStateStorage extends StateStorage {
 
   // eslint-disable-next-line class-methods-use-this
   setState({ page, itemsPerPage, orderByField, orderByReverse, searchTerm }) {
-    location.setSearch({
-      page,
-      page_size: itemsPerPage,
-      order: compileOrderBy(orderByField, orderByReverse),
-      q: searchTerm !== "" ? searchTerm : null,
-    });
+    location.setSearch(
+      {
+        page,
+        page_size: itemsPerPage,
+        order: compileOrderBy(orderByField, orderByReverse),
+        q: searchTerm !== "" ? searchTerm : null,
+      },
+      true
+    );
   }
 }
