@@ -116,6 +116,7 @@ describe("Parameter", () => {
       cy.contains("li.ant-select-dropdown-menu-item", "value2").click();
 
       cy.getByTestId("ParameterApplyButton").click();
+      cy.getByTestId("ExecuteButton").should("be.disabled"); // ensure that query is being executed
 
       cy.getByTestId("TableVisualization").should("contain", "value2");
     });
