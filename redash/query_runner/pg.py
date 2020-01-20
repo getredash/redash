@@ -242,7 +242,7 @@ class Redshift(PostgreSQL):
 
     @classmethod
     def name(cls):
-        return "Redshift User"
+        return "Redshift"
 
     def _get_connection(self):
 
