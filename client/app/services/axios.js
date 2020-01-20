@@ -1,6 +1,9 @@
 import axiosLib from "axios";
+import qs from "query-string";
 
-export const axios = axiosLib.create();
+export const axios = axiosLib.create({
+  paramsSerializer: params => qs.stringify(params),
+});
 
 const getData = ({ data }) => data;
 const getResponse = ({ response }) => Promise.reject(response);
