@@ -7,8 +7,10 @@ export default function useApiKeyDialog(query, onChange) {
   onChangeRef.current = isFunction(onChange) ? onChange : () => {};
 
   return useCallback(() => {
-    ApiKeyDialog.showModal({ query }).result.then(updatedQuery => {
-      onChangeRef.current(updatedQuery);
-    });
+    ApiKeyDialog.showModal({ query })
+      .result.then(updatedQuery => {
+        onChangeRef.current(updatedQuery);
+      })
+      .catch(() => {}); // ignore dismiss
   }, [query]);
 }

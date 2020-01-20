@@ -1,5 +1,5 @@
 import {
-  Parameter,
+  createParameter,
   TextParameter,
   NumberParameter,
   EnumParameter,
@@ -25,7 +25,7 @@ describe("Parameter", () => {
     ];
 
     test.each(parameterTypes)("when type is '%s' creates a %p", (type, expectedClass) => {
-      const parameter = Parameter.create({ name: "param", title: "Param", type });
+      const parameter = createParameter({ name: "param", title: "Param", type });
       expect(parameter).toBeInstanceOf(expectedClass);
     });
   });

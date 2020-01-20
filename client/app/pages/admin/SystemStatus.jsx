@@ -2,14 +2,14 @@ import { omit } from "lodash";
 import React from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import * as StatusBlock from "@/components/admin/StatusBlock";
 
 import recordEvent from "@/services/recordEvent";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
-import { routesToAngularRoutes } from "@/lib/utils";
 
 import "./system-status.less";
 
@@ -56,11 +56,7 @@ class SystemStatus extends React.Component {
         });
       })
       .catch(error => {
-        // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-        if (error.status && error.data) {
-          error = new PromiseRejectionError(error);
-        }
-        this.props.onError(error);
+        this.props.onError(new PromiseRejectionError(error));
       });
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };
@@ -89,26 +85,14 @@ class SystemStatus extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageSystemStatus", react2angular(SystemStatus));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/status",
-        title: "System Status",
-        key: "system_status",
-      },
-    ],
-    {
-      template: '<page-system-status on-error="handleError"></page-system-status>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/admin/status",
+  title: "System Status",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <SystemStatus {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

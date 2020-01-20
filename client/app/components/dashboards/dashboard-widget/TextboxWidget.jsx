@@ -18,7 +18,7 @@ function TextboxWidget(props) {
         setText(newText);
         return widget.save();
       },
-    });
+    }).result.catch(() => {}); // ignore dismiss
   };
 
   const TextboxMenuOptions = [

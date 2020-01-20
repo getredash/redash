@@ -1,12 +1,4 @@
 import { isNull, isObject, isFunction, isUndefined, isEqual, has, omit, isArray, each } from "lodash";
-import {
-  TextParameter,
-  NumberParameter,
-  EnumParameter,
-  QueryBasedDropdownParameter,
-  DateParameter,
-  DateRangeParameter,
-} from ".";
 
 class Parameter {
   constructor(parameter, parentQueryId) {
@@ -21,27 +13,6 @@ class Parameter {
 
     // Used for URL serialization
     this.urlPrefix = "p_";
-  }
-
-  static create(param, parentQueryId) {
-    switch (param.type) {
-      case "number":
-        return new NumberParameter(param, parentQueryId);
-      case "enum":
-        return new EnumParameter(param, parentQueryId);
-      case "query":
-        return new QueryBasedDropdownParameter(param, parentQueryId);
-      case "date":
-      case "datetime-local":
-      case "datetime-with-seconds":
-        return new DateParameter(param, parentQueryId);
-      case "date-range":
-      case "datetime-range":
-      case "datetime-range-with-seconds":
-        return new DateRangeParameter(param, parentQueryId);
-      default:
-        return new TextParameter({ ...param, type: "text" }, parentQueryId);
-    }
   }
 
   static getExecutionValue(param, extra = {}) {
@@ -71,10 +42,6 @@ class Parameter {
   /** Get normalized value to be used in inputs */
   get normalizedValue() {
     return this.$$value;
-  }
-
-  clone() {
-    return Parameter.create(this, this.parentQueryId);
   }
 
   isEmptyValue(value) {

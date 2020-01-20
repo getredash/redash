@@ -360,7 +360,7 @@ class QueryResult {
 
     const request = Auth.isAuthenticated()
       ? axios.get(`api/jobs/${this.job.id}`)
-      : axios.get(`api/queries/:${query}/jobs/:${this.job.id}`);
+      : axios.get(`api/queries/${query}/jobs/${this.job.id}`);
 
     request
       .then(jobResponse => {

@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { $rootScope } from "@/services/ng";
 
 export default class FavoritesControl extends React.Component {
   static propTypes = {
@@ -21,7 +20,6 @@ export default class FavoritesControl extends React.Component {
     action().then(() => {
       item.is_favorite = !savedIsFavorite;
       this.forceUpdate();
-      $rootScope.$broadcast("reloadFavorites");
       callback();
     });
   }

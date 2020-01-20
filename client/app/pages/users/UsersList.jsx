@@ -1,10 +1,10 @@
 import { map, get } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -22,11 +22,12 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import Layout from "@/components/layouts/ContentWithSidebar";
 import CreateUserDialog from "@/components/users/CreateUserDialog";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { currentUser } from "@/services/auth";
 import { policy } from "@/services/policy";
 import User from "@/services/user";
-import navigateTo from "@/services/navigateTo";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import { absoluteUrl } from "@/services/utils";
 
@@ -168,6 +169,7 @@ class UsersList extends React.Component {
     if (policy.isCreateUserEnabled()) {
       CreateUserDialog.showModal({ onCreate: this.createUser })
         .result.then(() => this.props.controller.update())
+        .catch(() => {}) // ignore dismiss
         .finally(() => {
           if (this.props.controller.params.isNewUserPage) {
             navigateTo("users");
@@ -242,45 +244,108 @@ class UsersList extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageUsersList",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "list_users",
-          title: "Users",
-          path: "users",
-          isActive: path => path.startsWith("/users") && path !== "/users/me",
-          order: 2,
+const UsersListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Users",
+    path: "users",
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    order: 2,
+  },
+  itemsList(
+    UsersList,
+    () =>
+      new ResourceItemsSource({
+        getRequest(request, { params: { currentPage } }) {
+          switch (currentPage) {
+            case "active":
+              request.pending = false;
+              break;
+            case "pending":
+              request.pending = true;
+              break;
+            case "disabled":
+              request.disabled = true;
+              break;
+            // no default
+          }
+          return request;
         },
-        itemsList(
-          UsersList,
-          new ResourceItemsSource({
-            getRequest(request, { params: { currentPage } }) {
-              switch (currentPage) {
-                case "active":
-                  request.pending = false;
-                  break;
-                case "pending":
-                  request.pending = true;
-                  break;
-                case "disabled":
-                  request.disabled = true;
-                  break;
-                // no default
-              }
-              return request;
-            },
-            getResource() {
-              return User.query.bind(User);
-            },
-          }),
-          new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-        )
-      )
-    )
-  );
-}
+        getResource() {
+          return User.query.bind(User);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
+);
 
-init.init = true;
+export default [
+  {
+    path: "/users",
+    title: "Users",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage
+              routeParams={{ ...currentRoute.routeParams, currentPage: "active" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
+          )}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
+    ),
+  },
+  {
+    path: "/users/new",
+    title: "Users",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage
+              routeParams={{ ...currentRoute.routeParams, currentPage: "active", isNewUserPage: true }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
+          )}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
+    ),
+  },
+  {
+    path: "/users/pending",
+    title: "Pending Invitations",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage
+              routeParams={{ ...currentRoute.routeParams, currentPage: "pending" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
+          )}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
+    ),
+  },
+  {
+    path: "/users/disabled",
+    title: "Disabled Users",
+    render: currentRoute => (
+      <AuthenticatedPageWrapper key={currentRoute.key}>
+        <ErrorBoundaryContext.Consumer>
+          {({ handleError }) => (
+            <UsersListPage
+              routeParams={{ ...currentRoute.routeParams, currentPage: "disabled" }}
+              currentRoute={currentRoute}
+              onError={handleError}
+            />
+          )}
+        </ErrorBoundaryContext.Consumer>
+      </AuthenticatedPageWrapper>
+    ),
+  },
+];
