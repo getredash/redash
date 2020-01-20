@@ -96,9 +96,8 @@ describe("Pivot", () => {
       cy.visit(`queries/${this.queryId}/source#${visualization.id}`);
       cy.getByTestId("ExecuteButton").click();
 
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`)
-        .find(".pvtGrandTotal")
-        .should("have.text", "11"); // assert number of rows is 11
+      // assert number of rows is 11
+      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "11");
 
       cy.getByTestId("QueryEditor")
         .get(".ace_text-input")
@@ -109,9 +108,8 @@ describe("Pivot", () => {
       cy.getByTestId("SaveButton").click();
       cy.getByTestId("ExecuteButton").click();
 
-      cy.getByTestId(`QueryPageVisualization${visualization.id}`)
-        .find(".pvtGrandTotal")
-        .should("have.text", "12"); // assert number of rows is 12
+      // assert number of rows is 12
+      cy.getByTestId(`QueryPageVisualization${visualization.id}`).contains(".pvtGrandTotal", "12");
     });
   });
 
