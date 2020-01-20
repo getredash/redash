@@ -353,7 +353,7 @@ class RedshiftIAM(Redshift):
 
     @classmethod
     def name(cls):
-        return "Redshift IAM User/Role"
+        return "Redshift (with IAM User/Role)"
 
     @classmethod
     def enabled(cls):
