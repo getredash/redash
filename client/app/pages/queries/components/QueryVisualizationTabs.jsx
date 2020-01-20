@@ -138,7 +138,7 @@ export default function QueryVisualizationTabs({
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
           }>
-          {queryResult ? (
+          {queryResult && !(queryResult.isEmpty && queryResult.isEmpty()) ? (
             <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
           ) : (
             <EmptyState refreshButton={refreshButton} />
