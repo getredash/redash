@@ -70,6 +70,7 @@
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "plotly.js": "1.41.3",
     "prop-types": "^15.6.1",
+    "query-string": "^6.9.0",
     "react": "^16.8.3",
     "react-ace": "^6.1.0",
     "react-dom": "^16.8.3",
