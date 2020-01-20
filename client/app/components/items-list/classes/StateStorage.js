@@ -52,6 +52,6 @@ export class UrlStateStorage extends StateStorage {
       page_size: itemsPerPage,
       order: compileOrderBy(orderByField, orderByReverse),
       q: searchTerm !== "" ? searchTerm : null,
-    });
+    }, true);
   }
 }

@@ -16,7 +16,7 @@ function updateUrl(parameters) {
   parameters.forEach(param => {
     extend(params, param.toUrlParams());
   });
-  location.setSearch(params);
+  location.setSearch(params, true);
 }
 
 export default class Parameters extends React.Component {

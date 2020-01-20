@@ -72,7 +72,7 @@ function useFullscreenHandler() {
   const [fullscreen, setFullscreen] = useState(has(location.search, "fullscreen"));
   useEffect(() => {
     document.body.classList.toggle("headless", fullscreen);
-    location.setSearch({ fullscreen: fullscreen ? true : null });
+    location.setSearch({ fullscreen: fullscreen ? true : null }, true);
   }, [fullscreen]);
 
   const toggleFullscreen = () => setFullscreen(!fullscreen);
@@ -83,7 +83,7 @@ function useRefreshRateHandler(refreshDashboard) {
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
 
   useEffect(() => {
-    location.setSearch({ refresh: refreshRate || null });
+    location.setSearch({ refresh: refreshRate || null }, true);
     if (refreshRate) {
       const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
       return () => clearInterval(refreshTimer);
@@ -100,7 +100,7 @@ function useEditModeHandler(canEditDashboard, widgets) {
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
 
   useEffect(() => {
-    location.setSearch({ edit: editingLayout ? true : null });
+    location.setSearch({ edit: editingLayout ? true : null }, true);
   }, [editingLayout]);
 
   useEffect(() => {
