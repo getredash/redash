@@ -124,10 +124,12 @@ function useDashboard(dashboardData) {
 
   const refreshDashboard = useCallback(
     updatedParameters => {
-      setRefreshing(true);
-      loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
+      if (!refreshing) {
+        setRefreshing(true);
+        loadDashboard(true, updatedParameters).finally(() => setRefreshing(false));
+      }
     },
-    [loadDashboard]
+    [refreshing, loadDashboard]
   );
 
   const archiveDashboard = useCallback(() => {
