@@ -1,39 +1,20 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import {
-  isEmpty,
-  isNaN,
-  includes,
-  compact,
-  map,
-  has,
-  pick,
-  keys,
-  extend,
-  every,
-  find,
-  debounce,
-  isMatch,
-  pickBy,
-  max,
-  min,
-} from "lodash";
+import { isEmpty, includes, compact, map, has, pick, keys, extend, every } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
-import { policy } from "@/services/policy";
 import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
 import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
-import ShareDashboardDialog from "./ShareDashboardDialog";
+import ShareDashboardDialog from "../components/ShareDashboardDialog";
+import useFullscreenHandler from "./useFullscreenHandler";
+import useRefreshRateHandler from "./useRefreshRateHandler";
+import useEditModeHandler from "./useEditModeHandler";
 
-export const DashboardStatusEnum = {
-  SAVED: "saved",
-  SAVING: "saving",
-  SAVING_FAILED: "saving_failed",
-};
+export { DashboardStatusEnum } from "./useEditModeHandler";
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters)
@@ -48,133 +29,6 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
           )
       )
     : widgets;
-}
-
-function getChangedPositions(widgets, nextPositions = {}) {
-  return pickBy(nextPositions, (nextPos, widgetId) => {
-    const widget = find(widgets, { id: Number(widgetId) });
-    const prevPos = widget.options.position;
-    return !isMatch(prevPos, nextPos);
-  });
-}
-
-function getLimitedRefreshRate(refreshRate) {
-  const allowedIntervals = policy.getDashboardRefreshIntervals();
-  return max([30, min(allowedIntervals), refreshRate]);
-}
-
-function getRefreshRateFromUrl() {
-  const refreshRate = parseFloat(location.search.refresh);
-  return isNaN(refreshRate) ? null : getLimitedRefreshRate(refreshRate);
-}
-
-function useFullscreenHandler() {
-  const [fullscreen, setFullscreen] = useState(has(location.search, "fullscreen"));
-  useEffect(() => {
-    document.body.classList.toggle("headless", fullscreen);
-    location.setSearch({ fullscreen: fullscreen ? true : null }, true);
-  }, [fullscreen]);
-
-  const toggleFullscreen = () => setFullscreen(!fullscreen);
-  return [fullscreen, toggleFullscreen];
-}
-
-function useRefreshRateHandler(refreshDashboard) {
-  const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
-
-  useEffect(() => {
-    location.setSearch({ refresh: refreshRate || null }, true);
-    if (refreshRate) {
-      const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
-      return () => clearInterval(refreshTimer);
-    }
-  }, [refreshDashboard, refreshRate]);
-
-  return [refreshRate, rate => setRefreshRate(getLimitedRefreshRate(rate)), () => setRefreshRate(null)];
-}
-
-function useEditModeHandler(canEditDashboard, widgets) {
-  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
-  const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
-  const [recentPositions, setRecentPositions] = useState([]);
-  const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
-
-  useEffect(() => {
-    location.setSearch({ edit: editingLayout ? true : null }, true);
-  }, [editingLayout]);
-
-  useEffect(() => {
-    if (doneBtnClickedWhileSaving && dashboardStatus === DashboardStatusEnum.SAVED) {
-      setDoneBtnClickedWhileSaving(false);
-      setEditingLayout(false);
-    }
-  }, [doneBtnClickedWhileSaving, dashboardStatus]);
-
-  const saveDashboardLayout = useCallback(
-    positions => {
-      if (!canEditDashboard) {
-        setDashboardStatus(DashboardStatusEnum.SAVED);
-        return;
-      }
-
-      const changedPositions = getChangedPositions(widgets, positions);
-
-      setDashboardStatus(DashboardStatusEnum.SAVING);
-      setRecentPositions(positions);
-      const saveChangedWidgets = map(changedPositions, (position, id) => {
-        // find widget
-        const widget = find(widgets, { id: Number(id) });
-
-        // skip already deleted widget
-        if (!widget) {
-          return Promise.resolve();
-        }
-
-        return widget.save("options", { position });
-      });
-
-      return Promise.all(saveChangedWidgets)
-        .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
-        .catch(() => {
-          setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
-          notification.error("Error saving changes.");
-        });
-    },
-    [canEditDashboard, widgets]
-  );
-
-  const saveDashboardLayoutDebounced = useCallback(
-    (...args) => {
-      setDashboardStatus(DashboardStatusEnum.SAVING);
-      return debounce(() => saveDashboardLayout(...args), 2000)();
-    },
-    [saveDashboardLayout]
-  );
-
-  const retrySaveDashboardLayout = useCallback(() => saveDashboardLayout(recentPositions), [
-    recentPositions,
-    saveDashboardLayout,
-  ]);
-
-  const setEditing = useCallback(
-    editing => {
-      if (!editing && dashboardStatus !== DashboardStatusEnum.SAVED) {
-        setDoneBtnClickedWhileSaving(true);
-        return;
-      }
-      setEditingLayout(canEditDashboard && editing);
-    },
-    [dashboardStatus, canEditDashboard]
-  );
-
-  return {
-    editingLayout: canEditDashboard && editingLayout,
-    setEditingLayout: setEditing,
-    saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
-    retrySaveDashboardLayout,
-    doneBtnClickedWhileSaving,
-    dashboardStatus,
-  };
 }
 
 function useDashboard(dashboardData) {

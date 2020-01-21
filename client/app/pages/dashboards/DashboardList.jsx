@@ -17,7 +17,7 @@ import Layout from "@/components/layouts/ContentWithSidebar";
 
 import { Dashboard } from "@/services/dashboard";
 
-import DashboardListEmptyState from "./DashboardListEmptyState";
+import DashboardListEmptyState from "./components/DashboardListEmptyState";
 
 import "./dashboard-list.css";
 

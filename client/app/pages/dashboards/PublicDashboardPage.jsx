@@ -11,7 +11,7 @@ import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
-import useDashboard from "./useDashboard";
+import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
 
