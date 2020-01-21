@@ -1,14 +1,14 @@
-import React from "react";
 import { isEmpty } from "lodash";
+import React from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
+import SignedOutPageWrapper from "@/components/ApplicationArea/SignedOutPageWrapper";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
-import { $route as ngRoute } from "@/services/ng";
 import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import useDashboard from "./useDashboard";
@@ -53,16 +53,25 @@ PublicDashboard.propTypes = {
 };
 
 class PublicDashboardPage extends React.Component {
+  static propTypes = {
+    token: PropTypes.string.isRequired,
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     loading: true,
     dashboard: null,
   };
 
   componentDidMount() {
-    Dashboard.getByToken({ token: ngRoute.current.params.token })
-      .$promise.then(dashboard => this.setState({ dashboard, loading: false }))
+    Dashboard.getByToken({ token: this.props.token })
+      .then(dashboard => this.setState({ dashboard, loading: false }))
       .catch(error => {
-        throw new PromiseRejectionError(error);
+        this.props.onError(new PromiseRejectionError(error));
       });
   }
 
@@ -90,24 +99,14 @@ class PublicDashboardPage extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("publicDashboardPage", react2angular(PublicDashboardPage));
-
-  return {
-    "/public/dashboards/:token": {
-      authenticated: false,
-      template: "<public-dashboard-page></public-dashboard-page>",
-      reloadOnSearch: false,
-      resolve: {
-        session: ($route, Auth) => {
-          "ngInject";
-          const token = $route.current.params.token;
-          Auth.setApiKey(token);
-          return Auth.loadConfig();
-        },
-      },
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/public/dashboards/:token",
+  authenticated: false,
+  render: currentRoute => (
+    <SignedOutPageWrapper key={currentRoute.key} apiKey={currentRoute.routeParams.token}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <PublicDashboardPage {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </SignedOutPageWrapper>
+  ),
+};

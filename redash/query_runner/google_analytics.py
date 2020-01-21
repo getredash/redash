@@ -163,11 +163,8 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         try:
             params = json_loads(query)
         except:
-            params = parse_qs(urlparse(query).query, keep_blank_values=True)
-            for key in params.keys():
-                params[key] = ",".join(params[key])
-                if "-" in key:
-                    params[key.replace("-", "_")] = params.pop(key)
+            query_string = parse_qs(urlparse(query).query, keep_blank_values=True) 
+            params = {k.replace('-', '_'): ",".join(v) for k,v in query_string.items()}
 
         if "mcf:" in params["metrics"] and "ga:" in params["metrics"]:
             raise Exception("Can't mix mcf: and ga: metrics.")

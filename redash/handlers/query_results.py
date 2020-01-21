@@ -15,7 +15,6 @@ from redash.permissions import (
     require_permission,
     require_any_of_permission,
     view_only,
-    view_only,
 )
 from redash.tasks import Job
 from redash.tasks.queries import enqueue_query

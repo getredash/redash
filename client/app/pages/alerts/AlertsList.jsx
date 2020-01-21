@@ -1,11 +1,10 @@
-import React from "react";
-import { react2angular } from "react2angular";
-
 import { toUpper } from "lodash";
+import React from "react";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
-
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
@@ -13,8 +12,7 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import { Alert } from "@/services/alert";
-import { routesToAngularRoutes } from "@/lib/utils";
+import Alert from "@/services/alert";
 
 export const STATE_CLASS = {
   unknown: "label-warning",
@@ -70,82 +68,73 @@ class AlertsList extends React.Component {
     const { controller } = this.props;
 
     return (
-      <div className="container">
-        <PageHeader title={controller.params.title} />
-        <div className="m-l-15 m-r-15">
-          {!controller.isLoaded && <LoadingState className="" />}
-          {controller.isLoaded && controller.isEmpty && (
-            <EmptyState
-              icon="fa fa-bell-o"
-              illustration="alert"
-              description="Get notified on certain events"
-              helpLink="https://redash.io/help/user-guide/alerts/"
-              showAlertStep
-            />
-          )}
-          {controller.isLoaded && !controller.isEmpty && (
-            <div className="table-responsive bg-white tiled">
-              <ItemsTable
-                items={controller.pageItems}
-                columns={this.listColumns}
-                orderByField={controller.orderByField}
-                orderByReverse={controller.orderByReverse}
-                toggleSorting={controller.toggleSorting}
+      <div className="page-alerts-list">
+        <div className="container">
+          <PageHeader title={controller.params.title} />
+          <div className="m-l-15 m-r-15">
+            {!controller.isLoaded && <LoadingState className="" />}
+            {controller.isLoaded && controller.isEmpty && (
+              <EmptyState
+                icon="fa fa-bell-o"
+                illustration="alert"
+                description="Get notified on certain events"
+                helpLink="https://redash.io/help/user-guide/alerts/"
+                showAlertStep
               />
-              <Paginator
-                totalCount={controller.totalItemsCount}
-                itemsPerPage={controller.itemsPerPage}
-                page={controller.page}
-                onChange={page => controller.updatePagination({ page })}
-              />
-            </div>
-          )}
+            )}
+            {controller.isLoaded && !controller.isEmpty && (
+              <div className="table-responsive bg-white tiled">
+                <ItemsTable
+                  items={controller.pageItems}
+                  columns={this.listColumns}
+                  orderByField={controller.orderByField}
+                  orderByReverse={controller.orderByReverse}
+                  toggleSorting={controller.toggleSorting}
+                />
+                <Paginator
+                  totalCount={controller.totalItemsCount}
+                  itemsPerPage={controller.itemsPerPage}
+                  page={controller.page}
+                  onChange={page => controller.updatePagination({ page })}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageAlertsList",
-    react2angular(
-      liveItemsList(
-        AlertsList,
-        new ResourceItemsSource({
-          isPlainList: true,
-          getRequest() {
-            return {};
-          },
-          getResource() {
-            return Alert.query.bind(Alert);
-          },
-          getItemProcessor() {
-            return item => new Alert(item);
-          },
-        }),
-        new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
-      )
-    )
-  );
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/alerts",
-        title: "Alerts",
-        key: "alerts",
+const AlertsListPage = liveItemsList(
+  AlertsList,
+  () =>
+    new ResourceItemsSource({
+      isPlainList: true,
+      getRequest() {
+        return {};
       },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-alerts-list on-error="handleError"></page-alerts-list>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
+      getResource() {
+        return Alert.query.bind(Alert);
       },
-    }
-  );
-}
+    }),
+  () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
+);
 
-init.init = true;
+export default {
+  path: "/alerts",
+  title: "Alerts",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <AlertsListPage
+            routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
+        )}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

@@ -1,12 +1,11 @@
 import { isArray } from "lodash";
-import { $q } from "@/services/ng";
 import { currentUser, clientConfig } from "@/services/auth";
 
 /* eslint-disable class-methods-use-this */
 
 export default class DefaultPolicy {
   refresh() {
-    return $q.resolve(this);
+    return Promise.resolve(this);
   }
 
   canCreateDataSource() {

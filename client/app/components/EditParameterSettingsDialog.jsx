@@ -77,9 +77,7 @@ function EditParameterSettingsDialog(props) {
   useEffect(() => {
     const queryId = props.parameter.queryId;
     if (queryId) {
-      Query.get({ id: queryId }, query => {
-        setInitialQuery(query);
-      });
+      Query.get({ id: queryId }).then(setInitialQuery);
     }
   }, [props.parameter.queryId]);
 

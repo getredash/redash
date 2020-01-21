@@ -3,7 +3,6 @@ import logging
 import re
 
 from dateutil.parser import parse
-from six import string_types, text_type
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, json_dumps, json_loads, parse_human_time
@@ -26,7 +25,7 @@ except ImportError:
 
 TYPES_MAP = {
     str: TYPE_STRING,
-    text_type: TYPE_STRING,
+    bytes: TYPE_STRING,
     int: TYPE_INTEGER,
     float: TYPE_FLOAT,
     bool: TYPE_BOOLEAN,
@@ -57,7 +56,7 @@ def parse_oids(oids):
 
 def datetime_parser(dct):
     for k, v in dct.items():
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)

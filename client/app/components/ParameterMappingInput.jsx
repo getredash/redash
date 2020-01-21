@@ -16,7 +16,7 @@ import Form from "antd/lib/form";
 import Tooltip from "antd/lib/tooltip";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
-import { Parameter } from "@/services/parameters";
+import { Parameter, cloneParameter } from "@/services/parameters";
 import HelpTrigger from "@/components/HelpTrigger";
 
 import "./ParameterMappingInput.less";
@@ -42,7 +42,7 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
         break;
       case ParameterMappingType.StaticValue:
         result.type = MappingType.StaticValue;
-        result.param = result.param.clone();
+        result.param = cloneParameter(result.param);
         result.param.setValue(result.value);
         break;
       case ParameterMappingType.WidgetLevel:
@@ -73,7 +73,7 @@ export function editableMappingsToParameterMappings(mappings) {
             break;
           case MappingType.StaticValue:
             result.type = ParameterMappingType.StaticValue;
-            result.param = mapping.param.clone();
+            result.param = cloneParameter(mapping.param);
             result.param.setValue(result.value);
             result.value = result.param.value;
             break;
@@ -157,7 +157,7 @@ export class ParameterMappingInput extends React.Component {
     const { onChange, mapping } = this.props;
     const newMapping = extend({}, mapping, update);
     if (newMapping.value !== mapping.value) {
-      newMapping.param = newMapping.param.clone();
+      newMapping.param = cloneParameter(newMapping.param);
       newMapping.param.setValue(newMapping.value);
     }
     if (has(update, "type")) {
@@ -527,7 +527,7 @@ export class ParameterMappingListInput extends React.Component {
 
       // static type is different since it's fed param.normalizedValue
     } else if (type === MappingType.StaticValue) {
-      param = param.clone().setValue(mapping.value);
+      param = cloneParameter(param).setValue(mapping.value);
     }
 
     let value = Parameter.getExecutionValue(param);

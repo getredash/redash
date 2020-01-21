@@ -56,20 +56,17 @@ function doSaveQuery(data, { canOverwrite = false } = {}) {
     };
   }
 
-  // Prettier will put `.$promise` before `.catch` on next line :facepalm:
-  // prettier-ignore
-  return Query.save(data).$promise
-    .catch(error => {
-      if (error.status === 409) {
-        if (canOverwrite) {
-          return confirmOverwrite()
-            .then(() => Query.save(omit(data, ["version"])).$promise)
-            .catch(() => Promise.reject(new SaveQueryConflictError()));
-        }
-        return Promise.reject(new SaveQueryConflictError());
+  return Query.save(data).catch(error => {
+    if (error.status === 409) {
+      if (canOverwrite) {
+        return confirmOverwrite()
+          .then(() => Query.save(omit(data, ["version"])))
+          .catch(() => Promise.reject(new SaveQueryConflictError()));
       }
-      return Promise.reject(new SaveQueryError("Query could not be saved"));
-    });
+      return Promise.reject(new SaveQueryConflictError());
+    }
+    return Promise.reject(new SaveQueryError("Query could not be saved"));
+  });
 }
 
 export default function useUpdateQuery(query, onChange) {

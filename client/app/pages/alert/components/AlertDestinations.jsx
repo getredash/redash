@@ -5,9 +5,8 @@ import { without, find, isEmpty, includes, map } from "lodash";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
 import { Destination as DestinationType, UserProfile as UserType } from "@/components/proptypes";
 
-import { Destination as DestinationService, IMG_ROOT } from "@/services/destination";
-import { AlertSubscription } from "@/services/alert-subscription";
-import { $q } from "@/services/ng";
+import DestinationService, { IMG_ROOT } from "@/services/destination";
+import AlertSubscription from "@/services/alert-subscription";
 import { clientConfig, currentUser } from "@/services/auth";
 import notification from "@/services/notification";
 import ListItemAddon from "@/components/groups/ListItemAddon";
@@ -71,9 +70,9 @@ export default class AlertDestinations extends React.Component {
 
   componentDidMount() {
     const { alertId } = this.props;
-    $q.all([
-      DestinationService.query().$promise, // get all destinations
-      AlertSubscription.query({ alertId }).$promise, // get subcriptions per alert
+    Promise.all([
+      DestinationService.query(), // get all destinations
+      AlertSubscription.query({ alertId }), // get subcriptions per alert
     ]).then(([dests, subs]) => {
       subs = subs.map(normalizeSub);
       this.setState({ dests, subs });
@@ -128,7 +127,7 @@ export default class AlertDestinations extends React.Component {
             notification.error("Failed saving subscription.");
           });
       },
-    });
+    }).result.catch(() => {}); // ignore dismiss
   };
 
   onUserEmailToggle = sub => {
@@ -142,12 +141,12 @@ export default class AlertDestinations extends React.Component {
   subscribe = dest => {
     const { alertId } = this.props;
 
-    const sub = new AlertSubscription({ alert_id: alertId });
+    const sub = { alert_id: alertId };
     if (dest) {
       sub.destination_id = dest.id;
     }
 
-    return sub.$save(() => {
+    return AlertSubscription.create(sub).then(sub => {
       const { subs } = this.state;
       this.setState({
         subs: [...subs, normalizeSub(sub)],
@@ -156,18 +155,17 @@ export default class AlertDestinations extends React.Component {
   };
 
   unsubscribe = sub => {
-    sub.$delete(
-      () => {
+    AlertSubscription.delete(sub)
+      .then(() => {
         // not showing subscribe notification cause it's redundant here
         const { subs } = this.state;
         this.setState({
           subs: without(subs, sub),
         });
-      },
-      () => {
+      })
+      .catch(() => {
         notification.error("Failed unsubscribing.");
-      }
-    );
+      });
   };
 
   render() {

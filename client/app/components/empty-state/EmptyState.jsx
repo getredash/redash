@@ -1,5 +1,5 @@
 import { keys, some } from "lodash";
-import React from "react";
+import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
@@ -64,6 +64,10 @@ function EmptyState({
     inviteUsers: organizationStatus.objectCounters.users > 1,
   };
 
+  const showCreateDashboardDialog = useCallback(() => {
+    CreateDashboardDialog.showModal().result.catch(() => {}); // ignore dismiss
+  }, []);
+
   // Show if `onboardingMode=false` or any requested step not completed
   const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
@@ -121,7 +125,7 @@ function EmptyState({
           <Step
             show={isAvailable.dashboard}
             completed={isCompleted.dashboard}
-            onClick={() => CreateDashboardDialog.showModal()}
+            onClick={showCreateDashboardDialog}
             urlText="Create"
             text="your first Dashboard"
           />

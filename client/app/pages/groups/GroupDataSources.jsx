@@ -1,11 +1,12 @@
 import { filter, map, includes } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
@@ -22,13 +23,12 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
-import { Group } from "@/services/group";
-import { DataSource } from "@/services/data-source";
-import navigateTo from "@/services/navigateTo";
-import { routesToAngularRoutes } from "@/lib/utils";
+import Group from "@/services/group";
+import DataSource from "@/services/data-source";
 
 class GroupDataSources extends React.Component {
   static propTypes = {
@@ -100,7 +100,7 @@ class GroupDataSources extends React.Component {
 
   componentDidMount() {
     Group.get({ id: this.groupId })
-      .$promise.then(group => {
+      .then(group => {
         this.group = group;
         this.forceUpdate();
       })
@@ -111,7 +111,7 @@ class GroupDataSources extends React.Component {
 
   removeGroupDataSource = datasource => {
     Group.removeDataSource({ id: this.groupId, dataSourceId: datasource.id })
-      .$promise.then(() => {
+      .then(() => {
         this.props.controller.updatePagination({ page: 1 });
         this.props.controller.update();
       })
@@ -124,7 +124,7 @@ class GroupDataSources extends React.Component {
     const viewOnly = permission !== "full";
 
     Group.updateDataSource({ id: this.groupId, dataSourceId: datasource.id }, { view_only: viewOnly })
-      .$promise.then(() => {
+      .then(() => {
         datasource.view_only = viewOnly;
         this.forceUpdate();
       })
@@ -134,7 +134,7 @@ class GroupDataSources extends React.Component {
   };
 
   addDataSources = () => {
-    const allDataSources = DataSource.query().$promise;
+    const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: "Add Data Sources",
@@ -164,12 +164,14 @@ class GroupDataSources extends React.Component {
         ),
       }),
       save: items => {
-        const promises = map(items, ds => Group.addDataSource({ id: this.groupId, data_source_id: ds.id }).$promise);
+        const promises = map(items, ds => Group.addDataSource({ id: this.groupId }, { data_source_id: ds.id }));
         return Promise.all(promises);
       },
-    }).result.finally(() => {
-      this.props.controller.update();
-    });
+    })
+      .result.catch(() => {}) // ignore dismiss
+      .finally(() => {
+        this.props.controller.update();
+      });
   };
 
   render() {
@@ -185,7 +187,7 @@ class GroupDataSources extends React.Component {
               items={this.sidebarMenu}
               canAddDataSources={currentUser.isAdmin}
               onAddDataSourcesClick={this.addDataSources}
-              onGroupDeleted={() => navigateTo("/groups", true)}
+              onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
           <Layout.Content>
@@ -227,50 +229,38 @@ class GroupDataSources extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageGroupDataSources",
-    react2angular(
-      wrapSettingsTab(
-        null,
-        liveItemsList(
-          GroupDataSources,
-          new ResourceItemsSource({
-            isPlainList: true,
-            getRequest(unused, { params: { groupId } }) {
-              return { id: groupId };
-            },
-            getResource() {
-              return Group.dataSources.bind(Group);
-            },
-            getItemProcessor() {
-              return item => new DataSource(item);
-            },
-          }),
-          new StateStorage({ orderByField: "name" })
-        )
-      )
-    )
-  );
+const GroupDataSourcesPage = wrapSettingsTab(
+  null,
+  liveItemsList(
+    GroupDataSources,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.dataSources.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
+  )
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/groups/:groupId/data_sources",
-        title: "Group Data Sources",
-        key: "datasources",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-group-data-sources on-error="handleError"></page-group-data-sources>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/groups/:groupId([0-9]+)/data_sources",
+  title: "Group Data Sources",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => (
+          <GroupDataSourcesPage
+            routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
+            currentRoute={currentRoute}
+            onError={handleError}
+          />
+        )}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

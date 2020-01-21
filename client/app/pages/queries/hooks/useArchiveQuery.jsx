@@ -30,7 +30,7 @@ function confirmArchive() {
 
 function doArchiveQuery(query) {
   return Query.delete({ id: query.id })
-    .$promise.then(() => {
+    .then(() => {
       return extend(query.clone(), { is_archived: true, schedule: null });
     })
     .catch(error => {

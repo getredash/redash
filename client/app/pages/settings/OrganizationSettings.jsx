@@ -1,5 +1,5 @@
 import React from "react";
-import { react2angular } from "react2angular";
+import PropTypes from "prop-types";
 import { isEmpty, join, get } from "lodash";
 
 import Alert from "antd/lib/alert";
@@ -9,19 +9,29 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import LoadingState from "@/components/items-list/components/LoadingState";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
-import { routesToAngularRoutes } from "@/lib/utils";
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import OrgSettings from "@/services/organizationSettings";
 import HelpTrigger from "@/components/HelpTrigger";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import DynamicComponent from "@/components/DynamicComponent";
+import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 const Option = Select.Option;
 
 class OrganizationSettings extends React.Component {
+  static propTypes = {
+    onError: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onError: () => {},
+  };
+
   state = {
     settings: {},
     formValues: {},
@@ -31,10 +41,12 @@ class OrganizationSettings extends React.Component {
 
   componentDidMount() {
     recordEvent("view", "page", "org_settings");
-    OrgSettings.get().then(response => {
-      const settings = get(response, "settings");
-      this.setState({ settings, formValues: { ...settings }, loading: false });
-    });
+    OrgSettings.get()
+      .then(response => {
+        const settings = get(response, "settings");
+        this.setState({ settings, formValues: { ...settings }, loading: false });
+      })
+      .catch(error => this.props.onError(new PromiseRejectionError(error)));
   }
 
   disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
@@ -48,6 +60,7 @@ class OrganizationSettings extends React.Component {
           const settings = get(response, "settings");
           this.setState({ settings, formValues: { ...settings } });
         })
+        .catch(error => this.props.onError(new PromiseRejectionError(error)))
         .finally(() => this.setState({ submitting: false }));
     }
   };
@@ -259,40 +272,24 @@ class OrganizationSettings extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component(
-    "pageOrganizationSettings",
-    react2angular(
-      wrapSettingsTab(
-        {
-          permission: "admin",
-          title: "Settings",
-          path: "settings/organization",
-          order: 6,
-        },
-        OrganizationSettings
-      )
-    )
-  );
+const OrganizationSettingsPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Settings",
+    path: "settings/organization",
+    order: 6,
+  },
+  OrganizationSettings
+);
 
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/settings/organization",
-        title: "Organization Settings",
-        key: "organization-settings",
-      },
-    ],
-    {
-      reloadOnSearch: false,
-      template: '<page-organization-settings on-error="handleError"></page-organization-settings>',
-      controller($scope, $exceptionHandler) {
-        "ngInject";
-
-        $scope.handleError = $exceptionHandler;
-      },
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/settings/organization",
+  title: "Organization Settings",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <OrganizationSettingsPage {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

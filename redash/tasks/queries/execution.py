@@ -2,7 +2,6 @@ import logging
 import signal
 import time
 import redis
-from six import text_type
 
 from rq import get_current_job
 from rq.job import JobStatus
@@ -14,7 +13,7 @@ from redash.tasks.worker import Queue, Job
 from redash.tasks.alerts import check_alerts_for_query
 from redash.tasks.failure_report import track_failure
 from redash.utils import gen_query_hash, json_dumps, utcnow
-from redash.worker import celery, get_job_logger
+from redash.worker import get_job_logger
 
 logger = get_job_logger(__name__)
 TIMEOUT_MESSAGE = "Query exceeded Redash query execution time limit."
@@ -162,7 +161,7 @@ class QueryExecutor(object):
             if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE
             else:
-                error = text_type(e)
+                error = str(e)
 
             data = None
             logging.warning("Unexpected error while running query:", exc_info=1)

@@ -141,11 +141,7 @@ export class ItemsSource {
 
   handleError = error => {
     if (isFunction(this.onError)) {
-      // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
-      if (error.status && error.data) {
-        error = new PromiseRejectionError(error);
-      }
-      this.onError(error);
+      this.onError(new PromiseRejectionError(error));
     }
   };
 }
@@ -156,8 +152,8 @@ export class ResourceItemsSource extends ItemsSource {
     super({
       ...rest,
       doRequest: (request, context) => {
-        const resource = getResource(context);
-        return resource(request).$promise;
+        const resource = getResource(context)(request);
+        return resource;
       },
       processResults: (results, context) => {
         let processItem = getItemProcessor(context);

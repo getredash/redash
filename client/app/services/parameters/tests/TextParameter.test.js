@@ -1,10 +1,10 @@
-import { Parameter } from "..";
+import { createParameter } from "..";
 
 describe("TextParameter", () => {
   let param;
 
   beforeEach(() => {
-    param = Parameter.create({ name: "param", title: "Param", type: "text" });
+    param = createParameter({ name: "param", title: "Param", type: "text" });
   });
 
   describe("normalizeValue", () => {

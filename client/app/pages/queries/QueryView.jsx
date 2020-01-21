@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
-import { react2angular } from "react2angular";
 import Divider from "antd/lib/divider";
 
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
-import { DataSource } from "@/services/data-source";
+import { Query } from "@/services/query";
+import DataSource from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/lib/utils";
 
 import QueryPageHeader from "./components/QueryPageHeader";
@@ -58,7 +60,7 @@ function QueryView(props) {
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
-      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && areParametersDirty) || isQueryExecuting) {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
         return;
       }
       executeQuery();
@@ -71,13 +73,18 @@ function QueryView(props) {
   }, [query.name]);
 
   useEffect(() => {
-    DataSource.get({ id: query.data_source_id }).$promise.then(setDataSource);
+    DataSource.get({ id: query.data_source_id }).then(setDataSource);
   }, [query.data_source_id]);
 
   return (
     <div className="query-page-wrapper">
       <div className="container">
-        <QueryPageHeader query={query} dataSource={dataSource} onChange={setQuery} selectedVisualization={selectedVisualization} />
+        <QueryPageHeader
+          query={query}
+          dataSource={dataSource}
+          onChange={setQuery}
+          selectedVisualization={selectedVisualization}
+        />
         <div className="query-metadata tiled bg-white p-15">
           <EditInPlace
             className="w-100"
@@ -178,22 +185,16 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
-export default function init(ngModule) {
-  ngModule.component("pageQueryView", react2angular(QueryView));
-
-  return {
-    "/queries/:queryId": {
-      template: '<page-query-view query="$resolve.query"></page-query-view>',
-      reloadOnSearch: false,
-      resolve: {
-        query: (Query, $route) => {
-          "ngInject";
-
-          return Query.get({ id: $route.current.params.queryId }).$promise;
-        },
-      },
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/queries/:queryId([0-9]+)",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <QueryView {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+  resolve: {
+    query: ({ queryId }) => Query.get({ id: queryId }),
+  },
+};

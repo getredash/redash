@@ -1,5 +1,5 @@
 import { isArray, isEmpty, includes, intersection, get, map, join, has } from "lodash";
-import { Parameter } from ".";
+import Parameter from "./Parameter";
 
 class EnumParameter extends Parameter {
   constructor(parameter, parentQueryId) {

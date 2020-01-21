@@ -1,22 +1,22 @@
 import { flatMap, values } from "lodash";
 import React from "react";
-import { react2angular } from "react2angular";
+import { axios } from "@/services/axios";
 
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import Layout from "@/components/admin/Layout";
-import { CounterCard } from "@/components/admin/CeleryStatus";
-import { WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
+import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
+import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
-import { $http, $location, $rootScope } from "@/services/ng";
+import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
-import { routesToAngularRoutes } from "@/lib/utils";
 import moment from "moment";
 
 class Jobs extends React.Component {
   state = {
-    activeTab: $location.hash(),
+    activeTab: location.hash,
     isLoading: true,
     error: null,
 
@@ -41,9 +41,9 @@ class Jobs extends React.Component {
   }
 
   refresh = () => {
-    $http
+    axios
       .get("/api/admin/queries/rq_status")
-      .then(({ data }) => this.processQueues(data))
+      .then(data => this.processQueues(data))
       .catch(error => this.handleError(error));
 
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
@@ -82,8 +82,7 @@ class Jobs extends React.Component {
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
 
     const changeTab = newTab => {
-      $location.hash(newTab);
-      $rootScope.$applyAsync();
+      location.setHash(newTab);
       this.setState({ activeTab: newTab });
     };
 
@@ -122,21 +121,14 @@ class Jobs extends React.Component {
   }
 }
 
-export default function init(ngModule) {
-  ngModule.component("pageJobs", react2angular(Jobs));
-
-  return routesToAngularRoutes(
-    [
-      {
-        path: "/admin/queries/jobs",
-        title: "RQ Status",
-        key: "jobs",
-      },
-    ],
-    {
-      template: "<page-jobs></page-jobs>",
-    }
-  );
-}
-
-init.init = true;
+export default {
+  path: "/admin/queries/jobs",
+  title: "RQ Status",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <ErrorBoundaryContext.Consumer>
+        {({ handleError }) => <Jobs {...currentRoute.routeParams} onError={handleError} />}
+      </ErrorBoundaryContext.Consumer>
+    </AuthenticatedPageWrapper>
+  ),
+};

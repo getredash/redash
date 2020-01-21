@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
+import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
-import { react2angular } from "react2angular";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
+import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
 import recordEvent from "@/services/recordEvent";
 import { messages } from "@/services/auth";
-import { $http } from "@/services/ng";
 import notification from "@/services/notification";
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
@@ -38,7 +38,7 @@ function DeprecatedEmbedFeatureAlert() {
 
 function EmailNotVerifiedAlert() {
   const verifyEmail = () => {
-    $http.post("verification_email").then(({ data }) => {
+    axios.post("verification_email").then(data => {
       notification.success(data.message);
     });
   };
@@ -69,7 +69,7 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
     setLoading(true);
     resource
       .favorites()
-      .$promise.then(({ results }) => setItems(results))
+      .then(({ results }) => setItems(results))
       .finally(() => setLoading(false));
   }, [resource]);
 
@@ -173,15 +173,12 @@ function Home() {
   );
 }
 
-export default function init(ngModule) {
-  ngModule.component("homePage", react2angular(Home));
-
-  return {
-    "/": {
-      template: "<home-page></home-page>",
-      title: "Redash",
-    },
-  };
-}
-
-init.init = true;
+export default {
+  path: "/",
+  title: "Redash",
+  render: currentRoute => (
+    <AuthenticatedPageWrapper key={currentRoute.key}>
+      <Home {...currentRoute.routeParams} />
+    </AuthenticatedPageWrapper>
+  ),
+};

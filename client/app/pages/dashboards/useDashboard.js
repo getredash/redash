@@ -18,7 +18,7 @@ import {
   min,
 } from "lodash";
 import notification from "@/services/notification";
-import { $location, $rootScope } from "@/services/ng";
+import location from "@/services/location";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -34,11 +34,6 @@ export const DashboardStatusEnum = {
   SAVING: "saving",
   SAVING_FAILED: "saving_failed",
 };
-
-function updateUrlSearch(...params) {
-  $location.search(...params);
-  $rootScope.$applyAsync();
-}
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
   return !isEmpty(updatedParameters)
@@ -69,15 +64,15 @@ function getLimitedRefreshRate(refreshRate) {
 }
 
 function getRefreshRateFromUrl() {
-  const refreshRate = parseFloat($location.search().refresh);
+  const refreshRate = parseFloat(location.search.refresh);
   return isNaN(refreshRate) ? null : getLimitedRefreshRate(refreshRate);
 }
 
 function useFullscreenHandler() {
-  const [fullscreen, setFullscreen] = useState(has($location.search(), "fullscreen"));
+  const [fullscreen, setFullscreen] = useState(has(location.search, "fullscreen"));
   useEffect(() => {
-    document.querySelector("body").classList.toggle("headless", fullscreen);
-    updateUrlSearch("fullscreen", fullscreen ? true : null);
+    document.body.classList.toggle("headless", fullscreen);
+    location.setSearch({ fullscreen: fullscreen ? true : null }, true);
   }, [fullscreen]);
 
   const toggleFullscreen = () => setFullscreen(!fullscreen);
@@ -88,7 +83,7 @@ function useRefreshRateHandler(refreshDashboard) {
   const [refreshRate, setRefreshRate] = useState(getRefreshRateFromUrl());
 
   useEffect(() => {
-    updateUrlSearch("refresh", refreshRate || null);
+    location.setSearch({ refresh: refreshRate || null }, true);
     if (refreshRate) {
       const refreshTimer = setInterval(refreshDashboard, refreshRate * 1000);
       return () => clearInterval(refreshTimer);
@@ -99,13 +94,13 @@ function useRefreshRateHandler(refreshDashboard) {
 }
 
 function useEditModeHandler(canEditDashboard, widgets) {
-  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has($location.search(), "edit"));
+  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
 
   useEffect(() => {
-    updateUrlSearch("edit", editingLayout ? true : null);
+    location.setSearch({ edit: editingLayout ? true : null }, true);
   }, [editingLayout]);
 
   useEffect(() => {
@@ -206,7 +201,7 @@ function useDashboard(dashboardData) {
       aclUrl,
       context: "dashboard",
       author: dashboard.user,
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const updateDashboard = useCallback(
@@ -218,7 +213,7 @@ function useDashboard(dashboardData) {
         data = { ...data, version: dashboard.version };
       }
       return Dashboard.save(data)
-        .$promise.then(updatedDashboard =>
+        .then(updatedDashboard =>
           setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))))
         )
         .catch(error => {
@@ -266,7 +261,7 @@ function useDashboard(dashboardData) {
 
       return Promise.all(loadWidgetPromises).then(() => {
         const queryResults = compact(map(dashboard.widgets, widget => widget.getQueryResult()));
-        const updatedFilters = collectDashboardFilters(dashboard, queryResults, $location.search());
+        const updatedFilters = collectDashboardFilters(dashboard, queryResults, location.search);
         setFilters(updatedFilters);
       });
     },
@@ -283,14 +278,18 @@ function useDashboard(dashboardData) {
 
   const archiveDashboard = useCallback(() => {
     recordEvent("archive", "dashboard", dashboard.id);
-    dashboard.$delete().then(() => loadDashboard());
+    Dashboard.delete(dashboard).then(updatedDashboard =>
+      setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, ["is_archived"])))
+    );
   }, [dashboard]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const showShareDashboardDialog = useCallback(() => {
     ShareDashboardDialog.showModal({
       dashboard,
       hasOnlySafeQueries,
-    }).result.finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
+    })
+      .result.catch(() => {}) // ignore dismiss
+      .finally(() => setDashboard(currentDashboard => extend({}, currentDashboard)));
   }, [dashboard, hasOnlySafeQueries]);
 
   const showAddTextboxDialog = useCallback(() => {
@@ -298,7 +297,7 @@ function useDashboard(dashboardData) {
       dashboard,
       onConfirm: text =>
         dashboard.addWidget(text).then(() => setDashboard(currentDashboard => extend({}, currentDashboard))),
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const showAddWidgetDialog = useCallback(() => {
@@ -318,7 +317,7 @@ function useDashboard(dashboardData) {
               setDashboard(currentDashboard => extend({}, currentDashboard))
             );
           }),
-    });
+    }).result.catch(() => {}); // ignore dismiss
   }, [dashboard]);
 
   const [refreshRate, setRefreshRate, disableRefreshRate] = useRefreshRateHandler(refreshDashboard);

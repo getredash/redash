@@ -1,4 +1,4 @@
-import { Parameter } from "..";
+import { createParameter } from "..";
 import { getDynamicDateRangeFromString } from "../DateRangeParameter";
 import moment from "moment";
 
@@ -7,7 +7,7 @@ describe("DateRangeParameter", () => {
   let param;
 
   beforeEach(() => {
-    param = Parameter.create({ name: "param", title: "Param", type });
+    param = createParameter({ name: "param", title: "Param", type });
   });
 
   describe("getExecutionValue", () => {

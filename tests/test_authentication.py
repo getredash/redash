@@ -1,7 +1,6 @@
+import importlib
 import os
 import time
-
-from six.moves import reload_module
 
 from flask import request
 from mock import patch
@@ -328,11 +327,11 @@ class TestRemoteUserAuth(BaseTestCase):
         variables = self.DEFAULT_SETTING_OVERRIDES.copy()
         variables.update(overrides or {})
         with patch.dict(os.environ, variables):
-            reload_module(settings)
+            importlib.reload(settings)
 
         # Queue a cleanup routine that reloads the settings without overrides
         # once the test ends
-        self.addCleanup(lambda: reload_module(settings))
+        self.addCleanup(lambda: importlib.reload(settings))
 
     def assert_correct_user_attributes(
         self,

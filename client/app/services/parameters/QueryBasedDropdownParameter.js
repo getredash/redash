@@ -1,6 +1,6 @@
 import { isNull, isUndefined, isArray, isEmpty, get, map, join, has } from "lodash";
 import { Query } from "@/services/query";
-import { Parameter } from ".";
+import Parameter from "./Parameter";
 
 class QueryBasedDropdownParameter extends Parameter {
   constructor(parameter, parentQueryId) {
@@ -67,10 +67,10 @@ class QueryBasedDropdownParameter extends Parameter {
 
   loadDropdownValues() {
     if (this.parentQueryId) {
-      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId }).$promise;
+      return Query.associatedDropdown({ queryId: this.parentQueryId, dropdownQueryId: this.queryId });
     }
 
-    return Query.asDropdown({ id: this.queryId }).$promise;
+    return Query.asDropdown({ id: this.queryId });
   }
 }
 

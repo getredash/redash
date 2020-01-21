@@ -1,6 +1,6 @@
 import { extend, filter, isFunction } from "lodash";
 import { useRef, useCallback } from "react";
-import { Visualization } from "@/services/visualization";
+import Visualization from "@/services/visualization";
 import notification from "@/services/notification";
 
 export default function useDeleteVisualization(query, onChange) {
@@ -10,7 +10,7 @@ export default function useDeleteVisualization(query, onChange) {
   return useCallback(
     visualizationId =>
       Visualization.delete({ id: visualizationId })
-        .$promise.then(() => {
+        .then(() => {
           const filteredVisualizations = filter(query.visualizations, v => v.id !== visualizationId);
           onChangeRef.current(extend(query.clone(), { visualizations: filteredVisualizations }));
         })

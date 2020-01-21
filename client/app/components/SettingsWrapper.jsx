@@ -1,7 +1,7 @@
 import React from "react";
 import Menu from "antd/lib/menu";
 import PageHeader from "@/components/PageHeader";
-import { $location } from "@/services/ng";
+import location from "@/services/location";
 import settingsMenu from "@/services/settingsMenu";
 
 function wrapSettingsTab(options, WrappedComponent) {
@@ -10,7 +10,7 @@ function wrapSettingsTab(options, WrappedComponent) {
   }
 
   return function SettingsTab(props) {
-    const activeItem = settingsMenu.getActiveItem($location.path());
+    const activeItem = settingsMenu.getActiveItem(location.path);
     return (
       <div className="settings-screen">
         <div className="container">

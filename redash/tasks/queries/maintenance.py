@@ -1,7 +1,7 @@
 import logging
 import time
 
-from celery.exceptions import SoftTimeLimitExceeded
+from rq.timeouts import JobTimeoutException
 from redash import models, redis_connection, settings, statsd_client
 from redash.models.parameterized_query import (
     InvalidParameterError,
@@ -148,7 +148,7 @@ def refresh_schema(data_source_id):
             time.time() - start_time,
         )
         statsd_client.incr("refresh_schema.success")
-    except SoftTimeLimitExceeded:
+    except JobTimeoutException:
         logger.info(
             u"task=refresh_schema state=timeout ds_id=%s runtime=%.2f",
             ds.id,
@@ -202,3 +202,4 @@ def refresh_schemas():
         u"task=refresh_schemas state=finish total_runtime=%.2f",
         time.time() - global_start_time,
     )
+
