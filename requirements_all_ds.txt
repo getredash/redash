@@ -11,8 +11,8 @@ td-client==1.0.0
 pymssql==2.1.4
 dql==0.5.26
 dynamo3==0.4.10
-boto3>=1.9.241,<1.10.0
-botocore>=1.12.241,<1.13.0
+boto3>=1.10.0,<1.11.0
+botocore>=1.13,<1.14.0
 sasl>=0.1.3
 thrift>=0.8.0
 thrift_sasl>=0.1.0
@@ -21,14 +21,16 @@ memsql==3.0.0
 atsd_client==3.0.5
 simple_salesforce==0.74.3
 PyAthena>=1.5.0
-pymapd==0.16.0
+pymapd==0.19.0
 qds-sdk>=1.9.6
 ibm-db>=2.0.9
-pydruid==0.5.5
+pydruid==0.5.7
 requests_aws_sign==0.1.5
-snowflake_connector_python==2.0.0
+snowflake-connector-python==2.1.3
 phoenixdb==0.7
 # certifi is needed to support MongoDB and SSL:
 certifi>=2019.9.11
 pydgraph==2.0.2
 azure-kusto-data==0.0.35
+pyexasol==0.9.1
+python-rapidjson==0.8.0

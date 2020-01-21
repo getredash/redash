@@ -1,11 +1,10 @@
 /* eslint-disable */
 
-const fs = require("fs");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
@@ -20,8 +19,8 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const basePath = path.join(__dirname, "client");
 const appPath = path.join(__dirname, "client", "app");
 
-const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
-  path.join("client", "app", "extensions");
+const extensionsRelativePath =
+  process.env.EXTENSIONS_DIRECTORY || path.join("client", "app", "extensions");
 const extensionPath = path.join(__dirname, extensionsRelativePath);
 
 const config = {
@@ -41,16 +40,14 @@ const config = {
   },
   resolve: {
     symlinks: false,
-    extensions: ['.js', '.jsx'],
+    extensions: [".js", ".jsx"],
     alias: {
       "@": appPath,
-      "extensions": extensionPath
-    },
+      extensions: extensionPath
+    }
   },
   plugins: [
     new WebpackBuildNotifierPlugin({ title: "Redash" }),
-    // Enforce angular to use jQuery instead of jqLite
-    new webpack.ProvidePlugin({ "window.jQuery": "jquery" }),
     // bundle only default `moment` locale (`en`)
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
@@ -68,20 +65,19 @@ const config = {
     }),
     new ManifestPlugin({
       fileName: "asset-manifest.json",
-      publicPath: "",
+      publicPath: ""
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
       { from: "client/app/unsupported.html" },
       { from: "client/app/unsupportedRedirect.js" },
       { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
-      { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" },
-      { from: "client/app/assets/fonts", to: "fonts/" },
+      { from: "client/app/assets/fonts", to: "fonts/" }
     ])
   ],
   optimization: {
     splitChunks: {
-      chunks: (chunk) => {
+      chunks: chunk => {
         return chunk.name != "server";
       }
     }
@@ -154,7 +150,7 @@ const config = {
       },
       {
         test: /\.geo\.json$/,
-        type: 'javascript/auto',
+        type: "javascript/auto",
         use: [
           {
             loader: "file-loader",
@@ -181,6 +177,7 @@ const config = {
   },
   devtool: isProduction ? "source-map" : "cheap-eval-module-source-map",
   stats: {
+    children: false,
     modules: false,
     chunkModules: false
   },

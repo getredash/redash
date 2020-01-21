@@ -1,8 +1,8 @@
-import { merge } from 'lodash';
-import { registerVisualization } from '@/visualizations';
+import { merge } from "lodash";
+import { registerVisualization } from "@/visualizations";
 
-import Renderer from './Renderer';
-import Editor from './Editor';
+import Renderer from "./Renderer";
+import Editor from "./Editor";
 
 const DEFAULT_OPTIONS = {
   controls: {
@@ -18,8 +18,8 @@ const DEFAULT_OPTIONS = {
 
 export default function init() {
   registerVisualization({
-    type: 'PIVOT',
-    name: 'Pivot Table',
+    type: "PIVOT",
+    name: "Pivot Table",
     getOptions: options => merge({}, DEFAULT_OPTIONS, options),
     Renderer,
     Editor,

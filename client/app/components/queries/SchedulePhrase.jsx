@@ -1,28 +1,29 @@
-import { react2angular } from 'react2angular';
-import React from 'react';
-import PropTypes from 'prop-types';
-import Tooltip from 'antd/lib/tooltip';
-import { localizeTime, durationHumanize } from '@/filters';
-import { RefreshScheduleType, RefreshScheduleDefault } from '../proptypes';
+import React from "react";
+import PropTypes from "prop-types";
+import Tooltip from "antd/lib/tooltip";
+import { localizeTime, durationHumanize } from "@/lib/utils";
+import { RefreshScheduleType, RefreshScheduleDefault } from "../proptypes";
 
-import './ScheduleDialog.css';
+import "./ScheduleDialog.css";
 
-export class SchedulePhrase extends React.Component {
+export default class SchedulePhrase extends React.Component {
   static propTypes = {
     schedule: RefreshScheduleType,
     isNew: PropTypes.bool.isRequired,
     isLink: PropTypes.bool,
+    onClick: PropTypes.func,
   };
 
   static defaultProps = {
     schedule: RefreshScheduleDefault,
     isLink: false,
+    onClick: () => {},
   };
 
   get content() {
     const { interval: seconds } = this.props.schedule || SchedulePhrase.defaultProps.schedule;
     if (!seconds) {
-      return ['Never'];
+      return ["Never"];
     }
     const humanized = durationHumanize(seconds, {
       omitSingleValueNumber: true,
@@ -43,20 +44,18 @@ export class SchedulePhrase extends React.Component {
 
   render() {
     if (this.props.isNew) {
-      return 'Never';
+      return "Never";
     }
 
     const [short, full] = this.content;
     const content = full ? <Tooltip title={full}>{short}</Tooltip> : short;
 
-    return this.props.isLink
-      ? <a className="schedule-phrase">{content}</a>
-      : content;
+    return this.props.isLink ? (
+      <a className="schedule-phrase" onClick={this.props.onClick}>
+        {content}
+      </a>
+    ) : (
+      content
+    );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('schedulePhrase', react2angular(SchedulePhrase));
-}
-
-init.init = true;

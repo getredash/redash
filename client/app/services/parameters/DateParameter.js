@@ -1,25 +1,25 @@
-import { findKey, startsWith, has, includes, isNull, values } from 'lodash';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-import { Parameter } from '.';
+import { findKey, startsWith, has, includes, isNull, values } from "lodash";
+import moment from "moment";
+import PropTypes from "prop-types";
+import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
   // eslint-disable-next-line quote-props
-  'date': 'YYYY-MM-DD',
-  'datetime-local': 'YYYY-MM-DD HH:mm',
-  'datetime-with-seconds': 'YYYY-MM-DD HH:mm:ss',
+  date: "YYYY-MM-DD",
+  "datetime-local": "YYYY-MM-DD HH:mm",
+  "datetime-with-seconds": "YYYY-MM-DD HH:mm:ss",
 };
 
-const DYNAMIC_PREFIX = 'd_';
+const DYNAMIC_PREFIX = "d_";
 
 const DYNAMIC_DATES = {
   now: {
-    name: 'Today/Now',
+    name: "Today/Now",
     value: () => moment(),
   },
   yesterday: {
-    name: 'Yesterday',
-    value: () => moment().subtract(1, 'day'),
+    name: "Yesterday",
+    value: () => moment().subtract(1, "day"),
   },
 };
 

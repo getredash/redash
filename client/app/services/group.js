@@ -1,42 +1,18 @@
-export let Group = {}; // eslint-disable-line import/no-mutable-exports
+import { axios } from "@/services/axios";
 
-function GroupService($resource) {
-  const actions = {
-    get: { method: 'GET', cache: false, isArray: false },
-    query: { method: 'GET', cache: false, isArray: true },
+const Group = {
+  query: () => axios.get("api/groups"),
+  get: ({ id }) => axios.get(`api/groups/${id}`),
+  create: data => axios.post(`api/groups`, data),
+  save: data => axios.post(`api/groups/${data.id}`, data),
+  delete: data => axios.delete(`api/groups/${data.id}`),
+  members: ({ id }) => axios.get(`api/groups/${id}/members`),
+  addMember: ({ id }, data) => axios.post(`api/groups/${id}/members`, data),
+  removeMember: ({ id, userId }) => axios.delete(`api/groups/${id}/members/${userId}`),
+  dataSources: ({ id }) => axios.get(`api/groups/${id}/data_sources`),
+  addDataSource: ({ id }, data) => axios.post(`api/groups/${id}/data_sources`, data),
+  removeDataSource: ({ id, dataSourceId }) => axios.delete(`api/groups/${id}/data_sources/${dataSourceId}`),
+  updateDataSource: ({ id, dataSourceId }, data) => axios.post(`api/groups/${id}/data_sources/${dataSourceId}`, data),
+};
 
-    members: {
-      method: 'GET', cache: false, isArray: true, url: 'api/groups/:id/members',
-    },
-    addMember: {
-      method: 'POST', url: 'api/groups/:id/members',
-    },
-    removeMember: {
-      method: 'DELETE', url: 'api/groups/:id/members/:userId',
-    },
-
-    dataSources: {
-      method: 'GET', cache: false, isArray: true, url: 'api/groups/:id/data_sources',
-    },
-    addDataSource: {
-      method: 'POST', url: 'api/groups/:id/data_sources',
-    },
-    removeDataSource: {
-      method: 'DELETE', url: 'api/groups/:id/data_sources/:dataSourceId',
-    },
-    updateDataSource: {
-      method: 'POST', url: 'api/groups/:id/data_sources/:dataSourceId',
-    },
-  };
-  return $resource('api/groups/:id', { id: '@id' }, actions);
-}
-
-export default function init(ngModule) {
-  ngModule.factory('Group', GroupService);
-
-  ngModule.run(($injector) => {
-    Group = $injector.get('Group');
-  });
-}
-
-init.init = true;
+export default Group;

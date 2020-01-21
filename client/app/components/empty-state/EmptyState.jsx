@@ -1,12 +1,11 @@
-import { keys, some } from 'lodash';
-import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular';
-import classNames from 'classnames';
-import CreateDashboardDialog from '@/components/dashboards/CreateDashboardDialog';
-import { currentUser } from '@/services/auth';
-import organizationStatus from '@/services/organizationStatus';
-import './empty-state.less';
+import { keys, some } from "lodash";
+import React, { useCallback } from "react";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import { currentUser } from "@/services/auth";
+import organizationStatus from "@/services/organizationStatus";
+import "./empty-state.less";
 
 function Step({ show, completed, text, url, urlText, onClick }) {
   if (!show) {
@@ -17,7 +16,7 @@ function Step({ show, completed, text, url, urlText, onClick }) {
     <li className={classNames({ done: completed })}>
       <a href={url} onClick={onClick}>
         {urlText}
-      </a>{' '}
+      </a>{" "}
       {text}
     </li>
   );
@@ -38,7 +37,7 @@ Step.defaultProps = {
   onClick: null,
 };
 
-export function EmptyState({
+function EmptyState({
   icon,
   header,
   description,
@@ -65,6 +64,10 @@ export function EmptyState({
     inviteUsers: organizationStatus.objectCounters.users > 1,
   };
 
+  const showCreateDashboardDialog = useCallback(() => {
+    CreateDashboardDialog.showModal().result.catch(() => {}); // ignore dismiss
+  }, []);
+
   // Show if `onboardingMode=false` or any requested step not completed
   const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
 
@@ -81,8 +84,8 @@ export function EmptyState({
         </h2>
         <p>{description}</p>
         <img
-          src={'/static/images/illustrations/' + illustration + '.svg'}
-          alt={illustration + ' Illustration'}
+          src={"/static/images/illustrations/" + illustration + ".svg"}
+          alt={illustration + " Illustration"}
           width="75%"
         />
       </div>
@@ -122,7 +125,7 @@ export function EmptyState({
           <Step
             show={isAvailable.dashboard}
             completed={isCompleted.dashboard}
-            onClick={() => CreateDashboardDialog.showModal()}
+            onClick={showCreateDashboardDialog}
             urlText="Create"
             text="your first Dashboard"
           />
@@ -135,7 +138,7 @@ export function EmptyState({
           />
         </ol>
         <p>
-          Need more support?{' '}
+          Need more support?{" "}
           <a href={helpLink} target="_blank" rel="noopener noreferrer">
             See our Help
             <i className="fa fa-external-link m-l-5" aria-hidden="true" />
@@ -169,8 +172,4 @@ EmptyState.defaultProps = {
   showInviteStep: false,
 };
 
-export default function init(ngModule) {
-  ngModule.component('emptyState', react2angular(EmptyState));
-}
-
-init.init = true;
+export default EmptyState;

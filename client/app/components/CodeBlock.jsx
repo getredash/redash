@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import Button from 'antd/lib/button';
-import Tooltip from 'antd/lib/tooltip';
-import './CodeBlock.less';
+import React from "react";
+import PropTypes from "prop-types";
+import Button from "antd/lib/button";
+import Tooltip from "antd/lib/tooltip";
+import "./CodeBlock.less";
 
 export default class CodeBlock extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ export default class CodeBlock extends React.Component {
   constructor(props) {
     super(props);
     this.ref = React.createRef();
-    this.copyFeatureEnabled = props.copyable && document.queryCommandSupported('copy');
+    this.copyFeatureEnabled = props.copyable && document.queryCommandSupported("copy");
     this.resetCopyState = null;
   }
 
@@ -36,14 +36,14 @@ export default class CodeBlock extends React.Component {
 
     // copy
     try {
-      const success = document.execCommand('copy');
+      const success = document.execCommand("copy");
       if (!success) {
         throw new Error();
       }
-      this.setState({ copied: 'Copied!' });
+      this.setState({ copied: "Copied!" });
     } catch (err) {
       this.setState({
-        copied: 'Copy failed',
+        copied: "Copy failed",
       });
     }
 
@@ -58,13 +58,8 @@ export default class CodeBlock extends React.Component {
     const { copyable, children, ...props } = this.props;
 
     const copyButton = (
-      <Tooltip title={this.state.copied || 'Copy'}>
-        <Button
-          icon="copy"
-          type="dashed"
-          size="small"
-          onClick={this.copy}
-        />
+      <Tooltip title={this.state.copied || "Copy"}>
+        <Button icon="copy" type="dashed" size="small" onClick={this.copy} />
       </Tooltip>
     );
 

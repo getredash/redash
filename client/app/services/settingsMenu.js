@@ -1,12 +1,9 @@
-import { isFunction, extend, omit, sortBy, find } from 'lodash';
+import { isFunction, extend, omit, sortBy, find } from "lodash";
+import { currentUser } from "@/services/auth";
 
 class SettingsMenuItem {
   constructor(menuItem) {
-    extend(
-      this,
-      { pathPrefix: `/${menuItem.path}` },
-      omit(menuItem, ['isActive']),
-    );
+    extend(this, { pathPrefix: `/${menuItem.path}` }, omit(menuItem, ["isActive"]));
     if (isFunction(menuItem.isActive)) {
       this.isActive = menuItem.isActive;
     }
@@ -14,6 +11,10 @@ class SettingsMenuItem {
 
   isActive(path) {
     return path.startsWith(this.pathPrefix);
+  }
+
+  isAvailable() {
+    return this.permission === undefined || currentUser.hasPermission(this.permission);
   }
 }
 
@@ -24,7 +25,7 @@ class SettingsMenu {
 
   add(item) {
     this.items.push(new SettingsMenuItem(item));
-    this.items = sortBy(this.items, 'order');
+    this.items = sortBy(this.items, "order");
   }
 
   getActiveItem(path) {

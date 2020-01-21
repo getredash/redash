@@ -1,6 +1,6 @@
 /* global cy, Cypress */
 
-import { createQuery } from '../../support/redash-api';
+import { createQuery } from "../../support/redash-api";
 
 const SQL = `
   SELECT 'AR' AS "code", 'Argentina' AS "name", 37.62 AS "value" UNION ALL
@@ -29,18 +29,18 @@ const SQL = `
   SELECT 'GB' AS "code", 'United Kingdom' AS "name", 112.86 AS "value"
 `;
 
-describe('Choropleth', () => {
-  const viewportWidth = Cypress.config('viewportWidth');
+describe("Choropleth", () => {
+  const viewportWidth = Cypress.config("viewportWidth");
 
   beforeEach(() => {
     cy.login();
     createQuery({ query: SQL }).then(({ id }) => {
       cy.visit(`queries/${id}/source`);
-      cy.getByTestId('ExecuteButton').click();
+      cy.getByTestId("ExecuteButton").click();
     });
   });
 
-  it('creates visualization', () => {
+  it("creates visualization", () => {
     cy.clickThrough(`
       NewVisualization
       VisualizationType
@@ -48,7 +48,7 @@ describe('Choropleth', () => {
     `);
 
     cy.clickThrough(`
-      Choropleth.EditorTabs.General
+      VisualizationEditor.Tabs.General
       Choropleth.Editor.MapType
       Choropleth.Editor.MapType.Countries
       Choropleth.Editor.KeyColumn
@@ -59,28 +59,32 @@ describe('Choropleth', () => {
       Choropleth.Editor.ValueColumn.value
     `);
 
-    cy.clickThrough('Choropleth.EditorTabs.Colors');
-    cy.clickThrough('Choropleth.Editor.Colors.Min');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'yellow{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.clickThrough('Choropleth.Editor.Colors.Max');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'red{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.clickThrough('Choropleth.Editor.Colors.Borders');
-    cy.fillInputs({ 'ColorPicker.CustomColor': 'black{enter}' });
-    cy.wait(100); // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.clickThrough("VisualizationEditor.Tabs.Colors");
+    cy.clickThrough("Choropleth.Editor.Colors.Min");
+    cy.fillInputs({ "ColorPicker.CustomColor": "yellow{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
+    cy.clickThrough("Choropleth.Editor.Colors.Max");
+    cy.fillInputs({ "ColorPicker.CustomColor": "red{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
+    cy.clickThrough("Choropleth.Editor.Colors.Borders");
+    cy.fillInputs({ "ColorPicker.CustomColor": "black{enter}" });
+    cy.getByTestId("ColorPicker.CustomColor").should("not.be.visible");
 
     cy.clickThrough(`
-      Choropleth.EditorTabs.Format
+      VisualizationEditor.Tabs.Format
       Choropleth.Editor.LegendPosition
       Choropleth.Editor.LegendPosition.TopRight
     `);
 
-    cy.getByTestId('Choropleth.Editor.LegendTextAlignment.Left').check({ force: true });
+    cy.getByTestId("Choropleth.Editor.LegendTextAlignment")
+      .find('[data-test="TextAlignmentSelect.Left"]')
+      .check({ force: true });
 
     // Wait for proper initialization of visualization
     cy.wait(500); // eslint-disable-line cypress/no-unnecessary-waiting
-    cy.getByTestId('VisualizationPreview').find('.map-visualization-container.leaflet-container').should('exist');
-    cy.percySnapshot('Visualizations - Choropleth', { widths: [viewportWidth] });
+    cy.getByTestId("VisualizationPreview")
+      .find(".map-visualization-container.leaflet-container")
+      .should("exist");
+    cy.percySnapshot("Visualizations - Choropleth", { widths: [viewportWidth] });
   });
 });

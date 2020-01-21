@@ -1,27 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { size, filter, forEach, extend } from 'lodash';
-import { react2angular } from 'react2angular';
-import { SortableContainer, SortableElement, DragHandle } from '@/components/sortable';
-import { $location } from '@/services/ng';
-import { Parameter } from '@/services/parameters';
-import ParameterApplyButton from '@/components/ParameterApplyButton';
-import ParameterValueInput from '@/components/ParameterValueInput';
-import EditParameterSettingsDialog from './EditParameterSettingsDialog';
-import { toHuman } from '@/filters';
+import { size, filter, forEach, extend } from "lodash";
+import React from "react";
+import PropTypes from "prop-types";
+import { SortableContainer, SortableElement, DragHandle } from "@/components/sortable";
+import location from "@/services/location";
+import { Parameter, createParameter } from "@/services/parameters";
+import ParameterApplyButton from "@/components/ParameterApplyButton";
+import ParameterValueInput from "@/components/ParameterValueInput";
+import EditParameterSettingsDialog from "./EditParameterSettingsDialog";
+import { toHuman } from "@/lib/utils";
 
-import './Parameters.less';
+import "./Parameters.less";
 
 function updateUrl(parameters) {
-  const params = extend({}, $location.search());
-  parameters.forEach((param) => {
+  const params = extend({}, location.search);
+  parameters.forEach(param => {
     extend(params, param.toUrlParams());
   });
-  Object.keys(params).forEach(key => params[key] == null && delete params[key]);
-  $location.search(params);
+  location.setSearch(params, true);
 }
 
-export class Parameters extends React.Component {
+export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
@@ -49,17 +47,19 @@ export class Parameters extends React.Component {
     }
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = prevProps => {
     const { parameters, disableUrlUpdate } = this.props;
-    if (prevProps.parameters !== parameters) {
+    const parametersChanged = prevProps.parameters !== parameters;
+    const disableUrlUpdateChanged = prevProps.disableUrlUpdate !== disableUrlUpdate;
+    if (parametersChanged) {
       this.setState({ parameters });
-      if (!disableUrlUpdate) {
-        updateUrl(parameters);
-      }
+    }
+    if ((parametersChanged || disableUrlUpdateChanged) && !disableUrlUpdate) {
+      updateUrl(parameters);
     }
   };
 
-  handleKeyDown = (e) => {
+  handleKeyDown = e => {
     // Cmd/Ctrl/Alt + Enter
     if (e.keyCode === 13 && (e.ctrlKey || e.metaKey || e.altKey)) {
       e.stopPropagation();
@@ -106,26 +106,22 @@ export class Parameters extends React.Component {
 
   showParameterSettings = (parameter, index) => {
     const { onParametersEdit } = this.props;
-    EditParameterSettingsDialog
-      .showModal({ parameter })
-      .result.then((updated) => {
+    EditParameterSettingsDialog.showModal({ parameter })
+      .result.then(updated => {
         this.setState(({ parameters }) => {
           const updatedParameter = extend(parameter, updated);
-          parameters[index] = Parameter.create(updatedParameter, updatedParameter.parentQueryId);
+          parameters[index] = createParameter(updatedParameter, updatedParameter.parentQueryId);
           onParametersEdit();
           return { parameters };
         });
-      });
+      })
+      .catch(() => {}); // ignore dismiss
   };
 
   renderParameter(param, index) {
     const { editable } = this.props;
     return (
-      <div
-        key={param.name}
-        className="di-block"
-        data-test={`ParameterName-${param.name}`}
-      >
+      <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
           {editable && (
@@ -133,8 +129,7 @@ export class Parameters extends React.Component {
               className="btn btn-default btn-xs m-l-5"
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
-              type="button"
-            >
+              type="button">
               <i className="fa fa-cog" />
             </button>
           )}
@@ -154,7 +149,7 @@ export class Parameters extends React.Component {
   render() {
     const { parameters } = this.state;
     const { editable } = this.props;
-    const dirtyParamCount = size(filter(parameters, 'hasPendingValue'));
+    const dirtyParamCount = size(filter(parameters, "hasPendingValue"));
     return (
       <SortableContainer
         disabled={!editable}
@@ -165,10 +160,9 @@ export class Parameters extends React.Component {
         updateBeforeSortStart={this.onBeforeSortStart}
         onSortEnd={this.moveParameter}
         containerProps={{
-          className: 'parameter-container',
+          className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
-        }}
-      >
+        }}>
         {parameters.map((param, index) => (
           <SortableElement key={param.name} index={index}>
             <div className="parameter-block" data-editable={editable || null}>
@@ -182,9 +176,3 @@ export class Parameters extends React.Component {
     );
   }
 }
-
-export default function init(ngModule) {
-  ngModule.component('parameters', react2angular(Parameters));
-}
-
-init.init = true;

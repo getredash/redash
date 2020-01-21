@@ -3,7 +3,12 @@ from mock import patch
 from collections import namedtuple
 import pytest
 
-from redash.models.parameterized_query import ParameterizedQuery, InvalidParameterError, QueryDetachedFromDataSourceError, dropdown_values
+from redash.models.parameterized_query import (
+    ParameterizedQuery,
+    InvalidParameterError,
+    QueryDetachedFromDataSourceError,
+    dropdown_values,
+)
 
 
 class TestParameterizedQuery(TestCase):
@@ -13,36 +18,30 @@ class TestParameterizedQuery(TestCase):
 
     def test_finds_all_params_when_missing(self):
         query = ParameterizedQuery("SELECT {{param}} FROM {{table}}")
-        self.assertEqual(set(['param', 'table']), query.missing_params)
+        self.assertEqual(set(["param", "table"]), query.missing_params)
 
     def test_finds_all_params(self):
-        query = ParameterizedQuery("SELECT {{param}} FROM {{table}}").apply({
-            'param': 'value',
-            'table': 'value'
-        })
+        query = ParameterizedQuery("SELECT {{param}} FROM {{table}}").apply(
+            {"param": "value", "table": "value"}
+        )
         self.assertEqual(set([]), query.missing_params)
 
     def test_deduplicates_params(self):
-        query = ParameterizedQuery("SELECT {{param}}, {{param}} FROM {{table}}").apply({
-            'param': 'value',
-            'table': 'value'
-        })
+        query = ParameterizedQuery("SELECT {{param}}, {{param}} FROM {{table}}").apply(
+            {"param": "value", "table": "value"}
+        )
         self.assertEqual(set([]), query.missing_params)
 
     def test_handles_nested_params(self):
-        query = ParameterizedQuery("SELECT {{param}}, {{param}} FROM {{table}} -- {{#test}} {{nested_param}} {{/test}}").apply({
-            'param': 'value',
-            'table': 'value'
-        })
-        self.assertEqual(set(['test', 'nested_param']), query.missing_params)
+        query = ParameterizedQuery(
+            "SELECT {{param}}, {{param}} FROM {{table}} -- {{#test}} {{nested_param}} {{/test}}"
+        ).apply({"param": "value", "table": "value"})
+        self.assertEqual(set(["test", "nested_param"]), query.missing_params)
 
     def test_handles_objects(self):
-        query = ParameterizedQuery("SELECT * FROM USERS WHERE created_at between '{{ created_at.start }}' and '{{ created_at.end }}'").apply({
-            'created_at': {
-                'start': 1,
-                'end': 2
-            }
-        })
+        query = ParameterizedQuery(
+            "SELECT * FROM USERS WHERE created_at between '{{ created_at.start }}' and '{{ created_at.end }}'"
+        ).apply({"created_at": {"start": 1, "end": 2}})
         self.assertEqual(set([]), query.missing_params)
 
     def test_raises_on_parameters_not_in_schema(self):
@@ -127,12 +126,14 @@ class TestParameterizedQuery(TestCase):
             query.apply({"bar": "shlomo"})
 
     def test_raises_on_unlisted_enum_list_value_parameters(self):
-        schema = [{
-            "name": "bar",
-            "type": "enum",
-            "enumOptions": ["baz", "qux"],
-            "multiValuesOptions": {"separator": ",", "prefix": "", "suffix": ""}
-        }]
+        schema = [
+            {
+                "name": "bar",
+                "type": "enum",
+                "enumOptions": ["baz", "qux"],
+                "multiValuesOptions": {"separator": ",", "prefix": "", "suffix": ""},
+            }
+        ]
         query = ParameterizedQuery("foo", schema)
 
         with pytest.raises(InvalidParameterError):
@@ -147,19 +148,24 @@ class TestParameterizedQuery(TestCase):
         self.assertEqual("foo baz", query.text)
 
     def test_validates_enum_list_value_parameters(self):
-        schema = [{
-            "name": "bar",
-            "type": "enum",
-            "enumOptions": ["baz", "qux"],
-            "multiValuesOptions": {"separator": ",", "prefix": "'", "suffix": "'"}
-        }]
+        schema = [
+            {
+                "name": "bar",
+                "type": "enum",
+                "enumOptions": ["baz", "qux"],
+                "multiValuesOptions": {"separator": ",", "prefix": "'", "suffix": "'"},
+            }
+        ]
         query = ParameterizedQuery("foo {{bar}}", schema)
 
         query.apply({"bar": ["qux", "baz"]})
 
         self.assertEqual("foo 'qux','baz'", query.text)
 
-    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "1"}])
+    @patch(
+        "redash.models.parameterized_query.dropdown_values",
+        return_value=[{"value": "1"}],
+    )
     def test_validation_accepts_integer_values_for_dropdowns(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
@@ -168,7 +174,7 @@ class TestParameterizedQuery(TestCase):
 
         self.assertEqual("foo 1", query.text)
 
-    @patch('redash.models.parameterized_query.dropdown_values')
+    @patch("redash.models.parameterized_query.dropdown_values")
     def test_raises_on_invalid_query_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
@@ -176,7 +182,10 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": 7})
 
-    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    @patch(
+        "redash.models.parameterized_query.dropdown_values",
+        return_value=[{"value": "baz"}],
+    )
     def test_raises_on_unlisted_query_value_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo", schema)
@@ -184,7 +193,10 @@ class TestParameterizedQuery(TestCase):
         with pytest.raises(InvalidParameterError):
             query.apply({"bar": "shlomo"})
 
-    @patch('redash.models.parameterized_query.dropdown_values', return_value=[{"value": "baz"}])
+    @patch(
+        "redash.models.parameterized_query.dropdown_values",
+        return_value=[{"value": "baz"}],
+    )
     def test_validates_query_parameters(self, _):
         schema = [{"name": "bar", "type": "query", "queryId": 1}]
         query = ParameterizedQuery("foo {{bar}}", schema)
@@ -204,7 +216,9 @@ class TestParameterizedQuery(TestCase):
         schema = [{"name": "bar", "type": "date-range"}]
         query = ParameterizedQuery("foo {{bar.start}} {{bar.end}}", schema)
 
-        query.apply({"bar": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"}})
+        query.apply(
+            {"bar": {"start": "2000-01-01 12:00:00", "end": "2000-12-31 12:00:00"}}
+        )
 
         self.assertEqual("foo 2000-01-01 12:00:00 2000-12-31 12:00:00", query.text)
 
@@ -233,28 +247,43 @@ class TestParameterizedQuery(TestCase):
 
         self.assertTrue(query.is_safe)
 
-    @patch('redash.models.parameterized_query._load_result', return_value={
-        "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
-        "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}]})
+    @patch(
+        "redash.models.parameterized_query._load_result",
+        return_value={
+            "columns": [{"name": "id"}, {"name": "Name"}, {"name": "Value"}],
+            "rows": [{"id": 5, "Name": "John", "Value": "John Doe"}],
+        },
+    )
     def test_dropdown_values_prefers_name_and_value_columns(self, _):
         values = dropdown_values(1, None)
         self.assertEqual(values, [{"name": "John", "value": "John Doe"}])
 
-    @patch('redash.models.parameterized_query._load_result', return_value={
-        "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
-        "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}]})
+    @patch(
+        "redash.models.parameterized_query._load_result",
+        return_value={
+            "columns": [{"name": "id"}, {"name": "fish"}, {"name": "poultry"}],
+            "rows": [{"fish": "Clown", "id": 5, "poultry": "Hen"}],
+        },
+    )
     def test_dropdown_values_compromises_for_first_column(self, _):
         values = dropdown_values(1, None)
         self.assertEqual(values, [{"name": 5, "value": "5"}])
 
-    @patch('redash.models.parameterized_query._load_result', return_value={
-        "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
-        "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}]})
+    @patch(
+        "redash.models.parameterized_query._load_result",
+        return_value={
+            "columns": [{"name": "ID"}, {"name": "fish"}, {"name": "poultry"}],
+            "rows": [{"fish": "Clown", "ID": 5, "poultry": "Hen"}],
+        },
+    )
     def test_dropdown_supports_upper_cased_columns(self, _):
         values = dropdown_values(1, None)
         self.assertEqual(values, [{"name": 5, "value": "5"}])
 
-    @patch('redash.models.Query.get_by_id_and_org', return_value=namedtuple('Query', 'data_source')(None))
+    @patch(
+        "redash.models.Query.get_by_id_and_org",
+        return_value=namedtuple("Query", "data_source")(None),
+    )
     def test_dropdown_values_raises_when_query_is_detached_from_data_source(self, _):
         with pytest.raises(QueryDetachedFromDataSourceError):
             dropdown_values(1, None)

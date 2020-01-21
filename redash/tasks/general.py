@@ -13,7 +13,7 @@ from redash.worker import job, get_job_logger
 logger = get_job_logger(__name__)
 
 
-@job('default')
+@job("default")
 def record_event(raw_event):
     event = models.Event.record(raw_event)
     models.db.session.commit()
@@ -23,7 +23,7 @@ def record_event(raw_event):
         try:
             data = {
                 "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
-                "data": event.to_dict()
+                "data": event.to_dict(),
             }
             response = requests.post(hook, json=data)
             if response.status_code != 200:
@@ -36,30 +36,31 @@ def version_check():
     run_version_check()
 
 
-@job('default')
+@job("default")
 def subscribe(form):
-    logger.info("Subscribing to: [security notifications=%s], [newsletter=%s]", form['security_notifications'], form['newsletter'])
+    logger.info(
+        "Subscribing to: [security notifications=%s], [newsletter=%s]",
+        form["security_notifications"],
+        form["newsletter"],
+    )
     data = {
-        'admin_name': form['name'],
-        'admin_email': form['email'],
-        'org_name': form['org_name'],
-        'security_notifications': form['security_notifications'],
-        'newsletter': form['newsletter']
+        "admin_name": form["name"],
+        "admin_email": form["email"],
+        "org_name": form["org_name"],
+        "security_notifications": form["security_notifications"],
+        "newsletter": form["newsletter"],
     }
-    requests.post('https://beacon.redash.io/subscribe', json=data)
+    requests.post("https://beacon.redash.io/subscribe", json=data)
 
 
-@job('emails')
+@job("emails")
 def send_mail(to, subject, html, text):
     try:
-        message = Message(recipients=to,
-                          subject=subject,
-                          html=html,
-                          body=text)
+        message = Message(recipients=to, subject=subject, html=html, body=text)
 
         mail.send(message)
     except Exception:
-        logger.exception('Failed sending message: %s', message.subject)
+        logger.exception("Failed sending message: %s", message.subject)
 
 
 def sync_user_details():
@@ -71,10 +72,20 @@ def purge_failed_jobs():
         for queue in Queue.all():
             failed_job_ids = FailedJobRegistry(queue=queue).get_job_ids()
             failed_jobs = Job.fetch_many(failed_job_ids, rq_redis_connection)
-            stale_jobs = [job for job in failed_jobs if (datetime.utcnow() - job.ended_at).seconds > settings.JOB_DEFAULT_FAILURE_TTL]
+            stale_jobs = [
+                job
+                for job in failed_jobs
+                if job
+                and (datetime.utcnow() - job.ended_at).seconds
+                > settings.JOB_DEFAULT_FAILURE_TTL
+            ]
 
             for job in stale_jobs:
                 job.delete()
 
             if stale_jobs:
-                logger.info('Purged %d old failed jobs from the %s queue.', len(stale_jobs), queue.name)
+                logger.info(
+                    "Purged %d old failed jobs from the %s queue.",
+                    len(stale_jobs),
+                    queue.name,
+                )

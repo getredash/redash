@@ -1,283 +1,273 @@
-*, button, input, i, a {
-    -webkit-font-smoothing: antialiased;
+*,
+button,
+input,
+i,
+a {
+  -webkit-font-smoothing: antialiased;
 }
 
 *,
 *:active,
 *:hover {
-    outline: none !important;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+  outline: none !important;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
 }
 
 html {
-    overflow-x: ~"hidden\0/";
-    -ms-overflow-style: auto;
+  overflow-x: ~"hidden\0/";
+  -ms-overflow-style: auto;
 }
 
-html, body {
-    min-height: 100vh;
+html,
+body {
+  min-height: 100vh;
 }
 
 body {
-    padding-top: 0;
-    background: #F6F8F9;
-    font-family: @redash-font;
-    position: relative;
+  padding-top: 0;
+  background: #f6f8f9;
+  font-family: @redash-font;
+  position: relative;
 
-    app-view {
-      padding-bottom: 15px;
+  #application-root {
+    padding-bottom: 15px;
+  }
+
+  &.headless {
+    #application-root {
+      padding-top: 10px;
+      padding-bottom: 0;
     }
 
-    &.headless {
-        app-view {
-          padding-top: 10px;
-          padding-bottom: 0;
-        }
-
-        .app-header-wrapper {
-            display: none;
-        }
+    .app-header-wrapper {
+      display: none;
     }
+  }
 }
 
-app-view {
-    min-height: 100vh;
+#application-root {
+  min-height: 100vh;
 }
 
-app-view, #app-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
+#application-root,
+#app-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 strong {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 #content {
-    position: relative;
-    padding-top: 30px;
-    padding-bottom: 30px;
+  position: relative;
+  padding-top: 30px;
+  padding-bottom: 30px;
 
-    @media (min-width: (@screen-sm-min + 1)) {
-        padding-right: 15px;
-        padding-left: 15px;
-    }
+  @media (min-width: (@screen-sm-min + 1)) {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
 
-    @media (min-width: (@screen-lg-min + 80px)) {
-        margin-left: @sidebar-left-width;
-    }
+  @media (min-width: (@screen-lg-min + 80px)) {
+    margin-left: @sidebar-left-width;
+  }
 
-    @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
-        margin-left: @sidebar-left-mid-width;
-    }
+  @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
+    margin-left: @sidebar-left-mid-width;
+  }
 
-    @media (max-width: (@screen-sm-min)) {
-        margin-left: 0;
-    }
+  @media (max-width: (@screen-sm-min)) {
+    margin-left: 0;
+  }
 }
 
 .container {
-    &.c-boxed {
-        max-width: @boxed-width;
-    }
+  &.c-boxed {
+    max-width: @boxed-width;
+  }
 }
 
 // Fixed width layout for specific pages
 @media (min-width: 768px) {
-    .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
-        .container {
-            width: 750px;
-        }
+  .settings-screen,
+  .home-page,
+  .page-dashboard-list,
+  .page-queries-list,
+  .page-alerts-list,
+  .alert-page,
+  .fixed-container {
+    .container {
+      width: 750px;
     }
+  }
 }
 
 @media (min-width: 992px) {
-    .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
-        .container {
-            width: 970px;
-        }
+  .settings-screen,
+  .home-page,
+  .page-dashboard-list,
+  .page-queries-list,
+  .page-alerts-list,
+  .alert-page,
+  .fixed-container {
+    .container {
+      width: 970px;
     }
+  }
 }
 
 @media (min-width: 1200px) {
-    .settings-screen, home-page, page-dashboard-list, page-queries-list, page-alerts-list, alert-page, queries-search-results-page, .fixed-container {
-        .container {
-            width: 1170px;
-        }
+  .settings-screen,
+  .home-page,
+  .page-dashboard-list,
+  .page-queries-list,
+  .page-alerts-list,
+  .alert-page,
+  .fixed-container {
+    .container {
+      width: 1170px;
     }
+  }
 }
 
 .scrollbox {
-    overflow: auto;
-    position: relative;
+  overflow: auto;
+  position: relative;
 }
 
 .clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .resize-vertical {
-    resize: vertical !important;
-    transition: height 0s !important;
+  resize: vertical !important;
+  transition: height 0s !important;
 }
 .resize-horizontal {
-    resize: horizontal !important;
-    transition: width 0s !important;
+  resize: horizontal !important;
+  transition: width 0s !important;
 }
 .resize-both,
 .resize-vertical.resize-horizontal {
-    resize: both !important;
-    transition: height 0s, width 0s !important;
-}
-
-// Ace Editor
-.ace_editor {
-    border: 1px solid fade(@redash-gray, 15%) !important;
-}
-
-.ace-tm {
-    .ace_gutter {
-        background: #fff !important;
-    }
-
-    .ace_gutter-active-line {
-        background-color: fade(@redash-gray, 20%) !important;
-    }
-
-    .ace_marker-layer .ace_active-line {
-        background: fade(@redash-gray, 9%) !important;
-    }
+  resize: both !important;
+  transition: height 0s, width 0s !important;
 }
 
 .bg-ace {
-    background-color: fade(@redash-gray, 12%) !important;
+  background-color: fade(@redash-gray, 12%) !important;
 }
 
 // resizeable
-.rg-top span, .rg-bottom span {
-    height: 3px;
-    border-color: #b1c1ce; // TODO: variable
+.rg-top span,
+.rg-bottom span {
+  height: 3px;
+  border-color: #b1c1ce; // TODO: variable
 }
 
 .rg-bottom {
-    bottom: 15px;
+  bottom: 15px;
 
-    span {
-        margin: 1.5px 0 0 -10px;
-    }
+  span {
+    margin: 1.5px 0 0 -10px;
+  }
 }
 
 // Plotly
 text.slicetext {
-    text-shadow: 1px 1px 5px #333;
+  text-shadow: 1px 1px 5px #333;
 }
 
 // markdown
 .markdown strong {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .markdown img {
-    max-width: 100%;
+  max-width: 100%;
 }
 
-.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
-    background-color: fade(@redash-gray, 15%);
-    color: #111;
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: fade(@redash-gray, 15%);
+  color: #111;
 }
 
 .profile__image--sidebar {
-    border-radius: 100%;
-    margin-right: 3px;
-    margin-top: -2px;
+  border-radius: 100%;
+  margin-right: 3px;
+  margin-top: -2px;
 }
 
 .profile__image--settings {
-    border-radius: 100%;
+  border-radius: 100%;
 }
 
 .profile__image_thumb {
-    border-radius: 100%;
-    margin-right: 3px;
-    margin-top: -2px;
-    width: 20px;
-    height: 20px;
+  border-radius: 100%;
+  margin-right: 3px;
+  margin-top: -2px;
+  width: 20px;
+  height: 20px;
 }
-
 
 // Error state
 .error-state {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    text-align: center;
-    margin-top: 25vh;
-    padding: 35px;
-    font-size: 14px;
-    line-height: 21px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  margin-top: 25vh;
+  padding: 35px;
+  font-size: 14px;
+  line-height: 21px;
 
-    .error-state__icon {
-        .zmdi {
-            font-size: 64px;
-            color: @redash-gray;
-        }
+  .error-state__icon {
+    .zmdi {
+      font-size: 64px;
+      color: @redash-gray;
     }
+  }
 
-    @media (max-width: 767px) {
-        margin-top: 10vh;
-    }
+  @media (max-width: 767px) {
+    margin-top: 10vh;
+  }
 }
 
 .warning-icon-danger {
-    color: @red !important;
+  color: @red !important;
 }
 
 // page
-.page-header--new .btn-favourite, .page-header--new .btn-archive {
+.page-title {
+  display: flex;
+  align-items: center;
+
+  h3 {
+    margin-right: 5px !important;
+  }
+
+  .label {
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  .favorites-control {
     font-size: 19px;
+    margin-right: 5px;
   }
+}
 
-  .page-title {
-    display: flex;
-    align-items: center;
-
-    h3 {
-      margin-right: 5px !important;
-    }
-
-    .label {
-      margin-top: 3px;
-      display: inline-block;
-    }
-
-    favorites-control {
-      margin-right: 5px;
-    }
-
-    @media (max-width: 767px) {
-      display: block;
-
-      favorites-control {
-        float: left;
-      }
-
-      h3 {
-        width: 100%;
-        margin-bottom: 5px !important;
-        display: block !important;
-      }
-    }
+.page-header-wrapper,
+.page-header--new {
+  h3 {
+    margin: 0.2em 0;
+    line-height: 1.3;
+    font-weight: 500;
   }
+}
 
-  .page-header-wrapper, .page-header--new {
-    h3 {
-      margin: 0.2em 0;
-      line-height: 1.3;
-      font-weight: 500;
-    }
-  }
-
-  .select-option-divider {
-    margin: 10px 0 !important;
-  }
+.select-option-divider {
+  margin: 10px 0 !important;
+}

@@ -1,12 +1,12 @@
-import { isString, isUndefined } from 'lodash';
-import React from 'react';
-import JsonViewInteractive from '@/components/json-view-interactive/JsonViewInteractive';
-import { clientConfig } from '@/services/auth';
+import { isString, isUndefined } from "lodash";
+import React from "react";
+import JsonViewInteractive from "@/components/json-view-interactive/JsonViewInteractive";
+import { clientConfig } from "@/services/auth";
 
 export default function initJsonColumn(column) {
   function prepareData(row) {
     const text = row[column.name];
-    if (isString(text) && (text.length <= clientConfig.tableCellMaxJSONSize)) {
+    if (isString(text) && text.length <= clientConfig.tableCellMaxJSONSize) {
       try {
         return { text, value: JSON.parse(text) };
       } catch (e) {
@@ -16,10 +16,11 @@ export default function initJsonColumn(column) {
     return { text, value: undefined };
   }
 
-  function JsonColumn({ row }) { // eslint-disable-line react/prop-types
+  function JsonColumn({ row }) {
+    // eslint-disable-line react/prop-types
     const { text, value } = prepareData(row);
     if (isUndefined(value)) {
-      return <div className="json-cell-invalid">{'' + text}</div>;
+      return <div className="json-cell-invalid">{"" + text}</div>;
     }
 
     return (
@@ -34,4 +35,4 @@ export default function initJsonColumn(column) {
   return JsonColumn;
 }
 
-initJsonColumn.friendlyName = 'JSON';
+initJsonColumn.friendlyName = "JSON";

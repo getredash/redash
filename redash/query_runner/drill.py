@@ -4,12 +4,14 @@ import re
 
 from dateutil import parser
 
-from six import text_type
-
 from redash.query_runner import (
-    BaseHTTPQueryRunner, register,
-    TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN,
-    guess_type
+    BaseHTTPQueryRunner,
+    register,
+    TYPE_DATETIME,
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+    guess_type,
 )
 from redash.utils import json_dumps, json_loads
 
@@ -18,8 +20,8 @@ logger = logging.getLogger(__name__)
 
 # Convert Drill string value to actual type
 def convert_type(string_value, actual_type):
-    if string_value is None or string_value == '':
-        return ''
+    if string_value is None or string_value == "":
+        return ""
 
     if actual_type == TYPE_INTEGER:
         return int(string_value)
@@ -28,51 +30,53 @@ def convert_type(string_value, actual_type):
         return float(string_value)
 
     if actual_type == TYPE_BOOLEAN:
-        return text_type(string_value).lower() == 'true'
+        return str(string_value).lower() == "true"
 
     if actual_type == TYPE_DATETIME:
         return parser.parse(string_value)
 
-    return text_type(string_value)
+    return str(string_value)
 
 
 # Parse Drill API response and translate it to accepted format
 def parse_response(data):
-    cols = data['columns']
-    rows = data['rows']
+    cols = data["columns"]
+    rows = data["rows"]
 
     if len(cols) == 0:
-        return {'columns': [], 'rows': []}
+        return {"columns": [], "rows": []}
 
     first_row = rows[0]
     columns = []
     types = {}
 
     for c in cols:
-        columns.append({'name': c, 'type': guess_type(first_row[c]), 'friendly_name': c})
+        columns.append(
+            {"name": c, "type": guess_type(first_row[c]), "friendly_name": c}
+        )
 
     for col in columns:
-        types[col['name']] = col['type']
+        types[col["name"]] = col["type"]
 
     for row in rows:
         for key, value in row.items():
             row[key] = convert_type(value, types[key])
 
-    return {'columns': columns, 'rows': rows}
+    return {"columns": columns, "rows": rows}
 
 
 class Drill(BaseHTTPQueryRunner):
-    noop_query = 'select version from sys.version'
+    noop_query = "select version from sys.version"
     response_error = "Drill API returned unexpected status code"
     requires_authentication = False
     requires_url = True
-    url_title = 'Drill URL'
-    username_title = 'Username'
-    password_title = 'Password'
+    url_title = "Drill URL"
+    username_title = "Username"
+    password_title = "Password"
 
     @classmethod
     def name(cls):
-        return 'Apache Drill'
+        return "Apache Drill"
 
     @classmethod
     def configuration_schema(cls):
@@ -80,20 +84,22 @@ class Drill(BaseHTTPQueryRunner):
         # Since Drill itself can act as aggregator of various datasources,
         # it can contain quite a lot of schemas in `INFORMATION_SCHEMA`
         # We added this to improve user experience and let users focus only on desired schemas.
-        schema['properties']['allowed_schemas'] = {
-            'type': 'string',
-            'title': 'List of schemas to use in schema browser (comma separated)'
+        schema["properties"]["allowed_schemas"] = {
+            "type": "string",
+            "title": "List of schemas to use in schema browser (comma separated)",
         }
-        schema['order'] += ['allowed_schemas']
+        schema["order"] += ["allowed_schemas"]
         return schema
 
     def run_query(self, query, user):
-        drill_url = os.path.join(self.configuration['url'], 'query.json')
+        drill_url = os.path.join(self.configuration["url"], "query.json")
 
         try:
-            payload = {'queryType': 'SQL', 'query': query}
+            payload = {"queryType": "SQL", "query": query}
 
-            response, error = self.get_response(drill_url, http_method='post', json=payload)
+            response, error = self.get_response(
+                drill_url, http_method="post", json=payload
+            )
             if error is not None:
                 return None, error
 
@@ -101,7 +107,7 @@ class Drill(BaseHTTPQueryRunner):
 
             return json_dumps(results), None
         except KeyboardInterrupt:
-            return None, 'Query cancelled by user.'
+            return None, "Query cancelled by user."
 
     def get_schema(self, get_stats=False):
 
@@ -118,9 +124,16 @@ class Drill(BaseHTTPQueryRunner):
             and TABLE_SCHEMA not like '%.INFORMATION_SCHEMA'
 
         """
-        allowed_schemas = self.configuration.get('allowed_schemas')
+        allowed_schemas = self.configuration.get("allowed_schemas")
         if allowed_schemas:
-            query += "and TABLE_SCHEMA in ({})".format(', '.join(["'{}'".format(re.sub('[^a-zA-Z0-9_.`]', '', allowed_schema)) for allowed_schema in allowed_schemas.split(',')]))
+            query += "and TABLE_SCHEMA in ({})".format(
+                ", ".join(
+                    [
+                        "'{}'".format(re.sub("[^a-zA-Z0-9_.`]", "", allowed_schema))
+                        for allowed_schema in allowed_schemas.split(",")
+                    ]
+                )
+            )
 
         results, error = self.run_query(query, None)
 
@@ -131,13 +144,13 @@ class Drill(BaseHTTPQueryRunner):
 
         schema = {}
 
-        for row in results['rows']:
-            table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+        for row in results["rows"]:
+            table_name = "{}.{}".format(row["TABLE_SCHEMA"], row["TABLE_NAME"])
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
         return list(schema.values())
 
