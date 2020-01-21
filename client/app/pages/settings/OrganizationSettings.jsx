@@ -49,8 +49,8 @@ class OrganizationSettings extends React.Component {
       .catch(error => this.props.onError(new PromiseRejectionError(error)));
   }
 
-  disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled
-    || this.state.formValues.auth_saml_enabled);
+  disablePasswordLoginToggle = () =>
+    !(clientConfig.googleLoginEnabled || clientConfig.ldapLoginEnabled || this.state.formValues.auth_saml_enabled);
 
   handleSubmit = e => {
     e.preventDefault();
