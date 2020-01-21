@@ -232,7 +232,7 @@ function QuerySource(props) {
             </div>
 
             {!query.isNew() && (
-              <div className="query-metadata query-metadata--description">
+              <div className="query-page-query-description">
                 <EditInPlace
                   isEditable={queryFlags.canEdit}
                   markdown
@@ -403,12 +403,12 @@ function QuerySource(props) {
                   openAddToDashboardForm={openAddToDashboardDialog}
                 />
 
-                <span className="query-metadata__bottom">
-                  <span className="query-metadata__property">
+                <span className="m-l-10 m-r-10">
+                  <span>
                     <strong>{queryResultData.rows.length}</strong>
                     {queryResultData.rows.length === 1 ? " row" : " rows"}
                   </span>
-                  <span className="query-metadata__property">
+                  <span className="m-l-5">
                     {!isQueryExecuting && (
                       <React.Fragment>
                         <strong>{durationHumanize(queryResultData.runtime)}</strong>
@@ -418,7 +418,7 @@ function QuerySource(props) {
                     {isQueryExecuting && <span>Running&hellip;</span>}
                   </span>
                   {queryResultData.metadata.data_scanned && (
-                    <span className="query-metadata__property">
+                    <span className="m-l-5">
                       Data Scanned
                       <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
                     </span>
@@ -426,7 +426,7 @@ function QuerySource(props) {
                 </span>
 
                 <div>
-                  <span className="query-metadata__property hidden-xs">
+                  <span className="m-l-5">
                     <span className="hidden-xs">Updated </span>
                     <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
                   </span>

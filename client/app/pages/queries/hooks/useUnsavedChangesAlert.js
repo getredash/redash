@@ -1,7 +1,6 @@
 import { useRef, useEffect } from "react";
 import location from "@/services/location";
 
-// TODO: This should be revisited and probably re-implemented when replacing Angular router with sth else
 export default function useUnsavedChangesAlert(shouldShowAlert = false) {
   const shouldShowAlertRef = useRef();
   shouldShowAlertRef.current = shouldShowAlert;

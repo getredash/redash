@@ -85,7 +85,7 @@ function QueryView(props) {
           onChange={setQuery}
           selectedVisualization={selectedVisualization}
         />
-        <div className="query-metadata tiled bg-white p-15">
+        <div className="tiled bg-white p-15">
           <EditInPlace
             className="w-100"
             value={query.description}
