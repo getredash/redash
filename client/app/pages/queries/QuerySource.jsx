@@ -35,6 +35,7 @@ import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
 import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
+import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFormatQuery from "./hooks/useFormatQuery";
@@ -136,13 +137,6 @@ function QuerySource(props) {
     setQuery(newQuery);
   });
 
-  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
-    setQuery(newQuery);
-    setSelectedVisualization(visualization.id);
-  });
-  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
-  const deleteVisualization = useDeleteVisualization(query, setQuery);
-
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
@@ -181,6 +175,13 @@ function QuerySource(props) {
       saveQuery().finally(() => setIsQuerySaving(false));
     }
   }, [isQuerySaving, saveQuery]);
+
+  const addVisualization = useAddVisualizationDialog(query, queryResult, doSaveQuery, (newQuery, visualization) => {
+    setQuery(newQuery);
+    setSelectedVisualization(visualization.id);
+  });
+  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+  const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   return (
     <div className="query-page-wrapper">
