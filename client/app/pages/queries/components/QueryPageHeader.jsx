@@ -66,7 +66,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
   const archiveQuery = useArchiveQuery(query, onChange);
   const publishQuery = usePublishQuery(query, onChange);
   const unpublishQuery = useUnpublishQuery(query, onChange);
-  const duplicateQuery = useDuplicateQuery(query);
+  const [isDuplicating, duplicateQuery] = useDuplicateQuery(query);
   const openApiKeyDialog = useApiKeyDialog(query, onChange);
   const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
 
@@ -75,7 +75,7 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
       createMenu([
         {
           fork: {
-            isEnabled: !queryFlags.isNew && queryFlags.canFork,
+            isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
             title: (
               <React.Fragment>
                 Fork
@@ -111,7 +111,15 @@ export default function QueryPageHeader({ query, dataSource, sourceMode, selecte
           },
         },
       ]),
-    [queryFlags, archiveQuery, unpublishQuery, openApiKeyDialog, openPermissionsEditorDialog, duplicateQuery]
+    [
+      queryFlags,
+      archiveQuery,
+      unpublishQuery,
+      openApiKeyDialog,
+      openPermissionsEditorDialog,
+      isDuplicating,
+      duplicateQuery,
+    ]
   );
 
   return (
