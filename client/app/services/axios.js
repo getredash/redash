@@ -7,9 +7,8 @@ export const axios = axiosLib.create({
 });
 
 const getData = ({ data }) => data;
-const getResponse = ({ response }) => Promise.reject(response);
 
-axios.interceptors.response.use(getData, getResponse);
+axios.interceptors.response.use(getData);
 
 axios.interceptors.request.use(config => {
   const apiKey = Auth.getApiKey();

@@ -7,9 +7,7 @@ import AuthenticatedPageWrapper from "@/components/ApplicationArea/Authenticated
 import Layout from "@/components/admin/Layout";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import * as StatusBlock from "@/components/admin/StatusBlock";
-
 import recordEvent from "@/services/recordEvent";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 import "./system-status.less";
 
@@ -55,9 +53,7 @@ class SystemStatus extends React.Component {
           status: omit(data, ["workers", "manager", "database_metrics"]),
         });
       })
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };
 

@@ -22,9 +22,7 @@ import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import VisualizationName from "@/visualizations/VisualizationName";
 import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
-
 import logoUrl from "@/assets/images/redash_icon_small.png";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 function VisualizationEmbedHeader({ queryName, queryDescription, visualization }) {
   return (
@@ -167,7 +165,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
           setQuery(result);
         }
       })
-      .catch(error => onErrorRef.current(new PromiseRejectionError(error)));
+      .catch(error => onErrorRef.current(error));
 
     return () => {
       isCancelled = true;

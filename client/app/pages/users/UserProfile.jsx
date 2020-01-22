@@ -8,10 +8,8 @@ import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import "./settings.less";
 
 class UserProfile extends React.Component {
@@ -34,9 +32,7 @@ class UserProfile extends React.Component {
     const userId = this.props.userId || currentUser.id;
     User.get({ id: userId })
       .then(user => this.setState({ user: User.convertUserInfo(user) }))
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
   }
 
   render() {

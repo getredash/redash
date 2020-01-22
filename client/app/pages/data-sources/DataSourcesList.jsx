@@ -14,7 +14,6 @@ import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import recordEvent from "@/services/recordEvent";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DataSourcesList extends React.Component {
   static propTypes = {
@@ -56,7 +55,7 @@ class DataSourcesList extends React.Component {
           }
         )
       )
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   componentWillUnmount() {
@@ -69,13 +68,11 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.create(target)
-      .then(dataSource => {
-        this.setState({ loading: true });
-        DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
-        return dataSource;
-      })
-      .catch(error => Promise.reject(new PromiseRejectionError(error)));
+    return DataSource.create(target).then(dataSource => {
+      this.setState({ loading: true });
+      DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
+      return dataSource;
+    });
   };
 
   showCreateSourceDialog = () => {
