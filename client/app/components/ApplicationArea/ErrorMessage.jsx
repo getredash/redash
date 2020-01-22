@@ -1,5 +1,5 @@
 import { isObject, get } from "lodash";
-import React, { useMemo } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 
 function getErrorMessageByStatus(status, defaultMessage) {
@@ -30,8 +30,6 @@ export function getErrorMessage(error) {
 }
 
 export default function ErrorMessage({ error }) {
-  const message = useMemo(() => getErrorMessage(error), [error]);
-
   if (!error) {
     return null;
   }
@@ -47,7 +45,7 @@ export default function ErrorMessage({ error }) {
               <i className="zmdi zmdi-alert-circle-o" />
             </div>
             <div className="error-state__details">
-              <h4>{message}</h4>
+              <h4>{getErrorMessage(error)}</h4>
             </div>
           </div>
         </div>
