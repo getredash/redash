@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -11,7 +11,6 @@ import EditVisualizationButton from "@/components/EditVisualizationButton";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import QueryEditor from "@/components/queries/QueryEditor";
 import TimeAgo from "@/components/TimeAgo";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { durationHumanize, prettySize } from "@/lib/utils";
 import { Query } from "@/services/query";
 import recordEvent from "@/services/recordEvent";
@@ -444,15 +443,13 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
+const QuerySourcePage = withUserSession(QuerySource);
+
 export default [
   {
     path: "/queries/new",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <QuerySourcePage key={currentRoute.key} bodyClass="fixed-layout" {...currentRoute.routeParams} />
     ),
     resolve: {
       query: () => Query.newQuery(),
@@ -461,11 +458,7 @@ export default [
   {
     path: "/queries/:queryId([0-9]+)/source",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key} bodyClass="fixed-layout">
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <QuerySource {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <QuerySourcePage key={currentRoute.key} bodyClass="fixed-layout" {...currentRoute.routeParams} />
     ),
     resolve: {
       query: ({ queryId }) => Query.get({ id: queryId }),

@@ -3,9 +3,8 @@ import React from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import Layout from "@/components/admin/Layout";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import * as StatusBlock from "@/components/admin/StatusBlock";
 import recordEvent from "@/services/recordEvent";
 
@@ -81,14 +80,10 @@ class SystemStatus extends React.Component {
   }
 }
 
+const SystemStatusPage = withUserSession(SystemStatus);
+
 export default {
   path: "/admin/status",
   title: "System Status",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <SystemStatus {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
+  render: currentRoute => <SystemStatusPage key={currentRoute.key} {...currentRoute.routeParams} />,
 };

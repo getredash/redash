@@ -9,9 +9,8 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { clientConfig } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -271,24 +270,20 @@ class OrganizationSettings extends React.Component {
   }
 }
 
-const OrganizationSettingsPage = wrapSettingsTab(
-  {
-    permission: "admin",
-    title: "Settings",
-    path: "settings/organization",
-    order: 6,
-  },
-  OrganizationSettings
+const OrganizationSettingsPage = withUserSession(
+  wrapSettingsTab(
+    {
+      permission: "admin",
+      title: "Settings",
+      path: "settings/organization",
+      order: 6,
+    },
+    OrganizationSettings
+  )
 );
 
 export default {
   path: "/settings/organization",
   title: "Organization Settings",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <OrganizationSettingsPage {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
+  render: currentRoute => <OrganizationSettingsPage key={currentRoute.key} {...currentRoute.routeParams} />,
 };

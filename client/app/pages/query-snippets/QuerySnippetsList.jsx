@@ -3,7 +3,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
@@ -15,7 +15,6 @@ import { StateStorage } from "@/components/items-list/classes/StateStorage";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import QuerySnippet from "@/services/query-snippet";
 import { currentUser } from "@/services/auth";
@@ -186,26 +185,28 @@ class QuerySnippetsList extends React.Component {
   }
 }
 
-const QuerySnippetsListPage = wrapSettingsTab(
-  {
-    permission: "create_query",
-    title: "Query Snippets",
-    path: "query_snippets",
-    order: 5,
-  },
-  liveItemsList(
-    QuerySnippetsList,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest() {
-          return {};
-        },
-        getResource() {
-          return QuerySnippet.query.bind(QuerySnippet);
-        },
-      }),
-    () => new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })
+const QuerySnippetsListPage = withUserSession(
+  wrapSettingsTab(
+    {
+      permission: "create_query",
+      title: "Query Snippets",
+      path: "query_snippets",
+      order: 5,
+    },
+    liveItemsList(
+      QuerySnippetsList,
+      () =>
+        new ResourceItemsSource({
+          isPlainList: true,
+          getRequest() {
+            return {};
+          },
+          getResource() {
+            return QuerySnippet.query.bind(QuerySnippet);
+          },
+        }),
+      () => new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })
+    )
   )
 );
 
@@ -214,34 +215,22 @@ export default [
     path: "/query_snippets",
     title: "Query Snippets",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QuerySnippetsListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <QuerySnippetsListPage
+        key={currentRoute.key}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets" }}
+        currentRoute={currentRoute}
+      />
     ),
   },
   {
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <QuerySnippetsListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <QuerySnippetsListPage
+        key={currentRoute.key}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
+        currentRoute={currentRoute}
+      />
     ),
   },
 ];

@@ -8,7 +8,7 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import SignedOutPageWrapper from "@/components/ApplicationArea/SignedOutPageWrapper";
+import withApiKeySession from "@/components/ApplicationArea/withApiKeySession";
 import { Query } from "@/services/query";
 import location from "@/services/location";
 import { formatDateTime } from "@/lib/utils";
@@ -18,7 +18,6 @@ import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import Timer from "@/components/Timer";
 import QueryResultsLink from "@/components/EditVisualizationButton/QueryResultsLink";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import VisualizationName from "@/visualizations/VisualizationName";
 import VisualizationRenderer from "@/visualizations/VisualizationRenderer";
 import { VisualizationType } from "@/visualizations";
@@ -265,16 +264,12 @@ VisualizationEmbed.defaultProps = {
   onError: () => {},
 };
 
+const VisualizationEmbedPage = withApiKeySession(VisualizationEmbed);
+
 export default {
   path: "/embed/query/:queryId/visualization/:visualizationId",
   authenticated: false,
   render: currentRoute => (
-    <SignedOutPageWrapper key={currentRoute.key} apiKey={location.search.api_key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <VisualizationEmbed {...currentRoute.routeParams} apiKey={location.search.api_key} onError={handleError} />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </SignedOutPageWrapper>
+    <VisualizationEmbedPage key={currentRoute.key} {...currentRoute.routeParams} apiKey={location.search.api_key} />
   ),
 };

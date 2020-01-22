@@ -1,13 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import User from "@/services/user";
 import { currentUser } from "@/services/auth";
 import "./settings.less";
@@ -48,36 +47,26 @@ class UserProfile extends React.Component {
   }
 }
 
-const UserProfilePage = wrapSettingsTab(
-  {
-    title: "Account",
-    path: "users/me",
-    order: 7,
-  },
-  UserProfile
+const UserProfilePage = withUserSession(
+  wrapSettingsTab(
+    {
+      title: "Account",
+      path: "users/me",
+      order: 7,
+    },
+    UserProfile
+  )
 );
 
 export default [
   {
     path: "/users/me",
     title: "Account",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <UserProfilePage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: currentRoute => <UserProfilePage key={currentRoute.key} {...currentRoute.routeParams} />,
   },
   {
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <UserProfilePage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: currentRoute => <UserProfilePage key={currentRoute.key} {...currentRoute.routeParams} />,
   },
 ];

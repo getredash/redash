@@ -1,6 +1,6 @@
 import React from "react";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -8,7 +8,6 @@ import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
@@ -131,21 +130,23 @@ class DashboardList extends React.Component {
   }
 }
 
-const DashboardListPage = itemsList(
-  DashboardList,
-  () =>
-    new ResourceItemsSource({
-      getResource({ params: { currentPage } }) {
-        return {
-          all: Dashboard.query.bind(Dashboard),
-          favorites: Dashboard.favorites.bind(Dashboard),
-        }[currentPage];
-      },
-      getItemProcessor() {
-        return item => new Dashboard(item);
-      },
-    }),
-  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+const DashboardListPage = withUserSession(
+  itemsList(
+    DashboardList,
+    () =>
+      new ResourceItemsSource({
+        getResource({ params: { currentPage } }) {
+          return {
+            all: Dashboard.query.bind(Dashboard),
+            favorites: Dashboard.favorites.bind(Dashboard),
+          }[currentPage];
+        },
+        getItemProcessor() {
+          return item => new Dashboard(item);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
 );
 
 export default [
@@ -153,34 +154,22 @@ export default [
     path: "/dashboards",
     title: "Dashboards",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DashboardListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <DashboardListPage
+        key={currentRoute.key}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
+        currentRoute={currentRoute}
+      />
     ),
   },
   {
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DashboardListPage
-              routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
-              currentRoute={currentRoute}
-              onError={handleError}
-            />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <DashboardListPage
+        key={currentRoute.key}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
+        currentRoute={currentRoute}
+      />
     ),
   },
 ];

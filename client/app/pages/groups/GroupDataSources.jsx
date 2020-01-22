@@ -5,7 +5,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -23,7 +23,6 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
@@ -229,21 +228,23 @@ class GroupDataSources extends React.Component {
   }
 }
 
-const GroupDataSourcesPage = wrapSettingsTab(
-  null,
-  liveItemsList(
-    GroupDataSources,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest(unused, { params: { groupId } }) {
-          return { id: groupId };
-        },
-        getResource() {
-          return Group.dataSources.bind(Group);
-        },
-      }),
-    () => new StateStorage({ orderByField: "name" })
+const GroupDataSourcesPage = withUserSession(
+  wrapSettingsTab(
+    null,
+    liveItemsList(
+      GroupDataSources,
+      () =>
+        new ResourceItemsSource({
+          isPlainList: true,
+          getRequest(unused, { params: { groupId } }) {
+            return { id: groupId };
+          },
+          getResource() {
+            return Group.dataSources.bind(Group);
+          },
+        }),
+      () => new StateStorage({ orderByField: "name" })
+    )
   )
 );
 
@@ -251,16 +252,10 @@ export default {
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
   render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <GroupDataSourcesPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
+    <GroupDataSourcesPage
+      key={currentRoute.key}
+      routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
+      currentRoute={currentRoute}
+    />
   ),
 };

@@ -4,13 +4,12 @@ import { axios } from "@/services/axios";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
 import TimeAgo from "@/components/TimeAgo";
 import Layout from "@/components/admin/Layout";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ItemsSource } from "@/components/items-list/classes/ItemsSource";
@@ -147,43 +146,39 @@ class OutdatedQueries extends React.Component {
   }
 }
 
-const OutdatedQueriesPage = itemsList(
-  OutdatedQueries,
-  () =>
-    new ItemsSource({
-      doRequest(request, context) {
-        return (
-          axios
-            .get("/api/admin/queries/outdated")
-            // eslint-disable-next-line camelcase
-            .then(({ queries, updated_at }) => {
-              context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
-              return queries;
-            })
-        );
-      },
-      processResults(items) {
-        return map(items, item => new Query(item));
-      },
-      isPlainList: true,
-    }),
-  () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
+const OutdatedQueriesPage = withUserSession(
+  itemsList(
+    OutdatedQueries,
+    () =>
+      new ItemsSource({
+        doRequest(request, context) {
+          return (
+            axios
+              .get("/api/admin/queries/outdated")
+              // eslint-disable-next-line camelcase
+              .then(({ queries, updated_at }) => {
+                context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
+                return queries;
+              })
+          );
+        },
+        processResults(items) {
+          return map(items, item => new Query(item));
+        },
+        isPlainList: true,
+      }),
+    () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
+  )
 );
 
 export default {
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
   render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <OutdatedQueriesPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "outdated_queries" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
+    <OutdatedQueriesPage
+      key={currentRoute.key}
+      routeParams={{ ...currentRoute.routeParams, currentPage: "outdated_queries" }}
+      currentRoute={currentRoute}
+    />
   ),
 };

@@ -2,7 +2,7 @@ import { includes, map } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -20,7 +20,6 @@ import ListItemAddon from "@/components/groups/ListItemAddon";
 import Sidebar from "@/components/groups/DetailsPageSidebar";
 import Layout from "@/components/layouts/ContentWithSidebar";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import notification from "@/services/notification";
 import { currentUser } from "@/services/auth";
@@ -192,21 +191,23 @@ class GroupMembers extends React.Component {
   }
 }
 
-const GroupMembersPage = wrapSettingsTab(
-  null,
-  liveItemsList(
-    GroupMembers,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest(unused, { params: { groupId } }) {
-          return { id: groupId };
-        },
-        getResource() {
-          return Group.members.bind(Group);
-        },
-      }),
-    () => new StateStorage({ orderByField: "name" })
+const GroupMembersPage = withUserSession(
+  wrapSettingsTab(
+    null,
+    liveItemsList(
+      GroupMembers,
+      () =>
+        new ResourceItemsSource({
+          isPlainList: true,
+          getRequest(unused, { params: { groupId } }) {
+            return { id: groupId };
+          },
+          getResource() {
+            return Group.members.bind(Group);
+          },
+        }),
+      () => new StateStorage({ orderByField: "name" })
+    )
   )
 );
 
@@ -214,16 +215,10 @@ export default {
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
   render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <GroupMembersPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "users" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
+    <GroupMembersPage
+      key={currentRoute.key}
+      routeParams={{ ...currentRoute.routeParams, currentPage: "users" }}
+      currentRoute={currentRoute}
+    />
   ),
 };

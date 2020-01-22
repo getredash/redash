@@ -1,10 +1,9 @@
 import { toUpper } from "lodash";
 import React from "react";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
@@ -106,35 +105,31 @@ class AlertsList extends React.Component {
   }
 }
 
-const AlertsListPage = liveItemsList(
-  AlertsList,
-  () =>
-    new ResourceItemsSource({
-      isPlainList: true,
-      getRequest() {
-        return {};
-      },
-      getResource() {
-        return Alert.query.bind(Alert);
-      },
-    }),
-  () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
+const AlertsListPage = withUserSession(
+  liveItemsList(
+    AlertsList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
+        },
+        getResource() {
+          return Alert.query.bind(Alert);
+        },
+      }),
+    () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
+  )
 );
 
 export default {
   path: "/alerts",
   title: "Alerts",
   render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <AlertsListPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
+    <AlertsListPage
+      key={currentRoute.key}
+      routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
+      currentRoute={currentRoute}
+    />
   ),
 };

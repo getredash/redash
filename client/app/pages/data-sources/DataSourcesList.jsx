@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -12,7 +12,6 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import DynamicComponent from "@/components/DynamicComponent";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import recordEvent from "@/services/recordEvent";
 
 class DataSourcesList extends React.Component {
@@ -145,39 +144,29 @@ class DataSourcesList extends React.Component {
   }
 }
 
-const DataSourcesListPage = wrapSettingsTab(
-  {
-    permission: "admin",
-    title: "Data Sources",
-    path: "data_sources",
-    order: 1,
-  },
-  DataSourcesList
+const DataSourcesListPage = withUserSession(
+  wrapSettingsTab(
+    {
+      permission: "admin",
+      title: "Data Sources",
+      path: "data_sources",
+      order: 1,
+    },
+    DataSourcesList
+  )
 );
 
 export default [
   {
     path: "/data_sources",
     title: "Data Sources",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DataSourcesListPage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: currentRoute => <DataSourcesListPage key={currentRoute.key} {...currentRoute.routeParams} />,
   },
   {
     path: "/data_sources/new",
     title: "Data Sources",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DataSourcesListPage {...currentRoute.routeParams} isNewDataSourcePage onError={handleError} />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <DataSourcesListPage key={currentRoute.key} {...currentRoute.routeParams} isNewDataSourcePage />
     ),
   },
 ];

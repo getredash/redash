@@ -2,13 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import Divider from "antd/lib/divider";
 
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import TimeAgo from "@/components/TimeAgo";
 import QueryControlDropdown from "@/components/EditVisualizationButton/QueryControlDropdown";
 import EditVisualizationButton from "@/components/EditVisualizationButton";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
@@ -185,15 +184,11 @@ function QueryView(props) {
 
 QueryView.propTypes = { query: PropTypes.object.isRequired }; // eslint-disable-line react/forbid-prop-types
 
+const QueryViewPage = withUserSession(QueryView);
+
 export default {
   path: "/queries/:queryId([0-9]+)",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <QueryView {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
+  render: currentRoute => <QueryViewPage key={currentRoute.key} {...currentRoute.routeParams} />,
   resolve: {
     query: ({ queryId }) => Query.get({ id: queryId }),
   },

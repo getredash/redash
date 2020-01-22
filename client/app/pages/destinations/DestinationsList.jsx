@@ -4,14 +4,13 @@ import Button from "antd/lib/button";
 import { isEmpty, isString, find, get } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -133,39 +132,29 @@ class DestinationsList extends React.Component {
   }
 }
 
-const DestinationsListPage = wrapSettingsTab(
-  {
-    permission: "admin",
-    title: "Alert Destinations",
-    path: "destinations",
-    order: 4,
-  },
-  DestinationsList
+const DestinationsListPage = withUserSession(
+  wrapSettingsTab(
+    {
+      permission: "admin",
+      title: "Alert Destinations",
+      path: "destinations",
+      order: 4,
+    },
+    DestinationsList
+  )
 );
 
 export default [
   {
     path: "/destinations",
     title: "Alert Destinations",
-    render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => <DestinationsListPage {...currentRoute.routeParams} onError={handleError} />}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
-    ),
+    render: currentRoute => <DestinationsListPage key={currentRoute.key} {...currentRoute.routeParams} />,
   },
   {
     path: "/destinations/new",
     title: "Alert Destinations",
     render: currentRoute => (
-      <AuthenticatedPageWrapper key={currentRoute.key}>
-        <ErrorBoundaryContext.Consumer>
-          {({ handleError }) => (
-            <DestinationsListPage {...currentRoute.routeParams} isNewDestinationPage onError={handleError} />
-          )}
-        </ErrorBoundaryContext.Consumer>
-      </AuthenticatedPageWrapper>
+      <DestinationsListPage key={currentRoute.key} {...currentRoute.routeParams} isNewDestinationPage />
     ),
   },
 ];

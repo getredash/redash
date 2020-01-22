@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
@@ -173,12 +173,10 @@ function Home() {
   );
 }
 
+const HomePage = withUserSession(Home);
+
 export default {
   path: "/",
   title: "Redash",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <Home {...currentRoute.routeParams} />
-    </AuthenticatedPageWrapper>
-  ),
+  render: currentRoute => <HomePage key={currentRoute.key} {...currentRoute.routeParams} />,
 };

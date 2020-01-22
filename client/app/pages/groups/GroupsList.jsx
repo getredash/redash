@@ -1,7 +1,7 @@
 import React from "react";
 
 import Button from "antd/lib/button";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -16,7 +16,6 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import CreateGroupDialog from "@/components/groups/CreateGroupDialog";
 import DeleteGroupButton from "@/components/groups/DeleteGroupButton";
 import wrapSettingsTab from "@/components/SettingsWrapper";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 
 import Group from "@/services/group";
 import { currentUser } from "@/services/auth";
@@ -126,26 +125,28 @@ class GroupsList extends React.Component {
   }
 }
 
-const GroupsListPage = wrapSettingsTab(
-  {
-    permission: "list_users",
-    title: "Groups",
-    path: "groups",
-    order: 3,
-  },
-  liveItemsList(
-    GroupsList,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest() {
-          return {};
-        },
-        getResource() {
-          return Group.query.bind(Group);
-        },
-      }),
-    () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })
+const GroupsListPage = withUserSession(
+  wrapSettingsTab(
+    {
+      permission: "list_users",
+      title: "Groups",
+      path: "groups",
+      order: 3,
+    },
+    liveItemsList(
+      GroupsList,
+      () =>
+        new ResourceItemsSource({
+          isPlainList: true,
+          getRequest() {
+            return {};
+          },
+          getResource() {
+            return Group.query.bind(Group);
+          },
+        }),
+      () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })
+    )
   )
 );
 
@@ -153,16 +154,10 @@ export default {
   path: "/groups",
   title: "Groups",
   render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => (
-          <GroupsListPage
-            routeParams={{ ...currentRoute.routeParams, currentPage: "groups" }}
-            currentRoute={currentRoute}
-            onError={handleError}
-          />
-        )}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
+    <GroupsListPage
+      key={currentRoute.key}
+      routeParams={{ ...currentRoute.routeParams, currentPage: "groups" }}
+      currentRoute={currentRoute}
+    />
   ),
 };

@@ -5,9 +5,8 @@ import { axios } from "@/services/axios";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
-import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
+import withUserSession from "@/components/ApplicationArea/withUserSession";
 import Layout from "@/components/admin/Layout";
-import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
 import location from "@/services/location";
@@ -121,14 +120,10 @@ class Jobs extends React.Component {
   }
 }
 
+const JobsPage = withUserSession(Jobs);
+
 export default {
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: currentRoute => (
-    <AuthenticatedPageWrapper key={currentRoute.key}>
-      <ErrorBoundaryContext.Consumer>
-        {({ handleError }) => <Jobs {...currentRoute.routeParams} onError={handleError} />}
-      </ErrorBoundaryContext.Consumer>
-    </AuthenticatedPageWrapper>
-  ),
+  render: currentRoute => <JobsPage key={currentRoute.key} {...currentRoute.routeParams} />,
 };
