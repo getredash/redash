@@ -94,7 +94,7 @@ function createMarkerClusterGroup(color) {
 function createMarkersLayer(options, { color, points }) {
   const { classify, clusterMarkers, customizeMarkers } = options;
 
-  const result = clusterMarkers ? createMarkerClusterGroup(color) : L.layerGroup();
+  const result = clusterMarkers ? createMarkerClusterGroup(color) : L.featureGroup();
 
   // create markers
   each(points, ({ lat, lon, row }) => {
