@@ -1,12 +1,11 @@
+import { get, find } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import { get, find } from "lodash";
 import Modal from "antd/lib/modal";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
@@ -36,9 +35,7 @@ class EditDestination extends React.Component {
         this.setState({ destination });
         Destination.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
   }
 
   saveDestination = (values, successCallback, errorCallback) => {
@@ -47,7 +44,7 @@ class EditDestination extends React.Component {
     Destination.save(destination)
       .then(() => successCallback("Saved."))
       .catch(error => {
-        const message = get(error, "data.message", "Failed saving.");
+        const message = get(error, "response.data.message", "Failed saving.");
         errorCallback(message);
       });
   };

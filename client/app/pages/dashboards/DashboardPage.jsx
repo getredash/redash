@@ -23,7 +23,6 @@ import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import useDashboard, { DashboardStatusEnum } from "./useDashboard";
 
 import "./DashboardPage.less";
@@ -389,9 +388,7 @@ function DashboardPage({ dashboardSlug, onError }) {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
       })
-      .catch(error => {
-        onErrorRef.current(new PromiseRejectionError(error));
-      });
+      .catch(error => onErrorRef.current(error));
   }, [dashboardSlug]);
 
   return (

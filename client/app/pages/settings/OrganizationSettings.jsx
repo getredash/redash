@@ -19,7 +19,6 @@ import OrgSettings from "@/services/organizationSettings";
 import HelpTrigger from "@/components/HelpTrigger";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import DynamicComponent from "@/components/DynamicComponent";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 const Option = Select.Option;
 
@@ -46,7 +45,7 @@ class OrganizationSettings extends React.Component {
         const settings = get(response, "settings");
         this.setState({ settings, formValues: { ...settings }, loading: false });
       })
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   disablePasswordLoginToggle = () => !(clientConfig.googleLoginEnabled || this.state.formValues.auth_saml_enabled);
@@ -60,7 +59,7 @@ class OrganizationSettings extends React.Component {
           const settings = get(response, "settings");
           this.setState({ settings, formValues: { ...settings } });
         })
-        .catch(error => this.props.onError(new PromiseRejectionError(error)))
+        .catch(error => this.props.onError(error))
         .finally(() => this.setState({ submitting: false }));
     }
   };

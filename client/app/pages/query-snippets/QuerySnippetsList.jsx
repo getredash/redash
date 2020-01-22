@@ -3,7 +3,6 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
@@ -88,8 +87,8 @@ class QuerySnippetsList extends React.Component {
       } else {
         QuerySnippet.get({ id: querySnippetId })
           .then(this.showSnippetDialog)
-          .catch((error = {}) => {
-            this.props.controller.handleError(new PromiseRejectionError(error));
+          .catch(error => {
+            this.props.controller.handleError(error);
           });
       }
     }

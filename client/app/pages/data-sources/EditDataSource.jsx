@@ -6,7 +6,6 @@ import DataSource, { IMG_ROOT } from "@/services/data-source";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import LoadingState from "@/components/items-list/components/LoadingState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
@@ -37,9 +36,7 @@ class EditDataSource extends React.Component {
         this.setState({ dataSource });
         DataSource.types().then(types => this.setState({ type: find(types, { type }), loading: false }));
       })
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
   }
 
   saveDataSource = (values, successCallback, errorCallback) => {
@@ -48,7 +45,7 @@ class EditDataSource extends React.Component {
     DataSource.save(dataSource)
       .then(() => successCallback("Saved."))
       .catch(error => {
-        const message = get(error, "data.message", "Failed saving.");
+        const message = get(error, "response.data.message", "Failed saving.");
         errorCallback(message);
       });
   };
