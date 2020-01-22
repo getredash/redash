@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import PropTypes from "prop-types";
-import Divider from "antd/lib/divider";
 import cx from "classnames";
-import { has } from "lodash";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
 
@@ -38,13 +36,11 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import "./QueryView.less";
 
 // ANGULAR_REMOVE_ME: Update with new Router
-function updateUrlSearch(...params) {
-  $location.search(...params);
-  $rootScope.$applyAsync();
-}
+function updateUrlSearch(...params) {}
 
 function useFullscreenHandler(available) {
-  const [fullscreen, setFullscreen] = useState(has($location.search(), "fullscreen"));
+  // TODO: bring back URL sync
+  const [fullscreen, setFullscreen] = useState(false);
   const toggleFullscreen = useCallback(() => setFullscreen(!fullscreen), [fullscreen]);
 
   useEffect(() => {
