@@ -16,8 +16,6 @@ import AlertView from "./AlertView";
 import AlertEdit from "./AlertEdit";
 import AlertNew from "./AlertNew";
 
-import PromiseRejectionError from "@/lib/promise-rejection-error";
-
 const MODES = {
   NEW: 0,
   VIEW: 1,
@@ -94,9 +92,9 @@ class AlertPage extends React.Component {
             this.onQuerySelected(alert.query);
           }
         })
-        .catch(err => {
+        .catch(error => {
           if (this._isMounted) {
-            this.props.onError(new PromiseRejectionError(err));
+            this.props.onError(error);
           }
         });
     }

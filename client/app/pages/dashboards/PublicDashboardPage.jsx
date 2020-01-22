@@ -9,7 +9,6 @@ import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Filters from "@/components/Filters";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Dashboard } from "@/services/dashboard";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import useDashboard from "./useDashboard";
 
@@ -70,9 +69,7 @@ class PublicDashboardPage extends React.Component {
   componentDidMount() {
     Dashboard.getByToken({ token: this.props.token })
       .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch(error => {
-        this.props.onError(new PromiseRejectionError(error));
-      });
+      .catch(error => this.props.onError(error));
   }
 
   render() {

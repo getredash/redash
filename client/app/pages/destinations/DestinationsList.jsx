@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
-import { isEmpty, get } from "lodash";
+import { isEmpty, isString, find, get } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
@@ -12,7 +12,6 @@ import CreateSourceDialog from "@/components/CreateSourceDialog";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
-import PromiseRejectionError from "@/lib/promise-rejection-error";
 
 class DestinationsList extends React.Component {
   static propTypes = {
@@ -52,7 +51,7 @@ class DestinationsList extends React.Component {
           }
         )
       )
-      .catch(error => this.props.onError(new PromiseRejectionError(error)));
+      .catch(error => this.props.onError(error));
   }
 
   createDestination = (selectedType, values) => {
@@ -66,10 +65,8 @@ class DestinationsList extends React.Component {
         return destination;
       })
       .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
       });
   };
 
