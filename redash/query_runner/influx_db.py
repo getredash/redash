@@ -6,7 +6,8 @@ from redash.utils import json_dumps
 logger = logging.getLogger(__name__)
 
 try:
-    from influxdb import InfluxDBClusterClient
+    from influxdb import InfluxDBClient
+
     enabled = True
 
 except ImportError:
@@ -18,33 +19,32 @@ def _transform_result(results):
     result_rows = []
 
     for result in results:
-        for series in result.raw.get('series', []):
-            for column in series['columns']:
+        for series in result.raw.get("series", []):
+            for column in series["columns"]:
                 if column not in result_columns:
                     result_columns.append(column)
-            tags = series.get('tags', {})
+            tags = series.get("tags", {})
             for key in tags.keys():
                 if key not in result_columns:
                     result_columns.append(key)
 
     for result in results:
-        for series in result.raw.get('series', []):
-            for point in series['values']:
+        for series in result.raw.get("series", []):
+            for point in series["values"]:
                 result_row = {}
                 for column in result_columns:
-                    tags = series.get('tags', {})
+                    tags = series.get("tags", {})
                     if column in tags:
                         result_row[column] = tags[column]
-                    elif column in series['columns']:
-                        index = series['columns'].index(column)
+                    elif column in series["columns"]:
+                        index = series["columns"].index(column)
                         value = point[index]
                         result_row[column] = value
                 result_rows.append(result_row)
 
-    return json_dumps({
-        "columns": [{'name': c} for c in result_columns],
-        "rows": result_rows
-    })
+    return json_dumps(
+        {"columns": [{"name": c} for c in result_columns], "rows": result_rows}
+    )
 
 
 class InfluxDB(BaseQueryRunner):
@@ -54,13 +54,9 @@ class InfluxDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string'
-                }
-            },
-            'required': ['url']
+            "type": "object",
+            "properties": {"url": {"type": "string"}},
+            "required": ["url"],
         }
 
     @classmethod
@@ -72,9 +68,9 @@ class InfluxDB(BaseQueryRunner):
         return "influxdb"
 
     def run_query(self, query, user):
-        client = InfluxDBClusterClient.from_DSN(self.configuration['url'])
+        client = InfluxDBClient.from_dsn(self.configuration["url"])
 
-        logger.debug("influxdb url: %s", self.configuration['url'])
+        logger.debug("influxdb url: %s", self.configuration["url"])
         logger.debug("influxdb got query: %s", query)
 
         try:
@@ -86,7 +82,7 @@ class InfluxDB(BaseQueryRunner):
             error = None
         except Exception as ex:
             json_data = None
-            error = ex.message
+            error = str(ex)
 
         return json_data, error
 

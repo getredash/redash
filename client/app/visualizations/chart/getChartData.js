@@ -1,10 +1,10 @@
-import { isNil, each, forOwn, sortBy, values } from 'lodash';
+import { isNil, isObject, each, forOwn, sortBy, values } from "lodash";
 
 function addPointToSeries(point, seriesCollection, seriesName) {
   if (seriesCollection[seriesName] === undefined) {
     seriesCollection[seriesName] = {
       name: seriesName,
-      type: 'column',
+      type: "column",
       data: [],
     };
   }
@@ -17,7 +17,7 @@ export default function getChartData(data, options) {
 
   const mappings = options.columnMapping;
 
-  each(data, (row) => {
+  each(data, row => {
     let point = { $raw: row };
     let seriesName = null;
     let xValue = 0;
@@ -26,48 +26,44 @@ export default function getChartData(data, options) {
     let sizeValue = null;
     let zValue = null;
 
-    forOwn(row, (v, definition) => {
-      definition = '' + definition;
-      const definitionParts = definition.split('::') || definition.split('__');
+    forOwn(row, (value, definition) => {
+      definition = "" + definition;
+      const definitionParts = definition.split("::") || definition.split("__");
       const name = definitionParts[0];
       const type = mappings ? mappings[definition] : definitionParts[1];
-      let value = v;
 
-      if (type === 'unused') {
+      if (type === "unused") {
         return;
       }
 
-      if (type === 'x') {
+      if (type === "x") {
         xValue = value;
         point[type] = value;
       }
-      if (type === 'y') {
-        if (value == null) {
-          value = 0;
-        }
+      if (type === "y") {
         yValues[name] = value;
         point[type] = value;
       }
-      if (type === 'yError') {
+      if (type === "yError") {
         eValue = value;
         point[type] = value;
       }
 
-      if (type === 'series') {
+      if (type === "series") {
         seriesName = String(value);
       }
 
-      if (type === 'size') {
+      if (type === "size") {
         point[type] = value;
         sizeValue = value;
       }
 
-      if (type === 'zVal') {
+      if (type === "zVal") {
         point[type] = value;
         zValue = value;
       }
 
-      if (type === 'multiFilter' || type === 'multi-filter') {
+      if (type === "multiFilter" || type === "multi-filter") {
         seriesName = String(value);
       }
     });
@@ -93,8 +89,8 @@ export default function getChartData(data, options) {
     }
   });
   return sortBy(values(series), ({ name }) => {
-    if (options.seriesOptions[name]) {
-      return options.seriesOptions[name].zIndex;
+    if (isObject(options.seriesOptions[name])) {
+      return options.seriesOptions[name].zIndex || 0;
     }
     return 0;
   });

@@ -1,33 +1,31 @@
 #!/bin/bash
 set -e
 
-worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
-  WORKER_EXTRA_OPTIONS=${WORKER_EXTRA_OPTIONS:-}
+scheduler() {
+  echo "Starting RQ scheduler..."
 
-  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair $WORKER_EXTRA_OPTIONS
+  exec /app/manage.py rq scheduler
 }
 
-scheduler() {
-  WORKERS_COUNT=${WORKERS_COUNT:-1}
-  QUEUES=${QUEUES:-celery}
-  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+dev_scheduler() {
+  echo "Starting dev RQ scheduler..."
 
-  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
+}
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+worker() {
+  echo "Starting RQ worker..."
+
+  export WORKERS_COUNT=${WORKERS_COUNT:-2}
+  export QUEUES=${QUEUES:-}
+  
+  supervisord -c worker.conf
 }
 
 dev_worker() {
-  WORKERS_COUNT=${WORKERS_COUNT:-2}
-  QUEUES=${QUEUES:-queries,scheduled_queries,celery,schemas}
-  SCHEDULE_DB=${SCHEDULE_DB:-celerybeat-schedule}
+  echo "Starting dev RQ worker..."
 
-  echo "Starting dev scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
-
-  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- /usr/local/bin/celery worker --app=redash.worker --beat -s$SCHEDULE_DB -c$WORKERS_COUNT -Q$QUEUES -linfo --max-tasks-per-child=10 -Ofair
+  exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
 server() {
@@ -41,8 +39,8 @@ create_db() {
   exec /app/manage.py database create_tables
 }
 
-celery_healthcheck() {
-  exec /usr/local/bin/celery inspect ping --app=redash.worker -d celery@$HOSTNAME
+rq_healthcheck() {
+  exec /app/manage.py rq healthcheck
 }
 
 help() {
@@ -52,10 +50,11 @@ help() {
   echo ""
 
   echo "server -- start Redash server (with gunicorn)"
-  echo "worker -- start Celery worker"
-  echo "scheduler -- start Celery worker with a beat (scheduler) process"
-  echo "dev_worker  -- start Celery worker with a beat (scheduler) process which picks up code changes and reloads"
-  echo "celery_healthcheck -- runs a Celery healthcheck. Useful for Docker's HEALTHCHECK mechanism."
+  echo "worker -- start a single RQ worker"
+  echo "dev_worker -- start a single RQ worker with code reloading"
+  echo "scheduler -- start an rq-scheduler instance"
+  echo "dev_scheduler -- start an rq-scheduler instance with code reloading"
+  echo "rq_healthcheck -- runs a RQ healthcheck that verifies that all local workers are active. Useful for Docker's HEALTHCHECK mechanism."
   echo ""
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
@@ -89,9 +88,17 @@ case "$1" in
     shift
     scheduler
     ;;
+  dev_scheduler)
+    shift
+    dev_scheduler
+    ;;
   dev_worker)
     shift
     dev_worker
+    ;;
+  rq_healthcheck)
+    shift
+    rq_healthcheck
     ;;
   dev_server)
     export FLASK_DEBUG=1

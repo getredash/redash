@@ -1,23 +1,19 @@
-import { react2angular } from 'react2angular';
-import { VisualizationType, registeredVisualizations } from './index';
+import React from "react";
+import { VisualizationType, registeredVisualizations } from "./index";
 
-export function VisualizationName({ visualization }) {
+import "./VisualizationName.less";
+
+function VisualizationName({ visualization }) {
   const config = registeredVisualizations[visualization.type];
-  if (config) {
-    if (visualization.name !== config.name) {
-      return visualization.name;
-    }
-  }
-
-  return null;
+  return (
+    <span className="visualization-name">
+      {config && visualization.name !== config.name ? visualization.name : null}
+    </span>
+  );
 }
 
 VisualizationName.propTypes = {
   visualization: VisualizationType.isRequired,
 };
 
-export default function init(ngModule) {
-  ngModule.component('visualizationName', react2angular(VisualizationName));
-}
-
-init.init = true;
+export default VisualizationName;

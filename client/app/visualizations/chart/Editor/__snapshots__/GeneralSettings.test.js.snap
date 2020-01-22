@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Box: toggles show points 1`] = `
+Object {
+  "showpoints": true,
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Changes global series type 1`] = `
+Object {
+  "globalSeriesType": "pie",
+  "seriesOptions": Object {
+    "a": Object {
+      "type": "pie",
+    },
+    "b": Object {
+      "type": "pie",
+    },
+  },
+  "showDataLabels": true,
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Enables stacking 1`] = `
+Object {
+  "series": Object {
+    "stacking": "stack",
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Keep missing/null values 1`] = `
+Object {
+  "missingValuesAsZero": false,
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Pie: changes direction 1`] = `
+Object {
+  "direction": Object {
+    "type": "clockwise",
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Toggles legend 1`] = `
+Object {
+  "legend": Object {
+    "enabled": false,
+  },
+}
+`;
+
+exports[`Visualizations -> Chart -> Editor -> General Settings Toggles normalize values to percentage 1`] = `
+Object {
+  "series": Object {
+    "percentValues": true,
+  },
+}
+`;

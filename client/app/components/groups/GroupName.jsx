@@ -1,11 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { EditInPlace } from '@/components/EditInPlace';
-import { currentUser } from '@/services/auth';
+import React from "react";
+import PropTypes from "prop-types";
+import EditInPlace from "@/components/EditInPlace";
+import { currentUser } from "@/services/auth";
+import Group from "@/services/group";
 
 function updateGroupName(group, name, onChange) {
   group.name = name;
-  group.$save();
+  Group.save(group);
   onChange();
 }
 
@@ -14,7 +15,7 @@ export default function GroupName({ group, onChange, ...props }) {
     return null;
   }
 
-  const canEdit = currentUser.isAdmin && (group.type !== 'builtin');
+  const canEdit = currentUser.isAdmin && group.type !== "builtin";
 
   return (
     <h3 {...props}>
@@ -22,7 +23,6 @@ export default function GroupName({ group, onChange, ...props }) {
         className="edit-in-place"
         isEditable={canEdit}
         ignoreBlanks
-        editor="input"
         onDone={name => updateGroupName(group, name, onChange)}
         value={group.name}
       />
@@ -33,7 +33,6 @@ export default function GroupName({ group, onChange, ...props }) {
 GroupName.propTypes = {
   group: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    $save: PropTypes.func.isRequired,
   }),
   onChange: PropTypes.func,
 };

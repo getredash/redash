@@ -21,7 +21,7 @@ try:
         ibm_db_dbi.BINARY: TYPE_STRING,
         ibm_db_dbi.XML: TYPE_STRING,
         ibm_db_dbi.TEXT: TYPE_STRING,
-        ibm_db_dbi.STRING: TYPE_STRING
+        ibm_db_dbi.STRING: TYPE_STRING,
     }
 
     enabled = True
@@ -37,28 +37,15 @@ class DB2(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 50000
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                }
+                "user": {"type": "string"},
+                "password": {"type": "string"},
+                "host": {"type": "string", "default": "127.0.0.1"},
+                "port": {"type": "number", "default": 50000},
+                "dbname": {"type": "string", "title": "Database Name"},
             },
-            "order": ['host', 'port', 'user', 'password', 'dbname'],
+            "order": ["host", "port", "user", "password", "dbname"],
             "required": ["dbname"],
-            "secret": ["password"]
+            "secret": ["password"],
         }
 
     @classmethod
@@ -82,16 +69,16 @@ class DB2(BaseSQLQueryRunner):
 
         results = json_loads(results)
 
-        for row in results['rows']:
-            if row['TABLE_SCHEMA'] != u'public':
-                table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
+        for row in results["rows"]:
+            if row["TABLE_SCHEMA"] != "public":
+                table_name = "{}.{}".format(row["TABLE_SCHEMA"], row["TABLE_NAME"])
             else:
-                table_name = row['TABLE_NAME']
+                table_name = row["TABLE_NAME"]
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {"name": table_name, "columns": []}
 
-            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+            schema[table_name]["columns"].append(row["COLUMN_NAME"])
 
     def _get_tables(self, schema):
         query = """
@@ -105,11 +92,16 @@ class DB2(BaseSQLQueryRunner):
         """
         self._get_definitions(schema, query)
 
-        return schema.values()
+        return list(schema.values())
 
     def _get_connection(self):
         self.connection_string = "DATABASE={};HOSTNAME={};PORT={};PROTOCOL=TCPIP;UID={};PWD={};".format(
-            self.configuration["dbname"], self.configuration["host"], self.configuration["port"], self.configuration["user"], self.configuration["password"])
+            self.configuration["dbname"],
+            self.configuration["host"],
+            self.configuration["port"],
+            self.configuration["user"],
+            self.configuration["password"],
+        )
         connection = ibm_db_dbi.connect(self.connection_string, "", "")
 
         return connection
@@ -122,20 +114,25 @@ class DB2(BaseSQLQueryRunner):
             cursor.execute(query)
 
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                columns = self.fetch_columns(
+                    [(i[0], types_map.get(i[1], None)) for i in cursor.description]
+                )
+                rows = [
+                    dict(zip((column["name"] for column in columns), row))
+                    for row in cursor
+                ]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {"columns": columns, "rows": rows}
                 error = None
                 json_data = json_dumps(data)
             else:
-                error = 'Query completed but it returned no data.'
+                error = "Query completed but it returned no data."
                 json_data = None
         except (select.error, OSError) as e:
             error = "Query interrupted. Please retry."
             json_data = None
         except ibm_db_dbi.DatabaseError as e:
-            error = e.message
+            error = str(e)
             json_data = None
         except (KeyboardInterrupt, InterruptException):
             connection.cancel()
