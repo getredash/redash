@@ -35,6 +35,7 @@ import useAddToDashboardDialog from "./hooks/useAddToDashboardDialog";
 import useEmbedDialog from "./hooks/useEmbedDialog";
 import useAddNewParameterDialog from "./hooks/useAddNewParameterDialog";
 import useEditScheduleDialog from "./hooks/useEditScheduleDialog";
+import useAddVisualizationDialog from "./hooks/useAddVisualizationDialog";
 import useEditVisualizationDialog from "./hooks/useEditVisualizationDialog";
 import useDeleteVisualization from "./hooks/useDeleteVisualization";
 import useFormatQuery from "./hooks/useFormatQuery";
@@ -136,13 +137,6 @@ function QuerySource(props) {
     setQuery(newQuery);
   });
 
-  const addVisualization = useEditVisualizationDialog(query, queryResult, (newQuery, visualization) => {
-    setQuery(newQuery);
-    setSelectedVisualization(visualization.id);
-  });
-  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
-  const deleteVisualization = useDeleteVisualization(query, setQuery);
-
   const handleSchemaItemSelect = useCallback(schemaItem => {
     if (editorRef.current) {
       editorRef.current.paste(schemaItem);
@@ -181,6 +175,13 @@ function QuerySource(props) {
       saveQuery().finally(() => setIsQuerySaving(false));
     }
   }, [isQuerySaving, saveQuery]);
+
+  const addVisualization = useAddVisualizationDialog(query, queryResult, doSaveQuery, (newQuery, visualization) => {
+    setQuery(newQuery);
+    setSelectedVisualization(visualization.id);
+  });
+  const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
+  const deleteVisualization = useDeleteVisualization(query, setQuery);
 
   return (
     <div className="query-page-wrapper">
@@ -231,7 +232,7 @@ function QuerySource(props) {
             </div>
 
             {!query.isNew() && (
-              <div className="query-metadata query-metadata--description">
+              <div className="query-page-query-description">
                 <EditInPlace
                   isEditable={queryFlags.canEdit}
                   markdown
@@ -402,12 +403,12 @@ function QuerySource(props) {
                   openAddToDashboardForm={openAddToDashboardDialog}
                 />
 
-                <span className="query-metadata__bottom">
-                  <span className="query-metadata__property">
+                <span className="m-l-10 m-r-10">
+                  <span>
                     <strong>{queryResultData.rows.length}</strong>
                     {queryResultData.rows.length === 1 ? " row" : " rows"}
                   </span>
-                  <span className="query-metadata__property">
+                  <span className="m-l-5">
                     {!isQueryExecuting && (
                       <React.Fragment>
                         <strong>{durationHumanize(queryResultData.runtime)}</strong>
@@ -417,7 +418,7 @@ function QuerySource(props) {
                     {isQueryExecuting && <span>Running&hellip;</span>}
                   </span>
                   {queryResultData.metadata.data_scanned && (
-                    <span className="query-metadata__property">
+                    <span className="m-l-5">
                       Data Scanned
                       <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
                     </span>
@@ -425,7 +426,7 @@ function QuerySource(props) {
                 </span>
 
                 <div>
-                  <span className="query-metadata__property hidden-xs">
+                  <span className="m-l-5">
                     <span className="hidden-xs">Updated </span>
                     <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
                   </span>

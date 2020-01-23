@@ -11,10 +11,7 @@ import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
-
-// ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
 import useQueryResult from "@/lib/hooks/useQueryResult";
-
 import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from "./index";
 
 function updateQueryVisualizations(query, visualization) {

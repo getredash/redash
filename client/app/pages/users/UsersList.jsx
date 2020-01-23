@@ -1,4 +1,4 @@
-import { map, get } from "lodash";
+import { isString, map, get, find } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -159,10 +159,8 @@ class UsersList extends React.Component {
         }
       })
       .catch(error => {
-        if (!(error instanceof Error)) {
-          error = new Error(get(error, "data.message", "Failed saving."));
-        }
-        return Promise.reject(error);
+        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        return Promise.reject(new Error(message));
       });
 
   showCreateUserDialog = () => {

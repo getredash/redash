@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { isEmpty, includes, compact, map, has, pick, keys, extend, every } from "lodash";
+import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
 import notification from "@/services/notification";
 import location from "@/services/location";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
@@ -71,9 +71,10 @@ function useDashboard(dashboardData) {
           setDashboard(currentDashboard => extend({}, currentDashboard, pick(updatedDashboard, keys(data))))
         )
         .catch(error => {
-          if (error.status === 403) {
+          const status = get(error, "response.status");
+          if (status === 403) {
             notification.error("Dashboard update failed", "Permission Denied.");
-          } else if (error.status === 409) {
+          } else if (status === 409) {
             notification.error(
               "It seems like the dashboard has been modified by another user. ",
               "Please copy/backup your changes and reload this page.",

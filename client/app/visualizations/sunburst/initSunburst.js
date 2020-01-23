@@ -39,8 +39,7 @@ function buildNodesFromHierarchyData(data) {
 }
 
 function buildNodesFromTableData(data) {
-  // ANGULAR_REMOVE_ME $$ check is for Angular's internal properties
-  const validKey = key => key !== "value" && key.indexOf("$$") !== 0;
+  const validKey = key => key !== "value";
   const dataKeys = sortBy(filter(keys(data[0]), validKey), identity);
 
   return map(data, (row, sequence) => ({

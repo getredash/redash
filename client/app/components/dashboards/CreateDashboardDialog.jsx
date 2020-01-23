@@ -1,5 +1,5 @@
 import { trim } from "lodash";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState } from "react";
 import { axios } from "@/services/axios";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
@@ -13,19 +13,7 @@ function CreateDashboardDialog({ dialog }) {
   const [name, setName] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
-  const inputRef = useRef();
   const isCreateDashboardEnabled = policy.isCreateDashboardEnabled();
-
-  // ANGULAR_REMOVE_ME Replace all this with `autoFocus` attribute (it does not work
-  // if dialog is opened from Angular code, but works fine if open dialog from React code)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   function handleNameChange(event) {
     const value = trim(event.target.value);
@@ -68,12 +56,12 @@ function CreateDashboardDialog({ dialog }) {
       }}>
       <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
         <Input
-          ref={inputRef}
           defaultValue={name}
           onChange={handleNameChange}
           onPressEnter={save}
           placeholder="Dashboard Name"
           disabled={saveInProgress}
+          autoFocus
         />
       </DynamicComponent>
     </Modal>

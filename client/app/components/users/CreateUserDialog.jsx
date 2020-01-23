@@ -32,6 +32,7 @@ class CreateUserDialog extends React.Component {
             this.props.dialog.close();
           })
           .catch(error => {
+            // TODO: Is raw error message correct here?
             this.setState({ savingUser: false, errorMessage: error.message });
           });
       }
