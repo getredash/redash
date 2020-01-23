@@ -8,7 +8,7 @@ import Dropdown from "antd/lib/dropdown";
 import Icon from "antd/lib/icon";
 import Menu from "antd/lib/menu";
 import Tooltip from "antd/lib/tooltip";
-import withApiKeySession from "@/components/ApplicationArea/withApiKeySession";
+import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import { Query } from "@/services/query";
 import location from "@/services/location";
 import { formatDateTime } from "@/lib/utils";
@@ -264,12 +264,8 @@ VisualizationEmbed.defaultProps = {
   onError: () => {},
 };
 
-const VisualizationEmbedPage = withApiKeySession(VisualizationEmbed);
-
-export default {
+export default routeWithApiKeySession({
   path: "/embed/query/:queryId/visualization/:visualizationId",
-  authenticated: false,
-  render: currentRoute => (
-    <VisualizationEmbedPage key={currentRoute.key} {...currentRoute.routeParams} apiKey={location.search.api_key} />
-  ),
-};
+  render: (currentRoute, props) => <VisualizationEmbed {...currentRoute.routeParams} {...props} />,
+  getApiKey: () => location.search.api_key,
+});

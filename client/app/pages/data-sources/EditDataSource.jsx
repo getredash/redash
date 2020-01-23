@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { get, find, toUpper } from "lodash";
 import Modal from "antd/lib/modal";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -136,10 +136,10 @@ class EditDataSource extends React.Component {
   }
 }
 
-const EditDataSourcePage = withUserSession(wrapSettingsTab(null, EditDataSource));
+const EditDataSourcePage = wrapSettingsTab(null, EditDataSource);
 
-export default {
+export default routeWithUserSession({
   path: "/data_sources/:dataSourceId([0-9]+)",
   title: "Data Sources",
-  render: currentRoute => <EditDataSourcePage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <EditDataSourcePage {...currentRoute.routeParams} {...props} />,
+});

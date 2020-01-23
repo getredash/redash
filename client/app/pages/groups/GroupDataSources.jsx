@@ -5,7 +5,7 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -228,34 +228,32 @@ class GroupDataSources extends React.Component {
   }
 }
 
-const GroupDataSourcesPage = withUserSession(
-  wrapSettingsTab(
-    null,
-    liveItemsList(
-      GroupDataSources,
-      () =>
-        new ResourceItemsSource({
-          isPlainList: true,
-          getRequest(unused, { params: { groupId } }) {
-            return { id: groupId };
-          },
-          getResource() {
-            return Group.dataSources.bind(Group);
-          },
-        }),
-      () => new StateStorage({ orderByField: "name" })
-    )
+const GroupDataSourcesPage = wrapSettingsTab(
+  null,
+  liveItemsList(
+    GroupDataSources,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.dataSources.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
   )
 );
 
-export default {
+export default routeWithUserSession({
   path: "/groups/:groupId([0-9]+)/data_sources",
   title: "Group Data Sources",
-  render: currentRoute => (
+  render: (currentRoute, props) => (
     <GroupDataSourcesPage
-      key={currentRoute.key}
       routeParams={{ ...currentRoute.routeParams, currentPage: "datasources" }}
       currentRoute={currentRoute}
+      {...props}
     />
   ),
-};
+});

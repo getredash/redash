@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -144,29 +144,27 @@ class DataSourcesList extends React.Component {
   }
 }
 
-const DataSourcesListPage = withUserSession(
-  wrapSettingsTab(
-    {
-      permission: "admin",
-      title: "Data Sources",
-      path: "data_sources",
-      order: 1,
-    },
-    DataSourcesList
-  )
+const DataSourcesListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Data Sources",
+    path: "data_sources",
+    order: 1,
+  },
+  DataSourcesList
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/data_sources",
     title: "Data Sources",
-    render: currentRoute => <DataSourcesListPage key={currentRoute.key} {...currentRoute.routeParams} />,
-  },
-  {
+    render: (currentRoute, props) => <DataSourcesListPage {...currentRoute.routeParams} {...props} />,
+  }),
+  routeWithUserSession({
     path: "/data_sources/new",
     title: "Data Sources",
-    render: currentRoute => (
-      <DataSourcesListPage key={currentRoute.key} {...currentRoute.routeParams} isNewDataSourcePage />
+    render: (currentRoute, props) => (
+      <DataSourcesListPage {...currentRoute.routeParams} {...props} isNewDataSourcePage />
     ),
-  },
+  }),
 ];

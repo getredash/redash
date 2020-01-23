@@ -9,7 +9,7 @@ import Menu from "antd/lib/menu";
 import Icon from "antd/lib/icon";
 import Modal from "antd/lib/modal";
 import Tooltip from "antd/lib/tooltip";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import FavoritesControl from "@/components/FavoritesControl";
 import EditInPlace from "@/components/EditInPlace";
@@ -406,9 +406,7 @@ DashboardPage.defaultProps = {
   onError: PropTypes.func,
 };
 
-const WrappedDashboardPage = withUserSession(DashboardPage);
-
-export default {
+export default routeWithUserSession({
   path: "/dashboard/:dashboardSlug",
-  render: currentRoute => <WrappedDashboardPage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <DashboardPage {...currentRoute.routeParams} {...props} />,
+});

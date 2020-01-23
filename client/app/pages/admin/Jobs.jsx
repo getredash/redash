@@ -5,7 +5,7 @@ import { axios } from "@/services/axios";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
 import { CounterCard, WorkersTable, QueuesTable, OtherJobsTable } from "@/components/admin/RQStatus";
 
@@ -120,10 +120,8 @@ class Jobs extends React.Component {
   }
 }
 
-const JobsPage = withUserSession(Jobs);
-
-export default {
+export default routeWithUserSession({
   path: "/admin/queries/jobs",
   title: "RQ Status",
-  render: currentRoute => <JobsPage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <Jobs {...currentRoute.routeParams} {...props} />,
+});

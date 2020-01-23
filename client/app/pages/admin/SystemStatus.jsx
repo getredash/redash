@@ -3,7 +3,7 @@ import React from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
 import * as StatusBlock from "@/components/admin/StatusBlock";
 import recordEvent from "@/services/recordEvent";
@@ -80,10 +80,8 @@ class SystemStatus extends React.Component {
   }
 }
 
-const SystemStatusPage = withUserSession(SystemStatus);
-
-export default {
+export default routeWithUserSession({
   path: "/admin/status",
   title: "System Status",
-  render: currentRoute => <SystemStatusPage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <SystemStatus {...currentRoute.routeParams} {...props} />,
+});

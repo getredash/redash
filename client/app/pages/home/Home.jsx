@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { includes, isEmpty } from "lodash";
 import Alert from "antd/lib/alert";
 import Icon from "antd/lib/icon";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
 import BeaconConsent from "@/components/BeaconConsent";
@@ -173,10 +173,8 @@ function Home() {
   );
 }
 
-const HomePage = withUserSession(Home);
-
-export default {
+export default routeWithUserSession({
   path: "/",
   title: "Redash",
-  render: currentRoute => <HomePage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <Home {...currentRoute.routeParams} {...props} />,
+});

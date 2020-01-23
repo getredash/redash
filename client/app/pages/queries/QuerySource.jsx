@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Select from "antd/lib/select";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
 import EditInPlace from "@/components/EditInPlace";
@@ -443,25 +443,21 @@ QuerySource.propTypes = {
   query: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-const QuerySourcePage = withUserSession(QuerySource);
-
 export default [
-  {
+  routeWithUserSession({
     path: "/queries/new",
-    render: currentRoute => (
-      <QuerySourcePage key={currentRoute.key} bodyClass="fixed-layout" {...currentRoute.routeParams} />
-    ),
+    render: (currentRoute, props) => <QuerySource {...currentRoute.routeParams} {...props} />,
     resolve: {
       query: () => Query.newQuery(),
     },
-  },
-  {
+    bodyClass: "fixed-layout",
+  }),
+  routeWithUserSession({
     path: "/queries/:queryId([0-9]+)/source",
-    render: currentRoute => (
-      <QuerySourcePage key={currentRoute.key} bodyClass="fixed-layout" {...currentRoute.routeParams} />
-    ),
+    render: (currentRoute, props) => <QuerySource {...currentRoute.routeParams} {...props} />,
     resolve: {
       query: ({ queryId }) => Query.get({ id: queryId }),
     },
-  },
+    bodyClass: "fixed-layout",
+  }),
 ];

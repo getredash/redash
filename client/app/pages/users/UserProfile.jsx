@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
 import UserEdit from "@/components/users/UserEdit";
 import UserShow from "@/components/users/UserShow";
@@ -47,26 +47,24 @@ class UserProfile extends React.Component {
   }
 }
 
-const UserProfilePage = withUserSession(
-  wrapSettingsTab(
-    {
-      title: "Account",
-      path: "users/me",
-      order: 7,
-    },
-    UserProfile
-  )
+const UserProfilePage = wrapSettingsTab(
+  {
+    title: "Account",
+    path: "users/me",
+    order: 7,
+  },
+  UserProfile
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/users/me",
     title: "Account",
-    render: currentRoute => <UserProfilePage key={currentRoute.key} {...currentRoute.routeParams} />,
-  },
-  {
+    render: (currentRoute, props) => <UserProfilePage {...currentRoute.routeParams} {...props} />,
+  }),
+  routeWithUserSession({
     path: "/users/:userId([0-9]+)",
     title: "Users",
-    render: currentRoute => <UserProfilePage key={currentRoute.key} {...currentRoute.routeParams} />,
-  },
+    render: (currentRoute, props) => <UserProfilePage {...currentRoute.routeParams} {...props} />,
+  }),
 ];

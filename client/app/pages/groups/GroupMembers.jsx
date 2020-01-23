@@ -2,7 +2,7 @@ import { includes, map } from "lodash";
 import React from "react";
 import Button from "antd/lib/button";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
@@ -191,34 +191,32 @@ class GroupMembers extends React.Component {
   }
 }
 
-const GroupMembersPage = withUserSession(
-  wrapSettingsTab(
-    null,
-    liveItemsList(
-      GroupMembers,
-      () =>
-        new ResourceItemsSource({
-          isPlainList: true,
-          getRequest(unused, { params: { groupId } }) {
-            return { id: groupId };
-          },
-          getResource() {
-            return Group.members.bind(Group);
-          },
-        }),
-      () => new StateStorage({ orderByField: "name" })
-    )
+const GroupMembersPage = wrapSettingsTab(
+  null,
+  liveItemsList(
+    GroupMembers,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest(unused, { params: { groupId } }) {
+          return { id: groupId };
+        },
+        getResource() {
+          return Group.members.bind(Group);
+        },
+      }),
+    () => new StateStorage({ orderByField: "name" })
   )
 );
 
-export default {
+export default routeWithUserSession({
   path: "/groups/:groupId([0-9]+)",
   title: "Group Members",
-  render: currentRoute => (
+  render: (currentRoute, props) => (
     <GroupMembersPage
-      key={currentRoute.key}
       routeParams={{ ...currentRoute.routeParams, currentPage: "users" }}
       currentRoute={currentRoute}
+      {...props}
     />
   ),
-};
+});

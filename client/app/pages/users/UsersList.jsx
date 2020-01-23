@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserPreviewCard } from "@/components/PreviewCard";
@@ -241,86 +241,84 @@ class UsersList extends React.Component {
   }
 }
 
-const UsersListPage = withUserSession(
-  wrapSettingsTab(
-    {
-      permission: "list_users",
-      title: "Users",
-      path: "users",
-      isActive: path => path.startsWith("/users") && path !== "/users/me",
-      order: 2,
-    },
-    itemsList(
-      UsersList,
-      () =>
-        new ResourceItemsSource({
-          getRequest(request, { params: { currentPage } }) {
-            switch (currentPage) {
-              case "active":
-                request.pending = false;
-                break;
-              case "pending":
-                request.pending = true;
-                break;
-              case "disabled":
-                request.disabled = true;
-                break;
-              // no default
-            }
-            return request;
-          },
-          getResource() {
-            return User.query.bind(User);
-          },
-        }),
-      () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-    )
+const UsersListPage = wrapSettingsTab(
+  {
+    permission: "list_users",
+    title: "Users",
+    path: "users",
+    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    order: 2,
+  },
+  itemsList(
+    UsersList,
+    () =>
+      new ResourceItemsSource({
+        getRequest(request, { params: { currentPage } }) {
+          switch (currentPage) {
+            case "active":
+              request.pending = false;
+              break;
+            case "pending":
+              request.pending = true;
+              break;
+            case "disabled":
+              request.disabled = true;
+              break;
+            // no default
+          }
+          return request;
+        },
+        getResource() {
+          return User.query.bind(User);
+        },
+      }),
+    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
   )
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/users",
     title: "Users",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <UsersListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "active" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/users/new",
     title: "Users",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <UsersListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "active", isNewUserPage: true }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/users/pending",
     title: "Pending Invitations",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <UsersListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "pending" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/users/disabled",
     title: "Disabled Users",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <UsersListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "disabled" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
+  }),
 ];

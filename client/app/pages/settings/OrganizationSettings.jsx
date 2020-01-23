@@ -9,7 +9,7 @@ import Input from "antd/lib/input";
 import Select from "antd/lib/select";
 import Checkbox from "antd/lib/checkbox";
 import Tooltip from "antd/lib/tooltip";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import LoadingState from "@/components/items-list/components/LoadingState";
 
 import { clientConfig } from "@/services/auth";
@@ -270,20 +270,18 @@ class OrganizationSettings extends React.Component {
   }
 }
 
-const OrganizationSettingsPage = withUserSession(
-  wrapSettingsTab(
-    {
-      permission: "admin",
-      title: "Settings",
-      path: "settings/organization",
-      order: 6,
-    },
-    OrganizationSettings
-  )
+const OrganizationSettingsPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Settings",
+    path: "settings/organization",
+    order: 6,
+  },
+  OrganizationSettings
 );
 
-export default {
+export default routeWithUserSession({
   path: "/settings/organization",
   title: "Organization Settings",
-  render: currentRoute => <OrganizationSettingsPage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <OrganizationSettingsPage {...currentRoute.routeParams} {...props} />,
+});

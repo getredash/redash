@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Destination, { IMG_ROOT } from "@/services/destination";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -103,10 +103,10 @@ class EditDestination extends React.Component {
   }
 }
 
-const EditDestinationPage = withUserSession(wrapSettingsTab(null, EditDestination));
+const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 
-export default {
+export default routeWithUserSession({
   path: "/destinations/:destinationId([0-9]+)",
   title: "Alert Destinations",
-  render: currentRoute => <EditDestinationPage key={currentRoute.key} {...currentRoute.routeParams} />,
-};
+  render: (currentRoute, props) => <EditDestinationPage {...currentRoute.routeParams} {...props} />,
+});

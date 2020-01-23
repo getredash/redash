@@ -1,7 +1,7 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import withApiKeySession from "@/components/ApplicationArea/withApiKeySession";
+import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
@@ -95,16 +95,8 @@ class PublicDashboardPage extends React.Component {
   }
 }
 
-const WrappedPublicDashboardPage = withApiKeySession(PublicDashboardPage);
-
-export default {
+export default routeWithApiKeySession({
   path: "/public/dashboards/:token",
-  authenticated: false,
-  render: currentRoute => (
-    <WrappedPublicDashboardPage
-      key={currentRoute.key}
-      {...currentRoute.routeParams}
-      apiKey={currentRoute.routeParams.token}
-    />
-  ),
-};
+  render: (currentRoute, props) => <PublicDashboardPage {...currentRoute.routeParams} {...props} />,
+  getApiKey: curentRoute => curentRoute.routeParams.token,
+});

@@ -1,6 +1,6 @@
 import { toUpper } from "lodash";
 import React from "react";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
@@ -105,31 +105,29 @@ class AlertsList extends React.Component {
   }
 }
 
-const AlertsListPage = withUserSession(
-  liveItemsList(
-    AlertsList,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest() {
-          return {};
-        },
-        getResource() {
-          return Alert.query.bind(Alert);
-        },
-      }),
-    () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
-  )
+const AlertsListPage = liveItemsList(
+  AlertsList,
+  () =>
+    new ResourceItemsSource({
+      isPlainList: true,
+      getRequest() {
+        return {};
+      },
+      getResource() {
+        return Alert.query.bind(Alert);
+      },
+    }),
+  () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
 );
 
-export default {
+export default routeWithUserSession({
   path: "/alerts",
   title: "Alerts",
-  render: currentRoute => (
+  render: (currentRoute, props) => (
     <AlertsListPage
-      key={currentRoute.key}
       routeParams={{ ...currentRoute.routeParams, currentPage: "alerts" }}
       currentRoute={currentRoute}
+      {...props}
     />
   ),
-};
+});

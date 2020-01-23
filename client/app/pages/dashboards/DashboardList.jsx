@@ -1,6 +1,6 @@
 import React from "react";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { DashboardTagsControl } from "@/components/tags-control/TagsControl";
@@ -130,46 +130,44 @@ class DashboardList extends React.Component {
   }
 }
 
-const DashboardListPage = withUserSession(
-  itemsList(
-    DashboardList,
-    () =>
-      new ResourceItemsSource({
-        getResource({ params: { currentPage } }) {
-          return {
-            all: Dashboard.query.bind(Dashboard),
-            favorites: Dashboard.favorites.bind(Dashboard),
-          }[currentPage];
-        },
-        getItemProcessor() {
-          return item => new Dashboard(item);
-        },
-      }),
-    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-  )
+const DashboardListPage = itemsList(
+  DashboardList,
+  () =>
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Dashboard.query.bind(Dashboard),
+          favorites: Dashboard.favorites.bind(Dashboard),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return item => new Dashboard(item);
+      },
+    }),
+  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/dashboards",
     title: "Dashboards",
-    render: currentRoute => (
+    render: (currentRoute, ...props) => (
       <DashboardListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/dashboards/favorites",
     title: "Favorite Dashboards",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <DashboardListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
+  }),
 ];

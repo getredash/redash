@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import { currentUser } from "@/services/auth";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import notification from "@/services/notification";
 import AlertService from "@/services/alert";
@@ -251,22 +251,20 @@ class Alert extends React.Component {
   }
 }
 
-const AlertPage = withUserSession(Alert);
-
 export default [
-  {
+  routeWithUserSession({
     path: "/alerts/new",
     title: "New Alert",
-    render: currentRoute => <AlertPage key={currentRoute.key} {...currentRoute.routeParams} mode={MODES.NEW} />,
-  },
-  {
+    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.NEW} />,
+  }),
+  routeWithUserSession({
     path: "/alerts/:alertId([0-9]+)",
     title: "Alert",
-    render: currentRoute => <AlertPage key={currentRoute.key} {...currentRoute.routeParams} mode={MODES.VIEW} />,
-  },
-  {
+    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.VIEW} />,
+  }),
+  routeWithUserSession({
     path: "/alerts/:alertId([0-9]+)/edit",
     title: "Alert",
-    render: currentRoute => <AlertPage key={currentRoute.key} {...currentRoute.routeParams} mode={MODES.EDIT} />,
-  },
+    render: (currentRoute, props) => <Alert {...currentRoute.routeParams} {...props} mode={MODES.EDIT} />,
+  }),
 ];

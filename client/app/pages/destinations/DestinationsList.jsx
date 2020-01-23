@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import { isEmpty, isString, find, get } from "lodash";
 import Destination, { IMG_ROOT } from "@/services/destination";
 import { policy } from "@/services/policy";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -132,29 +132,27 @@ class DestinationsList extends React.Component {
   }
 }
 
-const DestinationsListPage = withUserSession(
-  wrapSettingsTab(
-    {
-      permission: "admin",
-      title: "Alert Destinations",
-      path: "destinations",
-      order: 4,
-    },
-    DestinationsList
-  )
+const DestinationsListPage = wrapSettingsTab(
+  {
+    permission: "admin",
+    title: "Alert Destinations",
+    path: "destinations",
+    order: 4,
+  },
+  DestinationsList
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/destinations",
     title: "Alert Destinations",
-    render: currentRoute => <DestinationsListPage key={currentRoute.key} {...currentRoute.routeParams} />,
-  },
-  {
+    render: (currentRoute, props) => <DestinationsListPage {...currentRoute.routeParams} {...props} />,
+  }),
+  routeWithUserSession({
     path: "/destinations/new",
     title: "Alert Destinations",
-    render: currentRoute => (
-      <DestinationsListPage key={currentRoute.key} {...currentRoute.routeParams} isNewDestinationPage />
+    render: (currentRoute, props) => (
+      <DestinationsListPage {...currentRoute.routeParams} {...props} isNewDestinationPage />
     ),
-  },
+  }),
 ];

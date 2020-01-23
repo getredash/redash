@@ -1,6 +1,6 @@
 import React from "react";
 
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
@@ -143,70 +143,68 @@ class QueriesList extends React.Component {
   }
 }
 
-const QueriesListPage = withUserSession(
-  itemsList(
-    QueriesList,
-    () =>
-      new ResourceItemsSource({
-        getResource({ params: { currentPage } }) {
-          return {
-            all: Query.query.bind(Query),
-            my: Query.myQueries.bind(Query),
-            favorites: Query.favorites.bind(Query),
-            archive: Query.archive.bind(Query),
-          }[currentPage];
-        },
-        getItemProcessor() {
-          return item => new Query(item);
-        },
-      }),
-    () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
-  )
+const QueriesListPage = itemsList(
+  QueriesList,
+  () =>
+    new ResourceItemsSource({
+      getResource({ params: { currentPage } }) {
+        return {
+          all: Query.query.bind(Query),
+          my: Query.myQueries.bind(Query),
+          favorites: Query.favorites.bind(Query),
+          archive: Query.archive.bind(Query),
+        }[currentPage];
+      },
+      getItemProcessor() {
+        return item => new Query(item);
+      },
+    }),
+  () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/queries",
     title: "Queries",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QueriesListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "all" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/queries/favorites",
     title: "Favorite Queries",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QueriesListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "favorites" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/queries/archive",
     title: "Archived Queries",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QueriesListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "archive" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/queries/my",
     title: "My Queries",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QueriesListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "my" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
+  }),
 ];

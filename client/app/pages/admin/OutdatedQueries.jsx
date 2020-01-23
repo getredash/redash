@@ -4,7 +4,7 @@ import { axios } from "@/services/axios";
 
 import Switch from "antd/lib/switch";
 import * as Grid from "antd/lib/grid";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Paginator from "@/components/Paginator";
 import { QueryTagsControl } from "@/components/tags-control/TagsControl";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -146,39 +146,37 @@ class OutdatedQueries extends React.Component {
   }
 }
 
-const OutdatedQueriesPage = withUserSession(
-  itemsList(
-    OutdatedQueries,
-    () =>
-      new ItemsSource({
-        doRequest(request, context) {
-          return (
-            axios
-              .get("/api/admin/queries/outdated")
-              // eslint-disable-next-line camelcase
-              .then(({ queries, updated_at }) => {
-                context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
-                return queries;
-              })
-          );
-        },
-        processResults(items) {
-          return map(items, item => new Query(item));
-        },
-        isPlainList: true,
-      }),
-    () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
-  )
+const OutdatedQueriesPage = itemsList(
+  OutdatedQueries,
+  () =>
+    new ItemsSource({
+      doRequest(request, context) {
+        return (
+          axios
+            .get("/api/admin/queries/outdated")
+            // eslint-disable-next-line camelcase
+            .then(({ queries, updated_at }) => {
+              context.setCustomParams({ lastUpdatedAt: parseFloat(updated_at) });
+              return queries;
+            })
+        );
+      },
+      processResults(items) {
+        return map(items, item => new Query(item));
+      },
+      isPlainList: true,
+    }),
+  () => new StateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
-export default {
+export default routeWithUserSession({
   path: "/admin/queries/outdated",
   title: "Outdated Queries",
-  render: currentRoute => (
+  render: (currentRoute, props) => (
     <OutdatedQueriesPage
-      key={currentRoute.key}
       routeParams={{ ...currentRoute.routeParams, currentPage: "outdated_queries" }}
       currentRoute={currentRoute}
+      {...props}
     />
   ),
-};
+});

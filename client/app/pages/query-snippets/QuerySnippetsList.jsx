@@ -3,7 +3,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
-import withUserSession from "@/components/ApplicationArea/withUserSession";
+import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
@@ -185,52 +185,50 @@ class QuerySnippetsList extends React.Component {
   }
 }
 
-const QuerySnippetsListPage = withUserSession(
-  wrapSettingsTab(
-    {
-      permission: "create_query",
-      title: "Query Snippets",
-      path: "query_snippets",
-      order: 5,
-    },
-    liveItemsList(
-      QuerySnippetsList,
-      () =>
-        new ResourceItemsSource({
-          isPlainList: true,
-          getRequest() {
-            return {};
-          },
-          getResource() {
-            return QuerySnippet.query.bind(QuerySnippet);
-          },
-        }),
-      () => new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })
-    )
+const QuerySnippetsListPage = wrapSettingsTab(
+  {
+    permission: "create_query",
+    title: "Query Snippets",
+    path: "query_snippets",
+    order: 5,
+  },
+  liveItemsList(
+    QuerySnippetsList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
+        },
+        getResource() {
+          return QuerySnippet.query.bind(QuerySnippet);
+        },
+      }),
+    () => new StateStorage({ orderByField: "trigger", itemsPerPage: 10 })
   )
 );
 
 export default [
-  {
+  routeWithUserSession({
     path: "/query_snippets",
     title: "Query Snippets",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QuerySnippetsListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets" }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
-  {
+  }),
+  routeWithUserSession({
     path: "/query_snippets/:querySnippetId(new|[0-9]+)",
     title: "Query Snippets",
-    render: currentRoute => (
+    render: (currentRoute, props) => (
       <QuerySnippetsListPage
-        key={currentRoute.key}
         routeParams={{ ...currentRoute.routeParams, currentPage: "query_snippets", isNewOrEditPage: true }}
         currentRoute={currentRoute}
+        {...props}
       />
     ),
-  },
+  }),
 ];
