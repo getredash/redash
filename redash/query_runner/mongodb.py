@@ -147,8 +147,8 @@ class MongoDB(BaseQueryRunner):
                 "readPreference": {
                     "type": "string",
                     "extendedEnum": [
-                        {"value": "primary", "name": "Primary"},
                         {"value": "primaryPreferred", "name": "Primary Preferred"},
+                        {"value": "primary", "name": "Primary"},                        
                         {"value": "secondary", "name": "Secondary"},
                         {"value": "secondaryPreferred", "name": "Secondary Preferred"},
                         {"value": "nearest", "name": "Nearest"},
@@ -183,7 +183,7 @@ class MongoDB(BaseQueryRunner):
             db_connection = pymongo.MongoClient(
                 self.configuration["connectionString"],
                 replicaSet=self.configuration["replicaSetName"],
-                readPreference=self.configuration.get("readPreference", "primaryPreferred")
+                readPreference=self.configuration["readPreference"]
             )
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
