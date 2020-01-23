@@ -3,6 +3,7 @@ import { noop, includes } from "lodash";
 import useQueryResult from "@/lib/hooks/useQueryResult";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
+import notifications from "@/services/notifications";
 
 function getMaxAge() {
   const { maxAge } = location.search;
@@ -25,15 +26,32 @@ export default function useQueryExecute(query) {
 
   const [isExecutionCancelling, setIsExecutionCancelling] = useState(false);
 
+  const showNotificationMessageRef = useRef();
+  showNotificationMessageRef.current = () => {
+    if (queryResultData.status === "done") {
+      notifications.showNotification("Redash", `${query.name} updated.`);
+    } else if (queryResultData.status === "failed") {
+      notifications.showNotification("Redash", `${query.name} failed to run: ${queryResultData.error}`);
+    }
+  };
+
+  useEffect(() => {
+    if (!isQueryExecuting) {
+      showNotificationMessageRef.current();
+    }
+  }, [isQueryExecuting]);
+
   const executeQuery = useCallback(() => {
     recordEvent("execute", "query", query.id);
     setQueryResult(query.getQueryResult(0));
+    notifications.getPermissions();
   }, [query]);
 
   const executeAdhocQuery = useCallback(
     selectedQueryText => {
       recordEvent("execute", "query", query.id);
       setQueryResult(query.getQueryResultByText(0, selectedQueryText));
+      notifications.getPermissions();
     },
     [query]
   );
