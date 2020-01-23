@@ -23,7 +23,7 @@ import getTags from "@/services/getTags";
 import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
-import useDashboard, { DashboardStatusEnum } from "./useDashboard";
+import useDashboard, { DashboardStatusEnum } from "./hooks/useDashboard";
 
 import "./DashboardPage.less";
 

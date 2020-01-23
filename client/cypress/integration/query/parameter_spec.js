@@ -117,7 +117,7 @@ describe("Parameter", () => {
 
       cy.getByTestId("ParameterApplyButton").click();
       // ensure that query is being executed
-      cy.get('[data-test="ExecuteButton"]:disabled').should("exist");
+      cy.getByTestId("QueryExecutionStatus").should("exist");
 
       cy.getByTestId("TableVisualization").should("contain", "value2");
     });

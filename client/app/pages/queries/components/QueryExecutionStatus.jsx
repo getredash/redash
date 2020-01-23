@@ -37,6 +37,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
 
   return (
     <Alert
+      data-test="QueryExecutionStatus"
       type={alertType}
       message={
         <div className="d-flex align-items-center">
