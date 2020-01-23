@@ -278,22 +278,22 @@ const UsersListPage = wrapSettingsTab(
 
 export default [
   routeWithUserSession({
-    path: "/users",
+    path: "/users/new",
     title: "Users",
     render: (currentRoute, props) => (
       <UsersListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "active" }}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "active", isNewUserPage: true }}
         currentRoute={currentRoute}
         {...props}
       />
     ),
   }),
   routeWithUserSession({
-    path: "/users/new",
+    path: "/users",
     title: "Users",
     render: (currentRoute, props) => (
       <UsersListPage
-        routeParams={{ ...currentRoute.routeParams, currentPage: "active", isNewUserPage: true }}
+        routeParams={{ ...currentRoute.routeParams, currentPage: "active" }}
         currentRoute={currentRoute}
         {...props}
       />

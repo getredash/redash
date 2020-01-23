@@ -6,7 +6,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -193,7 +193,7 @@ class GroupMembers extends React.Component {
 
 const GroupMembersPage = wrapSettingsTab(
   null,
-  liveItemsList(
+  itemsList(
     GroupMembers,
     () =>
       new ResourceItemsSource({

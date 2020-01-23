@@ -5,7 +5,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -132,7 +132,7 @@ const GroupsListPage = wrapSettingsTab(
     path: "groups",
     order: 3,
   },
-  liveItemsList(
+  itemsList(
     GroupsList,
     () =>
       new ResourceItemsSource({

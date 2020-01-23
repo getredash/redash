@@ -4,7 +4,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
 import EmptyState from "@/components/empty-state/EmptyState";
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -105,7 +105,7 @@ class AlertsList extends React.Component {
   }
 }
 
-const AlertsListPage = liveItemsList(
+const AlertsListPage = itemsList(
   AlertsList,
   () =>
     new ResourceItemsSource({

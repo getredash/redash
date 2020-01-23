@@ -8,7 +8,7 @@ import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
 import QuerySnippetDialog from "@/components/query-snippets/QuerySnippetDialog";
 
-import { wrap as liveItemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { StateStorage } from "@/components/items-list/classes/StateStorage";
 
@@ -192,7 +192,7 @@ const QuerySnippetsListPage = wrapSettingsTab(
     path: "query_snippets",
     order: 5,
   },
-  liveItemsList(
+  itemsList(
     QuerySnippetsList,
     () =>
       new ResourceItemsSource({
