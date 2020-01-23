@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
+import Icon from "antd/lib/icon";
 
 import AuthenticatedPageWrapper from "@/components/ApplicationArea/AuthenticatedPageWrapper";
 import EditInPlace from "@/components/EditInPlace";
@@ -15,6 +16,7 @@ import { ErrorBoundaryContext } from "@/components/ErrorBoundary";
 import { Query } from "@/services/query";
 import DataSource from "@/services/data-source";
 import { pluralize, durationHumanize } from "@/lib/utils";
+import getQueryResultData from "@/lib/getQueryResultData";
 
 import QueryPageHeader from "./components/QueryPageHeader";
 import QueryVisualizationTabs from "./components/QueryVisualizationTabs";
@@ -35,17 +37,9 @@ import useDeleteVisualization from "./hooks/useDeleteVisualization";
 
 import "./QueryView.less";
 
-// ANGULAR_REMOVE_ME: Update with new Router
-function updateUrlSearch(...params) {}
-
 function useFullscreenHandler(available) {
-  // TODO: bring back URL sync
   const [fullscreen, setFullscreen] = useState(false);
   const toggleFullscreen = useCallback(() => setFullscreen(!fullscreen), [fullscreen]);
-
-  useEffect(() => {
-    updateUrlSearch("fullscreen", fullscreen ? true : null);
-  }, [fullscreen]);
 
   return useMemo(() => [available && fullscreen, toggleFullscreen], [available, fullscreen, toggleFullscreen]);
 }
@@ -62,12 +56,16 @@ function QueryView(props) {
 
   const {
     queryResult,
-    queryResultData,
-    isQueryExecuting,
-    isExecutionCancelling,
+    isExecuting,
+    executionStatus,
     executeQuery,
-    cancelExecution,
+    error: executionError,
+    cancelCallback: cancelExecution,
+    isCancelling: isExecutionCancelling,
+    updatedAt,
   } = useQueryExecute(query);
+
+  const queryResultData = getQueryResultData(queryResult);
 
   const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
@@ -82,12 +80,12 @@ function QueryView(props) {
 
   const doExecuteQuery = useCallback(
     (skipParametersDirtyFlag = false) => {
-      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isQueryExecuting))) {
+      if (!queryFlags.canExecute || (!skipParametersDirtyFlag && (areParametersDirty || isExecuting))) {
         return;
       }
       executeQuery();
     },
-    [areParametersDirty, executeQuery, isQueryExecuting, queryFlags.canExecute]
+    [areParametersDirty, executeQuery, isExecuting, queryFlags.canExecute]
   );
 
   useEffect(() => {
@@ -111,7 +109,7 @@ function QueryView(props) {
               className="m-r-5"
               type="primary"
               shortcut="mod+enter, alt+enter"
-              disabled={!queryFlags.canExecute || isQueryExecuting || areParametersDirty}
+              disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
               onClick={doExecuteQuery}>
               Refresh
             </QueryViewButton>
@@ -159,18 +157,18 @@ function QueryView(props) {
           </div>
         )}
         <div className="query-results m-t-15">
-          {queryResult && queryResultData.status !== "done" && (
-            <div className="query-alerts m-t-15 m-b-15">
+          {(executionError || isExecuting) && (
+            <div style={{ position: "absolute", bottom: "75px", right: "20px", zIndex: 1000 }}>
               <QueryExecutionStatus
-                status={queryResultData.status}
-                updatedAt={queryResultData.updatedAt}
-                error={queryResultData.error}
+                status={executionStatus}
+                error={executionError}
                 isCancelling={isExecutionCancelling}
                 onCancel={cancelExecution}
+                updatedAt={updatedAt}
               />
             </div>
           )}
-          {(!queryResult || queryResultData.status === "done") && (
+          {true && (
             <QueryVisualizationTabs
               queryResult={queryResult}
               visualizations={query.visualizations}
@@ -184,21 +182,21 @@ function QueryView(props) {
                 <Button
                   type="primary"
                   disabled={!queryFlags.canExecute || areParametersDirty}
-                  loading={isQueryExecuting}
+                  loading={isExecuting}
                   onClick={doExecuteQuery}>
-                  {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
+                  {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
                   Refresh Now
                 </Button>
               }
             />
           )}
-          {queryResultData.status === "done" && (
+          {queryResult && !queryResult.getError() && (
             <div className="query-results-footer d-flex align-items-center">
               <span className="m-r-5">
                 <QueryControlDropdown
                   query={query}
                   queryResult={queryResult}
-                  queryExecuting={isQueryExecuting}
+                  queryExecuting={isExecuting}
                   showEmbedDialog={openEmbedDialog}
                   embed={false}
                   apiKey={query.api_key}
@@ -209,10 +207,10 @@ function QueryView(props) {
               <QueryViewButton
                 className="icon-button m-r-5 hidden-xs"
                 title="Toggle Fullscreen"
-                type={fullscreen ? "primary" : "default"}
+                type="default"
                 shortcut="alt+f"
                 onClick={toggleFullscreen}>
-                <i className="zmdi zmdi-fullscreen" />
+                <Icon type={fullscreen ? "fullscreen-exit" : "fullscreen"} />
               </QueryViewButton>
               {queryFlags.canEdit && (
                 <EditVisualizationButton
@@ -224,14 +222,14 @@ function QueryView(props) {
                 <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
               </span>
               <span className="m-l-10">
-                <strong>{durationHumanize(queryResult.getRuntime())}</strong>
+                <strong>{durationHumanize(queryResultData.runtime)}</strong>
                 <span className="hidden-xs"> runtime</span>
               </span>
               <span className="flex-fill" />
               <span className="m-r-10 hidden-xs">
                 Refreshed{" "}
                 <strong>
-                  <TimeAgo date={queryResult.query_result.retrieved_at} />
+                  <TimeAgo date={queryResultData.retrievedAt} />
                 </strong>
               </span>
             </div>

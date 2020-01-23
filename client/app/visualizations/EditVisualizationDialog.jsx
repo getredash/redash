@@ -12,8 +12,7 @@ import notification from "@/services/notification";
 import Visualization from "@/services/visualization";
 import recordEvent from "@/services/recordEvent";
 
-// ANGULAR_REMOVE_ME Remove when all visualizations will be migrated to React
-import useQueryResult from "@/lib/hooks/useQueryResult";
+import getQueryResultData from "@/lib/getQueryResultData";
 
 import { VisualizationType, registeredVisualizations, getDefaultVisualization, newVisualization } from "./index";
 
@@ -68,7 +67,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
 
   const isNew = !visualization;
 
-  const data = useQueryResult(queryResult);
+  const data = getQueryResultData(queryResult);
   const [filters, setFilters] = useState(data.filters);
 
   const filteredData = useMemo(

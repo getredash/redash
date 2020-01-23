@@ -29,6 +29,7 @@ import useQuery from "./hooks/useQuery";
 import useVisualizationTabHandler from "./hooks/useVisualizationTabHandler";
 import useAutocompleteFlags from "./hooks/useAutocompleteFlags";
 import useQueryExecute from "./hooks/useQueryExecute";
+import getQueryResultData from "@/lib/getQueryResultData";
 import useQueryDataSources from "./hooks/useQueryDataSources";
 import useDataSourceSchema from "./hooks/useDataSourceSchema";
 import useQueryFlags from "./hooks/useQueryFlags";
@@ -66,13 +67,16 @@ function QuerySource(props) {
 
   const {
     queryResult,
-    queryResultData,
-    isQueryExecuting,
-    isExecutionCancelling,
+    isExecuting: isQueryExecuting,
+    executionStatus,
     executeQuery,
-    executeAdhocQuery,
-    cancelExecution,
+    error: executionError,
+    cancelCallback: cancelExecution,
+    isCancelling: isExecutionCancelling,
+    updatedAt,
   } = useQueryExecute(query);
+
+  const queryResultData = getQueryResultData(queryResult);
 
   const editorRef = useRef(null);
   const [autocompleteAvailable, autocompleteEnabled, toggleAutocomplete] = useAutocompleteFlags(schema);
@@ -82,6 +86,7 @@ function QuerySource(props) {
   }, 100);
 
   useEffect(() => {
+    // TODO: ignore new pages?
     recordEvent("view_source", "query", query.id);
   }, [query.id]);
 
@@ -154,20 +159,14 @@ function QuerySource(props) {
         return;
       }
       if (isDirty || !isEmpty(selectedText)) {
-        executeAdhocQuery(selectedText);
+        executeQuery(null, () => {
+          return query.getQueryResultByText(0, selectedText);
+        });
       } else {
         executeQuery();
       }
     },
-    [
-      queryFlags.canExecute,
-      areParametersDirty,
-      isQueryExecuting,
-      isDirty,
-      selectedText,
-      executeAdhocQuery,
-      executeQuery,
-    ]
+    [query, queryFlags.canExecute, areParametersDirty, isQueryExecuting, isDirty, selectedText, executeQuery]
   );
 
   const [isQuerySaving, setIsQuerySaving] = useState(false);
@@ -347,46 +346,44 @@ function QuerySource(props) {
                     />
                   </div>
                 )}
-                {queryResult && queryResultData.status !== "done" && (
+                {(executionError || isQueryExecuting) && (
                   <div className="query-alerts">
                     <QueryExecutionStatus
-                      status={queryResultData.status}
-                      updatedAt={queryResultData.updatedAt}
-                      error={queryResultData.error}
+                      status={executionStatus}
+                      updatedAt={updatedAt}
+                      error={executionError}
                       isCancelling={isExecutionCancelling}
                       onCancel={cancelExecution}
                     />
                   </div>
                 )}
 
-                {queryResultData.status === "done" && (
-                  <React.Fragment>
-                    {queryResultData.log.length > 0 && (
-                      <div className="query-results-log">
-                        <p>Log Information:</p>
-                        {map(queryResultData.log, (line, index) => (
-                          <p key={`log-line-${index}`} className="query-log-line">
-                            {line}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                    <QueryVisualizationTabs
-                      queryResult={queryResult}
-                      visualizations={query.visualizations}
-                      showNewVisualizationButton={queryFlags.canEdit}
-                      canDeleteVisualizations={queryFlags.canEdit}
-                      selectedTab={selectedVisualization}
-                      onChangeTab={setSelectedVisualization}
-                      onAddVisualization={addVisualization}
-                      onDeleteVisualization={deleteVisualization}
-                    />
-                  </React.Fragment>
-                )}
+                <React.Fragment>
+                  {queryResultData.log.length > 0 && (
+                    <div className="query-results-log">
+                      <p>Log Information:</p>
+                      {map(queryResultData.log, (line, index) => (
+                        <p key={`log-line-${index}`} className="query-log-line">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  <QueryVisualizationTabs
+                    queryResult={queryResult}
+                    visualizations={query.visualizations}
+                    showNewVisualizationButton={queryFlags.canEdit}
+                    canDeleteVisualizations={queryFlags.canEdit}
+                    selectedTab={selectedVisualization}
+                    onChangeTab={setSelectedVisualization}
+                    onAddVisualization={addVisualization}
+                    onDeleteVisualization={deleteVisualization}
+                  />
+                </React.Fragment>
               </section>
             </div>
           </div>
-          {queryResultData.status === "done" && (
+          {queryResult && !queryResult.getError() && (
             <div className="bottom-controller-container">
               <div className="bottom-controller">
                 {!queryFlags.isNew && queryFlags.canEdit && (

@@ -1,7 +1,7 @@
 import { isEqual, map, find } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
-import useQueryResult from "@/lib/hooks/useQueryResult";
+import getQueryResultData from "@/lib/getQueryResultData";
 import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
 import { registeredVisualizations, VisualizationType } from "./index";
@@ -25,7 +25,7 @@ function combineFilters(localFilters, globalFilters) {
 }
 
 export default function VisualizationRenderer(props) {
-  const data = useQueryResult(props.queryResult);
+  const data = getQueryResultData(props.queryResult);
   const [filters, setFilters] = useState(data.filters);
   const lastOptions = useRef();
   const errorHandlerRef = useRef();

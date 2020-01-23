@@ -1,79 +1,90 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
-import { noop, includes } from "lodash";
-import useQueryResult from "@/lib/hooks/useQueryResult";
+import { useReducer, useCallback, useEffect } from "react";
 import location from "@/services/location";
 import recordEvent from "@/services/recordEvent";
+import { ExecutionStatus } from "@/services/query-result";
 
 function getMaxAge() {
   const { maxAge } = location.search;
   return maxAge !== undefined ? maxAge : -1;
 }
 
+const reducer = (prevState, updatedProperty) => ({
+  ...prevState,
+  ...updatedProperty,
+});
+
+// This is currently specific to a Query page, we can refactor
+// it slightly to make it suitable for dashboard widgets instead of the other solution it
+// has in there.
 export default function useQueryExecute(query) {
-  // Query result should be initialized only once on component mount
-  const initializeQueryResultRef = useRef(() =>
-    query.hasResult() || query.paramsRequired() ? query.getQueryResult(getMaxAge()) : null
-  );
-  const [queryResult, setQueryResult] = useState(initializeQueryResultRef.current());
-  initializeQueryResultRef.current = noop;
+  const [executionState, setExecutionState] = useReducer(reducer, {
+    queryResult: null,
+    isExecuting: false,
+    executionStatus: null,
+    isCancelling: false,
+    cancelCallback: null,
+    error: null,
+  });
 
-  const queryResultData = useQueryResult(queryResult);
-  const isQueryExecuting = useMemo(() => !!queryResult && !includes(["done", "failed"], queryResultData.status), [
-    queryResult,
-    queryResultData.status,
-  ]);
+  const executeQuery = useCallback(
+    (maxAge = 0, queryExecutor) => {
+      let newQueryResult;
+      if (queryExecutor) {
+        newQueryResult = queryExecutor();
+      } else {
+        newQueryResult = query.getQueryResult(maxAge);
+      }
 
-  const [isExecutionCancelling, setIsExecutionCancelling] = useState(false);
+      setExecutionState({
+        updatedAt: newQueryResult.getUpdatedAt(),
+        isExecuting: true,
+        cancelCallback: () => {
+          recordEvent("cancel_execute", "query", query.id);
+          setExecutionState({ isCancelling: true });
+          newQueryResult.cancelExecution();
+        },
+      });
 
-  const executeQuery = useCallback(() => {
-    recordEvent("execute", "query", query.id);
-    setQueryResult(query.getQueryResult(0));
-  }, [query]);
+      const onStatusChange = status => {
+        setExecutionState({ updatedAt: newQueryResult.getUpdatedAt(), executionStatus: status });
+      };
 
-  const executeAdhocQuery = useCallback(
-    selectedQueryText => {
-      recordEvent("execute", "query", query.id);
-      setQueryResult(query.getQueryResultByText(0, selectedQueryText));
+      newQueryResult
+        .toPromise(onStatusChange)
+        .then(queryResult => {
+          // TODO: this should probably belong in the QueryEditor page.
+          if (queryResult && queryResult.query_result.query === query.query) {
+            query.latest_query_data_id = queryResult.getId();
+            query.queryResult = queryResult;
+          }
+
+          setExecutionState({
+            queryResult,
+            error: null,
+            isExecuting: false,
+            isCancelling: false,
+            executionStatus: null,
+          });
+        })
+        .catch(queryResult => {
+          setExecutionState({
+            queryResult,
+            error: queryResult.getError(),
+            isExecuting: false,
+            isCancelling: false,
+            executionStatus: ExecutionStatus.FAILED,
+          });
+        });
     },
     [query]
   );
 
-  const cancelExecution = useCallback(() => {
-    if (queryResult) {
-      recordEvent("cancel_execute", "query", query.id);
-      queryResult.cancelExecution();
-      setIsExecutionCancelling(true);
-    }
-  }, [query.id, queryResult]);
-
   useEffect(() => {
-    if (!isQueryExecuting) {
-      setIsExecutionCancelling(false);
-      if (queryResult && queryResult.query_result.query === query.query) {
-        query.latest_query_data_id = queryResult.getId();
-        query.queryResult = queryResult;
-      }
+    // TODO: this belongs on the query page?
+    if (query.hasResult() || query.paramsRequired()) {
+      executeQuery(getMaxAge());
     }
-  }, [isQueryExecuting]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [query, executeQuery]);
 
-  return useMemo(
-    () => ({
-      queryResult,
-      queryResultData,
-      isQueryExecuting,
-      isExecutionCancelling,
-      executeQuery,
-      executeAdhocQuery,
-      cancelExecution,
-    }),
-    [
-      queryResult,
-      queryResultData,
-      isQueryExecuting,
-      isExecutionCancelling,
-      executeQuery,
-      executeAdhocQuery,
-      cancelExecution,
-    ]
-  );
+  return { ...executionState, ...{ executeQuery } };
 }
