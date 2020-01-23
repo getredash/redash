@@ -9,7 +9,7 @@ function orderedInputs(properties, order, targetOptions) {
       name: key,
       title: properties[key].title,
       type: properties[key].type,
-      placeholder: properties[key].default && properties[key].default.toString(),
+      placeholder: (properties[key].default === false || properties[key].default) && properties[key].default.toString(),
       required: properties[key].required,
       extra: properties[key].extra,
       initialValue: targetOptions[key],
